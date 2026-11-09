@@ -4471,7 +4471,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=487;
+const APP_VERSION=488;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -39940,6 +39940,9 @@ function paveSup(el){
   /* la touche de l'inconnue s'écrit comme l'inconnue : <i>x</i>, l'italique
      arrondi — un x droit à côté de la touche × se lirait comme elle */
   const h=l.map(function(t){
+    /* la touche « ^ » se dessine comme celle du clavier à l'écran : une case
+       et son exposant (le dessin de KB_EXP), « exposant » pour qui ne voit pas */
+    if(t==='^') return '<button type="button" class="pave-t pave-plus" data-t="^" aria-label="exposant">□<sup>□</sup></button>';
     return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t.replace(/^x/,'<i>x</i>')+'</button>'; }).join('');
   if(s.innerHTML!==h) s.innerHTML=h;
   const p=document.getElementById('paveNum');
@@ -39974,6 +39977,30 @@ function caseCalculEcrire(el){
   try{ el.setSelectionRange(avant.length, avant.length); }catch(e){}
 }
 document.addEventListener('input', function(e){ if(!e.isComposing) caseCalculEcrire(e.target); }, true);
+/* L'EXPOSANT TAPÉ AU CLAVIER S'ÉCRIT EN EXPOSANT (demande de Turquet,
+   novembre 2026, au 5.1 : « mettre x^2 avec la touche ^ du clavier ou avec
+   ** »). Dans une case dont le pavé offre la touche « ^ » (data-pave-plus),
+   « ^2 », « **2 », « ^(2) », « ^{2} » deviennent « ² » — le chiffre tapé
+   juste après le signe monte : « x^2 » s'écrit « x² », l'écriture que la
+   touche x² pose déjà et que les juges lisent (redLit, litLit). Un « ^ » ou
+   un « ** » seul reste tel quel en attendant son chiffre. Même porte que
+   caseCalculEcrire : en capture, sur le document, avant les gestionnaires de
+   la case. */
+const CASE_EXPOSANTS={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function caseExposantsTexte(s){
+  return String(s).replace(/\s*(?:\^|\*\*)\s*(?:\{\s*(\d)\s*\}|\(\s*(\d)\s*\)|(\d))/g, function(m,a,b,c){
+    return CASE_EXPOSANTS[a!=null ? a : (b!=null ? b : c)]; });
+}
+function caseExposants(el){
+  if(!el || el.tagName!=='INPUT' || !el.getAttribute) return;
+  if((el.getAttribute('data-pave-plus')||'').split(' ').indexOf('^')<0) return;
+  const v=String(el.value||''), d=el.selectionStart==null ? v.length : el.selectionStart;
+  const avant=caseExposantsTexte(v.slice(0,d)), w=avant+caseExposantsTexte(v.slice(d));
+  if(w===v) return;
+  el.value=w;
+  try{ el.setSelectionRange(avant.length, avant.length); }catch(e){}
+}
+document.addEventListener('input', function(e){ if(!e.isComposing) caseExposants(e.target); }, true);
 /* L'INDICE TAPÉ AU CLAVIER S'ÉCRIT EN INDICE (demande de Turquet, octobre
    2026, au 6.2.1 : « quand je tape a_n au clavier de mon pc, il ne l'affiche
    pas avec un indice dans la case »). Dans une case de calcul en texte,

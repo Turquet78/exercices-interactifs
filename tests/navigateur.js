@@ -20208,6 +20208,38 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(500);
         verifier('la croix ferme toujours le clavier à l\'écran, même depuis une case en texte',
           !(await s.page.evaluate(() => mathVirtualKeyboard.visible)));
+        /* le 5.1 (Première, novembre 2026 : « mettre x^2 avec la touche ^ ou
+           avec **, et le clavier virtuel avec l'exposant ») : « x^2 » et
+           « x**2 » tapés s'écrivent x² ; le bouton ⌨️ de l'écran ouvre le
+           clavier, dont les touches x, exposant, 2 écrivent x² dans la case */
+        if(await s.page.evaluate(() => typeof startRpd === 'function' && typeof litBoutonClavier === 'function')){
+          if(await s.page.evaluate(() => mathVirtualKeyboard.visible)){
+            await s.page.evaluate(() => { window.__kbFermer = true; try{ mathVirtualKeyboard.hide(); } finally { window.__kbFermer = false; } });
+            await s.page.waitForTimeout(400);
+          }
+          await s.page.evaluate(() => { currentTestId = 'reduire-produit'; startRpd(); test.idx = 1; renderRpdTest(); });
+          await s.page.waitForSelector('#rpd-r-0', { timeout: 8000 }).catch(() => {});
+          await s.page.click('#rpd-r-0').catch(() => {});
+          await s.page.keyboard.type('-3x^2+x**2');
+          const vExp = await s.page.evaluate(() => { const e = document.getElementById('rpd-r-0'); return e ? e.value : null; });
+          verifier('au 5.1, « x^2 » et « x**2 » tapés au clavier s\'écrivent x² dans la case', vExp === '-3x²+x²', 'case « ' + vExp + ' »');
+          await s.page.click('#rpd-r-1').catch(() => {});
+          await s.page.click('#rpdActions .lit-kb').catch(() => {});
+          await s.page.waitForTimeout(700);
+          const touche = pred => s.page.evaluate(p => { const f = new Function('d', 'return ' + p);
+            for(const L of document.querySelectorAll('#kbwin .MLK__layer')) for(const k of L.querySelectorAll('[id]')){
+              const d = mathVirtualKeyboard.getKeycap && mathVirtualKeyboard.getKeycap(k.id);
+              if(d && f(d)){ if(!L.classList.contains('is-visible')) mathVirtualKeyboard.currentLayer = L.id;
+                const r = k.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; } }
+            return null; }, pred);
+          const preds = ["d.latex==='x'", "/moveToSuperscript/.test(JSON.stringify(d.command||''))", "d.latex==='2'", "d.latex==='+'", "d.latex==='x^2'"];
+          const manque = [];
+          for(const p of preds){ const c = await touche(p); if(!c){ manque.push(p); continue; } await s.page.mouse.click(c.x, c.y); await s.page.waitForTimeout(250); }
+          const vKb = await s.page.evaluate(() => ({ vu: mathVirtualKeyboard.visible, v: document.getElementById('rpd-r-1').value, focus: document.activeElement && document.activeElement.id }));
+          verifier('au 5.1, le bouton ⌨️ ouvre le clavier à l\'écran, dont x, exposant, 2 (et la touche x²) écrivent x² dans la case',
+            !manque.length && vKb.vu && vKb.v === 'x²+x²' && vKb.focus === 'rpd-r-1',
+            (manque.length ? 'touches absentes : ' + manque.join(', ') + ' ; ' : '') + 'clavier ' + (vKb.vu ? 'ouvert' : 'fermé') + ', case « ' + vKb.v + ' », focus sur ' + vKb.focus);
+        }
         verifier('le clavier dans une case en texte ne lève aucune erreur JavaScript',
           s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
