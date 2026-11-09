@@ -15750,7 +15750,7 @@ function tracerCoordonnees(w, P){
       +Array.from(el('tvxCorr').querySelectorAll('text.vco-et')).map(function(t){ return t.textContent; }).join(','); };
     if(dec()!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('la décomposition de la copie juste : '+dec());
     const gx=el('tvxCorr').querySelector('line.vco-h');
-    if(!gx || gx.getAttribute('x1')!==String(tvxX(2)) || gx.getAttribute('y1')!==String(tvxY(8))) vus.push('la grise de u ne part pas du départ de l\'élève');
+    if(!gx || gx.getAttribute('x1')!==String(tvxX(2)) || gx.getAttribute('y1')!==String(tvxY(8))) vus.push('la grise de u ne part pas du départ de l\\'élève');
 
     /* 4. les pièges : u échangé, v signe du haut, w absent */
     nextTvx(); clearTimeout(test.fbTimer);
