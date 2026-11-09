@@ -2371,3 +2371,22 @@ fiche reste en Seconde) ; le résultat du 4.8 est donc positif. Le rappel
 ne parle plus de signe « − ». `redFinLu` lit toujours une fraction signée :
 une copie qui finirait sur un nombre négatif reste jugée fausse par sa
 valeur, pas illisible.
+
+**Puis le signe de l'énoncé RÉDIGÉ du 4.1 est tombé sur les traits (novembre
+2026, Première v394).** Signalé par Turquet, copie d'écran à l'appui : dans
+« À toi de rédiger : calcule 3/4 ÷ 1/2 », le « ÷ » se lisait au-dessus des
+traits de fraction, et la consigne collait au point final. La règle qui met
+l'énoncé rédigé en rangée flex centrée (`align-items:center`) listait ses
+écrans par IDENTIFIANT — `#sfrPrompt, #mltrPrompt, …` — et `#rvfrPrompt`, le
+4.1, n'y avait jamais été ajouté : son énoncé restait en texte ordinaire, où
+le signe se pose sur la ligne d'écriture. La liste est devenue une classe,
+`.sfr-prompt`, posée par `sfrAfficher()` elle-même : un moteur rédigé ajouté
+demain la reçoit sans rien déclarer.
+
+Pourquoi aucun banc ne l'a vu : le contrôle universel « un signe posé à côté
+d'une fraction tombe sur son trait » ne lisait que « + », « − » et « = » —
+ni « × » ni « ÷ » —, et la visite ne voit que la PREMIÈRE question de chaque
+exercice, jamais la rédigée, qui vient en second. Les deux trous sont fermés :
+le contrôle universel lit aussi × et ÷, et le parcours de la rédigée
+(section 6 terdecies bis, 4.1 et 4.2) mesure le signe de son énoncé contre
+le trait, à 3 px près.
