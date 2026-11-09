@@ -3411,7 +3411,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=385;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=386;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -29039,6 +29039,7 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
       else { if(o.type==='checkbox'||o.type==='radio'){ if(o.checked) el.setAttribute('checked',''); else el.removeAttribute('checked'); } else el.setAttribute('value', o.value==null?'':String(o.value)); el.setAttribute('readonly',''); }
     });
     clone.querySelectorAll('button,script,style,.ia-row,.rc-jetons,.exo-title,.score-tag').forEach(function(x){ x.remove(); });
+    evalSansDecor(clone);
     [clone].concat([].slice.call(clone.querySelectorAll('[id]'))).forEach(function(x){ x.removeAttribute('id'); });
     clone.querySelectorAll('[aria-live]').forEach(function(x){ x.removeAttribute('aria-live'); });
     clone.classList.remove('screen','on');
@@ -29100,6 +29101,28 @@ function evalFinExercice(){
    d'être posée — balises actives retirées, attributs « on… » et adresses
    « javascript: » effacés. */
 let evalVue=null;
+/* CE QUI EST MESURÉ SUR L'ÉCRAN VIVANT NE SE PHOTOGRAPHIE PAS (novembre 2026,
+   copie du 4.2 relue par Turquet) : deux décors y étaient posés sur des
+   positions mesurées dans la page de l'élève, et la copie, posée ailleurs et
+   à une autre largeur, les montrait de travers —
+     · le CADRE AU MARQUEUR (#cadres-marqueur) : quatre images de fond en
+       style en ligne, taillées pour la carte d'origine ; dans la copie, elles
+       barraient l'énoncé et descendaient à gauche des cases comme des cadres
+       bleus en trop ;
+     · les FLÈCHES mesurées (.crd-fleches, .pdt-fleches, .ddt-fleches…) : leur
+       position:absolute vit sous l'identifiant de leur hôte (#sfHost.crd…),
+       que la photographie retire — la flèche tombait sous la figure.
+   Ni l'un ni l'autre ne dit rien de la réponse : on les retire, à la
+   photographie ET à la relecture (les copies déjà enregistrées les portent). */
+function evalSansDecor(racine){
+  racine.querySelectorAll('svg[class$="-fleches"],svg[class*="-fleches "]').forEach(function(x){ x.remove(); });
+  [racine].concat([].slice.call(racine.querySelectorAll('.marque'))).forEach(function(el){
+    if(!el.classList || !el.classList.contains('marque')) return;
+    el.classList.remove('marque'); el.removeAttribute('data-marque');
+    el.style.backgroundImage=''; el.style.backgroundPosition=''; el.style.backgroundSize='';
+    if(!el.getAttribute('style')) el.removeAttribute('style');
+  });
+}
 function evalNettoyer(html){
   const t=document.createElement('template'); t.innerHTML=String(html||'');
   t.content.querySelectorAll('script,iframe,object,embed,link,meta,style,form,base,frame,frameset,noscript').forEach(function(x){ x.remove(); });
@@ -29110,7 +29133,7 @@ function evalNettoyer(html){
       else if((n==='href'||n==='src'||n==='xlink:href'||n==='action') && /^(javascript|data|vbscript):/.test(v) && !/^data:image\//.test(v)) el.removeAttribute(a.name);
     });
   });
-  const d=document.createElement('div'); d.appendChild(t.content); return d.innerHTML;
+  const d=document.createElement('div'); d.appendChild(t.content); evalSansDecor(d); return d.innerHTML;
 }
 function evalCopieHTML(copie, misses){
   const qs=(Array.isArray(copie)?copie:[]).filter(function(c){ return c && typeof c.h==='string' && c.h; })

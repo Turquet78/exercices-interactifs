@@ -1928,3 +1928,23 @@ rougissant en nommant son défaut : sans le passage automatique (35 images
 peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
 `saveDM`, sans la copie dans l'entonnoir. Banc principal : le sélecteur du
 professeur compte trois familles, et l'ordre des cartes de l'accueil.
+
+**Puis la copie corrigée a perdu ses décors MESURÉS — des cadres bleus en trop
+et des flèches égarées (Première v386, novembre 2026).** Turquet relit la
+copie d'un 4.2 {croiser-denominateurs} : une double barre bleue sur
+l'énoncé, un trait bleu qui descend à gauche des cases, et les deux flèches
+du croisement tombées sous la figure, en bas à droite. Deux décors posés sur
+des positions MESURÉES dans la page de l'élève avaient été photographiés tels
+quels : le cadre au marqueur (#cadres-marqueur) vit en images de fond en
+style en ligne, taillées pour la carte d'origine — la carte de la copie n'a
+plus sa taille ni ses marges, les bandes la barraient ; et les flèches
+(`.crd-fleches`, `.pdt-`, `.atd-`, `.ddt-`, `.syn-`, `.qd-fleches`) tiennent
+leur `position:absolute` d'une règle sous l'identifiant de leur hôte
+(`#sfHost.crd …`), que la photographie retire exprès — la flèche retombait
+dans le flux, sous la figure. `evalSansDecor()` retire l'un et l'autre, à la
+photographie ET à la relecture (dans `evalNettoyer`) : les copies déjà
+enregistrées le portent, et ce sont elles que les élèves lisent. Ni le cadre
+ni la flèche ne disent rien de la réponse. Banc navigateur (section de
+l'évaluation) : « la copie relue ne porte ni cadre au marqueur ni flèche
+mesurée… », sur une copie d'avant le correctif glissée dans la ligne de note,
+et sur la copie fraîchement photographiée.
