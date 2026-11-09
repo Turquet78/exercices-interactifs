@@ -132,8 +132,10 @@ module.exports = {
     clavierLitteral: { touches: ['x', 'x²', '+', '(', ')'],
       exercices: ['reduire-produit', 'developper-distributivite', 'developper-double'] },
     /* … et chaque question guidée suivie de sa rédigée : n questions par
-       séance (deux pages, six, quatre — chacune doublée), un point chacune. */
-    calculLitteralRedige: { theme: 5, exercices: { 'reduire-produit': { num: '5.1', n: 4 },
+       séance (six pages, quatre — chacune doublée), un point chacune. Le 5.1
+       n'a PLUS de rédigée (retirée à la demande de Turquet, novembre 2026) :
+       redige:false, ses deux pages seules, comme en Seconde. */
+    calculLitteralRedige: { theme: 5, exercices: { 'reduire-produit': { num: '5.1', n: 2, redige: false },
       'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8 } } },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
