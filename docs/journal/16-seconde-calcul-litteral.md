@@ -1240,7 +1240,7 @@ l'événement `change`, qui ne regarde pas le verrou. Le défaut touche TOUTES
 les rédigées du module (fractions, 5.2, 5.3) : il reste ouvert, la demande
 ayant été réorientée avant le correctif.
 
-## Première — 5.3 : de petits nombres au départ (novembre 2026, Première v394)
+## Première — 5.3 : de petits nombres au départ (novembre 2026, Première v395)
 
 Demande de Turquet : « en première dans l'exercice 5.3, je veux que les
 coefficients des x au départ soient 1 ou 2 — on n'affichera pas le 1 — et que
