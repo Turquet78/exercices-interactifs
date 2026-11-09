@@ -26014,20 +26014,36 @@ function developperDouble(w, P){
     /* ---- 1. le tirage : les quatre formes de la fiche, A et B jamais égales,
        le terme en x jamais nul ---- */
     const dans=function(v,a,b){ return Number.isInteger(v) && v>=a && v<=b; };
+    /* La Première tire de PETITS nombres (novembre 2026) : a et c valent 1
+       ou 2, b et d sont relatifs de −5 à 5 sauf 0 — rédigées comprises, et
+       le « 1 » ne s'écrit jamais. Le second bord : les deux valeurs et les
+       deux signes sortent bien (un tirage resté à « 2 » ou à « − » passerait
+       les bornes). */
+    const PETITS=!!(CL && CL.exercices['developper-double'].petitsNombres);
+    const vu={a1:0,a2:0,bp:0,bn:0,b5:0};
     for(let i=0;i<400 && !vus.length;i++){
-      const qs=guidees(dvdBuildQuestions());
+      const tout=dvdBuildQuestions(), qs=guidees(tout);
       if(qs.length!==4){ vus.push(qs.length+' pages au lieu de 4'); break; }
       if(qs.map(function(q){ return q.forme; }).join('')!=='ABCD') vus.push('formes '+qs.map(function(q){ return q.forme; }).join(''));
-      qs.forEach(function(q){
+      (PETITS ? tout : qs).forEach(function(q){
+        if(!q.f1) return;
         const a=q.f1[0], b=q.f1[1], c=q.f2[0], d=q.f2[1];
         if(a.d!==1 || b.d!==0 || c.d!==1 || d.d!==0) vus.push(q.forme+' : les degrés ne sont pas (ax + b)(cx + d)');
-        if(q.forme==='C' ? a.c!==1 : !dans(a.c,2,9)) vus.push(q.forme+' : premier terme '+a.c+'x');
-        if(!dans(-b.c,1,9) || !dans(c.c,2,9)) vus.push(q.forme+' : nombres hors bornes');
-        if(q.forme==='D' ? !dans(d.c,1,9) : !dans(-d.c,1,9)) vus.push(q.forme+' : le dernier nombre a le mauvais signe');
+        if(PETITS){
+          [a,c].forEach(function(t){ if(t.c!==1 && t.c!==2) vus.push(q.forme+' : coefficient de x '+t.c+' (1 ou 2 attendu)'); vu['a'+t.c]=1; });
+          [b,d].forEach(function(t){ if(!dans(Math.abs(t.c),1,5)) vus.push(q.forme+' : nombre '+t.c+' hors de −5…5 (sauf 0)'); if(t.c>0) vu.bp=1; else vu.bn=1; if(Math.abs(t.c)===5) vu.b5=1; });
+          const ex=dvdLignes(q).expr;
+          if(/(^|[^0-9])1x/.test(ex)) vus.push('le 1 s\\'écrit : '+ex);
+        } else {
+          if(q.forme==='C' ? a.c!==1 : !dans(a.c,2,9)) vus.push(q.forme+' : premier terme '+a.c+'x');
+          if(!dans(-b.c,1,9) || !dans(c.c,2,9)) vus.push(q.forme+' : nombres hors bornes');
+          if(q.forme==='D' ? !dans(d.c,1,9) : !dans(-d.c,1,9)) vus.push(q.forme+' : le dernier nombre a le mauvais signe');
+        }
         if(a.c*d.c+b.c*c.c===0) vus.push(q.forme+' : le terme en x s\\'annule');
       });
       if(JSON.stringify([qs[0].f1,qs[0].f2])===JSON.stringify([qs[1].f1,qs[1].f2])) vus.push('A et B posent la même expression');
     }
+    if(PETITS && !vus.length && !(vu.a1 && vu.a2 && vu.bp && vu.bn && vu.b5)) vus.push('en 400 séances, le tirage ne couvre pas 1 et 2, les deux signes et ±5 : '+JSON.stringify(vu));
     if(vus.length) return vus.slice(0,4).join(' | ');
 
     /* ---- 2. la correction, par le BOUTON, sur la fiche elle-même --------- */
