@@ -3411,7 +3411,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=387;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=389;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5995,10 +5995,11 @@ function renderEvalDetail(dev){
   const G=GENRE_DEVOIRS.eval, pub=evalPubliee(dev);
   const cours=(dev.cours&&dev.cours.trim())?`<div class="dm-cours">${esc(dev.cours).replace(/\n/g,'<br>')}</div>`:'';
   const parts=[]; let faitQqch=false;
-  const cards=exercicesDevoir(dev).map(ex=>{
+  const cards=exercicesDevoir(dev).map((ex,i)=>{
     const t=TESTS[ex.id], bonus=dmEstBonus(ex), et=evalEtatExo(dev, ex.id), nd=et.nd;
     parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
-    const titre=(bonus?'\u2b50 ':'')+testLabel(ex.id);
+    /* numérotée dans l'ordre réglé par le professeur (le ruban de l'éditeur) */
+    const titre=String(i+1)+'. '+(bonus?'\u2b50 ':'')+testLabel(ex.id);
     let desc=t.desc;
     if(bonus) desc+=' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note de l\u2019évaluation, sans la faire dépasser le maximum.';
     if(ex.nbQ) desc+=' '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
@@ -23636,16 +23637,24 @@ function renderDmEditor(){
      celui du tableau d.exercices — celui-là même que la page de l'élève lit —
      et les flèches le déplacent. Les devoirs, tous ouverts, n'en ont pas. */
   const exOrd=(d.exercices||[]).filter(ex=>TESTS[ex.id]);
-  const ordreStrip = dmGenre!=='fiche' ? '' : `
-    <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices de la fiche</div>
-    <p class="muted" style="font-size:.85rem;margin:0 0 12px">Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.</p>
+  /* ET LES ÉVALUATIONS (demande de Turquet, novembre 2026 : « changer l'ordre
+     des exercices dans une évaluation comme dans les fiches de travail ») :
+     le même ruban règle l'ordre de l'AFFICHAGE — l'élève voit les exercices
+     numérotés dans cet ordre —, mais aucun verrou n'en découle : le verrou
+     est celui des fiches (GENRE_DEVOIRS.fiche.ordre), pas celui-ci. */
+  const evalOrdre = (dmGenre==='eval');
+  const ordreStrip = (dmGenre!=='fiche' && !evalOrdre) ? '' : `
+    <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices ${evalOrdre?'de l\u2019évaluation':'de la fiche'}</div>
+    <p class="muted" style="font-size:.85rem;margin:0 0 12px">${evalOrdre
+      ? 'Les élèves verront les exercices de l\u2019évaluation dans cet ordre, numérotés. Déplace un exercice avec ▲ et ▼.'
+      : 'Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.'}</p>
     <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo pick">
       <span class="dm-exo-num">${i+1}</span>
       <span class="dm-exo-name">${esc(testLabel(ex.id))}</span>
       <span style="margin-left:auto;display:flex;gap:6px">
         <button type="button" class="dm-fleche" ${i===0?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',-1)" title="Monter">▲</button>
         <button type="button" class="dm-fleche" ${i===exOrd.length-1?'disabled':''} onclick="dmOrdreBouge('${escJS(ex.id)}',1)" title="Descendre">▼</button>
-      </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">Coche d\u2019abord un mode sur les exercices de la fiche : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`;
+      </span></div>`).join('') : '<p class="muted" style="font-size:.85rem">'+(evalOrdre?'Coche d\u2019abord « Choisir » sur les exercices de l\u2019évaluation':'Coche d\u2019abord un mode sur les exercices de la fiche')+' : ils apparaîtront ici, dans l\u2019ordre où tu les choisis.</p>'}</div>`;
   /* LA PUBLICATION D'UNE ÉVALUATION : « à la fin l'élève peut voir la note et
      la correction quand je l'aurai décidé » (Turquet, novembre 2026). Un
      interrupteur à lui, distinct de l'affichage : une évaluation affichée se
