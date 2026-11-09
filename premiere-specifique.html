@@ -3602,7 +3602,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=395;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=396;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8443,7 +8443,7 @@ async function finishParcours(){
      ③ un entier plus une fraction à un chiffre (2 + 4/100) ;
      ④ un entier plus une fraction à plusieurs chiffres (105 + 516/1000) ;
      ⑤ un entier plus des dixièmes, des centièmes (et des millièmes), DANS L'ORDRE ;
-     ⑥ les mêmes DANS LE DÉSORDRE, un dénominateur parfois répété (9/100 + 9/100) ;
+     ⑥ les mêmes DANS LE DÉSORDRE, chaque dénominateur une seule fois ;
      ⑦ A = 3 + 0,2 + 4/100 : décimaux et fractions mêlés — le premier demande
         aussi la fraction décimale, les suivants piègent le zéro (10 + 0,1 + 1/1000).
    Le niveau d'une question se lit sur sa PLACE dans la séance (sdNiveau) :
@@ -8485,11 +8485,10 @@ function genSdec(niv,premier){
   else if(niv===5){ q.e=rand(11,49); q.t=[{n:un(),d:10},{n:un(),d:100}]; if(Math.random()<0.5) q.t.push({n:un(),d:1000}); }
   else if(niv===6){
     q.e=rand(100,399);
-    /* soit les trois rangs dans le désordre, soit un dénominateur RÉPÉTÉ
-       (315 + 9/100 + 5/10 + 9/100) : deux centièmes qui s'additionnent */
-    const base=Math.random()<0.5
-      ? [{n:un(),d:10},{n:un(),d:100},{n:un(),d:1000}]
-      : (()=>{ const r=pick([100,1000]); return [{n:un(),d:10},{n:un(),d:r},{n:un(),d:r},{n:un(),d:r===100?1000:100}].slice(0,pick([3,4])); })();
+    /* les trois rangs dans le désordre, chacun UNE fois : jamais deux
+       fractions de même dénominateur dans une somme (demande de Turquet,
+       novembre 2026) — seul l'ordre des termes change. */
+    const base=[{n:un(),d:10},{n:un(),d:100},{n:un(),d:1000}];
     let m, essais=0;
     do{ m=sdMelange(base); }while(++essais<30 && m.every((t,i)=>i===0||m[i-1].d<=t.d));
     q.t=m;
