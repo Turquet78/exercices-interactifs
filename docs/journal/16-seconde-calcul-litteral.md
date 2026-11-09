@@ -1198,7 +1198,21 @@ rédigée ouverte dessous, rédigée juste (un point), 10 / 10 à la fin. Ce que
 ce banc ne voit pas : le x en italique arrondi des cases (la police
 « ApfX » vient du CDN, que les bancs coupent).
 
-## Première — 5.3 : de petits nombres au départ (novembre 2026, Première v392)
+**Puis le 5.3 de la Première a pris QUATRE COULEURS de flèches (v392).**
+Demande de Turquet, novembre 2026 : « en première dans l'exercice 5.3 il
+faudrait mettre 4 couleurs différentes pour les 4 flèches ». Les huit flèches
+du schéma (`dvlTrace`) partaient en un seul `<path>` bleu nuit ; sur un
+`.dvd-schema` à huit flèches, chacune va maintenant dans le chemin de SON
+produit (`dvl-fl0` à `dvl-fl3`) : la flèche de l'expression et celle de la
+rangée des produits partagent la couleur, pour qu'on lise quelle flèche donne
+quel produit. Orange, violet, turquoise, rose — aucune des encres des bulles
+(rouge, bleu, vert, noir), aucune des encres de la vérification. Le trait
+passe à 2 px pour que la couleur se lise. L'ordre des flèches dans `data-fl`
+est celui des produits (rouge→bleu, rouge→vert, noir→bleu, noir→vert), deux
+fois : la flèche j prend la couleur j modulo 4. Le 5.2 (une seule
+distributivité) et la Seconde ne changent pas. Vu dans Chromium : l'exemple et
+la question, quatre chemins colorés de deux flèches chacun.
+## Première — 5.3 : de petits nombres au départ (novembre 2026, Première v393)
 
 Demande de Turquet : « en première dans l'exercice 5.3, je veux que les
 coefficients des x au départ soient 1 ou 2 — on n'affichera pas le 1 — et que
