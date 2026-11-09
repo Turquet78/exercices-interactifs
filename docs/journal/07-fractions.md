@@ -2127,7 +2127,7 @@ tirage, ni au juge (`parseDecToFrac`, comparaison croisée exacte). Le
 désordre du niveau 6 est vérifié : un mélange qui retombe dans l'ordre
 croissant des dénominateurs est retiré.
 
-**Jamais deux fractions de même dénominateur dans une somme (Première v396).**
+**Jamais deux fractions de même dénominateur dans une somme (Première v398).**
 Demande de Turquet, novembre 2026 : « je ne veux pas deux fois de fractions
 décimales avec le même dénominateur dans une somme ; on peut changer l'ordre
 des termes en revanche ». Le niveau 6 tirait une fois sur deux un dénominateur

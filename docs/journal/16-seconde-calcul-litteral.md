@@ -1263,3 +1263,51 @@ bornes de chaque question (rédigées comprises), qu'aucune expression n'écrit
 « 1x », et le second bord : 1 et 2, les deux signes et ±5 sortent tous — un
 tirage resté à « 2 » ou à « − » passerait les bornes sans rien tirer de
 neuf. La Seconde garde son contrôle d'origine.
+
+## Première — l'exposant au clavier, au pavé et au clavier à l'écran (novembre 2026, Première v397)
+
+Demande de Turquet : « en première dans le 5.1 je souhaite que l'on puisse
+mettre x^2 avec la touche "^" du clavier ou avec "**" et que l'on puisse
+utiliser le clavier virtuel avec l'exposant ». Le juge (`redLit`) lisait déjà
+`x^2` et `x**2` ; mais la case les montrait tels quels — « 5x**2 » se lit
+comme du code —, le pavé des tablettes n'avait que la touche x², et sur
+ordinateur le 5.1 n'offrait AUCUN chemin vers le clavier à l'écran : il n'a
+pas de champ MathLive, et le clavier ne s'ouvre en Première que par le menu
+d'un champ MathLive.
+
+Trois gestes, pour les trois exercices du thème (5.1 à 5.3), qui partagent
+leurs cases :
+
+* **Le chiffre tapé après « ^ » ou « ** » monte en exposant**
+  (`caseExposants`, moteur du pavé, en capture sur le document comme
+  `caseCalculEcrire`) : « x^2 », « x**2 », « x ^ 2 », « x^(2) », « x^{2} »
+  s'écrivent « x² » sous les doigts, le curseur juste après. Un seul chiffre
+  monte (« x^27 » donne « x²7 ») : le thème n'a que des carrés. La porte est
+  la touche « ^ » offerte par la case (`data-pave-plus`) : le moteur est
+  recopié tel quel en Seconde et en Terminale (le banc l'exige au caractère
+  près), où aucune case n'offre « ^ » — il y est inerte.
+* **Le pavé des tablettes gagne la touche exposant** : `LIT_TOUCHES` devient
+  x, x², ^, +, (, ) ; la touche se dessine □ avec son petit □ en exposant
+  (`paveSup`), « exposant » pour le lecteur d'écran. Elle écrit « ^ », le
+  chiffre suivant monte.
+* **Sur ordinateur, un bouton ⌨️ Clavier** à côté de « Vérifier »
+  (`litBoutonClavier`, seulement quand la fenêtre flottante existe : sur
+  tablette, le pavé sert ces cases). Il ouvre le clavier à l'écran
+  (`mlDexp.clavier`) sur la case qui a le focus, ou la première vide ; le
+  clavier porte pour ces trois exercices une rangée de plus en tête, x, x² et
+  la touche exposant de la Terminale (`kbVarsFor` → `KB_EXP`) — rangée
+  ajoutée à chaque forme du clavier A, qui servent aussi les champs MathLive
+  des rédigées du 5.2 et du 5.3. Les touches s'écrivent dans la case en texte
+  par `clavierVersCase` : l'exposant y pose « ^ », puis le 2 monte.
+
+Contrôles : « calcul littéral : le clavier des tablettes porte x, x², + et les
+parenthèses, et l'exposant monte » (banc principal : ^ puis 2, *, * puis 2,
+^ ( 2 ) — chacun doit donner x²), et au banc navigateur, section 11 duodecies,
+« au 5.1, « x^2 » et « x**2 » tapés au clavier s'écrivent x² » et « au 5.1,
+le bouton ⌨️ ouvre le clavier à l'écran, dont x, exposant, 2 (et la touche x²)
+écrivent x² dans la case ». Vu dans Chromium : la case montre « −3x²+x² »
+après « -3x^2+x**2 », et les quinze réponses écrites par « x^2 » sont jugées
+justes.
+
+Un défaut vu en passant et laissé tel quel : la fenêtre flottante du clavier
+rogne de quelques pixels sa dernière rangée — déjà le cas à quatre rangées.

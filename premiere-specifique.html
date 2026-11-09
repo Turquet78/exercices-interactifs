@@ -3281,7 +3281,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="rpdLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr" id="rpdPrompt">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b><i>x</i></b> ou par <b><i>x</i>&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou appuie sur le bouton <b>x&sup2;</b>.</p>
+      <p class="mp-instr" id="rpdPrompt">R&eacute;duis chaque produit. D&rsquo;abord case par case &mdash; le <b>signe</b>, le <b>coefficient</b>, puis si &ccedil;a se termine par <b><i>x</i></b> ou par <b><i>x</i>&sup2;</b> &mdash;, puis directement le r&eacute;sultat r&eacute;duit. Pour &eacute;crire <i>x</i>&sup2;, tape <b>x^2</b> ou <b>x**2</b> &mdash; le 2 monte en exposant &mdash;, ou appuie sur le bouton <b><i>x</i>&sup2;</b>.</p>
       <div class="mp-stage"><div style="width:100%" id="rpdHost"></div></div>
       <div class="mp-feedback" id="rpdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -3602,7 +3602,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=396;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=398;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8646,6 +8646,11 @@ const VAP_TITRES={
   2:'Calcule.',
   3:'Donne un <b>ordre de grandeur</b> (c’est-à-dire un résultat très proche !).'
 };
+/* Demande de Turquet, novembre 2026 : dans les parties 2 et 3, chaque case
+   attend un nombre écrit avec un seul chiffre 1 et des 0 — l'énoncé le dit,
+   et dit qu'une fraction (1/100 pour 0,01) est acceptée dans une case. La
+   partie 1 n'en dit rien : ses réponses sont des entiers quelconques (8, 200). */
+const VAP_AIDE_P10='<br><span style="font-size:.92em">Chaque case contient un nombre écrit avec un seul chiffre <b>1</b> et des <b>0</b>, comme 100 ; 10 ; 0,1. Tu peux écrire un nombre décimal en fraction : 1/100 pour 0,01.</span>';
 function vapGabarit(i,n){ return Math.min(VAP_NB-1, Math.floor(i*VAP_NB/Math.max(1,n))); }
 /* le gabarit n'est PAS rangé dans la question : les lignes 1 et 3 de la fiche
    (8,001) ont la même forme, et distinctes() doit comparer les nombres seuls */
@@ -8710,7 +8715,7 @@ function renderVap(){
   $('vapLiveScore').textContent=test.score;
   $('vapFeedback').textContent=''; $('vapFeedback').className='mp-feedback';
   $('vapActions').innerHTML='<button class="btn btn-primary" onclick="checkVapAnswer()">Vérifier</button>';
-  $('vapPrompt').innerHTML=VAP_TITRES[q.p];
+  $('vapPrompt').innerHTML=VAP_TITRES[q.p]+(q.p>1?VAP_AIDE_P10:'');
   const R=vapCase('vapR','f-dec','résultat'), x='<span class="f-times">×</span>';
   let ligne;
   if(q.p===1) ligne=vapHTML(q)+vapApprox(R);
@@ -8725,7 +8730,20 @@ function renderVap(){
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
 const vapVal=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
-function vapVaut(s,N){ const fr=parseDecToFrac(s); return !!fr && fr.n*VAP_D===N*fr.d; }
+/* une case lit un décimal (0,01) OU une fraction (1/100, \\frac{1}{100} de
+   MathLive, numérateur et dénominateur décimaux) : rend {n,d}, ou null */
+function vapLit(s){
+  const t=String(s==null?'':s).replace(/\s+/g,'').replace(/\{,\}/g,',').replace(/\\[dt]frac/g,'\\frac').replace(/\\left\(|\\right\)/g,'');
+  const m=t.match(/^\\frac\{([^{}]+)\}\{([^{}]+)\}$/) || t.match(/^\\frac(\d)(\d)$/) || t.match(/^\\frac(\d)\{([^{}]+)\}$/)
+    || t.match(/^\(?([\d.,]+)\)?\/\(?([\d.,]+)\)?$/);
+  if(!m) return parseDecToFrac(t);
+  const a=parseDecToFrac(m[1]), b=parseDecToFrac(m[2]);
+  if(!a||!b||b.n===0) return null;
+  return {n:a.n*b.d, d:a.d*b.n};
+}
+function vapVaut(s,N){ const fr=vapLit(s); return !!fr && fr.n*VAP_D===N*fr.d; }
+function vapLive(id,N){ const el=$(id); if(!el||el.disabled) return; const v=vapVal(id);
+  el.classList.remove('ok','bad'); if(v!=='') el.classList.add(vapVaut(v,N)?'ok':'bad'); }
 /* la correction écrite, ligne de la fiche complétée */
 function vapCorrection(q){
   const A=vapAttendus(q), r=vapStr(A.r);
@@ -8746,11 +8764,11 @@ function checkVapAnswer(live){
   const q=test.questions[test.idx], A=vapAttendus(q), soutien=isSoutien();
   const fr=!!(q.p===2 && !q.a), fac=q.p===3;
   let cx=A.fx, cy=A.fy;
-  if(fac){ const c=facteursCommutesDec('vapX','vapY',A.fx,A.fy,VAP_D); cx=c[0]; cy=c[1]; }
+  if(fac){ const c=facteursCommutes(vapVal('vapX'),vapVal('vapY'),A.fx,A.fy,vapVaut); cx=c[0]; cy=c[1]; }
   if(live){
-    liveColorDec('vapR',A.r,VAP_D);
+    vapLive('vapR',A.r);
     if(fr) fracDecLive('vapN','vapDn',A.fn,A.fd,true);
-    if(fac){ liveColorDec('vapX',cx,VAP_D); liveColorDec('vapY',cy,VAP_D); }
+    if(fac){ vapLive('vapX',cx); vapLive('vapY',cy); }
     return;
   }
   const okR=vapVaut(vapVal('vapR'),A.r); marqueSaufVide('vapR',okR,soutien);
@@ -18252,8 +18270,33 @@ function redCarre(id){
    deux cases du même thème n'auront jamais deux claviers. Sur ordinateur,
    rien ne change : inputmode n'a d'effet que sur un écran tactile, et le
    clavier physique écrit toujours x^2 ou x**2. */
-const LIT_TOUCHES=['x','x²','+','(',')'];
+/* PUIS L'EXPOSANT (demande de Turquet, novembre 2026, au 5.1 : « que l'on
+   puisse mettre x^2 avec la touche ^ du clavier ou avec ** et que l'on
+   puisse utiliser le clavier virtuel avec l'exposant »). La touche « ^ » du
+   pavé écrit « ^ », comme celle du clavier physique ; le chiffre qui suit
+   monte en exposant (caseExposants, moteur du pavé) : « x^2 », « x**2 » et
+   « x ^ 2 » s'écrivent « x² » sous les doigts de l'élève. Sur ordinateur, le
+   bouton ⌨️ de l'écran (litBoutonClavier) ouvre le clavier à l'écran, qui
+   porte x, x² et l'exposant sur ces trois exercices (kbVarsFor). */
+const LIT_TOUCHES=['x','x²','^','+','(',')'];
 function litPave(){ return ' inputmode="numeric" data-pave-plus="'+LIT_TOUCHES.join(' ')+'"'; }
+const LIT_IDS=['reduire-produit','developper-distributivite','developper-double'];
+function litBoutonClavier(){
+  if(!window.__kbFloating) return '';   /* tablette, téléphone : le pavé sert déjà ces cases */
+  return '<button class="btn btn-ghost lit-kb" type="button" onmousedown="event.preventDefault()" onclick="litClavier()" aria-label="ouvrir le clavier à l’écran">⌨️ Clavier</button>';
+}
+/* le clavier s'ouvre sur une case en TEXTE : celle qui a le focus, sinon la
+   première case vide de l'écran — ses touches s'y écrivent (clavierVersCase) */
+function litClavier(){
+  const scr=document.querySelector('section.screen.on'); if(!scr) return;
+  const ae=document.activeElement;
+  if(!(ae && ae.tagName==='INPUT' && scr.contains(ae))){
+    const ins=[].slice.call(scr.querySelectorAll('input[type="text"][data-pave-plus]')).filter(function(e){ return !e.disabled && !e.readOnly; });
+    const c=ins.filter(function(e){ return !String(e.value).trim(); })[0] || ins[0];
+    if(c){ try{ c.focus(); }catch(e){} }
+  }
+  try{ if(window.mlDexp && mlDexp.clavier) mlDexp.clavier(); }catch(e){}
+}
 
 /* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================
    (identifiant « reduire-produit », kind « rpd », thème 7.8 — Calcul littéral)
@@ -18375,7 +18418,7 @@ function renderRpdTest(){
   $('modeTagRpd').innerHTML=modeTagHTML();
   $('rpdLiveScore').textContent=test.score;
   $('rpdFeedback').textContent=''; $('rpdFeedback').className='mp-feedback';
-  $('rpdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">Vérifier</button>';
+  $('rpdActions').innerHTML=sfBoutonsAide()+litBoutonClavier()+'<button class="btn btn-primary" type="button" onclick="checkRpdAnswer()">Vérifier</button>';
   const vide='<option value="" selected disabled>?</option>';
   const signes='<option value="+">+</option><option value="-">−</option>';
   const degres='<option value="x">x</option><option value="x2">x²</option>';
@@ -18882,7 +18925,7 @@ function renderDvlTest(){
   $(nu?'modeTagDvo':'modeTagDvl').innerHTML=modeTagHTML();
   $(P+'LiveScore').textContent=test.score;
   $(P+'Feedback').textContent=''; $(P+'Feedback').className='mp-feedback';
-  $(P+'Actions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkDvlAnswer()">Vérifier</button>';
+  $(P+'Actions').innerHTML=sfBoutonsAide()+litBoutonClavier()+'<button class="btn btn-primary" type="button" onclick="checkDvlAnswer()">Vérifier</button>';
   const L=dvlLignes(q);
   const carre=L.prods.some(function(p){ return p.res.d===2; });
   let h=(test.idx===0 ? dvlExempleHTML() : '')
@@ -19218,7 +19261,7 @@ function renderDvdTest(){
   $(nu?'modeTagDvn':'modeTagDvd').innerHTML=modeTagHTML();
   $(P+'LiveScore').textContent=test.score;
   $(P+'Feedback').textContent=''; $(P+'Feedback').className='mp-feedback';
-  $(P+'Actions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkDvdAnswer()">Vérifier</button>';
+  $(P+'Actions').innerHTML=sfBoutonsAide()+litBoutonClavier()+'<button class="btn btn-primary" type="button" onclick="checkDvdAnswer()">Vérifier</button>';
   const L=dvdLignes(q);
   const consigne=nu
     ? '<p class="dvl-consigne">Développe <b>'+L.nom+'</b> : chaque terme de la première parenthèse multiplie chaque terme de la seconde. Écris les quatre produits — chaque terme de la première parenthèse par le premier, puis par le second terme de la seconde —, dans l’ordre que tu veux. '
@@ -27110,6 +27153,9 @@ function paveSup(el){
   /* la touche de l'inconnue s'écrit comme l'inconnue : <i>x</i>, l'italique
      arrondi — un x droit à côté de la touche × se lirait comme elle */
   const h=l.map(function(t){
+    /* la touche « ^ » se dessine comme celle du clavier à l'écran : une case
+       et son exposant (le dessin de KB_EXP), « exposant » pour qui ne voit pas */
+    if(t==='^') return '<button type="button" class="pave-t pave-plus" data-t="^" aria-label="exposant">□<sup>□</sup></button>';
     return '<button type="button" class="pave-t pave-plus" data-t="'+t+'">'+t.replace(/^x/,'<i>x</i>')+'</button>'; }).join('');
   if(s.innerHTML!==h) s.innerHTML=h;
   const p=document.getElementById('paveNum');
@@ -27144,6 +27190,30 @@ function caseCalculEcrire(el){
   try{ el.setSelectionRange(avant.length, avant.length); }catch(e){}
 }
 document.addEventListener('input', function(e){ if(!e.isComposing) caseCalculEcrire(e.target); }, true);
+/* L'EXPOSANT TAPÉ AU CLAVIER S'ÉCRIT EN EXPOSANT (demande de Turquet,
+   novembre 2026, au 5.1 : « mettre x^2 avec la touche ^ du clavier ou avec
+   ** »). Dans une case dont le pavé offre la touche « ^ » (data-pave-plus),
+   « ^2 », « **2 », « ^(2) », « ^{2} » deviennent « ² » — le chiffre tapé
+   juste après le signe monte : « x^2 » s'écrit « x² », l'écriture que la
+   touche x² pose déjà et que les juges lisent (redLit, litLit). Un « ^ » ou
+   un « ** » seul reste tel quel en attendant son chiffre. Même porte que
+   caseCalculEcrire : en capture, sur le document, avant les gestionnaires de
+   la case. */
+const CASE_EXPOSANTS={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+function caseExposantsTexte(s){
+  return String(s).replace(/\s*(?:\^|\*\*)\s*(?:\{\s*(\d)\s*\}|\(\s*(\d)\s*\)|(\d))/g, function(m,a,b,c){
+    return CASE_EXPOSANTS[a!=null ? a : (b!=null ? b : c)]; });
+}
+function caseExposants(el){
+  if(!el || el.tagName!=='INPUT' || !el.getAttribute) return;
+  if((el.getAttribute('data-pave-plus')||'').split(' ').indexOf('^')<0) return;
+  const v=String(el.value||''), d=el.selectionStart==null ? v.length : el.selectionStart;
+  const avant=caseExposantsTexte(v.slice(0,d)), w=avant+caseExposantsTexte(v.slice(d));
+  if(w===v) return;
+  el.value=w;
+  try{ el.setSelectionRange(avant.length, avant.length); }catch(e){}
+}
+document.addEventListener('input', function(e){ if(!e.isComposing) caseExposants(e.target); }, true);
 /* L'INDICE TAPÉ AU CLAVIER S'ÉCRIT EN INDICE (demande de Turquet, octobre
    2026, au 6.2.1 : « quand je tape a_n au clavier de mon pc, il ne l'affiche
    pas avec un indice dans la case »). Dans une case de calcul en texte,
@@ -28964,8 +29034,8 @@ function conseilCtxCourant(){
     att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+vapCorrection(q)+' '
       +(q.p===1?'Méthode enseignée : un nombre très proche d’un entier s’approche par cet entier ; une puissance de 10 à exposant négatif (10⁻² = 0,01) est négligeable devant un entier. '
-        :q.p===2?'Méthode enseignée : multiplier par 10, 100, 1000 ajoute des zéros ; un décimal comme 0,01 s’écrit d’abord en fraction décimale (1/100, toute fraction égale de dénominateur 10, 100, 1000 convient), puis on multiplie le numérateur et on simplifie. '
-        :'Méthode enseignée : chaque facteur est remplacé par la puissance de 10 la plus proche (99 ≈ 100, 11 ≈ 10 ; 0,01 et 0,1 restent tels quels), les deux facteurs s’acceptent dans les deux ordres, puis on calcule le produit. ')
+        :q.p===2?'Méthode enseignée : multiplier par 10, 100, 1000 ajoute des zéros ; un décimal comme 0,01 s’écrit d’abord en fraction décimale (1/100, toute fraction égale de dénominateur 10, 100, 1000 convient), puis on multiplie le numérateur et on simplifie. Chaque case attend un nombre écrit avec un seul chiffre 1 et des 0 (100 ; 10 ; 0,1) ; une fraction est acceptée pour un décimal (1/100 pour 0,01). '
+        :'Méthode enseignée : chaque facteur est remplacé par la puissance de 10 la plus proche (99 ≈ 100, 11 ≈ 10 ; 0,01 et 0,1 restent tels quels), les deux facteurs s’acceptent dans les deux ordres, puis on calcule le produit. Chaque case attend un nombre écrit avec un seul chiffre 1 et des 0 (100 ; 10 ; 0,1) ; une fraction est acceptée pour un décimal (1/100 pour 0,01). ')
       +'Erreurs classiques : décaler la virgule dans le mauvais sens (0,01 × 1000 = 0,00001), oublier un zéro, ou garder le nombre exact au lieu de la puissance de 10.';
   } else if(k==='sdec' && q){
     const F=sdFracDec(q.V);
@@ -29561,6 +29631,9 @@ function buildKbTerm(vars, compact, portrait, lettres){
      comprise (la feuille du 2.3.13 est en mode redaction). Sans redaction,
      AUCUNE couche B : elle ne fuit pas sur les exercices de calcul. */
   const dispo = formeA();
+  /* les touches de l'exercice (kbVarsFor) : une rangée en tête du clavier A,
+     la même dans chaque forme */
+  if(vars && vars.length && dispo && dispo.layers && dispo.layers[0]) dispo.layers[0].rows.unshift(vars.slice());
   if(!lettres || !dispo || !dispo.layers || !dispo.layers.length) return dispo;
   const A = dispo.layers[0];
   const estCmd = (k, c) => k && Array.isArray(k.command) && k.command.indexOf(c) >= 0;
@@ -29685,7 +29758,11 @@ function kbLettres(id){
 }
 
 function kbVarsFor(id){
-  return [];   /* Premiere : clavier purement numerique */
+  /* le calcul littéral (5.1 à 5.3) : x, x² et l'exposant, sur une rangée de
+     plus (demande de Turquet, novembre 2026) — partout ailleurs, clavier
+     purement numérique */
+  if(typeof LIT_IDS !== 'undefined' && LIT_IDS.indexOf(id) >= 0) return [{latex:"x"},{latex:"x^2"},KB_EXP];
+  return [];
   if(id === 'suite-auxiliaire' || id === 'suite-explicite' || id === 'suites' || id === 'suites-encadrement' || id === 'recurrence-encadrement' || id === 'recurrence-complete') return [KB_USQ, KB_N];   /* toutes les suites : U avec indice a completer + n */
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
@@ -30161,6 +30238,9 @@ function setupKeyboard(){
 
 window.mlDexp = {
   toPlain, plainToML,
+  /* le bouton ⌨️ du calcul littéral (litClavier) : la disposition de
+     l'exercice, puis le clavier ouvert (ou refermé) */
+  clavier(){ setupKeyboard(); applyKbLayout(); toggleKB(); },
   tex(lx){ try{ return '<span class="ml-static">'+convertLatexToMarkup(lx)+'</span>'; }catch(e){ return null; } },
   upgrade(root){
     setupKeyboard();
