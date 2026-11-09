@@ -3595,7 +3595,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=391;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=392;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19054,14 +19054,20 @@ function ctxDvl(q){
 const DVD_FORMES=['A','B','C','D'];
 /* le préfixe des cases et de l'écran : « dvd » (7.10) ou « dvn » (7.11, nu) */
 function dvdP(){ return test.kind==='dvn' ? 'dvn' : 'dvd'; }
+/* PREMIÈRE : DE PETITS NOMBRES (Turquet, novembre 2026 : « les coefficients
+   des x au départ soient 1 ou 2 — on n'affichera pas le 1 — et les termes
+   derrière les x des nombres relatifs entre −5 et 5, sauf 0 »). Les deux
+   parenthèses suivent la même règle, sur chaque page : la lettre de la page
+   (A à D) n'y dit plus de forme de signes — la Seconde garde les siennes.
+   Le 1 ne s'écrit pas : redEcrit écrit « x » pour 1x (comme l'ancienne page C). */
 function dvdGen(forme){
   const M=function(c,d){ return {c:c, d:d}; };
+  const nb=function(){ return (Math.random()<0.5?-1:1)*rand(1,5); };
   let q;
   do{
-    const a=(forme==='C') ? 1 : rand(2,9);
     q={forme:forme,
-      f1:[M(a,1), M(-rand(1,9),0)],
-      f2:[M(rand(2,9),1), M((forme==='D'?1:-1)*rand(1,9),0)]};
+      f1:[M(rand(1,2),1), M(nb(),0)],
+      f2:[M(rand(1,2),1), M(nb(),0)]};
   }while(q.f1[0].c*q.f2[1].c+q.f1[1].c*q.f2[0].c===0);
   return q;
 }

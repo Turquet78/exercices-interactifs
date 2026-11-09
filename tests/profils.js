@@ -134,7 +134,10 @@ module.exports = {
     /* … et chaque question guidée suivie de sa rédigée : n questions par
        séance (deux pages, six, quatre — chacune doublée), un point chacune. */
     calculLitteralRedige: { theme: 5, exercices: { 'reduire-produit': { num: '5.1', n: 4 },
-      'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8 } } },
+      'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8,
+        /* le tirage de la Première (novembre 2026) : (ax + b)(cx + d), a et c
+           valent 1 ou 2, b et d relatifs de −5 à 5 sauf 0, sur chaque page */
+        petitsNombres: true } } },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes',

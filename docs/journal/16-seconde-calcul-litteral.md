@@ -1197,3 +1197,27 @@ entraînement, chaque guidée remplie juste (aucune case rouge, un point), la
 rédigée ouverte dessous, rédigée juste (un point), 10 / 10 à la fin. Ce que
 ce banc ne voit pas : le x en italique arrondi des cases (la police
 « ApfX » vient du CDN, que les bancs coupent).
+
+## Première — 5.3 : de petits nombres au départ (novembre 2026, Première v392)
+
+Demande de Turquet : « en première dans l'exercice 5.3, je veux que les
+coefficients des x au départ soient 1 ou 2 — on n'affichera pas le 1 — et que
+les termes derrière les x soient des nombres relatifs entre −5 et 5 sauf 0 ».
+
+**Le tirage** (`dvdGen`, Première seulement) : (ax + b)(cx + d), a et c dans
+{1, 2}, b et d dans {−5, …, −1, 1, …, 5}, sur les quatre pages ET sur leurs
+rédigées (qui passent par le même `dvdGen`). Les lettres A à D ne disent plus
+de forme de signes — un nombre relatif tiré au hasard les couvre toutes ; la
+Seconde (7.10, 7.11) garde ses quatre formes de la fiche. Le terme en x ne
+s'annule toujours jamais ((x + 2)(x − 2) se retire). Le « 1 » ne s'écrit pas :
+`redEcrit` écrit « x » pour 1x, comme l'ancienne page C ; l'exemple rempli de
+la fiche, (4x − 3)(2x − 5), reste tel quel — c'est le modèle de la fiche, pas
+une question.
+
+**Le contrôle** : le profil de la Première déclare
+`calculLitteralRedige.exercices['developper-double'].petitsNombres` ;
+`developperDouble` (`tests/verifier.js`) vérifie alors, sur 400 séances, les
+bornes de chaque question (rédigées comprises), qu'aucune expression n'écrit
+« 1x », et le second bord : 1 et 2, les deux signes et ±5 sortent tous — un
+tirage resté à « 2 » ou à « − » passerait les bornes sans rien tirer de
+neuf. La Seconde garde son contrôle d'origine.
