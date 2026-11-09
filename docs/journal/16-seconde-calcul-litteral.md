@@ -1264,7 +1264,7 @@ bornes de chaque question (rédigées comprises), qu'aucune expression n'écrit
 tirage resté à « 2 » ou à « − » passerait les bornes sans rien tirer de
 neuf. La Seconde garde son contrôle d'origine.
 
-## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v396)
+## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v397)
 
 Demande de Turquet : « corrige le retour arrière dans les autres rédigées ».
 Le défaut laissé ouvert plus haut est fermé, partout où une rédigée s'ouvre
