@@ -2111,8 +2111,7 @@ un chiffre (4/100) ; ② un numérateur à plusieurs chiffres (32/1000, le zéro
 du dixième à ne pas perdre) ; ③ un entier plus une fraction à un chiffre ;
 ④ un entier plus une fraction à plusieurs chiffres (105 + 516/1000) ; ⑤ un
 entier plus des dixièmes, des centièmes (et des millièmes) dans l'ordre ;
-⑥ les mêmes dans le désordre, un dénominateur parfois répété (315 + 9/100 +
-5/10 + 9/100 = 315,68, deux centièmes qui s'additionnent) ; ⑦ A = 3 + 0,2 +
+⑥ les mêmes dans le désordre (315 + 8/1000 + 5/10 + 9/100 = 315,598) ; ⑦ A = 3 + 0,2 +
 4/100, décimaux et fractions mêlés — le premier demande aussi la fraction
 décimale (324/100, toute fraction égale de dénominateur puissance de 10
 convient), les suivants piègent le rang vide (10 + 0,1 + 1/1000 = 10,101).
@@ -2127,6 +2126,16 @@ demande la fraction décimale — même sur une séance de 3 questions.
 tirage, ni au juge (`parseDecToFrac`, comparaison croisée exacte). Le
 désordre du niveau 6 est vérifié : un mélange qui retombe dans l'ordre
 croissant des dénominateurs est retiré.
+
+**Jamais deux fractions de même dénominateur dans une somme (Première v398).**
+Demande de Turquet, novembre 2026 : « je ne veux pas deux fois de fractions
+décimales avec le même dénominateur dans une somme ; on peut changer l'ordre
+des termes en revanche ». Le niveau 6 tirait une fois sur deux un dénominateur
+répété (315 + 9/100 + 5/10 + 9/100) ; il tire désormais toujours les trois
+rangs, dixièmes, centièmes, millièmes, chacun une fois, dans le désordre. Les
+niveaux 5 et 7 n'en répétaient aucun — y compris en comptant le décimal du
+niveau 7 (0,2 = 2/10 avec 4/100). Le banc principal le tient : « 1.11 : aucune
+somme ne porte deux fractions de même dénominateur ».
 
 **Rangé en fin de thème 1 (1.11), il ne renumérote rien.** Il devait être
 le 1.10 sous l'identifiant {ecriture-decimale-somme} ; une autre séance a
