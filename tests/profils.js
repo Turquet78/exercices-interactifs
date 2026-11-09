@@ -129,7 +129,7 @@ module.exports = {
        Seconde, portés avec leurs cases de TEXTE (litPave : x, x², +, ( )) —
        les mêmes déclarations que la Seconde, pour les mêmes contrôles. */
     casesCalculTexte: { fois: false },
-    clavierLitteral: { touches: ['x', 'x²', '+', '(', ')'],
+    clavierLitteral: { touches: ['x', 'x²', '^', '+', '(', ')'],
       exercices: ['reduire-produit', 'developper-distributivite', 'developper-double'] },
     /* … et chaque question guidée suivie de sa rédigée : n questions par
        séance (six pages, quatre — chacune doublée), un point chacune. Le 5.1
