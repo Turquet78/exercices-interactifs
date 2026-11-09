@@ -1312,7 +1312,7 @@ justes.
 Un défaut vu en passant et laissé tel quel : la fenêtre flottante du clavier
 rogne de quelques pixels sa dernière rangée — déjà le cas à quatre rangées.
 
-## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v399)
+## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v400)
 
 Demande de Turquet : « corrige le retour arrière dans les autres rédigées ».
 Le défaut laissé ouvert plus haut est fermé, partout où une rédigée s'ouvre
