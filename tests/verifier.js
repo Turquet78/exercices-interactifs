@@ -4999,6 +4999,7 @@ function exercices(suite){
     multiplierFractions(w, P);
     fractionsEtapes(w, P);
     fractionsRedigees(w, P);
+    calculLitteralRedige(w, P);
     sommeProduitFractions(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
@@ -8864,6 +8865,91 @@ function sommeProduitFractions(w, P){
      l'inverse fait s'abstenir le juge (le modèle décide), et au 4.6 la ligne
      du produit intermédiaire n'est pas une égalité fausse, mais une addition
      faite avant la multiplication l'est. */
+/* LE CALCUL LITTÉRAL RÉDIGÉ (Première, thème 5, novembre 2026) : les 7.8 à
+   7.10 de la Seconde, chaque question guidée suivie de sa rédigée. Ce contrôle
+   lance les trois démarreurs réels (les paires, leur forme, la zone, le barème
+   d'un point par question), puis éprouve le juge des polynômes bord par bord,
+   avec des copies écrites À LA MAIN dans le texte que rend toPlain
+   (« x^(2) », « * ») : juste, sans l'étape développée, égalité fausse, non
+   réduite, illisible. */
+function calculLitteralRedige(w, P){
+  const nom='calcul littéral rédigé : des paires guidée / rédigée, et un juge qui lit les polynômes';
+  const D=P.calculLitteralRedige;
+  if(!D){ ignorer(nom, 'ce niveau ne porte pas le calcul littéral rédigé'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[], IDS=${JSON.stringify(D.exercices)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(typeof litrMath!=='function' || typeof litJuge!=='function') return 'litrMath ou litJuge absent';
+    /* ① les paires */
+    Object.keys(IDS).forEach(function(id){
+      if(!TESTS[id]){ vus.push(id+' absent'); return; }
+      currentTestId=id; TESTS[id].start();
+      const qs=test.questions||[];
+      if(TEST_NUM[id]!==IDS[id].num) vus.push(id+' : numéro '+TEST_NUM[id]+' au lieu de '+IDS[id].num);
+      if(!test.redac) vus.push(id+' : le démarreur ne pose pas test.redac');
+      if(qs.length!==IDS[id].n) vus.push(id+' : '+qs.length+' questions au lieu de '+IDS[id].n);
+      if(test.maxScore!==qs.length) vus.push(id+' : barème '+test.maxScore+' pour '+qs.length+' questions (un point par question)');
+      if(qs.some(function(q,i){ return !!q.redac!==(i%2===1); })) vus.push(id+' : les questions n’alternent pas guidée / rédigée');
+      if(!RED_CFG[test.kind] || !document.getElementById(RED_CFG[test.kind].r+'Zone')) vus.push(id+' : aucune zone rédigée sur l’écran '+test.kind);
+      qs.forEach(function(q,i){ if(!(i%2)) return; const g=qs[i-1];
+        if(g.forme!==undefined && q.forme!==g.forme) vus.push(id+' : la rédigée '+(i+1)+' change de forme ('+g.forme+' puis '+q.forme+')');
+        if(JSON.stringify(Object.assign({},q,{redac:undefined}))===JSON.stringify(g)) vus.push(id+' : la rédigée '+(i+1)+' recopie sa guidée');
+        const m=redMath(q), cible=litPoly(m.texte.replace(/×/g,'*'));
+        if(!litPolyEgaux(cible, litrPose(q).poly)) vus.push(id+' : l’énoncé « '+m.texte+' » ne se relit pas comme le polynôme attendu');
+      });
+    });
+    /* ② les juges, copies écrites à la main */
+    const juge=function(kind, q, rep){ test.kind=kind; return redMath(Object.assign(q,{redac:true})).juge(rep); };
+    const dq={forme:'A', f1:[{c:4,d:1},{c:-3,d:0}], f2:[{c:2,d:1},{c:-5,d:0}]};
+    let j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^(2)-20x-6x+15\\n=8x^(2)-26x+15');
+    if(!(j.sait && j.correct)) vus.push('5.3 : la copie juste n’est pas comptée juste ('+JSON.stringify(j)+')');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=4x*2x+4x*(-5)+(-3)*2x+(-3)*(-5)=8x^2-26x+15');
+    if(!(j.sait && j.correct)) vus.push('5.3 : les quatre produits écrits puis réduits ne sont pas comptés justes');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-26x+15');
+    if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.3 : la forme réduite sans l’étape développée est acceptée ('+JSON.stringify(j)+')');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=4x(2x-5)-3(2x-5)=8x^2-26x+15');
+    if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.3 : une étape qui garde ses parenthèses passe pour l’étape développée');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-20x-6x-15=8x^2-26x-15');
+    if(!(j.sait && !j.correct && j.motif==='egalite' && j.morceau==='8x^2-20x-6x-15')) vus.push('5.3 : l’égalité fausse (−15 pour (−3) × (−5)) n’est pas nommée ('+JSON.stringify(j)+')');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-20x-6x+15');
+    if(!(j.sait && !j.correct && j.motif==='reduire')) vus.push('5.3 : une copie arrêtée avant la réduction est acceptée');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=(1)/(2)x');
+    if(j.sait) vus.push('5.3 : une copie illisible est jugée au lieu d’être confiée au modèle');
+    const la={forme:'A', prods:[{k:{c:5,d:0}, a:{c:1,d:1}, b:{c:3,d:0}}]};
+    j=juge('dvl', la, '5*(x+3)=5x+15');
+    if(!(j.sait && j.correct)) vus.push('5.2 : 5 × (x + 3) = 5x + 15 n’est pas compté juste');
+    j=juge('dvl', la, '5*(x+3)=15+5x');
+    if(!(j.sait && j.correct)) vus.push('5.2 : la forme réduite dans l’autre ordre n’est pas comptée juste');
+    j=juge('dvl', la, '5*(x+3)=5x+3');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.2 : 5x + 3 (le second terme oublié) est accepté');
+    const lf={forme:'F', prods:[{k:{c:3,d:0}, a:{c:2,d:1}, b:{c:-1,d:0}}, {k:{c:-2,d:0}, a:{c:4,d:1}, b:{c:-5,d:0}}]};
+    j=juge('dvl', lf, '3*(2x-1)-2*(4x-5)=6x-3-8x+10=-2x+7');
+    if(!(j.sait && j.correct)) vus.push('5.2 F : la copie juste n’est pas comptée juste');
+    j=juge('dvl', lf, '3*(2x-1)-2*(4x-5)=-2x+7');
+    if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.2 F : la forme réduite sans les produits développés est acceptée');
+    j=juge('dvl', lf, '3*(2x-1)-2*(4x-5)=6x-3-8x-10=-2x-13');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.2 F : le signe perdu derrière le « − » est accepté');
+    const rq={phase:'redac', f1:{kind:'Xc',s:-1,m:3}, f2:{kind:'Xc',s:-1,m:5}};
+    j=juge('rpd', rq, '-3x*(-5x)=15x^(2)');
+    if(!(j.sait && j.correct)) vus.push('5.1 : −3x × (−5x) = 15x² n’est pas compté juste');
+    j=juge('rpd', rq, '-3x*(-5x)=-15x^2');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.1 : −15x² (règle des signes) est accepté');
+    j=juge('rpd', rq, '-3x*(-5x)=15x*x');
+    if(!(j.sait && !j.correct && j.motif==='reduire')) vus.push('5.1 : 15x × x, non réduit, est accepté');
+    j=juge('rpd', rq, '-3x*(-5x)=15x');
+    if(!(j.sait && !j.correct)) vus.push('5.1 : 15x (le carré oublié) est accepté');
+    /* ③ ce que lit l'élève et le modèle */
+    test.kind='dvd'; const md=redMath(dq);
+    if(md.latex!=='(4x-3)\\\\times (2x-5)') vus.push('5.3 : le LaTeX de départ est « '+md.latex+' »');
+    if(!/« \\(4x − 3\\) × \\(2x − 5\\) = »/.test(md.enonceIA)) vus.push('5.3 : le modèle ne lit pas que la première ligne porte « (4x − 3) × (2x − 5) = »');
+    if(md.final!=='8x² − 26x + 15') vus.push('5.3 : le résultat attendu s’écrit « '+md.final+' »');
+    if(/8x² − 26x \\+ 15/.test(md.secours({sait:true,correct:false,motif:'egalite',morceau:'8x^2'}))) vus.push('5.3 : la phrase de secours donne le résultat');
+    test.kind='rpd'; const mr=redMath(rq);
+    if(mr.latex!=='-3x\\\\times (-5x)') vus.push('5.1 : le LaTeX de départ est « '+mr.latex+' »');
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '');
+}
+
 function fractionsRedigees(w, P){
   const nom='les questions rédigées des 4.1 à 4.6 : des paires, et des juges qui exigent un résultat irréductible';
   if(!P.fractionsEtapes){
@@ -25465,16 +25551,22 @@ function reduireProduit(w, P){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='reduire-produit';
+    /* La Première porte cet exercice depuis novembre 2026 (thème 5, chaque page
+       suivie de sa rédigée — calculLitteralRedige) : CL dit sa place et son
+       barème, d'un point par question ; les rédigées sont retirées ici. */
+    const CL=${JSON.stringify(P.calculLitteralRedige||null)};
+    const guidees=function(qs){ return qs.filter(function(q){ return !q.redac; }); };
 
     /* ---- 0. la place : 7.8, après les sept premiers ; le bouton des tables est LÀ */
-    const th=THEMES.find(function(t){ return t.num===7; });
+    const th=THEMES.find(function(t){ return t.num===(CL?CL.theme:7); });
     if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('reduire-produit')<0)
-      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
-    if(TEST_NUM['reduire-produit']!=='7.8') vus.push('numéro '+TEST_NUM['reduire-produit']+' au lieu de 7.8');
-    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3'
+      vus.push('l\\'exercice n\\'est pas dans le thème '+(CL?CL.theme:7)+' « Calcul littéral »');
+    const NUM=CL?CL.exercices['reduire-produit'].num:'7.8';
+    if(TEST_NUM['reduire-produit']!==NUM) vus.push('numéro '+TEST_NUM['reduire-produit']+' au lieu de '+NUM);
+    if(!CL && (TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['nombres-relatifs']!=='7.2' || TEST_NUM['multiplier-relatifs']!=='7.3'
        || TEST_NUM['calcul-itere']!=='7.4' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['associer-expressions']!=='7.6'
-       || TEST_NUM['soustraire-relatifs']!=='7.7') vus.push('un exercice de 7.1 à 7.7 a bougé');
-    if(TABLES_SANS.indexOf('reduire-produit')>=0) vus.push('le bouton des tables est retiré : le résultat est un vrai produit');
+       || TEST_NUM['soustraire-relatifs']!=='7.7')) vus.push('un exercice de 7.1 à 7.7 a bougé');
+    if(typeof TABLES_SANS!=='undefined' && TABLES_SANS.indexOf('reduire-produit')>=0) vus.push('le bouton des tables est retiré : le résultat est un vrai produit');
     if(RPD_MODELES.filter(function(km){ return km[0]==='X0'; }).length + RPD_MODELES.filter(function(km){ return km[1]==='X0'; }).length !== 9)
       vus.push('le compte des facteurs SANS coefficient a changé : la fiche en porte neuf');
 
@@ -25486,7 +25578,7 @@ function reduireProduit(w, P){
       return Number.isInteger(f.m) && f.m>=2 && f.m<=9;   /* Xc */
     };
     for(let i=0;i<300 && !vus.length;i++){
-      const qs=rpdBuildQuestions();
+      const qs=guidees(rpdBuildQuestions());
       if(qs.length!==2){ vus.push(qs.length+' pages au lieu de 2'); break; }
       if(qs[0].phase!=='detail' || qs[1].phase!=='direct') vus.push('les deux phases ne sont pas dans l\\'ordre détail puis direct');
       qs.forEach(function(q){
@@ -25540,6 +25632,7 @@ function reduireProduit(w, P){
       {f1:{kind:'X0',s:-1,m:1}, f2:{kind:'X0',s:-1,m:1}},  /* o. -x × -x = x² */
     ].map(function(f,i){ return {i:i, lettre:RPD_LETTRES[i], f1:f.f1, f2:f.f2}; });
     startRpd();
+    test.questions=guidees(test.questions);
     test.questions[0]={phase:'detail', items:FICHE};
     test.questions[1]={phase:'direct', items:FICHE};
     const BON=['+3x','+x²','+7x','+8x²','-2x','-6x','+15x²','-6x','-2x²','-21x²','-8x','+21x','-5x²','+30x²','+x²'];
@@ -25614,7 +25707,8 @@ function reduireProduit(w, P){
     if(peint('rpd-r-0')!=='rouge') vus.push('« 3x+ » est peint en '+peint('rpd-r-0'));
 
     /* le barème : 45 cases (phase détaillée) + 15 (phase directe) */
-    if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    const BAR=CL?CL.exercices['reduire-produit'].n:60;
+    if(test.maxScore!==BAR) vus.push('barème de '+test.maxScore+' au lieu de '+BAR);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -25636,19 +25730,25 @@ function developperDistributivite(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='developper-distributivite';
 
+    /* La Première porte cet exercice depuis novembre 2026 (thème 5, chaque page
+       suivie de sa rédigée — calculLitteralRedige) : CL dit sa place et son
+       barème, d'un point par question ; les rédigées sont retirées ici. */
+    const CL=${JSON.stringify(P.calculLitteralRedige||null)};
+    const guidees=function(qs){ return qs.filter(function(q){ return !q.redac; }); };
     /* ---- 0. la place : 7.9, après les huit premiers ; le bouton des tables est LÀ */
-    const th=THEMES.find(function(t){ return t.num===7; });
+    const th=THEMES.find(function(t){ return t.num===(CL?CL.theme:7); });
     if(!th || !/Calcul litt/i.test(th.nom) || th.ids.indexOf('developper-distributivite')<0)
-      vus.push('l\\'exercice n\\'est pas dans le thème 7 « Calcul littéral »');
-    if(TEST_NUM['developper-distributivite']!=='7.9') vus.push('numéro '+TEST_NUM['developper-distributivite']+' au lieu de 7.9');
-    if(TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['reduire-produit']!=='7.8')
+      vus.push('l\\'exercice n\\'est pas dans le thème '+(CL?CL.theme:7)+' « Calcul littéral »');
+    const NUM=CL?CL.exercices['developper-distributivite'].num:'7.9';
+    if(TEST_NUM['developper-distributivite']!==NUM) vus.push('numéro '+TEST_NUM['developper-distributivite']+' au lieu de '+NUM);
+    if(!CL && (TEST_NUM['additionner-relatifs']!=='7.1' || TEST_NUM['reduire-somme']!=='7.5' || TEST_NUM['reduire-produit']!=='7.8'))
       vus.push('un exercice de 7.1 à 7.8 a bougé');
-    if(TABLES_SANS.indexOf('developper-distributivite')>=0) vus.push('le bouton des tables est retiré : chaque produit se calcule');
+    if(typeof TABLES_SANS!=='undefined' && TABLES_SANS.indexOf('developper-distributivite')>=0) vus.push('le bouton des tables est retiré : chaque produit se calcule');
 
     /* ---- 1. le tirage : les six formes de la fiche, dans son ordre ------- */
     const dans=function(v,a,b){ return Number.isInteger(v) && v>=a && v<=b; };
     for(let i=0;i<300 && !vus.length;i++){
-      const qs=dvlBuildQuestions();
+      const qs=guidees(dvlBuildQuestions());
       if(qs.length!==6){ vus.push(qs.length+' pages au lieu de 6'); break; }
       if(qs.map(function(q){ return q.forme; }).join('')!=='ABCDEF') vus.push('formes '+qs.map(function(q){ return q.forme; }).join(''));
       const p=function(n){ return qs[n].prods[0]; };
@@ -25757,7 +25857,8 @@ function developperDistributivite(w, P){
 
     /* le barème : 5 pages de 6 cases, puis 14 */
     startDvl();
-    if(test.maxScore!==44) vus.push('barème de '+test.maxScore+' au lieu de 44');
+    const BAR=CL?CL.exercices['developper-distributivite'].n:44;
+    if(test.maxScore!==BAR) vus.push('barème de '+test.maxScore+' au lieu de '+BAR);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
@@ -25778,16 +25879,22 @@ function developperDouble(w, P){
     const vus=[];
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='developper-double';
+    /* La Première porte cet exercice depuis novembre 2026 (thème 5, chaque page
+       suivie de sa rédigée — calculLitteralRedige) : CL dit sa place et son
+       barème, d'un point par question ; les rédigées sont retirées ici. */
+    const CL=${JSON.stringify(P.calculLitteralRedige||null)};
+    const guidees=function(qs){ return qs.filter(function(q){ return !q.redac; }); };
 
     /* ---- 0. la place : 7.10, juste après le 7.9 */
-    if(TEST_NUM['developper-double']!=='7.10') vus.push('numéro '+TEST_NUM['developper-double']+' au lieu de 7.10');
-    if(TEST_NUM['developper-distributivite']!=='7.9') vus.push('le 7.9 a bougé');
+    const NUM=CL?CL.exercices['developper-double'].num:'7.10', NUM9=CL?CL.exercices['developper-distributivite'].num:'7.9';
+    if(TEST_NUM['developper-double']!==NUM) vus.push('numéro '+TEST_NUM['developper-double']+' au lieu de '+NUM);
+    if(TEST_NUM['developper-distributivite']!==NUM9) vus.push('le '+NUM9+' a bougé');
 
     /* ---- 1. le tirage : les quatre formes de la fiche, A et B jamais égales,
        le terme en x jamais nul ---- */
     const dans=function(v,a,b){ return Number.isInteger(v) && v>=a && v<=b; };
     for(let i=0;i<400 && !vus.length;i++){
-      const qs=dvdBuildQuestions();
+      const qs=guidees(dvdBuildQuestions());
       if(qs.length!==4){ vus.push(qs.length+' pages au lieu de 4'); break; }
       if(qs.map(function(q){ return q.forme; }).join('')!=='ABCD') vus.push('formes '+qs.map(function(q){ return q.forme; }).join(''));
       qs.forEach(function(q){
@@ -25890,7 +25997,8 @@ function developperDouble(w, P){
 
     /* le barème : 4 pages de 15 cases */
     startDvd();
-    if(test.maxScore!==60) vus.push('barème de '+test.maxScore+' au lieu de 60');
+    const BAR=CL?CL.exercices['developper-double'].n:60;
+    if(test.maxScore!==BAR) vus.push('barème de '+test.maxScore+' au lieu de '+BAR);
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
