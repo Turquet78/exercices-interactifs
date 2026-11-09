@@ -1311,3 +1311,24 @@ justes.
 
 Un défaut vu en passant et laissé tel quel : la fenêtre flottante du clavier
 rogne de quelques pixels sa dernière rangée — déjà le cas à quatre rangées.
+
+## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v400)
+
+Demande de Turquet : « corrige le retour arrière dans les autres rédigées ».
+Le défaut laissé ouvert plus haut est fermé, partout où une rédigée s'ouvre
+sous sa guidée : fractions (4.1 à 4.6), 5.2, 5.3. `mlFeuille` prend une option
+`verrou` — une fonction ; par défaut `test.locked`, comme avant — et
+`sfrAfficher` donne le sien : `test.sfrFini`, posé quand la rédigée est
+corrigée (la feuille est alors aussi `verrouiller()`). Entrée et retour arrière
+lisent le même verrou.
+
+`mlFeuille` est comparée au caractère près dans les TROIS fichiers : l'option
+y entre partout, sans rien changer à la Terminale ni à la Seconde, qui ne la
+passent pas (Terminale v489, Seconde v666, pour le numéro seulement).
+
+Contrôle : banc navigateur, « 6 vicies octies bis » — sur le 4.1 et le 5.2, la
+rédigée ouverte sous sa guidée notée (le contrôle exige `test.locked`, sans
+quoi il ne mesurerait plus le piège), deux Entrée puis deux retours arrière :
+3 lignes, puis 2, puis 1 ; la première ligne, qui porte le calcul, ne part
+jamais. Éprouvé par sabotage : la page d'avant reste à 3 lignes sur les
+quatre familles (4.1, 4.2, 5.2, 5.3).

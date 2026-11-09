@@ -8365,6 +8365,55 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 vicies octies bis. LA RÉDIGÉE OUVERTE SOUS SA GUIDÉE : LE RETOUR ARRIÈRE RETIRE LA LIGNE VIDE =====
+       Signalé par Turquet (novembre 2026) sur le 5.1 de la Première : dans une
+       question rédigée, Entrée ajoutait une ligne « = », mais le retour arrière
+       sur cette ligne vide ne la retirait plus. La rédigée s'ouvre SOUS une
+       guidée déjà notée, donc avec test.locked posé ; mlFeuille lisait ce
+       verrou-là, et refusait la suppression — Entrée, elle, passe par
+       « change », qui ne le regarde pas. La rédigée donne désormais son propre
+       verrou (test.sfrFini). On tape pour de vrai, dans deux familles : une
+       rédigée de fractions (4.1) et une du calcul littéral (5.2). */
+    titre('6 vicies octies bis. LA RÉDIGÉE SOUS SA GUIDÉE : LE RETOUR ARRIÈRE RETIRE LA LIGNE VIDE');
+    const NOM_RB = 'dans une rédigée ouverte sous sa guidée notée, le retour arrière retire une ligne vide « = » (4.1 et 5.2)';
+    if(!P.calculLitteralRedige){
+      ignorer(NOM_RB, 'ce niveau n\'a pas les questions rédigées sous une guidée');
+    } else if(!ml){
+      ignorer(NOM_RB, 'MathLive absent');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1400, height: 1000 } });
+      const dits = [];
+      if(await connecter(s.page) !== 'scr-space') dits.push('connexion impossible');
+      else for(const id of ['revision-fractions', 'developper-distributivite']){
+        await s.page.evaluate(id => { currentMode = 'train'; currentDM = null; currentTestId = id; TESTS[id].start();
+          const i = test.questions.findIndex(q => q.redac); test.idx = i; sfrRendu(); }, id);
+        await s.page.waitForTimeout(700);
+        const etat = () => s.page.evaluate(() => ({ n: sfrFeuille ? sfrFeuille.lignes.length : -1, locked: !!test.locked,
+          focus: !!(sfrFeuille && sfrFeuille.lignes.some(L => L.mf.hasFocus && L.mf.hasFocus())) }));
+        const e0 = await etat();
+        if(e0.n !== 1){ dits.push(id + ' : la rédigée ne s\'ouvre pas sur une ligne (' + e0.n + ')'); continue; }
+        if(!e0.locked) dits.push(id + ' : la guidée notée ne pose plus test.locked — le contrôle ne mesure plus le piège');
+        await s.page.waitForFunction(() => sfrFeuille.lignes[0].mf.hasFocus && sfrFeuille.lignes[0].mf.hasFocus(), null, { timeout: 3000 }).catch(() => {});
+        await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(250);
+        await s.page.keyboard.press('Enter'); await s.page.waitForTimeout(250);
+        const e1 = await etat();
+        if(e1.n !== 3){ dits.push(id + ' : deux Entrée donnent ' + e1.n + ' lignes au lieu de 3'); continue; }
+        await s.page.keyboard.press('Backspace'); await s.page.waitForTimeout(250);
+        const e2 = await etat();
+        await s.page.keyboard.press('Backspace'); await s.page.waitForTimeout(250);
+        const e3 = await etat();
+        if(e2.n !== 2 || e3.n !== 1) dits.push(id + ' : le retour arrière laisse ' + e2.n + ' puis ' + e3.n + ' lignes au lieu de 2 puis 1');
+        if(!e3.focus) dits.push(id + ' : après le retour arrière, le curseur n\'est plus dans la feuille');
+        /* le bord opposé : la première ligne, qui porte le calcul, ne part jamais */
+        await s.page.keyboard.press('Backspace'); await s.page.waitForTimeout(200);
+        if((await etat()).n !== 1) dits.push(id + ' : le retour arrière a retiré la première ligne');
+      }
+      verifier(NOM_RB, dits.length === 0, dits.slice(0, 3).join(' | '));
+      verifier('la rédigée sous sa guidée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 terdecies. {croiser-denominateurs} : le croisement se VOIT ===== */
     /* L'exercice ne dit pas seulement « multiplie par le dénominateur de
        l'autre » — il le MONTRE : chaque dénominateur est coloré, les cases qui

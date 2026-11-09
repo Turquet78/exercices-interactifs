@@ -3606,7 +3606,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=399;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=400;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3849,6 +3849,11 @@ function mlFeuille(opts){
   const strip=s=>String(s==null?'':s).replace(/<[^>]*>/g,'');
   const pft=(mode==='calcul')?(opts.prefixesTexte||{premiere:strip(pfx.premiere),suite:strip(pfx.suite)}):null;
   const F={lignes:[],mode:mode};
+  /* LE VERROU QUI FIGE LA FEUILLE : test.locked par défaut. Une feuille posée
+     SOUS une question déjà notée (la rédigée de la Première, ouverte après sa
+     guidée) donne le sien — sans quoi Entrée ajoutait des lignes (par
+     « change ») que le retour arrière ne pouvait plus retirer. */
+  const verrou=(typeof opts.verrou==='function')?opts.verrou:function(){ return !!test.locked; };
   if(!sheet){ F.ajouterLigne=function(){return null;}; F.retirerLigne=function(){}; F.lire=function(){return '';}; F.verrouiller=function(){}; return F; }
   sheet.innerHTML='';
   function faireLigne(){
@@ -3886,12 +3891,12 @@ function mlFeuille(opts){
     L.mf.addEventListener('change', ()=>{ if(L.mf.hasFocus && L.mf.hasFocus()) ajouterApres(); });
     L.mf.addEventListener('keydown', (e)=>{
       tenirCurseur(L.mf);
-      if(test.locked) return;
+      if(verrou()) return;
       if(e.key==='Enter'){ e.preventDefault(); ajouterApres(); }
     });
     /* meme raison que dans le 2.2 : le bouton effacer du clavier a l'ecran n'emet pas de keydown */
     L.mf.addEventListener('beforeinput', (e)=>{
-      if(test.locked) return;
+      if(verrou()) return;
       if(e.inputType!=='deleteContentBackward') return;
       if((L.mf.value!==''&&L.mf.getValue()!=='')||F.lignes.length<=1) return;
       e.preventDefault();
@@ -18216,7 +18221,10 @@ function sfrAfficher(q){
     +'<div class="mp-feedback" id="'+r+'Feedback" aria-live="polite"></div>'
     +'<div class="row" style="justify-content:center"><span id="'+r+'Boutons" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center">'
     +'<button class="btn btn-primary" type="button" onclick="checkSFR()">Vérifier</button></span></div>';
-  sfrFeuille=mlFeuille({ conteneur:r+'Sheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='} });
+  /* le verrou de la rédigée est le sien (test.sfrFini) : test.locked est déjà
+     posé par la guidée notée au-dessus, et figeait le retour arrière */
+  sfrFeuille=mlFeuille({ conteneur:r+'Sheet', mode:'calcul', prefixes:{premiere:'',suite:'='}, prefixesTexte:{premiere:'',suite:'='},
+    verrou:function(){ return !!test.sfrFini; } });
   /* LE CALCUL EST TAPÉ DANS LE CHAMP, SUIVI DE « = » (la demande) : l'élève
      écrit à la suite, et peut le modifier. On retient ce point de départ :
      une copie où rien n'a été ajouté n'est pas un calcul. */
