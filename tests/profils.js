@@ -160,6 +160,12 @@ module.exports = {
        champs vivent dans le DÉTAIL d'un élève, ouvert au clic. */
     notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_1ere', tableResultats: 'resultats_1ere',
       onglet: 'devoirs', detail: true },
+    /* UNE NOTE QUE LA BASE REFUSE NE SE PERD PAS (novembre 2026 : « new row
+       violates row-level security policy for table resultats_1ere » sous
+       l'écran de fin, et la fiche gardait l'exercice suivant verrouillé). Le
+       banc fait refuser l'envoi au moment de la fin, puis « reconnecte » : la
+       note doit partir, et l'exercice suivant de la fiche s'ouvrir. */
+    noteRefusee: { table: 'resultats_1ere', exercice: 'croiser-denominateurs', suivant: 'revision-fractions' },
     /* La fenêtre « Soutien » se saisit n'importe où, et pas seulement par sa
        barre de titre. Un exercice de ce niveau qui a un mode soutien suffit :
        le banc y ouvre la fenêtre, la traîne par son texte, puis vérifie que
@@ -2468,6 +2474,7 @@ module.exports = {
     ordreDevoirs: true,
 
     lacunes: [
+      "une note que la base REFUSE à la fin d'un exercice (session remplacée par un autre compte du navigateur, jeton expiré, élève dé-relié) n'est ni gardée ni réessayée : un message de 2,6 secondes, puis l'écran de fin. La Première la garde sur l'appareil et la renvoie (envoiRate, envoyerNotesEnAttente — banc navigateur « 6 quindecies bis ») ; ce niveau ne l'a pas encore",
       "la fenêtre « Question à l'IA » est portée dans sa version réduite : pas d'illustrations, pas de courbes SVG, pas de corrigés types — ils sont indexés sur des exercices que la Seconde n'a pas. La réponse du modèle est rendue en texte simple, comme le conseil.",
       "{python-pas-a-pas-calcul} (5.16) n'a pas de fonction jsdom dédiée (contrairement à {python-pas-a-pas} et {python-valeur-case}) : elle rejouerait la ligne de CALCUL par une SECONDE arithmétique indépendante, un chantier remis à plus tard (« c'est un autre sujet »). Le banc navigateur (« 6 tricies sedecies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE, à valeurs connues (10, 2, 12) ; les contrôles universels des deux bancs (section 9 / 9 bis) couvrent le reste sans rien déclarer.",
       "{python-echange-variables} (5.18, 5.17 à l'origine — une collision de numéro avec {python-pas-a-pas-chaine} résolue à la fusion de main, septembre 2026) n'a pas de fonction jsdom dédiée non plus, pour une raison différente du 5.16 : sa question OUVERTE finale (l'explication de l'échange) n'est PAS un verdict arithmétique qu'une seconde méthode locale pourrait rejouer, c'est une idée en langage naturel jugée par le modèle (docs/journal/08-verdicts-et-juges.md). Le banc navigateur (« 6 tricies duodevicies ») couvre l'exercice en exécution réelle sur la fiche ÉPINGLÉE (10, 2), PUIS stubbe l'appel réseau de la question ouverte pour éprouver le verdict correct et le verdict faux, sans jamais approcher le vrai modèle ; les contrôles universels des deux bancs couvrent le reste sans rien déclarer.",
@@ -3045,6 +3052,7 @@ module.exports = {
     ordreDevoirs: true,
 
     lacunes: [
+      "une note que la base REFUSE à la fin d'un exercice (session remplacée par un autre compte du navigateur, jeton expiré, élève dé-relié) n'est ni gardée ni réessayée : un message de 2,6 secondes, puis l'écran de fin. La Première la garde sur l'appareil et la renvoie (envoiRate, envoyerNotesEnAttente — banc navigateur « 6 quindecies bis ») ; ce niveau ne l'a pas encore",
       "la fenêtre des tables de multiplication (bouton sur chaque exercice) n'existe qu'en Première : le contrôle du navigateur correspondant s'affiche « non applicable »",
       "trois exercices rougissent encore une case laissée VIDE (4.4.1 {etude-fonction}, 4.1.9 {etude-quotient}, 5.2.2 {recurrence-encadrement}) : ce niveau ne remplace jamais les réponses de l'élève, et la règle de la Seconde y changerait le calcul de la note — décision à prendre, pas correction technique. Les trois dérivées du 4.1 (4.1.1, 4.1.3, 4.1.4) en sont sorties en octobre 2026 (M75, option b : le vide reçoit sa correction en vert, compté non juste, la note inchangée)",
       "liveCheckCurrent() a un corps vide : la correction du mode soutien passe par submitAnswer et par un check… propre à chaque exercice, donc aucun contrôle de coloration en direct n'est transposable — c'est pourquoi « soutienEnDirect » n'est pas déclaré ici, et que le contrôle correspondant s'affiche « non applicable »",
