@@ -3411,7 +3411,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=385;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=386;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19102,12 +19102,14 @@ function lgEntree(ids, verifier){
 
 /* ---- 4.8 et 4.9 : a/b × (c/d − e/f) et a/b ÷ (c/d − e/f) ----------------
    Le tirage de la Seconde : six entiers de 1 à 5, trois fractions de départ
-   irréductibles, d et f premiers entre eux, une parenthèse non nulle
-   (POSITIVE pour le quotient, qui l'inverse), un résultat non nul et non
+   irréductibles, d et f premiers entre eux, une parenthèse STRICTEMENT
+   POSITIVE (pour le quotient, qui l'inverse ; et, depuis novembre 2026, pour
+   le produit aussi — demande de Turquet : « la parenthèse doit aussi être
+   positive » ; la Seconde garde son « H » négatif), un résultat non nul et non
    entier — et, en Première, AUCUN NOMBRE DU CALCUL AU-DESSUS DE 20 (PQD_MAX,
    demande de Turquet, novembre 2026 : « que des nombres plus petits ou égaux
    à 20 dans les calculs intermédiaires et au résultat »). Le
-   résultat du produit peut être négatif, et il peut se simplifier : la case
+   résultat est donc positif, et il peut se simplifier : la case
    finale de la guidée accepte toute fraction égale, la rédigée demande la
    forme irréductible. */
 const PQD_MAX=20;
@@ -19119,7 +19121,7 @@ function pqdGen(inv){
     if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
     const N1=c*f, N2=e*d, Din=d*f, Rn=N1-N2;
     if(Rn===0) continue;
-    if(inv && Rn<0) continue;
+    if(Rn<0) continue;                   /* la parenthèse est positive, au 4.8 comme au 4.9 */
     if(Math.abs(Rn)===Din) continue;
     let P,Q;
     if(!inv){ P=a*Rn; Q=b*Din; } else { P=a*Din; Q=b*Rn; }
@@ -19134,7 +19136,7 @@ function pqdGen(inv){
     return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,Din:Din,Rn:Rn,P:P,Q:Q};
   }
   return !inv
-    ? {a:3,b:2,c:1,d:2,e:4,f:5,N1:5,N2:8,Din:10,Rn:-3,P:-9,Q:20}
+    ? {a:3,b:2,c:4,d:5,e:1,f:2,N1:8,N2:5,Din:10,Rn:3,P:9,Q:20}
     : {a:1,b:2,c:1,d:3,e:1,f:5,N1:5,N2:3,Din:15,Rn:2,P:15,Q:4};
 }
 const PQD_NB=4;
@@ -19241,7 +19243,7 @@ function ctxPqd(q){
    +'Réponses attendues, STRICTEMENT SECRÈTES : la parenthèse vaut '+q.Rn+'/'+q.Din+', le résultat final est '+q.P+'/'+q.Q
    +(r[1]!==q.Q ? ', soit '+r[0]+'/'+r[1]+' simplifié' : '')+'. '
    +'L’ERREUR VISÉE est celle de l’élève qui '+(inv?'multiplie sans avoir retourné la parenthèse':'multiplie '+q.a+'/'+q.b+' par '+q.c+'/'+q.d+' AVANT de calculer la parenthèse')+', en oubliant la priorité des opérations.'
-   +(inv ? '' : ' La parenthèse peut être négative, et le résultat aussi : ce n’est pas une erreur.');
+   +' La parenthèse est toujours positive : le tirage y veille.';
   return {nombre:'', contexte:c};
 }
 
@@ -19491,7 +19493,6 @@ function pqdrMath(q, tx, ent){
             : ' Puis le produit : '+tx(q.a,q.b)+' × '+par+' = '+signe(q.P,q.Q))
       +(Qr!==q.Q ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
       +'\n\nLA VALEUR DE LA PARENTHÈSE, si elle est calculée à part sur sa propre ligne, vaut '+par+' : une ligne qui vaut CE nombre est une étape de calcul, pas une égalité fausse.'
-      +(inv ? '' : ' La parenthèse et le résultat sont NÉGATIFS quand '+tx(q.c,q.d)+' < '+tx(q.e,q.f)+' : un signe « − » n’est pas une erreur.')
       +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les conditions sont réunies.'
       +'\n1. LA PRIORITÉ EST RESPECTÉE : LA PARENTHÈSE EST CALCULÉE D’ABORD. Une ligne qui ne vaut ni '+par+' ni le résultat final trahit une '+(inv?'division':'multiplication')+' faite avant la parenthèse : refuse, et dis que la parenthèse se calcule D’ABORD.'
       +'\n2. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE dans la parenthèse — par exemple '+q.N1+'/'+q.Din+' − '+q.N2+'/'+q.Din+'. Un élève qui écrit directement la valeur de la parenthèse, sans cette étape, est REFUSÉ.'
@@ -26975,10 +26976,9 @@ const RAP_DIV=`<b>Diviser par une fraction</b><br>
    {triple-somme-fractions} (4.10) : les rappels de la Seconde, tels quels. */
 const RAP_PQD=`<b>La parenthèse d’abord, toujours</b><br>
 Une parenthèse se calcule TOUJOURS avant ce qui est autour d’elle — c’est même à ça qu’elle sert.<br>
-<b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{1}{2}-\\frac{4}{5}=\\frac{1\\times 5}{2\\times 5}-\\frac{4\\times 2}{5\\times 2}=\\frac{5}{10}-\\frac{8}{10}\\)<br>
-<b>② On calcule la parenthèse</b> : \\(\\frac{5-8}{10}=\\frac{-3}{10}\\)<br>
-<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{3}{2}\\times\\frac{-3}{10}=\\frac{-9}{20}\\)<br>
-Le résultat d’une parenthèse peut être négatif — ce n’est pas une erreur, la soustraction peut très bien donner un nombre négatif.`;
+<b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{4}{5}-\\frac{1}{2}=\\frac{4\\times 2}{5\\times 2}-\\frac{1\\times 5}{2\\times 5}=\\frac{8}{10}-\\frac{5}{10}\\)<br>
+<b>② On calcule la parenthèse</b> : \\(\\frac{8-5}{10}=\\frac{3}{10}\\)<br>
+<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{3}{2}\\times\\frac{3}{10}=\\frac{9}{20}\\)`;
 const RAP_TSF=`<b>Mettre TROIS fractions au même dénominateur</b><br>
 Pas de priorité ici — que des + et des − — mais trois fractions au lieu de deux.<br>
 <b>① On cherche le PLUS PETIT dénominateur commun</b> : le plus petit nombre que les trois dénominateurs divisent. Avec \\(\\frac{1}{2}+\\frac{3}{4}-\\frac{5}{8}\\), c’est 8.<br>
