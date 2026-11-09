@@ -2324,3 +2324,40 @@ question suivante referme la zone. Bords du juge : sans étape → abstention ;
 priorité non respectée (10/6 − 4/5) → égalité fausse ; parenthèse non
 retournée (5/2 × 7/15) → égalité fausse ; −10/30 → « simplifier » ; somme de
 trois en deux temps → juste.
+
+**Puis aucun nombre au-dessus de 20, et une soustraction au 4.10 (novembre
+2026, Première v385).** Demandes de Turquet, le lendemain : « il faut que
+dans ces trois exercices il n'y ait que des nombres plus petits ou égaux à 20
+dans les calculs intermédiaires et au résultat » ; puis « au lieu d'une
+addition il peut y avoir une soustraction mais le résultat de la
+soustraction doit être positif ».
+
+* **4.8 et 4.9 (`pqdGen`, `PQD_MAX`)** : le tirage écarte toute question dont
+  un nombre écrit dépasse 20 — les deux produits du croisement (N1, N2), le
+  dénominateur commun, la parenthèse, le résultat AVANT simplification (P, Q).
+  Un résultat entier est écarté aussi. Le rappel (`RAP_PQD`) a changé
+  d'exemple : celui de la Seconde finissait sur −10/30.
+* **4.10 : le croisement disparaît.** Trois dénominateurs premiers entre eux
+  donnent au moins 2 × 3 × 5 = 30 : la borne est impossible par le
+  croisement. `tsfGen` tire d'abord le dénominateur commun D (4 à 20), puis
+  trois dénominateurs DISTINCTS qui le divisent et dont il est le plus petit
+  multiple commun (1/2 + 3/4 − 5/8 sur 8). N1, N2, N3, la différence
+  partielle et le résultat restent ≤ 20, le résultat irréductible.
+* **La guidée du 4.10 accepte tout dénominateur commun** (`tsfJuge`), comme le
+  4.6 : chaque paire « × m » se juge sur le dénominateur qu'elle produit ; la
+  cible est celui qu'annoncent deux paires sur trois, ou la seule paire qui
+  mène quelque part, sinon le dénominateur écrit — une paire juste ne rougit
+  pas pour une autre. Numérateurs, message et correction suivent la route
+  de l'élève (sur 16 au lieu de 8 : juste).
+* **`q.op`** vaut « + » ou « − » pour le premier signe, alterné d'une paire
+  guidée + rédigée à l'autre ; a/b − c/d reste strictement positif, comme le
+  résultat. Énoncé, cases, rédigée (`tsfrMath`), contexte, rappel
+  (`RAP_TSF`, réécrit sur le plus petit dénominateur commun) le lisent.
+* La différence de la parenthèse du 4.8 PEUT rester négative (le « H » de la
+  fiche de la Seconde) : la demande portait sur la soustraction qui remplace
+  une addition, celle du 4.10.
+
+Essai dans Chromium : 3 000 tirages de chaque, aucune borne franchie, aucun
+résultat entier, la moitié des 4.10 en soustraction ; les trois exercices de
+bout en bout (guidée juste, rédigée juste comptée) ; 7/8 − 1/4 − 1/2 rédigé
+juste accepté, 7/8 + 2/8 − 4/8 refusé.

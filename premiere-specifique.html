@@ -3411,7 +3411,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=384;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=385;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3974,7 +3974,7 @@ const TESTS={
      suivie d'une rédigée (voir l'en-tête de pqdGen). Ajoutés en fin de thème. */
   'produit-difference-fractions': { name:'Un produit avec une diff\u00e9rence dedans', icon:'\u2716\ufe0f', desc:'a/b\u00d7(c/d\u2212e/f)\u00a0: la parenth\u00e8se se calcule D\u2019ABORD par des cases, puis le produit, comme en {multiplier-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdH() },
   'quotient-difference-fractions': { name:'Un quotient avec une diff\u00e9rence dedans', icon:'\u2797', desc:'Comme {produit-difference-fractions}, avec un maillon de plus\u00a0: diviser, c\u2019est multiplier par l\u2019inverse \u2014 comme en {diviser-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdI() },
-  'triple-somme-fractions': { name:'La somme de trois fractions', icon:'\u2795', desc:'a/b+c/d\u2212e/f\u00a0: trois fractions \u00e0 mettre au m\u00eame d\u00e9nominateur au lieu de deux, par des cases \u2014 aucune priorit\u00e9 \u00e0 respecter ici, juste une somme plus longue. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf() },
+  'triple-somme-fractions': { name:'La somme de trois fractions', icon:'\u2795', desc:'a/b+c/d\u2212e/f ou a/b\u2212c/d\u2212e/f\u00a0: trois fractions \u00e0 mettre au m\u00eame d\u00e9nominateur, le plus petit possible, par des cases \u2014 aucune priorit\u00e9 \u00e0 respecter ici, on calcule de gauche \u00e0 droite. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -18976,9 +18976,11 @@ function ctxSpf(q){
    LE CROISEMENT DE LA SECONDE (pf2Croix…) est recopié sous un autre nom : la
    Première a son propre pfCroixJuge, au dénominateur commun libre (4.6). Ici
    les dénominateurs croisés sont premiers entre eux par construction (pqdGen
-   l'exige ; pour tsfGen, un résultat irréductible sur b×d×f l'impose), si
+   l'exige ; pour tsfGen, un résultat irréductible sur b×d×f l'imposait), si
    bien que le croisement EST le plus petit dénominateur commun : il n'y a pas
-   d'autre route à accepter. */
+   d'autre route à accepter. Depuis la borne de 20 (novembre 2026), le 4.10
+   n'est plus un croisement : il se met sur le plus petit dénominateur commun,
+   et sa guidée accepte tout dénominateur commun (tsfJuge). */
 function pfMult(a,b,attendu){
   if(!isNaN(a) && !isNaN(b)) return a===b && a===attendu;
   const m = isNaN(a) ? b : a;
@@ -19099,12 +19101,16 @@ function lgEntree(ids, verifier){
 }
 
 /* ---- 4.8 et 4.9 : a/b × (c/d − e/f) et a/b ÷ (c/d − e/f) ----------------
-   Le tirage de la Seconde, tel quel : six entiers de 1 à 5, trois fractions
-   de départ irréductibles, d et f premiers entre eux, une parenthèse non
-   nulle (POSITIVE pour le quotient, qui l'inverse), un résultat non nul. Le
+   Le tirage de la Seconde : six entiers de 1 à 5, trois fractions de départ
+   irréductibles, d et f premiers entre eux, une parenthèse non nulle
+   (POSITIVE pour le quotient, qui l'inverse), un résultat non nul et non
+   entier — et, en Première, AUCUN NOMBRE DU CALCUL AU-DESSUS DE 20 (PQD_MAX,
+   demande de Turquet, novembre 2026 : « que des nombres plus petits ou égaux
+   à 20 dans les calculs intermédiaires et au résultat »). Le
    résultat du produit peut être négatif, et il peut se simplifier : la case
    finale de la guidée accepte toute fraction égale, la rédigée demande la
    forme irréductible. */
+const PQD_MAX=20;
 function pqdGen(inv){
   for(let essai=0; essai<2000; essai++){
     const a=rand(1,5), b=rand(2,5), c=rand(1,5), d=rand(2,5), e=rand(1,5), f=rand(2,5);
@@ -19120,12 +19126,16 @@ function pqdGen(inv){
     if(Q<0){ P=-P; Q=-Q; }
     if(P===0) continue;
     if(Math.abs(P)===Q) continue;
-    if(Q>200 || Math.abs(P)>200) continue;
+    if(P%Q===0) continue;                /* un résultat entier : l'écriture finale devient ambiguë */
+    /* PAS DE NOMBRE AU-DESSUS DE 20 (Turquet, novembre 2026) : les produits du
+       croisement, le dénominateur commun, la parenthèse et le résultat avant
+       simplification */
+    if([N1,N2,Din,Math.abs(Rn),Math.abs(P),Q].some(function(x){ return x>PQD_MAX; })) continue;
     return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,Din:Din,Rn:Rn,P:P,Q:Q};
   }
   return !inv
-    ? {a:5,b:2,c:2,d:3,e:4,f:5,N1:10,N2:12,Din:15,Rn:-2,P:-10,Q:30}
-    : {a:5,b:2,c:4,d:5,e:1,f:3,N1:12,N2:5,Din:15,Rn:7,P:75,Q:14};
+    ? {a:3,b:2,c:1,d:2,e:4,f:5,N1:5,N2:8,Din:10,Rn:-3,P:-9,Q:20}
+    : {a:1,b:2,c:1,d:3,e:1,f:5,N1:5,N2:3,Din:15,Rn:2,P:15,Q:4};
 }
 const PQD_NB=4;
 /* des PAIRES : quatre guidées, quatre rédigées (redPaires) */
@@ -19235,67 +19245,123 @@ function ctxPqd(q){
   return {nombre:'', contexte:c};
 }
 
-/* ---- 4.10 : a/b + c/d − e/f ----------------------------------------------
-   Le tirage de la Seconde, tel quel : six entiers de 1 à 9, trois fractions
-   de départ irréductibles, un résultat positif, IRRÉDUCTIBLE sur b×d×f (les
-   trois dénominateurs sont donc premiers entre eux deux à deux), différent
-   de 1, et un dénominateur commun d'au plus 200. */
-function tsfGen(){
-  for(let essai=0; essai<2000; essai++){
-    const a=rand(1,9), b=rand(2,9), c=rand(1,9), d=rand(2,9), e=rand(1,9), f=rand(2,9);
+/* ---- 4.10 : a/b ± c/d − e/f ----------------------------------------------
+   PAS DE NOMBRE AU-DESSUS DE 20 (demande de Turquet, novembre 2026 : « il
+   faut que dans ces trois exercices il n'y ait que des nombres plus petits ou
+   égaux à 20 dans les calculs intermédiaires et au résultat »). Le croisement
+   de la Seconde (chaque terme multiplié par le produit des deux autres
+   dénominateurs) ne le permet pas : trois dénominateurs premiers entre eux
+   donnent au moins 2 × 3 × 5 = 30. Le dénominateur commun est donc le PLUS
+   PETIT multiple commun, et c'est le tirage qui le choisit d'abord (D, de 4 à
+   20), puis trois dénominateurs DISTINCTS qui le divisent et dont il est le
+   plus petit multiple commun — 1/2 + 3/4 − 5/8 se met sur 8. Les numérateurs
+   de départ vont de 1 à 9, les trois fractions de départ sont irréductibles,
+   les numérateurs sur D (N1, N2, N3) ne dépassent pas 20, et le résultat N/D
+   est irréductible, différent de 1.
+   AU LIEU DE L'ADDITION, UNE SOUSTRACTION (même jour : « au lieu d'une
+   addition il peut y avoir une soustraction mais le résultat de la
+   soustraction doit être positif ») : q.op vaut « + » ou « − », il alterne
+   d'une paire guidée + rédigée à l'autre (le rang i que distinctes() passe),
+   et la différence partielle a/b − c/d reste STRICTEMENT positive, comme le
+   résultat — rien ne passe au-dessous de zéro en lisant de gauche à droite.
+   LA GUIDÉE ACCEPTE TOUT DÉNOMINATEUR COMMUN, comme le 4.6 : chaque paire
+   « × m en haut et en bas » se juge sur le dénominateur qu'elle produit (un
+   multiple des trois), les paires qui tiennent doivent s'accorder, et les
+   numérateurs se jugent sur la route de l'élève (tsfJuge). */
+const TSF_MAX=20;
+function tsfDiviseurs(D){ const t=[]; for(let k=2;k<=D;k++) if(D%k===0) t.push(k); return t; }
+function tsfPpcm(a,b){ return a/gcd(a,b)*b; }
+function tsfGen(op, i){
+  op = (op==='−' || op==='-') ? '−' : (op==='+' ? '+' : (typeof i==='number' ? ((Math.floor(i/2)%2===0)?'+':'−') : pick(['+','−'])));
+  for(let essai=0; essai<4000; essai++){
+    const D=rand(4,TSF_MAX), dv=tsfDiviseurs(D);
+    if(dv.length<3) continue;
+    const b=pick(dv), d=pick(dv), f=pick(dv);
+    if(b===d || d===f || b===f) continue;
+    if(tsfPpcm(tsfPpcm(b,d),f)!==D) continue;
+    const a=rand(1,9), c=rand(1,9), e=rand(1,9);
     if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
-    const N1=a*d*f, N2=c*b*f, N3=e*b*d, D=b*d*f;
-    const N=N1+N2-N3;
-    if(N<=0) continue;
-    if(gcd(N,D)!==1) continue;
-    if(N===D) continue;
-    if(D>200) continue;
-    return {a:a,b:b,c:c,d:d,e:e,f:f,N1:N1,N2:N2,N3:N3,D:D,N:N};
+    const N1=a*D/b, N2=c*D/d, N3=e*D/f;
+    if(N1>TSF_MAX || N2>TSF_MAX || N3>TSF_MAX) continue;
+    const P=(op==='+') ? N1+N2 : N1-N2, N=P-N3;
+    if(P<=0 || N<=0) continue;                   /* la soustraction reste positive */
+    if(P>TSF_MAX) continue;
+    if(gcd(N,D)!==1 || N===D) continue;
+    return {a:a,b:b,c:c,d:d,e:e,f:f,op:op,N1:N1,N2:N2,N3:N3,D:D,N:N};
   }
-  return {a:1,b:2,c:1,d:3,e:1,f:7,N1:21,N2:14,N3:6,D:42,N:29};
+  return (op==='+') ? {a:1,b:2,c:3,d:4,e:5,f:8,op:'+',N1:4,N2:6,N3:5,D:8,N:5}
+                    : {a:7,b:8,c:1,d:4,e:1,f:2,op:'−',N1:7,N2:2,N3:4,D:8,N:1};
 }
 const TSF_NB=4;
 function tsfBuildQuestions(){ return redPaires(TSF_NB, tsfGen); }
 function tsfCases(){ return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-d','tsf-fn','tsf-fd']; }
-function tsfTexte(q){ return q.a+'/'+q.b+' + '+q.c+'/'+q.d+' − '+q.e+'/'+q.f; }
+function tsfOp(q){ return q.op==='−' ? '−' : '+'; }
+function tsfTexte(q){ return q.a+'/'+q.b+' '+tsfOp(q)+' '+q.c+'/'+q.d+' − '+q.e+'/'+q.f; }
 function renderTsfTest(){
   if(test.redac && sfrRendu()) return;
   const q=test.questions[test.idx]; test.locked=false;
+  const op=tsfOp(q);
   $('tsfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagTsf').innerHTML=modeTagHTML();
   $('tsfLiveScore').textContent=test.score;
   $('tsfFeedback').textContent=''; $('tsfFeedback').className='mp-feedback';
   $('tsfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTsfAnswer()">Vérifier</button>';
-  $('tsfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>+</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+'.';
+  $('tsfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+'.';
   $('tsfHost').innerHTML=
-    '<div class="pt-step"><div class="pt-lab">① mettre les trois fractions au même dénominateur (le croisement)&nbsp;· ② la somme sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
+    '<div class="pt-step"><div class="pt-lab">① mettre les trois fractions au même dénominateur (le plus petit possible)&nbsp;· ② le calcul sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
      +'<div class="pt-row">'
-       +lgLigne(false, sfTermeHTML(q.a,q.b)+lgOp('+')+sfTermeHTML(q.c,q.d)+lgOp('−')+sfTermeHTML(q.e,q.f))
-       +lgLigne(true, lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp('+')+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp('−')+lgProduit(q.e,q.f,'tsf-a3','tsf-b3'))
+       +lgLigne(false, sfTermeHTML(q.a,q.b)+lgOp(op)+sfTermeHTML(q.c,q.d)+lgOp('−')+sfTermeHTML(q.e,q.f))
+       +lgLigne(true, lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp('−')+lgProduit(q.e,q.f,'tsf-a3','tsf-b3'))
        +lgLigne(true, '<span class="f-frac-input sf-somme">'
-         +'<span class="sf-haut">'+lgMF('tsf-n1','f-num','premier numérateur')+'<span class="f-times">+</span>'+lgMF('tsf-n2','f-num','second numérateur')+'<span class="f-times">−</span>'+lgMF('tsf-n3','f-num','troisième numérateur')+'</span>'
+         +'<span class="sf-haut">'+lgMF('tsf-n1','f-num','premier numérateur')+'<span class="f-times">'+op+'</span>'+lgMF('tsf-n2','f-num','second numérateur')+'<span class="f-times">−</span>'+lgMF('tsf-n3','f-num','troisième numérateur')+'</span>'
          +'<span class="f-fbar"></span>'
          +lgMF('tsf-d','f-den','dénominateur commun')+'</span>')
        +lgLigne(true, lgFrac('tsf-fn','tsf-fd','numérateur final','dénominateur final'))
      +'</div></div>';
   lgEntree(tsfCases(), checkTsfAnswer);
 }
+/* LE DÉNOMINATEUR COMMUN EST LIBRE, la règle du 4.6 (pfCroixJuge) portée à
+   trois termes. Le résultat rend la ROUTE (Dc, m, N) pour le message et la
+   correction ; sans route cohérente, c'est le plus petit dénominateur commun. */
 function tsfJuge(q){
-  const mult1=q.d*q.f, mult2=q.b*q.f, mult3=q.b*q.d;
-  const ok1=pfMult(pfLu('tsf-a1'),pfLu('tsf-b1'),mult1), ok2=pfMult(pfLu('tsf-a2'),pfLu('tsf-b2'),mult2), ok3=pfMult(pfLu('tsf-a3'),pfLu('tsf-b3'),mult3);
-  const n1=pfLu('tsf-n1'), n2=pfLu('tsf-n2'), n3=pfLu('tsf-n3'), d=pfLu('tsf-d');
-  const okN1=!isNaN(n1)&&n1===q.N1, okN2=!isNaN(n2)&&n2===q.N2, okN3=!isNaN(n3)&&n3===q.N3, okD=!isNaN(d)&&d===q.D;
-  const fracJ=pfFracJuge(pfLu('tsf-fn'),pfLu('tsf-fd'),q.N,q.D);
-  return {ok1:ok1,ok2:ok2,ok3:ok3,okN1:okN1,okN2:okN2,okN3:okN3,okD:okD,okFn:fracJ[0],okFd:fracJ[1],
-    croix: ok1&&ok2&&ok3, somme: okN1&&okN2&&okN3&&okD, vide:pfVide(tsfCases())};
+  const dens=[q.b,q.d,q.f], nums=[q.a,q.c,q.e], paires=[['tsf-a1','tsf-b1'],['tsf-a2','tsf-b2'],['tsf-a3','tsf-b3']];
+  const mult=function(a,b){
+    if(!isNaN(a) && !isNaN(b)) return (a===b && a>=1) ? a : 0;
+    const m = isNaN(a) ? b : a;
+    if(isNaN(m)) return -1;
+    return (m>=1) ? m : 0;
+  };
+  const ms=paires.map(function(p){ return mult(pfLu(p[0]),pfLu(p[1])); });
+  const Ds=ms.map(function(m,i){ return m>0 ? dens[i]*m : 0; });
+  const commun=function(x){ return x>0 && dens.every(function(dd){ return x%dd===0; }); };
+  /* LA CIBLE : le dénominateur que la MAJORITÉ des paires annonce (deux sur
+     trois), ou la seule paire qui mène quelque part ; à défaut — deux paires
+     qui se contredisent —, le dénominateur écrit, s'il est commun aux trois.
+     Une paire juste ne rougit pas parce qu'une autre a pris une autre route. */
+  const prom=Ds.filter(commun), d=pfLu('tsf-d');
+  let cible=null;
+  prom.forEach(function(x){ if(prom.filter(function(y){ return y===x; }).length>=2) cible=x; });
+  if(cible===null && prom.length===1) cible=prom[0];
+  if(cible===null && !isNaN(d) && commun(d)) cible=d;
+  const ok=Ds.map(function(x){ return cible!==null && x===cible; });
+  const okD=!isNaN(d) && commun(d) && (cible===null || d===cible);
+  const Dc = cible!==null ? cible : q.D;
+  const Ns=nums.map(function(n,i){ return n*Dc/dens[i]; });
+  const lus=['tsf-n1','tsf-n2','tsf-n3'].map(pfLu);
+  const okN=lus.map(function(v,i){ return !isNaN(v) && v===Ns[i]; });
+  const R=(tsfOp(q)==='+' ? Ns[0]+Ns[1] : Ns[0]-Ns[1]) - Ns[2];
+  const fracJ=pfFracJuge(pfLu('tsf-fn'),pfLu('tsf-fd'),R,Dc);
+  return {ok1:ok[0],ok2:ok[1],ok3:ok[2],okN1:okN[0],okN2:okN[1],okN3:okN[2],okD:okD,okFn:fracJ[0],okFd:fracJ[1],
+    Dc:Dc, m:dens.map(function(x){ return Dc/x; }), Ns:Ns, R:R,
+    croix: ok[0]&&ok[1]&&ok[2], somme: okN[0]&&okN[1]&&okN[2]&&okD, vide:pfVide(tsfCases())};
 }
 function tsfPourquoi(q,r){
   if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
-  if(!r.ok1) return 'Le premier terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.d+' × '+q.f+' = '+(q.d*q.f)+' — en haut ET en bas.';
-  if(!r.ok2) return 'Le second terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.f+' = '+(q.b*q.f)+' — en haut ET en bas.';
-  if(!r.ok3) return 'Le troisième terme se multiplie par le produit des deux AUTRES dénominateurs, ici '+q.b+' × '+q.d+' = '+(q.b*q.d)+' — en haut ET en bas.';
-  if(!r.somme) return 'Sur le dénominateur '+q.D+', les numérateurs deviennent '+q.N1+', '+q.N2+' et '+q.N3+'.';
-  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(q.N,q.D)+'.';
+  const rang=['première','deuxième','troisième'];
+  for(let i=0;i<3;i++) if(!r['ok'+(i+1)])
+    return 'La '+rang[i]+' fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux trois fractions : sur '+r.Dc+', c’est × '+r.m[i]+'.';
+  if(!r.somme) return 'Sur le dénominateur '+r.Dc+', les numérateurs deviennent '+r.Ns[0]+', '+r.Ns[1]+' et '+r.Ns[2]+'.';
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(r.R,r.Dc)+'.';
 }
 function checkTsfAnswer(live){
   if(test.locked) return;
@@ -19317,11 +19383,12 @@ function checkTsfAnswer(live){
     $('tsfFeedback').className='mp-feedback good';
   } else {
     $('tsfFeedback').textContent=tsfPourquoi(q,r); $('tsfFeedback').className='mp-feedback bad';
-    corTrainDec('tsf-a1',q.d*q.f); corTrainDec('tsf-b1',q.d*q.f);
-    corTrainDec('tsf-a2',q.b*q.f); corTrainDec('tsf-b2',q.b*q.f);
-    corTrainDec('tsf-a3',q.b*q.d); corTrainDec('tsf-b3',q.b*q.d);
-    corTrainDec('tsf-n1',q.N1); corTrainDec('tsf-n2',q.N2); corTrainDec('tsf-n3',q.N3); corTrainDec('tsf-d',q.D);
-    pfCorFinale('tsf-fn','tsf-fd',q.N,q.D);
+    /* la correction suit la ROUTE de l'élève (r.Dc), comme au 4.6 */
+    corTrainDec('tsf-a1',r.m[0]); corTrainDec('tsf-b1',r.m[0]);
+    corTrainDec('tsf-a2',r.m[1]); corTrainDec('tsf-b2',r.m[1]);
+    corTrainDec('tsf-a3',r.m[2]); corTrainDec('tsf-b3',r.m[2]);
+    corTrainDec('tsf-n1',r.Ns[0]); corTrainDec('tsf-n2',r.Ns[1]); corTrainDec('tsf-n3',r.Ns[2]); corTrainDec('tsf-d',r.Dc);
+    pfCorFinale('tsf-fn','tsf-fd',r.R,r.Dc);
   }
   const donne=tsfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
   test.answers.push({...(ptsExo()||{}),correct:allOk, q:tsfTexte(q), answer:q.N+'/'+q.D, given:donne});
@@ -19345,10 +19412,10 @@ async function startTsf(){
 }
 function ctxTsf(q){
   const c='L’élève calcule '+tsfTexte(q)+' en complétant des cases, une étape par ligne, dans l’ordre du cours : '
-   +'mettre les TROIS fractions au même dénominateur par le croisement (chaque terme multiplié par le PRODUIT des deux autres dénominateurs), '
-   +'puis la somme sur ce dénominateur, puis la fraction finale. '
-   +'Réponses attendues, STRICTEMENT SECRÈTES : le dénominateur commun est '+q.D+', le résultat final est '+q.N+'/'+q.D+'. '
-   +'Il n’y a ici aucune priorité opératoire à respecter — seulement trois fractions à mettre au même dénominateur au lieu de deux.';
+   +'mettre les TROIS fractions au même dénominateur — chaque fraction multipliée en haut et en bas par le nombre qui mène au dénominateur commun —, '
+   +'puis le calcul des numérateurs sur ce dénominateur, puis la fraction finale. Tout dénominateur commun est accepté ; le plus petit est conseillé, et tous les nombres du calcul restent alors inférieurs ou égaux à 20. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES : le plus petit dénominateur commun est '+q.D+', le résultat final est '+q.N+'/'+q.D+'. '
+   +'Il n’y a ici aucune priorité opératoire à respecter : on calcule de gauche à droite.';
   return {nombre:'', contexte:c};
 }
 
@@ -19439,30 +19506,30 @@ function pqdrMath(q, tx, ent){
   };
 }
 function tsfrMath(q, tx, ent){
-  const finale=q.N+'/'+q.D;
-  const texte=tx(q.a,q.b)+' + '+tx(q.c,q.d)+' − '+tx(q.e,q.f);
-  const m1=q.d*q.f, m2=q.b*q.f, m3=q.b*q.d;
+  const finale=q.N+'/'+q.D, op=tsfOp(q), P=(op==='+') ? q.N1+q.N2 : q.N1-q.N2;
+  const texte=tx(q.a,q.b)+' '+op+' '+tx(q.c,q.d)+' − '+tx(q.e,q.f);
+  const m1=q.D/q.b, m2=q.D/q.d, m3=q.D/q.f;
   return {
     texte:texte, final:finale, produit:null,
-    latex:'\\frac{'+q.a+'}{'+q.b+'}+\\frac{'+q.c+'}{'+q.d+'}-\\frac{'+q.e+'}{'+q.f+'}',
-    html:sfTermeHTML(q.a,q.b)+' <b>+</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f),
-    consigne:'Écris l’étape où les trois fractions ont le même dénominateur, puis donne le résultat simplifié.',
+    latex:'\\frac{'+q.a+'}{'+q.b+'}'+(op==='+'?'+':'-')+'\\frac{'+q.c+'}{'+q.d+'}-\\frac{'+q.e+'}{'+q.f+'}',
+    html:sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f),
+    consigne:'Écris l’étape où les trois fractions ont le même dénominateur — le plus petit possible —, puis donne le résultat simplifié.',
     juge:function(rep){ return redJugeChaine(rep, q.N, q.D, [], [redEtapeMemeDenoN]); },
     enonceIA: ent+'L’élève doit calculer '+texte+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
       +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
     attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible.'
-      +' Le dénominateur commun est '+q.D+' = '+q.b+'×'+q.d+'×'+q.f+' : le premier terme se multiplie par '+m1+', le second par '+m2+', le troisième par '+m3
-      +' — '+q.N1+'/'+q.D+' + '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+' = ('+q.N1+' + '+q.N2+' − '+q.N3+')/'+q.D+' = '+finale+', déjà irréductible.'
-      +' L’élève peut AUSSI calculer en deux temps : les deux premières fractions d’abord, puis la troisième — c’est juste aussi, pourvu que chaque égalité soit vraie.'
+      +' Le plus petit dénominateur commun est '+q.D+' : le premier terme se multiplie par '+m1+', le second par '+m2+', le troisième par '+m3
+      +' — '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+' = ('+q.N1+' '+op+' '+q.N2+' − '+q.N3+')/'+q.D+' = '+finale+', déjà irréductible.'
+      +' Calculer de gauche à droite donne '+P+'/'+q.D+' avant la dernière soustraction. L’élève peut AUSSI calculer en deux temps : les deux premières fractions d’abord, puis la troisième — c’est juste aussi, pourvu que chaque égalité soit vraie.'
       +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE : au moins une ligne montre des fractions portant le MÊME dénominateur, ajoutées ou soustraites — par exemple '+q.N1+'/'+q.D+' + '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+'. Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
+      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE : au moins une ligne montre des fractions portant le MÊME dénominateur, ajoutées ou soustraites — par exemple '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+'. Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
       +redRegleFinale(2, finale)
       +'\n3. AUCUNE ÉGALITÉ FAUSSE : découpe tout le calcul aux « = » ; chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
       +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
       +redConsignesFeedback(finale),
     ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
-      +'Il doit mettre les TROIS fractions au même dénominateur (chaque terme multiplié par le produit des deux autres dénominateurs), puis additionner et soustraire les numérateurs, et donner le résultat sous forme irréductible. '
-      +'Réponse attendue, STRICTEMENT SECRÈTE : '+finale+', sur le dénominateur commun '+q.D+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
+      +'Il doit mettre les TROIS fractions au même dénominateur (le plus petit possible est '+q.D+'), puis calculer les numérateurs de gauche à droite, et donner le résultat sous forme irréductible. '
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+finale+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
   };
 }
 
@@ -26908,16 +26975,16 @@ const RAP_DIV=`<b>Diviser par une fraction</b><br>
    {triple-somme-fractions} (4.10) : les rappels de la Seconde, tels quels. */
 const RAP_PQD=`<b>La parenthèse d’abord, toujours</b><br>
 Une parenthèse se calcule TOUJOURS avant ce qui est autour d’elle — c’est même à ça qu’elle sert.<br>
-<b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{2}{3}-\\frac{4}{5}=\\frac{2\\times 5}{3\\times 5}-\\frac{4\\times 3}{5\\times 3}=\\frac{10}{15}-\\frac{12}{15}\\)<br>
-<b>② On calcule la parenthèse</b> : \\(\\frac{10-12}{15}=\\frac{-2}{15}\\)<br>
-<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{5}{2}\\times\\frac{-2}{15}=\\frac{-1}{3}\\)<br>
+<b>① On met la parenthèse au même dénominateur</b>, par le CROISEMENT : chaque fraction multipliée par le dénominateur de l’AUTRE — \\(\\frac{1}{2}-\\frac{4}{5}=\\frac{1\\times 5}{2\\times 5}-\\frac{4\\times 2}{5\\times 2}=\\frac{5}{10}-\\frac{8}{10}\\)<br>
+<b>② On calcule la parenthèse</b> : \\(\\frac{5-8}{10}=\\frac{-3}{10}\\)<br>
+<b>③ Il ne reste qu’un produit</b> (ou une division, qui devient un produit par l’INVERSE) : \\(\\frac{3}{2}\\times\\frac{-3}{10}=\\frac{-9}{20}\\)<br>
 Le résultat d’une parenthèse peut être négatif — ce n’est pas une erreur, la soustraction peut très bien donner un nombre négatif.`;
 const RAP_TSF=`<b>Mettre TROIS fractions au même dénominateur</b><br>
-Pas de priorité ici — que des + et des − — mais trois fractions au lieu de deux : le croisement s’étend.<br>
-<b>① Chaque terme se multiplie par le PRODUIT des deux AUTRES dénominateurs.</b> Avec \\(\\frac{2}{3}+\\frac{1}{5}-\\frac{5}{6}\\) : le premier terme se multiplie par \\(5\\times 6=30\\), le second par \\(3\\times 6=18\\), le troisième par \\(3\\times 5=15\\).<br>
-<b>② Les trois tombent alors sur le MÊME dénominateur</b> — ici \\(3\\times 5\\times 6=90\\) : \\(\\frac{2\\times 30}{90}+\\frac{1\\times 18}{90}-\\frac{5\\times 15}{90}=\\frac{60}{90}+\\frac{18}{90}-\\frac{75}{90}\\)<br>
-<b>③ On additionne ou on soustrait les numérateurs</b>, jamais les dénominateurs : \\(\\frac{60+18-75}{90}=\\frac{3}{90}\\)<br>
-<b>④ On simplifie à la fin</b>, si c’est possible : ici 3 et 90 se divisent par 3, \\(\\frac{3}{90}=\\frac{1}{30}\\).`;
+Pas de priorité ici — que des + et des − — mais trois fractions au lieu de deux.<br>
+<b>① On cherche le PLUS PETIT dénominateur commun</b> : le plus petit nombre que les trois dénominateurs divisent. Avec \\(\\frac{1}{2}+\\frac{3}{4}-\\frac{5}{8}\\), c’est 8.<br>
+<b>② Chaque fraction se multiplie en haut ET en bas</b> par ce qu’il faut pour y arriver : \\(\\frac{1\\times 4}{2\\times 4}+\\frac{3\\times 2}{4\\times 2}-\\frac{5\\times 1}{8\\times 1}=\\frac{4}{8}+\\frac{6}{8}-\\frac{5}{8}\\)<br>
+<b>③ On calcule les numérateurs de gauche à droite</b>, jamais les dénominateurs : \\(\\frac{4+6-5}{8}=\\frac{5}{8}\\)<br>
+<b>④ Une soustraction</b> à la place de l’addition se traite de la même façon : \\(\\frac{7}{8}-\\frac{1}{4}-\\frac{1}{2}=\\frac{7}{8}-\\frac{2}{8}-\\frac{4}{8}=\\frac{1}{8}\\). On simplifie à la fin si c’est possible.`;
 const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>Dans une somme, la multiplication se calcule TOUJOURS avant l’addition</b> — même sans parenthèses autour d’elle. C’est la même règle qu’avec des nombres seuls : \\(2+3\\times 4\\) fait 14, pas 20.<br>
 <b>① On calcule d’abord le produit</b>, comme dans {multiplier-fractions} : \\(\\frac{1}{2}\\times\\frac{3}{2}=\\frac{1\\times 3}{2\\times 2}=\\frac{3}{4}\\)<br>
