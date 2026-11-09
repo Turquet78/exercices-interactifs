@@ -770,7 +770,17 @@ module.exports = {
        famille, à l'aveugle — banc navigateur, « 6 sexies quater ». L'exercice
        est celui du témoin navigateur (sa réponse juste se sait écrire) ; le
        bonus, un exercice qui n'est pas fait dans le contrôle. */
-    evaluations: { table: 'parametres_1ere', exercice: 'pourcentage', bonus: 'calcul-mental' },
+    evaluations: { table: 'parametres_1ere', exercice: 'pourcentage', bonus: 'calcul-mental',
+      /* la copie de la capture de Turquet (novembre 2026) : 4.1, première
+         question (a/d + b/d) — la règle juste, le numérateur faux (un de
+         moins), le dénominateur juste → 2 cases sur 3 */
+      proportionnelle: { exercice: 'revision-fractions', valider: '#rvfActions .btn-primary', note: 2/3,
+        copie: "(function(){ const q=test.questions[test.idx], r=rvfReponse(q), s=document.getElementById('rvf-regle');"
+          + " s.value=RVF_REGLES[q.type].opts[0][0]; s.dispatchEvent(new Event('change'));"
+          + " let n=r.num-1; while(n<1 || gcd(n,r.den)!==1) n++; if(n===r.num) n++; while(gcd(n,r.den)!==1) n++;"
+          + " const a=document.getElementById('rvf-num'), b=document.getElementById('rvf-den');"
+          + " a.value=String(n); a.dispatchEvent(new Event('input')); b.value=String(r.den); b.dispatchEvent(new Event('input'));"
+          + " return q.type+' '+rvfTexte(q)+' = '+n+'/'+r.den+' (juste : '+r.num+'/'+r.den+')'; })()" } },
     /* LA SECONDE FAMILLE DE DEVOIRS — ce que la page doit en dire, déclaré
        ICI pour que le contrôle compare DEUX sources (le profil et la page) au
        lieu de lire la page et de la comparer à elle-même : le titre de la

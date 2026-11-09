@@ -3411,7 +3411,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=385;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=386;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -3757,8 +3757,11 @@ function corrCase(id, val, ok){
 function ptsEcran(){
   try{
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
-    const els=scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
-      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol');
+    /* une case .hors-note ne compte pas : la page la montre corrigée, mais
+       l'élève n'avait pas à l'écrire (la simplification d'un 4.1 dont la
+       fraction écrite ne se simplifie pas — voir checkRvfAnswer) */
+    const els=[].filter.call(scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
+      +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol'), e=>!e.classList.contains('hors-note'));
     if(!els.length) return null;
     let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
     return {pts:ok/els.length, justes:ok, cases:els.length};
@@ -3795,10 +3798,21 @@ function ptsRep(a){
    CREDIT_PARTIEL_FIN, et le banc des notes le tient (notes.creditPartielSuspendu,
    tests/profils.js). Journal 09, « la note enregistrée est celle qui s'affiche ». */
 const CREDIT_PARTIEL_FIN=false;
+/* SAUF EN ÉVALUATION (demande de Turquet, novembre 2026) : « pour les
+   évaluations en première je veux une note proportionnelle au nombre
+   d'erreurs ». Chaque question y vaut la part de ses cases justes — la
+   règle choisie comptée comme une case, une case laissée vide comptée
+   fausse (corrChoix la peint .sol, et .sol est au dénominateur), une case
+   que l'élève n'avait pas à écrire hors du compte (.hors-note). Sur
+   3/2 + 1/2 écrit 3/2 : règle juste, numérateur faux, dénominateur juste,
+   la simplification hors compte (3/2 ne se simplifie pas) → 2/3, 6,7 / 10.
+   Les réserves de l'en-tête restent vraies ailleurs ; elles sont acceptées
+   ici, où une copie à 0 pour UNE case fausse était le pire des comptes. */
+function creditPartielActif(){ try{ return CREDIT_PARTIEL_FIN || enEvaluation(); }catch(e){ return CREDIT_PARTIEL_FIN; } }
 function acquisDe(answers, parfaits, total, nbQuestions){
   if(!(total>0)) return 0;
   const p=Math.max(0, Math.min(total, parfaits||0));
-  if(!CREDIT_PARTIEL_FIN || nbQuestions!==total) return p;
+  if(!creditPartielActif() || nbQuestions!==total) return p;
   const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
   return Math.max(p, Math.min(total, somme));
 }
@@ -20148,6 +20162,14 @@ function checkRvfAnswer(live){
   /* chaque case a son verdict : une case juste ne rougit pas pour sa
      voisine, et une case vide reçoit la correction en vert (corrChoix) */
   subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
+  /* LA SIMPLIFICATION QUE L'ÉLÈVE N'AVAIT PAS À ÉCRIRE ne compte pas dans la
+     note (demande de Turquet, novembre 2026, sur une évaluation) : sa
+     fraction écrite ne se simplifie pas (3/2 pour 4/2), la chaîne ne s'est
+     donc jamais ouverte devant lui (rvfMajSimp) — la vérification la montre
+     corrigée en vert, sur la bonne réponse, mais hors du compte. */
+  const W=fracEcrite('rvf-num','rvf-den');
+  if(W && gcd(W.n,W.d)===1 && q.svu && !q.sbrut)
+    subs.forEach(function(s){ if(/^rvf-s\d+-/.test(s.c.id) && s.el) s.el.classList.add('hors-note'); });
   rvfMiroirs();
   if(!allOk && isSoutien()){ soutienAgain('rvfFeedback','rvfActions','checkRvfAnswer','rvfHost'); return; }
   test.locked=true;
