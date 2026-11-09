@@ -1239,3 +1239,24 @@ retour arrière (`if(test.locked) return;`), tandis qu'Entrée passe par
 l'événement `change`, qui ne regarde pas le verrou. Le défaut touche TOUTES
 les rédigées du module (fractions, 5.2, 5.3) : il reste ouvert, la demande
 ayant été réorientée avant le correctif.
+
+## Puis le retour arrière des rédigées est revenu (novembre 2026, Première v394)
+
+Demande de Turquet : « corrige le retour arrière dans les autres rédigées ».
+Le défaut laissé ouvert plus haut est fermé, partout où une rédigée s'ouvre
+sous sa guidée : fractions (4.1 à 4.6), 5.2, 5.3. `mlFeuille` prend une option
+`verrou` — une fonction ; par défaut `test.locked`, comme avant — et
+`sfrAfficher` donne le sien : `test.sfrFini`, posé quand la rédigée est
+corrigée (la feuille est alors aussi `verrouiller()`). Entrée et retour arrière
+lisent le même verrou.
+
+`mlFeuille` est comparée au caractère près dans les TROIS fichiers : l'option
+y entre partout, sans rien changer à la Terminale ni à la Seconde, qui ne la
+passent pas (Terminale v488, Seconde v665, pour le numéro seulement).
+
+Contrôle : banc navigateur, « 6 vicies octies bis » — sur le 4.1 et le 5.2, la
+rédigée ouverte sous sa guidée notée (le contrôle exige `test.locked`, sans
+quoi il ne mesurerait plus le piège), deux Entrée puis deux retours arrière :
+3 lignes, puis 2, puis 1 ; la première ligne, qui porte le calcul, ne part
+jamais. Éprouvé par sabotage : la page d'avant reste à 3 lignes sur les
+quatre familles (4.1, 4.2, 5.2, 5.3).
