@@ -3581,6 +3581,32 @@ if(require.main === module) (async () => {
         dm: r.contexte && r.contexte._dm, n: ((r.contexte && r.contexte._copie) || []).length, note: r.contexte && r.contexte._note })), P.signalement.table);
       verifier('un signalement envoyé depuis la copie corrigée emporte la copie et la note',
         sig.length === 1 && sig[0].ev === true && sig[0].dm === ev.id && sig[0].n >= 2 && /Note/.test(sig[0].note || ''), JSON.stringify(sig));
+      /* 7 bis. LA NOTE D'UNE ÉVALUATION EST PROPORTIONNELLE AUX CASES JUSTES
+         (demande de Turquet, novembre 2026, sur la copie d'un 4.1) : sur
+         « a/d + b/d », la règle juste, le numérateur faux, le dénominateur
+         juste, et la simplification hors compte — la fraction écrite ne se
+         simplifie pas — : 2 cases justes sur 3, 6,67 / 10, et non 0. Le
+         bord voisin : une copie juste vaut 10. */
+      if(E.proportionnelle){
+        const Q = E.proportionnelle;
+        const ev2 = { id: 'ev_prop', num: 4, actif: true, titre: 'Évaluation proportionnelle', cours: '',
+                      exercices: [{ id: Q.exercice, modes: ['train'], nbQ: 1 }] };
+        await s.page.evaluate(a => { const p = window.__faux.lignes(a.t)[0]; p.valeurs.evaluations.push(a.ev); }, { t: E.table, ev: ev2 });
+        await s.page.evaluate(id => ouvrirDevoirDetail(id), ev2.id); await s.page.waitForTimeout(400);
+        await s.page.evaluate(a => openTestDevoir(a.d, a.x), { d: ev2.id, x: Q.exercice }); await s.page.waitForTimeout(400);
+        await s.page.click('#modeChoices .choice'); await s.page.waitForTimeout(900);
+        const prep = await s.page.evaluate(code => eval(code), Q.copie);
+        await s.page.click(Q.valider); await s.page.waitForTimeout(1500);
+        const lp = await s.page.evaluate(a => {
+          const r = window.__faux.lignes(a.t).filter(x => x.details && x.details.dm === a.d && x.details.state !== 'paused')[0];
+          return r ? { note: r.details.note, total: r.total, percent: r.percent, score: r.score } : null;
+        }, { t: P.tableResultats || 'resultats_1ere', d: ev2.id });
+        verifier('en évaluation, la note est proportionnelle aux cases justes — la simplification que l\'élève n\'avait pas à écrire hors compte',
+          !!lp && lp.total === 1 && Math.abs(lp.note - Q.note) < 0.006 && lp.percent === Math.round(Q.note * 100),
+          'copie ' + JSON.stringify(prep) + ' → ' + JSON.stringify(lp));
+        /* l'évaluation témoin repart : la suite lit le bilan de la PREMIÈRE */
+        await s.page.evaluate(a => { const p = window.__faux.lignes(a.t)[0]; p.valeurs.evaluations = p.valeurs.evaluations.filter(e => e.id !== a.id); }, { t: E.table, id: ev2.id });
+      } else ignorer('en évaluation, la note est proportionnelle aux cases justes', 'aucune copie témoin déclarée (evaluations.proportionnelle)');
       /* 8. le professeur : enregistrer GARDE le bonus et la publication */
       await s.page.evaluate(p => sb.auth.signInWithPassword({ email: p.c, password: p.m }), { c: (fs.readFileSync(path.join(RACINE, CIBLE), 'utf8').match(/const COURRIEL_PROF\s*=\s*"([^"]+)"/) || [])[1], m: MDP_PROF });
       await s.page.evaluate(() => { show('teacher'); teacherTab('devoirs'); }); await s.page.waitForTimeout(500);
