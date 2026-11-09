@@ -3496,7 +3496,7 @@ function branchements(w){
      toutes ses cases pm-mf n'attendent qu'un nombre — la Seconde a suivi). La
      FORME du pavé (une rangée en bas, dans les deux orientations) est affaire
      de feuille de styles et se mesure au banc navigateur. */
-  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','caseIndices','caseTexteServie','clavierTexte','clavierVersCase','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
+  const MOTEUR_PAVE = ['paveActif','paveHTML','paveSup','caseCalculEcrire','caseExposantsTexte','caseExposants','caseIndices','caseTexteServie','clavierTexte','clavierVersCase','paveInserer','paveCale','paveEstCible','paveMontrer','paveBrancher','paveObserver'];
   if(src.indexOf('function paveBrancher') >= 0){
     let refPave;
     try{ refPave = fs.readFileSync(path.join(__dirname, '..', 'terminale.html'), 'utf8'); }
@@ -31593,7 +31593,7 @@ function clavierLitteral(w, P){
     ignorer('calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses', 'ce niveau ne déclare pas clavierLitteral');
     return;
   }
-  verifierEval(w, 'calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses (' + D.exercices.length + ' exercices)', `(function(){
+  verifierEval(w, 'calcul littéral : le clavier des tablettes porte x, x², + et les parenthèses' + (D.touches.indexOf('^') >= 0 ? ', et l’exposant monte' : '') + ' (' + D.exercices.length + ' exercices)', `(function(){
     const vus=[], ATT=${JSON.stringify(D.touches)}, IDS=${JSON.stringify(D.exercices)};
     if(typeof LIT_TOUCHES==='undefined' || typeof litPave!=='function') return 'la page n’a pas LIT_TOUCHES / litPave()';
     if(LIT_TOUCHES.join(' ')!==ATT.join(' ')) vus.push('LIT_TOUCHES = ['+LIT_TOUCHES.join(' ')+'] au lieu de ['+ATT.join(' ')+']');
@@ -31636,6 +31636,15 @@ function clavierLitteral(w, P){
       if(el.value!==avant+'xx²') vus.push(id+' : les touches x puis x² n’écrivent pas « xx² » dans la case (« '+el.value+' »)');
       if(n!==2) vus.push(id+' : une touche n’a pas levé « input »');
       el.removeEventListener('input', ec); el.value=avant;
+      /* l'exposant (Première, novembre 2026 : « mettre x^2 avec la touche ^
+         ou avec ** ») : la touche ^ du pavé, puis 2, s'écrit x² ; « x**2 »
+         et « x^(2) » aussi — le chiffre monte en exposant */
+      if(ATT.indexOf('^')>=0){
+        const tape=function(ts){ el.value=''; ts.forEach(function(t){ paveInserer(el,t); }); return el.value; };
+        const a=tape(['x','^','2']), b=tape(['x','*','*','2']), c=tape(['3','x','^','(','2',')']);
+        if(a!=='x²' || b!=='x²' || c!=='3x²') vus.push(id+' : l’exposant ne monte pas (x ^ 2 → « '+a+' », x ** 2 → « '+b+' », 3x^(2) → « '+c+' »)');
+        el.value=avant;
+      }
     });
     try{ document.activeElement && document.activeElement.blur(); }catch(e){}
     delete window.__paveForce;
