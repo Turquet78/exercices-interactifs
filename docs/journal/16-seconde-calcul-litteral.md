@@ -1264,7 +1264,7 @@ bornes de chaque question (rédigées comprises), qu'aucune expression n'écrit
 tirage resté à « 2 » ou à « − » passerait les bornes sans rien tirer de
 neuf. La Seconde garde son contrôle d'origine.
 
-## Première — l'exposant au clavier, au pavé et au clavier à l'écran (novembre 2026, Première v396)
+## Première — l'exposant au clavier, au pavé et au clavier à l'écran (novembre 2026, Première v397)
 
 Demande de Turquet : « en première dans le 5.1 je souhaite que l'on puisse
 mettre x^2 avec la touche "^" du clavier ou avec "**" et que l'on puisse
