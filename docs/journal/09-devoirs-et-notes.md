@@ -1989,3 +1989,46 @@ ni la flèche ne disent rien de la réponse. Banc navigateur (section de
 l'évaluation) : « la copie relue ne porte ni cadre au marqueur ni flèche
 mesurée… », sur une copie d'avant le correctif glissée dans la ligne de note,
 et sur la copie fraîchement photographiée.
+
+**Une note que la base REFUSE ne se perd plus — et l'écran de fin le dit
+(Première, v399).** Signalé par Turquet (novembre 2026) sur la fiche n°10 :
+« j'ai bien fait l'exercice sur la fiche, et j'ai bien vu mes résultats, mais
+cela n'a pas été pris en compte » — la carte du 4.2 disait « À faire », le 4.1
+restait verrouillé. Le parcours, rejoué dans Chromium (source et page
+publiée, entraînement et soutien), enregistrait parfaitement : le défaut
+n'était pas dans la fiche. La seconde capture l'a nommé, sous l'écran de
+fin : « Résultat non enregistré : new row violates row-level security policy
+for table "resultats_1ere" ». La base avait REFUSÉ la note — la politique
+`p_resultats_1ere_ecriture` exige que la ligne d'élève soit reliée au compte
+de la session (`user_id = auth.uid()`). Deux causes le font, et la page ne
+peut pas les distinguer d'avance : la session du navigateur n'est plus celle
+de l'élève (un autre compte connecté dans un autre onglet — le professeur qui
+teste en élève, le cas le plus probable ici —, ou un jeton qui n'a pas pu se
+renouveler), ou la ligne de l'élève est DÉ-RELIÉE (01-infrastructure-supabase.md,
+`supabase/relier-comptes.sql`). Le brouillon automatique avait été refusé de
+même, d'où « À faire » et non « Note provisoire ».
+Le défaut de la PAGE était ailleurs : un message de 2,6 secondes, puis
+l'écran de fin et « Ce test a été ajouté à ton historique » — un mensonge, et
+le travail perdu sans recours. Désormais (`envoiRate`) : la note refusée est
+GARDÉE sur l'appareil (`localStorage`, clé `notesEnAttente_1ere`, cinquante au
+plus), l'écran de fin porte un bandeau rouge (`#resultEnvoi`) qui le dit, avec
+la cause quand on sait la dire — session d'un autre compte (`getSession()`
+comparé à `courrielDe(cle)`), ou compte dé-relié (session juste, refus 42501 :
+« préviens ton professeur ») —, la ligne « historique » se cache, et un bouton
+« Réessayer l'envoi » sert quand la session est encore la sienne. Chaque
+`chargerMesResultats()` commence par `envoyerNotesEnAttente()` : se
+reconnecter, ouvrir son espace ou ses fiches renvoie les notes de CET élève
+(celles d'un autre, sur un poste partagé, restent pour lui) et retire le
+brouillon de l'exercice (`memeBrouillon`, la définition de `clearRecovery`),
+sans quoi la carte proposerait de « reprendre » un exercice fini. La classe du
+bandeau envoyé est `envoye`, jamais `ok` : le contrôle des encres (« 9 bis »)
+lit toute règle `.ok` comme un verdict bleu.
+Banc navigateur, « 6 quindecies bis » : la fin d'un exercice de fiche avec un
+envoi refusé et une session d'un autre compte — le bandeau dit et nomme,
+l'historique se tait, la note est gardée et rien n'est parti ; la session
+revenue, la note part, le brouillon s'efface, l'exercice suivant s'ouvre. La
+Seconde et la Terminale n'ont pas encore ce filet : déclaré dans leurs
+`lacunes`. Ce qu'aucun banc ne voit : la vraie règle d'accès, et LEQUEL des
+deux cas a frappé le compte « benoit » — la requête de lecture de
+`supabase/LISEZMOI.md` (« Restaurer entièrement », étape 6) le dit pour le
+dé-reliage.

@@ -3925,6 +3925,80 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quindecies bis. Une note REFUSÉE par la base ne se perd pas ===== 
+       Signalé par Turquet (novembre 2026) : l'exercice fait sur la fiche, les
+       résultats vus — et la fiche disait « À faire », l'exercice suivant
+       verrouillé. Sous l'écran de fin : « new row violates row-level security
+       policy for table resultats_1ere ». La note part sous la SESSION du
+       navigateur ; un autre compte connecté dans un autre onglet, un jeton
+       expiré, une ligne d'élève dé-reliée, et la base refuse. La page le
+       disait 2,6 secondes, puis écrivait « Ce test a été ajouté à ton
+       historique ». Le double en mémoire n'applique aucune règle d'accès : le
+       banc fait donc refuser l'insertion lui-même, au moment de la fin, avec
+       une session devenue celle d'un autre compte. QUATRE BORDS : l'écran de
+       fin DIT que la note n'est pas enregistrée (et ne prétend plus le
+       contraire) ; la note est GARDÉE sur l'appareil ; une fois la session
+       revenue, le chargement des résultats l'ENVOIE et retire le brouillon ;
+       et l'exercice suivant de la fiche s'OUVRE. */
+    titre('6 quindecies bis. UNE NOTE REFUSÉE PAR LA BASE NE SE PERD PAS');
+    if(!P.noteRefusee){
+      ignorer('une note refusée par la base est dite, gardée, puis envoyée, et la fiche avance',
+        'ce niveau ne garde pas encore une note refusée — voir « lacunes »');
+    } else {
+      const R = P.noteRefusee;
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      await s.page.evaluate(r => { try{ localStorage.removeItem('notesEnAttente_1ere'); }catch(e){}
+        mesDevoirs = [{ id: 'fiche-banc', genre: 'fiche', actif: true, num: 10, titre: 'Fiche du banc',
+          exercices: [{ id: r.exercice, nbQ: 2, modes: ['train'] }, { id: r.suivant, modes: ['train'] }] }]; }, R);
+      await s.page.evaluate(r => lancerDevoirExo('fiche-banc', r.exercice, 'train'), R);
+      await s.page.waitForTimeout(400);
+      /* la séance menée à sa fin par la fonction de fin du niveau, sur une
+         séance courte (le banc des notes mène, lui, chaque exercice au clic) */
+      const ecran = await s.page.evaluate(async r => {
+        test.answers = test.questions.map(() => ({ q: '(banc)', given: '', answer: '', correct: false }));
+        test.score = 0; test.idx = test.questions.length - 1; test.locked = true;
+        const from = sb.from, gs = sb.auth.getSession;
+        sb.from = function(t){ const q = from.call(sb, t);
+          if(t === r.table) q.insert = () => Promise.resolve({ data: null,
+            error: { code: '42501', message: 'new row violates row-level security policy for table "' + r.table + '"' } });
+          return q; };
+        sb.auth.getSession = async () => ({ data: { session: { user: { email: 'un-autre@exemple.invalid' } } }, error: null });
+        await finishTest();
+        sb.from = from; sb.auth.getSession = gs;
+        const b = document.getElementById('resultEnvoi'), h = document.querySelector('#scr-results .res-hist');
+        let attente = 0; try{ attente = JSON.parse(localStorage.getItem('notesEnAttente_1ere') || '[]').length; }catch(e){}
+        const finales = window.__faux.lignes(r.table).filter(l => l.details && !l.details.state).length;
+        return { fin: document.getElementById('scr-results').classList.contains('on'),
+          bandeau: b && !b.hidden ? b.textContent.replace(/\s+/g, ' ').trim() : '',
+          historique: !!h && !h.hidden && h.getClientRects().length > 0, attente, finales };
+      }, R);
+      verifier('l\'écran de fin dit que la note n\'est PAS enregistrée, et en nomme la cause',
+        ecran.fin && /PAS été enregistrée/.test(ecran.bandeau) && /autre compte/.test(ecran.bandeau),
+        'écran de fin : ' + ecran.fin + ' — bandeau : « ' + ecran.bandeau.slice(0, 120) + ' »');
+      verifier('l\'écran de fin ne prétend plus que le test est dans l\'historique',
+        !ecran.historique, '« Ce test a été ajouté à ton historique » encore affiché');
+      verifier('la note refusée est gardée sur l\'appareil, et rien n\'est parti en base',
+        ecran.attente === 1 && ecran.finales === 0, 'en attente : ' + ecran.attente + ', notes en base : ' + ecran.finales);
+      const apres = await s.page.evaluate(async r => {
+        await chargerMesResultats();
+        let attente = -1; try{ attente = JSON.parse(localStorage.getItem('notesEnAttente_1ere') || '[]').length; }catch(e){}
+        const lignes = window.__faux.lignes(r.table);
+        return { attente,
+          finales: lignes.filter(l => l.details && !l.details.state && l.details.dm === 'fiche-banc' && l.details.test === r.exercice).length,
+          brouillons: lignes.filter(l => l.details && l.details.state === 'paused').length,
+          verrou: dmVerrouille(mesDevoirs[0], r.suivant) };
+      }, R);
+      verifier('la session revenue, la note part en base et le brouillon s\'efface',
+        apres.attente === 0 && apres.finales === 1 && apres.brouillons === 0,
+        'en attente : ' + apres.attente + ', notes de la fiche : ' + apres.finales + ', brouillons : ' + apres.brouillons);
+      verifier('et l\'exercice suivant de la fiche s\'ouvre',
+        apres.verrou === false, 'toujours verrouillé');
+      verifier('une note refusée ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 septies. le cours en PDF, déposé puis ouvert ===== */
     /* Trois choses qu'aucun banc hors navigateur ne sait voir ensemble : un
        VRAI sélecteur de fichier reçoit un VRAI fichier, la liste du professeur
