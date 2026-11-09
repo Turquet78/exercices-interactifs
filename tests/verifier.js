@@ -423,7 +423,9 @@ function structure(){
      tort et devrait être ajoutée ici. C'est le compromis voulu : un faux positif
      est bruyant et bloquant, donc quelqu'un y regarde ; un faux négatif est
      muet, et c'est lui qui met une panne en ligne. */
-  const HORS_FIN = ['showResults','doRecoverySave','enregistrerNotePartielle','enregistrerResultat','clearRecovery','autoSave'];
+  /* envoyerNotesEnAttente (Première, novembre 2026) RENVOIE une note que la
+     base avait refusée à la fin d'un exercice : elle n'en termine aucun. */
+  const HORS_FIN = ['showResults','doRecoverySave','enregistrerNotePartielle','enregistrerResultat','clearRecovery','autoSave','envoyerNotesEnAttente'];
   /* Sans ce champ, la moitié « écrit une note » du critère devenait
      from('undefined').insert — elle ne trouvait plus rien, en silence. */
   verifier('le profil déclare la table de résultats du niveau', !!P.tableResultats,
