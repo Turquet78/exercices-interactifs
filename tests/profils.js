@@ -125,6 +125,16 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'premiere-specifique.html': {
+    /* Le thème 5, Calcul littéral (novembre 2026) : les 7.8 à 7.10 de la
+       Seconde, portés avec leurs cases de TEXTE (litPave : x, x², +, ( )) —
+       les mêmes déclarations que la Seconde, pour les mêmes contrôles. */
+    casesCalculTexte: { fois: false },
+    clavierLitteral: { touches: ['x', 'x²', '+', '(', ')'],
+      exercices: ['reduire-produit', 'developper-distributivite', 'developper-double'] },
+    /* … et chaque question guidée suivie de sa rédigée : n questions par
+       séance (deux pages, six, quatre — chacune doublée), un point chacune. */
+    calculLitteralRedige: { theme: 5, exercices: { 'reduire-produit': { num: '5.1', n: 4 },
+      'developper-distributivite': { num: '5.2', n: 12 }, 'developper-double': { num: '5.3', n: 8 } } },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes',
