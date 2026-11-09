@@ -8887,6 +8887,15 @@ function calculLitteralRedige(w, P){
       currentTestId=id; TESTS[id].start();
       const qs=test.questions||[];
       if(TEST_NUM[id]!==IDS[id].num) vus.push(id+' : numéro '+TEST_NUM[id]+' au lieu de '+IDS[id].num);
+      /* un exercice dont la rédigée a été RETIRÉE (redige:false) : aucune
+         rédigée ne doit revenir, ni dans le tirage ni sur l'écran */
+      if(IDS[id].redige===false){
+        if(test.redac) vus.push(id+' : la rédigée a été retirée, mais le démarreur pose encore test.redac');
+        if(qs.some(function(q){ return q.redac; })) vus.push(id+' : une question rédigée est encore tirée');
+        if(qs.length!==IDS[id].n) vus.push(id+' : '+qs.length+' questions au lieu de '+IDS[id].n);
+        if(RED_CFG[test.kind]) vus.push(id+' : RED_CFG porte encore l’écran '+test.kind);
+        return;
+      }
       if(!test.redac) vus.push(id+' : le démarreur ne pose pas test.redac');
       if(qs.length!==IDS[id].n) vus.push(id+' : '+qs.length+' questions au lieu de '+IDS[id].n);
       if(test.maxScore!==qs.length) vus.push(id+' : barème '+test.maxScore+' pour '+qs.length+' questions (un point par question)');
@@ -8930,23 +8939,12 @@ function calculLitteralRedige(w, P){
     if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.2 F : la forme réduite sans les produits développés est acceptée');
     j=juge('dvl', lf, '3*(2x-1)-2*(4x-5)=6x-3-8x-10=-2x-13');
     if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.2 F : le signe perdu derrière le « − » est accepté');
-    const rq={phase:'redac', f1:{kind:'Xc',s:-1,m:3}, f2:{kind:'Xc',s:-1,m:5}};
-    j=juge('rpd', rq, '-3x*(-5x)=15x^(2)');
-    if(!(j.sait && j.correct)) vus.push('5.1 : −3x × (−5x) = 15x² n’est pas compté juste');
-    j=juge('rpd', rq, '-3x*(-5x)=-15x^2');
-    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.1 : −15x² (règle des signes) est accepté');
-    j=juge('rpd', rq, '-3x*(-5x)=15x*x');
-    if(!(j.sait && !j.correct && j.motif==='reduire')) vus.push('5.1 : 15x × x, non réduit, est accepté');
-    j=juge('rpd', rq, '-3x*(-5x)=15x');
-    if(!(j.sait && !j.correct)) vus.push('5.1 : 15x (le carré oublié) est accepté');
     /* ③ ce que lit l'élève et le modèle */
     test.kind='dvd'; const md=redMath(dq);
     if(md.latex!=='(4x-3)\\\\times (2x-5)') vus.push('5.3 : le LaTeX de départ est « '+md.latex+' »');
     if(!/« \\(4x − 3\\) × \\(2x − 5\\) = »/.test(md.enonceIA)) vus.push('5.3 : le modèle ne lit pas que la première ligne porte « (4x − 3) × (2x − 5) = »');
     if(md.final!=='8x² − 26x + 15') vus.push('5.3 : le résultat attendu s’écrit « '+md.final+' »');
     if(/8x² − 26x \\+ 15/.test(md.secours({sait:true,correct:false,motif:'egalite',morceau:'8x^2'}))) vus.push('5.3 : la phrase de secours donne le résultat');
-    test.kind='rpd'; const mr=redMath(rq);
-    if(mr.latex!=='-3x\\\\times (-5x)') vus.push('5.1 : le LaTeX de départ est « '+mr.latex+' »');
     return vus.slice(0,8).join(' | ');
   })()`, v => v === '');
 }
@@ -25674,8 +25672,9 @@ function reduireProduit(w, P){
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     currentTestId='reduire-produit';
     /* La Première porte cet exercice depuis novembre 2026 (thème 5, chaque page
-       suivie de sa rédigée — calculLitteralRedige) : CL dit sa place et son
-       barème, d'un point par question ; les rédigées sont retirées ici. */
+       suivie de sa rédigée — calculLitteralRedige ; le 5.1 n'en a plus) : CL
+       dit sa place et son barème, d'un point par question ; d'éventuelles
+       rédigées sont retirées ici. */
     const CL=${JSON.stringify(P.calculLitteralRedige||null)};
     const guidees=function(qs){ return qs.filter(function(q){ return !q.redac; }); };
 

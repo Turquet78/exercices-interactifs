@@ -1108,7 +1108,7 @@ un seul. La Première et la Terminale ne déclarent pas l'option : leur contrôl
 reste celui d'avant. Le thème 8 (vecteurs : `.vtr-*`, `.tcp-sel`) garde son
 Times, qui y écrit des noms de points et de vecteurs, pas l'inconnue.
 
-## Première — 5.1, 5.2, 5.3 : les 7.8, 7.9 et 7.10 de la Seconde, avec leur question rédigée (novembre 2026, Première v391)
+## Première — 5.1, 5.2, 5.3 : les 7.8, 7.9 et 7.10 de la Seconde, avec leur question rédigée (novembre 2026, Première v391) — le 5.1 l’a perdue en v393, voir plus bas
 
 **La demande** (Turquet) : « mets les exercices de seconde 7.8 ; 7.9 ; 7.10
 en première dans un thème calcul littérale. On proposera après la question
@@ -1212,3 +1212,30 @@ est celui des produits (rouge→bleu, rouge→vert, noir→bleu, noir→vert), d
 fois : la flèche j prend la couleur j modulo 4. Le 5.2 (une seule
 distributivité) et la Seconde ne changent pas. Vu dans Chromium : l'exemple et
 la question, quatre chemins colorés de deux flèches chacun.
+
+## Première — le 5.1 perd sa question rédigée (novembre 2026, Première v393)
+
+Demande de Turquet : « en première dans le 5.1, supprime la partie rédaction
+que j'avais demandée par rapport à la version de seconde ». Le 5.1
+({reduire-produit}) redevient l'exercice de la Seconde : deux pages, la
+détaillée puis la directe, deux questions par séance, un point chacune. Les
+5.2 et 5.3 gardent leur rédigée.
+
+Ce qui est retiré, et pas seulement débranché : `rpdRedacGen`, l'entrée `rpd`
+de `RED_CFG`, la zone `#rpdrZone` de l'écran, la branche `rpd` de
+`litrPose`/`litrMath`/`redMath`, l'appel à `sfrRendu`/`sfrMonte` dans le
+moteur, la phrase « Chaque page est suivie d'un produit à rédiger » de la
+carte du menu, et le contexte rédigé de l'aide. Le profil le déclare
+(`calculLitteralRedige['reduire-produit'].redige === false`, `n: 2`), et le
+contrôle « calcul littéral rédigé » tient le bord opposé : aucun `test.redac`,
+aucune question rédigée tirée, aucune entrée `RED_CFG` pour l'écran. Les
+juges de la rédigée du 5.1 (−3x × (−5x) = 15x²…) sont sortis du contrôle avec
+elle.
+
+Ce qui a mené là : en cherchant pourquoi le retour arrière n'effaçait pas une
+ligne vide « = » de cette rédigée, on a trouvé que la rédigée pose
+`test.locked=true` (la guidée est notée) et que `mlFeuille` refuse alors le
+retour arrière (`if(test.locked) return;`), tandis qu'Entrée passe par
+l'événement `change`, qui ne regarde pas le verrou. Le défaut touche TOUTES
+les rédigées du module (fractions, 5.2, 5.3) : il reste ouvert, la demande
+ayant été réorientée avant le correctif.
