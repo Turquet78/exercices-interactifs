@@ -9156,7 +9156,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=661;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=662;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -69054,7 +69054,7 @@ const KSS_SIT=[[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,0,1],[0,0,0]];
 /* les réels des vecteurs de même direction et d'autre longueur */
 const KSS_VK=[[2,1],[3,1],[1,2],[3,2],[2,3],[1,3]];
 /* les affirmations, dans l'ordre de la page : la clé, l'id, le texte */
-const KSS_AFF=[['d','kss-vd','Ces deux vecteurs ont la même direction.'],['s','kss-vs','Ces vecteurs ont le même sens.'],
+const KSS_AFF=[['d','kss-vd','Ces deux vecteurs ont la même direction (c’est-à-dire sont parallèles).'],['s','kss-vs','Ces vecteurs ont le même sens.'],
   ['l','kss-vl','Ces vecteurs ont la même longueur.'],['c','kss-vc','Ces vecteurs sont colinéaires.']];
 function kssVfAtt(q){
   const u=q.u, v=q.v, col=u[0]*v[1]-u[1]*v[0]===0;
