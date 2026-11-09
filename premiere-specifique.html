@@ -5612,7 +5612,7 @@ async function envoiRate(payload, err){
     ? ' Elle est <b>gardée sur cet appareil</b> : '+(sienne===false?'reconnecte-toi avec ton code, sur cet appareil, et elle partira toute seule.':'clique sur « Réessayer l’envoi ».')
     : ' Elle n’a pas pu être gardée sur cet appareil : préviens ton professeur.';
   envoiAfficher('<b>Attention : ta note n’a PAS été enregistrée.</b> '+cause+suite, sienne!==false && garde);
-  toast('Note NON enregistrée — lis le message','err');
+  toast('R\u00e9sultat non enregistr\u00e9 — lis le message','err');
 }
 /* Le bandeau de l'écran de fin : null le cache (un nouvel envoi commence). */
 function envoiAfficher(html, reessai){

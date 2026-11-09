@@ -3968,7 +3968,7 @@ if(require.main === module) (async () => {
         sb.from = from; sb.auth.getSession = gs;
         const b = document.getElementById('resultEnvoi'), h = document.querySelector('#scr-results .res-hist');
         let attente = 0; try{ attente = JSON.parse(localStorage.getItem('notesEnAttente_1ere') || '[]').length; }catch(e){}
-        const finales = window.__faux.tables[r.table].filter(l => l.details && !l.details.state).length;
+        const finales = window.__faux.lignes(r.table).filter(l => l.details && !l.details.state).length;
         return { fin: document.getElementById('scr-results').classList.contains('on'),
           bandeau: b && !b.hidden ? b.textContent.replace(/\s+/g, ' ').trim() : '',
           historique: !!h && !h.hidden && h.getClientRects().length > 0, attente, finales };
@@ -3983,7 +3983,7 @@ if(require.main === module) (async () => {
       const apres = await s.page.evaluate(async r => {
         await chargerMesResultats();
         let attente = -1; try{ attente = JSON.parse(localStorage.getItem('notesEnAttente_1ere') || '[]').length; }catch(e){}
-        const lignes = window.__faux.tables[r.table];
+        const lignes = window.__faux.lignes(r.table);
         return { attente,
           finales: lignes.filter(l => l.details && !l.details.state && l.details.dm === 'fiche-banc' && l.details.test === r.exercice).length,
           brouillons: lignes.filter(l => l.details && l.details.state === 'paused').length,
