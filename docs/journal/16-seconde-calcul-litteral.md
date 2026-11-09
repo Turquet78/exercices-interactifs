@@ -1108,7 +1108,7 @@ un seul. La Première et la Terminale ne déclarent pas l'option : leur contrôl
 reste celui d'avant. Le thème 8 (vecteurs : `.vtr-*`, `.tcp-sel`) garde son
 Times, qui y écrit des noms de points et de vecteurs, pas l'inconnue.
 
-## Première — 5.1, 5.2, 5.3 : les 7.8, 7.9 et 7.10 de la Seconde, avec leur question rédigée (novembre 2026, Première v391) — le 5.1 l’a perdue en v392, voir plus bas
+## Première — 5.1, 5.2, 5.3 : les 7.8, 7.9 et 7.10 de la Seconde, avec leur question rédigée (novembre 2026, Première v391) — le 5.1 l’a perdue en v393, voir plus bas
 
 **La demande** (Turquet) : « mets les exercices de seconde 7.8 ; 7.9 ; 7.10
 en première dans un thème calcul littérale. On proposera après la question
@@ -1198,7 +1198,22 @@ rédigée ouverte dessous, rédigée juste (un point), 10 / 10 à la fin. Ce que
 ce banc ne voit pas : le x en italique arrondi des cases (la police
 « ApfX » vient du CDN, que les bancs coupent).
 
-## Première — le 5.1 perd sa question rédigée (novembre 2026, Première v392)
+**Puis le 5.3 de la Première a pris QUATRE COULEURS de flèches (v392).**
+Demande de Turquet, novembre 2026 : « en première dans l'exercice 5.3 il
+faudrait mettre 4 couleurs différentes pour les 4 flèches ». Les huit flèches
+du schéma (`dvlTrace`) partaient en un seul `<path>` bleu nuit ; sur un
+`.dvd-schema` à huit flèches, chacune va maintenant dans le chemin de SON
+produit (`dvl-fl0` à `dvl-fl3`) : la flèche de l'expression et celle de la
+rangée des produits partagent la couleur, pour qu'on lise quelle flèche donne
+quel produit. Orange, violet, turquoise, rose — aucune des encres des bulles
+(rouge, bleu, vert, noir), aucune des encres de la vérification. Le trait
+passe à 2 px pour que la couleur se lise. L'ordre des flèches dans `data-fl`
+est celui des produits (rouge→bleu, rouge→vert, noir→bleu, noir→vert), deux
+fois : la flèche j prend la couleur j modulo 4. Le 5.2 (une seule
+distributivité) et la Seconde ne changent pas. Vu dans Chromium : l'exemple et
+la question, quatre chemins colorés de deux flèches chacun.
+
+## Première — le 5.1 perd sa question rédigée (novembre 2026, Première v393)
 
 Demande de Turquet : « en première dans le 5.1, supprime la partie rédaction
 que j'avais demandée par rapport à la version de seconde ». Le 5.1

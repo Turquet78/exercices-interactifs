@@ -1518,6 +1518,12 @@ i.pb-P{margin-right:.14em}
   .dvl-svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
   .dvl-fl{fill:none;stroke:#1E2A4A;stroke-width:1.6}
   .dvl-pt{fill:#1E2A4A;stroke:none}
+  /* 5.3 : une couleur par produit, aucune de celles des bulles (rouge, bleu, vert, noir) */
+  .dvl-fl0{stroke:#E8730C} .dvl-pt0{fill:#E8730C}
+  .dvl-fl1{stroke:#8A3FD1} .dvl-pt1{fill:#8A3FD1}
+  .dvl-fl2{stroke:#0B9AA8} .dvl-pt2{fill:#0B9AA8}
+  .dvl-fl3{stroke:#D6338A} .dvl-pt3{fill:#D6338A}
+  .dvd-schema .dvl-fl{stroke-width:2}
   .dvl-acc{fill:none;stroke:#1E2A4A;stroke-width:1.5}
   .dvl-l{display:flex;align-items:center;gap:6px;white-space:nowrap}
   .dvl-l4{margin-top:10px}
@@ -3593,7 +3599,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=392;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=393;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18791,8 +18797,20 @@ function dvlTrace(){
     let d='', pointes='';
     let fl=[], acc=[];
     try{ fl=JSON.parse(sc.getAttribute('data-fl')||'[]'); acc=JSON.parse(sc.getAttribute('data-acc')||'[]'); }catch(e){}
-    fl.forEach(function(f){
+    /* 5.3 (double distributivité) : chaque produit a SA couleur — la flèche
+       de l'expression et celle de son produit la partagent (demande de
+       Turquet, novembre 2026 : « 4 couleurs différentes pour les 4 flèches »).
+       Les quatre premières flèches suivent l'ordre des produits, les quatre
+       suivantes aussi : la flèche n° j est celle du produit j modulo 4. */
+    const quatre=sc.classList.contains('dvd-schema') && fl.length===8;
+    const dC=['','','',''], pC=['','','',''];
+    fl.forEach(function(f, j){
       const a=boite(f[0]), b=boite(f[1]); if(!a || !b) return;
+      if(quatre){ const d0=d, p0=pointes; d=''; pointes='';
+        trace1(f, a, b); dC[j%4]+=d; pC[j%4]+=pointes; d=d0; pointes=p0; return; }
+      trace1(f, a, b);
+    });
+    function trace1(f, a, b){
       /* 'bas' (7.10) : la flèche passe PAR-DESSOUS, la pointe vers le haut */
       if(f[2]==='bas'){
         const x1=(a.l+a.r)/2, y1=a.b+1, x2=(b.l+b.r)/2, y2=b.b+2;
@@ -18805,7 +18823,7 @@ function dvlTrace(){
       const haut=12+Math.min(26, Math.abs(x2-x1)*0.22), yc=Math.min(y1,y2)-haut;
       d+='M'+x1.toFixed(1)+' '+y1.toFixed(1)+' C'+x1.toFixed(1)+' '+yc.toFixed(1)+' '+x2.toFixed(1)+' '+yc.toFixed(1)+' '+x2.toFixed(1)+' '+(y2-6).toFixed(1)+' ';
       pointes+='M'+(x2-4.5).toFixed(1)+' '+(y2-7).toFixed(1)+' L'+(x2+4.5).toFixed(1)+' '+(y2-7).toFixed(1)+' L'+x2.toFixed(1)+' '+y2.toFixed(1)+' Z ';
-    });
+    }
     let ac='';
     acc.forEach(function(id){
       /* une paire d'identifiants (7.10) : une seule accolade sous les deux */
@@ -18820,7 +18838,9 @@ function dvlTrace(){
         +' Q'+xm.toFixed(1)+' '+(y+p).toFixed(1)+' '+(xm+r).toFixed(1)+' '+(y+p).toFixed(1)
         +' L'+(xr-r).toFixed(1)+' '+(y+p).toFixed(1)+' Q'+xr.toFixed(1)+' '+(y+p).toFixed(1)+' '+xr.toFixed(1)+' '+y.toFixed(1)+' ';
     });
-    svg.innerHTML='<path class="dvl-fl" d="'+d+'"/><path class="dvl-pt" d="'+pointes+'"/><path class="dvl-acc" d="'+ac+'"/>';
+    svg.innerHTML='<path class="dvl-fl" d="'+d+'"/><path class="dvl-pt" d="'+pointes+'"/>'
+      +(quatre ? dC.map(function(x, c){ return '<path class="dvl-fl dvl-fl'+c+'" d="'+x+'"/><path class="dvl-pt dvl-pt'+c+'" d="'+pC[c]+'"/>'; }).join('') : '')
+      +'<path class="dvl-acc" d="'+ac+'"/>';
   });
 }
 let dvlObs=null;
