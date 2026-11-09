@@ -57132,6 +57132,23 @@ function premiere(w){
   verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
 
 
+  /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
+     même dénominateur dans une somme (demande de Turquet, novembre 2026) — le
+     niveau 6 posait 315 + 9/100 + 5/10 + 9/100. L'ordre des termes, lui, peut
+     changer. Le décimal du niveau 7 (0,2) compte pour son dénominateur (10). */
+  verifierEval(w, '{ecriture-decimale-fractions} : aucune somme ne porte deux fractions de même dénominateur (7 niveaux × 3000 tirages)', `(function(){
+    if(typeof genSdec!=='function') return 'genSdec() n\\'existe pas';
+    let pb=0, desordre=0;
+    for(let niv=1;niv<=7;niv++) for(let k=0;k<3000;k++){
+      const q=genSdec(niv,k===0), ds=q.t.map(t=>t.d);
+      if(new Set(ds).size!==ds.length) pb++;
+      if(niv===6 && ds.some((d,i)=>i>0&&ds[i-1]>d)) desordre++;
+    }
+    if(pb) return pb+' sommes à dénominateur répété';
+    if(desordre<2900) return 'le niveau 6 n\\'est plus dans le désordre ('+desordre+'/3000)';
+    return true;
+  })()`);
+
   /* ---- Les constats mineurs de l'audit (octobre 2026), lot Première ----- */
 
   /* 1.4 calcul mental : aucun calcul trivial. « 0 − 0 », « 0 + 7 », « 5 × 1 »
