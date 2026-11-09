@@ -8756,6 +8756,11 @@ const VAP_TITRES={
   2:'Calcule.',
   3:'Donne un <b>ordre de grandeur</b> (c’est-à-dire un résultat très proche !).'
 };
+/* Demande de Turquet, novembre 2026 : dans les parties 2 et 3, chaque case
+   attend un nombre écrit avec un seul chiffre 1 et des 0 — l'énoncé le dit,
+   et dit qu'une fraction (1/100 pour 0,01) est acceptée dans une case. La
+   partie 1 n'en dit rien : ses réponses sont des entiers quelconques (8, 200). */
+const VAP_AIDE_P10='<br><span style="font-size:.92em">Chaque case contient un nombre écrit avec un seul chiffre <b>1</b> et des <b>0</b>, comme 100 ; 10 ; 0,1. Tu peux écrire un nombre décimal en fraction : 1/100 pour 0,01.</span>';
 function vapGabarit(i,n){ return Math.min(VAP_NB-1, Math.floor(i*VAP_NB/Math.max(1,n))); }
 /* le gabarit n'est PAS rangé dans la question : les lignes 1 et 3 de la fiche
    (8,001) ont la même forme, et distinctes() doit comparer les nombres seuls */
@@ -8820,7 +8825,7 @@ function renderVap(){
   $('vapLiveScore').textContent=test.score;
   $('vapFeedback').textContent=''; $('vapFeedback').className='mp-feedback';
   $('vapActions').innerHTML='<button class="btn btn-primary" onclick="checkVapAnswer()">Vérifier</button>';
-  $('vapPrompt').innerHTML=VAP_TITRES[q.p];
+  $('vapPrompt').innerHTML=VAP_TITRES[q.p]+(q.p>1?VAP_AIDE_P10:'');
   const R=vapCase('vapR','f-dec','résultat'), x='<span class="f-times">×</span>';
   let ligne;
   if(q.p===1) ligne=vapHTML(q)+vapApprox(R);
@@ -8835,7 +8840,20 @@ function renderVap(){
   setTimeout(()=>order[0]&&order[0].focus(),70);
 }
 const vapVal=id=>{ const el=$(id); return el ? String(el.value==null?'':el.value).trim() : ''; };
-function vapVaut(s,N){ const fr=parseDecToFrac(s); return !!fr && fr.n*VAP_D===N*fr.d; }
+/* une case lit un décimal (0,01) OU une fraction (1/100, \\frac{1}{100} de
+   MathLive, numérateur et dénominateur décimaux) : rend {n,d}, ou null */
+function vapLit(s){
+  const t=String(s==null?'':s).replace(/\s+/g,'').replace(/\{,\}/g,',').replace(/\\[dt]frac/g,'\\frac').replace(/\\left\(|\\right\)/g,'');
+  const m=t.match(/^\\frac\{([^{}]+)\}\{([^{}]+)\}$/) || t.match(/^\\frac(\d)(\d)$/) || t.match(/^\\frac(\d)\{([^{}]+)\}$/)
+    || t.match(/^\(?([\d.,]+)\)?\/\(?([\d.,]+)\)?$/);
+  if(!m) return parseDecToFrac(t);
+  const a=parseDecToFrac(m[1]), b=parseDecToFrac(m[2]);
+  if(!a||!b||b.n===0) return null;
+  return {n:a.n*b.d, d:a.d*b.n};
+}
+function vapVaut(s,N){ const fr=vapLit(s); return !!fr && fr.n*VAP_D===N*fr.d; }
+function vapLive(id,N){ const el=$(id); if(!el||el.disabled) return; const v=vapVal(id);
+  el.classList.remove('ok','bad'); if(v!=='') el.classList.add(vapVaut(v,N)?'ok':'bad'); }
 /* la correction écrite, ligne de la fiche complétée */
 function vapCorrection(q){
   const A=vapAttendus(q), r=vapStr(A.r);
@@ -8856,11 +8874,11 @@ function checkVapAnswer(live){
   const q=test.questions[test.idx], A=vapAttendus(q), soutien=isSoutien();
   const fr=!!(q.p===2 && !q.a), fac=q.p===3;
   let cx=A.fx, cy=A.fy;
-  if(fac){ const c=facteursCommutesDec('vapX','vapY',A.fx,A.fy,VAP_D); cx=c[0]; cy=c[1]; }
+  if(fac){ const c=facteursCommutes(vapVal('vapX'),vapVal('vapY'),A.fx,A.fy,vapVaut); cx=c[0]; cy=c[1]; }
   if(live){
-    liveColorDec('vapR',A.r,VAP_D);
+    vapLive('vapR',A.r);
     if(fr) fracDecLive('vapN','vapDn',A.fn,A.fd,true);
-    if(fac){ liveColorDec('vapX',cx,VAP_D); liveColorDec('vapY',cy,VAP_D); }
+    if(fac){ vapLive('vapX',cx); vapLive('vapY',cy); }
     return;
   }
   const okR=vapVaut(vapVal('vapR'),A.r); marqueSaufVide('vapR',okR,soutien);
@@ -29074,8 +29092,8 @@ function conseilCtxCourant(){
     att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+vapCorrection(q)+' '
       +(q.p===1?'Méthode enseignée : un nombre très proche d’un entier s’approche par cet entier ; une puissance de 10 à exposant négatif (10⁻² = 0,01) est négligeable devant un entier. '
-        :q.p===2?'Méthode enseignée : multiplier par 10, 100, 1000 ajoute des zéros ; un décimal comme 0,01 s’écrit d’abord en fraction décimale (1/100, toute fraction égale de dénominateur 10, 100, 1000 convient), puis on multiplie le numérateur et on simplifie. '
-        :'Méthode enseignée : chaque facteur est remplacé par la puissance de 10 la plus proche (99 ≈ 100, 11 ≈ 10 ; 0,01 et 0,1 restent tels quels), les deux facteurs s’acceptent dans les deux ordres, puis on calcule le produit. ')
+        :q.p===2?'Méthode enseignée : multiplier par 10, 100, 1000 ajoute des zéros ; un décimal comme 0,01 s’écrit d’abord en fraction décimale (1/100, toute fraction égale de dénominateur 10, 100, 1000 convient), puis on multiplie le numérateur et on simplifie. Chaque case attend un nombre écrit avec un seul chiffre 1 et des 0 (100 ; 10 ; 0,1) ; une fraction est acceptée pour un décimal (1/100 pour 0,01). '
+        :'Méthode enseignée : chaque facteur est remplacé par la puissance de 10 la plus proche (99 ≈ 100, 11 ≈ 10 ; 0,01 et 0,1 restent tels quels), les deux facteurs s’acceptent dans les deux ordres, puis on calcule le produit. Chaque case attend un nombre écrit avec un seul chiffre 1 et des 0 (100 ; 10 ; 0,1) ; une fraction est acceptée pour un décimal (1/100 pour 0,01). ')
       +'Erreurs classiques : décaler la virgule dans le mauvais sens (0,01 × 1000 = 0,00001), oublier un zéro, ou garder le nombre exact au lieu de la puissance de 10.';
   } else if(k==='sdec' && q){
     const F=sdFracDec(q.V);
