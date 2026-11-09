@@ -1930,7 +1930,7 @@ peintes avec des cases `ok`), sans `evalNettoyer`, sans `bonus` dans
 professeur compte trois familles, et l'ordre des cartes de l'accueil.
 
 **Puis la note d'une ÉVALUATION est devenue PROPORTIONNELLE aux cases justes
-(Première v386, demande de Turquet, novembre 2026).** Sur la copie d'un 4.1
+(Première v387, demande de Turquet, novembre 2026).** Sur la copie d'un 4.1
 (3/2 + 1/2) : la règle « dénominateur » choisie juste, 3 écrit au numérateur
 (faux), 2 au dénominateur (juste), et les quatre cases de simplification
 remplies en vert par la correction — la note affichait 0 / 10, parce que la
