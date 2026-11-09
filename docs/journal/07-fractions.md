@@ -2373,7 +2373,7 @@ une copie qui finirait sur un nombre négatif reste jugée fausse par sa
 valeur, pas illisible.
 
 **Puis le signe de l'énoncé RÉDIGÉ du 4.1 est tombé sur les traits (novembre
-2026, Première v392).** Signalé par Turquet, copie d'écran à l'appui : dans
+2026, Première v393).** Signalé par Turquet, copie d'écran à l'appui : dans
 « À toi de rédiger : calcule 3/4 ÷ 1/2 », le « ÷ » se lisait au-dessus des
 traits de fraction, et la consigne collait au point final. La règle qui met
 l'énoncé rédigé en rangée flex centrée (`align-items:center`) listait ses
