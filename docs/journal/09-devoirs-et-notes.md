@@ -2032,3 +2032,34 @@ Seconde et la Terminale n'ont pas encore ce filet : déclaré dans leurs
 deux cas a frappé le compte « benoit » — la requête de lecture de
 `supabase/LISEZMOI.md` (« Restaurer entièrement », étape 6) le dit pour le
 dé-reliage.
+
+**Puis la session de l'élève s'est ROUVERTE EN SILENCE avant l'envoi — et le
+bandeau rouge n'est plus que le dernier recours (Première, v401).** Signalé
+par Turquet (novembre 2026) sur une ÉVALUATION, le 1.11 : « Exercice rendu ✓ »,
+puis « ta note n'a PAS été enregistrée — un autre compte s'est connecté dans
+un autre onglet ». Le filet de la v399 tenait (la note gardée, renvoyée à la
+reconnexion), mais pour une évaluation — une tentative, la copie corrigée
+attendue par le professeur — c'est trop tard pour l'élève, qui croit avoir
+rendu. La cause est structurelle : la session Supabase est UNE par
+navigateur, partagée par tous les onglets ; le professeur qui ouvre son
+tableau de bord à côté (ou un autre élève sur le même poste) prend la place.
+Le remède est celui du professeur (`CLE_MDP_ONGLET`, plus haut) : le code de
+l'élève est GARDÉ DANS L'ONGLET (`sessionStorage`, clé
+`exercices-interactifs.1ere.eleve`, jamais `localStorage` ni la page), posé
+par `connexionEleve()` au succès, retiré par `fermerSession()` (« Se
+déconnecter ») et par la connexion du professeur dans l'onglet. Juste avant
+chaque envoi — `enregistrerResultat()` et `envoyerNotesEnAttente()` —,
+`assurerSessionEleve()` compare la session à `courrielDe(cle)` et, si elle
+n'est plus la sienne, `reconnexionEleveSilencieuse()` s'y reconnecte ; la note
+part. Ce que cela ouvre : rien — le jeton de `localStorage` vaut déjà le code
+jusqu'à la déconnexion. Le prix, nommé : l'onglet de l'autre compte perd à son
+tour la session ; celui du professeur se rouvre seul à sa prochaine écriture
+(`reconnexionSilencieuse`), mais ses LECTURES entre-temps se font sous la
+session de l'élève. Un code refusé (changé depuis) s'oublie, une cadence (429)
+le garde. Un onglet ouvert AVANT la v401 n'a pas de code gardé : il retombe sur
+le bandeau de la v399. Banc navigateur, « 6 quindecies bis », trois contrôles
+de plus : le code est gardé à la connexion ; une session remplacée par un
+autre compte (le double refusant l'insertion tant que la session n'est pas
+celle de l'élève) n'empêche plus la note de partir, sans bandeau ; « Se
+déconnecter » oublie le code. La Seconde et la Terminale n'ont ni le filet ni
+la reconnexion.
