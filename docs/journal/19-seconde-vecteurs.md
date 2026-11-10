@@ -6209,7 +6209,7 @@ de l'élève ; la copie fausse, la même décomposition le long des flèches ver
 en soutien, rien avant ni après « Revérifier ». Vu dans un vrai Chromium à
 1 280 px.
 
-### Le 8.3.4 : « − » seul vaut −1, et « Non » retire la suite de la ligne (Seconde v667)
+### Le 8.3.4 : « − » seul vaut −1, et « Non » retire la suite de la ligne (Seconde v668 — v667 prise sur main pendant les bancs)
 
 Turquet, novembre 2026 : « quand on met − dans la case pour dire qu'ils sont
 opposés, c'est refusé ; quand on met non, ne pas attendre que la case du
