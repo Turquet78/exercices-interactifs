@@ -322,6 +322,29 @@ case. Le premier jet ne regardait que le parent direct, et accusait ces six
 part — sans quoi la réponse longue ne dépasse aucun plafond, et le contrôle ne
 mesure rien.
 
+**Puis la case a grandi EN HAUTEUR — et c'est une fraction qui l'a montré.**
+Capture de Turquet (novembre 2026), 1.12 de la Première (« Valeur approchée et
+ordre de grandeur ») : l'élève écrit « 1/100 » dans la case du premier facteur,
+MathLive dresse la fraction, et le 100 sort sous le cadre. La règle générale
+`.f-dec{height:50px}` fixe la hauteur des cases décimales ; le filet
+`#cases-math-grandissent` ne relâchait que la LARGEUR. Mesuré dans Chromium :
+le contenu descendait 9 px sous la case. Deux remèdes, l'un dans l'autre : le
+1.12 pose `height:auto;min-height:50px` sur ses cases (aucun saut à la
+frappe), et le filet, dans les trois niveaux, lève désormais aussi la hauteur
+d'une case dont le contenu dépasse en haut ou en bas (`debordeHaut`,
+`data-grandit-haut`) — sa hauteur d'origine devient le minimum.
+Le contrôle universel (section 9) écrit `\frac{1}{100}` dans les cases qu'il
+remplissait déjà de « 123+456+789 », et exige que la fraction tienne entre le
+bord haut et le bord bas de chaque case : « …et une fraction écrite tient dans
+sa case ». **Son second bord n'est pas celui de la largeur** — au premier
+passage, il exigeait qu'une case au moins ait dû grandir, et la Terminale a
+rougi : 121 fractions écrites, aucune case de hauteur fixe, toutes tenaient
+d'elles-mêmes. Ce n'était pas un aveuglement mais un succès ; le bord est
+donc « au moins une fraction mesurée », et c'est le SABOTAGE qui éprouve le
+contrôle : filet en hauteur coupé et correctif du 1.12 retiré, la Première
+rougit sur 37 écrans (« 1.6 — fDec : la fraction sort de 10.7 px du cadre »,
+1.7, 1.8…) — le 1.12 n'était que celui que l'élève avait photographié.
+
 **Une fraction se lit empilée, ou elle ne se lit pas.** Le modèle et les rappels
 de cours écrivent leurs mathématiques en LaTeX entre `\(` et `\)` — les fractions
 sont EMPILÉES, comme dans le cahier, et non couchées derrière une barre oblique.
