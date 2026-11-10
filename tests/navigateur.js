@@ -16594,6 +16594,7 @@ if(require.main === module) (async () => {
       const sansAvant = []; let nAvant = 0;
       const sansClavierLim = []; let nLimCases = 0, nCoeffs = 0;
       const casesCoupees = []; let nCasesLongues = 0, nCasesGrandies = 0;
+      const fractionsHors = []; let nCasesFrac = 0, nCasesGrandiesHaut = 0;
       /* CHAQUE DESSIN EST UN FICHIER DE dessins/, ET IL EST RÉELLEMENT CHARGÉ
          (décision de Turquet, octobre 2026 : les 43 images de la Seconde
          quittent la page, qui pesait 4,9 Mo dont 770 Ko de base64 — chaque
@@ -17165,6 +17166,22 @@ if(require.main === module) (async () => {
                 if(c && c.scrollWidth > c.clientWidth + 1 && aDeLaPlace(m))
                   out.coupees.push((m.id || '(sans id)') + ' : ' + c.clientWidth + ' px montrés sur ' + c.scrollWidth);
               }
+              /* EN HAUTEUR AUSSI (novembre 2026, 1.12 de la Première) : une
+                 fraction écrite dans la case — « 1/100 » — tient entre son
+                 bord haut et son bord bas ; une case de hauteur fixe (les
+                 50 px des .f-dec) la laissait sortir sous le cadre. */
+              mfs.forEach(m => { m.value = '\\frac{1}{100}'; });
+              await raf(); await raf(); await raf();
+              out.fr = 0; out.grandiesHaut = 0; out.hors = [];
+              for(const m of mfs){
+                const c = m.shadowRoot.querySelector('.ML__content'); if(!c) continue;
+                const r = m.getBoundingClientRect(), k = c.getBoundingClientRect();
+                if(!k.height) continue;
+                out.fr++;
+                if(m.dataset.granditHaut) out.grandiesHaut++;
+                const dep = Math.max(k.bottom - r.bottom, r.top - k.top);
+                if(dep > 1) out.hors.push((m.id || '(sans id)') + ' : la fraction sort de ' + dep.toFixed(1) + ' px du cadre');
+              }
               mfs.forEach(m => { m.value = ''; });
               await raf();
               return out;
@@ -17172,6 +17189,8 @@ if(require.main === module) (async () => {
             if(lg){
               nCasesLongues += lg.n; nCasesGrandies += lg.grandies;
               if(lg.coupees.length) casesCoupees.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + lg.coupees[0]);
+              nCasesFrac += lg.fr; nCasesGrandiesHaut += lg.grandiesHaut;
+              if(lg.hors.length) fractionsHors.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + lg.hors[0]);
             }
           }
           /* LA FLÈCHE → EN FIN DE CASE PASSE À LA SUIVANTE — sur TOUS les
@@ -17468,6 +17487,16 @@ if(require.main === module) (async () => {
         nCasesLongues === 0 ? 'aucune case mesurée : le contrôle ne mesure rien'
           : casesCoupees.length ? casesCoupees.length + ' écran(s) — ' + casesCoupees.slice(0, 3).join(' | ')
           : nCasesLongues + ' case(s) remplie(s), aucune n\'a eu à grandir : le contrôle ne mesure rien');
+      verifier('une case MathLive grandit pour montrer tout ce qui y est écrit — et une fraction écrite tient dans sa case',
+        /* un seul bord de mesure ici : une fraction écrite. Qu'aucune case
+           n'ait eu à grandir n'est pas un aveuglement — la Terminale n'a
+           aucune case de hauteur fixe, toutes la tiennent d'elles-mêmes ;
+           c'est le sabotage (filet en hauteur coupé : la Première rougit)
+           qui éprouve le contrôle. */
+        nCasesFrac > 0 && fractionsHors.length === 0,
+        nCasesFrac === 0 ? 'aucune fraction mesurée : le contrôle ne mesure rien'
+          : fractionsHors.length ? fractionsHors.length + ' écran(s) — ' + fractionsHors.slice(0, 3).join(' | ')
+          : nCasesFrac + ' fraction(s) écrite(s), ' + nCasesGrandiesHaut + ' case(s) grandie(s) en hauteur');
       verifier('les cases de saisie ont la taille des nombres qui les entourent',
         petites.length === 0, petites.slice(0, 3).join(' | '));
       verifier('les textes des graphiques s\'écrivent à 12 px au moins (un indice d\'étiquette à 10)',
