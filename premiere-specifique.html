@@ -1741,6 +1741,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #vapHost .f-num,#vapHost .f-den{width:auto;min-width:76px;max-width:320px;align-self:stretch;}
 #vapHost .f-fbar{width:auto;align-self:stretch;height:4px;}
 #vapHost .pt-row{margin:10px 0;gap:8px}
+/* la fraction de la partie 2 (0,1 = 1/10) est FACULTATIVE (demande de
+   Turquet, novembre 2026) : cases en pointillés et « facultatif » en rouge
+   dessous, comme la fraction du milieu de {pourcentage-fraction} */
+#vapHost .vap-fac{position:relative;display:inline-flex}
+#vapHost .vap-fac math-field.pm-mf:not(.ok):not(.bad):not(.sol){border-style:dashed}
+#vapHost .vap-fac::after{content:"facultatif";position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;
+  font-family:"Nunito";font-weight:700;font-size:.8rem;color:var(--red);white-space:nowrap;pointer-events:none}
+#vapHost .pt-row:has(.vap-fac){margin-bottom:26px}
 /* les nombres de la ligne à la taille de ses cases (la règle des cases) */
 #vapHost .f-whole{font-size:calc(1.7rem * var(--tab-nb,1));}
 @media(max-width:900px){ #vapHost .f-whole{font-size:calc(1.4rem * var(--tab-nb,1));} }
@@ -5559,6 +5567,7 @@ async function enregistrerResultat(payload){
      fins de test : le quinzième exercice ajouté l'aurait oublié, et sa note serait
      tombée dans le mauvais passage sans que rien ne le signale. */
   envoiAfficher(null);
+  await assurerSessionEleve();   /* un autre compte a pris la session dans un autre onglet : l'élève revient en silence */
   try{
     const {error}=await sb.from('resultats_1ere').insert(payload);
     if(error){ console.warn('resultat non enregistre :', error.message||error);
@@ -5600,6 +5609,50 @@ async function sessionDeLEleve(){
     if(!u) return false;
     return !!(currentEleve&&currentEleve.cle) && String(u.email||'').toLowerCase()===courrielDe(currentEleve.cle).toLowerCase();
   }catch(e){ return null; }
+}
+/* LA SESSION DE L'ÉLÈVE SE ROUVRE EN SILENCE, AVANT QUE LA NOTE NE PARTE
+   (signalé par Turquet, novembre 2026, sur une évaluation : « Exercice rendu »,
+   puis « ta note n'a PAS été enregistrée » — un autre compte s'était connecté
+   dans un autre onglet). La session Supabase est UNE par navigateur, partagée
+   par tous les onglets : le professeur qui ouvre son tableau de bord à côté,
+   ou un second élève sur le même poste, prend la place de l'élève sans que son
+   onglet le sache. Pour une évaluation — une seule tentative — c'est la copie
+   qui reste en souffrance.
+   Le remède est celui du professeur (CLE_MDP_ONGLET) : le code de l'élève est
+   GARDÉ DANS L'ONGLET (sessionStorage, jamais localStorage ni la page), posé à
+   la connexion, retiré à la déconnexion. Avant chaque envoi, si la session
+   n'est plus la sienne, l'onglet se reconnecte avec lui, sans rien demander ;
+   la note part. Ce que cela ouvre : rien de neuf — le jeton gardé par
+   Supabase dans localStorage vaut déjà le code jusqu'à la déconnexion. Le prix,
+   nommé : l'autre onglet perd à son tour sa session ; celui du professeur se
+   rouvre lui-même à sa prochaine écriture (reconnexionSilencieuse). Un code
+   REFUSÉ (changé depuis) s'oublie ; une cadence dépassée (429) ne dit rien sur
+   lui, et il reste. Sans code gardé (onglet ouvert avant cette version,
+   sessionStorage refusé), rien ne change : la note est gardée sur l'appareil
+   (envoiRate). */
+const CLE_CODE_ELEVE_ONGLET='exercices-interactifs.1ere.eleve';
+let codeEleveMemoire=null;
+function codeEleveLire(){
+  try{ const t=window.sessionStorage.getItem(CLE_CODE_ELEVE_ONGLET); return t?JSON.parse(t):null; }catch(e){ return codeEleveMemoire; }
+}
+function codeEleveGarder(cle, pin){
+  const v=(cle!=null&&cle!==''&&pin)?{cle:String(cle),pin:String(pin)}:null;
+  codeEleveMemoire=v;
+  try{ if(v) window.sessionStorage.setItem(CLE_CODE_ELEVE_ONGLET, JSON.stringify(v)); else window.sessionStorage.removeItem(CLE_CODE_ELEVE_ONGLET); }catch(e){}
+}
+async function reconnexionEleveSilencieuse(){
+  const g=codeEleveLire();
+  if(!g || !currentEleve || String(currentEleve.cle)!==g.cle) return false;
+  try{
+    const {error}=await sb.auth.signInWithPassword({email:courrielDe(g.cle),password:motDePasseDe(g.pin)});
+    if(error){ if(error.status!==429) codeEleveGarder(null); return false; }
+    return (await sessionDeLEleve())===true;
+  }catch(e){ return false; }
+}
+/* Appelée juste avant chaque envoi d'une note : ne fait rien quand la session
+   est la sienne (ou qu'on ne sait pas le dire — réseau). */
+async function assurerSessionEleve(){
+  try{ if((await sessionDeLEleve())===false) await reconnexionEleveSilencieuse(); }catch(e){}
 }
 async function envoiRate(payload, err){
   const a=notesAttenteLire();
@@ -5647,6 +5700,7 @@ async function envoyerNotesEnAttente(){
   const res={envoyees:0, restantes:0};
   if(!sb || !currentEleve || REJEU) return res;
   const a=notesAttenteLire(); if(!a.length) return res;
+  if(a.some(n=>n&&n.payload&&n.payload.eleve_id===currentEleve.id)) await assurerSessionEleve();
   const reste=[];
   for(const n of a){
     const p=n&&n.payload;
@@ -6726,7 +6780,7 @@ function idAuHasard(){
 /* Oublier currentEleve ne suffit plus : la session Supabase survit au
    rechargement de la page. Sans signOut(), l'élève suivant sur le même
    ordinateur hériterait des droits du précédent. */
-function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
+function fermerSession(){ codeEleveGarder(null); try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
 
 /* ---------- L'accueil, et la porte du professeur ----------
    L'accueil de l'élève EST sa connexion : l'écran « Choisis ton rôle » a
@@ -7160,6 +7214,7 @@ async function connexionEleve(){
         return;
       }
       etatCode('valide','✓ C\'est bon — tes exercices arrivent, attends un instant…');
+      codeEleveGarder(cle, pin);   /* gardé dans l'onglet : la session prise par un autre compte se rouvre sans rien demander */
       currentEleve=ligne; await ouvrirEspace(); return;
     }
     /* Une pastille sans clé dont un HOMONYME est relié : seules les clés de
@@ -8838,7 +8893,7 @@ function renderVap(){
   if(q.p===1) ligne=vapHTML(q)+vapApprox(R);
   else if(q.a) ligne=vapHTML(q)+fEq(R);
   else if(q.p===2) ligne=vapHTML(q)
-    +fEq('<span class="f-frac-input">'+vapCase('vapN','f-num','numérateur')+'<span class="f-fbar"></span>'+vapCase('vapDn','f-den','dénominateur')+'</span>')
+    +fEq('<span class="vap-fac" data-facultatif="1"><span class="f-frac-input">'+vapCase('vapN','f-num','numérateur (facultatif)')+'<span class="f-fbar"></span>'+vapCase('vapDn','f-den','dénominateur (facultatif)')+'</span></span>')
     +x+'<span class="f-whole">'+vapStr(P10(q.m)*VAP_D)+'</span>'+fEq(R);
   else ligne=vapHTML(q)+vapApprox(vapCase('vapX','f-dec','premier facteur arrondi'))+x+vapCase('vapY','f-dec','second facteur arrondi')+vapApprox(R);
   $('vapHost').innerHTML='<div class="pt-row">'+ligne+'</div>';
@@ -8880,6 +8935,9 @@ function checkVapAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx], A=vapAttendus(q), soutien=isSoutien();
   const fr=!!(q.p===2 && !q.a), fac=q.p===3;
+  /* la fraction est FACULTATIVE (demande de Turquet, novembre 2026) :
+     laissée vide, elle ne coûte rien ; écrite, même à moitié, elle se juge */
+  const frVide=fr && vapVal('vapN')==='' && vapVal('vapDn')==='';
   let cx=A.fx, cy=A.fy;
   if(fac){ const c=facteursCommutes(vapVal('vapX'),vapVal('vapY'),A.fx,A.fy,vapVaut); cx=c[0]; cy=c[1]; }
   if(live){
@@ -8890,7 +8948,8 @@ function checkVapAnswer(live){
   }
   const okR=vapVaut(vapVal('vapR'),A.r); marqueSaufVide('vapR',okR,soutien);
   let ok=okR;
-  if(fr) ok=marqueFracDec('vapN','vapDn',A.fn,A.fd,soutien,true) && ok;
+  if(fr && !frVide) ok=marqueFracDec('vapN','vapDn',A.fn,A.fd,soutien,true) && ok;
+  else if(fr && !soutien) ['vapN','vapDn'].forEach(id=>{ const el=$(id); if(el){ el.classList.remove('ok','bad'); el.disabled=true; } });
   if(fac){
     const okX=vapVaut(vapVal('vapX'),cx), okY=vapVaut(vapVal('vapY'),cy);
     marqueSaufVide('vapX',okX,soutien); marqueSaufVide('vapY',okY,soutien);
@@ -24991,6 +25050,7 @@ async function teacherLogin(){
     $('teacherPass').value=''; return;
   }
   mdpOngletGarder(mdp);   /* gardé dans l'onglet : la prochaine session perdue se rouvre sans boîte */
+  codeEleveGarder(null);   /* le professeur a pris cet onglet : aucun élève ne s'y reconnecte plus */
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 
