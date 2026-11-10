@@ -57133,6 +57133,33 @@ function premiere(w){
   verifier('{valeur-approchee} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde l’ordre de la fiche', vapOrdre === 0, vapOrdre + ' écarts');
   verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
 
+  /* {valeur-approchee}, partie 2 : la fraction (0,01 = 1/100) est FACULTATIVE
+     (demande de Turquet, novembre 2026) — laissée vide, elle ne coûte rien et
+     ne reçoit ni rouge ni correction ; écrite, elle se juge, et fausse elle
+     coûte le point. */
+  verifierEval(w, '{valeur-approchee} : en partie 2, la fraction est facultative — vide, elle ne coûte rien ; écrite, elle se juge', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVap();
+    const poser=function(vals){ test.questions[0]={p:2,k:2,m:3}; test.idx=0; test.locked=false; test.score=0; test.answers=[]; renderVap();
+      Object.keys(vals).forEach(function(id){ const e=document.getElementById(id); if(e) e.value=String(vals[id]); }); };
+    const cls=function(id){ return (document.getElementById(id)||{}).className||''; };
+    poser({});
+    const fac=document.querySelector('#vapHost [data-facultatif] .f-frac-input');
+    if(!fac || !fac.querySelector('#vapN') || !fac.querySelector('#vapDn')) vus.push('la fraction n\\'est pas marquée data-facultatif');
+    poser({vapR:'10'}); checkVapAnswer();
+    if(test.score!==1) vus.push('le résultat juste, fraction vide, ne vaut pas le point ('+test.score+')');
+    ['vapN','vapDn'].forEach(function(id){ if(/\\b(bad|sol)\\b/.test(cls(id))) vus.push('la case vide '+id+' se colore ('+cls(id)+')'); });
+    poser({vapN:'1',vapDn:'100',vapR:'10'}); checkVapAnswer();
+    if(test.score!==1) vus.push('la copie juste et complète ne vaut pas le point');
+    poser({vapN:'1',vapDn:'10',vapR:'10'}); checkVapAnswer();
+    if(test.score!==0) vus.push('une fraction écrite fausse ne coûte pas le point');
+    if(!/\\bbad\\b/.test(cls('vapDn'))) vus.push('le dénominateur faux ne rougit pas ('+cls('vapDn')+')');
+    poser({}); checkVapAnswer();
+    if(test.score!==0) vus.push('une copie vide vaut le point');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+
 
   /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
      même dénominateur dans une somme (demande de Turquet, novembre 2026) — le

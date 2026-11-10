@@ -204,3 +204,19 @@ soutien rougissait une fraction que la vérification aurait comptée juste.
 Exécuté dans Chromium : « 1/10 » tapé dans la case résultat de 0,01 × 10, et
 « 1/100 » dans le premier facteur de 0,01 × 99, se peignent en bleu et donnent
 l'exercice parfait.
+
+**La fraction de la partie 2 du 1.12 est FACULTATIVE (v401).** Demande de
+Turquet, novembre 2026 : « quand on doit transformer l'écriture décimale en
+fraction avec deux cases, il faut que cela soit facultatif ». Sur
+« 0,1 × 100 = □/□ × 100 = □ », les deux cases de la fraction prennent la
+présentation de la fraction du milieu de {pourcentage-fraction} : pointillés,
+« facultatif » en rouge dessous (`.vap-fac`, `data-facultatif`, que la boîte
+« Il reste des cases vides » ne compte pas). Le juge (`checkVapAnswer`) :
+fraction entièrement vide, elle ne coûte rien — ni rouge, ni correction verte
+(en entraînement les deux cases se ferment, neutres), et le point se joue sur
+le résultat seul ; écrite, même à moitié, elle se juge comme avant
+(`marqueFracDec`), et fausse elle coûte le point. Vides, ses cases n'ont
+aucune classe : `ptsEcran()` ne les compte pas. Contrôle (banc principal) :
+« en partie 2, la fraction est facultative — vide, elle ne coûte rien ;
+écrite, elle se juge », éprouvé sur la page de v400, où il rougit des quatre
+bords (pas de `data-facultatif`, point refusé, deux cases vides peintes `sol`).
