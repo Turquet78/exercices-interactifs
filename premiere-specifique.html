@@ -3606,7 +3606,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=400;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=401;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5556,6 +5556,7 @@ async function enregistrerResultat(payload){
      fins de test : le quinzième exercice ajouté l'aurait oublié, et sa note serait
      tombée dans le mauvais passage sans que rien ne le signale. */
   envoiAfficher(null);
+  await assurerSessionEleve();   /* un autre compte a pris la session dans un autre onglet : l'élève revient en silence */
   try{
     const {error}=await sb.from('resultats_1ere').insert(payload);
     if(error){ console.warn('resultat non enregistre :', error.message||error);
@@ -5597,6 +5598,50 @@ async function sessionDeLEleve(){
     if(!u) return false;
     return !!(currentEleve&&currentEleve.cle) && String(u.email||'').toLowerCase()===courrielDe(currentEleve.cle).toLowerCase();
   }catch(e){ return null; }
+}
+/* LA SESSION DE L'ÉLÈVE SE ROUVRE EN SILENCE, AVANT QUE LA NOTE NE PARTE
+   (signalé par Turquet, novembre 2026, sur une évaluation : « Exercice rendu »,
+   puis « ta note n'a PAS été enregistrée » — un autre compte s'était connecté
+   dans un autre onglet). La session Supabase est UNE par navigateur, partagée
+   par tous les onglets : le professeur qui ouvre son tableau de bord à côté,
+   ou un second élève sur le même poste, prend la place de l'élève sans que son
+   onglet le sache. Pour une évaluation — une seule tentative — c'est la copie
+   qui reste en souffrance.
+   Le remède est celui du professeur (CLE_MDP_ONGLET) : le code de l'élève est
+   GARDÉ DANS L'ONGLET (sessionStorage, jamais localStorage ni la page), posé à
+   la connexion, retiré à la déconnexion. Avant chaque envoi, si la session
+   n'est plus la sienne, l'onglet se reconnecte avec lui, sans rien demander ;
+   la note part. Ce que cela ouvre : rien de neuf — le jeton gardé par
+   Supabase dans localStorage vaut déjà le code jusqu'à la déconnexion. Le prix,
+   nommé : l'autre onglet perd à son tour sa session ; celui du professeur se
+   rouvre lui-même à sa prochaine écriture (reconnexionSilencieuse). Un code
+   REFUSÉ (changé depuis) s'oublie ; une cadence dépassée (429) ne dit rien sur
+   lui, et il reste. Sans code gardé (onglet ouvert avant cette version,
+   sessionStorage refusé), rien ne change : la note est gardée sur l'appareil
+   (envoiRate). */
+const CLE_CODE_ELEVE_ONGLET='exercices-interactifs.1ere.eleve';
+let codeEleveMemoire=null;
+function codeEleveLire(){
+  try{ const t=window.sessionStorage.getItem(CLE_CODE_ELEVE_ONGLET); return t?JSON.parse(t):null; }catch(e){ return codeEleveMemoire; }
+}
+function codeEleveGarder(cle, pin){
+  const v=(cle!=null&&cle!==''&&pin)?{cle:String(cle),pin:String(pin)}:null;
+  codeEleveMemoire=v;
+  try{ if(v) window.sessionStorage.setItem(CLE_CODE_ELEVE_ONGLET, JSON.stringify(v)); else window.sessionStorage.removeItem(CLE_CODE_ELEVE_ONGLET); }catch(e){}
+}
+async function reconnexionEleveSilencieuse(){
+  const g=codeEleveLire();
+  if(!g || !currentEleve || String(currentEleve.cle)!==g.cle) return false;
+  try{
+    const {error}=await sb.auth.signInWithPassword({email:courrielDe(g.cle),password:motDePasseDe(g.pin)});
+    if(error){ if(error.status!==429) codeEleveGarder(null); return false; }
+    return (await sessionDeLEleve())===true;
+  }catch(e){ return false; }
+}
+/* Appelée juste avant chaque envoi d'une note : ne fait rien quand la session
+   est la sienne (ou qu'on ne sait pas le dire — réseau). */
+async function assurerSessionEleve(){
+  try{ if((await sessionDeLEleve())===false) await reconnexionEleveSilencieuse(); }catch(e){}
 }
 async function envoiRate(payload, err){
   const a=notesAttenteLire();
@@ -5644,6 +5689,7 @@ async function envoyerNotesEnAttente(){
   const res={envoyees:0, restantes:0};
   if(!sb || !currentEleve || REJEU) return res;
   const a=notesAttenteLire(); if(!a.length) return res;
+  if(a.some(n=>n&&n.payload&&n.payload.eleve_id===currentEleve.id)) await assurerSessionEleve();
   const reste=[];
   for(const n of a){
     const p=n&&n.payload;
@@ -6723,7 +6769,7 @@ function idAuHasard(){
 /* Oublier currentEleve ne suffit plus : la session Supabase survit au
    rechargement de la page. Sans signOut(), l'élève suivant sur le même
    ordinateur hériterait des droits du précédent. */
-function fermerSession(){ try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
+function fermerSession(){ codeEleveGarder(null); try{ if(sb&&sb.auth) sb.auth.signOut(); }catch(e){} }
 
 /* ---------- L'accueil, et la porte du professeur ----------
    L'accueil de l'élève EST sa connexion : l'écran « Choisis ton rôle » a
@@ -7157,6 +7203,7 @@ async function connexionEleve(){
         return;
       }
       etatCode('valide','✓ C\'est bon — tes exercices arrivent, attends un instant…');
+      codeEleveGarder(cle, pin);   /* gardé dans l'onglet : la session prise par un autre compte se rouvre sans rien demander */
       currentEleve=ligne; await ouvrirEspace(); return;
     }
     /* Une pastille sans clé dont un HOMONYME est relié : seules les clés de
@@ -24988,6 +25035,7 @@ async function teacherLogin(){
     $('teacherPass').value=''; return;
   }
   mdpOngletGarder(mdp);   /* gardé dans l'onglet : la prochaine session perdue se rouvre sans boîte */
+  codeEleveGarder(null);   /* le professeur a pris cet onglet : aucun élève ne s'y reconnecte plus */
   $('teacherPass').value=''; show('teacher'); loadSettingsIntoForm(); teacherTab('results');
 }
 

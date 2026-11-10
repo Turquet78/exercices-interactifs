@@ -3994,6 +3994,45 @@ if(require.main === module) (async () => {
         'en attente : ' + apres.attente + ', notes de la fiche : ' + apres.finales + ', brouillons : ' + apres.brouillons);
       verifier('et l\'exercice suivant de la fiche s\'ouvre',
         apres.verrou === false, 'toujours verrouillé');
+      /* Et le cas signalé sur une ÉVALUATION (novembre 2026) se PRÉVIENT : le
+         code de l'élève est gardé dans l'onglet à la connexion ; un autre
+         compte qui prend la session du navigateur (le professeur dans un autre
+         onglet) ne fait plus refuser la note — l'onglet de l'élève se
+         reconnecte en silence avant l'envoi. Le double n'applique aucune règle
+         d'accès : le banc refuse l'insertion tant que la session n'est pas
+         celle de l'élève — la règle « ses propres lignes », pas une panne. */
+      const prevenu = await s.page.evaluate(async r => {
+        const F = window.__faux, moi = courrielDe(currentEleve.cle).toLowerCase();
+        const garde = !!codeEleveLire();
+        await lancerDevoirExo('fiche-banc', r.exercice, 'train');
+        await new Promise(ok => setTimeout(ok, 400));
+        test.answers = test.questions.map(() => ({ q: '(banc)', given: '', answer: '', correct: false }));
+        test.score = 0; test.idx = test.questions.length - 1; test.locked = true;
+        const avant = F.lignes(r.table).filter(l => l.details && !l.details.state).length;
+        F.poserSession({ user: { id: 'un-autre', email: 'un-autre@exemple.invalid', app_metadata: {} } });
+        const from = sb.from;
+        sb.from = function(t){ const q = from.call(sb, t);
+          if(t === r.table){ const ins = q.insert.bind(q);
+            q.insert = p => (F.session && String(F.session.user.email).toLowerCase() === moi) ? ins(p)
+              : Promise.resolve({ data: null, error: { code: '42501', message: 'new row violates row-level security policy for table "' + r.table + '"' } }); }
+          return q; };
+        await finishTest();
+        sb.from = from;
+        const b = document.getElementById('resultEnvoi');
+        let attente = -1; try{ attente = JSON.parse(localStorage.getItem('notesEnAttente_1ere') || '[]').length; }catch(e){}
+        const apres = F.lignes(r.table).filter(l => l.details && !l.details.state).length;
+        const session = F.session ? String(F.session.user.email).toLowerCase() : '';
+        logout();
+        return { garde, ajoutees: apres - avant, attente, session: session === moi,
+          bandeau: b && !b.hidden ? b.textContent.replace(/\s+/g, ' ').trim() : '',
+          oublie: !codeEleveLire() };
+      }, R);
+      verifier('le code de l\'élève est gardé dans l\'onglet à sa connexion', prevenu.garde, 'aucun code gardé');
+      verifier('une session prise par un autre compte ne fait plus refuser la note : l\'élève revient en silence, la note part',
+        prevenu.ajoutees === 1 && prevenu.attente === 0 && prevenu.session && !/PAS été enregistrée/.test(prevenu.bandeau),
+        'notes ajoutées : ' + prevenu.ajoutees + ', en attente : ' + prevenu.attente + ', session de l\'élève : '
+          + prevenu.session + ' — bandeau : « ' + prevenu.bandeau.slice(0, 100) + ' »');
+      verifier('« Se déconnecter » oublie le code gardé dans l\'onglet', prevenu.oublie, 'le code reste dans l\'onglet');
       verifier('une note refusée ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
