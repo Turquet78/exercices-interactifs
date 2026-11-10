@@ -6208,3 +6208,30 @@ quadrillage sans elle.
 de l'élève ; la copie fausse, la même décomposition le long des flèches vertes ;
 en soutien, rien avant ni après « Revérifier ». Vu dans un vrai Chromium à
 1 280 px.
+
+### Le 8.3.4 : « − » seul vaut −1, et « Non » retire la suite de la ligne (Seconde v667)
+
+Turquet, novembre 2026 : « quand on met − dans la case pour dire qu'ils sont
+opposés, c'est refusé ; quand on met non, ne pas attendre que la case du
+coefficient soit remplie ». Deux défauts, et la vérification demandée sur les
+autres exercices de colinéarité :
+
+* **Un signe seul vaut ±1.** L'élève écrit « OP⃗ = − CD⃗ », comme au cahier ;
+  `kvLit` ne lisait qu'un nombre et rendait NaN. Le signe seul se lit
+  désormais −1 (« + » seul, 1) — dans `kvLit` lui-même, pas dans le 8.3.4 :
+  la même lecture sert les 8.3.2 et 8.3.3 (`kvi`), les milieux (`kmi`) et la
+  démonstration de colinéarité (`dcoKvLit`), qui avaient le même refus. Une
+  case vide reste vide (NaN).
+* **« Non » retire « car AB⃗ = … GH⃗ ».** La case du réel, vide et visible,
+  faisait ouvrir la boîte « Il reste des cases vides » (#confirmer-vides) sur
+  une ligne entièrement répondue. La suite se cache (`kco-s-k`, attribut
+  `hidden`, posé par `kcoBoutons` — donc aussi à la reprise et à la
+  correction), en `visibility:hidden` et non `display:none` : avec la place
+  libérée, la ligne se recalait à droite et le bouton « Non » sautait sous le
+  doigt. La boîte ignore ce qui est invisible ; la flèche →, elle, ne sautait
+  que les cases `display:none` (`offsetParent`) : `pmNavListe` saute aussi
+  une case `visibility:hidden`. Seul le 8.3.4 a cette forme « Non / Oui car… ».
+  Éprouvé dans Chromium : « Non » puis « Vérifier » sans boîte, → de c à e,
+  « − » tapé dans MathLive jugé juste. Banc principal : `kvEgal('-',[-1,1])`,
+  la case vide qui ne vaut pas −1, la suite cachée par « Non » et non par
+  « Oui », et la copie juste écrite avec « − ».
