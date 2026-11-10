@@ -3257,6 +3257,8 @@
   .kco-l .kco-q{white-space:nowrap}
   .kco-l .kco-rep{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-left:auto}
   .kco-l .kco-oui{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  .kco-l .kco-suite{display:inline-flex;align-items:center;gap:8px}
+  .kco-l .kco-suite[hidden]{display:inline-flex;visibility:hidden}
   .kco-b{font-family:"Fredoka";font-weight:600;font-size:1.05rem;padding:6px 14px;border-radius:999px;border:2px solid #BBD0F7;background:#fff;color:var(--ink);cursor:pointer}
   .kco-b.kco-on{background:var(--ink);border-color:var(--ink);color:#fff}
   .kco-b.kco-on::before{content:"✔ "}
@@ -9164,7 +9166,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=667;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=668;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9239,6 +9241,7 @@ function pmNavListe(){
   const els=scr.querySelectorAll('math-field, input:not([type]), input[type="text"], input[type="number"], input[inputmode], select');
   return Array.prototype.filter.call(els, el=>{
     if(!el.offsetParent) return false;                 /* case masquee : on la saute */
+    if(getComputedStyle(el).visibility==='hidden') return false; /* invisible, sa place gardee (8.3.4, « Non ») */
     if(el.tagName==='MATH-FIELD') return !el.readOnly && !el.disabled;
     if(el.tagName==='INPUT' && (el.readOnly || el.type==='hidden')) return false;
     return !el.disabled;
@@ -67001,6 +67004,9 @@ function kvLit(s){
   /* une case MathLive se lit « -(3)/(4) » (toPlain) ; un \frac resté brut, « {,} » décimal, se lisent aussi */
   s=String(s==null?'':s).replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'$1/$2').replace(/\{,\}/g,',').replace(/[()]/g,'');
   s=s.replace(/[\s ]/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
+  /* un signe seul devant le vecteur : « −GH⃗ » vaut −1 GH⃗, « +GH⃗ » vaut 1 GH⃗ */
+  if(s==='-') return -1;
+  if(s==='+') return 1;
   const m=s.match(/^([+-]?)(\d+(?:\.\d+)?|\.\d+)(?:\/(\d+(?:\.\d+)?))?$/);
   if(!m) return NaN;
   const den=m[3]?parseFloat(m[3]):1;
@@ -68835,6 +68841,10 @@ function kcoChoix(k,c){
 function kcoBoutons(q,k){
   ['non','oui'].forEach(function(c){ const b=$('kco-'+c[0]+'-'+k); if(!b) return;
     const on=q.choisi[k]===c; b.classList.toggle('kco-on', on); b.setAttribute('aria-pressed', on?'true':'false'); });
+  /* « Non » : la suite de la ligne (« car AB⃗ = … GH⃗ ») n'a plus d'objet — elle
+     se retire, et sa case vide ne retient plus la vérification (#confirmer-vides
+     ignore ce qui est caché) */
+  const s=$('kco-s-'+k); if(s) s.hidden=q.choisi[k]==='non';
 }
 function renderKco(){
   const q=test.questions[test.idx]; test.locked=false;
@@ -68848,9 +68858,9 @@ function renderKco(){
     h+='<div class="kv-l kco-l pts-case" id="kco-r-'+k+'"><span class="kco-q"><b class="kco-lt">'+'abcdefgh'[k]+'.</b> '+kcoVecHTML(p[0])+' et '+kcoVecHTML(p[1])+'&nbsp;?</span>'
       +'<span class="kco-rep"><button type="button" class="kco-b" id="kco-n-'+k+'" aria-pressed="false" onclick="kcoChoix('+k+',\'non\')">Non</button>'
       +'<span class="kco-oui"><button type="button" class="kco-b" id="kco-o-'+k+'" aria-pressed="false" onclick="kcoChoix('+k+',\'oui\')">Oui</button>'
-      +'<span class="kco-car">car '+kcoVecHTML(p[0])+' =</span>'
+      +'<span class="kco-suite" id="kco-s-'+k+'"><span class="kco-car">car '+kcoVecHTML(p[0])+' =</span>'
       +pmMF('kco-in','kco-k-'+k,' aria-label="le réel k tel que '+kcoNom(p[0])+' = k '+kcoNom(p[1])+'"')
-      +kcoVecHTML(p[1])+'</span></span></div>';
+      +kcoVecHTML(p[1])+'</span></span></span></div>';
   });
   $('kcoHost').innerHTML=h+'</div>';
   q.p.forEach(function(_,k){

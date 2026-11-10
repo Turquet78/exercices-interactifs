@@ -14996,6 +14996,7 @@ function vecteursColineaires(w, P){
     /* la fraction s'écrit EMPILÉE : la case du réel est une case MathLive, sa lecture (« -(3)/(4) »,
        un \\frac brut) est comprise, et le texte rangé par la pause redevient une fraction */
     if(!el('kco-k-0') || el('kco-k-0').tagName!=='MATH-FIELD') vus.push('8.3.4 : la case du réel n\\'est pas une case MathLive — la fraction s\\'y écrit en ligne');
+    if(!kvEgal('-',[-1,1]) || !kvEgal('−',[-1,1]) || kvEgal('',[-1,1])) vus.push('8.3.4 : « − » seul ne vaut pas −1, ou une case vide vaut −1');
     if(!kvEgal('-(3)/(4)',[-3,4]) || !kvEgal('-\\\\frac{3}{4}',[-3,4]) || !kvEgal('(1{,}5)',[3,2])) vus.push('8.3.4 : la lecture d\\'une case MathLive');
     if(pmVersLatex('-(3)/(4)')!=='-\\\\frac{3}{4}' || pmVersLatex('2')!=='2' || pmVersLatex('\\\\frac{1}{2}')!=='\\\\frac{1}{2}') vus.push('8.3.4 : la reprise ne rend pas la fraction empilée : '+pmVersLatex('-(3)/(4)'));
     /* la copie juste : 2, 1/2, −3/4, non (presque parallèles), −1 */
@@ -15005,7 +15006,9 @@ function vecteursColineaires(w, P){
     const qc=JSON.parse(JSON.stringify(test.questions[0]));
     test.questions[0]=qc; renderKco();
     if(!el('kco-o-0').classList.contains('kco-on') || !el('kco-n-3').classList.contains('kco-on')) vus.push('8.3.4 : les boutons enfoncés ne reviennent pas après le JSON');
-    taper(0,'2'); taper(1,'1/2'); taper(2,'−0,75'); taper(4,'-1');
+    /* « Non » retire la suite de la ligne (sa case vide ne retient plus la vérification) ; « − » seul vaut −1 */
+    if(!el('kco-s-3').hidden || el('kco-s-0').hidden) vus.push('8.3.4 : « Non » ne retire pas la suite de la ligne, ou « Oui » la retire');
+    taper(0,'2'); taper(1,'1/2'); taper(2,'−0,75'); taper(4,'-');
     av=test.score; checkKco();
     if(test.score-av!==5 || document.querySelectorAll('#scr-kco .kco-l.ok').length!==5) vus.push('8.3.4 : la copie juste vaut '+(test.score-av));
     if(!el('kco-k-0').disabled || !el('kco-n-0').disabled) vus.push('8.3.4 : les lignes restent modifiables après la correction');
