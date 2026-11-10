@@ -9164,7 +9164,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=666;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=667;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -85970,18 +85970,36 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
    et quand la page écrit elle-même dans la case (value, setValue, insert,
    executeCommand : la reprise d'une pause, la correction, le pavé). Le banc
    navigateur le vérifie sur tous les exercices (« une case MathLive grandit
-   pour montrer tout ce qui y est écrit »). */
+   pour montrer tout ce qui y est écrit »).
+   EN HAUTEUR AUSSI (Turquet, novembre 2026, capture du 1.12 de la Première) :
+   « 1/100 » écrit dans une case de 50 px (la règle générale des .f-dec) y
+   dressait sa fraction, et le 100 sortait sous le cadre. Une case dont le
+   contenu dépasse en haut ou en bas perd sa hauteur fixe (height:auto) ; sa
+   hauteur d'origine devient le minimum. Le banc l'éprouve en écrivant une
+   fraction dans chaque case (« …et une fraction écrite tient dans sa case »). */
 (function(){
   function deborde(mf){
     const c=mf.shadowRoot && mf.shadowRoot.querySelector('.ML__content');
     return !!c && c.scrollWidth>c.clientWidth+1;
+  }
+  function debordeHaut(mf){
+    const c=mf.shadowRoot && mf.shadowRoot.querySelector('.ML__content');
+    if(!c) return false;
+    const r=mf.getBoundingClientRect(), k=c.getBoundingClientRect();
+    return k.height>0 && (k.bottom>r.bottom+1 || k.top<r.top-1);
   }
   /* trois retenues peuvent tenir une case : un plafond (max-width), une
      largeur fixe (width:120px) et une base flex (flex:0 1 7em) — les trois se
      relâchent ensemble, et la largeur d'origine devient le minimum : la case
      effacée retrouve sa taille, jamais moins */
   function agrandir(mf){
-    if(!mf || !mf.isConnected || mf.dataset.grandit || !deborde(mf)) return;
+    if(!mf || !mf.isConnected) return;
+    if(!mf.dataset.granditHaut && debordeHaut(mf)){
+      mf.dataset.granditHaut='1';
+      mf.style.minHeight=Math.ceil(mf.getBoundingClientRect().height)+'px';
+      mf.style.height='auto'; mf.style.maxHeight='none';
+    }
+    if(mf.dataset.grandit || !deborde(mf)) return;
     mf.dataset.grandit='1';
     mf.style.minWidth=Math.ceil(mf.getBoundingClientRect().width)+'px';
     mf.style.width='auto'; mf.style.flexBasis='auto'; mf.style.maxWidth='100%';
