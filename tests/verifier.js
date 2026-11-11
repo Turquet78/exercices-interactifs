@@ -15538,7 +15538,7 @@ function coordonneesVecteurs(w, P){
     if(test.kind!=='vpg' || test.maxScore!==d8.bareme || test.questions.length!==d8.nb) vus.push('8.4.9 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
     if(dmPoidsQuestion('vpg',test.questions[0])!==26) vus.push('8.4.9 : dmPoidsQuestion ne compte pas vingt-six réponses');
     if(!el('vpgInstr').classList.contains('enonce') || el('vpgInstr').textContent.indexOf('A(−8 ; 2), B(−3 ; 6), C(7 ; 1) et D(2 ; −3)')<0 || el('vpgInstr').textContent.indexOf('Démontrer que ABCD est un parallélogramme')<0) vus.push('8.4.9 : l\\'énoncé : '+el('vpgInstr').textContent.slice(0,160));
-    if(document.querySelectorAll('#vpgFig .vpg-sch-fig select').length!==4 || document.querySelectorAll('#vpgPts .svr-pt.n').length!==4 || document.querySelectorAll('#vpgCalc .vcd-in').length!==13 || document.querySelectorAll('#vpgCalc .vcd-tete').length!==2 || document.querySelectorAll('#vpgCalc .vcd-r').length!==4) vus.push('8.4.9 : l\\'écran n\\'a pas son schéma, ses quatre points, ses deux colonnes « Fin − Début »');
+    if(document.querySelectorAll('#vpgFig .vpg-sch-fig select').length!==4 || document.querySelector('#scr-vpg .svr-svg, #vpgGraph, #vpgPts') || document.querySelectorAll('#vpgFig .vpg-sch-svg polygon').length!==1 || document.querySelectorAll('#vpgCalc .vcd-in').length!==13 || document.querySelectorAll('#vpgCalc .vcd-tete').length!==2 || document.querySelectorAll('#vpgCalc .vcd-r').length!==4) vus.push('8.4.9 : l\\'écran n\\'a pas son schéma seul (aucun repère), ses deux colonnes « Fin − Début »');
     if(document.querySelector('#vpgFl line') || el('vpgVerif').textContent!=='') vus.push('8.4.9 : un vecteur est tracé avant d\\'être nommé');
     /* la copie vide : vingt-six sol, rien de rouge, AB = DC écrit et tracé en vert */
     if(verifier8()!==0 || cl8()!==tous8('sol')) vus.push('8.4.9 : la copie vide : '+cl8());
@@ -15548,6 +15548,26 @@ function coordonneesVecteurs(w, P){
     if(el('vpgFeedback').textContent.indexOf('Il te manquait 26 cases')<0) vus.push('8.4.9 : le message de la copie vide : '+el('vpgFeedback').textContent.slice(0,80));
     /* un vecteur nommé se trace ; deux nommés, la page dit s'ils sont égaux */
     nextVpg(); test.questions[test.idx]=vpgFiche(); renderVpg();
+    /* le schéma : des lettres qui ne font pas le tour rougissent toutes les
+       quatre et la page demande l'ordre ; recliquer une liste les remet en
+       bleu ; un nouveau choix les rejuge ; le bon tour ne rougit rien */
+    const incoh8=function(){ return document.querySelectorAll('#vpgFig .vpg-incoh').length; };
+    choisir8('vpg-s0','A'); choisir8('vpg-s1','B'); choisir8('vpg-s2','D');
+    if(incoh8()) vus.push('8.4.9 : trois lettres sur quatre rougissent déjà');
+    choisir8('vpg-s3','C');
+    if(incoh8()!==4 || el('vpgVerif').textContent.indexOf('en tournant autour de la figure')<0 || el('vpgVerif').className.indexOf('bad')<0) vus.push('8.4.9 : ABDC ne rougit pas le schéma : '+incoh8()+' '+el('vpgVerif').textContent);
+    if(document.querySelector('#vpgFig .bad, #vpgFig .ok')) vus.push('8.4.9 : le rouge du schéma prend une classe de verdict');
+    el('vpg-s1').dispatchEvent(new Event('pointerdown',{bubbles:true}));
+    if(incoh8() || el('vpgVerif').textContent.indexOf('en tournant')>=0) vus.push('8.4.9 : recliquer une lettre ne remet pas les quatre cases en bleu');
+    choisir8('vpg-s1','D');
+    if(incoh8()!==4) vus.push('8.4.9 : un nouveau choix incohérent ne rougit pas');
+    el('vpg-s0').dispatchEvent(new Event('focus'));
+    if(incoh8()) vus.push('8.4.9 : le focus d\\'une lettre ne remet pas les cases en bleu');
+    choisir8('vpg-v1a','A'); choisir8('vpg-v1b','B');
+    if(document.querySelector('#vpgFl line') || el('vpgVerif').textContent.indexOf('Place d’abord A, B, C et D dans l’ordre')<0) vus.push('8.4.9 : un vecteur se trace sur un schéma faux : '+el('vpgVerif').textContent);
+    choisir8('vpg-v1a',''); choisir8('vpg-v1b','');
+    [['0','B'],['1','C'],['2','D'],['3','A']].forEach(function(c){ choisir8('vpg-s'+c[0],c[1]); });
+    if(incoh8() || el('vpgVerif').textContent!=='') vus.push('8.4.9 : le bon tour BCDA : '+incoh8()+' '+el('vpgVerif').textContent);
     choisir8('vpg-v1a','A');
     if(document.querySelector('#vpgFl line')) vus.push('8.4.9 : une seule lettre trace un vecteur');
     choisir8('vpg-v1b','B');
@@ -15581,6 +15601,7 @@ function coordonneesVecteurs(w, P){
     const fb8=el('vpgFeedback').textContent;
     ['en faisant le tour','sens contraire','on écrit fin − début','attention au signe','Le quadrilatère à démontrer est ABCD','est un parallélogramme'].forEach(function(m){ if(fb8.indexOf(m)<0) vus.push('8.4.9 : le message ne dit pas « '+m+' » : '+fb8.slice(0,300)); });
     if(document.querySelectorAll('#vpgCorr line.vpg-sol').length!==2) vus.push('8.4.9 : CD choisi : la correction ne trace pas AB et DC');
+    if(document.querySelector('#vpgFig .vpg-incoh')) vus.push('8.4.9 : le rouge « dans l\\'ordre » reste après la vérification');
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('AB = DC, coordonnées (5 ; 4)')<0) vus.push('8.4.9 : le contexte du modèle');
     /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
     currentMode='soutien'; test.questions[test.idx]=vpgFiche(); renderVpg();
@@ -15590,7 +15611,11 @@ function coordonneesVecteurs(w, P){
     if(test.locked || ls8.slice(0,6).join(',')!=='ok,ok,ok,ok,ok,ok' || ls8[12]!=='ok' || ls8[13]!=='bad' || ls8.filter(function(c){ return c==='rien'; }).length!==18 || document.querySelector('#scr-vpg .sol') || !el('vpg-v1a').disabled) vus.push('8.4.9 : le soutien : '+ls8.join(','));
     /* la bulle « gagne / perds » du 8.4.4, à côté du résultat */
     test.questions[test.idx]=vpgFiche(); renderVpg();
-    el('vpg-1-xf').value='-3'; el('vpg-1-xd').value='(−8)'; el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
+    el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Écris d’abord les deux nombres de la soustraction, les abscisses')<0) vus.push('8.4.9 : le résultat cliqué avant la soustraction n\\'ouvre pas la consigne');
+    el('vpg-1-xf').value='-3'; el('vpg-1-xd').value='(−8)'; el('vpg-1-xd').dispatchEvent(new Event('input',{bubbles:true}));
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je perds 3 et que je gagne 8')<0) vus.push('8.4.9 : la consigne ne devient pas la bulle « gagne / perds » quand la soustraction est écrite');
+    el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
     if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je perds 3 et que je gagne 8')<0) vus.push('8.4.9 : la bulle ne paraît pas au résultat : '+(el('vcdGp')?el('vcdGp').textContent.slice(0,80):'absente'));
     currentMode='train'; el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
     if(el('vcdGp')) vus.push('8.4.9 : la bulle « gagne / perds » paraît hors du soutien');

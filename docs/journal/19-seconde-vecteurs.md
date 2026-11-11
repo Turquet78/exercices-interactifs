@@ -6453,3 +6453,49 @@ feuille, l'emportait ; la règle porte maintenant `.vpg-sch-fig .vcd-c.vpg-coin`
 Et le banc navigateur a vu ce que la capture laissait passer : les graduations
 écrites à 10 px pour tenir dans des carreaux de 24 px — la règle universelle
 veut 12 px au moins ; elles tiennent à 12.
+
+### Puis plus de repère : les vecteurs se tracent sur le schéma, et les lettres hors du tour rougissent (Seconde v674)
+
+Turquet, novembre 2026 : « en mode soutien, ajouter la bulle pour les calculs.
+Sinon dans tous les modes, je ne veux pas de points placés dans un repère. Les
+élèves doivent juste compléter le parallélogramme donné avec des lettres
+cohérentes. Si ce n'est pas cohérent mettre en rouge les cases et demander de
+les placer dans le bon ordre en tournant autour de la figure. Quand un élève
+recommence à cliquer sur une case d'une des lettres du parallélogramme remettre
+toutes les cases en bleu. »
+
+**Le repère est retiré** (`vpgSVG`, `vpgCroix` et leurs constantes) : l'énoncé
+« On donne les points… », et le schéma, agrandi (`VPG_COINS`, un dessin qui
+n'est jamais mis à l'échelle, les listes posées dessus), porte seul la figure.
+**Les vecteurs nommés s'y tracent**, d'un coin à l'autre (`vpgFleche` : un côté
+un peu à l'intérieur de la figure pour ne pas couvrir son trait, une diagonale
+sur elle), quand les quatre lettres font le tour ; sinon la page dit « Place
+d'abord A, B, C et D dans l'ordre sur le schéma : le vecteur s'y tracera ».
+L'égalité se juge toujours sur les coordonnées. La correction trace les deux
+vecteurs attendus aux coins de l'étiquetage attendu.
+
+**Les lettres incohérentes** (`vpgSchemaEtat` : les quatre coins remplis, hors
+des huit tours) : les quatre listes rougissent (`vpg-incoh`, JAMAIS une classe
+de verdict — la vérification garde les siennes) et la page demande de les
+placer en tournant autour de la figure. Recliquer une des quatre
+(`pointerdown`, et `focus` pour le clavier) les remet toutes en bleu et efface
+la demande (`test.vpgRouge = false`) ; un nouveau choix (`change`) les rejuge.
+`test.vpgRouge` vaut `null` au rendu : la reprise d'une pause relit le rouge de
+l'état. En soutien, le schéma sort de la correction au fil de la saisie
+(`liveVpg`) : ses coins se jugent ensemble, jamais un à un.
+
+**La bulle « gagne / perds »** était déjà là en soutien, mais ne s'ouvrait
+qu'au résultat cliqué APRÈS la soustraction écrite : l'élève qui commence par
+le résultat ne la voyait jamais. Au 8.4.9, le résultat cliqué avant ouvre la
+même bulle avec une consigne (`vcdGpConsigne` : « Écris d'abord les deux
+nombres de la soustraction, les abscisses (dans les ronds) : fin − début ») ;
+elle devient la bulle « gagne / perds » dès que les deux nombres sont écrits.
+Les 8.4.4, 8.4.5 et 8.4.7 ne changent pas.
+
+Le banc principal (« demontrer ») : plus aucun repère ; trois lettres ne
+rougissent rien ; ABDC rougit les quatre et demande l'ordre, sans classe de
+verdict ; recliquer (pointerdown, focus) remet le bleu, un nouveau choix
+rougit ; un vecteur nommé sur un schéma faux ne se trace pas et le dit ; le
+tour BCDA ne rougit rien ; le rouge part à la vérification ; la consigne de la
+bulle, puis la bulle quand la soustraction est écrite. Vu dans Chromium à
+1 280 et 390 px.
