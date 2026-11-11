@@ -3078,6 +3078,7 @@
   .tvx-svg .vco-h{stroke:var(--vco-gris);stroke-width:3.6;stroke-linecap:round} .tvx-svg .vco-b{stroke:var(--ink);stroke-width:3.6;stroke-linecap:round}
   .tvx-svg .vco-et{font-family:"Fredoka";font-weight:700;font-size:18px} .tvx-svg .vco-et-h{fill:var(--vco-gris)} .tvx-svg .vco-et-b{fill:var(--ink)}
   .tvx-svg .tvx-et-fd{fill:var(--surface);stroke-width:1.4} .tvx-svg .tvx-fd-h{stroke:var(--vco-gris)} .tvx-svg .tvx-fd-b{stroke:var(--ink)}
+  #scr-tvx .tvx-mot-gris{color:var(--vco-gris)}   /* 8.4.8 : « grise » écrit dans le gris de sa flèche */
   .tvx-co-haut{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px}
   .tvx-co-cons{flex:1 1 320px;min-width:0}
   .tvx-co-haut .vco-rosebox{flex:0 0 auto;margin:0 auto}
@@ -9216,7 +9217,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=671;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=672;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10115,6 +10116,7 @@ const TESTS={
   'coordonnees-vecteur-parallelogramme': { name:'Coordonn\u00e9es de vecteurs et parall\u00e9logramme', icon:'\u25b1', desc:'Place quatre points, calcule les coordonn\u00e9es de deux vecteurs (fin \u2212 d\u00e9but), puis conclus\u00a0: ces vecteurs sont-ils \u00e9gaux, le quadrilat\u00e8re est-il un parall\u00e9logramme\u00a0?', start:()=>startVcp() },
   'coordonnees-vecteur-quatrieme-point': { name:'Calculer le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'A, B et C sont plac\u00e9s\u00a0: calcule les coordonn\u00e9es de M pour que ABCM soit un parall\u00e9logramme (deux vecteurs \u00e9gaux, BA = CM), puis place M pour v\u00e9rifier.', start:()=>startVcm() },
   'coordonnees-vecteur-tracer': { name:'Tracer un vecteur par ses coordonn\u00e9es', icon:'\u270f\ufe0f', desc:'Les coordonn\u00e9es de trois vecteurs u, v et w sont donn\u00e9es en colonne\u00a0: trace chacun sur le quadrillage. Le nombre du haut dit le d\u00e9placement horizontal, celui du bas le vertical\u00a0; un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e.', start:()=>startTvx(false,false,true) },
+  'coordonnees-vecteur-tracer-decompose': { name:'Tracer un vecteur par ses coordonn\u00e9es, d\u00e9composition \u00e0 l\u2019appui', icon:'\u270f\ufe0f', desc:'Comme le trac\u00e9 par les coordonn\u00e9es\u00a0: trace u, v et w sur le quadrillage. Pendant que tu traces, la fl\u00e8che grise montre ton d\u00e9placement horizontal et la noire ton d\u00e9placement vertical, avec leurs nombres\u00a0: compare-les aux coordonn\u00e9es.', start:()=>startTvx(false,false,true,true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
   'placer-point-colineaire': { name:'Placer un point d\u00e9fini par une \u00e9galit\u00e9 de vecteurs', icon:'\ud83d\udccd', desc:'Des points A, B, C sur un quadrillage et une \u00e9galit\u00e9 comme CM = \u2154AB\u00a0: place M d\u2019un clic. Quatre questions\u00a0: k entier positif, entier n\u00e9gatif, fraction positive, fraction n\u00e9gative.', start:()=>startKpl() },
@@ -10383,7 +10385,7 @@ const THEMES=[
          puis la fiche « coord vect différence » : fin − début (8.4.4) ;
          puis la fiche « vecteur coord parallélogramme » (8.4.5) ;
          puis la fiche « parallélogramme 2 » : le quatrième point M (8.4.7) */
-      { num:4, nom:'Coordonnées de vecteurs', ids:['coordonnees-vecteur-lire','coordonnees-vecteur-associer','coordonnees-vecteur-compter','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-tracer','coordonnees-vecteur-quatrieme-point'] }
+      { num:4, nom:'Coordonnées de vecteurs', ids:['coordonnees-vecteur-lire','coordonnees-vecteur-associer','coordonnees-vecteur-compter','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-tracer','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer-decompose'] }
   ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -12141,6 +12143,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'coordonnees-vecteur-tracer-decompose':["Que montrent la fl\u00e8che grise et la fl\u00e8che noire\u00a0?","Comment savoir si mon nombre gris est le bon\u00a0?","Que faire quand une coordonn\u00e9e vaut 0\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
   'coordonnees-vecteur-tracer':["Que veut dire le nombre du haut\u00a0?","Comment savoir si je vais vers la gauche ou vers la droite\u00a0?","Que faire quand une coordonn\u00e9e vaut 0\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
   'demontrer-chasles-inserer':["Comment savoir quel point ins\u00e9rer\u00a0?","Pourquoi CD = CA + AD est-il vrai\u00a0?","Dans quel vecteur faut-il ins\u00e9rer un point\u00a0?","Que faire apr\u00e8s avoir ins\u00e9r\u00e9 un point\u00a0?"],
   'construire-multiple-vecteur':["Que veut dire le vecteur 2u\u00a0?","Que change le signe moins devant k\u00a0?","Comment tracer \u00bd u sur le quadrillage\u00a0?","Comment compter le chemin du vecteur u\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?"],
@@ -13765,6 +13768,9 @@ const RAP_TVC=`<b>Tracer un vecteur à partir de ses coordonnées</b><br>
 <b>② Les signes</b> : vers la droite ou vers le haut, c'est <b>+</b> ; vers la gauche ou vers le bas, c'est <b>−</b>.<br>
 <b>③ Tracer</b> : on part d'un nœud du quadrillage — n'importe lequel —, on compte les carreaux d'abord horizontalement, puis verticalement : on arrive à la pointe de la flèche. Le vecteur <span class="vco-col"><span>−3</span><span>2</span></span> fait 3 carreaux vers la gauche, puis 2 vers le haut.<br>
 <b>④ Un 0</b> : <span class="vco-col"><span>0</span><span>−2</span></span> ne va ni à droite ni à gauche — sa flèche est verticale, 2 carreaux vers le bas ; <span class="vco-col"><span>4</span><span>0</span></span> est horizontale, 4 carreaux vers la droite.`;
+/* 8.4.8 {coordonnees-vecteur-tracer-decompose} : le rappel du 8.4.6, et ce que montrent les flèches grise et noire */
+const RAP_TVK=RAP_TVC+`<br>
+<b>⑤ Les flèches grise et noire</b> : pendant que tu traces, la flèche <b>grise</b> montre ton déplacement <b>horizontal</b> et la flèche <b>noire</b> ton déplacement <b>vertical</b>, chacune avec son nombre. Quand le nombre gris est celui du haut et le nombre noir celui du bas, ta flèche a les bonnes coordonnées.`;
 const RAP_TVO=`<b>Tracer le vecteur opposé d'un vecteur donné</b><br>
 <b>① Le vecteur opposé</b> à <span class="vec"><i>u</i></span>, noté −<span class="vec"><i>u</i></span>, a la <b>même direction</b> et la <b>même longueur</b> que <span class="vec"><i>u</i></span>, mais le <b>sens contraire</b>. On peut le tracer à partir de n'importe quel point.<br>
 <b>② Sur un quadrillage, on compte le chemin</b> de <span class="vec"><i>u</i></span>, de son départ à sa pointe : tant de carreaux vers la droite (ou la gauche), puis tant de carreaux vers le haut (ou le bas).<br>
@@ -13824,7 +13830,7 @@ const RAP_SPG=`<b>La règle du parallélogramme</b><br>
 const RAPPELS={ vco:RAP_VCO, vca:RAP_VCA, vcs:RAP_VCS, vcd:RAP_VCD, vcp:RAP_VCP, vcm:RAP_VCM, dcr:RAP_DCR, dco:RAP_DCO, kss:RAP_KSS, kpl:RAP_KPL, kph:RAP_KPH, kmi:RAP_KMI, kvi:RAP_KVI, kco:RAP_KCO, spg:RAP_SPG, stv:RAP_STV, dch:RAP_DCH, lsd:RAP_LSD, tan:RAP_TAN, vmi:RAP_VMI, chi:RAP_CHI, vfh:RAP_VFH, vcr:RAP_VCR, vej:RAP_VEJ, tpv:RAP_TPV, dpa:RAP_DPA, veg:RAP_VEG, vep:RAP_VEP, svc:RAP_SVC, cps:RAP_CPS, tcp:RAP_TCP, tvx:RAP_TVX, svr:RAP_SVR, cvp:RAP_CVP, chs:RAP_CHS, vef:RAP_VEF, ctv:RAP_CTV, csp:RAP_CSP, chl:RAP_CHL, cha:RAP_CHA, pgc:RAP_PGC, pwy:RAP_PWY, pws:RAP_PWS, pwe:RAP_PWE, pwx:RAP_PWX, pwa:RAP_PWA, pwp:RAP_PWP, pwd:RAP_PWD, pwr:RAP_PWR, pwv:RAP_PWV, pwm:RAP_PWM, pwc:RAP_PWC, pwo:RAP_PWO, pwn:RAP_PWN, pwg:RAP_PWG, pwf:RAP_PWF, pwt:RAP_PWT, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, vgt:RAP_VGT, cit:RAP_CIT, cvl:RAP_CVL, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, dvl:RAP_DVL, dvo:RAP_DVO, dvd:RAP_DVD, dvn:RAP_DVN, dvr:RAP_DVR, vfl:RAP_VFL, dvm:RAP_DVM, dvs:RAP_DVS, vec:RAP_VEC, vtr:RAP_VTR, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pcz:RAP_PCZ, pte:RAP_PTE, pfl:RAP_PFL, pqc:RAP_PQC, ppr:RAP_PPR, pod:RAP_POD, prd:RAP_PRD, pmo:RAP_PMO, pfx:RAP_PFX, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
-const RAPPELS_ID={ 'coordonnees-vecteur-tracer':RAP_TVC, 'construire-multiple-vecteur':RAP_KVX, 'tracer-vecteurs-opposes':RAP_TVO, 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'coordonnees-vecteur-tracer-decompose':RAP_TVK, 'coordonnees-vecteur-tracer':RAP_TVC, 'construire-multiple-vecteur':RAP_KVX, 'tracer-vecteurs-opposes':RAP_TVO, 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -14101,7 +14107,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-compter','coordonnees-vecteur-lire','coordonnees-vecteur-associer','vecteur-egal-figure','demontrer-chasles-inserer','demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['coordonnees-vecteur-tracer-decompose','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-compter','coordonnees-vecteur-lire','coordonnees-vecteur-associer','vecteur-egal-figure','demontrer-chasles-inserer','demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','parallelogramme-point','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -66439,7 +66445,12 @@ function ctxTcp(q){
    range les trois chemins avec une origine nulle (rien n'est posé sur le
    dessin). Même geste, même juge (le chemin, où qu'il soit) ; les pièges
    nommés lisent les coordonnées : l'horizontal et le vertical échangés, le
-   signe du haut, celui du bas, les deux. */
+   signe du haut, celui du bas, les deux.
+
+   PUIS LA DÉCOMPOSITION PENDANT LE TRACÉ (8.4.8,
+   {coordonnees-vecteur-tracer-decompose}) : le 8.4.6 avec q.dv — sous chaque
+   flèche de l'élève, et sous la flèche élastique, sa flèche grise et sa
+   flèche noire, nombres compris (tvxDecVif, calque #tvxDec). */
 const TVX_W=18, TVX_H=10;               /* carreaux : les nœuds vont de 0 à 18 et de 0 à 10 */
 const TVX_C=34, TVX_PX=30, TVX_PY=30;   /* un carreau en unités SVG, et les marges */
 const TVX_GEO={c:TVX_C, px:TVX_PX, py:TVX_PY, h:TVX_H};
@@ -66454,7 +66465,7 @@ function tvxOrig(q,k){ const v=q.vs[q.ks?0:k]; return [v[0], v[1]]; }
 function tvxDonne(q,k){ return q.ks?'u':TVX_N[k]; }
 function tvxD(q,k){ return q['d'+(k+1)]; }
 function tvxF(q,k){ return q['f'+(k+1)]; }
-function tvxQuestion(vs,op,ks,co){ const q={vs:vs, d1:null, f1:null, d2:null, f2:null, d3:null, f3:null}; if(op) q.op=1; if(ks) q.ks=ks; if(co) q.co=1; return q; }
+function tvxQuestion(vs,op,ks,co,dv){ const q={vs:vs, d1:null, f1:null, d2:null, f2:null, d3:null, f3:null}; if(op) q.op=1; if(ks) q.ks=ks; if(co) q.co=1; if(dv) q.dv=1; return q; }
 /* Le chemin que la flèche k doit faire : celui du vecteur, ou son opposé (8.1.8). */
 function tvxCible(q,k){ const w=tvxVec(q,k);
   if(q.ks){ const c=q.ks[k]; return [w[0]*c[0]/c[1], w[1]*c[0]/c[1]]; }
@@ -66572,7 +66583,7 @@ function tvxGenK(_,i){
    nulle, comme les droits du 8.4.1. Une fois sur deux, deux biais ont les
    MÊMES nombres de carreaux, seuls les signes les distinguent (le piège du
    8.4.2). */
-function tvxGenC(){
+function tvxGenC(dv){
   const para=function(a,b){ return a[0]*b[1]-a[1]*b[0]===0; };
   const sg=function(w){ return Math.sign(w[0])+','+Math.sign(w[1]); };
   const nz=function(){ return rand(1,4)*(Math.random()<0.5?-1:1); };
@@ -66586,17 +66597,17 @@ function tvxGenC(){
     if(para(ws[0],ws[1])||para(ws[0],ws[2])||para(ws[1],ws[2])) continue;
     if(new Set(ws.map(sg)).size!==3) continue;
     for(let i=ws.length-1;i>0;i--){ const j=rand(0,i), t=ws[i]; ws[i]=ws[j]; ws[j]=t; }
-    return tvxQuestion(ws.map(function(w){ return [0,0,w[0],w[1]]; }),0,null,1);
+    return tvxQuestion(ws.map(function(w){ return [0,0,w[0],w[1]]; }),0,null,1,dv);
   }
-  return tvxQuestion([[0,0,3,-2],[0,0,-1,4],[0,0,-4,0]],0,null,1);
+  return tvxQuestion([[0,0,3,-2],[0,0,-1,4],[0,0,-4,0]],0,null,1,dv);
 }
 /* Les coordonnées d'un vecteur, en colonne (le 8.4.1) ou en texte « (−3 ; 2) ». */
 function tvxCoHTML(q,k){ const w=tvxVec(q,k); return vcoColHTML(w[0],w[1]); }
 function tvxCoTxt(q,k){ const w=tvxVec(q,k); return '('+String(w[0]).replace('-','\u2212')+' ; '+String(w[1]).replace('-','\u2212')+')'; }
 /* Deux questions du 8.3.1 sont la même si u⃗ et les coefficients le sont, où que u⃗ soit posé. */
 function tvxCleK(q){ return JSON.stringify([q.vs[0][2], q.vs[0][3], q.ks.map(String).sort()]); }
-function tvxBuildQuestions(op,ks,co){
-  if(co) return distinctes(dmNbQuestions(TVX_NB), tvxGenC);
+function tvxBuildQuestions(op,ks,co,dv){
+  if(co) return distinctes(dmNbQuestions(TVX_NB), function(){ return tvxGenC(dv); });
   if(ks) return distinctes(dmNbQuestions(TVX_NB), tvxGenK, tvxCleK);
   return distinctes(dmNbQuestions(TVX_NB), function(){ return tvxGen(op); }); }
 /* Trois réponses par question — la convention de nommage que lit
@@ -66623,10 +66634,10 @@ function tvxSVG(q){
     if(q.ks) donnes+=tvxCoupes(q.ks.reduce(function(m,c){ return m*c[1]/gcd(m,c[1]); },1), {x:tvxX(o[0]),y:tvxY(o[1])}, {x:tvxX(o[0]+w[0]),y:tvxY(o[1]+w[1])}, 'svc-u');
   });
   const pointe=function(id,coul){ return `<marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${coul}"/></marker>`; };
-  return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tvx-svg" role="img" aria-label="${q.co?'Quadrillage vide : les vecteurs u, v et w à tracer par leurs coordonnées':q.ks?'Quadrillage : le vecteur u, et les vecteurs '+[0,1,2].map(function(k){ return tvxNom(q,k); }).join(', ')+' à tracer':'Quadrillage : les vecteurs u, v et w, et les vecteurs '+(q.op?'opposés':'égaux')+' à tracer'}">`
+  return `<svg viewBox="0 0 ${Wd} ${Hd}" xmlns="http://www.w3.org/2000/svg" class="sv-svg vec-svg svc-svg tvx-svg" role="img" aria-label="${q.co?'Quadrillage vide : les vecteurs u, v et w à tracer par leurs coordonnées'+(q.dv?', la décomposition de chaque flèche montrée pendant le tracé':''):q.ks?'Quadrillage : le vecteur u, et les vecteurs '+[0,1,2].map(function(k){ return tvxNom(q,k); }).join(', ')+' à tracer':'Quadrillage : les vecteurs u, v et w, et les vecteurs '+(q.op?'opposés':'égaux')+' à tracer'}">`
     +'<defs>'+pointe('tvxArr0','var(--ink)')+pointe('tvxArrM','var(--crd-a)')+pointe('tvxArrE','var(--blue)')
     +pointe('tvxArrB','var(--red)')+pointe('tvxArrS','var(--green)')+(q.co?vcoPointe('tvxArrH','var(--vco-gris)',15)+vcoPointe('tvxArrN','var(--ink)',15):'')+'</defs>'
-    +g+`<g id="tvxDonnes">${donnes}</g><g id="tvxCorr"></g><g id="tvxFl"></g><g id="tvxVif"></g><g id="tvxPrises"></g>`
+    +g+`<g id="tvxDonnes">${donnes}</g><g id="tvxCorr"></g><g id="tvxDec"></g><g id="tvxFl"></g><g id="tvxVif"></g><g id="tvxPrises"></g>`
     +'<g id="tvxCurseur" class="cvp-curseur" aria-hidden="true" style="display:none"><circle r="5"/></g></svg>';
 }
 /* Les flèches de l'élève : une croix au départ, la flèche jusqu'à l'arrivée,
@@ -66651,7 +66662,28 @@ function tvxDessiner(q){
         p+=`<circle class="tvx-prise" data-k="${k}" data-b="${b}" cx="${tvxX(n[0])}" cy="${tvxY(n[1])}" r="11"/>`; });
   });
   fl.innerHTML=h; pr.innerHTML=p;
+  tvxDecVif(q);
   tvxVif(q, test.tvxSouris||null);
+}
+/* 8.4.8 : LA DÉCOMPOSITION SUIT LA FLÈCHE DE L'ÉLÈVE PENDANT LE TRACÉ
+   (demande de Turquet, novembre 2026 : « faire un exercice comme le 8.4.6 où
+   la décomposition vecteur gris et noir s'affiche en même temps que l'on
+   trace le vecteur »). q.dv : sous chaque flèche tracée, et sous la flèche
+   élastique (tvxVif), la grise horizontale et la noire verticale de SON
+   chemin, nombres compris — celui de l'élève, jamais celui attendu : il
+   compare lui-même le gris au nombre du haut, le noir à celui du bas. À la
+   vérification finale, tvxFinal reprend la main (la décomposition sous la
+   flèche JUSTE, comme au 8.4.6) : ce calque se vide. */
+function tvxDecVif(q){
+  const g=$('tvxDec'); if(!g) return;
+  if(!q.dv||test.locked){ g.innerHTML=''; return; }
+  const mob=test.tvxMob;
+  let h='';
+  [0,1,2].forEach(function(k){
+    if(mob&&mob.k===k) return;
+    const t=tvxFl(q,k); if(t) h+=tvxDecomposition(t.d, t.w);
+  });
+  g.innerHTML=h;
 }
 /* La flèche qui suit la souris (m : la pointe, dans le repère du dessin) :
    du départ posé jusqu'à la souris pendant un tracé ; pour une extrémité
@@ -66671,6 +66703,12 @@ function tvxVif(q, m){
   }
   if(!a){ g.innerHTML=''; return; }
   let h=croix?tvxCroix(croix,''):'';
+  /* 8.4.8 : la décomposition de la flèche élastique, jusqu'au nœud visé */
+  if(q.dv){
+    const N=function(p){ return [Math.round((p.x-TVX_PX)/TVX_C), Math.round(TVX_H-(p.y-TVX_PY)/TVX_C)]; };
+    const na=N(a), nb=N(b);
+    if(!tvxEgal(na,nb)) h+=tvxDecomposition(na, [nb[0]-na[0], nb[1]-na[1]]);
+  }
   const l=Math.hypot(b.x-a.x, b.y-a.y);
   if(l>6) h+=`<line class="tvx-el tvx-vif" x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" marker-end="url(#tvxArrM)"/>`
     +tvxGrad(q, mob?mob.k:tvxCourante(q), a, b, 'tvx-el');
@@ -66928,7 +66966,8 @@ function renderTvx(){
   $('tvxModeTag').innerHTML=modeTagHTML();
   $('tvxInstr').innerHTML=q.co
     ? 'Trace un représentant de chacun des vecteurs '+[0,1,2].map(function(k){ return tvxNomHTML(q,k)+' '+tvxCoHTML(q,k); }).join(', ').replace(/, ([^,]*)$/,' et $1')+'.'
-      +'<span class="kv-sous">Le nombre du haut est le déplacement horizontal, celui du bas le vertical : vers la droite ou vers le haut, c’est +, vers la gauche ou vers le bas, c’est −. Pars de n’importe quel nœud du quadrillage.</span>'
+      +'<span class="kv-sous">Le nombre du haut est le déplacement horizontal, celui du bas le vertical : vers la droite ou vers le haut, c’est +, vers la gauche ou vers le bas, c’est −. Pars de n’importe quel nœud du quadrillage.'
+      +(q.dv?' Pendant que tu traces, la flèche <b class="tvx-mot-gris">grise</b> montre ton déplacement horizontal et la flèche <b>noire</b> ton déplacement vertical : compare leurs nombres aux coordonnées.':'')+'</span>'
     : q.ks
     ? 'Voici le vecteur '+tvxVecHTML('u')+'. Construis un représentant du vecteur '+tvxNomHTML(q,0)+', puis du vecteur '+tvxNomHTML(q,1)+', puis du vecteur '+tvxNomHTML(q,2)+'.'
     : q.op
@@ -66988,9 +67027,9 @@ function checkTvx(){
   const nb=$('tvxNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
 function nextTvx(){ if(test.idx<test.questions.length-1){ test.idx++; renderTvx(); autoSave(); } else finishTest(); }
-function startTvx(op,ks,co){
+function startTvx(op,ks,co,dv){
   if(!currentEleve){ accueil(); return; }
-  const qs=tvxBuildQuestions(!!op,!!ks,!!co);
+  const qs=tvxBuildQuestions(!!op,!!ks,!!co,!!dv);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'tvx', questions:qs, idx:0, score:0,
@@ -67012,6 +67051,7 @@ function ctxTvx(q){
     ? 'Aucun vecteur n’est dessiné : le quadrillage est vide. Les coordonnées sont données : '+[0,1,2].map(function(k){ return TVX_N[k]+' '+tvxCoTxt(q,k); }).join(', ')+'. '
      +'Consigne : tracer, n’importe où sur le quadrillage, un représentant de chacun des vecteurs u, v et w (un clic pose le point de départ, un second clic le point d’arrivée). '
      +'Méthode enseignée : la première coordonnée (le nombre du haut quand on l’écrit en colonne) est le déplacement horizontal, la seconde le déplacement vertical ; vers la droite ou vers le haut c’est +, vers la gauche ou vers le bas c’est − ; on part d’un nœud et on compte les carreaux, d’abord horizontalement, puis verticalement. '
+     +(q.dv?'Aide affichée : pendant le tracé, la page dessine sous la flèche de l’élève une flèche grise (son déplacement horizontal) et une flèche noire (son déplacement vertical), chacune avec son nombre — ceux de la flèche de l’élève, pas ceux attendus ; l’élève les compare aux coordonnées. ':'')
     : q.ks
     ? 'Un seul vecteur est dessiné : u va de '+pos(tvxOrig(q,0))+' à '+pos([tvxOrig(q,0)[0]+tvxVec(q,0)[0],tvxOrig(q,0)[1]+tvxVec(q,0)[1]])+'. '
      +'Consigne : construire, n’importe où sur le quadrillage, un représentant de chacun des vecteurs '+[0,1,2].map(function(k){ return kvMot(q.ks[k])+' u'; }).join(', ')+' (un clic pose le point de départ, un second clic le point d’arrivée). '

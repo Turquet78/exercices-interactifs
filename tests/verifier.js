@@ -4793,6 +4793,7 @@ function exercices(suite){
     tracerVecteursEgaux(w, P);
     tracerVecteursOpposes(w, P);
     tracerCoordonnees(w, P);
+    tracerCoordonneesDecompose(w, P);
     translationPavage(w, P);
     demontrerParallelogramme(w, P);
     chaslesInsererPoint(w, P);
@@ -15898,6 +15899,99 @@ function tracerCoordonnees(w, P){
     /* 7. le 8.1.7 et le 8.3.1 restent eux-mêmes */
     currentTestId='tracer-vecteurs-egaux'; TESTS['tracer-vecteurs-egaux'].start(); clearTimeout(test.fbTimer);
     if(el('tvxDonnes').children.length<3 || document.querySelector('#tvxBody .vco-rose')) vus.push('le 8.1.7 a changé d\\'écran');
+    currentTestId=D.exercice;
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {coordonnees-vecteur-tracer-decompose} (Seconde, 8.4.8 — demande de
+   Turquet, novembre 2026 : « faire un exercice comme le 8.4.6 où la
+   décomposition vecteur gris et noir s'affiche en même temps que l'on trace
+   le vecteur »). Le 8.4.6 avec q.dv : la décomposition de la flèche DE
+   L'ÉLÈVE (pas celle attendue) sous chaque flèche tracée et sous la flèche
+   élastique ; à la vérification finale, celle du 8.4.6 (sous la flèche
+   juste) la remplace ; le 8.4.6 lui-même n'en montre rien pendant le tracé. */
+function tracerCoordonneesDecompose(w, P){
+  const nom = 'vecteurs à tracer par leurs coordonnées, décomposition pendant le tracé : la place, q.dv, la grise et la noire de la flèche de l\'élève, la flèche élastique, la reprise, la vérification';
+  if(!P.tracerCoordonneesDecompose){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice des vecteurs tracés avec leur décomposition');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.tracerCoordonneesDecompose)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['coordonnees-vecteur-tracer']!=='8.4.6' || TEST_NUM['coordonnees-vecteur-quatrieme-point']!=='8.4.7') vus.push('un voisin du 8.4 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS_ID[D.exercice]!==RAP_TVK || RAP_TVK.indexOf(RAP_TVC)!==0 || !QIA_SUGG_ID[D.exercice]) vus.push('le rappel ou les questions à l\\'IA ne sont pas ceux du 8.4.8');
+    const el=function(id){ return document.getElementById(id); };
+    const classes=function(){ return ['tvx-u','tvx-v','tvx-w'].map(function(id){ const c=el(id).className;
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); }).join(','); };
+    const fixe=function(){ return {vs:[[0,0,3,-2],[0,0,-1,4],[0,0,-4,0]], d1:null, f1:null, d2:null, f2:null, d3:null, f3:null, co:1, dv:1}; };
+    const tracer=function(a,b){ tvxClic(a[0],a[1]); tvxClic(b[0],b[1]); };
+    const dec=function(id){ const g=el(id); return g.querySelectorAll('line.vco-h').length+' grises, '+g.querySelectorAll('line.vco-b').length+' noires : '
+      +Array.from(g.querySelectorAll('text.vco-et')).map(function(t){ return t.textContent; }).join(','); };
+
+    /* 1. le tirage : q.dv rangé, le reste du 8.4.6 */
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='tvx') vus.push('kind « '+test.kind+' » au lieu de tvx');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    test.questions.forEach(function(q){
+      if(Object.keys(q).sort().join(',')!=='co,d1,d2,d3,dv,f1,f2,f3,vs' || q.dv!==1) vus.push('la question range : '+JSON.stringify(q)); });
+    if(tvxBuildQuestions(false,false,true).some(function(q){ return 'dv' in q; })) vus.push('le 8.4.6 range dv : ses questions ont changé');
+
+    /* 2. l'écran : vide au départ, l'énoncé annonce la grise et la noire */
+    test.questions[0]=fixe(); test.idx=0; renderTvx();
+    if(!el('tvxDec') || el('tvxDec').children.length || el('tvxCorr').children.length) vus.push('une décomposition paraît avant tout tracé');
+    if(el('tvxInstr').textContent.indexOf('flèche grise montre ton déplacement horizontal')<0) vus.push('l\\'énoncé n\\'annonce pas la flèche grise : '+el('tvxInstr').textContent.slice(-200));
+
+    /* 3. u tracé juste : sa grise +3, sa noire −2, partant de son départ */
+    tracer([2,8],[5,6]);
+    if(dec('tvxDec')!=='1 grises, 1 noires : +3,−2') vus.push('la décomposition de u tracé : '+dec('tvxDec'));
+    const gx=el('tvxDec').querySelector('line.vco-h');
+    if(!gx || gx.getAttribute('x1')!==String(tvxX(2)) || gx.getAttribute('y1')!==String(tvxY(8))) vus.push('la grise de u ne part pas du départ de l\\'élève');
+
+    /* 4. la flèche élastique : v commencé en (10 ; 2), la souris au nœud (12 ; 5) */
+    tvxClic(10,2);
+    test.tvxSouris={x:tvxX(12)+4, y:tvxY(5)-3}; tvxVif(test.questions[0], test.tvxSouris);
+    if(dec('tvxVif')!=='1 grises, 1 noires : +2,+3') vus.push('la décomposition de la flèche élastique : '+dec('tvxVif'));
+    test.tvxSouris={x:tvxX(10)+2, y:tvxY(2)}; tvxVif(test.questions[0], test.tvxSouris);
+    if(el('tvxVif').querySelectorAll('.tvx-dec').length) vus.push('une décomposition se montre quand la souris est sur le départ');
+    test.tvxSouris=null;
+    /* v posé FAUX : la décomposition est la sienne (+2, +3), jamais celle attendue (−1, +4) */
+    tvxClic(12,5);
+    if(dec('tvxDec')!=='2 grises, 2 noires : +3,−2,+2,+3') vus.push('la décomposition de v faux : '+dec('tvxDec'));
+
+    /* 5. reprendre l'arrivée de v : elle quitte le calque, et revient à la pose */
+    tvxClic(12,5);
+    if(!test.tvxMob || dec('tvxDec')!=='1 grises, 1 noires : +3,−2') vus.push('v repris garde sa décomposition dans le calque : '+dec('tvxDec'));
+    tvxClic(9,6);
+    tracer([16,3],[12,3]);
+    if(dec('tvxDec')!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('la décomposition des trois flèches : '+dec('tvxDec'));
+
+    /* 6. la reprise après JSON, puis la vérification finale */
+    const q0=JSON.parse(JSON.stringify(test.questions[0])); test.questions[0]=q0; renderTvx();
+    if(dec('tvxDec')!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('après la reprise : '+dec('tvxDec'));
+    const av=test.score; checkTvx(); clearTimeout(test.fbTimer);
+    if(test.score-av!==3 || classes()!=='ok,ok,ok') vus.push('la copie juste vaut '+(test.score-av)+' : '+classes());
+    if(el('tvxDec').children.length) vus.push('le calque du tracé reste après la vérification');
+    if(dec('tvxCorr')!=='3 grises, 2 noires : +3,−2,−1,+4,−4') vus.push('la décomposition de la vérification : '+dec('tvxCorr'));
+
+    /* 7. en soutien, une flèche rouge garde SA décomposition */
+    currentMode='soutien'; test.questions[0]=fixe(); test.idx=0; renderTvx();
+    tracer([2,2],[0,5]); checkTvx(); clearTimeout(test.fbTimer);
+    if(classes()!=='bad,rien,rien' || dec('tvxDec')!=='1 grises, 1 noires : −2,+3' || el('tvxCorr').children.length) vus.push('en soutien, u faux : '+classes()+' — '+dec('tvxDec'));
+    currentMode='train';
+
+    /* 8. le contexte du modèle */
+    if(conseilCtxCourant().indexOf('Aide affichée')<0) vus.push('le contexte du modèle ne dit pas que la décomposition est montrée');
+
+    /* 9. le 8.4.6 ne montre rien pendant le tracé */
+    currentTestId='coordonnees-vecteur-tracer'; TESTS['coordonnees-vecteur-tracer'].start(); clearTimeout(test.fbTimer);
+    tracer([2,8],[5,6]);
+    if(el('tvxDec').children.length || el('tvxInstr').textContent.indexOf('grise')>=0) vus.push('le 8.4.6 montre la décomposition pendant le tracé');
     currentTestId=D.exercice;
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
