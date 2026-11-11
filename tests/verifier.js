@@ -15484,9 +15484,9 @@ function coordonneesVecteurs(w, P){
     ['on écrit fin − début','attention au signe','CM part de C','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb7.indexOf(m)<0) vus.push('8.4.7 : le message ne dit pas « '+m+' » : '+fb7.slice(0,300)); });
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('BA (1 ; −3), M(−1 ; −2)')<0) vus.push('8.4.7 : le contexte du modèle');
     /* une question à deux lignes « + » : quatre cases de plus, jugées */
-    const q2=vcmNeuve([[3,-1],[2,2],[-2,-3]]); test.questions[test.idx]=q2; renderVcm();
+    const q27=vcmNeuve([[3,-1],[2,2],[-2,-3]]); test.questions[test.idx]=q27; renderVcm();
     if(!el('vcm-px-a') || !el('vcm-py-a') || document.querySelectorAll('#vcmCalc .vcd-in').length!==20) vus.push('8.4.7 : deux lignes « + » attendues');
-    if(vcmAttendu(q2)['vcm-py-a']!==3 || vcmAttendu(q2)['vcm-py-r']!==-3) vus.push('8.4.7 : l\\'étape « + » de y attend '+vcmAttendu(q2)['vcm-py-a']);
+    if(vcmAttendu(q27)['vcm-py-a']!==3 || vcmAttendu(q27)['vcm-py-r']!==-3) vus.push('8.4.7 : l\\'étape « + » de y attend '+vcmAttendu(q27)['vcm-py-a']);
     /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
     currentMode='soutien'; test.questions[test.idx]=vcmFiche(); renderVcm();
     vcmPose(-1,-2);
