@@ -31942,7 +31942,10 @@ function bonusEcrit(w, P){
          première attente : on l'appelle sans attendre et on lit le titre — le
          motif du bilan du professeur. La promesse est rattrapée, sinon un rejet
          (sb absent) ferait tomber le banc en parlant d'autre chose. */
-      try{ const p=openTestDevoirModes('dev-b', id); if(p && p.catch) p.catch(function(){}); }catch(e){}
+      /* la Seconde et la Première n'ont qu'openTestDevoir (le verrou de l'ordre
+         puis l'écran des modes, dans la même fonction) */
+      const porte=(typeof openTestDevoirModes==='function')?openTestDevoirModes:openTestDevoir;
+      try{ const p=porte('dev-b', id); if(p && p.catch) p.catch(function(){}); }catch(e){}
       return document.getElementById('modeTitle'); };
 
     /* ---- 1. L'ANNONCE : la liste des devoirs, avec tous ses exercices ---- */
