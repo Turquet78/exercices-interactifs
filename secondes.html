@@ -3169,7 +3169,10 @@
   .vcm-sys-ligne{align-items:center}
   .vcm-sys{display:grid;grid-template-columns:auto auto auto auto;align-items:center;gap:8px 6px;padding:4px 0 4px 12px;border-left:2px solid var(--ink);border-radius:14px 0 0 14px}
   .vcm-sys2{grid-template-columns:auto auto}
-  .vcm-sys1{border-radius:0;border-left:none;padding-left:0}
+  .vcm-equiv{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 14px;align-self:stretch}
+  .vcm-maillon{display:inline-flex;align-items:center;gap:14px;white-space:nowrap}   /* le « ⇔ » ne quitte pas le système qu'il annonce */
+  .vcm-eqv{font-family:"KaTeX_Main","Cambria Math","Times New Roman",serif;font-weight:400;font-size:1.7em;line-height:1}
+  .vcm-note{font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:600;color:var(--ink-soft)}
   /* 1) et 2) côte à côte ; l'une sous l'autre quand la place manque */
   .vcm-deux{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:12px 40px;align-self:stretch}
   .vcm-colonne{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:12px}
@@ -9213,7 +9216,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=670;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=671;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -68795,10 +68798,13 @@ function ctxVcp(q){
    résultats, VCD_GP_KINDS) et CM⃗ en colonne « x − … / y − … », côte à côte
    (deux colonnes, qui se replient l'une sous l'autre sur un téléphone) ; le
    système ; puis, QUAND UNE COORDONNÉE DE C EST NÉGATIVE, une étape de plus :
-   le système réécrit « x + … = … » (et/ou « y + … = … ») — soustraire un
-   nombre négatif, c'est ajouter son opposé (demande de Turquet, novembre
-   2026) ; seules les lignes concernées y figurent (vcmPlus). Puis x et y
-   (le nombre, ou le calcul qui le donne : « 1 + (−2) »), puis M.
+   le système COMPLET réécrit — « x + … = … » là où l'on soustrayait un
+   nombre négatif (soustraire un nombre négatif, c'est ajouter son opposé),
+   l'autre ligne recopiée telle quelle (demandes de Turquet, novembre 2026 ;
+   vcmPlus dit les lignes qui changent). Puis x et y (le nombre, ou le calcul
+   qui le donne : « 1 + (−2) »). Les systèmes se suivent SUR LA MÊME LIGNE,
+   reliés par « ⇔ » ; un téléphone les replie, le « ⇔ » restant devant le
+   système qu'il annonce. Puis M.
 
    LA VÉRIFICATION, DANS TOUS LES MODES, AU MOMENT DE LA POSE (vcmVerifier) :
    A, B et C sont déjà sur le repère ; l'élève pose M. Juste, M est bleu, les
@@ -68826,14 +68832,14 @@ function vcmPlus(q){ return [0,1].filter(function(k){ return q.P[2][k]<0; }); }
 /* les cases d'une question, dans l'ordre de la page */
 function vcmCasesDe(q){
   const r=VCM_C6.map(function(c){ return 'vcm-ba-'+c; }).concat(['vcm-cm-xd','vcm-cm-yd','vcm-sx-d','vcm-sx-r','vcm-sy-d','vcm-sy-r']);
-  vcmPlus(q).forEach(function(k){ const L=k?'y':'x'; r.push('vcm-p'+L+'-a','vcm-p'+L+'-r'); });
+  if(vcmPlus(q).length) r.push('vcm-px-a','vcm-px-r','vcm-py-a','vcm-py-r');   /* l'étape : le système complet */
   return r.concat(['vcm-x','vcm-y','vcm-mx','vcm-my']);
 }
 function vcmAttendu(q){
   const A=q.P[0], B=q.P[1], C=q.P[2], u=vcmBA(q), M=vcmM(q);
   return {'vcm-ba-xf':A[0], 'vcm-ba-xd':B[0], 'vcm-ba-yf':A[1], 'vcm-ba-yd':B[1], 'vcm-ba-rx':u[0], 'vcm-ba-ry':u[1],
     'vcm-cm-xd':C[0], 'vcm-cm-yd':C[1], 'vcm-sx-d':C[0], 'vcm-sx-r':u[0], 'vcm-sy-d':C[1], 'vcm-sy-r':u[1],
-    'vcm-px-a':-C[0], 'vcm-px-r':u[0], 'vcm-py-a':-C[1], 'vcm-py-r':u[1],
+    'vcm-px-a':Math.abs(C[0]), 'vcm-px-r':u[0], 'vcm-py-a':Math.abs(C[1]), 'vcm-py-r':u[1],
     'vcm-x':M[0], 'vcm-y':M[1], 'vcm-mx':M[0], 'vcm-my':M[1]};
 }
 /* LE TIRAGE : A, B, C entre −5 et 5, jamais sur un axe ni à −1 (leur lettre
@@ -69003,15 +69009,15 @@ function vcmCalcHTML(q){
   const BA=vepVecHTML('B','A'), CM=vepVecHTML('C','M'), x='<i>x</i>', y='<i>y</i>';
   const id=function(c){ return 'vcm-ba-'+c; };
   const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( )" maxlength="12" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
-  const plus=vcmPlus(q);
-  let etape='';
-  if(plus.length){
-    etape='<div class="vcd-titre">Soustraire un nombre négatif, c’est ajouter son opposé :</div>'
-      +'<div class="vcd-ligne vcm-sys-ligne"><div class="vcm-sys'+(plus.length<2?' vcm-sys1':'')+'">'
-      +plus.map(function(k){ const L=k?'y':'x', V=k?y:x;
-        return '<span class="vcm-l">'+V+' +</span>'+vcdCase('vcm-p'+L+'-a','le nombre ajouté à '+L)+'<span class="vcm-l">=</span>'+vcdCase('vcm-p'+L+'-r','ce que vaut '+L+' plus ce nombre'); }).join('')
-      +'</div></div>';
-  }
+  const plus=vcmPlus(q), eq='<span class="vcm-eqv" aria-label="équivaut à">⇔</span>';
+  const ligne=function(V,op,ida,aria1,idr,aria2){ return '<span class="vcm-l">'+V+' '+op+'</span>'+vcdCase(ida,aria1)+'<span class="vcm-l">=</span>'+vcdCase(idr,aria2); };
+  const sys1='<div class="vcm-sys">'+ligne(x,'−','vcm-sx-d','ce qu’on retranche à x','vcm-sx-r','ce que vaut x moins ce nombre')
+    +ligne(y,'−','vcm-sy-d','ce qu’on retranche à y','vcm-sy-r','ce que vaut y moins ce nombre')+'</div>';
+  /* l'étape : le système complet, « + » là où C a une coordonnée négative */
+  const sys2=plus.length?'<span class="vcm-maillon">'+eq+'<div class="vcm-sys">'+[0,1].map(function(k){ const L=k?'y':'x', neg=plus.indexOf(k)>=0;
+      return ligne(k?y:x, neg?'+':'−', 'vcm-p'+L+'-a', neg?'le nombre ajouté à '+L:'ce qu’on retranche à '+L, 'vcm-p'+L+'-r', 'le second membre de la ligne de '+L); }).join('')+'</div></span>':'';
+  const sys3='<span class="vcm-maillon">'+eq+'<div class="vcm-sys vcm-sys2"><span class="vcm-l">'+x+' =</span>'+calc('vcm-x','la valeur de x')
+    +'<span class="vcm-l">'+y+' =</span>'+calc('vcm-y','la valeur de y')+'</div></span>';
   return '<div class="vcm-deux">'
     +'<div class="vcm-colonne"><div class="vcd-titre">1) Les coordonnées du vecteur '+BA+'.</div>'
     +'<div class="vcd-ligne">'
@@ -69032,15 +69038,8 @@ function vcmCalcHTML(q){
     +'</div></div></div></div>'
     +'</div>'
     +'<div class="vcd-titre">3) On veut que '+BA+' = '+CM+'.</div>'
-    +'<div class="vcd-ligne vcm-sys-ligne">'
-      +'<div class="vcm-sys"><span class="vcm-l">'+x+' −</span>'+vcdCase('vcm-sx-d','ce qu’on retranche à x')+'<span class="vcm-l">=</span>'+vcdCase('vcm-sx-r','ce que vaut x moins ce nombre')
-        +'<span class="vcm-l">'+y+' −</span>'+vcdCase('vcm-sy-d','ce qu’on retranche à y')+'<span class="vcm-l">=</span>'+vcdCase('vcm-sy-r','ce que vaut y moins ce nombre')+'</div>'
-    +'</div>'
-    +etape
-    +'<div class="vcd-ligne vcm-sys-ligne">'
-      +'<div class="vcm-sys vcm-sys2"><span class="vcm-l">'+x+' =</span>'+calc('vcm-x','la valeur de x')
-        +'<span class="vcm-l">'+y+' =</span>'+calc('vcm-y','la valeur de y')+'</div>'
-    +'</div>'
+    +'<div class="vcm-equiv">'+sys1+sys2+sys3+'</div>'
+    +(plus.length?'<div class="vcm-note">Soustraire un nombre négatif, c’est ajouter son opposé.</div>':'')
     +'<div class="vcm-donc"><span class="vcm-mot">Donc : M(</span>'+vcdCase('vcm-mx','l’abscisse de M')+'<span class="vcm-mot">;</span>'+vcdCase('vcm-my','l’ordonnée de M')+'<span class="vcm-mot">)</span></div>'
     +'<div class="vcd-titre">4) Vérification : place ton point M dans le repère.</div>';
 }
@@ -69074,10 +69073,11 @@ function vcmPourquoi(q,subs){
   if(faux('vcm-cm-xd')||faux('vcm-cm-yd')) m.push('CM part de C'+svrCoord(C)+' : on retranche les coordonnées de C, '+'<i>x</i> − '+vcdPar(C[0])+' et <i>y</i> − '+vcdPar(C[1])+'.');
   if(['vcm-sx-d','vcm-sy-d'].some(faux)) m.push('Dans le système, on reprend les coordonnées de '+vepVecHTML('C','M')+' : <i>x</i> − '+vcdPar(C[0])+' et <i>y</i> − '+vcdPar(C[1])+'.');
   if(['vcm-sx-r','vcm-sy-r'].some(faux)) m.push('Elles sont égales à celles de '+vepVecHTML('B','A')+' : '+svrNb(u[0])+' et '+svrNb(u[1])+'.');
-  vcmPlus(q).forEach(function(k){
-    const L=k?'<i>y</i>':'<i>x</i>', n=k?'y':'x';
-    if(faux('vcm-p'+n+'-a')) m.push(L+' − '+vcdPar(C[k])+' = '+L+' + '+svrNb(-C[k])+' : soustraire un nombre négatif, c’est ajouter son opposé.');
-    if(faux('vcm-p'+n+'-r')) m.push('Le second membre ne change pas : '+L+' + '+svrNb(-C[k])+' = '+svrNb(u[k])+'.');
+  if(vcmPlus(q).length) [0,1].forEach(function(k){
+    const L=k?'<i>y</i>':'<i>x</i>', n=k?'y':'x', neg=C[k]<0;
+    if(faux('vcm-p'+n+'-a')) m.push(neg?L+' − '+vcdPar(C[k])+' = '+L+' + '+svrNb(-C[k])+' : soustraire un nombre négatif, c’est ajouter son opposé.'
+      :'La ligne de '+L+' ne change pas : on la recopie, '+L+' − '+svrNb(C[k])+' = '+svrNb(u[k])+'.');
+    if(faux('vcm-p'+n+'-r')) m.push('Le second membre ne change pas : '+L+' '+(neg?'+':'−')+' '+svrNb(Math.abs(C[k]))+' = '+svrNb(u[k])+'.');
   });
   [['vcm-x',0],['vcm-y',1]].forEach(function(c){
     if(!faux(c[0])) return;
@@ -69172,7 +69172,7 @@ function checkVcm(){
   test.locked=true; clearTimeout(test.qTimer);
   const pourquoi=vcmPourquoi(q,subs);
   const v=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
-  const C=q.P[2], etape=vcmPlus(q).map(function(k){ const n=k?'y':'x'; return n+' + '+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
+  const C=q.P[2], etape=(vcmPlus(q).length?[0,1]:[]).map(function(k){ const n=k?'y':'x'; return n+(q.P[2][k]<0?' + ':' − ')+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
   const donne='BA ('+v('vcm-ba-xf')+' − '+v('vcm-ba-xd')+' ; '+v('vcm-ba-yf')+' − '+v('vcm-ba-yd')+') = ('+v('vcm-ba-rx')+' ; '+v('vcm-ba-ry')+')'
     +' — CM (x − '+v('vcm-cm-xd')+' ; y − '+v('vcm-cm-yd')+') — x − '+v('vcm-sx-d')+' = '+v('vcm-sx-r')+', y − '+v('vcm-sy-d')+' = '+v('vcm-sy-r')
     +(etape?' — '+etape:'')
@@ -69209,7 +69209,7 @@ function startVcm(){
 function ctxVcm(q){
   const u=vcmBA(q), M=vcmM(q);
   const v=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
-  const etape=vcmPlus(q).map(function(k){ const n=k?'y':'x'; return n+' + '+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
+  const etape=(vcmPlus(q).length?[0,1]:[]).map(function(k){ const n=k?'y':'x'; return n+(q.P[2][k]<0?' + ':' − ')+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
   const ctx='Exercice de GÉOMÉTRIE dans un repère (tu ne vois pas le dessin ; description exacte). Repère gradué de −5 à 5 sur les deux axes, quadrillé. '
    +'Énoncé : les points A'+svrCoord(q.P[0])+', B'+svrCoord(q.P[1])+', C'+svrCoord(q.P[2])+' sont placés ; on prend M(x ; y) ; calculer x et y pour que ABCM soit un parallélogramme. '
    +'Méthode imposée par la fiche : on prend deux vecteurs égaux, en choisissant un vecteur qui FINIT sur M : vecteur BA = vecteur CM. '
@@ -69219,7 +69219,7 @@ function ctxVcm(q){
    +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : BA ('+svrNb(u[0])+' ; '+svrNb(u[1])+'), M'+svrCoord(M)+'. '
    +'Ce que l’élève a écrit : BA : '+v('vcm-ba-xf')+' − '+v('vcm-ba-xd')+' et '+v('vcm-ba-yf')+' − '+v('vcm-ba-yd')+', résultat ('+v('vcm-ba-rx')+' ; '+v('vcm-ba-ry')+')'
    +' ; CM (x − '+v('vcm-cm-xd')+' ; y − '+v('vcm-cm-yd')+') ; système : x − '+v('vcm-sx-d')+' = '+v('vcm-sx-r')+', y − '+v('vcm-sy-d')+' = '+v('vcm-sy-r')
-   +(etape?' ; étape « + » : '+etape:'')
+   +(etape?' ; étape ⇔ (le système réécrit) : '+etape:'')
    +' ; x = '+v('vcm-x')+', y = '+v('vcm-y')+' ; M('+v('vcm-mx')+' ; '+v('vcm-my')+') ; point M '+(q.m?'placé en '+svrCoord(q.m)+(vcmMJuste(q)?' (juste)':' (faux)'):'pas encore placé')+'. '
    +'Méthode enseignée : un vecteur part de son début et arrive à sa fin ; ses coordonnées sont (x de la fin − x du début ; y de la fin − y du début) ; soustraire un nombre négatif, c’est ajouter son opposé ; '
    +'pour isoler x dans « x + a = b », on retranche a des deux côtés : x = b − a. ABCM est un parallélogramme quand vecteur AB = vecteur MC, c’est-à-dire vecteur BA = vecteur CM. '

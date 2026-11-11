@@ -6317,3 +6317,28 @@ ou 2 lignes, et les trois au fil des tirages), les deux colonnes, aucun mot
 « trace », la page qui dessine ABCM, la copie juste 19/19 avec « +2 » et
 « 1-2 », les pièges dont l'étape « + » mal faite, une question à deux lignes.
 Joué dans Chromium, vu à 1 280 et 390 px.
+
+### Puis le système complet, et les étapes reliées par « ⇔ » sur une même ligne (Seconde v671)
+
+Turquet, novembre 2026 : « mets le système complet avec les deux lignes et
+essaye de mettre les étapes sur la même ligne avec le symbole d'équivalence ».
+
+* **Le système complet** : dès qu'une coordonnée de C est négative, l'étape
+  réécrit LES DEUX lignes — « + » sur la ligne de la coordonnée négative,
+  l'autre recopiée avec son « − » (fiche : { x + 2 = 1 ; y − 1 = −3 }). Les
+  cases `vcm-px-a/r`, `vcm-py-a/r` sont toujours là quand l'étape existe ;
+  la case du nombre attend |xC| (resp. |yC|), le signe est écrit par la
+  page. 17 réponses sans étape, 21 avec. Une ligne mal recopiée se nomme
+  (« la ligne de y ne change pas : on la recopie »).
+* **Une seule rangée** (`.vcm-equiv`) : système ⇔ système réécrit ⇔ { x = … ;
+  y = … }. Chaque « ⇔ » est soudé au système qu'il annonce (`.vcm-maillon`,
+  `white-space:nowrap`) : sur un téléphone, la rangée se replie et chaque
+  ligne commence par son « ⇔ ». Fredoka n'a pas ce signe (il sortait
+  minuscule, vu à la capture) : il s'écrit en KaTeX_Main, à 1,7 em. La
+  phrase « Soustraire un nombre négatif, c'est ajouter son opposé » passe en
+  note sous la rangée.
+
+Banc principal : l'étape complète (x + … et y − … recopiée sur la fiche), les
+deux « ⇔ » dans une même rangée de trois systèmes, aucune étape sans
+coordonnée négative de C, la copie juste 21/21, la ligne recopiée dans les
+pièges. Joué dans Chromium, vu à 1 280 et 390 px.
