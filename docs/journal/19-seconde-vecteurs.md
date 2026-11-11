@@ -6317,3 +6317,39 @@ ou 2 lignes, et les trois au fil des tirages), les deux colonnes, aucun mot
 « trace », la page qui dessine ABCM, la copie juste 19/19 avec « +2 » et
 « 1-2 », les pièges dont l'étape « + » mal faite, une question à deux lignes.
 Joué dans Chromium, vu à 1 280 et 390 px.
+
+## {coordonnees-vecteur-tracer-decompose} — tracer un vecteur par ses coordonnées, la décomposition pendant le tracé (8.4.8, Seconde v671)
+
+**La demande** (Turquet, novembre 2026) : « faire un exercice comme le 8.4.6
+où la décomposition vecteur gris et noir s'affiche en même temps que l'on
+trace le vecteur ». Le 8.4.6 avec une aide : la question porte `q.dv = 1`
+en plus de `q.co` ; tout le reste — tirage (`tvxGenC`), juge, pièges nommés,
+correction verte, décomposition de la vérification finale — est celui du
+8.4.6.
+
+**Ce qui s'affiche, et de quoi.** Sous chaque flèche tracée (calque
+`#tvxDec`, entre la correction et les flèches, `tvxDecVif`) et sous la
+flèche élastique qui suit la souris (`tvxVif`, jusqu'au NŒUD visé), la
+grise horizontale et la noire verticale avec leurs nombres sur pastille —
+la recette de `tvxDecomposition`. C'est la décomposition de la flèche DE
+L'ÉLÈVE, jamais celle attendue : l'élève compare lui-même le nombre gris à
+celui du haut, le noir à celui du bas. Une extrémité reprise quitte le
+calque et suit la souris avec sa décomposition. Au doigt, sans survol, la
+décomposition paraît à la pose de l'arrivée. En soutien, une flèche rouge
+garde la sienne (on y lit la faute) ; à la vérification finale, le calque se
+vide et `tvxFinal` pose celle du 8.4.6, sous la flèche JUSTE seulement.
+
+**Placé en dernier du 8.4** (8.4.8) plutôt qu'à côté du 8.4.6, pour ne pas
+renuméroter le 8.4.7 de la veille. Rappel `RAP_TVK` = celui du 8.4.6 plus un
+point ⑤ sur les deux flèches ; questions à l'IA à lui ; le contexte du
+modèle dit que l'aide est affichée et qu'elle montre le chemin de l'élève.
+
+**Le banc principal** (`tracerCoordonneesDecompose`) : la place et les
+voisins, `q.dv` rangé (et absent du 8.4.6) ; rien avant le tracé ; u tracé
+(+3, −2, la grise partant du départ de l'élève) ; la flèche élastique
+(+2, +3 au nœud visé, rien sur le départ) ; v posé faux montre SA
+décomposition ; v repris quitte le calque ; les trois flèches, la reprise
+après JSON, la vérification (calque vide, celle du 8.4.6 posée) ; le soutien
+(u rouge garde −2, +3) ; le contexte ; le 8.4.6 sans rien pendant le tracé.
+Vu dans un vrai Chromium à 1 280 et 390 px : la souris promenée, les
+flèches grise et noire suivent.
