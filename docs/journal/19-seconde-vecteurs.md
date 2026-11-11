@@ -6288,7 +6288,37 @@ la copie juste 18/18 avec « 1+(-2) » ; la reprise après JSON ; M déplacé qu
 défait le tracé ; les pièges nommés ; le contexte ; le soutien ; la bulle.
 Vu dans un vrai Chromium à 1 280 et 390 px.
 
-## {coordonnees-vecteur-demontrer-parallelogramme} — démontrer que ABCD est un parallélogramme, le schéma, deux vecteurs égaux tracés (8.4.8, Seconde v670 — le 8.4.7 et la v669 pris sur main pendant le travail, par le quatrième point)
+### Puis 1) et 2) côte à côte, l'étape « x + … », et plus de tracé (Seconde v670)
+
+Turquet, novembre 2026 : « mettre les deux premières questions sur deux
+colonnes ; quand on écrit le système x − … = … avec y − … = …, s'il y a une
+soustraction par un nombre négatif, rajouter une étape avec un nouveau système
+où l'on écrit x + … = … (et/ou la même chose avec y) ; ne pas demander de
+tracer le parallélogramme à la fin. »
+
+* **Deux colonnes** (`.vcm-deux`, `.vcm-colonne`) : BA⃗ à gauche, CM⃗ à droite,
+  titres en haut et colonnes alignées par le bas ; elles se replient l'une
+  sous l'autre quand la place manque (téléphone).
+* **L'étape « + »** (`vcmPlus`) : une ligne par coordonnée NÉGATIVE de C, et
+  seulement celles-là — « x + [2] = [1] » sous le titre « Soustraire un nombre
+  négatif, c'est ajouter son opposé ». Deux lignes gardent l'accolade ; une
+  seule s'écrit sans (`.vcm-sys1`). Le nombre de réponses suit : 17, 19 ou 21
+  (`vcmCasesDe`) — le profil ne fige plus de barème, le banc le relit sur le
+  tirage. Les fautes nommées : « x − (−2) = x + 2 : soustraire un nombre
+  négatif, c'est ajouter son opposé », « le second membre ne change pas ».
+* **Plus de tracé** : le bouton « Tracer ABCM », `q.tr` et son juge sont
+  retirés ; M juste, c'est la PAGE qui dessine ABCM (bleu pâle), avec BA⃗ et
+  CM⃗ pareils et « Bravo, ton point M est juste ! … voici le parallélogramme
+  ABCM ». Au doigt, la barre « Je place » ne porte plus que M. Un brouillon
+  d'avant qui rangeait `q.tr` le perd à la reprise (`delete q.tr`).
+
+Banc principal (`quatriemePoint`) : l'étape « + » selon le signe de C (0, 1
+ou 2 lignes, et les trois au fil des tirages), les deux colonnes, aucun mot
+« trace », la page qui dessine ABCM, la copie juste 19/19 avec « +2 » et
+« 1-2 », les pièges dont l'étape « + » mal faite, une question à deux lignes.
+Joué dans Chromium, vu à 1 280 et 390 px.
+
+## {coordonnees-vecteur-demontrer-parallelogramme} — démontrer que ABCD est un parallélogramme, le schéma, deux vecteurs égaux tracés (8.4.8, Seconde v671 — le 8.4.7 et les v669, v670 pris sur main pendant le travail, par le quatrième point et sa reprise)
 
 **La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
 le pdf, l'élève devra placer sur le schéma les lettres dans le bon ordre, et
