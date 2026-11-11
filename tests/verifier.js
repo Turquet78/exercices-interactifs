@@ -15507,6 +15507,118 @@ function coordonneesVecteurs(w, P){
     if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 3 et que je perds 2')<0) vus.push('8.4.7 : la bulle ne paraît pas au résultat de BA');
     currentMode='train'; el('vcm-ba-ry').focus(); el('vcm-ba-rx').focus();
     if(el('vcdGp')) vus.push('8.4.7 : la bulle « gagne / perds » paraît hors du soutien');
+
+    /* ===== 8.4.9 : démontrer que ABCD est un parallélogramme (la fiche « parallélogramme ») ===== */
+    const d8=D.demontrer;
+    if(TEST_NUM[d8.exercice]!==d8.numero) vus.push(d8.exercice+' porte le numéro '+TEST_NUM[d8.exercice]+' au lieu de '+d8.numero);
+    if(TABLES_SANS.indexOf(d8.exercice)<0) vus.push('8.4.9 : le bouton des tables est proposé');
+    if(RAPPELS.vpg!==RAP_VPG || !QIA_SUGG.vpg) vus.push('vpg n\\'a pas son rappel ou ses questions à l\\'IA');
+    if(vpgEtiquetages().length!==8 || new Set(vpgEtiquetages()).size!==8 || vpgEtiquetages().indexOf('BCDA')<0 || vpgEtiquetages().indexOf('ABDC')>=0) vus.push('8.4.9 : les étiquetages du schéma '+vpgEtiquetages().join(' '));
+    /* le tirage : la fiche en premier, puis des parallélogrammes lisibles, ni rectangle ni losange */
+    for(let n=0;n<200;n++){
+      const qs=vpgBuildQuestions();
+      if(qs.length!==d8.nb){ vus.push('8.4.9 : '+qs.length+' questions'); break; }
+      if(JSON.stringify(qs[0])!==JSON.stringify(vpgFiche())){ vus.push('8.4.9 : la première question n\\'est pas la fiche'); break; }
+      if(new Set(qs.map(vpgCle)).size!==qs.length){ vus.push('8.4.9 : deux questions identiques'); break; }
+      const q=qs[1+n%2], T=q.P, u=vpgVec(q,'AB'), v=vpgVec(q,'AD'), w=vpgVec(q,'DC');
+      if(Object.keys(q).join(',')!=='P'){ vus.push('8.4.9 : range '+JSON.stringify(q)); break; }
+      if(T.some(function(p){ return p[0]===0||p[1]===0||p[0]===-1||p[1]===-1||Math.abs(p[0])>8||Math.abs(p[1])>6; })){ vus.push('8.4.9 : un point illisible '+JSON.stringify(T)); break; }
+      let proches=false; for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) if(!vecLoin(T[a],T[b])) proches=true;
+      if(proches){ vus.push('8.4.9 : deux points trop proches '+JSON.stringify(T)); break; }
+      if(u[0]!==w[0]||u[1]!==w[1]){ vus.push('8.4.9 : ABCD n\\'est pas un parallélogramme '+JSON.stringify(T)); break; }
+      if(!u[0]||!u[1]||!v[0]||!v[1]){ vus.push('8.4.9 : un côté sans ses deux lignes '+JSON.stringify(T)); break; }
+      if(u[0]*v[0]+u[1]*v[1]===0 || u[0]*u[0]+u[1]*u[1]===v[0]*v[0]+v[1]*v[1]){ vus.push('8.4.9 : un rectangle ou un losange '+JSON.stringify(T)); break; }
+    }
+    const verifier8=function(){ const av=test.score; checkVpg(); clearTimeout(test.fbTimer); return test.score-av; };
+    const IDS8=VPG_IDS.slice();
+    const cl8=function(){ return IDS8.map(function(i){ return classe(el(i)); }).join(','); };
+    const tous8=function(c){ return IDS8.map(function(){ return c; }).join(','); };
+    const choisir8=function(id,v){ const e=el(id); e.value=v; e.dispatchEvent(new Event('change',{bubbles:true})); };
+    currentTestId=d8.exercice; TESTS[d8.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vpg' || test.maxScore!==d8.bareme || test.questions.length!==d8.nb) vus.push('8.4.9 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    if(dmPoidsQuestion('vpg',test.questions[0])!==26) vus.push('8.4.9 : dmPoidsQuestion ne compte pas vingt-six réponses');
+    if(!el('vpgInstr').classList.contains('enonce') || el('vpgInstr').textContent.indexOf('A(−8 ; 2), B(−3 ; 6), C(7 ; 1) et D(2 ; −3)')<0 || el('vpgInstr').textContent.indexOf('Démontrer que ABCD est un parallélogramme')<0) vus.push('8.4.9 : l\\'énoncé : '+el('vpgInstr').textContent.slice(0,160));
+    if(document.querySelectorAll('#vpgFig .vpg-sch-fig select').length!==4 || document.querySelector('#scr-vpg .svr-svg, #vpgGraph, #vpgPts') || document.querySelectorAll('#vpgFig .vpg-sch-svg polygon').length!==1 || document.querySelectorAll('#vpgCalc .vcd-in').length!==13 || document.querySelectorAll('#vpgCalc .vcd-tete').length!==2 || document.querySelectorAll('#vpgCalc .vcd-r').length!==4) vus.push('8.4.9 : l\\'écran n\\'a pas son schéma seul (aucun repère), ses deux colonnes « Fin − Début »');
+    if(document.querySelector('#vpgFl line') || el('vpgVerif').textContent!=='') vus.push('8.4.9 : un vecteur est tracé avant d\\'être nommé');
+    /* la copie vide : vingt-six sol, rien de rouge, AB = DC écrit et tracé en vert */
+    if(verifier8()!==0 || cl8()!==tous8('sol')) vus.push('8.4.9 : la copie vide : '+cl8());
+    if(document.querySelector('#vpgCalc .bad, #vpgFig .bad')) vus.push('8.4.9 : la copie vide rougit');
+    if(document.querySelectorAll('#vpgCorr line.vpg-sol').length!==2) vus.push('8.4.9 : la correction ne trace pas les deux vecteurs attendus');
+    if(VPG_SCHEMA.map(function(i){ return el(i).value; }).join('')!=='BCDA' || el('vpg-v1a').value+el('vpg-v1b').value!=='AB' || el('vpg-v2a').value+el('vpg-v2b').value!=='DC' || el('vpg-1-rx').value!=='5' || el('vpg-2-xd').value!=='2' || el('vpg-nom').value!=='ABCD') vus.push('8.4.9 : la correction écrit '+IDS8.map(function(i){ return el(i).value; }).join(' '));
+    if(el('vpgFeedback').textContent.indexOf('Il te manquait 26 cases')<0) vus.push('8.4.9 : le message de la copie vide : '+el('vpgFeedback').textContent.slice(0,80));
+    /* un vecteur nommé se trace ; deux nommés, la page dit s'ils sont égaux */
+    nextVpg(); test.questions[test.idx]=vpgFiche(); renderVpg();
+    /* le schéma : des lettres qui ne font pas le tour rougissent toutes les
+       quatre et la page demande l'ordre ; recliquer une liste les remet en
+       bleu ; un nouveau choix les rejuge ; le bon tour ne rougit rien */
+    const incoh8=function(){ return document.querySelectorAll('#vpgFig .vpg-incoh').length; };
+    choisir8('vpg-s0','A'); choisir8('vpg-s1','B'); choisir8('vpg-s2','D');
+    if(incoh8()) vus.push('8.4.9 : trois lettres sur quatre rougissent déjà');
+    choisir8('vpg-s3','C');
+    if(incoh8()!==4 || el('vpgVerif').textContent.indexOf('en tournant autour de la figure')<0 || el('vpgVerif').className.indexOf('bad')<0) vus.push('8.4.9 : ABDC ne rougit pas le schéma : '+incoh8()+' '+el('vpgVerif').textContent);
+    if(document.querySelector('#vpgFig .bad, #vpgFig .ok')) vus.push('8.4.9 : le rouge du schéma prend une classe de verdict');
+    el('vpg-s1').dispatchEvent(new Event('pointerdown',{bubbles:true}));
+    if(incoh8() || el('vpgVerif').textContent.indexOf('en tournant')>=0) vus.push('8.4.9 : recliquer une lettre ne remet pas les quatre cases en bleu');
+    choisir8('vpg-s1','D');
+    if(incoh8()!==4) vus.push('8.4.9 : un nouveau choix incohérent ne rougit pas');
+    el('vpg-s0').dispatchEvent(new Event('focus'));
+    if(incoh8()) vus.push('8.4.9 : le focus d\\'une lettre ne remet pas les cases en bleu');
+    choisir8('vpg-v1a','A'); choisir8('vpg-v1b','B');
+    if(document.querySelector('#vpgFl line') || el('vpgVerif').textContent.indexOf('Place d’abord A, B, C et D dans l’ordre')<0) vus.push('8.4.9 : un vecteur se trace sur un schéma faux : '+el('vpgVerif').textContent);
+    choisir8('vpg-v1a',''); choisir8('vpg-v1b','');
+    [['0','B'],['1','C'],['2','D'],['3','A']].forEach(function(c){ choisir8('vpg-s'+c[0],c[1]); });
+    if(incoh8() || el('vpgVerif').textContent!=='') vus.push('8.4.9 : le bon tour BCDA : '+incoh8()+' '+el('vpgVerif').textContent);
+    choisir8('vpg-v1a','A');
+    if(document.querySelector('#vpgFl line')) vus.push('8.4.9 : une seule lettre trace un vecteur');
+    choisir8('vpg-v1b','B');
+    if(document.querySelectorAll('#vpgFl line.vpg-v1').length!==1 || document.querySelector('#vpgFl line.vpg-v2') || el('vpgVerif').textContent.indexOf('tracé en orange')<0) vus.push('8.4.9 : AB nommé : '+el('vpgVerif').textContent);
+    choisir8('vpg-v2a','C'); choisir8('vpg-v2b','D');
+    let vf8=el('vpgVerif').textContent;
+    if(document.querySelectorAll('#vpgFl line.vpg-v2').length!==1 || vf8.indexOf('ne sont pas égaux')<0 || vf8.indexOf('pas le même sens')<0 || el('vpgVerif').className.indexOf('bad')<0 || el('vpg-sg').textContent!=='≠') vus.push('8.4.9 : AB et CD : '+vf8+' '+el('vpg-sg').textContent);
+    choisir8('vpg-v2a','A'); choisir8('vpg-v2b','C');
+    if(el('vpgVerif').textContent.indexOf('pas la même direction')<0) vus.push('8.4.9 : AB et AC : '+el('vpgVerif').textContent);
+    choisir8('vpg-v2b','B');
+    if(el('vpgVerif').textContent.indexOf('deux fois le même vecteur')<0) vus.push('8.4.9 : AB et AB : '+el('vpgVerif').textContent);
+    choisir8('vpg-v2a','D'); choisir8('vpg-v2b','C');
+    if(el('vpgVerif').className.indexOf('good')<0 || el('vpg-sg').textContent!=='=' || el('vpg-e2').textContent!=='DC' || el('vpg-m2').textContent!=='DC') vus.push('8.4.9 : AB et DC : '+el('vpgVerif').textContent);
+    /* la copie juste : un autre étiquetage, AD = BC, le nom en minuscules — 26 sur 26 */
+    test.questions[test.idx]=vpgFiche(); renderVpg();
+    const ecrire8=function(v){ IDS8.forEach(function(id,i){ el(id).value=v[i]; }); vpgMaj(); };
+    ecrire8(['D','A','B','C', 'A','D', 'D','A','2','(−8)','-3','2','10','−5', 'B','C', 'C','B','7','-3','1','6','10','-5', 'dabc','parallélogramme']);
+    if(document.querySelectorAll('#vpgFl line.vpg-v').length!==2 || el('vpgVerif').className.indexOf('good')<0) vus.push('8.4.9 : les listes remises ne retracent pas les vecteurs (la reprise)');
+    let av8=verifier8();
+    if(av8!==26 || cl8()!==tous8('ok')) vus.push('8.4.9 : la copie juste vaut '+av8+' : '+cl8());
+    if(document.querySelector('#vpgCorr line')) vus.push('8.4.9 : la copie juste reçoit les vecteurs de la correction');
+    /* la reprise : la question revient du JSON */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(test.questions[test.idx])); renderVpg();
+    if(el('vpg-v1a').value!=='' || document.querySelector('#vpgFl line')) vus.push('8.4.9 : le rendu après JSON');
+    /* les pièges : le schéma hors du tour, CD à l'envers, fin et début échangés, le signe */
+    test.questions[test.idx]=vpgFiche(); renderVpg();
+    ecrire8(['A','B','D','C', 'A','B', 'A','B','-8','-3','2','6','-5','-4', 'C','D', 'D','C','2','7','-3','1','-5','-4', 'ABDC','losange']);
+    av8=verifier8();
+    const l8=cl8().split(',');
+    if(l8.slice(4,14).join(',')!=='ok,ok,bad,bad,bad,bad,bad,bad,bad,bad' || l8.slice(14,24).join(',')!=='bad,bad,ok,ok,ok,ok,ok,ok,ok,ok' || l8.slice(24).join(',')!=='bad,bad' || l8.slice(0,4).indexOf('bad')<0) vus.push('8.4.9 : les pièges : '+av8+' '+l8.join(','));
+    const fb8=el('vpgFeedback').textContent;
+    ['en faisant le tour','sens contraire','on écrit fin − début','attention au signe','Le quadrilatère à démontrer est ABCD','est un parallélogramme'].forEach(function(m){ if(fb8.indexOf(m)<0) vus.push('8.4.9 : le message ne dit pas « '+m+' » : '+fb8.slice(0,300)); });
+    if(document.querySelectorAll('#vpgCorr line.vpg-sol').length!==2) vus.push('8.4.9 : CD choisi : la correction ne trace pas AB et DC');
+    if(document.querySelector('#vpgFig .vpg-incoh')) vus.push('8.4.9 : le rouge « dans l\\'ordre » reste après la vérification');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('AB = DC, coordonnées (5 ; 4)')<0) vus.push('8.4.9 : le contexte du modèle');
+    /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
+    currentMode='soutien'; test.questions[test.idx]=vpgFiche(); renderVpg();
+    ecrire8(['B','C','D','A', 'A','B', '','','','','','','5','3', '','', '','','','','','','','', '','']);
+    checkVpg(); clearTimeout(test.fbTimer);
+    const ls8=cl8().split(',');
+    if(test.locked || ls8.slice(0,6).join(',')!=='ok,ok,ok,ok,ok,ok' || ls8[12]!=='ok' || ls8[13]!=='bad' || ls8.filter(function(c){ return c==='rien'; }).length!==18 || document.querySelector('#scr-vpg .sol') || !el('vpg-v1a').disabled) vus.push('8.4.9 : le soutien : '+ls8.join(','));
+    /* la bulle « gagne / perds » du 8.4.4, à côté du résultat */
+    test.questions[test.idx]=vpgFiche(); renderVpg();
+    el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Écris d’abord les deux nombres de la soustraction, les abscisses')<0) vus.push('8.4.9 : le résultat cliqué avant la soustraction n\\'ouvre pas la consigne');
+    el('vpg-1-xf').value='-3'; el('vpg-1-xd').value='(−8)'; el('vpg-1-xd').dispatchEvent(new Event('input',{bubbles:true}));
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je perds 3 et que je gagne 8')<0) vus.push('8.4.9 : la consigne ne devient pas la bulle « gagne / perds » quand la soustraction est écrite');
+    el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je perds 3 et que je gagne 8')<0) vus.push('8.4.9 : la bulle ne paraît pas au résultat : '+(el('vcdGp')?el('vcdGp').textContent.slice(0,80):'absente'));
+    currentMode='train'; el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.9 : la bulle « gagne / perds » paraît hors du soutien');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
