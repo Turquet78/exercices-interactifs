@@ -6360,3 +6360,6 @@ la bulle. Vu dans un vrai Chromium à 1 280 et 390 px. Un défaut vu à la
 première capture : les listes du schéma, posées en `position:absolute`,
 sortaient du cadre — `.vcd-c{position:relative}`, écrite plus bas dans la
 feuille, l'emportait ; la règle porte maintenant `.vpg-sch-fig .vcd-c.vpg-coin`.
+Et le banc navigateur a vu ce que la capture laissait passer : les graduations
+écrites à 10 px pour tenir dans des carreaux de 24 px — la règle universelle
+veut 12 px au moins ; elles tiennent à 12.
