@@ -4471,7 +4471,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=490;
+const APP_VERSION=491;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5883,9 +5883,12 @@ function numeros(txt){
   return String(txt==null?'':txt).replace(/\{([a-z0-9-]+)\}/g,
     (tout,id)=> (typeof TESTS!=='undefined' && TESTS[id]) ? (testNum(id) || TESTS[id].name) : tout);
 }
-function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
+/* `apresTitre` : du HTML déjà sûr posé APRÈS le titre échappé — le badge
+   « ⭐ Bonus » d'un exercice de devoir (dmBonusBadge), écrit avec le titre de
+   l'exercice et non plus seulement en étoile (demande de Turquet, novembre 2026). */
+function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge,apresTitre){
   return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
-    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}${apresTitre||''}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 let mesResultats=[], mesDevoirs=[];
 /* les brouillons « en pause » étiquetés d'un devoir, rangés À PART : tous les
@@ -8858,7 +8861,7 @@ function renderDevoirDetail(devoirId){
     if(bonus) desc+=' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note du devoir, sans la faire dépasser le maximum.';
     if(parseInt(ex.nbQ,10)>=1) desc+=' Pour ce devoir : '+parseInt(ex.nbQ,10)+' question'+(parseInt(ex.nbQ,10)>1?'s':'')+'.';
     if(dmPlafondSoutien(ex.smax)>5) desc+=' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
-    return cardHTML(t.icon, (bonus?'\u2b50 ':'')+testLabel(ex.id), desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge);
+    return cardHTML(t.icon, testLabel(ex.id), desc, `openTestDevoir('${devoirId}','${ex.id}')`, '', '', badge, bonus?dmBonusBadge():'');
   }).join('');
   const G=GENRE_DEVOIRS[dev.genre||'dm'];
   const tot=dmTotalEleve(dev, currentEleve&&currentEleve.id, parts), somme=tot.somme, totMax=tot.totMax, faitQqch=tot.fait;

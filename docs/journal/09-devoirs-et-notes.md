@@ -644,6 +644,28 @@ une règle CSS et l'énoncé du circuit papier redevenu muet.
 mieux que de le taire** : il est MORT — aucun appelant, et son hôte `dmPanel`
 n'existe dans aucune des trois pages. Y écrire le mot ferait croire que la
 règle est tenue là où rien ne la montre.
+**Puis la Seconde et la Première ont suivi, et le mot s'est écrit AVEC LE
+TITRE de l'exercice — les trois niveaux, toutes les familles.** Demande de
+Turquet (novembre 2026) : « dans les fiches de travail ou les devoirs maison ou
+les évaluations ou la SNT, si un exercice est en bonus, écrire le bonus visible
+avec le titre de l'exercice ». La Seconde et la Première n'avaient que l'étoile
+devant le titre de la carte, et l'écran des modes comme l'écran de travail se
+taisaient. Elles reçoivent `dmBonusBadge()`, `dmBonusCourant()` et la règle
+`.dm-bonus` de la Terminale, lus aux mêmes trois endroits : la carte de la page
+du devoir (devoirs, fiches, fiches SNT, et en Première les évaluations, dans
+chacune de leurs branches — à faire, rendu, publié), l'écran des modes du
+devoir et la pastille de `show()`. **Le titre de la carte** passe par un
+huitième argument de `cardHTML`, `apresTitre` — du HTML posé après le titre
+échappé : le titre reste échappé, seul le badge de la fabrique entre en HTML.
+La Terminale y passe aussi : sa carte ne portait que l'étoile, le mot n'était
+que dans le badge de bilan, sous la description.
+**Leur liste des devoirs est COMPACTE** (numéro, titre, note) : elle ne nomme
+aucun exercice, l'annonce y est donc la page du devoir. Les deux bancs le
+CONSTATENT (aucune ligne `.dl-ex`, une carte `.dl-card`) plutôt que de le
+déclarer, et exigent alors le mot au titre de la carte ; le circuit papier,
+propre à la Terminale, se déclare `papier:false` dans `bonusEcrit`. Le tableau
+du professeur garde son étoile : la demande porte sur ce que l'élève lit.
+
 **ET LA FUSION A REPAYÉ LA COLLISION D'`APP_VERSION` — sans qu'on puisse la
 réparer, et c'est la leçon.** « Le clavier tient sur 3 lignes en paysage » est
 arrivé sur `main` pendant la préparation de cette branche, **avec le même

@@ -978,6 +978,9 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 #conseilRappel{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;line-height:1.55;font-size:.95rem}
   .theme-list{display:flex;flex-direction:column;gap:30px;margin-top:6px}
   .dm-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .dm-bonus{display:inline-flex;align-items:center;gap:4px;font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#8A5A00;background:#FFF3DC;border:1px solid #F0D79A;border-radius:999px;padding:2px 9px;white-space:nowrap;vertical-align:middle}
+  .exo-title .dm-bonus{font-size:.78rem;padding:3px 10px}
+  .choice .ttl .dm-bonus{margin-left:6px}
   .dm-badge{font-family:"Fredoka";font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--blue);padding:4px 11px;border-radius:999px;white-space:nowrap}
   .dm-title{font-family:"Fredoka";font-weight:600;font-size:1.3rem;color:var(--ink);margin:0}
   .dm-cours{color:var(--ink);font-weight:600;font-size:.95rem;line-height:1.55;background:#fff;border:1.5px solid #d8e0fb;border-radius:12px;padding:13px 15px;margin:13px 0 0}
@@ -3617,7 +3620,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=402;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=403;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4738,9 +4741,12 @@ function numeros(txt){
   return String(txt==null?'':txt).replace(/\{([a-z0-9-]+)\}/g,
     (tout,id)=> (typeof TESTS!=='undefined' && TESTS[id]) ? (testNum(id) || TESTS[id].name) : tout);
 }
-function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge){
+/* `apresTitre` : du HTML déjà sûr posé APRÈS le titre échappé — le badge
+   « ⭐ Bonus » d'un exercice de devoir (dmBonusBadge), écrit avec le titre de
+   l'exercice et non plus seulement en étoile (demande de Turquet, novembre 2026). */
+function cardHTML(icon,title,desc,onclick,extraClass,lockMsg,badge,apresTitre){
   return `<button class="choice eleve ${extraClass||''}" ${onclick?`onclick="${onclick}"`:'disabled'}>
-    <span class="ic">${icon}</span><span class="ttl">${esc(title)}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
+    <span class="ic">${icon}</span><span class="ttl">${esc(title)}${apresTitre||''}</span><span class="ds">${esc(numeros(desc))}</span>${badge||''}${lockMsg?`<span class="lockmsg">${esc(lockMsg)}</span>`:''}</button>`;
 }
 /* ===================== ARCHITECTURE (portée des terminales) ===================== */
 /* La page « Exercices par thème » ne montre QUE les thèmes : une carte par thème,
@@ -5990,7 +5996,8 @@ function show(name){
     let t=sec.querySelector('.exo-title');
     if(!t){ t=document.createElement('div'); t.className='exo-title'; sec.insertBefore(t, sec.firstChild); }
     const n=testNum(currentTestId);
-    t.innerHTML=(n?'<span class="exo-num">'+esc(n)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>';
+    t.innerHTML=(n?'<span class="exo-num">'+esc(n)+'</span>':'')+'<span class="exo-name">'+esc(testName(currentTestId))+'</span>'
+               +(dmBonusCourant()?dmBonusBadge():'');   /* le mot « Bonus » suit jusque dans l'écran où on le fait */
   }
   /* La barre suit désormais deux règles différentes. Pause et abandon restent
      réservés à l'entraînement et au soutien — ils n'ont pas de sens en
@@ -6148,6 +6155,18 @@ function fmtNote(n){ return (Math.round(n*10)/10).toString().replace('.',','); }
    page du devoir et le tableau du professeur — deux calculs auraient donné deux
    totaux (la leçon d'exercicesDevoir). */
 function dmEstBonus(ex){ return !!(ex && ex.bonus); }
+/* LE MOT « BONUS » S'ÉCRIT AVEC LE TITRE DE L'EXERCICE, et partout où
+   l'exercice se montre (demande de Turquet, novembre 2026 : « dans les fiches
+   de travail ou les devoirs maison ou les évaluations ou la SNT, si un exercice
+   est en bonus, écrire le bonus visible avec le titre de l'exercice ») — le
+   portage de la Terminale (septembre 2026). L'étoile seule ne dit rien à qui ne
+   connaît pas la convention. UN SEUL ENDROIT L'ÉCRIT : la page du devoir,
+   l'écran des modes et la pastille de l'écran d'exercice (show()) le lisent
+   tous ici. */
+function dmBonusBadge(){ return '<span class="dm-bonus">\u2b50 Bonus</span>'; }
+/* Le bonus de l'exercice EN COURS, par dmReglageExo() : hors devoir il rend
+   null — donc faux, et rien ne s'affiche (le bord opposé). */
+function dmBonusCourant(){ return dmEstBonus(dmReglageExo()); }
 function dmTotal(parts){
   const tousBonus = parts.length>0 && parts.every(function(p){ return p.bonus; });
   const normaux = tousBonus ? parts : parts.filter(function(p){ return !p.bonus; });
@@ -6375,19 +6394,19 @@ function renderEvalDetail(dev){
     const t=TESTS[ex.id], bonus=dmEstBonus(ex), et=evalEtatExo(dev, ex.id), nd=et.nd;
     parts.push({note:nd.note, fait:nd.fait, bonus:bonus}); if(nd.fait) faitQqch=true;
     /* numérotée dans l'ordre réglé par le professeur (le ruban de l'éditeur) */
-    const titre=String(i+1)+'. '+(bonus?'\u2b50 ':'')+testLabel(ex.id);
+    const titre=String(i+1)+'. '+testLabel(ex.id), apres=bonus?dmBonusBadge():'';
     let desc=t.desc;
     if(bonus) desc+=' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note de l\u2019évaluation, sans la faire dépasser le maximum.';
     if(ex.nbQ) desc+=' '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
     if(et.rendu && pub){
       const badge=`<span class="ex-bilan done">${bonus?'Bonus : '+fmtNote(nd.note/10)+' / 1':'Note : '+fmtNote(nd.note)+' / 10'}</span>`;
-      return cardHTML('🧾', titre, desc+' Clique pour voir la correction.', `voirCorrectionEval('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge);
+      return cardHTML('🧾', titre, desc+' Clique pour voir la correction.', `voirCorrectionEval('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge, apres);
     }
     if(et.rendu) return cardHTML('✅', titre, desc, '', 'locked',
-      'Exercice rendu. Ta note et la correction apparaîtront ici quand ton professeur les publiera.', `<span class="ex-bilan done">Rendu</span>`);
-    if(pub) return cardHTML('🔒', titre, desc, '', 'locked', 'Les résultats sont publiés : cet exercice ne peut plus être fait.', `<span class="ex-bilan todo">Non rendu</span>`);
+      'Exercice rendu. Ta note et la correction apparaîtront ici quand ton professeur les publiera.', `<span class="ex-bilan done">Rendu</span>`, apres);
+    if(pub) return cardHTML('🔒', titre, desc, '', 'locked', 'Les résultats sont publiés : cet exercice ne peut plus être fait.', `<span class="ex-bilan todo">Non rendu</span>`, apres);
     const badge=et.enCours?`<span class="ex-bilan todo">En cours</span>`:`<span class="ex-bilan todo">${bonus?'Bonus · à faire':'À faire'}</span>`;
-    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge);
+    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(dev.id)}','${escJS(ex.id)}')`, '', '', badge, apres);
   }).join('');
   const tot=dmTotal(parts), aff=dmNoteAff('eval', tot.somme, tot.totMax);
   const totLbl=pub ? `${G.note} : ${faitQqch?fmtNote(aff.note):'—'} / ${aff.sur}` : `${G.note} : pas encore publiée`;
@@ -6430,10 +6449,10 @@ function renderDevoirDetail(devoirId){
     if(bonus) desc += ' Exercice BONUS : il peut ajouter jusqu\u2019à 1 point à la note '+(dev.genre==='fiche'?'de la fiche':'du devoir')+', sans la faire dépasser le maximum.';
     if(ex.nbQ) desc += ' Pour ce devoir : '+ex.nbQ+' question'+(ex.nbQ>1?'s':'')+'.';
     if(dmPlafondSoutien(ex.smax)>5) desc += ' Soutien jusqu\u2019à '+dmPlafondSoutien(ex.smax)+'/10.';
-    const titre=(ordreImpose?String(i+1)+'. ':'')+(bonus?'\u2b50 ':'')+testLabel(ex.id);
+    const titre=(ordreImpose?String(i+1)+'. ':'')+testLabel(ex.id), apres=bonus?dmBonusBadge():'';
     if(verrou) return cardHTML('🔒', titre, desc, '', 'locked',
-      'Termine d\u2019abord l\u2019exercice précédent pour débloquer celui-ci.', badge);
-    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge);
+      'Termine d\u2019abord l\u2019exercice précédent pour débloquer celui-ci.', badge, apres);
+    return cardHTML(t.icon, titre, desc, `openTestDevoir('${escJS(devoirId)}','${escJS(ex.id)}')`, '', '', badge, apres);
   }).join('');
   const G=GENRE_DEVOIRS[(dev.genre||'dm')];
   const tot=dmTotal(parts);
@@ -6468,7 +6487,7 @@ async function openTestDevoir(devoirId, testId){
   if(sansSoutien(testId)) allowed=allowed.filter(m=>m!=='soutien');
   const evalu=dmEstEval(dev);
   if(evalu) allowed=['train'];                      /* une évaluation : l'entraînement seul */
-  $('modeTitle').textContent=testLabel(testId);
+  $('modeTitle').innerHTML=esc(testLabel(testId))+(dmEstBonus(ex)?' '+dmBonusBadge():'');
   $('modeChoices').innerHTML='<p class="muted">Chargement…</p>';
   show('mode');
   pausedRows={};

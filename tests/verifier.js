@@ -31903,9 +31903,18 @@ function bonusEcrit(w, P){
   const present = evaluer(w, "typeof dmBonusBadge==='function' && typeof dmEstBonus==='function' && typeof renderDevoirsList==='function' && typeof renderDevoirDetail==='function'");
   if(!present.ok || !present.valeur){
     ignorer('le mot « Bonus » est écrit sur l\'annonce du devoir et sur l\'écran de l\'exercice',
-      'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot : la demande ne porte que la Terminale');
+      'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot');
     return;
   }
+  /* LA SECONDE ET LA PREMIÈRE ONT SUIVI (demande de Turquet, novembre 2026 :
+     « dans les fiches de travail ou les devoirs maison ou les évaluations ou la
+     SNT, si un exercice est en bonus, écrire le bonus visible avec le titre de
+     l'exercice »). Leur liste des devoirs est COMPACTE (numéro, titre, note) :
+     elle ne nomme aucun exercice, l'annonce est donc la page du devoir — le
+     contrôle le constate (aucune ligne .dl-ex, une carte .dl-card) au lieu de
+     le déclarer, et exige alors le mot sur la page du devoir. Et partout, le
+     mot s'écrit AVEC LE TITRE de la carte (.ttl), pas seulement dans son badge
+     de bilan. */
   verifierEval(w, 'le mot « Bonus » est écrit sur l\'annonce du devoir et sur l\'écran de l\'exercice', `(function(){
     const vus=[];
     const ids=Object.keys(TESTS).filter(function(k){ return TESTS[k] && TESTS[k].start && testNum(k); });
@@ -31938,7 +31947,9 @@ function bonusEcrit(w, P){
 
     /* ---- 1. L'ANNONCE : la liste des devoirs, avec tous ses exercices ---- */
     const lignes=listeDevoirs();
-    if(lignes.length!==2){ vus.push(lignes.length+' exercice(s) dans l\\'annonce au lieu de 2'); }
+    const compacte=lignes.length===0 && document.querySelectorAll('#devoirsBody .dl-card').length===1;
+    if(compacte){ /* l'annonce ne nomme aucun exercice : la page du devoir la remplace */ }
+    else if(lignes.length!==2){ vus.push(lignes.length+' exercice(s) dans l\\'annonce au lieu de 2'); }
     else{
       if(net(lignes[0]).indexOf('Bonus')<0) vus.push('l\\'annonce du devoir n\\'écrit pas « Bonus » : « '+net(lignes[0])+' »');
       if(net(lignes[1]).indexOf('Bonus')>=0) vus.push('l\\'annonce écrit « Bonus » sur un exercice qui n\\'en est pas un : « '+net(lignes[1])+' »');
@@ -31950,6 +31961,9 @@ function bonusEcrit(w, P){
     else{
       if(net(cartes[0]).indexOf('Bonus')<0) vus.push('la page du devoir n\\'écrit pas « Bonus » : « '+net(cartes[0]).slice(0,80)+' »');
       if(net(cartes[1]).indexOf('Bonus')>=0) vus.push('la page du devoir écrit « Bonus » sur un exercice qui n\\'en est pas un');
+      const t0=cartes[0].querySelector('.ttl');
+      if(!(t0 && t0.querySelector('.dm-bonus') && net(t0).indexOf('Bonus')>=0))
+        vus.push('la page du devoir n\\'écrit pas « Bonus » AVEC LE TITRE de l\\'exercice : « '+net(t0)+' »');
     }
     /* et la MÊME page une fois l'exercice fait : le badge change de branche
        (« Bonus : 0,8 / 1 » au lieu de « Bonus · à faire »), et le mot doit
@@ -31991,7 +32005,9 @@ function bonusEcrit(w, P){
     const jeton=function(e){ return net(e).indexOf('JETON-DU-CONTROLE')>=0; };
     const l2=listeDevoirs(), m2=ecranModes(B), e2=ecranExo(B,'dev-b');
     const sans=[];
-    if(!(l2[0]&&jeton(l2[0]))) sans.push('l\\'annonce du devoir');
+    if(!compacte && !(l2[0]&&jeton(l2[0]))) sans.push('l\\'annonce du devoir');
+    const c2=pageDevoir(), t2=c2[0]&&c2[0].querySelector('.ttl');
+    if(!(t2&&jeton(t2))) sans.push('le titre de la carte sur la page du devoir');
     if(!(m2&&jeton(m2))) sans.push('l\\'écran des modes');
     if(!(e2&&jeton(e2))) sans.push('l\\'écran de l\\'exercice');
     if(sans.length) vus.push('le mot n\\'est pas écrit à UN SEUL endroit : '+sans.join(', ')+' l\\'écri(ven)t de leur côté');

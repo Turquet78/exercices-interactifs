@@ -163,6 +163,12 @@ module.exports = {
        champs vivent dans le DÉTAIL d'un élève, ouvert au clic. */
     notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_1ere', tableResultats: 'resultats_1ere',
       onglet: 'devoirs', detail: true },
+    /* LE MOT « BONUS » AVEC LE TITRE DE L'EXERCICE (demande de Turquet,
+       novembre 2026 : « dans les fiches de travail ou les devoirs maison ou
+       les évaluations ou la SNT… ») — le banc navigateur « 6 sexies bis ».
+       Ce niveau n'a pas la version papier des devoirs (papier:false) et sa
+       liste des devoirs est compacte : la page du devoir tient l'annonce. */
+    bonusEcrit: { table: 'parametres_1ere', bonus: 'pourcentage', normal: 'calcul-mental', mot: 'Bonus', papier: false },
     /* UNE NOTE QUE LA BASE REFUSE NE SE PERD PAS (novembre 2026 : « new row
        violates row-level security policy for table resultats_1ere » sous
        l'écran de fin, et la fiche gardait l'exercice suivant verrouillé). Le
@@ -1454,6 +1460,12 @@ module.exports = {
        (demande de Turquet, octobre 2026 : « comme en terminale »). La note du
        DEVOIR ENTIER, elle, n'est pas demandée ici : pas de « devoirEntier ». */
     notesDevoir: { exercice: 'pourcentage', tableParametres: 'parametres_2nde', tableResultats: 'resultats_2nde' },
+    /* LE MOT « BONUS » AVEC LE TITRE DE L'EXERCICE (demande de Turquet,
+       novembre 2026 : « dans les fiches de travail ou les devoirs maison ou
+       les évaluations ou la SNT… ») — le banc navigateur « 6 sexies bis ».
+       Ce niveau n'a pas la version papier des devoirs (papier:false) et sa
+       liste des devoirs est compacte : la page du devoir tient l'annonce. */
+    bonusEcrit: { table: 'parametres_2nde', bonus: 'pourcentage', normal: 'ensembles-nombres', mot: 'Bonus', papier: false },
     /* {simplifier-barres} y est depuis octobre 2026 : son tirage écrivait
        « 6 » en dur, la séance gardait six questions quelle que soit la
        fiche — il lit dmNbQuestions() et DOIT s'allonger. */
