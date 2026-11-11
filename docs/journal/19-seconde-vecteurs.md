@@ -6235,3 +6235,55 @@ autres exercices de colinéarité :
   « − » tapé dans MathLive jugé juste. Banc principal : `kvEgal('-',[-1,1])`,
   la case vide qui ne vaut pas −1, la suite cachée par « Non » et non par
   « Oui », et la copie juste écrite avec « − ».
+
+## {coordonnees-vecteur-quatrieme-point} — le quatrième point d'un parallélogramme, calculé puis vérifié (8.4.7, Seconde v669)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
+le pdf ; à la fin on demandera à l'élève de placer son point et si c'est bon
+de dessiner le parallélogramme. Si c'est faux afficher les vecteurs qui
+devraient être égaux et qui ne le sont pas et le dire. » La fiche
+« parallélogramme 2 », Exemple 6 : A(3 ; −1), B(2 ; 2), C(−2 ; 1), M(x ; y) ;
+calculer x et y pour que ABCM soit un parallélogramme ; « On prend deux
+vecteurs égaux. ATTENTION ! On choisit un vecteur qui finit sur M » ; BA⃗
+(… − … / … − …), CM⃗ (x − … / y − …), le système, x = …, y = …, « Donc :
+M(… ; …) », puis la vérification sur le repère.
+
+**Le moteur « vcm »** reprend le repère du 8.4.4 (`vcdSVG`, préfixe « vcm »,
+une pointe orange ajoutée) et les cases du 8.4.4 (`vcdCase`). A, B et C sont
+déjà posés (croix noires). Le calcul suit la fiche : BA⃗ par « Fin − Début »
+(en soutien, la bulle « gagne / perds » à côté des deux résultats,
+`VCD_GP_KINDS`), CM⃗ en colonne, le système dans son accolade, puis x et y
+— le nombre ou le calcul qui le donne (`vcmLitCalc` : « 1 + (−2) »), puis M.
+
+**La vérification, dans tous les modes, dès que M est posé** (`vcmVerifier`,
+sous le repère) : M juste est bleu, les flèches BA⃗ et CM⃗ se montrent
+pareilles (bleues) et « Tracer ABCM » s'ouvre ; l'élève clique les sommets
+dans l'ordre et revient au premier pour fermer (le dernier recliqué se
+retire ; un clic sur un tour fermé en recommence un). Le tour se juge depuis
+n'importe quel sommet, dans les deux sens (`vcmTrJuste`) ; ABMC est refusé
+et nommé. M faux est rouge : BA⃗ en orange, CM⃗ en rouge, et la phrase « ils
+devraient être égaux… ils ne le sont pas » dit CE qui les distingue — la
+direction, le sens, ou la longueur (`vcmDifference`) — sans coordonnées ni
+réponse. Le nom de chaque flèche se pose du côté extérieur au parallélogramme
+(au centre, il tombait sur les axes : vu à la capture). Un M déplacé défait
+le tracé. Interprétation retenue : c'est l'ÉLÈVE qui dessine le
+parallélogramme ; la page le dessine en pointillés verts à la correction s'il
+manque.
+
+**Dix-huit réponses** (`vcmJuge`) : seize cases, M, le tracé ; trois
+questions (la fiche d'abord), barème 54. Tirage : A, B, C de −5 à 5, ni sur
+un axe ni à −1, non alignés, BA⃗ en biais, M dans le repère, les quatre
+points à deux carreaux. Au doigt, la barre « Je place » : M, puis — M juste —
+« le parallélogramme ABCM » (`POSE_DOIGT.vcm`). Le nom « Le quatrième point
+d'un parallélogramme » était déjà celui de {parallelogramme-point} : le banc
+l'a vu (« deux exercices ne portent pas le même nom ») — l'exercice s'appelle
+« Calculer le quatrième point d'un parallélogramme ».
+
+**Le banc principal** (`coordonneesVecteurs`, « quatriemePoint ») : la place,
+le rappel, les tables absentes ; `vcmLitCalc` ; deux cents séances ; la copie
+vide (dix-huit `sol`, M et ABCM verts) ; M faux (rouge, les deux flèches, la
+phrase « pas la même longueur », puis « pas la même direction », rien de
+révélé), le reclic ; M juste (le tracé s'ouvre) ; ABMC refusé, CBAM accepté ;
+la copie juste 18/18 avec « 1+(-2) » ; la reprise après JSON ; M déplacé qui
+défait le tracé ; les pièges nommés ; le contexte ; le soutien ; la bulle.
+Vu dans un vrai Chromium à 1 280 et 390 px.
