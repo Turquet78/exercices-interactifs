@@ -3195,7 +3195,7 @@ if(require.main === module) (async () => {
     titre('6 sexies bis. LE MOT « BONUS » : L\'ANNONCE DU DEVOIR, ET L\'ÉCRAN OÙ ON LE FAIT');
     if(!P.bonusEcrit){
       ignorer('le mot « Bonus » se voit sur l\'annonce du devoir et sur l\'écran de l\'exercice',
-        'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot : la demande ne porte que la Terminale');
+        'ce niveau a bien les exercices bonus, mais n\'écrit pas encore le mot');
     } else {
       const BO = P.bonusEcrit;
       s = await ouvrir(chromium, ml, {});
@@ -3227,6 +3227,15 @@ if(require.main === module) (async () => {
         return [...document.querySelectorAll('#devoirsBody .dl-ex')]
           .map(e => (e.textContent || '').replace(/\s+/g, ' ').trim());
       });
+      /* UNE LISTE COMPACTE (Seconde, Première : numéro, titre, note) ne nomme
+         aucun exercice : l'annonce est alors la page du devoir, mesurée plus bas
+         au titre de chaque carte. Constaté, jamais déclaré. */
+      const compacte = annonce.length === 0
+        && await s.page.evaluate(() => document.querySelectorAll('#devoirsBody .dl-card').length === 1);
+      if(compacte){
+        ignorer('l\'annonce du devoir écrit « ' + BO.mot + ' »',
+          'la liste des devoirs de ce niveau est compacte : elle ne nomme aucun exercice, la page du devoir tient l\'annonce (mesurée ci-dessous)');
+      } else {
       verifier('l\'annonce du devoir liste bien ses deux exercices', annonce.length === 2,
         annonce.length + ' ligne(s) : ' + annonce.join(' ¦ ').slice(0, 140));
       const bAnnonce = await badge('#devoirsBody .dl-ex .dm-bonus');
@@ -3237,6 +3246,7 @@ if(require.main === module) (async () => {
       verifier('et l\'exercice qui n\'est pas un bonus ne le porte pas',
         annonce.length === 2 && annonce[1].indexOf(BO.mot) < 0,
         'la seconde ligne dit : ' + (annonce[1] || '(aucune)'));
+      }
 
       /* LE TRAJET : écran des modes, énoncé du circuit papier, écran de travail.
          L'ORDRE A SUIVI LA DEMANDE de septembre 2026 : le choix vient AVANT
@@ -3244,6 +3254,19 @@ if(require.main === module) (async () => {
          RETOURNÉ, pas retiré — les trois écrans portent toujours le mot. */
       await s.page.evaluate(() => ouvrirDevoirDetail('dm-bonus'));
       await s.page.waitForTimeout(600);
+      /* LA PAGE DU DEVOIR : le mot s'écrit AVEC LE TITRE de la carte (demande
+         de Turquet, novembre 2026), et sur la carte du bonus seulement. */
+      const titresCartes = await s.page.evaluate(() =>
+        [...document.querySelectorAll('#devoirsBody .choices .choice .ttl')]
+          .map(e => (e.textContent || '').replace(/\s+/g, ' ').trim()));
+      const bCarte = await badge('#devoirsBody .choices .choice .ttl .dm-bonus');
+      verifier('la page du devoir écrit « ' + BO.mot + ' » avec le titre de l\'exercice, et on le voit',
+        vu(bCarte) && bCarte.mot.indexOf(BO.mot) >= 0 && titresCartes.length === 2 && titresCartes[0].indexOf(BO.mot) >= 0,
+        bCarte ? 'badge de ' + bCarte.l + '×' + bCarte.h + ' px ; titres : ' + titresCartes.join(' ¦ ')
+               : 'aucun badge dans le titre des cartes : ' + titresCartes.join(' ¦ '));
+      verifier('et le titre de l\'exercice normal ne le porte pas',
+        titresCartes.length === 2 && titresCartes[1].indexOf(BO.mot) < 0,
+        'le second titre dit : ' + (titresCartes[1] || '(aucun)'));
       await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
       await s.page.waitForTimeout(900);
       const surModes = await s.page.evaluate(() => {
@@ -3255,6 +3278,9 @@ if(require.main === module) (async () => {
         vu(bModes) && bModes.mot.indexOf(BO.mot) >= 0,
         bModes ? 'badge de ' + bModes.l + '×' + bModes.h + ' px' : 'aucun badge dans le titre des modes');
 
+      if(BO.papier === false){
+        ignorer('l\'énoncé du devoir sur papier le dit aussi', 'ce niveau n\'a pas la version papier des devoirs');
+      } else {
       await s.page.click('#modeChoices [onclick*="dmePapierOuvrir"]');
       await s.page.waitForTimeout(2000);
       const surEnonce = await s.page.evaluate(() => {
@@ -3270,6 +3296,7 @@ if(require.main === module) (async () => {
          de l\'élève qui a lu son énoncé et préfère finalement l\'ordinateur */
       await s.page.evaluate(() => dmeRetour());
       await s.page.waitForTimeout(700);
+      }
       await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
       await s.page.waitForTimeout(900);
       await s.page.click('#modeChoices [onclick*="train"]');
