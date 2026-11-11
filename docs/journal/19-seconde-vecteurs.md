@@ -6287,3 +6287,76 @@ révélé), le reclic ; M juste (le tracé s'ouvre) ; ABMC refusé, CBAM accept�
 la copie juste 18/18 avec « 1+(-2) » ; la reprise après JSON ; M déplacé qui
 défait le tracé ; les pièges nommés ; le contexte ; le soutien ; la bulle.
 Vu dans un vrai Chromium à 1 280 et 390 px.
+
+## {coordonnees-vecteur-demontrer-parallelogramme} — démontrer que ABCD est un parallélogramme, le schéma, deux vecteurs égaux tracés (8.4.8, Seconde v670 — le 8.4.7 et la v669 pris sur main pendant le travail, par le quatrième point)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
+le pdf, l'élève devra placer sur le schéma les lettres dans le bon ordre, et
+il devra donner une bonne égalité de vecteur. Quand un premier vecteur est
+donné le tracer à l'écran. Quand le deuxième vecteur est donné le tracer à
+l'écran. S'ils ne sont pas égaux le signaler. Présenter le calcul des
+coordonnées des vecteurs comme dans l'exercice 8.4.4. » La fiche
+« parallélogramme », Exercice 1 : A(−8 ; 2), B(−3 ; 6), C(7 ; 1), D(2 ; −3) ;
+« Démontrer que ABCD est un parallélogramme » ; un cadre « Schéma : placer
+A, B, C et D » (un parallélogramme à main levée, quatre coins en pointillés) ;
+… …⃗ (… − … / … − …) … …⃗ (… / …) et … …⃗ (… − … / … − …) … …⃗ (… / …) ;
+« Donc : … …⃗ = … …⃗ » ; « Donc : …… est un …… ». Comme au 8.4.4, le PDF
+n'était pas arrivé au premier message : rien n'a été construit avant de
+l'avoir lu.
+
+**Le moteur « vpg »**. Le schéma : quatre listes aux coins d'un
+parallélogramme dessiné. Juste si les lettres font le tour A, B, C, D depuis
+n'importe quel coin, dans un sens ou dans l'autre (`vpgEtiquetages`, huit) ;
+chaque coin se juge contre l'étiquetage juste le plus proche de celui de
+l'élève (`vpgSchemaAttendu`), à égalité celui qui suit le sens de la figure.
+Les deux vecteurs : chacun nommé par deux listes sous une même flèche, de la
+couleur de son tracé (orange, puis violet). Dès qu'un vecteur est nommé, il
+se trace dans le repère, où les quatre points sont déjà posés (le geste de
+poser des points est celui du 8.4.5 ; ici la figure sert à VOIR les vecteurs
+choisis). Dès que les deux le sont, la page dit, dans TOUS les modes, s'ils
+sont égaux — sinon ce qui les distingue : la direction, le sens, la longueur
+(`vpgVerifier`, `vpgDifference`), ou « deux fois le même vecteur ». Le miroir
+« Donc : XY⃗ = ZW⃗ » suit les listes, et devient « ≠ » en rouge. Le repère
+va de −8 à 8 en abscisse et de −6 à 6 en ordonnée (la fiche a −8) : il a son
+propre dessin (`vpgSVG`), sans nœuds cliquables — il n'y a rien à poser, donc
+pas de barre « Je place ».
+
+**Le calcul est celui du 8.4.4** : les quatre points recopiés, l'abscisse dans
+un rond, l'ordonnée dans un carré ; « Fin » et « Début » avec leur liste
+au-dessus de la colonne ○ − ○ / □ − □ (les quatre noms, puisque le vecteur est
+au choix de l'élève), puis le résultat ; en soutien, la bulle « gagne /
+perds » (`VCD_GP_KINDS`). **Le calcul se juge sur le vecteur que l'élève a
+CHOISI** (`vpgRef`) : un mauvais choix est compté faux une fois, à son nom,
+pas une seconde fois dans chaque case du calcul.
+
+**Vingt-six réponses, chacune jugée seule** (`vpgJuge`) : quatre coins, deux
+lettres par vecteur, huit cases par calcul, le nom du quadrilatère (ABCD ou
+l'un des huit noms du même tour, minuscules comprises) et sa nature (une
+liste : parallélogramme, losange, rectangle, trapèze). Le premier vecteur est
+juste s'il est un CÔTÉ (une diagonale n'a pas de vecteur égal — nommé) ; le
+second, s'il lui est égal sans être lui. Sinon chaque lettre se compare au
+vecteur attendu (`vpgAttendus` : le premier de l'élève s'il est un côté,
+sinon l'égal de son second, sinon le côté le plus proche ; le second, son
+égal). La correction trace en pointillés verts les deux vecteurs attendus
+quand ceux de l'élève ne sont pas justes. Trois questions (`VPG_NB`,
+`dmNbQuestions`), barème 78. Tirage (`vpgGen`) : la fiche d'abord ; puis A,
+AB⃗ et AD⃗, C = A + AB⃗ + AD⃗, les points ni sur un axe ni à −1, à deux
+carreaux, les côtés en biais, ni rectangle ni losange (« parallélogramme »
+est la seule conclusion), pas aplati. On range `P` seul ; les listes se
+rangent avec les cases (`captureBoxes`), et le tracé se relit des listes
+remises (`vpgMaj`, appelé par `resumeTest` et deux fois après le rendu, pour
+le rejeu d'un signalement — la recette de `pcvRendrePred`).
+
+**Le banc principal** (`coordonneesVecteurs`, « demontrer ») : la place, le
+rappel, les tables absentes, les huit étiquetages ; deux cents séances ;
+l'écran ; la copie vide (vingt-six `sol`, rien de rouge, AB⃗ = DC⃗ écrit et
+tracé en vert) ; le tracé au fil des listes (une lettre ne trace rien ; AB⃗
+en orange ; CD⃗ « pas le même sens » et « ≠ » ; AC⃗ « pas la même
+direction » ; AB⃗ deux fois ; DC⃗ « = ») ; la copie juste 26 sur 26 avec un
+autre étiquetage, AD⃗ = BC⃗ et « dabc » ; la reprise ; les pièges (le
+schéma hors du tour, CD⃗ à l'envers, fin et début échangés, le signe, ABDC,
+losange — le calcul de CD⃗ juste compté juste) ; le contexte ; le soutien ;
+la bulle. Vu dans un vrai Chromium à 1 280 et 390 px. Un défaut vu à la
+première capture : les listes du schéma, posées en `position:absolute`,
+sortaient du cadre — `.vcd-c{position:relative}`, écrite plus bas dans la
+feuille, l'emportait ; la règle porte maintenant `.vpg-sch-fig .vcd-c.vpg-coin`.
