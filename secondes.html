@@ -3163,14 +3163,17 @@
   #vcmGraph .vcm-et.vcm-o text,#vcmGraph .vcm-et.vcm-o path{fill:var(--vcm-orange)} #vcmGraph .vcm-et.vcm-o line{stroke:var(--vcm-orange)}
   #vcmGraph .vcm-tr{fill:none;stroke:var(--blue);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
   #vcmGraph .vcm-tr.ok{fill:rgba(47,94,214,.10)}
-  #vcmGraph .vcm-tr.bad{stroke:var(--red);fill:rgba(214,48,49,.08)}
-  #vcmGraph .vcm-som{fill:var(--blue)} #vcmGraph .vcm-som0{fill:none;stroke:var(--blue);stroke-width:2}
   #vcmGraph .vcm-quad{fill:none;stroke:var(--green);stroke-width:2;stroke-dasharray:6 4}
   .vcm-col.vco-par{display:grid;grid-template-columns:auto auto;align-items:center;gap:8px 6px;padding:6px 10px}
   .vcm-l{font-family:"Fredoka";font-weight:600;white-space:nowrap}
   .vcm-sys-ligne{align-items:center}
   .vcm-sys{display:grid;grid-template-columns:auto auto auto auto;align-items:center;gap:8px 6px;padding:4px 0 4px 12px;border-left:2px solid var(--ink);border-radius:14px 0 0 14px}
   .vcm-sys2{grid-template-columns:auto auto}
+  .vcm-sys1{border-radius:0;border-left:none;padding-left:0}
+  /* 1) et 2) côte à côte ; l'une sous l'autre quand la place manque */
+  .vcm-deux{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:12px 40px;align-self:stretch}
+  .vcm-colonne{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:12px}
+  .vcm-colonne>.vcd-titre{align-self:stretch;text-align:left}
   .vcd-in.vco-in.vcm-calc{width:6.2em}
   .vcm-donc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
   .vcm-mot{font-family:'Nunito',sans-serif;font-weight:700}
@@ -9210,7 +9213,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=669;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=670;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10107,7 +10110,7 @@ const TESTS={
   'coordonnees-vecteur-compter': { name:'Lire les coordonn\u00e9es sans la d\u00e9composition', icon:'\ud83d\udccf', desc:'Huit vecteurs u\u2081 \u2026 u\u2088 sur un quadrillage, sans les fl\u00e8ches grises et noires qui les d\u00e9composent : compte les carreaux et \u00e9cris leurs coordonn\u00e9es dans le tableau.', start:()=>startVcs() },
   'coordonnees-vecteur-calculer': { name:'Calculer les coordonn\u00e9es d\u2019un vecteur', icon:'\ud83e\uddee', desc:'Place deux points, trace le vecteur, puis calcule ses coordonn\u00e9es\u00a0: fin \u2212 d\u00e9but, les abscisses dans les ronds, les ordonn\u00e9es dans les carr\u00e9s.', start:()=>startVcd() },
   'coordonnees-vecteur-parallelogramme': { name:'Coordonn\u00e9es de vecteurs et parall\u00e9logramme', icon:'\u25b1', desc:'Place quatre points, calcule les coordonn\u00e9es de deux vecteurs (fin \u2212 d\u00e9but), puis conclus\u00a0: ces vecteurs sont-ils \u00e9gaux, le quadrilat\u00e8re est-il un parall\u00e9logramme\u00a0?', start:()=>startVcp() },
-  'coordonnees-vecteur-quatrieme-point': { name:'Calculer le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'A, B et C sont plac\u00e9s\u00a0: calcule les coordonn\u00e9es de M pour que ABCM soit un parall\u00e9logramme (deux vecteurs \u00e9gaux, BA = CM), puis place M pour v\u00e9rifier et trace ABCM.', start:()=>startVcm() },
+  'coordonnees-vecteur-quatrieme-point': { name:'Calculer le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'A, B et C sont plac\u00e9s\u00a0: calcule les coordonn\u00e9es de M pour que ABCM soit un parall\u00e9logramme (deux vecteurs \u00e9gaux, BA = CM), puis place M pour v\u00e9rifier.', start:()=>startVcm() },
   'coordonnees-vecteur-tracer': { name:'Tracer un vecteur par ses coordonn\u00e9es', icon:'\u270f\ufe0f', desc:'Les coordonn\u00e9es de trois vecteurs u, v et w sont donn\u00e9es en colonne\u00a0: trace chacun sur le quadrillage. Le nombre du haut dit le d\u00e9placement horizontal, celui du bas le vertical\u00a0; un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e.', start:()=>startTvx(false,false,true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
   'colineaires-sens-longueur': { name:'M\u00eame sens ou sens contraire\u00a0? Plus long ou plus court\u00a0?', icon:'\u2195\ufe0f', desc:'La d\u00e9finition de deux vecteurs colin\u00e9aires, puis vrai ou faux sur deux vecteurs dessin\u00e9s\u00a0: m\u00eame direction, m\u00eame sens, m\u00eame longueur, colin\u00e9aires. Six situations, toutes les possibles.', start:()=>startKss() },
@@ -12097,7 +12100,7 @@ const QIA_SUGG={
   vcs:["Comment lire les coordonn\u00e9es d\u2019une fl\u00e8che sans la d\u00e9composer\u00a0?","Par o\u00f9 commencer pour compter les carreaux\u00a0?","Comment savoir si une coordonn\u00e9e est positive ou n\u00e9gative\u00a0?","Que vaut une coordonn\u00e9e quand la fl\u00e8che est verticale\u00a0?"],
   vca:["Comment lire les coordonn\u00e9es d\u2019une fl\u00e8che\u00a0?","Deux vecteurs qui ont les m\u00eames nombres de carreaux sont-ils \u00e9gaux\u00a0?","Que veut dire un \u2212 dans la premi\u00e8re coordonn\u00e9e\u00a0?","Que veut dire un 0 dans les coordonn\u00e9es\u00a0?"],
   vcd:["Quel point est le d\u00e9but du vecteur\u00a0?","Pourquoi calcule-t-on fin \u2212 d\u00e9but\u00a0?","Comment soustraire un nombre n\u00e9gatif\u00a0?","Que met-on dans les ronds et dans les carr\u00e9s\u00a0?"],
-  vcm:["Pourquoi choisir un vecteur qui finit sur M\u00a0?","Pourquoi BA = CM et pas BA = MC\u00a0?","Comment trouver x quand x \u2212 (\u22122) = 1\u00a0?","Dans quel ordre tracer ABCM\u00a0?"],
+  vcm:["Pourquoi choisir un vecteur qui finit sur M\u00a0?","Pourquoi BA = CM et pas BA = MC\u00a0?","Comment trouver x quand x \u2212 (\u22122) = 1\u00a0?","Pourquoi x \u2212 (\u22122) devient-il x + 2\u00a0?"],
   vcp:["Quel point est le d\u00e9but du vecteur CD\u00a0?","Comment soustraire un nombre n\u00e9gatif\u00a0?","Quand deux vecteurs sont-ils \u00e9gaux\u00a0?","Pourquoi le quadrilat\u00e8re s\u2019appelle-t-il ABDC et pas ABCD\u00a0?"],
   kss:["Qu\u2019est-ce que deux vecteurs colin\u00e9aires\u00a0?","Deux vecteurs de m\u00eame longueur ont-ils forc\u00e9ment la m\u00eame direction\u00a0?","Comment savoir si k u a le m\u00eame sens que u\u00a0?","\u22123u est-il plus court que u\u00a0?","Que fait un r\u00e9el entre 0 et 1\u00a0?","Comment lire k sur le dessin\u00a0?"],
   kpl:["Comment placer M tel que CM = \u2154AB\u00a0?","Que change le signe moins\u00a0?","De quel point faut-il partir\u00a0?","Pourquoi (CM) est-elle parall\u00e8le \u00e0 (AB)\u00a0?"],
@@ -13687,8 +13690,8 @@ const RAP_KVI=`<b>Reconnaître un vecteur k<span class="vec"><i>u</i></span></b>
 const RAP_VCM=`<b>Le quatrième point d'un parallélogramme</b><br>
 <b>① Deux vecteurs égaux</b> : ABCM est un parallélogramme quand <span class="vgt-vec">BA</span> = <span class="vgt-vec">CM</span> (les côtés [BA] et [CM] se font face, parcourus dans le même sens). On choisit un vecteur qui <b>finit sur M</b> : ses coordonnées contiennent <i>x</i> et <i>y</i>.<br>
 <b>② Fin − début</b> : A(3 ; −1), B(2 ; 2) : <span class="vgt-vec">BA</span> <span class="vco-col"><span>3 − 2</span><span>−1 − 2</span></span> donc <span class="vgt-vec">BA</span> <span class="vco-col"><span>1</span><span>−3</span></span> ; avec C(−2 ; 1) : <span class="vgt-vec">CM</span> <span class="vco-col"><span><i>x</i> − (−2)</span><span><i>y</i> − 1</span></span>.<br>
-<b>③ Mêmes coordonnées</b> : <i>x</i> − (−2) = 1 et <i>y</i> − 1 = −3, donc <i>x</i> = 1 + (−2) = −1 et <i>y</i> = −3 + 1 = −2 : M(−1 ; −2).<br>
-<b>④ Vérifier</b> : on place M ; les flèches <span class="vgt-vec">BA</span> et <span class="vgt-vec">CM</span> doivent être pareilles — même direction, même sens, même longueur. Puis on trace ABCM dans l'ordre des lettres : A, B, C, M, et retour en A.`;
+<b>③ Mêmes coordonnées</b> : <i>x</i> − (−2) = 1 et <i>y</i> − 1 = −3. Soustraire un nombre négatif, c'est ajouter son opposé : <i>x</i> − (−2) = 1 s'écrit <i>x</i> + 2 = 1. Donc <i>x</i> = 1 − 2 = −1 et <i>y</i> = −3 + 1 = −2 : M(−1 ; −2).<br>
+<b>④ Vérifier</b> : on place M ; les flèches <span class="vgt-vec">BA</span> et <span class="vgt-vec">CM</span> doivent être pareilles — même direction, même sens, même longueur. Si M est juste, ABCM est bien un parallélogramme.`;
 /* 8.4.5 {coordonnees-vecteur-parallelogramme} */
 const RAP_VCP=`<b>Deux vecteurs égaux, un parallélogramme</b><br>
 <b>① Fin − début</b> : le vecteur <span class="vgt-vec">AB</span> part de A (le début) et arrive en B (la fin) ; ses coordonnées : en haut <i>x</i><sub>B</sub> − <i>x</i><sub>A</sub>, en bas <i>y</i><sub>B</sub> − <i>y</i><sub>A</sub>.<br>
@@ -68785,45 +68788,52 @@ function ctxVcp(q){
    y pour que ABCM soit un parallélogramme. On prend deux vecteurs égaux.
    ATTENTION ! On choisit un vecteur qui finit sur M » ; BA⃗ (… − … / … − …),
    CM⃗ (x − … / y − …), « On veut que { x − … = … ; y − … = … », { x = … ;
-   y = … }, « Donc : M( … ; … ) », puis la « Vérification » sur le repère. La
-   demande : « à la fin on demandera à l'élève de placer son point et si c'est
-   bon de dessiner le parallélogramme. Si c'est faux afficher les vecteurs qui
-   devraient être égaux et qui ne le sont pas et le dire. »
+   y = … }, « Donc : M( … ; … ) », puis la « Vérification » sur le repère.
 
    LE CALCUL EST LA FICHE : BA⃗ par « Fin − Début » (les cases du 8.4.4,
    vcdCase — et EN SOUTIEN la bulle « gagne / perds » à côté des deux
-   résultats, VCD_GP_KINDS), CM⃗ en colonne « x − … / y − … », le système,
-   x et y (le nombre, ou le calcul qui le donne : « 1 + (−2) »), puis M.
+   résultats, VCD_GP_KINDS) et CM⃗ en colonne « x − … / y − … », côte à côte
+   (deux colonnes, qui se replient l'une sous l'autre sur un téléphone) ; le
+   système ; puis, QUAND UNE COORDONNÉE DE C EST NÉGATIVE, une étape de plus :
+   le système réécrit « x + … = … » (et/ou « y + … = … ») — soustraire un
+   nombre négatif, c'est ajouter son opposé (demande de Turquet, novembre
+   2026) ; seules les lignes concernées y figurent (vcmPlus). Puis x et y
+   (le nombre, ou le calcul qui le donne : « 1 + (−2) »), puis M.
 
    LA VÉRIFICATION, DANS TOUS LES MODES, AU MOMENT DE LA POSE (vcmVerifier) :
    A, B et C sont déjà sur le repère ; l'élève pose M. Juste, M est bleu, les
-   flèches BA⃗ et CM⃗ se montrent pareilles, et le bouton « Tracer ABCM »
-   s'ouvre : l'élève clique les sommets dans l'ordre et revient au premier
-   pour fermer le quadrilatère (vcmTrJuste : n'importe quel sommet de départ,
-   dans un sens ou dans l'autre — jamais ABMC). Faux, M est rouge, et les
-   deux flèches qui DEVRAIENT être égaux se dessinent — BA⃗ en orange, CM⃗
-   en rouge — avec la phrase qui dit ce qui les distingue (direction, sens,
-   longueur) : ni la réponse ni les coordonnées de BA⃗, seulement le constat.
+   flèches BA⃗ et CM⃗ se montrent pareilles et la page DESSINE le
+   parallélogramme ABCM (l'élève n'a plus à le tracer : demande de Turquet).
+   Faux, M est rouge, et les deux flèches qui DEVRAIENT être égales se
+   dessinent — BA⃗ en orange, CM⃗ en rouge — avec la phrase qui dit ce qui les
+   distingue (direction, sens, longueur) : ni la réponse ni les coordonnées
+   de BA⃗, seulement le constat.
 
-   DIX-HUIT RÉPONSES, CHACUNE JUGÉE SEULE (vcmJuge) : seize cases, le point M
-   et le parallélogramme tracé — jugées sur la vérité. On range q.P (A, B, C),
-   q.m (le point M posé) et q.tr (les sommets cliqués, fermé ou non) ; les
-   cases se rangent d'elles-mêmes (captureBoxes). */
+   CHAQUE RÉPONSE JUGÉE SEULE (vcmJuge) : seize cases, deux par ligne de
+   l'étape « + », et le point M — 17, 19 ou 21 selon la question. On range q.P
+   (A, B, C) et q.m (le point M posé) ; les cases se rangent d'elles-mêmes
+   (captureBoxes). */
 const VCM_NB=3;
 const VCM_L=['A','B','C','M'];
 const VCM_C6=['xf','xd','yf','yd','rx','ry'];
-const VCM_CASES=VCM_C6.map(function(c){ return 'vcm-ba-'+c; })
-  .concat(['vcm-cm-xd','vcm-cm-yd','vcm-sx-d','vcm-sx-r','vcm-sy-d','vcm-sy-r','vcm-x','vcm-y','vcm-mx','vcm-my']);
-const VCM_IDS=VCM_CASES.concat(['vcm-m','vcm-t']);
 function vcmFiche(){ return vcmNeuve([[3,-1],[2,2],[-2,1]]); }
-function vcmNeuve(P){ return {P:P, m:null, tr:null}; }
+function vcmNeuve(P){ return {P:P, m:null}; }
 /* M = C + BA⃗ : CM⃗ = BA⃗ */
 function vcmM(q){ const A=q.P[0], B=q.P[1], C=q.P[2]; return [C[0]+A[0]-B[0], C[1]+A[1]-B[1]]; }
 function vcmBA(q){ const A=q.P[0], B=q.P[1]; return [A[0]-B[0], A[1]-B[1]]; }
+/* les lignes de l'étape « + » : celles où l'on soustrait un nombre négatif */
+function vcmPlus(q){ return [0,1].filter(function(k){ return q.P[2][k]<0; }); }
+/* les cases d'une question, dans l'ordre de la page */
+function vcmCasesDe(q){
+  const r=VCM_C6.map(function(c){ return 'vcm-ba-'+c; }).concat(['vcm-cm-xd','vcm-cm-yd','vcm-sx-d','vcm-sx-r','vcm-sy-d','vcm-sy-r']);
+  vcmPlus(q).forEach(function(k){ const L=k?'y':'x'; r.push('vcm-p'+L+'-a','vcm-p'+L+'-r'); });
+  return r.concat(['vcm-x','vcm-y','vcm-mx','vcm-my']);
+}
 function vcmAttendu(q){
   const A=q.P[0], B=q.P[1], C=q.P[2], u=vcmBA(q), M=vcmM(q);
   return {'vcm-ba-xf':A[0], 'vcm-ba-xd':B[0], 'vcm-ba-yf':A[1], 'vcm-ba-yd':B[1], 'vcm-ba-rx':u[0], 'vcm-ba-ry':u[1],
     'vcm-cm-xd':C[0], 'vcm-cm-yd':C[1], 'vcm-sx-d':C[0], 'vcm-sx-r':u[0], 'vcm-sy-d':C[1], 'vcm-sy-r':u[1],
+    'vcm-px-a':-C[0], 'vcm-px-r':u[0], 'vcm-py-a':-C[1], 'vcm-py-r':u[1],
     'vcm-x':M[0], 'vcm-y':M[1], 'vcm-mx':M[0], 'vcm-my':M[1]};
 }
 /* LE TIRAGE : A, B, C entre −5 et 5, jamais sur un axe ni à −1 (leur lettre
@@ -68851,25 +68861,11 @@ function vcmBuildQuestions(){
   const n=dmNbQuestions(VCM_NB);
   return distinctes(n, function(_, i){ return vcmGen(i); }, vcmCle);
 }
-/* dix-huit réponses par question — la convention que lit dmPoidsQuestion() */
-function vcmCases(q){ return VCM_IDS.slice(); }
+/* les réponses d'une question — la convention que lit dmPoidsQuestion() */
+function vcmCases(q){ return vcmCasesDe(q).concat(['vcm-m']); }
 function vcmMJuste(q){ return svrEgal(q.m, vcmM(q)); }
-function vcmTrFerme(q){ return !!(q.tr&&q.tr.f&&Array.isArray(q.tr.s)); }
-/* le tour A → B → C → M, depuis n'importe quel sommet, dans un sens ou dans l'autre */
-function vcmTrJuste(q){
-  if(!vcmTrFerme(q)||q.tr.s.length!==4||!vcmMJuste(q)) return false;
-  const T=q.P.concat([vcmM(q)]), s=q.tr.s;
-  for(let d=0;d<4;d++) for(const sens of [1,-1]){
-    let ok=true;
-    for(let k=0;k<4;k++) if(!svrEgal(s[k], T[((d+sens*k)%4+4)%4])){ ok=false; break; }
-    if(ok) return true;
-  }
-  return false;
-}
 function vcmFige(id){ return !!(test.vcmFige&&test.vcmFige[id]); }
 function vcmEtat(id){ return (test.vcmEtat&&test.vcmEtat[id])||''; }
-/* « Tracer ABCM » s'ouvre quand M est juste */
-function vcmOuvert(q,o){ return o==='m'||vcmMJuste(q); }
 /* x = … : le nombre, ou le calcul qui le donne (« 1 + (−2) », « 1−2 ») */
 function vcmLitCalc(s){
   const n=vcdLit(s); if(n!==null) return n;
@@ -68907,6 +68903,10 @@ function vcmEtiquette(q,a,b,nom,cls){
 function vcmFleche(q,a,b,cls,marker,nom){
   return vcdFleche(a,b,cls,marker)+vcmEtiquette(q,a,b,nom,cls);
 }
+/* le parallélogramme ABCM, dessiné par la page */
+function vcmQuad(q,cls){
+  return '<polygon class="'+cls+'" points="'+q.P.concat([vcmM(q)]).map(function(p){ return vcdX(p[0])+','+vcdY(p[1]); }).join(' ')+'"/>';
+}
 /* ce qui distingue BA⃗ de CM⃗ quand M est faux : la direction, le sens, la longueur */
 function vcmDifference(q){
   const u=vcmBA(q), C=q.P[2], v=[q.m[0]-C[0], q.m[1]-C[1]];
@@ -68922,18 +68922,8 @@ function vcmDessiner(q){
   if(q.m){
     const juste=vcmMJuste(q);
     p+=vcmCroix(q, 3, q.m, juste&&vcmEtat('vcm-m')!=='bad'?'e':'eb');
-    if(!svrEgal(q.m,q.P[2])){
-      if(juste) f+=vcmFleche(q,q.P[1],q.P[0],'svc-e','vcmArrE','BA')+vcmFleche(q,q.P[2],q.m,'svc-e','vcmArrE','CM');
-      else f+=vcmFleche(q,q.P[1],q.P[0],'vcm-o','vcmArrO','BA')+vcmFleche(q,q.P[2],q.m,'svc-eb','vcmArrB','CM');
-    }
-  }
-  /* le parallélogramme que l'élève trace, sommet après sommet */
-  const tr=q.tr;
-  if(tr&&tr.s&&tr.s.length){
-    const pt=function(n){ return vcdX(n[0])+','+vcdY(n[1]); };
-    const cls=vcmTrFerme(q)?(vcmTrJuste(q)?'vcm-tr ok':'vcm-tr bad'):'vcm-tr';
-    f+=(vcmTrFerme(q)?'<polygon class="'+cls+'" points="'+tr.s.map(pt).join(' ')+'"/>':'<polyline class="'+cls+'" points="'+tr.s.map(pt).join(' ')+'"/>');
-    if(!vcmTrFerme(q)) tr.s.forEach(function(n,k){ f+='<circle class="vcm-som'+(k===0?' vcm-som0':'')+'" cx="'+vcdX(n[0])+'" cy="'+vcdY(n[1])+'" r="'+(k===0?6:4)+'"/>'; });
+    if(juste) f+=vcmQuad(q,'vcm-tr ok')+vcmFleche(q,q.P[1],q.P[0],'svc-e','vcmArrE','BA')+vcmFleche(q,q.P[2],q.m,'svc-e','vcmArrE','CM');
+    else if(!svrEgal(q.m,q.P[2])) f+=vcmFleche(q,q.P[1],q.P[0],'vcm-o','vcmArrO','BA')+vcmFleche(q,q.P[2],q.m,'svc-eb','vcmArrB','CM');
   }
   fl.innerHTML=f; pts.innerHTML=p;
   vcmVif(q, test.vcmSouris||null);
@@ -68950,76 +68940,43 @@ function vcmVerifier(q){
     v.className='vcm-verif bad';
     return;
   }
-  if(vcmTrJuste(q)){ v.innerHTML='<b>Bravo !</b> '+BA+' = '+CM+' : voici le parallélogramme ABCM.'; v.className='vcm-verif good'; return; }
-  if(vcmTrFerme(q)){
-    v.innerHTML='<b>Ce n’est pas le quadrilatère ABCM.</b> On fait le tour dans l’ordre des lettres : A, puis B, puis C, puis M, et on revient en A. Clique un sommet pour recommencer.';
-    v.className='vcm-verif bad'; return;
-  }
-  v.innerHTML='<b>Ton point M est juste</b> : les vecteurs '+BA+' et '+CM+' sont égaux. Trace maintenant le parallélogramme ABCM : choisis « Tracer ABCM », clique ses sommets dans l’ordre, puis reviens sur le premier pour le fermer.';
+  v.innerHTML='<b>Bravo, ton point M est juste !</b> Les vecteurs '+BA+' et '+CM+' sont égaux : voici le parallélogramme ABCM.';
   v.className='vcm-verif good';
 }
-/* ce qui suit la souris : la croix de M, ou le côté en cours de tracé */
+/* la croix de M suit la souris */
 function vcmVif(q, m){
   const g=$('vcmVif'); if(!g) return;
-  const o=test.vcmOutil;
-  const croix=!test.locked&&!!m&&!!q&&o==='m'&&!vcmFige('vcm-m');
+  const croix=!test.locked&&!!m&&!!q&&!vcmFige('vcm-m');
   const svg=document.querySelector('#vcmGraph .svr-svg'); if(svg) svg.classList.toggle('svr-croix', croix);
-  if(croix){
-    const d=4;
-    g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
-      +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">M</text></g>`;
-    return;
-  }
-  const tr=q&&q.tr;
-  if(test.locked||!m||o!=='t'||!tr||!tr.s||!tr.s.length||tr.f){ g.innerHTML=''; return; }
-  const n=tr.s[tr.s.length-1];
-  g.innerHTML=`<line class="vcm-tr svr-vif" x1="${vcdX(n[0])}" y1="${vcdY(n[1])}" x2="${m.x.toFixed(1)}" y2="${m.y.toFixed(1)}"/>`;
+  if(!croix){ g.innerHTML=''; return; }
+  const d=4;
+  g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
+    +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">M</text></g>`;
 }
 function vcmMajOutils(q){
-  ['m','t'].forEach(function(o){
-    const el=$('vcm-'+o); if(!el) return;
-    el.classList.toggle('actif', !test.locked&&test.vcmOutil===o);
-    el.classList.toggle('fait', !test.locked&&(o==='m'?vcmMJuste(q):vcmTrJuste(q)));
-    el.setAttribute('aria-pressed', test.vcmOutil===o?'true':'false');
-    el.disabled=!!test.locked||vcmFige('vcm-'+o)||!vcmOuvert(q,o);
-    if(!vcmOuvert(q,o)) el.title='Place d’abord le bon point M'; else el.removeAttribute('title');
-  });
+  const el=$('vcm-m'); if(!el) return;
+  el.classList.toggle('actif', !test.locked);
+  el.classList.toggle('fait', !test.locked&&vcmMJuste(q));
+  el.setAttribute('aria-pressed','true');
+  el.disabled=!!test.locked||vcmFige('vcm-m');
 }
-function vcmOutil(o){
-  if(test.locked||test.kind!=='vcm'||['m','t'].indexOf(o)<0) return;
-  const q=test.questions[test.idx]; if(!vcmOuvert(q,o)) return;
-  test.vcmOutil=o;
+function vcmOutil(){
+  if(test.locked||test.kind!=='vcm') return;
+  const q=test.questions[test.idx];
   vcmMajOutils(q); vcmVif(q, test.vcmSouris||null);
-  if(typeof poseDoigtSuivre==='function') poseDoigtSuivre('vcm', o);
+  if(typeof poseDoigtSuivre==='function') poseDoigtSuivre('vcm', 'm');
 }
-/* poser M (le reclic au même nœud le retire) ; un M qui bouge défait le tracé */
+/* poser M (le reclic au même nœud le retire) */
 function vcmPoseM(q,n){
   if(svrEgal(q.m,n)) q.m=null; else q.m=n;
-  q.tr=null;
-  if(test.vcmEtat){ delete test.vcmEtat['vcm-m']; delete test.vcmEtat['vcm-t']; }
-  ['vcm-m','vcm-t'].forEach(function(id){ const el=$(id); if(el) el.classList.remove('ok','bad'); });
-  if(vcmMJuste(q)) test.vcmOutil='t';
-}
-/* tracer : un sommet de plus ; le premier recliqué ferme le tour ; le dernier
-   recliqué se retire ; un clic sur un tour fermé en recommence un */
-function vcmPoseT(q,n){
-  if(!test.vcmEtat) test.vcmEtat={};
-  delete test.vcmEtat['vcm-t']; const el=$('vcm-t'); if(el) el.classList.remove('ok','bad');
-  const tr=q.tr;
-  if(!tr||!tr.s||!tr.s.length||tr.f){ q.tr={s:[n], f:false}; return; }
-  const s=tr.s;
-  if(svrEgal(s[s.length-1],n)){ s.pop(); if(!s.length) q.tr=null; return; }
-  if(svrEgal(s[0],n)){ if(s.length>=3) tr.f=true; return; }
-  if(s.some(function(x){ return svrEgal(x,n); })) return;
-  s.push(n);
+  if(test.vcmEtat) delete test.vcmEtat['vcm-m'];
+  const el=$('vcm-m'); if(el) el.classList.remove('ok','bad');
 }
 function vcmPose(i,j){
   if(poseDoigt('vcm',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='vcm') return;
-  const q=test.questions[test.idx]; if(!q||!vcdDans([i,j])) return;
-  const o=test.vcmOutil;
-  if(!vcmOuvert(q,o)||vcmFige('vcm-'+o)) return;
-  if(o==='m') vcmPoseM(q,[i,j]); else vcmPoseT(q,[i,j]);
+  const q=test.questions[test.idx]; if(!q||!vcdDans([i,j])||vcmFige('vcm-m')) return;
+  vcmPoseM(q,[i,j]);
   vcmDessiner(q); vcmMajOutils(q);
   recoveryDirty=true;
   clearTimeout(test.vcmSave); test.vcmSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },1200);
@@ -69041,12 +68998,22 @@ function vcmBrancher(){
     test.vcmSouris=null; vcmVif(test.questions[test.idx], null);
   });
 }
-/* Le calcul, comme la fiche. */
+/* Le calcul, comme la fiche : 1) et 2) côte à côte. */
 function vcmCalcHTML(q){
   const BA=vepVecHTML('B','A'), CM=vepVecHTML('C','M'), x='<i>x</i>', y='<i>y</i>';
   const id=function(c){ return 'vcm-ba-'+c; };
   const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( )" maxlength="12" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
-  return '<div class="vcd-titre">1) Les coordonnées du vecteur '+BA+'.</div>'
+  const plus=vcmPlus(q);
+  let etape='';
+  if(plus.length){
+    etape='<div class="vcd-titre">Soustraire un nombre négatif, c’est ajouter son opposé :</div>'
+      +'<div class="vcd-ligne vcm-sys-ligne"><div class="vcm-sys'+(plus.length<2?' vcm-sys1':'')+'">'
+      +plus.map(function(k){ const L=k?'y':'x', V=k?y:x;
+        return '<span class="vcm-l">'+V+' +</span>'+vcdCase('vcm-p'+L+'-a','le nombre ajouté à '+L)+'<span class="vcm-l">=</span>'+vcdCase('vcm-p'+L+'-r','ce que vaut '+L+' plus ce nombre'); }).join('')
+      +'</div></div>';
+  }
+  return '<div class="vcm-deux">'
+    +'<div class="vcm-colonne"><div class="vcd-titre">1) Les coordonnées du vecteur '+BA+'.</div>'
     +'<div class="vcd-ligne">'
       +'<div class="vcd-bloc"><span class="vcd-nom">'+BA+'</span><div class="vcd-diff">'
         +'<div class="vcd-tete"><span class="vcd-fd">Fin</span><span class="vcd-m">−</span><span class="vcd-fd">Début</span></div>'
@@ -69057,39 +69024,42 @@ function vcmCalcHTML(q){
       +'<div class="vcd-bloc"><span class="vcd-nom">'+BA+'</span><div class="vco-par vcd-res">'
         +vcdCase(id('rx'),'la première coordonnée de BA')+vcdCase(id('ry'),'la seconde coordonnée de BA')
       +'</div></div>'
-    +'</div>'
-    +'<div class="vcd-titre">2) Les coordonnées du vecteur '+CM+', qui finit sur M('+x+' ; '+y+').</div>'
+    +'</div></div>'
+    +'<div class="vcm-colonne"><div class="vcd-titre">2) Les coordonnées du vecteur '+CM+', qui finit sur M('+x+' ; '+y+').</div>'
     +'<div class="vcd-ligne"><div class="vcd-bloc"><span class="vcd-nom vcm-nom">'+CM+'</span><div class="vco-par vcm-col">'
       +'<span class="vcm-l">'+x+' −</span>'+vcdCase('vcm-cm-xd','l’abscisse du point de début de CM')
       +'<span class="vcm-l">'+y+' −</span>'+vcdCase('vcm-cm-yd','l’ordonnée du point de début de CM')
-    +'</div></div></div>'
+    +'</div></div></div></div>'
+    +'</div>'
     +'<div class="vcd-titre">3) On veut que '+BA+' = '+CM+'.</div>'
     +'<div class="vcd-ligne vcm-sys-ligne">'
       +'<div class="vcm-sys"><span class="vcm-l">'+x+' −</span>'+vcdCase('vcm-sx-d','ce qu’on retranche à x')+'<span class="vcm-l">=</span>'+vcdCase('vcm-sx-r','ce que vaut x moins ce nombre')
         +'<span class="vcm-l">'+y+' −</span>'+vcdCase('vcm-sy-d','ce qu’on retranche à y')+'<span class="vcm-l">=</span>'+vcdCase('vcm-sy-r','ce que vaut y moins ce nombre')+'</div>'
+    +'</div>'
+    +etape
+    +'<div class="vcd-ligne vcm-sys-ligne">'
       +'<div class="vcm-sys vcm-sys2"><span class="vcm-l">'+x+' =</span>'+calc('vcm-x','la valeur de x')
         +'<span class="vcm-l">'+y+' =</span>'+calc('vcm-y','la valeur de y')+'</div>'
     +'</div>'
     +'<div class="vcm-donc"><span class="vcm-mot">Donc : M(</span>'+vcdCase('vcm-mx','l’abscisse de M')+'<span class="vcm-mot">;</span>'+vcdCase('vcm-my','l’ordonnée de M')+'<span class="vcm-mot">)</span></div>'
     +'<div class="vcd-titre">4) Vérification : place ton point M dans le repère.</div>';
 }
-/* LE JUGE — dix-huit réponses, chacune seule. */
+/* LE JUGE — chaque réponse seule. */
 function vcmJuge(q){
   const subs=[], a=vcmAttendu(q);
   const val=function(id){ const e=$(id); return e?String(e.value==null?'':e.value).trim():''; };
-  VCM_CASES.forEach(function(id){
+  vcmCasesDe(q).forEach(function(id){
     const s=val(id), lu=vcmLit(id,s);
     subs.push({id:id, el:$(id), bon:svrNb(a[id]), ok:lu===a[id], vide:s==='', lu:lu});
   });
   subs.push({id:'vcm-m', geste:'m', ok:vcmMJuste(q), vide:!q.m});
-  subs.push({id:'vcm-t', geste:'t', ok:vcmTrJuste(q), vide:!vcmTrFerme(q)});
   return subs;
 }
 /* Les erreurs qu'on attend, nommées. */
 function vcmPourquoi(q,subs){
   const m=[], a=vcmAttendu(q), u=vcmBA(q), C=q.P[2], M=vcmM(q);
   const S={}; subs.forEach(function(s){ S[s.id]=s; });
-  const faux=function(id){ return !S[id].ok&&!S[id].vide; };
+  const faux=function(id){ return !!S[id]&&!S[id].ok&&!S[id].vide; };
   const lu=function(id){ return S[id].lu; };
   if(['xf','xd','yf','yd'].map(function(c){ return 'vcm-ba-'+c; }).some(faux)){
     if(lu('vcm-ba-xf')===a['vcm-ba-xd']&&lu('vcm-ba-xd')===a['vcm-ba-xf'] || lu('vcm-ba-yf')===a['vcm-ba-yd']&&lu('vcm-ba-yd')===a['vcm-ba-yf'])
@@ -69104,6 +69074,11 @@ function vcmPourquoi(q,subs){
   if(faux('vcm-cm-xd')||faux('vcm-cm-yd')) m.push('CM part de C'+svrCoord(C)+' : on retranche les coordonnées de C, '+'<i>x</i> − '+vcdPar(C[0])+' et <i>y</i> − '+vcdPar(C[1])+'.');
   if(['vcm-sx-d','vcm-sy-d'].some(faux)) m.push('Dans le système, on reprend les coordonnées de '+vepVecHTML('C','M')+' : <i>x</i> − '+vcdPar(C[0])+' et <i>y</i> − '+vcdPar(C[1])+'.');
   if(['vcm-sx-r','vcm-sy-r'].some(faux)) m.push('Elles sont égales à celles de '+vepVecHTML('B','A')+' : '+svrNb(u[0])+' et '+svrNb(u[1])+'.');
+  vcmPlus(q).forEach(function(k){
+    const L=k?'<i>y</i>':'<i>x</i>', n=k?'y':'x';
+    if(faux('vcm-p'+n+'-a')) m.push(L+' − '+vcdPar(C[k])+' = '+L+' + '+svrNb(-C[k])+' : soustraire un nombre négatif, c’est ajouter son opposé.');
+    if(faux('vcm-p'+n+'-r')) m.push('Le second membre ne change pas : '+L+' + '+svrNb(-C[k])+' = '+svrNb(u[k])+'.');
+  });
   [['vcm-x',0],['vcm-y',1]].forEach(function(c){
     if(!faux(c[0])) return;
     const L=c[1]?'<i>y</i>':'<i>x</i>';
@@ -69111,11 +69086,10 @@ function vcmPourquoi(q,subs){
   });
   if(faux('vcm-mx')||faux('vcm-my')) m.push('M a pour coordonnées les valeurs de <i>x</i> et <i>y</i> trouvées : M'+svrCoord(M)+'.');
   if(faux('vcm-m')) m.push('Le point M est en '+svrCoord(M)+' : c’est là que '+vepVecHTML('C','M')+' = '+vepVecHTML('B','A')+'.');
-  if(faux('vcm-t')) m.push('Le parallélogramme ABCM se trace dans l’ordre des lettres : A, B, C, M, puis retour en A.');
   return m.join(' ');
 }
 /* Soutien : chaque case juste se fige, la fausse rougit et reste à
-   reprendre ; M et le tracé justes se figent ; rien ne se révèle. */
+   reprendre ; M juste se fige ; rien ne se révèle. */
 function vcmMarqueSoutien(q,subs){
   test.vcmEtat={}; if(!test.vcmFige) test.vcmFige={};
   subs.forEach(function(s){
@@ -69126,7 +69100,6 @@ function vcmMarqueSoutien(q,subs){
     if(el) el.classList.add(s.ok?'ok':'bad');
     if(s.ok) test.vcmFige[s.id]=true;
   });
-  if(vcmFige('vcm-'+test.vcmOutil)&&vcmOuvert(q,'t')&&!vcmFige('vcm-t')) test.vcmOutil='t';
   vcmDessiner(q); vcmMajOutils(q);
 }
 /* Soutien, au fil de la saisie (liveCheckCurrent) : la remplie juste en
@@ -69139,8 +69112,8 @@ function liveVcm(){
   });
 }
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
-   vide ; le bon M en VERT s'il est manqué, et le parallélogramme ABCM en
-   pointillés verts s'il n'a pas été tracé juste. */
+   vide ; si M est manqué, le bon M en VERT et le parallélogramme ABCM en
+   pointillés verts. */
 function vcmFinal(q,subs){
   test.vcmEtat={};
   subs.forEach(function(s){
@@ -69150,21 +69123,14 @@ function vcmFinal(q,subs){
   });
   document.querySelectorAll('#vcmGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   vcmDessiner(q); vcmMajOutils(q);
-  const M=vcmM(q), T=q.P.concat([M]);
-  let h='';
-  if(!vcmTrJuste(q)) h+='<polygon class="vcm-quad" points="'+T.map(function(p){ return vcdX(p[0])+','+vcdY(p[1]); }).join(' ')+'"/>';
-  if(!vcmMJuste(q)) h+=vcmCroix(q, 3, M, 's');
-  const c=$('vcmCorr'); if(c) c.innerHTML=h;
+  const c=$('vcmCorr'); if(c) c.innerHTML=vcmMJuste(q)?'':vcmQuad(q,'vcm-quad')+vcmCroix(q, 3, vcmM(q), 's');
 }
 function renderVcm(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
   const q=test.questions[test.idx]; test.locked=false; test.vcmEtat={}; test.vcmFige={}; test.vcmSouris=null;
   /* la reprise rend ce qui a été rangé, et rien d'autre */
   const pt=function(p){ return Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)?p:null; };
-  q.m=pt(q.m);
-  const s=q.tr&&Array.isArray(q.tr.s)?q.tr.s.map(pt).filter(Boolean):[];
-  q.tr=s.length&&q.m?{s:s, f:!!q.tr.f&&s.length>=3}:null;
-  test.vcmOutil=vcmMJuste(q)?'t':'m';
+  q.m=pt(q.m); delete q.tr;
   const pts=[0,1,2].map(function(k){ return VCM_L[k]+svrCoord(q.P[k]); });
   $('vcmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('vcmModeTag').innerHTML=modeTagHTML();
@@ -69174,8 +69140,7 @@ function renderVcm(){
     +'Pour le calcul, écris les abscisses sur la ligne du haut et les ordonnées sur celle du bas. À la fin, place ton point M dans le repère pour vérifier.</span>';
   $('vcmCalc').innerHTML=vcmCalcHTML(q);
   $('vcmBody').innerHTML='<div class="svr-etapes"><div class="svr-et">'
-    +'<button type="button" class="svr-out pts-case" id="vcm-m" onclick="vcmOutil(\'m\')"><span class="svr-rond" aria-hidden="true">●</span>Le point M</button>'
-    +'<button type="button" class="svr-out pts-case" id="vcm-t" onclick="vcmOutil(\'t\')"><span class="svr-rond" aria-hidden="true">▱</span>Tracer ABCM</button>'
+    +'<button type="button" class="svr-out pts-case" id="vcm-m" onclick="vcmOutil()"><span class="svr-rond" aria-hidden="true">●</span>Le point M</button>'
     +'</div></div>';
   $('vcmGraph').innerHTML=vcdSVG(q,'vcm').replace('</defs>','<marker id="vcmArrO" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--vcm-orange)"/></marker></defs>');
   vcdGpFermer();
@@ -69183,7 +69148,7 @@ function renderVcm(){
   ['vcm-ba-rx','vcm-ba-ry'].forEach(function(id){ const el=$(id); if(!el) return;
     el.addEventListener('focus', function(){ vcdGpOuvrir(el); });
     el.addEventListener('click', function(){ vcdGpOuvrir(el); }); });
-  VCM_CASES.forEach(function(id){ const el=$(id); if(el) el.addEventListener('input', function(){ clearTimeout(test.vcmSave); test.vcmSave=setTimeout(autoSave,1000); recoveryDirty=true; }); });
+  vcmCasesDe(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener('input', function(){ clearTimeout(test.vcmSave); test.vcmSave=setTimeout(autoSave,1000); recoveryDirty=true; }); });
   vcmDessiner(q); vcmMajOutils(q);
   vcmBrancher();
   $('vcmFeedback').textContent=''; $('vcmFeedback').className='mp-feedback';
@@ -69206,7 +69171,13 @@ function checkVcm(){
   }
   test.locked=true; clearTimeout(test.qTimer);
   const pourquoi=vcmPourquoi(q,subs);
-  const donne=VCM_CASES.map(function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; });
+  const v=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
+  const C=q.P[2], etape=vcmPlus(q).map(function(k){ const n=k?'y':'x'; return n+' + '+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
+  const donne='BA ('+v('vcm-ba-xf')+' − '+v('vcm-ba-xd')+' ; '+v('vcm-ba-yf')+' − '+v('vcm-ba-yd')+') = ('+v('vcm-ba-rx')+' ; '+v('vcm-ba-ry')+')'
+    +' — CM (x − '+v('vcm-cm-xd')+' ; y − '+v('vcm-cm-yd')+') — x − '+v('vcm-sx-d')+' = '+v('vcm-sx-r')+', y − '+v('vcm-sy-d')+' = '+v('vcm-sy-r')
+    +(etape?' — '+etape:'')
+    +' — x = '+v('vcm-x')+', y = '+v('vcm-y')+' — M('+v('vcm-mx')+' ; '+v('vcm-my')+')'
+    +' — M '+(q.m?'placé en '+svrCoord(q.m):'non placé');
   vcmFinal(q,subs);
   test.score+=n;
   const fb=$('vcmFeedback');
@@ -69214,12 +69185,9 @@ function checkVcm(){
   else { fb.innerHTML=msgAvecVides(subs, pourquoi); fb.className='mp-feedback bad'; }
   const u=vcmBA(q), M=vcmM(q);
   test.answers.push({...(ptsExo()||{}), correct:n===subs.length,
-    q:'A'+svrCoord(q.P[0])+' B'+svrCoord(q.P[1])+' C'+svrCoord(q.P[2])+' : calculer M pour que ABCM soit un parallélogramme (BA = CM), placer M, tracer ABCM',
+    q:'A'+svrCoord(q.P[0])+' B'+svrCoord(q.P[1])+' C'+svrCoord(C)+' : calculer M pour que ABCM soit un parallélogramme (BA = CM), puis placer M',
     answer:'BA ('+svrNb(u[0])+' ; '+svrNb(u[1])+'), M'+svrCoord(M),
-    given:'BA ('+donne[0]+' − '+donne[1]+' ; '+donne[2]+' − '+donne[3]+') = ('+donne[4]+' ; '+donne[5]+')'
-      +' — CM (x − '+donne[6]+' ; y − '+donne[7]+') — x − '+donne[8]+' = '+donne[9]+', y − '+donne[10]+' = '+donne[11]
-      +' — x = '+donne[12]+', y = '+donne[13]+' — M('+donne[14]+' ; '+donne[15]+')'
-      +' — M '+(q.m?'placé en '+svrCoord(q.m):'non placé')+', ABCM '+(vcmTrJuste(q)?'tracé':(vcmTrFerme(q)?'mal tracé':'non tracé'))});
+    given:donne});
   const last=test.idx===test.questions.length-1;
   $('vcmActions').innerHTML='<button class="btn btn-primary" id="vcmNext" type="button" onclick="nextVcm()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('vcmNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
@@ -69241,18 +69209,20 @@ function startVcm(){
 function ctxVcm(q){
   const u=vcmBA(q), M=vcmM(q);
   const v=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
+  const etape=vcmPlus(q).map(function(k){ const n=k?'y':'x'; return n+' + '+v('vcm-p'+n+'-a')+' = '+v('vcm-p'+n+'-r'); }).join(', ');
   const ctx='Exercice de GÉOMÉTRIE dans un repère (tu ne vois pas le dessin ; description exacte). Repère gradué de −5 à 5 sur les deux axes, quadrillé. '
    +'Énoncé : les points A'+svrCoord(q.P[0])+', B'+svrCoord(q.P[1])+', C'+svrCoord(q.P[2])+' sont placés ; on prend M(x ; y) ; calculer x et y pour que ABCM soit un parallélogramme. '
    +'Méthode imposée par la fiche : on prend deux vecteurs égaux, en choisissant un vecteur qui FINIT sur M : vecteur BA = vecteur CM. '
-   +'1) coordonnées de BA par « fin − début » ; 2) coordonnées de CM : (x − xC ; y − yC) ; 3) le système x − xC = (1re coordonnée de BA), y − yC = (2de coordonnée de BA), puis x = …, y = …, donc M(… ; …) ; '
-   +'4) vérification : placer M dans le repère, puis, si M est juste, tracer le parallélogramme ABCM (A → B → C → M). '
+   +'1) coordonnées de BA par « fin − début » ; 2) coordonnées de CM : (x − xC ; y − yC) ; 3) le système x − xC = (1re coordonnée de BA), y − yC = (2de coordonnée de BA)'
+   +(etape?' ; comme une coordonnée de C est négative, une étape de plus réécrit la soustraction d’un nombre négatif en addition de son opposé (« x − (−2) = 1 » devient « x + 2 = 1 »)':'')
+   +' ; puis x = …, y = …, donc M(… ; …) ; 4) vérification : placer M dans le repère (la page dessine alors le parallélogramme si M est juste). '
    +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : BA ('+svrNb(u[0])+' ; '+svrNb(u[1])+'), M'+svrCoord(M)+'. '
    +'Ce que l’élève a écrit : BA : '+v('vcm-ba-xf')+' − '+v('vcm-ba-xd')+' et '+v('vcm-ba-yf')+' − '+v('vcm-ba-yd')+', résultat ('+v('vcm-ba-rx')+' ; '+v('vcm-ba-ry')+')'
    +' ; CM (x − '+v('vcm-cm-xd')+' ; y − '+v('vcm-cm-yd')+') ; système : x − '+v('vcm-sx-d')+' = '+v('vcm-sx-r')+', y − '+v('vcm-sy-d')+' = '+v('vcm-sy-r')
-   +' ; x = '+v('vcm-x')+', y = '+v('vcm-y')+' ; M('+v('vcm-mx')+' ; '+v('vcm-my')+') ; point M '+(q.m?'placé en '+svrCoord(q.m)+(vcmMJuste(q)?' (juste)':' (faux)'):'pas encore placé')
-   +' ; parallélogramme '+(vcmTrJuste(q)?'tracé juste':(vcmTrFerme(q)?'tracé dans le mauvais ordre':'pas tracé'))+'. '
+   +(etape?' ; étape « + » : '+etape:'')
+   +' ; x = '+v('vcm-x')+', y = '+v('vcm-y')+' ; M('+v('vcm-mx')+' ; '+v('vcm-my')+') ; point M '+(q.m?'placé en '+svrCoord(q.m)+(vcmMJuste(q)?' (juste)':' (faux)'):'pas encore placé')+'. '
    +'Méthode enseignée : un vecteur part de son début et arrive à sa fin ; ses coordonnées sont (x de la fin − x du début ; y de la fin − y du début) ; soustraire un nombre négatif, c’est ajouter son opposé ; '
-   +'pour isoler x dans « x − a = b », on ajoute a des deux côtés : x = b + a. ABCM est un parallélogramme quand vecteur AB = vecteur MC, c’est-à-dire vecteur BA = vecteur CM. '
+   +'pour isoler x dans « x + a = b », on retranche a des deux côtés : x = b − a. ABCM est un parallélogramme quand vecteur AB = vecteur MC, c’est-à-dire vecteur BA = vecteur CM. '
    +'CONTRAINTE ANTI-RECOPIE : ne donne ni les coordonnées de BA, ni x, ni y, ni M ; fais repérer le début et la fin de chaque vecteur, puis poser chaque soustraction et isoler x et y.';
   return {nombre:'', contexte:ctx};
 }
@@ -86952,20 +86922,15 @@ POSE_DOIGT.vcd={ hote:'vcdGraph',
   },
   choisir:function(q,cle){ test.vcdOutil=(cle==='d'||cle==='f')?'t':cle; vcdMajOutils(q); }
 };
-/* 8.4.7 {coordonnees-vecteur-quatrieme-point} : le point M, puis — M juste — les sommets de ABCM */
+/* 8.4.7 {coordonnees-vecteur-quatrieme-point} : le point M */
 POSE_DOIGT.vcm={ hote:'vcmGraph',
-  items:function(q){
-    const r=[{cle:'m', html:pdPoint('M'), fait:!!q.m, off:vcmFige('vcm-m')}];
-    if(vcmMJuste(q)) r.push({cle:'t', html:'<span class="pd-long">le parallélogramme </span><b>ABCM</b>', fait:vcmTrFerme(q), off:vcmFige('vcm-t')});
-    return r;
-  },
+  items:function(q){ return [{cle:'m', html:pdPoint('M'), fait:!!q.m, off:vcmFige('vcm-m')}]; },
   poser:function(q,cle,n){
-    if(!vcdDans(n)||vcmFige('vcm-'+cle)||!vcmOuvert(q,cle)) return;
-    if(cle==='m'){ if(svrEgal(q.m,n)) return; vcmPoseM(q,n); test.vcmOutil='m'; }
-    else { vcmPoseT(q,n); test.vcmOutil='t'; }
+    if(!vcdDans(n)||vcmFige('vcm-m')||svrEgal(q.m,n)) return;
+    vcmPoseM(q,n);
     vcmDessiner(q); vcmMajOutils(q);
   },
-  choisir:function(q,cle){ test.vcmOutil=cle; vcmMajOutils(q); }
+  choisir:function(q){ vcmMajOutils(q); }
 };
 /* 8.4.5 {coordonnees-vecteur-parallelogramme} : les quatre points — les boutons d'outil suivent la barre */
 POSE_DOIGT.vcp={ hote:'vcpGraph',

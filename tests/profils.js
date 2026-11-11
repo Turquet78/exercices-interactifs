@@ -1094,9 +1094,10 @@ module.exports = {
          par fin − début, la conclusion (dix-neuf réponses, trois questions) */
       parallelogramme: { exercice: 'coordonnees-vecteur-parallelogramme', numero: '8.4.5', nb: 3, bareme: 57 },
       /* la fiche « parallélogramme 2 » : A, B, C donnés, M(x ; y) tel que ABCM soit
-         un parallélogramme — BA⃗ = CM⃗, le système, M placé, ABCM tracé
-         (dix-huit réponses, trois questions) */
-      quatriemePoint: { exercice: 'coordonnees-vecteur-quatrieme-point', numero: '8.4.7', nb: 3, bareme: 54 },
+         un parallélogramme — BA⃗ = CM⃗, le système, l'étape « x + … » quand
+         une coordonnée de C est négative, M placé (17 à 21 réponses selon la
+         question : le barème se lit sur le tirage, trois questions) */
+      quatriemePoint: { exercice: 'coordonnees-vecteur-quatrieme-point', numero: '8.4.7', nb: 3 },
     },
     /* la suite du sous-thème 8.3, sans coordonnées (demande de Turquet,
        octobre 2026 : « faire les 12, 13, 14 et 15 ») : six pages de vrai ou

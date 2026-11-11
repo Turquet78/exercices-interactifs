@@ -15405,45 +15405,53 @@ function coordonneesVecteurs(w, P){
     if(RAPPELS.vcm!==RAP_VCM || !QIA_SUGG.vcm) vus.push('vcm n\\'a pas son rappel ou ses questions à l\\'IA');
     [['1+(-2)',-1],['1 + (−2)',-1],['-3+1',-2],['−1',-1],['(−2)',-2],['1-2',-1],['x',null],['1+',null]].forEach(function(c){
       if(vcmLitCalc(c[0])!==c[1]) vus.push('8.4.7 : vcmLitCalc(« '+c[0]+' ») rend '+vcmLitCalc(c[0])); });
+    /* l'étape « + » : une ligne par coordonnée négative de C, et seulement celles-là */
+    [[[[3,-1],[2,2],[-2,1]],'0'],[[[3,-1],[2,2],[2,-3]],'1'],[[[3,-1],[2,2],[-2,-3]],'0,1'],[[[3,-1],[2,2],[2,3]],'']].forEach(function(c){
+      const q=vcmNeuve(c[0]), n=vcmCases(q).length;
+      if(vcmPlus(q).join(',')!==c[1] || n!==17+2*vcmPlus(q).length) vus.push('8.4.7 : C'+JSON.stringify(c[0][2])+' : étape « + » '+vcmPlus(q).join(',')+', '+n+' réponses'); });
     /* le tirage : la fiche en premier, puis des points lisibles, éloignés, non alignés, M dans le repère */
+    const lignes7={};
     for(let n=0;n<200;n++){
       const qs=vcmBuildQuestions();
       if(qs.length!==d7.nb){ vus.push('8.4.7 : '+qs.length+' questions'); break; }
       if(JSON.stringify(qs[0])!==JSON.stringify(vcmFiche()) || JSON.stringify(vcmM(qs[0]))!=='[-1,-2]'){ vus.push('8.4.7 : la première question n\\'est pas la fiche'); break; }
       if(new Set(qs.map(vcmCle)).size!==qs.length){ vus.push('8.4.7 : deux questions identiques'); break; }
       const q=qs[1+n%2], T=q.P.concat([vcmM(q)]), u=vcmBA(q);
-      if(Object.keys(q).sort().join(',')!=='P,m,tr' || q.m || q.tr){ vus.push('8.4.7 : range '+JSON.stringify(q)); break; }
+      lignes7[vcmPlus(q).length]=1;
+      if(Object.keys(q).sort().join(',')!=='P,m' || q.m){ vus.push('8.4.7 : range '+JSON.stringify(q)); break; }
       if(T.some(function(p){ return p.some(function(c){ return c===0||c===-1||Math.abs(c)>5; }); })){ vus.push('8.4.7 : un point illisible '+JSON.stringify(T)); break; }
       let proches=false; for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) if(!vecLoin(T[a],T[b])) proches=true;
       if(proches){ vus.push('8.4.7 : deux points trop proches '+JSON.stringify(T)); break; }
       if(!u[0]||!u[1]){ vus.push('8.4.7 : BA sans ses deux lignes '+JSON.stringify(T)); break; }
       if(u[0]*(q.P[2][1]-q.P[1][1])-u[1]*(q.P[2][0]-q.P[1][0])===0){ vus.push('8.4.7 : A, B, C alignés '+JSON.stringify(T)); break; }
     }
+    if(Object.keys(lignes7).sort().join(',')!=='0,1,2') vus.push('8.4.7 : les tirages ne donnent pas 0, 1 et 2 lignes à l\\'étape « + » : '+Object.keys(lignes7));
     const verifier7=function(){ const av=test.score; checkVcm(); clearTimeout(test.fbTimer); return test.score-av; };
-    const IDS7=VCM_IDS.slice();
-    const cl7=function(){ return IDS7.map(function(i){ return classe(el(i)); }).join(','); };
-    const tous7=function(c){ return IDS7.map(function(){ return c; }).join(','); };
+    const ids7=function(){ return vcmCases(test.questions[test.idx]); };
+    const cl7=function(){ return ids7().map(function(i){ return classe(el(i)); }).join(','); };
+    const tous7=function(c){ return ids7().map(function(){ return c; }).join(','); };
     currentTestId=d7.exercice; TESTS[d7.exercice].start(); clearTimeout(test.fbTimer);
-    if(test.kind!=='vcm' || test.maxScore!==d7.bareme || test.questions.length!==d7.nb) vus.push('8.4.7 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
-    if(dmPoidsQuestion('vcm',test.questions[0])!==18) vus.push('8.4.7 : dmPoidsQuestion ne compte pas dix-huit réponses');
+    if(test.kind!=='vcm' || test.questions.length!==d7.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vcmCases(q).length; },0)) vus.push('8.4.7 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    if(dmPoidsQuestion('vcm',test.questions[0])!==19) vus.push('8.4.7 : dmPoidsQuestion ne compte pas dix-neuf réponses sur la fiche');
     if(!el('vcmInstr').classList.contains('enonce') || el('vcmInstr').textContent.indexOf('A(3 ; −1), B(2 ; 2) et C(−2 ; 1)')<0 || el('vcmInstr').textContent.indexOf('ATTENTION ! On choisit un vecteur qui finit sur M')<0) vus.push('8.4.7 : l\\'énoncé : '+el('vcmInstr').textContent.slice(0,160));
-    if(document.querySelectorAll('#vcmCalc .vcd-tete').length!==1 || document.querySelectorAll('#vcmCalc .vcd-in').length!==16) vus.push('8.4.7 : le calcul n\\'a pas sa colonne « Fin − Début » et ses seize cases');
+    if(document.querySelectorAll('#vcmCalc .vcd-tete').length!==1 || document.querySelectorAll('#vcmCalc .vcd-in').length!==18) vus.push('8.4.7 : le calcul n\\'a pas sa colonne « Fin − Début » et ses dix-huit cases');
+    if(document.querySelectorAll('#vcmCalc .vcm-deux > .vcm-colonne').length!==2 || !document.querySelector('.vcm-colonne #vcm-ba-rx') || !document.querySelector('.vcm-colonne #vcm-cm-yd')) vus.push('8.4.7 : 1) et 2) ne sont pas sur deux colonnes');
+    if(!el('vcm-px-a') || el('vcm-py-a') || el('vcmCalc').textContent.indexOf('c’est ajouter son opposé')<0) vus.push('8.4.7 : l\\'étape « + » de la fiche (x seul)');
     if(document.querySelectorAll('#vcmGraph .vec-t').length!==169 || document.querySelectorAll('#vcmPts .svr-pt.n').length!==3) vus.push('8.4.7 : le repère n\\'a pas ses 169 nœuds et A, B, C posés');
-    if(!el('vcm-t').disabled || el('vcm-m').disabled) vus.push('8.4.7 : « Tracer ABCM » ouvert avant M, ou M fermé');
-    /* la copie vide : dix-huit sol, rien de rouge, M et ABCM en vert */
+    if(el('vcm-t') || /[Tt]race/.test(el('vcmInstr').textContent+el('vcmBody').textContent)) vus.push('8.4.7 : on demande encore de tracer le parallélogramme');
+    /* la copie vide : tout en sol, rien de rouge, M et ABCM en vert */
     if(verifier7()!==0 || cl7()!==tous7('sol')) vus.push('8.4.7 : la copie vide : '+cl7());
     if(document.querySelector('#vcmBody .bad, #vcmCalc .bad, #vcmGraph .svr-pt.eb')) vus.push('8.4.7 : la copie vide rougit');
     if(document.querySelectorAll('#vcmCorr .svr-pt.s').length!==1 || !document.querySelector('#vcmCorr polygon.vcm-quad')) vus.push('8.4.7 : la correction ne dessine pas M et ABCM');
-    if(el('vcm-ba-rx').value!=='1' || el('vcm-ba-ry').value!=='−3' || el('vcm-cm-xd').value!=='−2' || el('vcm-x').value!=='−1' || el('vcm-my').value!=='−2') vus.push('8.4.7 : la correction écrit '+['vcm-ba-rx','vcm-ba-ry','vcm-cm-xd','vcm-x','vcm-my'].map(function(i){ return el(i).value; }).join(' '));
-    if(el('vcmFeedback').textContent.indexOf('Il te manquait 18 cases')<0) vus.push('8.4.7 : le message de la copie vide : '+el('vcmFeedback').textContent.slice(0,80));
+    if(el('vcm-ba-rx').value!=='1' || el('vcm-ba-ry').value!=='−3' || el('vcm-cm-xd').value!=='−2' || el('vcm-px-a').value!=='2' || el('vcm-px-r').value!=='1' || el('vcm-x').value!=='−1' || el('vcm-my').value!=='−2') vus.push('8.4.7 : la correction écrit '+['vcm-ba-rx','vcm-ba-ry','vcm-cm-xd','vcm-px-a','vcm-px-r','vcm-x','vcm-my'].map(function(i){ return el(i).value; }).join(' '));
+    if(el('vcmFeedback').textContent.indexOf('Il te manquait 19 cases')<0) vus.push('8.4.7 : le message de la copie vide : '+el('vcmFeedback').textContent.slice(0,80));
     /* M posé FAUX : rouge, les deux flèches qui devraient être égales, et la phrase */
     nextVcm(); test.questions[test.idx]=vcmFiche(); renderVcm();
     const q7=test.questions[test.idx];
-    if(test.vcmOutil!=='m') vus.push('8.4.7 : au départ, le geste est '+test.vcmOutil);
     vcmVif(q7,{x:vcdX(1)+3,y:vcdY(1)-2});
     if(((document.querySelector('#vcmVif .svr-pt')||{}).textContent||'')!=='M') vus.push('8.4.7 : aucune croix M ne suit la souris');
     vcmPose(0,-5);
-    if(!document.querySelector('#vcmPts .svr-pt.eb') || el('vcm-m').classList.contains('fait') || !el('vcm-t').disabled) vus.push('8.4.7 : M posé faux n\\'est pas rouge, ou le tracé s\\'ouvre');
+    if(!document.querySelector('#vcmPts .svr-pt.eb') || el('vcm-m').classList.contains('fait') || document.querySelector('#vcmFl polygon')) vus.push('8.4.7 : M posé faux n\\'est pas rouge, ou le parallélogramme se dessine');
     if(document.querySelectorAll('#vcmFl line.vcm-o').length!==1 || document.querySelectorAll('#vcmFl line.svc-eb').length!==1) vus.push('8.4.7 : M faux ne montre pas BA (orange) et CM (rouge)');
     const vf=el('vcmVerif').textContent;
     if(vf.indexOf('devraient être égaux')<0 || vf.indexOf('ne le sont pas')<0 || vf.indexOf('pas la même longueur')<0 || el('vcmVerif').className.indexOf('bad')<0) vus.push('8.4.7 : la vérification de M faux dit « '+vf+' »');
@@ -15451,42 +15459,41 @@ function coordonneesVecteurs(w, P){
     vcmPose(-1,1);
     if(el('vcmVerif').textContent.indexOf('pas la même direction')<0) vus.push('8.4.7 : M dans une autre direction : '+el('vcmVerif').textContent);
     vcmPose(-1,1); if(q7.m!==null || el('vcmVerif').textContent!=='') vus.push('8.4.7 : le reclic ne retire pas M');
-    /* M juste : bleu, BA et CM pareils, le tracé s'ouvre */
+    /* M juste : bleu, BA et CM pareils, la PAGE dessine ABCM */
     vcmPose(-1,-2);
-    if(!el('vcm-m').classList.contains('fait') || document.querySelector('#vcmPts .svr-pt.eb') || el('vcm-t').disabled || test.vcmOutil!=='t') vus.push('8.4.7 : M juste ne verdit pas ou n\\'ouvre pas le tracé');
-    if(document.querySelectorAll('#vcmFl line.svc-e').length!==2 || el('vcmVerif').textContent.indexOf('Ton point M est juste')<0) vus.push('8.4.7 : M juste : '+el('vcmVerif').textContent);
-    /* le tracé dans le mauvais ordre (ABMC), puis dans le bon, depuis C et à l'envers */
-    [[3,-1],[2,2],[-1,-2],[-2,1],[3,-1]].forEach(function(p){ vcmPose(p[0],p[1]); });
-    if(!vcmTrFerme(q7) || vcmTrJuste(q7) || el('vcmVerif').textContent.indexOf('Ce n’est pas le quadrilatère ABCM')<0 || !document.querySelector('#vcmFl polygon.vcm-tr.bad')) vus.push('8.4.7 : ABMC fermé : '+el('vcmVerif').textContent);
-    [[-2,1],[2,2],[3,-1],[-1,-2],[-2,1]].forEach(function(p){ vcmPose(p[0],p[1]); });
-    if(!vcmTrJuste(q7) || el('vcmVerif').textContent.indexOf('Bravo')<0 || !document.querySelector('#vcmFl polygon.vcm-tr.ok') || !el('vcm-t').classList.contains('fait')) vus.push('8.4.7 : CBAM fermé n\\'est pas juste : '+JSON.stringify(q7.tr));
-    const ecrire7=function(v){ VCM_CASES.forEach(function(id,i){ el(id).value=v[i]; }); };
-    ecrire7(['3','2','-1','2','1','−3', '(−2)','1', '-2','1','1','-3', '1+(-2)','−3 + 1', '-1','-2']);
+    if(!el('vcm-m').classList.contains('fait') || document.querySelector('#vcmPts .svr-pt.eb') || !document.querySelector('#vcmFl polygon.vcm-tr.ok')) vus.push('8.4.7 : M juste ne verdit pas ou ne dessine pas ABCM');
+    if(document.querySelectorAll('#vcmFl line.svc-e').length!==2 || el('vcmVerif').textContent.indexOf('voici le parallélogramme ABCM')<0) vus.push('8.4.7 : M juste : '+el('vcmVerif').textContent);
+    const ecrire7=function(o){ Object.keys(o).forEach(function(id){ el(id).value=o[id]; }); };
+    const JUSTE7={'vcm-ba-xf':'3','vcm-ba-xd':'2','vcm-ba-yf':'-1','vcm-ba-yd':'2','vcm-ba-rx':'1','vcm-ba-ry':'−3','vcm-cm-xd':'(−2)','vcm-cm-yd':'1',
+      'vcm-sx-d':'-2','vcm-sx-r':'1','vcm-sy-d':'1','vcm-sy-r':'-3','vcm-px-a':'+2','vcm-px-r':'1','vcm-x':'1-2','vcm-y':'−3 + 1','vcm-mx':'-1','vcm-my':'-2'};
+    ecrire7(JUSTE7);
     let av7=verifier7();
-    if(av7!==18 || cl7()!==tous7('ok')) vus.push('8.4.7 : la copie juste vaut '+av7+' : '+cl7());
-    if(el('vcmVerif').textContent!=='') vus.push('8.4.7 : la vérification reste affichée après la correction');
-    /* la reprise : la question revient du JSON, M et le tracé compris */
+    if(av7!==19 || cl7()!==tous7('ok')) vus.push('8.4.7 : la copie juste vaut '+av7+' : '+cl7());
+    if(el('vcmVerif').textContent!=='' || !document.querySelector('#vcmFl polygon.vcm-tr.ok') || document.querySelector('#vcmCorr polygon')) vus.push('8.4.7 : après la correction, le parallélogramme juste');
+    /* la reprise : la question revient du JSON, M compris */
     test.questions[test.idx]=JSON.parse(JSON.stringify(q7)); renderVcm();
-    if(!el('vcm-t').classList.contains('fait') || el('vcm-t').classList.contains('ok') || el('vcm-ba-xf').value!=='' || !document.querySelector('#vcmFl polygon.vcm-tr.ok')) vus.push('8.4.7 : le rendu après JSON');
-    /* bouger M défait le tracé */
-    vcmOutil('m'); vcmPose(-2,-2);
-    if(test.questions[test.idx].tr!==null || !el('vcm-t').disabled) vus.push('8.4.7 : M déplacé garde le tracé');
-    /* les pièges : fin et début échangés, le signe, x isolé en retranchant */
+    if(!el('vcm-m').classList.contains('fait') || el('vcm-m').classList.contains('ok') || el('vcm-ba-xf').value!=='' || !document.querySelector('#vcmFl polygon.vcm-tr.ok')) vus.push('8.4.7 : le rendu après JSON');
+    /* les pièges : fin et début échangés, le signe, l'étape « + » mal faite, x isolé en retranchant */
     test.questions[test.idx]=vcmFiche(); renderVcm();
-    ecrire7(['2','3','2','-1','-1','3', '2','1', '-2','1','1','-3', '3','-4', '-1','-2']);
+    ecrire7({'vcm-ba-xf':'2','vcm-ba-xd':'3','vcm-ba-yf':'2','vcm-ba-yd':'-1','vcm-ba-rx':'-1','vcm-ba-ry':'3','vcm-cm-xd':'2','vcm-cm-yd':'1',
+      'vcm-sx-d':'-2','vcm-sx-r':'1','vcm-sy-d':'1','vcm-sy-r':'-3','vcm-px-a':'-2','vcm-px-r':'1','vcm-x':'3','vcm-y':'-4','vcm-mx':'-1','vcm-my':'-2'});
     av7=verifier7();
     const l7=cl7();
-    if(av7!==7 || l7!=='bad,bad,bad,bad,bad,bad,bad,ok,ok,ok,ok,ok,bad,bad,ok,ok,sol,sol') vus.push('8.4.7 : les pièges : '+av7+' '+l7);
+    if(av7!==8 || l7!=='bad,bad,bad,bad,bad,bad,bad,ok,ok,ok,ok,ok,bad,ok,bad,bad,ok,ok,sol') vus.push('8.4.7 : les pièges : '+av7+' '+l7);
     const fb7=el('vcmFeedback').textContent;
-    ['on écrit fin − début','attention au signe','CM part de C','on AJOUTE'].forEach(function(m){ if(fb7.indexOf(m)<0) vus.push('8.4.7 : le message ne dit pas « '+m+' » : '+fb7.slice(0,300)); });
+    ['on écrit fin − début','attention au signe','CM part de C','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb7.indexOf(m)<0) vus.push('8.4.7 : le message ne dit pas « '+m+' » : '+fb7.slice(0,300)); });
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('BA (1 ; −3), M(−1 ; −2)')<0) vus.push('8.4.7 : le contexte du modèle');
+    /* une question à deux lignes « + » : quatre cases de plus, jugées */
+    const q2=vcmNeuve([[3,-1],[2,2],[-2,-3]]); test.questions[test.idx]=q2; renderVcm();
+    if(!el('vcm-px-a') || !el('vcm-py-a') || document.querySelectorAll('#vcmCalc .vcd-in').length!==20) vus.push('8.4.7 : deux lignes « + » attendues');
+    if(vcmAttendu(q2)['vcm-py-a']!==3 || vcmAttendu(q2)['vcm-py-r']!==-3) vus.push('8.4.7 : l\\'étape « + » de y attend '+vcmAttendu(q2)['vcm-py-a']);
     /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
     currentMode='soutien'; test.questions[test.idx]=vcmFiche(); renderVcm();
     vcmPose(-1,-2);
-    ecrire7(['3','5','','','','','','','','','','','','','','']);
+    ecrire7({'vcm-ba-xf':'3','vcm-ba-xd':'5'});
     checkVcm(); clearTimeout(test.fbTimer);
     const ls7=cl7();
-    if(test.locked || ls7!=='ok,bad,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,ok,rien' || !el('vcm-m').disabled || document.querySelector('#scr-vcm .sol')) vus.push('8.4.7 : le soutien : '+ls7);
+    if(test.locked || ls7!=='ok,bad,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,rien,ok' || !el('vcm-m').disabled || document.querySelector('#scr-vcm .sol')) vus.push('8.4.7 : le soutien : '+ls7);
     /* la bulle « gagne / perds » du 8.4.4, à côté du résultat de BA */
     test.questions[test.idx]=vcmFiche(); renderVcm();
     el('vcm-ba-xf').value='3'; el('vcm-ba-xd').value='2'; el('vcm-ba-ry').focus(); el('vcm-ba-rx').focus();
