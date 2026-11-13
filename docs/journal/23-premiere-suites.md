@@ -1,0 +1,111 @@
+# Première — suites (thème 7)
+
+## {augmentation-tableau} — augmentation régulière : tableau et calculs (7.1, v405)
+
+**La demande** (Turquet, novembre 2026), d'après sa fiche papier « Exercice
+augmentation tableau » — un salaire de 1 800 € qui augmente de 70 € par an :
+compléter le tableau des années 0 à 3 (la ligne 3 donnée), calculer le
+salaire en 2036, trouver l'année où il dépasse 3 200 €, chaque question par
+des phrases à compléter — : « en première faire un exercice comme le pdf
+joint. Il faudra des thèmes différents que de l'argent sur un compte. Il
+faudra des calculs très simples, faciles à faire de tête, avec des nombres
+ayant un seul chiffre différent de zéro dans toutes les étapes de
+l'exercice. Pour les phrases à compléter, à chaque question, quand une
+donnée est complétée, la mettre sur les cases suivantes qui concernent la
+même donnée dans cette question. »
+
+**Un thème neuf, ajouté en dernier.** « Suites » est le thème 7 ; l'exercice
+est le 7.1, kind `sui`. Rien ne renumérote (le contrôle l'épingle : 5.1,
+2.1.3, 3.9, 6.1 immobiles). Le thème 6 « Étude de fonction » est arrivé
+le même jour, sur une autre branche : l'exercice, d'abord écrit en 6.1, a
+pris la place suivante en reprenant `main`.
+
+**La séance est la fiche, par contextes entiers.** `SUI_NB` contextes (deux,
+copié dans `tests/profils.js`), chacun en TROIS questions dans l'ordre de la
+fiche : ① le tableau (deux cases, la ligne 3 donnée pour se vérifier), ② la
+valeur au bout de N pas (« Calculer le nombre d'arbres en 2031 »), ③ le pas
+où un seuil est atteint (« En quelle année le parc comptera-t-il 1 000
+arbres ? »). Six questions, un point chacune — la note de la Première se
+compte par question parfaite. Le réglage « Questions » d'un devoir coupe ou
+allonge la séance par contextes entiers (`suiBuildQuestions(dmNbQuestions(…))`,
+le tirage arrondi au contexte, puis tronqué) ; les contextes sortent sans
+remise tant qu'il y en a (six), et le tirage d'un contexte est distinct de
+ceux déjà tirés (`distincte`, dont la clé ignore `ci`).
+
+**Un seul chiffre non nul, à toutes les étapes — c'est le tirage qui le
+garantit, pas la relecture.** La valeur de départ est a·10^k, le pas b·10^k
+(signé par le contexte : une batterie se vide, un parc se peuple).
+`suiFamilles(c)` énumère les (a, b, k, N, p) qui tiennent la règle partout :
+les lignes 1 à 3 du tableau, N·b, a ± N·b, p·b, a ± p·b, tous dans
+{1, …, 9, 10} — 10 compris, qui multiplié par 10^k s'écrit 1 000 —, N et p
+de 4 à 9 (au-delà du tableau) et différents. En pratique b vaut 1 : avec
+b = 2, N et p ne peuvent valoir que 4, et la règle « différents » tombe. Les
+étiquettes de temps (2031, 2035, 13 h, 17 h, le 9 juin) ne sont pas des
+nombres à calculer : la fiche écrit 2036 et 2046 de la même façon. Le
+contrôle tire 300 séances et relit chaque nombre de `suiVals` au regex
+`^[1-9]0*$`.
+
+**Six contextes, sans argent** (`SUI_CTX`) : les arbres du parc (par année),
+la batterie du téléphone (par heure, part toujours de 100 %, `aOk`), le
+remplissage de la piscine (par heure, des milliers de litres), le roman de
+Léa (pages restantes, par jour, des dates de juin), la cuve d'eau de pluie
+(par jour, des dates de juillet), les abonnés de la chaîne (par année). Un
+contexte écrit lui-même ses phrases, avec des JETONS : `[n]`, `[r]`, `[p]`,
+`[u0]`, `[res]` pour la question ②, `[e]`, `[r]`, `[k]`, `[fin]` pour la ③.
+Le contrôle refuse un contexte dont l'énoncé parle d'euros, de salaire ou de
+prix.
+
+**Les cases suivantes recopient la donnée déjà écrite — la demande.**
+`suiPhrase()` lit les jetons DANS L'ORDRE DU TEXTE : la première occurrence
+d'une donnée dans la question est une case MathLive (`sui-n`, `sui-r`…), les
+suivantes des miroirs (`.sui-mir`, soulignés de pointillés, « … » tant que la
+case est vide) qui la recopient à chaque frappe (`suiMiroirs`). Le premier
+jet remplaçait d'abord les « = [x] » puis les autres jetons : dans « Chaque
+année il y a [r] arbres de plus. Comme [e] = [r] × [k] », le SECOND r
+devenait la case et le premier le miroir — l'ordre du texte est le seul
+juge. Un miroir n'est pas une case : il ne se juge pas, ne compte pas dans la
+note (`ptsEcran` ne lit que les classes de verdict), ne se capture pas à la
+pause (`captureBoxes` ne lit que les `math-field[id]`). Après la reprise
+d'une pause, `restoreBoxes` remet les saisies puis appelle `suiMiroirs()`,
+comme `rvfMiroirs` pour le 4.1 — sans quoi les miroirs reviendraient à « … »
+devant des cases pleines. Après la vérification, les miroirs suivent aussi
+la correction écrite en vert.
+
+**« = » collé à sa case.** Les jetons précédés de « = » passent par la
+fabrique `fEq` (la règle du niveau, tenue par le banc jsdom : aucun
+`<span class="f-eq">` à la main). Dans une phrase en texte courant, `.f-grp`
+est un flex de BLOC et casserait la ligne : `.sui-phr .f-grp` le remet en
+ligne (`inline-flex`).
+
+**Les phrases sont du texte courant, pas une rangée flex** — la leçon du
+3.2 : sur téléphone, une rangée flex séparait « Ā » de sa phrase. La case, le
+« = » et le texte ont la même taille (1,35 rem, 1,15 sur téléphone), par le
+facteur de tablette ; le contrôle « les cases ont la taille des nombres qui
+les entourent » le mesure au navigateur.
+
+**Le juge.** Chaque case a UNE bonne réponse qui ne dépend d'aucune autre
+(`suiCases(q)` : l'entier attendu), lue par `parseDecToFrac` — « 6 000 »,
+« 6000 », « 50 % » sont lus pareil. `corrChoix` pose les verdicts : juste en
+bleu, faux en rouge avec la bonne réponse en vert à côté, vide remplie en
+vert ; en soutien, rien n'est révélé et « Revérifier » reste. Le soutien
+colore au fil de la frappe (`liveColorDec`). Le message d'une copie
+incomplète dit la vérité (`msgAvecVides`) ; le pourquoi est le calcul de
+CETTE question, étape par étape (`suiPourquoi`). Le contrôle joue une copie
+juste (1 point, cinq cases bleues), une copie vide (quatre cases vertes,
+aucune rouge, rien compté), une copie fausse (la case juste reste juste, la
+fausse rougit avec son badge), le soutien, puis la reprise d'une pause par
+`afficherEcranDe('sui')` et `restoreBoxes`.
+
+**Les branchements**, tous tenus : `TESTS`, `THEMES`, l'écran `scr-sui`,
+`testScreens`, la réserve du bas, `liveCheckCurrent`, `restartCurrentTest`,
+`afficherEcranDe`, le rendu enveloppé (`renderSuiTest`), `RAPPELS_ID`
+(`RAP_SUI`, la méthode de la fiche sans ses nombres), `QIA_SUGG.sui`,
+`conseilCtxCourant` (`ctxSui`, réponses secrètes, et ce que l'élève a écrit),
+`test.qId='augmentation-tableau'` à l'enregistrement, l'énoncé en
+`.mp-instr`. Le contexte IA est déclaré dans `tests/profils.js`
+(`aide.ctx.kinds`, `['sui','genSui()']`, en Première seulement, comme le
+2.5.4).
+
+**Le portail** (`site-maths`) a reçu le même exercice en PDF imprimable et
+en page HTML autonome le même jour, avant que la demande ne précise « sur le
+site de maths » : c'est ici, dans les exercices interactifs, qu'il vit.

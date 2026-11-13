@@ -140,6 +140,14 @@ module.exports = {
         /* le tirage de la Première (novembre 2026) : (ax + b)(cx + d), a et c
            valent 1 ou 2, b et d relatifs de −5 à 5 sauf 0, sur chaque page */
         petitsNombres: true } } },
+    /* {augmentation-tableau} (7.1, thème 7 « Suites », novembre 2026) : la
+       fiche « Exercice augmentation tableau » de Turquet, sans argent. Une
+       séance = nb contextes, chacun en trois questions (le tableau, la valeur
+       au bout de N pas, le pas du seuil) ; tous les nombres de toutes les
+       étapes n'ont qu'un seul chiffre non nul ; dans une question, une donnée
+       écrite se recopie dans les cases suivantes (miroirs). La page a SUI_NB,
+       ici sa copie : deux sources. */
+    augmentationTableau: { exercice: 'augmentation-tableau', num: '7.1', theme: 'Suites', nb: 2 },
     /* Les tirages par familles : voir le profil de la Terminale. */
     tiragesParFamilles: {
       startReconnaitreCoef: 'aug, dim, pre : trois familles différentes',
@@ -705,7 +713,9 @@ module.exports = {
       conseil: true,
       /* {synthese-evolutions-successives} (2.5.4) n'existe qu'en Première :
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
-      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['sgl',"Object.assign(genEss(),{moteur:'esl'})"], ['bsd','genBaissesDix()']]),
+      ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['sgl',"Object.assign(genEss(),{moteur:'esl'})"], ['bsd','genBaissesDix()'],
+             /* {augmentation-tableau} (7.1, novembre 2026) n'existe qu'en Première, comme le 2.5.4 */
+             ['sui','genSui()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },

@@ -4922,6 +4922,7 @@ function exercices(suite){
     pythonInputReponse(w, P);
     serpentsHalloween(w, P);
     pythonInput(w, P);
+    augmentationTableau(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
@@ -36457,6 +36458,124 @@ function pythonInputReponse(w, P){
     if(!QIA_SUGG.pyn||QIA_SUGG.pyn.length<3) vus.push("questions à l’IA");
     const c=ctxPyn({s:0,etape:"c",rep:"Léa",bVu:true,typ:"str",bOk:true,ligne:"",repC:""});
     if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
+/* {augmentation-tableau} (Première, 7.1, thème 7 « Suites », novembre 2026) :
+   la fiche « Exercice augmentation tableau » de Turquet, sans argent. Le
+   contrôle épingle la place au menu (le thème 7, ajouté en dernier, rien
+   d'autre ne bouge), le tirage sur 300 séances (des contextes entiers de
+   trois questions, des contextes différents, et CHAQUE nombre de CHAQUE étape
+   à un seul chiffre non nul — la règle de la demande), le rendu de la
+   question 2 (la première case d'une donnée est une case, les suivantes des
+   miroirs qui la recopient à la frappe, le « = » collé à sa case), le juge
+   (copie juste, vide, fausse ; la case juste ne rougit pas pour sa voisine),
+   le soutien (rouge sans verrou ni réponse, puis la reprise d'une pause qui
+   remet les miroirs) et les branchements. */
+function augmentationTableau(w, P){
+  const nom = '{augmentation-tableau} : tableau, valeur au bout de N pas, pas du seuil — un seul chiffre non nul partout';
+  if(!P.augmentationTableau){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la fiche « augmentation tableau »'); return; }
+  const A = P.augmentationTableau, ID = A.exercice;
+  const present = evaluer(w, "typeof startSui==='function' && typeof suiVals==='function' && typeof suiBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startSui / suiVals / suiBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, 'il est le ' + A.num + ', seul exercice du thème 7 « ' + A.theme + ' », ajouté en dernier : rien d’autre ne bouge', `(function(){
+    const vus=[]; const th=THEMES.find(function(t){ return t.num===7; });
+    if(!th||th.nom!=="${A.theme}") vus.push("pas de thème 7 « ${A.theme} » : "+(th?th.nom:"aucun"));
+    if(TEST_NUM["${ID}"]!=="${A.num}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["reduire-produit"]!=="5.1"||TEST_NUM["pourcentage"]!=="2.1.3"||TEST_NUM["automatismes-probabilites"]!=="3.9"||TEST_NUM["tableau-signes-courbe"]!=="6.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    if(SUI_NB!==${A.nb}) vus.push("SUI_NB vaut "+SUI_NB+", le profil dit ${A.nb}");
+    return vus.join(" | ");
+  })()`, v => v === '');
+  /* ---- 2. le tirage ---- */
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, et chaque nombre de chaque étape n’a qu’un seul chiffre non nul', `(function(){
+    const vus=[]; const un=function(x){ return /^[1-9]0*$/.test(String(x)); };
+    for(let s=0;s<300&&vus.length<5;s++){
+      const qs=suiBuildQuestions(${A.nb}*3);
+      if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
+      const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
+      if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
+      qs.forEach(function(q){ const v=suiVals(q);
+        [v.u0,v.rAbs,v.t1,v.t2,v.t3,v.n,v.prod,v.res,v.e,v.kk,v.T].forEach(function(x){ if(!un(x)) vus.push(SUI_CTX[q.ci].nom+" : "+x+" a plus d’un chiffre non nul"); });
+        if(v.n<4||v.kk<4||v.n===v.kk) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau et différents");
+        if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
+        if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
+      });
+    }
+    SUI_CTX.forEach(function(c){ if(!suiFamilles(c).length) vus.push(c.nom+" : aucune combinaison possible"); });
+    if(SUI_CTX.length<4) vus.push("moins de quatre contextes");
+    if(SUI_CTX.some(function(c){ return /€|euro|argent|salaire|banque|prix/i.test(c.intro(1,1)); })) vus.push("un contexte parle d’argent");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+  /* ---- 3. le rendu, les miroirs, le juge ---- */
+  verifierEval(w, 'question 2 : la première case d’une donnée est une case, les suivantes des miroirs qui la recopient à la frappe, « = » collé à sa case ; copie juste → 1 point ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
+    const vus=[]; currentEleve={id:"test",prenom:"Test"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    window.confirmerCasesVides=false;
+    startSui(); test.idx=1; renderSuiTest();
+    const q=test.questions[1]; if(q.part!==2) vus.push("la question 2 n’est pas la partie 2");
+    const host=$("suiHost");
+    ["sui-n","sui-r","sui-p","sui-u0","sui-res"].forEach(function(id){ if(host.querySelectorAll("#"+id).length!==1) vus.push(id+" : "+host.querySelectorAll("#"+id).length+" case(s)"); });
+    const mirN=host.querySelectorAll('.sui-mir[data-de="sui-n"]'), mirR=host.querySelectorAll('.sui-mir[data-de="sui-r"]'), mirP=host.querySelectorAll('.sui-mir[data-de="sui-p"]');
+    if(mirN.length!==2||mirR.length!==1||mirP.length!==1) vus.push("miroirs : n×"+mirN.length+", r×"+mirR.length+", p×"+mirP.length);
+    if(!host.querySelector(".f-grp > #sui-p")) vus.push("le « = » n’est pas collé à la case du produit");
+    if(!$("suiPrompt").textContent.trim()) vus.push("énoncé vide");
+    $("sui-n").value="5"; $("sui-n").dispatchEvent(new Event("input"));
+    if(![].every.call(mirN,function(m){ return m.textContent==="5"; })) vus.push("le miroir de n ne recopie pas 5");
+    if(mirP[0].textContent!=="…") vus.push("un miroir vide n’affiche pas …");
+    const v=suiVals(q), cases=suiCases(q);
+    cases.forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+    checkSuiAnswer();
+    if(test.score!==1||!test.locked) vus.push("copie juste : score "+test.score+", verrou "+test.locked);
+    if(host.querySelectorAll("math-field.ok").length!==5||host.querySelector(".bad,.sol")) vus.push("copie juste : "+host.querySelectorAll("math-field.ok").length+" cases ok");
+    if(mirP[0].textContent!==String(v.prod)) vus.push("le miroir du produit n’a pas suivi");
+    if(test.answers.length!==1||!test.answers[0].correct) vus.push("réponse non rangée");
+    test.idx=2; renderSuiTest(); checkSuiAnswer();
+    const h2=$("suiHost");
+    if(h2.querySelector(".bad")) vus.push("copie vide : une case rougit");
+    if(h2.querySelectorAll("math-field.sol").length!==4) vus.push("copie vide : "+h2.querySelectorAll("math-field.sol").length+" case(s) corrigée(s) en vert sur 4");
+    if(test.score!==1) vus.push("copie vide comptée");
+    if(h2.querySelector('.sui-mir[data-de="sui-e"]').textContent!==String(suiVals(test.questions[2]).e)) vus.push("après la correction, le miroir ne montre pas la valeur écrite en vert");
+    if(!/vert/.test($("suiFeedback").textContent)) vus.push("le message ne dit pas la correction : "+$("suiFeedback").textContent);
+    test.idx=0; renderSuiTest(); $("sui-t1").value="1"; $("sui-t2").value=String(suiVals(test.questions[0]).t2); checkSuiAnswer();
+    if(!$("sui-t1").classList.contains("bad")||!$("sui-t2").classList.contains("ok")) vus.push("copie fausse : la case juste doit rester juste, la fausse rougir");
+    if(!$("suiHost").querySelector("#sui-t1 + .mf-cor")) vus.push("copie fausse : pas de bonne réponse en vert à côté");
+    if(test.answers.length!==3||test.answers[2].correct) vus.push("la copie fausse n’est pas rangée fausse");
+    return vus.join(" | ");
+  })()`, v => v === '');
+  /* ---- 4. le soutien, puis la reprise ---- */
+  verifierEval(w, 'soutien : la case fausse rougit à la frappe, sans verrou ni réponse, « Revérifier » ; puis la reprise d’une pause remet les saisies et les miroirs', `(function(){
+    const vus=[]; currentMode="soutien"; startSui(); test.idx=1; renderSuiTest();
+    const q=test.questions[1], v=suiVals(q);
+    $("sui-n").value="1"; $("sui-n").dispatchEvent(new Event("input"));
+    if(!$("sui-n").classList.contains("bad")) vus.push("en direct, le n faux ne rougit pas");
+    $("sui-n").value=String(v.n); $("sui-n").dispatchEvent(new Event("input"));
+    if(!$("sui-n").classList.contains("ok")) vus.push("en direct, le n corrigé ne bleuit pas");
+    checkSuiAnswer();
+    if(test.locked) vus.push("copie incomplète verrouillée en soutien");
+    if($("suiHost").querySelector(".sol,.mf-cor")) vus.push("le soutien révèle une réponse");
+    if(!/Revérifier/.test($("suiActions").textContent)) vus.push("pas de bouton Revérifier");
+    const snap=JSON.parse(JSON.stringify(snapshotTest())), boxes=captureBoxes();
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test, snap); test.locked=false;
+    if(!afficherEcranDe("sui")) vus.push("afficherEcranDe ne connaît pas sui");
+    restoreBoxes(boxes);
+    if(!$("sui-n")||$("sui-n").value!==String(v.n)) vus.push("n perdu à la reprise");
+    if([].some.call(document.querySelectorAll('#suiHost .sui-mir[data-de="sui-n"]'),function(m){ return m.textContent!==String(v.n); })) vus.push("les miroirs ne sont pas remis à la reprise");
+    return vus.join(" | ");
+  })()`, v => v === '');
+  /* ---- 5. les branchements ---- */
+  verifierEval(w, 'branchements : écran, rendu enveloppé, rappel de cours, questions à l’IA, contexte du modèle secret, correction en direct, recommencer, miroirs à la reprise', `(function(){
+    const vus=[];
+    if(!$("scr-sui")) vus.push("pas d’écran");
+    if(!RAPPELS_ID["${ID}"]||!/même valeur/.test(RAPPELS_ID["${ID}"])) vus.push("rappel de cours");
+    if(!QIA_SUGG.sui||QIA_SUGG.sui.length<3) vus.push("questions à l’IA");
+    const c=ctxSui(genSui()); if(!c||!/SECR/.test(c.contexte)||c.contexte.length<200) vus.push("contexte du modèle");
+    if(String(liveCheckCurrent).indexOf("checkSuiAnswer(true)")<0) vus.push("liveCheckCurrent ne route pas sui");
+    if(String(restartCurrentTest).indexOf("startSui")<0) vus.push("Recommencer ne connaît pas sui");
+    if(String(restoreBoxes).indexOf("suiMiroirs")<0) vus.push("restoreBoxes ne remet pas les miroirs");
     return vus.join(" | ");
   })()`, v => v === '');
 }
