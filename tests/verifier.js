@@ -4871,6 +4871,7 @@ function exercices(suite){
     meilleureNoteCompte(w, P);
     resolutionsGraphiques(w, P);
     tableauSignesGraphique(w, P);
+    tableauSignesCourbe(w, P);
     lectureSignes(w, P);
     signesVariations(w, P);
     tableauVariationDirect(w, P);
@@ -33484,6 +33485,199 @@ function tableauSignesGraphique(w, P){
     r=pose(Q0, Object.assign({},JUSTE0,{'tsg-g2':'','tsg-t2':'-'}), 'soutien');
     if(cls('tsg-g2').indexOf('sol')>=0||cls('tsg-g2').indexOf('bad')>=0) vus.push('en soutien, la case vide reçoit une couleur ('+cls('tsg-g2')+')');
     if(cls('tsg-t2').indexOf('bad')<0) vus.push('en soutien, le signe faux ne rougit pas');
+    currentMode='train';
+
+    return vus.slice(0,4).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* ---------- Le tableau de signes lu sur une courbe (Première) ---------- */
+/* {tableau-signes-courbe} (Première, demande de Turquet, novembre 2026 : « comme
+   le 3.3.4 de seconde, mais les signes + et − sur les parties des courbes
+   correspondantes sur le dessin ; sans les deux phrases couleur/signe ni les
+   inéquations »). Les bords : le tirage par sa propre arithmétique (2 racines
+   intérieures, vrais croisements, zéro jamais traversé entre graduations, rien
+   d'autre que pts dans la question, les DEUX visages dans chaque séance) ; le
+   dessin — rouge au-dessus, bleu en dessous, comptés par côté, et UN signe par
+   morceau, « + » au-dessus de l'axe sur un morceau rouge, « − » au-dessous sur
+   un morceau bleu, dans le dessin, hors de « Cf » ; les CINQ cases et rien
+   d'autre (ni phrase, ni inéquation) ; les gestes CLIQUÉS sur les deux visages
+   — couleurs lues —, la règle des paires sur S = { ; }, la case vide en sol
+   (train) et sans couleur (soutien), le badge au libellé ; la note de la
+   Première (un point par question parfaite, l'identifiant épinglé) ; la place
+   au menu (le thème « Étude de fonction », premier exercice). */
+function tableauSignesCourbe(w, P){
+  const nom='le tableau de signes lu sur une courbe : les signes écrits sur le dessin, le tableau, l’équation';
+  const present = evaluer(w, "typeof startTsc==='function' && typeof tscBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du tableau de signes lu sur une courbe');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='tableau-signes-courbe';
+
+    /* ---- 0. la place au menu : le thème « Étude de fonction », son premier
+       exercice, et le numéro qui en découle ---- */
+    { const th=THEMES.filter(function(t){ return (t.ids||[]).indexOf('tableau-signes-courbe')>=0; })[0];
+      if(!th) vus.push('{tableau-signes-courbe} n\\'est dans aucun thème');
+      else {
+        if(String(th.nom).toLowerCase().indexOf('tude de fonction')<0) vus.push('le thème de {tableau-signes-courbe} ne s\\'appelle pas « Étude de fonction » ('+th.nom+')');
+        if(th.ids[0]!=='tableau-signes-courbe') vus.push('{tableau-signes-courbe} n\\'ouvre pas son thème');
+        if(TEST_NUM['tableau-signes-courbe']!==th.num+'.1') vus.push('numéro inattendu : '+TEST_NUM['tableau-signes-courbe']);
+      } }
+
+    /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
+    for(let t=0;t<250 && !vus.length;t++){
+      const qs=tscBuildQuestions();
+      if(qs.length!==5){ vus.push(qs.length+' questions au lieu de 5'); break; }
+      const sides=[];
+      qs.forEach(function(q){
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        const pts=q.pts, so=[];
+        for(let x=-3;x<=3;x++){ if(pts[x+3]===0) so.push(x); }
+        if(pts.some(function(v){ return v<-3||v>3||!Number.isInteger(v); })) vus.push('une valeur sort de [−3 ; 3] : '+pts.join(','));
+        if(so.length!==2){ vus.push('f a '+so.length+' racine(s) au lieu de 2 ('+pts.join(',')+')'); return; }
+        if(so[0]<=-3||so[1]>=3) vus.push('une racine tombe au bord du dessin');
+        so.forEach(function(x){ if(pts[x+2]*pts[x+4]>=0)
+          vus.push('la courbe TOUCHE zéro en x='+x+' sans le traverser (ou deux racines voisines) : le tableau mentirait'); });
+        for(let j=0;j<6;j++){ const lo=Math.min(pts[j],pts[j+1]), hi=Math.max(pts[j],pts[j+1]);
+          if(0>lo&&0<hi) vus.push('zéro est traversé ENTRE deux graduations : une racine illisible'); }
+        let s=0; for(let x=so[0]+1;x<so[1]&&!s;x++){ if(pts[x+3]!==0) s=pts[x+3]>0?1:-1; }
+        sides.push(s||1);
+      });
+      if(!vus.length && !(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0))
+        vus.push('une séance sans les deux visages ('+sides.join(',')+') : l\\'élève apprendrait que le tableau est toujours le même');
+    }
+
+    /* ---- 1 bis. les deux ENCRES et les deux SIGNES, lus dans la feuille de
+       styles : rouge à dominante chaude au-dessus, bleu en dessous ---- */
+    let css=''; document.querySelectorAll('style').forEach(function(st){ css+=st.textContent; });
+    const regle=function(sel,prop){
+      const i=css.indexOf(sel+'{'); if(i<0) return null;
+      const bloc=css.slice(i+sel.length+1, css.indexOf('}',i));
+      const j=bloc.indexOf(prop+':'); if(j<0) return null;
+      let v=bloc.slice(j+prop.length+1); const k=v.indexOf(';'); if(k>=0) v=v.slice(0,k);
+      return v.trim();
+    };
+    const hex=function(v){
+      if(!v) return null;
+      if(v.indexOf('var(')===0){ const nom=v.slice(4,v.indexOf(')')).trim(); const i=css.indexOf(nom+':'); if(i<0) return null; v=css.slice(i+nom.length+1, i+nom.length+30); }
+      const h=v.match(/#([0-9a-fA-F]{6})/); if(!h) return null;
+      return {r:parseInt(h[1].slice(0,2),16), b:parseInt(h[1].slice(4,6),16), brut:('#'+h[1]).toUpperCase()};
+    };
+    [['.tsg-pos','stroke','le morceau f > 0'],['.tsc-signe-pos','fill','le signe +']].forEach(function(r){
+      const c=hex(regle(r[0],r[1]));
+      if(!c) vus.push('impossible de lire l\\'encre de '+r[0]+' : le contrôle ne mesure rien');
+      else if(!(c.r>c.b+40)) vus.push(r[2]+' n\\'est pas à dominante ROUGE ('+c.brut+')');
+    });
+    [['.tsg-neg','stroke','le morceau f < 0'],['.tsc-signe-neg','fill','le signe −']].forEach(function(r){
+      const c=hex(regle(r[0],r[1]));
+      if(!c) vus.push('impossible de lire l\\'encre de '+r[0]+' : le contrôle ne mesure rien');
+      else if(!(c.b>c.r+40)) vus.push(r[2]+' n\\'est pas à dominante BLEUE ('+c.brut+')');
+    });
+    /* et les MOTS de l'énoncé portent LEUR encre — la règle « .mp-instr b »
+       peint tous les gras en rouge : « bleu » écrit en rouge dirait l'inverse */
+    const motsR=[].map.call(document.querySelectorAll('#scr-tsc .mp-instr .tsg-mot-rouge'), function(e){ return e.textContent.trim(); });
+    const motsB=[].map.call(document.querySelectorAll('#scr-tsc .mp-instr .tsg-mot-bleu'), function(e){ return e.textContent.trim(); });
+    if(motsR.indexOf('rouge')<0||motsR.indexOf('au-dessus')<0||motsR.indexOf('+')<0) vus.push('l\\'énoncé n\\'écrit pas « au-dessus », « rouge » ET « + » à l\\'encre rouge ('+motsR.join(',')+')');
+    if(motsB.indexOf('bleu')<0||motsB.indexOf('en dessous')<0||motsB.indexOf('−')<0) vus.push('l\\'énoncé n\\'écrit pas « en dessous », « bleu » ET « − » à l\\'encre bleue ('+motsB.join(',')+')');
+    if(document.querySelectorAll('#scr-tsc .mp-instr b').length)
+      vus.push('un <b> subsiste dans l\\'énoncé : la règle .mp-instr b le peint en ROUGE, quoi qu\\'il dise');
+    const mr=hex(regle('.tsg-mot-rouge','color')), mb=hex(regle('.tsg-mot-bleu','color'));
+    if(!mr||!(mr.r>mr.b+40)) vus.push('l\\'encre du mot « rouge » n\\'est pas rouge ('+(mr?mr.brut:'introuvable')+')');
+    if(!mb||!(mb.b>mb.r+40)) vus.push('l\\'encre du mot « bleu » n\\'est pas bleue ('+(mb?mb.brut:'introuvable')+')');
+
+    /* ---- 2. la note de la Première : un point par question, l'identifiant
+       épinglé — par le démarreur réel ---- */
+    startTsc();
+    if(test.kind!=='tsc') vus.push('startTsc ne pose pas kind tsc');
+    if(test.maxScore!==test.questions.length) vus.push('maxScore vaut '+test.maxScore+' pour '+test.questions.length+' questions : un point par question en Première');
+    if(test.qId!=='tableau-signes-courbe') vus.push('la note partirait sous « '+test.qId+' »');
+    if(!document.getElementById('scr-tsc').classList.contains('on')) vus.push('startTsc n\\'affiche pas l\\'écran scr-tsc');
+
+    /* ---- 3. les gestes, cliqués, couleurs lues — sur les DEUX visages ---- */
+    /* Q0 est LE REPLI du tirage (côté négatif : + − +) ; Q1 un tirage relevé
+       au côté positif (− + −). Les deux passent par les gardes du point 1. */
+    const Q0={pts:[3,2,0,-1,-3,0,1]};   /* racines −1 et 2, milieu NÉGATIF */
+    const Q1={pts:[-3,-2,-1,0,1,0,-2]}; /* racines 0 et 2, milieu POSITIF */
+    function pose(q, valeurs, mode){
+      currentMode=mode||'train';
+      Object.keys(test).forEach(function(k){ delete test[k]; });
+      Object.assign(test,{kind:'tsc', questions:[q], idx:0, score:0, maxScore:1, answers:[], startTime:Date.now(), locked:false, qId:'tableau-signes-courbe'});
+      renderTscTest();
+      Object.keys(valeurs||{}).forEach(function(id){ const el=document.getElementById(id); if(el) el.value=valeurs[id]; });
+      checkTscAnswer();
+      return { fb:document.getElementById('tscFeedback').textContent, score:test.score };
+    }
+    const cls=function(id){ const el=document.getElementById(id); return el?el.className:'(absent)'; };
+    /* le dessin : les morceaux et les signes, par côté ; la géométrie est celle
+       de lvGraphSVG (PL=52, PR=310, 7 unités sur 258 px) */
+    const sx=function(x){ return 52+(x+3.5)/7*258; };
+    const dessin=function(racines, cote){
+      const svg=document.querySelector('#tscHost .lv-graph svg');
+      if(!svg){ vus.push('le dessin n\\'est pas dans le cadre de lecture (.lv-graph)'); return; }
+      const axe=svg.querySelector('.lv-axis'); const y0=axe?parseFloat(axe.getAttribute('y1')):NaN;
+      const nPos=svg.querySelectorAll('.tsg-pos').length, nNeg=svg.querySelectorAll('.tsg-neg').length;
+      const attP=cote<0?2:1, attN=cote<0?1:2;
+      if(nPos!==attP||nNeg!==attN) vus.push('côté '+(cote<0?'négatif':'positif')+' : '+nPos+' morceau(x) rouge(s) et '+nNeg+' bleu(s) au lieu de '+attP+' et '+attN);
+      const sP=[].slice.call(svg.querySelectorAll('text.tsc-signe-pos')), sN=[].slice.call(svg.querySelectorAll('text.tsc-signe-neg'));
+      if(sP.length!==attP||sN.length!==attN) vus.push('côté '+(cote<0?'négatif':'positif')+' : '+sP.length+' signe(s) + et '+sN.length+' signe(s) − au lieu de '+attP+' et '+attN);
+      const bornes=[[-3,racines[0]],[racines[0],racines[1]],[racines[1],3]];
+      const morceaux=bornes.map(function(b,i){ return {a:sx(b[0]), b:sx(b[1]), pos:(i===1)?(cote>0):(cote<0)}; });
+      const cf=svg.querySelector('.lv-cf'); const bx=cf?parseFloat(cf.getAttribute('x')):NaN, by=cf?parseFloat(cf.getAttribute('y')):NaN;
+      sP.concat(sN).forEach(function(t){
+        const pos=t.classList.contains('tsc-signe-pos'), x=parseFloat(t.getAttribute('x')), y=parseFloat(t.getAttribute('y'));
+        if(t.textContent!==(pos?'+':'−')) vus.push('un signe '+(pos?'rouge':'bleu')+' écrit « '+t.textContent+' »');
+        if(!(x>0&&x<362&&y>0&&y<206)) vus.push('un signe sort du dessin ('+x+','+y+')');
+        if(pos && !(y<y0)) vus.push('un « + » est écrit SOUS l\\'axe des abscisses (y='+y+', axe '+y0+')');
+        if(!pos && !(y>y0)) vus.push('un « − » est écrit AU-DESSUS de l\\'axe des abscisses (y='+y+', axe '+y0+')');
+        const m=morceaux.filter(function(mo){ return mo.pos===pos && x>=mo.a-1 && x<=mo.b+1; });
+        if(!m.length) vus.push('un signe '+(pos?'+':'−')+' n\\'est au-dessus d\\'aucun morceau de sa couleur (x='+x+')');
+        /* hors de la boîte de « Cf » (16 × 22 px, ligne de base à by) */
+        if(cf && x+7>bx-2 && x-7<bx+16+2 && y>by-15-2 && y-14<by+7+2) vus.push('un signe recouvre l\\'étiquette Cf');
+      });
+    };
+    const JUSTE0={ 'tsc-t0':'+','tsc-t1':'-','tsc-t2':'+', 'tsc-e0':'-1','tsc-e1':'2' };
+    let r=pose(Q0, JUSTE0);
+    if(r.score!==1) vus.push('la copie juste (côté négatif) vaut '+r.score+' au lieu de 1 (un point par question)');
+    ['tsc-t0','tsc-t1','tsc-t2','tsc-e0','tsc-e1'].forEach(function(id){
+      if(cls(id).indexOf('ok')<0) vus.push('sur la copie juste, '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+    /* les CINQ cases et rien d'autre : ni phrase couleur/signe, ni inéquation */
+    const nSel=document.querySelectorAll('#tscHost select').length;
+    if(nSel!==5) vus.push(nSel+' cases au lieu de 5 : l\\'exercice de la Première n\\'a ni phrase ni inéquation');
+    if(document.getElementById('tsc-c1')||document.getElementById('tsc-p-co1')||document.getElementById('tsc-n-co1')) vus.push('une case des phrases ou des inéquations de la Seconde subsiste');
+    if(document.querySelector('#tscHost .ing-cartes')) vus.push('le dessin est posé dans la grille à quatre colonnes des propositions');
+    dessin([-1,2], -1);
+
+    /* le second visage : côté positif */
+    const JUSTE1={ 'tsc-t0':'-','tsc-t1':'+','tsc-t2':'-', 'tsc-e0':'0','tsc-e1':'2' };
+    r=pose(Q1, JUSTE1);
+    if(r.score!==1) vus.push('la copie juste (côté positif) vaut '+r.score+' au lieu de 1');
+    dessin([0,2], 1);
+
+    /* S = { ; } : l'ordre est LIBRE, et le doublon est défendable UNE fois */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsc-e0':'2','tsc-e1':'-1'}));
+    if(r.score!==1) vus.push('S = { 2 ; −1 } dans l\\'autre ordre ne vaut plus le point ('+r.score+')');
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsc-e0':'-1','tsc-e1':'-1'}));
+    if(r.score!==0) vus.push('le doublon −1 ; −1 vaut encore le point');
+    if(cls('tsc-e0').indexOf('ok')<0||cls('tsc-e1').indexOf('bad')<0)
+      vus.push('le doublon −1 ; −1 devrait être défendable une fois, faux la seconde ('+cls('tsc-e0')+' / '+cls('tsc-e1')+')');
+    /* un signe faux : zéro point, la case rouge et le badge au LIBELLÉ « − » */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsc-t1':'+'}));
+    if(r.score!==0) vus.push('une copie à un signe faux vaut encore '+r.score);
+    if(cls('tsc-t1').indexOf('bad')<0) vus.push('le signe faux ne rougit pas');
+    { const el=document.getElementById('tsc-t1'), b=el&&el.nextElementSibling;
+      if(!b||!b.classList.contains('mf-cor')||b.textContent!=='−') vus.push('le badge du signe faux n\\'écrit pas « − »'); }
+    if(cls('tsc-t0').indexOf('ok')<0) vus.push('une case juste rougit parce qu\\'une autre est fausse ('+cls('tsc-t0')+')');
+    /* la case vide reçoit sol en train, et rien en soutien */
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsc-t2':''}));
+    if(cls('tsc-t2').indexOf('sol')<0||cls('tsc-t2').indexOf('bad')>=0) vus.push('en entraînement, la case vide du tableau ne reçoit pas la correction sol ('+cls('tsc-t2')+')');
+    if(r.fb.indexOf('manquait')<0 && r.fb.indexOf('vide')<0) vus.push('le message ne dit pas qu\\'une case manquait : '+r.fb.slice(0,60));
+    r=pose(Q0, Object.assign({},JUSTE0,{'tsc-e1':'','tsc-t2':'-'}), 'soutien');
+    if(cls('tsc-e1').indexOf('sol')>=0||cls('tsc-e1').indexOf('bad')>=0) vus.push('en soutien, la case vide reçoit une couleur ('+cls('tsc-e1')+')');
+    if(cls('tsc-t2').indexOf('bad')<0) vus.push('en soutien, le signe faux ne rougit pas');
     currentMode='train';
 
     return vus.slice(0,4).join(' | ');
