@@ -118,3 +118,12 @@ point, le doublon est défendable une fois ; un signe faux vaut zéro, rougit,
 porte le badge « − », et la case juste voisine reste `ok` ; la case vide reçoit
 `sol` en entraînement et le message dit qu'elle manquait, rien en soutien, où
 le faux rougit.
+
+**Puis un point VERT sur chaque racine (v406).** Demande de Turquet, le jour
+même : « un point vert sur le graphique pour les points représentant
+f(x) = 0 ». Deux cercles (`.tsc-racine`, rayon 4,5 px, liseré blanc) posés sur
+l'axe aux abscisses des racines, EN DERNIER dans le SVG — par-dessus les deux
+encres, pour qu'aucun trait ne les recouvre. Le vert est celui de la
+correction (`--green`), l'encre de ce que la page MONTRE. Le contrôle lit les
+deux cercles sur chaque visage (leur `cx` à la racine, leur `cy` sur l'axe
+dessiné, rien dessiné après eux) et l'encre verte dans la feuille de styles.

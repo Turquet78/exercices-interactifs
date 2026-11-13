@@ -33730,13 +33730,16 @@ function tableauSignesCourbe(w, P){
       if(!v) return null;
       if(v.indexOf('var(')===0){ const nom=v.slice(4,v.indexOf(')')).trim(); const i=css.indexOf(nom+':'); if(i<0) return null; v=css.slice(i+nom.length+1, i+nom.length+30); }
       const h=v.match(/#([0-9a-fA-F]{6})/); if(!h) return null;
-      return {r:parseInt(h[1].slice(0,2),16), b:parseInt(h[1].slice(4,6),16), brut:('#'+h[1]).toUpperCase()};
+      return {r:parseInt(h[1].slice(0,2),16), g:parseInt(h[1].slice(2,4),16), b:parseInt(h[1].slice(4,6),16), brut:('#'+h[1]).toUpperCase()};
     };
     [['.tsg-pos','stroke','le morceau f > 0'],['.tsc-signe-pos','fill','le signe +']].forEach(function(r){
       const c=hex(regle(r[0],r[1]));
       if(!c) vus.push('impossible de lire l\\'encre de '+r[0]+' : le contrôle ne mesure rien');
       else if(!(c.r>c.b+40)) vus.push(r[2]+' n\\'est pas à dominante ROUGE ('+c.brut+')');
     });
+    { const c=hex(regle('.tsc-racine','fill'));
+      if(!c) vus.push('impossible de lire l\\'encre de .tsc-racine : le contrôle ne mesure rien');
+      else if(!(c.g>c.r+40 && c.g>c.b+30)) vus.push('le point d\\'une racine n\\'est pas à dominante VERTE ('+c.brut+')'); }
     [['.tsg-neg','stroke','le morceau f < 0'],['.tsc-signe-neg','fill','le signe −']].forEach(function(r){
       const c=hex(regle(r[0],r[1]));
       if(!c) vus.push('impossible de lire l\\'encre de '+r[0]+' : le contrôle ne mesure rien');
@@ -33792,6 +33795,12 @@ function tableauSignesCourbe(w, P){
       const bornes=[[-3,racines[0]],[racines[0],racines[1]],[racines[1],3]];
       const morceaux=bornes.map(function(b,i){ return {a:sx(b[0]), b:sx(b[1]), pos:(i===1)?(cote>0):(cote<0)}; });
       const cf=svg.querySelector('.lv-cf'); const bx=cf?parseFloat(cf.getAttribute('x')):NaN, by=cf?parseFloat(cf.getAttribute('y')):NaN;
+      /* un point VERT sur chaque racine, sur l'axe, par-dessus les encres */
+      const pts=[].slice.call(svg.querySelectorAll('circle.tsc-racine'));
+      if(pts.length!==2) vus.push(pts.length+' point(s) de racine au lieu de 2');
+      racines.forEach(function(r){ if(!pts.some(function(c){ return Math.abs(parseFloat(c.getAttribute('cx'))-sx(r))<0.6 && Math.abs(parseFloat(c.getAttribute('cy'))-y0)<0.6; }))
+        vus.push('aucun point sur la racine '+r+' (x='+sx(r).toFixed(1)+', axe '+y0+')'); });
+      pts.forEach(function(c){ if(c.nextElementSibling && c.nextElementSibling.tagName!=='circle') vus.push('un point de racine est recouvert par '+c.nextElementSibling.tagName); });
       sP.concat(sN).forEach(function(t){
         const pos=t.classList.contains('tsc-signe-pos'), x=parseFloat(t.getAttribute('x')), y=parseFloat(t.getAttribute('y'));
         if(t.textContent!==(pos?'+':'−')) vus.push('un signe '+(pos?'rouge':'bleu')+' écrit « '+t.textContent+' »');
