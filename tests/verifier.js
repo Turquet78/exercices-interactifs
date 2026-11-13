@@ -15619,6 +15619,171 @@ function coordonneesVecteurs(w, P){
     if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je perds 3 et que je gagne 8')<0) vus.push('8.4.9 : la bulle ne paraît pas au résultat : '+(el('vcdGp')?el('vcdGp').textContent.slice(0,80):'absente'));
     currentMode='train'; el('vpg-1-ry').focus(); el('vpg-1-rx').focus();
     if(el('vcdGp')) vus.push('8.4.9 : la bulle « gagne / perds » paraît hors du soutien');
+
+    /* ===== 8.4.10 : le quatrième point, le schéma et les deux vecteurs au choix (la fiche « parallélogramme 2 », reprise) ===== */
+    const d10=D.quatriemePointChoisi;
+    if(TEST_NUM[d10.exercice]!==d10.numero) vus.push(d10.exercice+' porte le numéro '+TEST_NUM[d10.exercice]+' au lieu de '+d10.numero);
+    if(TABLES_SANS.indexOf(d10.exercice)<0) vus.push('8.4.10 : le bouton des tables est proposé');
+    if(RAPPELS.vqs!==RAP_VQS || !QIA_SUGG.vqs) vus.push('vqs n\\'a pas son rappel ou ses questions à l\\'IA');
+    if(vqsEtiquetages().length!==8 || new Set(vqsEtiquetages()).size!==8 || vqsEtiquetages().indexOf('BCMA')<0 || vqsEtiquetages().indexOf('MCBA')<0 || vqsEtiquetages().indexOf('ABMC')>=0) vus.push('8.4.10 : les étiquetages du schéma '+vqsEtiquetages().join(' '));
+    /* le 8.4.9 n'a pas bougé : ses aides généralisées rendent les mêmes identifiants */
+    if(vpgSchemaHTML().indexOf('id="vpg-s0"')<0 || vpgSchemaHTML().indexOf('id="vpgFl"')<0 || vpgNomHTML(1).indexOf('id="vpg-v1a"')<0 || vpgEtiquetages().indexOf('BCDA')<0) vus.push('8.4.10 : les aides du 8.4.9 généralisées ne rendent plus ses identifiants');
+    /* le tirage : la fiche en premier ; des points lisibles, éloignés, non alignés ; BA et BC en biais ;
+       A a une coordonnée négative si et seulement si C en a une ; les deux cas (avec, sans étape « + ») sortent */
+    const etapes10={};
+    for(let n=0;n<200;n++){
+      const qs=vqsBuildQuestions();
+      if(qs.length!==d10.nb){ vus.push('8.4.10 : '+qs.length+' questions'); break; }
+      if(JSON.stringify(qs[0])!==JSON.stringify(vqsFiche()) || JSON.stringify(vcmM(qs[0]))!=='[-1,-2]'){ vus.push('8.4.10 : la première question n\\'est pas la fiche'); break; }
+      if(new Set(qs.map(vcmCle)).size!==qs.length){ vus.push('8.4.10 : deux questions identiques'); break; }
+      const q=qs[1+n%2], T=q.P.concat([vcmM(q)]), u=vcmBA(q), w=[q.P[2][0]-q.P[1][0], q.P[2][1]-q.P[1][1]];
+      etapes10[vqsEtape(q)?'avec':'sans']=1;
+      if(Object.keys(q).sort().join(',')!=='P,m' || q.m){ vus.push('8.4.10 : range '+JSON.stringify(q)); break; }
+      if(T.some(function(p){ return p.some(function(c){ return c===0||c===-1||Math.abs(c)>5; }); })){ vus.push('8.4.10 : un point illisible '+JSON.stringify(T)); break; }
+      let proches=false; for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) if(!vecLoin(T[a],T[b])) proches=true;
+      if(proches){ vus.push('8.4.10 : deux points trop proches '+JSON.stringify(T)); break; }
+      if(!u[0]||!u[1]||!w[0]||!w[1]){ vus.push('8.4.10 : BA ou BC sans ses deux lignes '+JSON.stringify(T)); break; }
+      if(u[0]*w[1]-u[1]*w[0]===0){ vus.push('8.4.10 : A, B, C alignés '+JSON.stringify(T)); break; }
+      const neg=function(p){ return p.some(function(c){ return c<0; }); };
+      if(neg(q.P[0])!==neg(q.P[2])){ vus.push('8.4.10 : A et C ne s\\'accordent pas sur l\\'étape « + » '+JSON.stringify(T)); break; }
+      if(vqsCases(q).length!==(vqsEtape(q)?29:25)){ vus.push('8.4.10 : '+vqsCases(q).length+' réponses'); break; }
+    }
+    if(Object.keys(etapes10).sort().join(',')!=='avec,sans') vus.push('8.4.10 : les tirages ne donnent pas des questions avec et sans étape « + » : '+Object.keys(etapes10));
+    const verifier10=function(){ const av=test.score; checkVqs(); clearTimeout(test.fbTimer); return test.score-av; };
+    const ids10=function(){ return vqsCases(test.questions[test.idx]); };
+    const cl10=function(){ return ids10().map(function(i){ return classe(el(i)); }).join(','); };
+    const tous10=function(c){ return ids10().map(function(){ return c; }).join(','); };
+    const choisir10=function(id,v){ const e=el(id); e.value=v; e.dispatchEvent(new Event('change',{bubbles:true})); };
+    const ecrire10=function(o){ Object.keys(o).forEach(function(id){ el(id).value=o[id]; }); vqsMaj(); };
+    currentTestId=d10.exercice; TESTS[d10.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vqs' || test.questions.length!==d10.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vqsCases(q).length; },0)) vus.push('8.4.10 : kind '+test.kind+', barème '+test.maxScore+', '+test.questions.length+' questions');
+    if(dmPoidsQuestion('vqs',test.questions[0])!==29) vus.push('8.4.10 : dmPoidsQuestion ne compte pas vingt-neuf réponses sur la fiche');
+    if(!el('vqsInstr').classList.contains('enonce') || el('vqsInstr').textContent.indexOf('A(3 ; −1), B(2 ; 2) et C(−2 ; 1)')<0 || el('vqsInstr').textContent.indexOf('ATTENTION ! le second doit finir sur M')<0) vus.push('8.4.10 : l\\'énoncé : '+el('vqsInstr').textContent.slice(0,160));
+    if(document.querySelectorAll('#vqsFig .vpg-sch-fig select').length!==4 || document.querySelectorAll('#vqsFig .vpg-vsel').length!==4 || document.querySelectorAll('#vqsFig .vpg-sch-svg polygon').length!==1 || el('vqsFig').textContent.indexOf('place A, B, C et M')<0) vus.push('8.4.10 : l\\'écran n\\'a pas son schéma (A, B, C, M) et ses deux vecteurs à nommer');
+    if(document.querySelectorAll('#vqsCalc .vcd-tete').length!==1 || document.querySelectorAll('#vqsCalc .vcd-in').length!==20 || document.querySelectorAll('#vqsCalc .vcm-deux > .vcm-colonne').length!==2) vus.push('8.4.10 : le calcul n\\'a pas sa colonne « Fin − Début », ses vingt cases et ses deux colonnes');
+    const eq10=document.querySelector('#vqsCalc .vcm-equiv');
+    if(!eq10 || eq10.querySelectorAll('.vcm-sys').length!==3 || (eq10.textContent.match(/⇔/g)||[]).length!==2 || !el('vqs-px-a') || el('vqsCalc').textContent.indexOf('c’est ajouter son opposé')<0) vus.push('8.4.10 : les trois systèmes de la fiche ne sont pas reliés par deux « ⇔ »');
+    if(document.querySelectorAll('#vqsGraph .vec-t').length!==169 || document.querySelectorAll('#vqsPts .svr-pt.n').length!==3 || !el('vqsFl2') || !el('vqsCorr2')) vus.push('8.4.10 : le repère n\\'a pas ses 169 nœuds, A, B, C posés et ses calques à lui');
+    if(document.querySelector('#vqsFl line') || el('vqsVerif').textContent!=='' || el('vqsVerifM').textContent!=='') vus.push('8.4.10 : un vecteur est tracé, ou un constat dit, avant toute saisie');
+    if(document.querySelectorAll('#vqsCalc .vqs-m1').length!==4 || document.querySelectorAll('#vqsCalc .vqs-m2').length!==3 || el('vqsCalc').textContent.indexOf('… …')<0) vus.push('8.4.10 : les miroirs des deux vecteurs ne sont pas dans le calcul');
+    /* la copie vide : tout en sol, rien de rouge ; la correction écrit la fiche, trace BA et CM en vert sur le schéma, M et ABCM sur le repère */
+    if(verifier10()!==0 || cl10()!==tous10('sol')) vus.push('8.4.10 : la copie vide : '+cl10());
+    if(document.querySelector('#vqsFig .bad, #vqsCalc .bad, #vqsGraph .svr-pt.eb')) vus.push('8.4.10 : la copie vide rougit');
+    if(document.querySelectorAll('#vqsCorr line.vpg-sol').length!==2 || document.querySelectorAll('#vqsCorr2 .svr-pt.s').length!==1 || !document.querySelector('#vqsCorr2 polygon.vcm-quad')) vus.push('8.4.10 : la correction ne trace pas la paire attendue sur le schéma, M et ABCM sur le repère');
+    if(VQS_SCHEMA.map(function(i){ return el(i).value; }).join('')!=='MCBA' || el('vqs-v1a').value+el('vqs-v1b').value!=='BA' || el('vqs-v2a').value+el('vqs-v2b').value!=='CM' || el('vqs-1-rx').value!=='1' || el('vqs-1-ry').value!=='−3' || el('vqs-2-xd').value!=='−2' || el('vqs-px-a').value!=='2' || el('vqs-px-r').value!=='1' || el('vqs-py-a').value!=='1' || el('vqs-py-r').value!=='−3' || el('vqs-x').value!=='−1' || el('vqs-my').value!=='−2') vus.push('8.4.10 : la correction écrit '+ids10().map(function(i){ return el(i)?el(i).value:'·'; }).join(' '));
+    if(el('vqs-opx').textContent!=='+' || el('vqs-opy').textContent!=='−') vus.push('8.4.10 : l\\'étape de la fiche doit écrire x + … et recopier y − … : '+el('vqs-opx').textContent+' '+el('vqs-opy').textContent);
+    if(el('vqsFeedback').textContent.indexOf('Il te manquait 29 cases')<0) vus.push('8.4.10 : le message de la copie vide : '+el('vqsFeedback').textContent.slice(0,80));
+    /* le schéma, puis les vecteurs au fil des listes */
+    nextVqs(); test.questions[test.idx]=vqsFiche(); renderVqs();
+    const incoh10=function(){ return document.querySelectorAll('#vqsFig .vpg-incoh').length; };
+    choisir10('vqs-s0','A'); choisir10('vqs-s1','B'); choisir10('vqs-s2','M');
+    if(incoh10()) vus.push('8.4.10 : trois lettres sur quatre rougissent déjà');
+    choisir10('vqs-s3','C');
+    if(incoh10()!==4 || el('vqsVerif').textContent.indexOf('A, puis B, puis C, puis M')<0 || el('vqsVerif').className.indexOf('bad')<0) vus.push('8.4.10 : ABMC ne rougit pas le schéma : '+incoh10()+' '+el('vqsVerif').textContent);
+    if(document.querySelector('#vqsFig .bad, #vqsFig .ok')) vus.push('8.4.10 : le rouge du schéma prend une classe de verdict');
+    el('vqs-s1').dispatchEvent(new Event('pointerdown',{bubbles:true}));
+    if(incoh10()) vus.push('8.4.10 : recliquer une lettre ne remet pas les quatre cases en bleu');
+    choisir10('vqs-s1','C');
+    if(incoh10()!==4) vus.push('8.4.10 : un nouveau choix incohérent ne rougit pas');
+    el('vqs-s0').dispatchEvent(new Event('focus'));
+    if(incoh10()) vus.push('8.4.10 : le focus d\\'une lettre ne remet pas les cases en bleu');
+    choisir10('vqs-v1a','B'); choisir10('vqs-v1b','A');
+    if(document.querySelector('#vqsFl line') || el('vqsVerif').textContent.indexOf('Place d’abord A, B, C et M dans l’ordre')<0) vus.push('8.4.10 : un vecteur se trace sur un schéma faux : '+el('vqsVerif').textContent);
+    choisir10('vqs-v1a',''); choisir10('vqs-v1b','');
+    [['0','B'],['1','C'],['2','M'],['3','A']].forEach(function(c){ choisir10('vqs-s'+c[0],c[1]); });
+    if(incoh10() || el('vqsVerif').textContent!=='') vus.push('8.4.10 : le bon tour BCMA : '+incoh10()+' '+el('vqsVerif').textContent);
+    choisir10('vqs-v1a','B');
+    if(document.querySelector('#vqsFl line')) vus.push('8.4.10 : une seule lettre trace un vecteur');
+    choisir10('vqs-v1b','A');
+    if(document.querySelectorAll('#vqsFl line.vpg-v1').length!==1 || document.querySelector('#vqsFl line.vpg-v2') || el('vqsVerif').textContent.indexOf('tracé en orange')<0 || el('vqsVerif').textContent.indexOf('FINIT sur M')<0) vus.push('8.4.10 : BA nommé : '+el('vqsVerif').textContent);
+    if(document.querySelector('#vqsCalc .vqs-m1').textContent!=='BA' || document.querySelector('#vqsCalc .vqs-m2').textContent.indexOf('…')<0) vus.push('8.4.10 : les miroirs ne suivent pas les listes : '+document.querySelector('#vqsCalc .vqs-m1').textContent);
+    choisir10('vqs-v2a','M'); choisir10('vqs-v2b','C');
+    let vf10=el('vqsVerif').textContent;
+    if(document.querySelectorAll('#vqsFl line.vpg-v2').length!==1 || vf10.indexOf('ne sont pas égaux')<0 || vf10.indexOf('pas le même sens')<0 || el('vqsVerif').className.indexOf('bad')<0) vus.push('8.4.10 : BA et MC : '+vf10);
+    choisir10('vqs-v2a','A'); choisir10('vqs-v2b','C');
+    if(el('vqsVerif').textContent.indexOf('pas la même direction')<0) vus.push('8.4.10 : BA et AC : '+el('vqsVerif').textContent);
+    choisir10('vqs-v2a','B'); choisir10('vqs-v2b','A');
+    if(el('vqsVerif').textContent.indexOf('deux fois le même vecteur')<0) vus.push('8.4.10 : BA et BA : '+el('vqsVerif').textContent);
+    choisir10('vqs-v2a','C'); choisir10('vqs-v2b','M');
+    if(el('vqsVerif').className.indexOf('good')<0 || el('vqsVerif').textContent.indexOf('finit sur M')<0 || document.querySelector('#vqsCalc .vqs-m2').textContent!=='CM' || el('vqs-opx').textContent!=='+' || el('vqs-opy').textContent!=='−') vus.push('8.4.10 : BA et CM : '+el('vqsVerif').textContent+' '+el('vqs-opx').textContent+el('vqs-opy').textContent);
+    /* AB = MC est vrai, mais MC part de M ; un premier vecteur qui contient M */
+    choisir10('vqs-v1a','A'); choisir10('vqs-v1b','B'); choisir10('vqs-v2a','M'); choisir10('vqs-v2b','C');
+    vf10=el('vqsVerif').textContent;
+    if(vf10.indexOf('c’est vrai')<0 || vf10.indexOf('PART de M')<0 || el('vqsVerif').className.indexOf('bad')<0) vus.push('8.4.10 : AB et MC : '+vf10);
+    choisir10('vqs-v1a','C'); choisir10('vqs-v1b','M');
+    if(el('vqsVerif').textContent.indexOf('Le premier vecteur contient M')<0) vus.push('8.4.10 : CM en premier : '+el('vqsVerif').textContent);
+    /* l'autre paire, BC = AM : les signes de l'étape suivent A ; la copie juste, un autre étiquetage, M posé — 29 sur 29 */
+    test.questions[test.idx]=vqsFiche(); renderVqs();
+    const q10=test.questions[test.idx];
+    [['0','A'],['1','B'],['2','C'],['3','M']].forEach(function(c){ choisir10('vqs-s'+c[0],c[1]); });
+    choisir10('vqs-v1a','B'); choisir10('vqs-v1b','C'); choisir10('vqs-v2a','A'); choisir10('vqs-v2b','M');
+    if(el('vqsVerif').className.indexOf('good')<0 || el('vqs-opx').textContent!=='−' || el('vqs-opy').textContent!=='+' || document.querySelectorAll('#vqsFl line.vpg-v').length!==2) vus.push('8.4.10 : BC et AM : '+el('vqsVerif').textContent+' '+el('vqs-opx').textContent+el('vqs-opy').textContent);
+    vqsVif(q10,{x:vcdX(1)+3,y:vcdY(1)-2});
+    if(((document.querySelector('#vqsVif .svr-pt')||{}).textContent||'')!=='M') vus.push('8.4.10 : aucune croix M ne suit la souris');
+    /* M posé FAUX : rouge, BC (orange) et AM (rouge) jusqu'au M posé, la phrase ; le reclic retire */
+    vqsPose(0,-5);
+    if(!document.querySelector('#vqsPts .svr-pt.eb') || el('vqs-m').classList.contains('fait') || document.querySelector('#vqsFl2 polygon')) vus.push('8.4.10 : M posé faux n\\'est pas rouge, ou le parallélogramme se dessine');
+    if(document.querySelectorAll('#vqsFl2 line.vcm-o').length!==1 || document.querySelectorAll('#vqsFl2 line.svc-eb').length!==1) vus.push('8.4.10 : M faux ne montre pas le premier vecteur (orange) et le second (rouge)');
+    let vm10=el('vqsVerifM').textContent;
+    if(vm10.indexOf('devraient être égaux')<0 || vm10.indexOf('ne le sont pas')<0 || vm10.indexOf('BC')<0 || vm10.indexOf('AM')<0 || vm10.indexOf('pas la même direction')<0 || el('vqsVerifM').className.indexOf('bad')<0) vus.push('8.4.10 : la vérification de M faux dit « '+vm10+' »');
+    if(/−1 ; −2|\\(−4 ; −1\\)/.test(vm10)) vus.push('8.4.10 : la vérification révèle la réponse : '+vm10);
+    vqsPose(0,-5); if(q10.m!==null || el('vqsVerifM').textContent!=='') vus.push('8.4.10 : le reclic ne retire pas M');
+    vqsPose(-1,-2);
+    if(!el('vqs-m').classList.contains('fait') || document.querySelector('#vqsPts .svr-pt.eb') || !document.querySelector('#vqsFl2 polygon.vcm-tr.ok') || document.querySelectorAll('#vqsFl2 line.svc-e').length!==2) vus.push('8.4.10 : M juste ne bleuit pas ou ne dessine pas ABCM');
+    if(el('vqsVerifM').textContent.indexOf('voici le parallélogramme ABCM')<0 || [].map.call(document.querySelectorAll('#vqsFl2 .vcm-et text'), function(t){ return t.textContent; }).sort().join(',')!=='AM,BC') vus.push('8.4.10 : M juste : '+el('vqsVerifM').textContent+' '+[].map.call(document.querySelectorAll('#vqsFl2 .vcm-et text'), function(t){ return t.textContent; }).join(','));
+    ecrire10({'vqs-1-xf':'-2','vqs-1-xd':'2','vqs-1-yf':'1','vqs-1-yd':'2','vqs-1-rx':'-4','vqs-1-ry':'−1','vqs-2-xd':'3','vqs-2-yd':'(−1)',
+      'vqs-sx-d':'3','vqs-sx-r':'-4','vqs-sy-d':'-1','vqs-sy-r':'-1','vqs-px-a':'3','vqs-px-r':'-4','vqs-py-a':'1','vqs-py-r':'-1','vqs-x':'-4+3','vqs-y':'−1 − 1','vqs-mx':'-1','vqs-my':'-2'});
+    let av10=verifier10();
+    if(av10!==29 || cl10()!==tous10('ok')) vus.push('8.4.10 : la copie juste (BC = AM, ABCM) vaut '+av10+' : '+cl10());
+    if(el('vqsVerifM').textContent!=='' || !document.querySelector('#vqsFl2 polygon.vcm-tr.ok') || document.querySelector('#vqsCorr2 polygon') || document.querySelector('#vqsCorr line')) vus.push('8.4.10 : après la correction de la copie juste, rien de la correction ne paraît');
+    /* la reprise : la question revient du JSON, M compris ; les listes vides ne tracent rien */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(q10)); renderVqs();
+    if(!el('vqs-m').classList.contains('fait') || el('vqs-m').classList.contains('ok') || el('vqs-1-xf').value!=='' || el('vqs-v1a').value!=='' || document.querySelector('#vqsFl line') || !document.querySelector('#vqsFl2 polygon.vcm-tr.ok')) vus.push('8.4.10 : le rendu après JSON');
+    /* une mauvaise paire menée au bout : AB = CM, le calcul suit les vecteurs choisis (juste), x, y et M sont faux et nommés */
+    test.questions[test.idx]=vqsFiche(); renderVqs();
+    [['0','M'],['1','C'],['2','B'],['3','A']].forEach(function(c){ choisir10('vqs-s'+c[0],c[1]); });
+    choisir10('vqs-v1a','A'); choisir10('vqs-v1b','B'); choisir10('vqs-v2a','C'); choisir10('vqs-v2b','M');
+    ecrire10({'vqs-1-xf':'2','vqs-1-xd':'3','vqs-1-yf':'2','vqs-1-yd':'-1','vqs-1-rx':'-1','vqs-1-ry':'3','vqs-2-xd':'-2','vqs-2-yd':'1',
+      'vqs-sx-d':'-2','vqs-sx-r':'-1','vqs-sy-d':'1','vqs-sy-r':'3','vqs-px-a':'2','vqs-px-r':'-1','vqs-py-a':'1','vqs-py-r':'3','vqs-x':'-3','vqs-y':'4','vqs-mx':'-3','vqs-my':'4'});
+    vqsPose(-3,4);
+    vm10=el('vqsVerifM').textContent;
+    if(vm10.indexOf('BA')<0 || vm10.indexOf('CM')<0 || vm10.indexOf('pas le même sens')<0) vus.push('8.4.10 : M faux par la mauvaise paire : '+vm10);
+    av10=verifier10();
+    let l10=cl10();
+    if(av10!==22 || l10!=='ok,ok,ok,ok,bad,bad,ok,ok,'+Array(16).fill('ok').join(',')+',bad,bad,bad,bad,bad') vus.push('8.4.10 : la mauvaise paire menée au bout : '+av10+' '+l10);
+    let fb10=el('vqsFeedback').textContent;
+    ['ce vecteur égal PART de M','Ton calcul suit tes vecteurs','Avec BA = CM','M(−1 ; −2)'].forEach(function(m){ if(fb10.indexOf(m)<0) vus.push('8.4.10 : le message de la mauvaise paire ne dit pas « '+m+' » : '+fb10.slice(0,400)); });
+    if(document.querySelectorAll('#vqsCorr line.vpg-sol').length!==2 || !document.querySelector('#vqsCorr2 polygon.vcm-quad')) vus.push('8.4.10 : la mauvaise paire : la correction ne trace pas BA et CM sur le schéma, ABCM sur le repère');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('BA = CM, coordonnées (1 ; −3), M(−1 ; −2)')<0) vus.push('8.4.10 : le contexte du modèle');
+    /* les pièges : MC à l'envers, fin et début échangés, le signe, l'étape « + » mal faite, x isolé en retranchant */
+    test.questions[test.idx]=vqsFiche(); renderVqs();
+    [['0','M'],['1','C'],['2','B'],['3','A']].forEach(function(c){ choisir10('vqs-s'+c[0],c[1]); });
+    choisir10('vqs-v1a','B'); choisir10('vqs-v1b','A'); choisir10('vqs-v2a','M'); choisir10('vqs-v2b','C');
+    ecrire10({'vqs-1-xf':'2','vqs-1-xd':'3','vqs-1-yf':'2','vqs-1-yd':'-1','vqs-1-rx':'-1','vqs-1-ry':'3','vqs-2-xd':'-2','vqs-2-yd':'1',
+      'vqs-sx-d':'-2','vqs-sx-r':'1','vqs-sy-d':'1','vqs-sy-r':'-3','vqs-px-a':'-2','vqs-px-r':'1','vqs-py-a':'1','vqs-py-r':'-3','vqs-x':'3','vqs-y':'-4','vqs-mx':'-1','vqs-my':'-2'});
+    av10=verifier10(); l10=cl10();
+    if(av10!==17 || l10!=='ok,ok,ok,ok,ok,ok,bad,bad,bad,bad,bad,bad,bad,bad,ok,ok,ok,ok,ok,ok,bad,ok,ok,ok,bad,bad,ok,ok,sol') vus.push('8.4.10 : les pièges : '+av10+' '+l10);
+    fb10=el('vqsFeedback').textContent;
+    ['sens contraire','on écrit fin − début','attention au signe','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb10.indexOf(m)<0) vus.push('8.4.10 : le message ne dit pas « '+m+' » : '+fb10.slice(0,400)); });
+    if(document.querySelector('#vqsFig .vpg-incoh')) vus.push('8.4.10 : le rouge « dans l\\'ordre » reste après la vérification');
+    /* une question sans coordonnée négative de A ni de C : pas d'étape */
+    test.questions[test.idx]=vcmNeuve([[3,1],[2,2],[2,3]]); renderVqs();
+    if(el('vqs-px-a') || document.querySelectorAll('#vqsCalc .vcm-eqv').length!==1 || document.querySelector('#vqsCalc .vcm-note') || document.querySelectorAll('#vqsCalc .vcd-in').length!==16 || vqsCases(test.questions[test.idx]).length!==25) vus.push('8.4.10 : sans coordonnée négative, une étape ⇔ paraît');
+    /* le soutien : le juste se fige, le faux rougit, rien ne se révèle ; le schéma ne se juge pas case par case */
+    currentMode='soutien'; test.questions[test.idx]=vqsFiche(); renderVqs();
+    vqsPose(-1,-2);
+    ecrire10({'vqs-1-xf':'3','vqs-1-xd':'5'});
+    checkVqs(); clearTimeout(test.fbTimer);
+    const ls10=cl10();
+    if(test.locked || ls10!==Array(8).fill('rien').join(',')+',ok,bad,'+Array(18).fill('rien').join(',')+',ok' || !el('vqs-m').disabled || document.querySelector('#scr-vqs .sol')) vus.push('8.4.10 : le soutien : '+ls10);
+    /* la bulle « gagne / perds » du 8.4.4, à côté du résultat du premier vecteur — la consigne d'abord, comme au 8.4.9 */
+    test.questions[test.idx]=vqsFiche(); renderVqs();
+    el('vqs-1-ry').focus(); el('vqs-1-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Écris d’abord les deux nombres de la soustraction, les abscisses')<0) vus.push('8.4.10 : le résultat cliqué avant la soustraction n\\'ouvre pas la consigne');
+    el('vqs-1-xf').value='3'; el('vqs-1-xd').value='2'; el('vqs-1-xd').dispatchEvent(new Event('input',{bubbles:true}));
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 3 et que je perds 2')<0) vus.push('8.4.10 : la bulle ne paraît pas au résultat du premier vecteur');
+    currentMode='train'; el('vqs-1-ry').focus(); el('vqs-1-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.10 : la bulle « gagne / perds » paraît hors du soutien');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
