@@ -1576,6 +1576,10 @@ i.pb-P{margin-right:.14em}
   .tsc-signe{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px}
   .tsc-signe-pos{fill:#E5232B}
   .tsc-signe-neg{fill:var(--blue)}
+  /* un point VERT sur chaque racine — là où la courbe coupe l'axe, f(x) = 0
+     (demande de Turquet, novembre 2026) : le vert de la correction, celui
+     de ce que la page MONTRE ; un liseré blanc le détache du trait */
+  .tsc-racine{fill:var(--green);stroke:#fff;stroke-width:1.6}
   /* les mots « rouge » et « bleu » de l'énoncé portent LEUR encre : la règle
      « .mp-instr b » peint tous les gras en rouge, et « bleu » écrit en rouge
      dirait l'inverse de ce que l'exercice enseigne */
@@ -3753,7 +3757,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=406;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=407;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18901,7 +18905,10 @@ function renderTscTest(){
     return morceaux.map(function(mo,i){ const pos=mo[2], e=es[i];
       return '<path class="'+(pos?'tsg-pos':'tsg-neg')+'" d="'+lvPath(q.pts,sx,sy,mo[0],mo[1])+'"/>'
         +'<text class="tsc-signe '+(pos?'tsc-signe-pos':'tsc-signe-neg')+'" x="'+e.x.toFixed(1)+'" y="'+e.y.toFixed(1)+'" text-anchor="middle">'+(pos?'+':'−')+'</text>';
-    }).join('');
+    }).join('')
+    /* les racines : un point vert sur l'axe, là où f(x) = 0 — posé en DERNIER,
+       par-dessus les deux encres, pour qu'aucun trait ne le recouvre */
+    +[x1,x2].map(function(r){ return '<circle class="tsc-racine" cx="'+sx(r).toFixed(1)+'" cy="'+sy(0).toFixed(1)+'" r="4.5"/>'; }).join('');
   };
   const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
   const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };

@@ -119,9 +119,18 @@ porte le badge « − », et la case juste voisine reste `ok` ; la case vide re�
 `sol` en entraînement et le message dit qu'elle manquait, rien en soutien, où
 le faux rougit.
 
+**Puis un point VERT sur chaque racine (v406).** Demande de Turquet, le jour
+même : « un point vert sur le graphique pour les points représentant
+f(x) = 0 ». Deux cercles (`.tsc-racine`, rayon 4,5 px, liseré blanc) posés sur
+l'axe aux abscisses des racines, EN DERNIER dans le SVG — par-dessus les deux
+encres, pour qu'aucun trait ne les recouvre. Le vert est celui de la
+correction (`--green`), l'encre de ce que la page MONTRE. Le contrôle lit les
+deux cercles sur chaque visage (leur `cx` à la racine, leur `cy` sur l'axe
+dessiné, rien dessiné après eux) et l'encre verte dans la feuille de styles.
+
 ---
 
-## {lire-image-animation} — lire l'image d'un nombre, le chemin animé (6.2, novembre 2026, Première v406)
+## {lire-image-animation} — lire l'image d'un nombre, le chemin animé (6.2, novembre 2026, Première v407)
 
 **La demande** (Turquet) : « en première créer un exercice dans le thème
 étude de fonction comme l'exercice 3.1.1 de seconde, sauf que l'on placera
@@ -143,7 +152,8 @@ un, le 6.1 reste le tableau de signes, cet exercice devient le 6.2 (ajouté
 EN DERNIER dans le thème, il ne renumérote rien), la seconde copie du moteur
 est retirée (deux `const ETQ_W` auraient tué la page au chargement, et deux
 fonctions du même nom se seraient écrasées en silence), et la version est
-passée à 406 derrière la 405 du 3.10. L'identifiant est neuf (`lire-image-animation`,
+passée à 406 derrière la 405 du 3.10 — puis à 407, le 6.1 ayant pris la 406
+entre-temps (son point vert sur chaque racine). L'identifiant est neuf (`lire-image-animation`,
 kind `ima`) : l'exercice n'est pas le 3.1.1 de la Seconde (`image-nombre`)
 porté tel quel — le chemin s'y montre AVANT la réponse, là où la Seconde le
 garde pour la correction —, et un identifiant partagé aurait mis sous le même
