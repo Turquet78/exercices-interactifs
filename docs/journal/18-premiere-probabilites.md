@@ -709,3 +709,96 @@ cases du DOM tapées, simplifiée, amplifiée, fausse, dénominateur nul, fiche
 suffixée, produit du 3.8, cases de tableau. Vérifié dans Chromium : 36/69
 pour 12/23 au 3.2, 36/132 pour 12/44 au 3.6 comptés « Parfait » ; la fiche du
 3.3 aux fractions doublées, 7/7.
+
+## {frequences-probabilites} (3.10, v405) : fréquences, puis probabilités — la fiche en deux parties
+
+Demande de Turquet (novembre 2026), d'après sa fiche papier « proba tableau
+et fréquence » : « en première faire un exercice comme le pdf dans le thème
+probabilité, sur le modèle de l'exercice 3.4 ; des thèmes différents de celui
+du pdf ; en deux parties comme sur le pdf : partie A avec les termes
+fréquence ou fréquence conditionnelle, partie B avec le terme probabilité.
+Les nombres du tableau seront simples, en milliers ou en centaines, le total
+égal à 1000, 2000 ou 3000, avec des cases à trouver sans avoir à poser une
+soustraction ou une addition. » Ajouté EN DERNIER dans `THEMES` : rien n'est
+renuméroté.
+
+**La page est celle du 3.4** : toutes les questions à l'écran ensemble, le
+tableau collé en haut, chaque réponse sur UNE ligne, un seul « Vérifier » —
+`checkPBFiche`, le juge de la fiche, inchangé à une ligne près (l'intitulé
+d'une sorte de question de `PBX` dans le bilan). Le rendu a sa fonction
+(`renderFPBFiche`), aiguillée par `test.qId` dans `renderPBTest` ; le kind
+reste `pb`, l'écran `#scr-pbtest`, la fin `finishPB`. Chaque sorte de
+question (`fpbtab`, `fpbfreq`, `fpbcond`, `fpbinter`, `fpbunion`, `fpbsach`,
+`fpbnom`) range dans `PBX` ses attendus, sa méthode, son intitulé et son
+contexte ; sa ligne et son texte vivent dans `fpbLigne` et `fpbTxt`.
+
+**Le tableau est à compléter, en haut de la page** : c'est la question 1 de
+la Partie A, ses cases suffixées « -0 » comme toute case de la fiche. Il est
+TRANSPOSÉ par rapport au 3.1 (`fpbTableHTML`) : les lignes sont les deux
+provenances (« Machine A », « Machine B »), les colonnes « Pièces avec défaut
+D » et « Pièces sans défaut D̄ », comme sur la fiche papier — mêmes codes
+(A, nA, B, nB), mêmes indices de cases (`PB_CASE`, `PB_LIGNES`), seul le
+dessin change ; les cases portent leur lettre dans le coin, comme au 3.4.
+Les cases à remplir ont la taille des nombres du tableau (1,3 rem).
+
+**Les nombres** (`fpbTableau`) : les quatre cases du milieu sont quatre
+multiples de 100 différents, de somme 1 000, 2 000 ou 3 000. Cinq cases
+données — le total, toujours (l'énoncé le dit : « on fabrique chaque jour
+2 000 pièces »), et quatre autres tirées parmi les jeux qui se résolvent pas
+à pas sans ligne pleine (`pbResoluble`, celui du 3.3) et dont les valeurs
+sont toutes différentes ; quatre cases à trouver, de tête : 2 000 − 1 400.
+Les milliers s'écrivent avec l'espace fine (`fpbNombre`, « 3 000 ») dans le
+tableau et les textes ; l'élève tape « 3000 », et `pbLu` retire les espaces.
+
+**Partie A, en fréquences** — aucun P : la fréquence globale d'un évènement
+simple tiré (« de pièces présentant un défaut dans la production
+journalière »), puis une fréquence conditionnelle (« des pièces provenant de
+la machine A parmi les pièces sans défaut »). La ligne : fréquence = lettres
+/ lettres = effectifs / effectifs (`pb-s6`, `pb-s7`, `pb-n1`, `pb-n2`).
+**Partie B, en probabilités** — l'énoncé définit A et D, « les probabilités
+seront données en écriture fractionnaire » ; puis une intersection posée en
+mots (« provienne de la machine A ET présente un défaut » : l'élève choisit
+l'indice « tout » — `pbRien` le dit sur cette fiche aussi, et la case
+s'efface — et l'évènement, comme au 3.4) ; P(A ∪ D) ; une conditionnelle
+posée en mots (« sachant qu'elle présente un défaut (c'est-à-dire P_D(A)) »)
+dont le nom est écrit ; une conditionnelle donnée par son nom. Les trois
+conditionnelles de la séance sont différentes (`PB_CONDS`). Sept questions,
+numérotées 1 à 3 puis 1 à 4 comme sur le papier ; le bilan les compte de 1
+à 7.
+
+**P(A ∪ D) sur deux rangées** : le nom, puis « = P(…) + P(…) − P(…) », les
+trois évènements choisis dans des listes (`pb-u1` à `pb-u3`) ; puis « =
+fraction + fraction − fraction = fraction » (`pb-x`, `pb-y`, `pb-i`, `pb-n` :
+les paires NOMMÉES de `PB_FRAC_PAIRES`, donc une fraction égale est juste).
+P(D) + P(A) vaut P(A) + P(D) : les attendus de la question suivent l'ordre
+que l'élève a choisi dans ses deux premières listes (`PBX.fpbunion.att` lit
+`q.rep`), et la correction verte aussi — aucun crochet dans le juge. Les
+signes + et − sont groupés avec ce qui les suit (`fpbOp`, un `.f-grp` comme
+celui de `fEq`) : sur un téléphone, la rangée se replie ENTRE les groupes.
+
+**Les contextes** (`FPB_CTX`, six) : une usine et ses machines (défaut de
+fabrication), une imprimerie et ses ateliers (défaut d'impression), un
+entrepôt et ses transporteurs (dommage), une laiterie et ses fermes (défaut
+d'étiquetage), un fabricant de téléphones et ses fournisseurs (rayure, R),
+un atelier de poterie et ses fours (fêlure, F). Chaque contexte porte ses
+verbes à l'indicatif, au subjonctif et au participe (`fpbMot`), son pronom
+(« sachant qu'elle », « qu'il »), et « d'écrans » s'élide (`lpDe`).
+`pbCtx(q)` lit `FPB_CTX` par `q.fpb` ; `pbLettre` en tire A et D.
+
+**Le reste du branchement** : `TESTS`, `THEMES` (3.10), « Recommencer »
+par la table des démarreurs du kind `pb`, `pbDemarrer('frequences-probabilites', …)`
+(l'identifiant en premier, la forme que le contrôle des notes sait lire),
+`RAP_FPB` dans `RAPPELS_ID`, `QIA_SUGG`, et le contexte du modèle
+(`fpbCtxTexte` : le tableau, les cases données, toutes les questions des
+deux parties, la méthode).
+
+Vérifié en l'ouvrant dans Chromium (1280 × 900 et 390 × 844, tactile) :
+3.10 au menu ; une copie juste tapée dans les vraies cases — P(D) + P(A) à
+l'envers, la fréquence globale simplifiée (2/5 pour 400/1000) — comptée
+7 / 7 et 10 / 10 à l'écran de fin ; une copie avec « tout » au dénominateur
+de la fréquence conditionnelle et la question B4 vide : 5 / 7, une seule
+case rouge, la question vide remplie en vert sans rougir, 3 cases justes sur
+4 comptées ; aucun débordement horizontal, aucune erreur JavaScript ; le
+tableau collé en haut de l'écran après défilement. MathLive est servi aux
+bancs depuis le paquet npm (`npm pack mathlive@0.110.0`, `mathlive.min.mjs`
+copié dans `tests/.cache/mathlive-0.110.0.mjs`) quand le CDN est fermé.
