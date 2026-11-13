@@ -6499,3 +6499,96 @@ rougit ; un vecteur nommé sur un schéma faux ne se trace pas et le dit ; le
 tour BCDA ne rougit rien ; le rouge part à la vérification ; la consigne de la
 bulle, puis la bulle quand la soustraction est écrite. Vu dans Chromium à
 1 280 et 390 px.
+
+## {coordonnees-vecteur-quatrieme-point-choisi} — le quatrième point, le schéma du 8.4.9 et les deux vecteurs au choix de l'élève (8.4.10, Seconde v676)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice
+comme le 8.4.7, mais au début on fera un schéma d'un parallélogramme et on
+demandera à l'élève de placer les lettres correctement comme dans le 8.4.9.
+Puis on demandera à l'élève de donner deux vecteurs égaux dont la fin de l'un
+des vecteurs est le point M. Ensuite on continuera l'exercice comme le 8.4.7
+mais avec les deux vecteurs choisis par l'élève. » La même fiche
+« parallélogramme 2 » (Exemple 6) : A(3 ; −1), B(2 ; 2), C(−2 ; 1), M(x ; y) ;
+mais l'« ATTENTION ! On choisit un vecteur qui finit sur M » n'est plus écrit
+par la page avec sa réponse (BA⃗ = CM⃗) : c'est l'élève qui choisit.
+
+**Le moteur « vqs »** emprunte aux deux voisins. Au 8.4.9, le schéma
+(`vpgSchemaHTML`, désormais paramétré par un préfixe et quatre lettres — A, B,
+C, M ; `vpgEtiquetages(L)`, `vpgNomHTML(k,o)`, `vpgFleche(…,cote)` ont gagné
+un paramètre facultatif, leur comportement sans lui est inchangé et le banc
+du 8.4.9 le tient), les quatre listes aux coins, les huit tours justes
+(`vqsEtiquetages`), le rouge des lettres incohérentes (`vpg-incoh`, jamais
+une classe de verdict, levé au prochain clic), et les deux vecteurs nommés par
+deux listes sous une flèche (orange, violet), tracés sur le schéma dès que les
+lettres y font le tour. Au 8.4.7, tout le reste : les deux colonnes du calcul,
+le système, l'étape « ⇔ » du système réécrit, « Donc : M(… ; …) », le repère,
+M posé, la vérification à la pose.
+
+**Les deux vecteurs.** Le premier est celui qu'on sait calculer (deux points
+placés), le second doit FINIR sur M — l'énoncé le dit, et c'est ce que la
+fiche entend par « ATTENTION ». Deux paires justes, `VQS_PAIRES` : BA⃗ = CM⃗ et
+BC⃗ = AM⃗. L'égalité de deux vecteurs nommés est un FAIT de la figure, pas un
+calcul (`VQS_EGAUX` : les côtés opposés parcourus dans le même sens) ; dès que
+les deux sont nommés, la page le dit dans tous les modes (`vqsVerifier`) :
+égaux et le second finit sur M (« On calcule avec ces deux vecteurs ») ;
+égaux mais le second PART de M (AB⃗ = MC⃗ : « c'est vrai — mais… parcours le
+côté dans l'autre sens ») ; pas égaux, et ce qui les distingue (direction,
+sens, longueur — sur les coordonnées du vrai M, `vqsDifference` ; une
+diagonale, nommée) ; deux fois le même ; le premier contient M (« on ne sait
+pas calculer ses coordonnées »). Les miroirs du calcul (`vqs-m1`, `vqs-m2`,
+trois chacun) écrivent les noms choisis partout — titres, colonnes, « On veut
+que … = … ».
+
+**Le calcul se juge sur les vecteurs CHOISIS** (`vqsRef` : le premier s'il a
+deux points placés, le second s'il finit sur M ; sinon l'attendu,
+`vqsAttendus` — la paire du second s'il finit sur M, sinon celle du premier,
+sinon la fiche) : la mécanique (fin − début, « x − … », le système, l'étape)
+est créditée même sur une mauvaise paire, et le mauvais choix est compté une
+fois, à son nom — la règle du 8.4.9. **Mais x, y, M(… ; …) et le point M se
+jugent sur le VRAI M** : c'est la réponse, et elle est fausse quand les
+vecteurs ne sont pas égaux ; le message le dit (« Ton calcul suit tes
+vecteurs, mais ils ne sont pas égaux dans le parallélogramme ABCM. Avec
+BA⃗ = CM⃗ : … »). La vérification à la pose dessine la paire attendue — le
+calculé en orange, celui qui finit sur M en rouge jusqu'au M posé — et ce qui
+les distingue (`vqsDifferenceM`).
+
+**L'étape « + » et le barème.** Au 8.4.7 l'étape existe quand C a une
+coordonnée négative ; ici le point de départ du second vecteur est C ou A
+selon la paire — le NOMBRE de réponses d'une question dépendrait du choix de
+l'élève, ce que `dmPoidsQuestion` ne tolère pas. Le tirage (`vqsGen`) exige
+donc que A ait une coordonnée négative si et seulement si C en a une (la fiche
+le vérifie : A(3 ; −1), C(−2 ; 1)) ; l'étape existe dès que l'un des deux en a
+(`vqsEtape`), et les signes de ses lignes suivent le départ du second vecteur
+(`vqs-opx`, `vqs-opy`, posés par `vqsMaj`). Le tirage exige aussi BC⃗ en biais
+comme BA⃗ : quelle que soit la paire, le calcul a ses deux lignes. 25 ou 29
+réponses ; trois questions, la fiche d'abord.
+
+**Deux calques du même nom.** `vcdSVG(q,'vqs')` crée `vqsFl` et `vqsCorr`,
+que le schéma avait déjà pris : le repère les renomme `vqsFl2` et `vqsCorr2`
+au rendu. Le bouton des tables est absent, la bulle « gagne / perds » du
+soutien ouvre sa consigne quand le résultat est cliqué avant la soustraction
+(`vcdGpOuvrir`, étendue au 8.4.10 comme au 8.4.9). Au doigt, la barre
+« Je place » porte M (`POSE_DOIGT.vqs`). Placé en 8.4.10 : rien n'est
+renuméroté.
+
+**Le banc principal** (`coordonneesVecteurs`, « quatriemePointChoisi ») : la
+place, le rappel, les tables absentes, les huit étiquetages, les aides du
+8.4.9 généralisées qui rendent toujours ses identifiants ; deux cents séances
+(la fiche d'abord, A et C d'accord sur l'étape, BA et BC en biais, 25 ou 29
+réponses, les deux cas tirés) ; l'écran (le schéma A, B, C, M, les deux
+vecteurs à nommer, les vingt cases, deux « ⇔ », les calques renommés, rien de
+tracé avant la saisie, les miroirs) ; la copie vide (29 `sol`, rien de rouge,
+BA⃗ = CM⃗ en vert sur le schéma, M et ABCM sur le repère, « x + … » et
+« y − … ») ; le schéma (ABMC rougit et demande l'ordre, le reclic et le focus
+remettent le bleu, un vecteur ne se trace pas sur un schéma faux, BCMA ne
+rougit rien) ; les constats au fil des listes (BA⃗ en orange ; MC⃗ « pas le
+même sens » ; AC⃗ « pas la même direction » ; BA⃗ deux fois ; CM⃗ « finit sur
+M », les signes « + », « − » ; AB⃗ = MC⃗ « c'est vrai — mais… PART de M » ; CM⃗
+en premier) ; l'autre paire BC⃗ = AM⃗ avec ses signes « − », « + », M faux
+(orange, rouge, « pas la même direction », rien de révélé), le reclic, M juste
+(BC et AM pareils, ABCM dessiné), la copie juste 29 sur 29 avec « -4+3 » ; la
+reprise après JSON ; la mauvaise paire AB⃗ = CM⃗ menée au bout (22 sur 29 : les
+deux lettres, x, y, M(… ; …) et le point ; les messages, la correction) ; les
+pièges (MC⃗ à l'envers, fin et début échangés, le signe, l'étape « + » mal
+faite, x isolé en retranchant : 17 sur 29) ; le contexte ; une question sans
+étape ; le soutien ; la consigne puis la bulle.
