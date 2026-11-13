@@ -1575,6 +1575,10 @@ i.pb-P{margin-right:.14em}
   .tsc-signe{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px}
   .tsc-signe-pos{fill:#E5232B}
   .tsc-signe-neg{fill:var(--blue)}
+  /* un point VERT sur chaque racine — là où la courbe coupe l'axe, f(x) = 0
+     (demande de Turquet, novembre 2026) : le vert de la correction, celui
+     de ce que la page MONTRE ; un liseré blanc le détache du trait */
+  .tsc-racine{fill:var(--green);stroke:#fff;stroke-width:1.6}
   /* les mots « rouge » et « bleu » de l'énoncé portent LEUR encre : la règle
      « .mp-instr b » peint tous les gras en rouge, et « bleu » écrit en rouge
      dirait l'inverse de ce que l'exercice enseigne */
@@ -1738,18 +1742,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* {frequences-probabilites} (3.10) : la fiche en DEUX PARTIES — le tableau à
    compléter en tête (ses cases à la taille de ses nombres, 1,3 rem), les
    titres « Partie A », « Partie B », l'énoncé des évènements de la partie B,
-   le mot « fréquence » en tête de ligne, et la ligne de P(A ∪ D) sur deux
-   rangées (le nom et les trois termes choisis ; puis les quatre fractions),
-   qui se replient entre leurs groupes sur un téléphone. */
+   le mot « fréquence » en tête de ligne. */
 .fpb-partie{font-family:"Nunito";font-weight:800;font-size:calc(1.1rem * var(--tab-nb,1));color:var(--blue-dark);margin:12px 0 2px;text-decoration:underline}
 .fpb-intro{font-family:"Nunito";font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink);margin:4px 0 6px;line-height:1.45}
 .fpb-note{font-style:italic;font-weight:600}
 .fpb-mot{font-family:"Nunito";font-weight:800;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap}
-.fpb-lignes{flex:1 1 100%;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.fpb-lignes .pbf-sol{margin-left:0;flex-wrap:wrap;justify-content:flex-end}
 #pbHost .pbf-tete math-field.pm-mf{font-size:calc(1.3rem * var(--tab-nb,1));min-width:62px}
 #pbHost .pbf-tete .fpb-tab td{padding:12px 10px 2px}
-@media(max-width:560px){ .fpb-lignes{align-items:center} .fpb-lignes .pbf-sol{justify-content:center} #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
+@media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
 @media(max-width:560px){
   .pbf-2col{grid-template-columns:1fr}
   #pbHost .pbf-tete .pb-tab th{padding:2px 4px;font-size:calc(.72rem * var(--tab-nb,1));line-height:1.15}
@@ -3751,7 +3751,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=406;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=407;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4348,7 +4348,7 @@ const TESTS={
   'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question, aux petits effectifs : calcule P(A ∩ B) et P(A) × P(B), puis compare-les. Égales : A et B sont indépendants.', start:()=>startPBInd() },
   'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() },
   /* 3.10 (novembre 2026) : la fiche en deux parties de Turquet, fréquences puis probabilités */
-  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, une fréquence globale et une fréquence conditionnelle ; Partie B, les mêmes calculs dits en probabilités : P(A ∩ D), P(A ∪ D), P<sub>D</sub>(A)… Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
+  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle ; Partie B, les mêmes calculs dits en probabilités : P(A ∩ D), P<sub>D</sub>(A)… Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
@@ -18901,7 +18901,10 @@ function renderTscTest(){
     return morceaux.map(function(mo,i){ const pos=mo[2], e=es[i];
       return '<path class="'+(pos?'tsg-pos':'tsg-neg')+'" d="'+lvPath(q.pts,sx,sy,mo[0],mo[1])+'"/>'
         +'<text class="tsc-signe '+(pos?'tsc-signe-pos':'tsc-signe-neg')+'" x="'+e.x.toFixed(1)+'" y="'+e.y.toFixed(1)+'" text-anchor="middle">'+(pos?'+':'−')+'</text>';
-    }).join('');
+    }).join('')
+    /* les racines : un point vert sur l'axe, là où f(x) = 0 — posé en DERNIER,
+       par-dessus les deux encres, pour qu'aucun trait ne le recouvre */
+    +[x1,x2].map(function(r){ return '<circle class="tsc-racine" cx="'+sx(r).toFixed(1)+'" cy="'+sy(0).toFixed(1)+'" r="4.5"/>'; }).join('');
   };
   const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
   const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
@@ -24428,25 +24431,27 @@ PBX.auto={
      données — le total, toujours (l'énoncé le dit), et quatre autres tirées
      parmi les jeux qui se résolvent pas à pas sans ligne pleine
      (pbResoluble) ; quatre à trouver, de tête : 2 000 − 1 400, 1 000 − 600.
-   - PARTIE A, EN FRÉQUENCES : la fréquence globale d'un évènement (« des
-     pièces présentant un défaut dans la production journalière »), puis une
-     fréquence conditionnelle (« des pièces provenant de la machine A parmi
-     les pièces sans défaut »). La ligne : fréquence = lettres / lettres =
-     effectifs / effectifs. Aucun P.
+   - PARTIE A, EN FRÉQUENCES — les questions disent « fréquence
+     (proportion) » (demande de Turquet, v406) : la fréquence globale d'un
+     évènement (« de pièces présentant un défaut dans la production
+     journalière »), la fréquence d'une intersection (« des pièces provenant
+     de la machine A et présentant un défaut »), puis une fréquence
+     conditionnelle (« des pièces provenant de la machine A parmi les pièces
+     sans défaut »). La ligne : fréquence = lettres / lettres = effectifs /
+     effectifs. Aucun P.
    - PARTIE B, EN PROBABILITÉS : A et D sont définis ; une intersection posée
      en mots (« provienne de la machine A ET présente un défaut » — l'élève
-     choisit l'indice « tout » et l'évènement, comme au 3.4) ; P(A ∪ D) par
-     la formule P(A) + P(D) − P(A ∩ D), chaque terme choisi dans une liste
-     puis calculé ; une conditionnelle posée en mots (« sachant que »), dont
-     le nom est écrit entre parenthèses ; une conditionnelle donnée par son
-     nom. Les trois conditionnelles de la séance sont différentes.
+     choisit l'indice « tout » et l'évènement, comme au 3.4 ; une autre
+     intersection que celle de la partie A) ; une conditionnelle posée en
+     mots (« sachant que »), dont le nom est écrit entre parenthèses ; une
+     conditionnelle donnée par son nom. Les trois conditionnelles de la
+     séance sont différentes. La question P(A ∪ D) de la v405 est partie en
+     v406 (demande de Turquet : « supprimer la question sur l'union »).
    Sept questions ; une question est juste quand toutes ses cases le sont ;
    toute fraction égale à l'attendue est juste (pbFracJuger). Chaque sorte
    de question range dans PBX ses attendus (att), sa méthode (pourquoi), son
    intitulé (label) et son contexte (ctx) ; sa ligne et son texte vivent
-   dans fpbLigne et fpbTxt. Pour P(A ∪ D), P(A) + P(D) et P(D) + P(A) sont
-   tous deux justes : les attendus de la question suivent l'ordre que
-   l'élève a choisi (lu dans q.rep), sans crochet dans le juge.
+   dans fpbLigne et fpbTxt.
    La chronique : docs/journal/18-premiere-probabilites.md. */
 const FPB_CTX=[
   /* intro : la phrase d'en-tête, avant le nombre total ; pl puis srcs la
@@ -24484,12 +24489,14 @@ const FPB_CTX=[
     A:'sort du four A', nA:'sort du four B', sA:'sorte du four A', snA:'sorte du four B',
     pA:'sortis du four A', pnA:'sortis du four B', dn:'une fêlure', dc:'fêlure', tot:'la production de la semaine' }
 ];
-/* Les mots d'un évènement simple : à l'indicatif (''), au subjonctif ('s')
-   ou au participe ('p'). Le défaut et son contraire se forment sur dn et dc. */
+/* Les mots d'un évènement simple : à l'indicatif (''), au subjonctif ('s'),
+   au participe ('p') ou au participe après « et » ('pe' : « ne présentant
+   pas de défaut », là où « sans défaut » ne se coordonne pas). Le défaut et
+   son contraire se forment sur dn et dc. */
 function fpbMot(C, e, forme){
-  if(e==='B') return (forme==='p' ? 'présentant ' : 'présente ')+C.dn;
-  if(e==='nB') return (forme==='p' ? 'sans ' : 'ne présente pas de ')+C.dc;
-  return C[forme+e];
+  if(e==='B') return (forme==='p' || forme==='pe' ? 'présentant ' : 'présente ')+C.dn;
+  if(e==='nB') return forme==='p' ? 'sans '+C.dc : forme==='pe' ? 'ne présentant pas de '+C.dc : 'ne présente pas de '+C.dc;
+  return C[(forme==='pe' ? 'p' : forme)+e];
 }
 /* « 2 000 » : l'espace fine insécable des milliers, comme sur la fiche papier */
 function fpbNombre(n){ n=+n; return n>=1000 ? Math.floor(n/1000)+' '+String(n%1000).padStart(3,'0') : String(n); }
@@ -24512,26 +24519,28 @@ function fpbTableau(){
   }
   return { n:n, k:pick(jeux) };
 }
-/* La séance : le tableau, la fréquence globale d'un évènement simple, une
-   fréquence conditionnelle ; puis une intersection en mots, une réunion,
-   une conditionnelle en mots (« sachant que ») et une conditionnelle par
-   son nom — les trois conditionnelles différentes. Les tirages se font hors
-   de la fabrique passée à distincte(), qui peut la rappeler. */
+/* La séance : le tableau, la fréquence globale d'un évènement simple, la
+   fréquence d'une intersection, une fréquence conditionnelle ; puis une
+   autre intersection en mots, une conditionnelle en mots (« sachant que »)
+   et une conditionnelle par son nom — les trois conditionnelles
+   différentes, les deux intersections aussi. Les tirages se font hors de la
+   fabrique passée à distincte(), qui peut la rappeler. */
 function fpbSeance(){
   const t=fpbTableau(), ci=rand(0,FPB_CTX.length-1), qs=[], conds=qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,3);
-  const simple=pick(PB_SIMPLES), inter=pick(PB_INTER), union=[pick(['A','nA']), pick(['B','nB'])];
+  const simple=pick(PB_SIMPLES), inters=qdMelanger(PB_INTER.slice()).slice(0,2);
   const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { fpb:1, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   pose({ t:'fpbtab' });
   pose({ t:'fpbfreq', ev:[simple,'T'] });
+  pose({ t:'fpbfint', ev:[inters[0],'T'] });
   pose({ t:'fpbcond', ev:conds[0] });
-  pose({ t:'fpbinter', ev:[inter,'T'] });
-  pose({ t:'fpbunion', ev:union });
+  pose({ t:'fpbinter', ev:[inters[1],'T'] });
   pose({ t:'fpbsach', ev:conds[1] });
   pose({ t:'fpbnom', ev:conds[2] });
   return qs;
 }
-/* Le numéro d'une question sur la fiche : A1 à A3, B1 à B4. */
-function fpbNum(i){ return i<3 ? 'A'+(i+1) : 'B'+(i-2); }
+/* Le numéro d'une question sur la fiche : A1 à A4, B1 à B3. */
+const FPB_NB_A=4;
+function fpbNum(i){ return i<FPB_NB_A ? 'A'+(i+1) : 'B'+(i-FPB_NB_A+1); }
 /* Le tableau TRANSPOSÉ : les provenances en lignes, le défaut en colonnes.
    Les cases à trouver sont des cases à remplir, suffixées « -0 » : le
    tableau est la question 0 de la fiche, et pbQDe les lui rattache. */
@@ -24551,31 +24560,22 @@ function fpbTableHTML(q){
     +'<tr><th>Total</th>'+cel(2)+cel(5)+cel(8)+'</tr>'
     +'</table>';
 }
-/* P(A ∪ D), écrit par la page : en tête de ligne, ou en petit dans une phrase. */
-function fpbUnionHTML(y,x,petit){
-  return petit ? '<span class="pb-nomp"><i>P</i>('+pbHTML(y)+' ∪ '+pbHTML(x)+')</span>'
-               : '<span class="pb-nom"><i class="pb-P">P</i>('+pbHTML(y)+' ∪ '+pbHTML(x)+' )</span>';
-}
-function fpbUnionTxt(y,x){ return 'P('+pbTxt(y)+' ∪ '+pbTxt(x)+')'; }
 /* Le texte de chaque question, dans les mots du contexte (« d’écrans »,
    « de pièces » : l'élision de lpDe). */
 function fpbTxt(q){
   const C=pbCtx(q), y=q.ev && q.ev[0], x=q.ev && q.ev[1];
   switch(q.t){
     case 'fpbtab': return 'Complète le tableau d’effectifs, en haut de la page.';
-    case 'fpbfreq': return 'Calcule la proportion (ou fréquence) globale '+esc(lpDe(C.pl)+' '+fpbMot(C,y,'p')+' dans '+C.tot)+'. (On donnera la réponse en écriture fractionnaire.)';
-    case 'fpbcond': return 'Calcule la fréquence conditionnelle des '+esc(C.pl+' '+fpbMot(C,y,'p'))+' parmi les '+esc(C.pl+' '+fpbMot(C,x,'p'))+'. (On donnera la réponse en écriture fractionnaire.)';
+    case 'fpbfreq': return 'Calcule la fréquence (proportion) globale '+esc(lpDe(C.pl)+' '+fpbMot(C,y,'p')+' dans '+C.tot)+'. (On donnera la réponse en écriture fractionnaire.)';
+    /* « et » entre deux participes : « provenant de la machine B et ne présentant pas de défaut » */
+    case 'fpbfint': { const p=y.split('.'); return 'Calcule la fréquence (proportion) des '+esc(C.pl+' '+fpbMot(C,p[0],'p')+' et '+fpbMot(C,p[1],'pe')+' dans '+C.tot)+'. (On donnera la réponse en écriture fractionnaire.)'; }
+    case 'fpbcond': return 'Calcule la fréquence (proportion) conditionnelle des '+esc(C.pl+' '+fpbMot(C,y,'p'))+' parmi les '+esc(C.pl+' '+fpbMot(C,x,'p'))+'. (On donnera la réponse en écriture fractionnaire.)';
     case 'fpbinter': { const p=y.split('.'); return 'Calcule la probabilité que '+esc(C.le+' '+fpbMot(C,p[0],'s')+' et '+fpbMot(C,p[1],'s'))+'.'; }
-    case 'fpbunion': return 'Calcule '+fpbUnionHTML(y,x,true)+'.';
     case 'fpbsach': return 'Calcule la probabilité que '+esc(C.le+' '+fpbMot(C,y,'s'))+' sachant qu’'+esc(C.pr+' '+fpbMot(C,x,''))+' (c’est-à-dire '+pbNomPetit(y,x)+').';
     case 'fpbnom': return 'Calcule '+pbNomPetit(y,x)+'.';
   }
   return '';
 }
-/* Un signe (+, −) groupé avec ce qui le suit, comme le « = » de fEq : sur un
-   téléphone, la rangée se replie ENTRE les groupes, jamais entre un signe et
-   son terme. */
-function fpbOp(signe, boite){ return '<span class="f-grp"><span class="f-eq">'+signe+'</span>'+boite+'</span>'; }
 /* La ligne d'une réponse : nom = lettres / lettres = effectifs / effectifs. */
 function fpbLigneFrac(q, i, nom){
   const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
@@ -24587,22 +24587,9 @@ function fpbLigneFrac(q, i, nom){
          +'<span class="f-fbar"></span>'+pbMf('pb-n2-'+i, lab+'dénominateur, un effectif du tableau')+'</span>')
     +'</div>';
 }
-/* P(A ∪ D) sur deux rangées : le nom et les trois termes choisis ; puis les
-   quatre fractions. */
-function fpbLigneUnion(q, i){
-  const y=q.ev[0], x=q.ev[1], opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
-  const P=(id,l)=>'<span class="pb-nom"><i class="pb-P">P</i><span class="pb-par">(</span>'+pbSel(q,id+'-'+i,opts,lab+l,'pb-lettres')+' <span class="pb-par">)</span></span>';
-  const fr=(a,b,l)=>'<span class="f-frac-input">'+pbMf(a+'-'+i, lab+'numérateur de '+l)+'<span class="f-fbar"></span>'+pbMf(b+'-'+i, lab+'dénominateur de '+l)+'</span>';
-  return '<div class="fpb-lignes">'
-    +'<div class="pbf-sol">'+fpbUnionHTML(y,x)+fEq(P('pb-u1','le premier terme'))+fpbOp('+',P('pb-u2','le deuxième terme'))+fpbOp('−',P('pb-u3','le terme retranché'))+'</div>'
-    +'<div class="pbf-sol">'+fEq(fr('pb-x1','pb-x2','la première probabilité'))+fpbOp('+',fr('pb-y1','pb-y2','la deuxième probabilité'))
-      +fpbOp('−',fr('pb-i1','pb-i2','la probabilité retranchée'))+fEq(fr('pb-n1','pb-n2','le résultat'))+'</div>'
-    +'</div>';
-}
 function fpbLigne(q, i){
   const y=q.ev && q.ev[0], x=q.ev && q.ev[1];
   if(q.t==='fpbtab') return '';
-  if(q.t==='fpbunion') return fpbLigneUnion(q, i);
   if(q.t==='fpbinter'){
     /* comme au 3.4 : l'élève choisit l'indice de P (« tout ») et l'évènement */
     const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) })), optsInd=['0','A','nA','B','nB'].map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
@@ -24668,20 +24655,12 @@ PBX.fpbinter={
   label(q){ return pbNomTxt(q.ev[0],'T')+', posée en mots'; },
   ctx(q){ return fpbCtxCommun(q)+'La question est posée en mots (« … et … ») : c’est '+pbNomTxt(q.ev[0],'T')+', sans condition. '; }
 };
-PBX.fpbunion={
-  /* P(D) + P(A) vaut P(A) + P(D) : les attendus suivent l'ordre que l'élève
-     a choisi dans ses deux premières listes (q.rep), et la correction aussi */
-  att(q){ let y=q.ev[0], x=q.ev[1]; const r=q.rep||{};
-    if(r['pb-u1']===x && r['pb-u2']===y){ const t=y; y=x; x=t; }
-    const s=pbInter(q.ev[0],q.ev[1]), T=String(pbEff(q,'T'));
-    return { 'pb-u1':y, 'pb-u2':x, 'pb-u3':s, 'pb-x1':String(pbEff(q,y)), 'pb-x2':T, 'pb-y1':String(pbEff(q,x)), 'pb-y2':T,
-             'pb-i1':String(pbEff(q,s)), 'pb-i2':T, 'pb-n1':String(pbEff(q,y)+pbEff(q,x)-pbEff(q,s)), 'pb-n2':T }; },
-  render(){ renderFPBFiche(); },
-  pourquoi(q){ const y=q.ev[0], x=q.ev[1], s=pbInter(y,x), T=pbEff(q,'T'), a=pbEff(q,y), b=pbEff(q,x), c=pbEff(q,s);
-    return fpbUnionHTML(y,x,true)+' = '+pbNomPetit(y,'T')+' + '+pbNomPetit(x,'T')+' − '+pbNomPetit(s,'T')+' : l’intersection, comptée dans '+pbNomPetit(y,'T')+' et dans '+pbNomPetit(x,'T')+', se retire une fois. '
-      +pbFr(a,T)+' + '+pbFr(b,T)+' − '+pbFr(c,T)+' = '+pbFr(a+b-c,T)+'.'; },
-  label(q){ return fpbUnionTxt(q.ev[0],q.ev[1]); },
-  ctx(q){ return fpbCtxCommun(q)+'La page écrit '+fpbUnionTxt(q.ev[0],q.ev[1])+' = P(…) + P(…) − P(…) : l’élève choisit les trois évènements (les deux premiers dans l’ordre qu’il veut), puis écrit les quatre fractions. '; }
+PBX.fpbfint={
+  att:fpbAttLigne, render(){ renderFPBFiche(); },
+  pourquoi(q){ const y=q.ev[0];
+    return '« Et » : c’est l’intersection '+pbHTML(y)+', comptée dans TOUTE la production — '+fpbNombre(pbEff(q,y))+' sur '+fpbNombre(pbEff(q,'T'))+'. Le dénominateur est le total : aucun « parmi » ne restreint.'; },
+  label(q){ return 'Fréquence de '+pbTxt(q.ev[0]); },
+  ctx(q){ return fpbCtxCommun(q)+'Fréquence de l’intersection '+pbTxt(q.ev[0])+' (« … et … ») : effectif de '+pbTxt(q.ev[0])+' sur l’effectif total. '; }
 };
 PBX.fpbsach={
   att:fpbAttLigne, render(){ renderFPBFiche(); },
@@ -24699,8 +24678,8 @@ PBX.fpbnom={
   label(q){ return pbNomTxt(q.ev[0],q.ev[1]); },
   ctx(q){ return fpbCtxCommun(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+'. '; }
 };
-/* La page : le tableau à compléter collé en haut, puis « Partie A » (trois
-   questions) et « Partie B » (l'énoncé des évènements, quatre questions),
+/* La page : le tableau à compléter collé en haut, puis « Partie A » (quatre
+   questions) et « Partie B » (l'énoncé des évènements, trois questions),
    chaque question numérotée comme sur la fiche papier. */
 function renderFPBFiche(){
   test.locked=false; test.idx=0;
@@ -24712,16 +24691,16 @@ function renderFPBFiche(){
   $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
   $('pbPrompt').innerHTML=esc(C.intro)+' '+fpbNombre(T)+' '+esc(C.pl+' '+C.srcs)+'. Complète le tableau, puis réponds à toutes les questions, chacune sur sa ligne, et vérifie la fiche à la fin.';
-  const li=(q,i)=>'<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt"><span class="pbf-num">'+(i<3 ? i+1 : i-2)+'.</span>'+fpbTxt(q)+'</div>'+fpbLigne(q,i)+'</li>';
+  const li=(q,i)=>'<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt"><span class="pbf-num">'+fpbNum(i).slice(1)+'.</span>'+fpbTxt(q)+'</div>'+fpbLigne(q,i)+'</li>';
   $('pbHost').innerHTML=
     '<div class="pbf-tete">'+fpbTableHTML(qs[0])+'</div>'
    +'<h3 class="fpb-partie">Partie A</h3>'
-   +'<ol class="pbf-liste">'+qs.slice(0,3).map(li).join('')+'</ol>'
+   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
    +'<h3 class="fpb-partie">Partie B</h3>'
    +'<p class="fpb-intro">On choisit au hasard '+esc(C.un)+' parmi '+esc(C.tot)+'. On considère les évènements : '
      +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+fpbMot(C,'B',''))+' ». '
      +'<span class="fpb-note">Dans cet exercice, les probabilités seront données en écriture fractionnaire.</span></p>'
-   +'<ol class="pbf-liste">'+qs.slice(3).map((q,j)=>li(q,j+3)).join('')+'</ol>';
+   +'<ol class="pbf-liste">'+qs.slice(FPB_NB_A).map((q,j)=>li(q,j+FPB_NB_A)).join('')+'</ol>';
   pbAffMaj();
 }
 /* Le contexte envoyé au modèle : le tableau, puis toute la fiche. */
@@ -24730,12 +24709,11 @@ function fpbCtxTexte(){
   const net=s=>String(s).replace(/<[^>]+>/g,'');
   return 'FICHE en deux parties, toutes les questions à l’écran ensemble, le tableau collé en haut. '+fpbCtxCommun(qs[0])
     +'Cases données : '+qs[0].k.map(i=>pbValeurs(qs[0].n)[i]).join(', ')+' ; les quatre autres sont à trouver, de tête (des centaines). '
-    +'Partie A, en FRÉQUENCES (sans la lettre P) : '+qs.slice(0,3).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie A, en FRÉQUENCES (sans la lettre P) : '+qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +'Partie B, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
-    +qs.slice(3).map((q,j)=>fpbNum(j+3)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +'Chaque réponse s’écrit sur une ligne : fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '
-    +'Pour P(… ∪ …), la ligne est P(…) + P(…) − P(… ∩ …), chaque terme choisi puis calculé. '
-    +'Fréquence globale = effectif de l’évènement / effectif total ; fréquence conditionnelle de Y parmi X = effectif de X∩Y / effectif de X ; en probabilités, P sans indice divise par tout, P_X(Y) se restreint à X. '
+    +'Fréquence globale = effectif de l’évènement / effectif total ; fréquence d’une intersection « … et … » = effectif de l’intersection / effectif total ; fréquence conditionnelle de Y parmi X = effectif de X∩Y / effectif de X ; en probabilités, P sans indice divise par tout, P_X(Y) se restreint à X. '
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '+pbMethodeTxt()
     +'L’erreur classique est de diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle.';
 }
@@ -30269,7 +30247,7 @@ const RAP_FPB=`<b>Fréquences, puis probabilités, dans un tableau d’effectifs
 <b>Fréquence globale.</b> On compte dans TOUTE la production : \\(\\dfrac{\\text{effectif de } D}{\\text{effectif total}}\\), par exemple \\(\\dfrac{2000}{3000}=\\dfrac{2}{3}\\) s’il y a 2 000 pièces avec défaut sur 3 000.<br>
 <b>Fréquence conditionnelle.</b> « Parmi les pièces sans défaut » : on se restreint à \\(\\overline{D}\\), et on y compte celles qui viennent de \\(A\\) : \\(\\dfrac{A\\cap\\overline{D}}{\\overline{D}}\\), par exemple \\(\\dfrac{600}{1000}=\\dfrac{3}{5}\\).<br>
 <b>En probabilités.</b> On choisit une pièce au hasard : sa probabilité est la fréquence. \\(P(A\\cap D)=\\dfrac{A\\cap D}{\\text{tout}}\\) (« et », sans condition) ; \\(P_D(A)=\\dfrac{A\\cap D}{D}\\) (« sachant que », « parmi » : la condition s’écrit en indice).<br>
-<b>La réunion.</b> \\(P(A\\cup D)=P(A)+P(D)-P(A\\cap D)\\) : l’intersection, comptée dans \\(P(A)\\) et dans \\(P(D)\\), se retire une fois.<br>
+<b>Une intersection.</b> « Provenant de A ET présentant un défaut » : on compte \\(A\\cap D\\) dans toute la production, \\(\\dfrac{A\\cap D}{\\text{effectif total}}\\) — aucun « parmi », le dénominateur reste le total.<br>
 Piège classique : diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle — le dénominateur est l’effectif du groupe où l’on se place.`;
 const RAPPELS_ID={ 'augmentation-tableau':RAP_SUI, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -30373,7 +30351,7 @@ const QIA_SUGG={
   'frequences-arrondies':["Comment arrondir un pourcentage à l’unité ?","Comment transformer une fraction en pourcentage ?","Quelle différence entre « … % des garçons ont des lunettes » et « … % des personnes à lunettes sont des garçons » ?","Que dit l’indice sous P ?"],
   'independance':["Que veut dire « indépendants » ?","Pourquoi compare-t-on P(A ∩ B) et P(A) × P(B) ?","Comment multiplier deux fractions ?","Comment mettre deux fractions sur le même dénominateur ?","Deux évènements indépendants peuvent-ils arriver ensemble ?"],
   'automatismes-probabilites':["Comment lire un arbre pondéré ?","Pourquoi multiplie-t-on le long d’une branche ?","Comment calculer P(B) avec un arbre ?","Pourquoi une probabilité est-elle entre 0 et 1 ?"],
-  'frequences-probabilites':["Quelle différence entre une fréquence et une probabilité ?","Comment calculer P(A ∪ D) ?","Pourquoi P_D(A) ne se divise-t-elle pas par le total ?","Comment trouver une case qui manque dans le tableau ?"],
+  'frequences-probabilites':["Quelle différence entre une fréquence et une probabilité ?","Quelle différence entre la fréquence de « A et D » et la fréquence de A parmi D ?","Pourquoi P_D(A) ne se divise-t-elle pas par le total ?","Comment trouver une case qui manque dans le tableau ?"],
   'lire-probabilites':["Que veut dire l’indice sous P ?","Comment lire P_A(B) avec le mot « parmi » ?","Quelle différence entre P_A(B) et P_B(A) ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
