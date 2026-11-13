@@ -788,7 +788,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima,#scr-sui{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1526,6 +1526,27 @@ i.pb-P{margin-right:.14em}
   .lv-ax.ima-grad{fill:var(--red);font-weight:800;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
   .ima-rejouer{text-align:center;margin:0 0 14px}
   .ima-rejouer .btn{font-size:.9rem;padding:6px 12px}
+  /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
+     du texte courant où les cases prennent place (pas une rangée flex : sur
+     téléphone, une rangée séparerait « il y a » de sa case). La case a la
+     taille de la phrase, le « = » aussi ; le miroir (.sui-mir) recopie la
+     case dont il dépend, souligné de pointillés pour dire qu'on n'y écrit pas. */
+  #scr-sui .sui-q{font-family:"Nunito";font-weight:800;font-size:1.12rem;color:var(--ink);margin:14px 0 6px;text-align:left}
+  #scr-sui .sui-q:first-child{margin-top:0}
+  #scr-sui .sui-q-rappel{font-weight:700;color:var(--ink-soft);font-size:.98rem;margin-top:22px}
+  .sui-tab{border-collapse:collapse;margin:4px auto 8px;font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink);background:#fff}
+  .sui-tab th{font-family:"Nunito";font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink-soft);background:var(--surface);font-style:italic}
+  .sui-tab th,.sui-tab td{border:1.5px solid var(--ink);padding:4px 16px;text-align:left;min-width:150px}
+  .sui-tab.sui-rappel{font-size:calc(1.1rem * var(--tab-nb,1));margin-left:0}
+  .sui-tab.sui-rappel th,.sui-tab.sui-rappel td{padding:2px 12px;min-width:120px}
+  .sui-phr{font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink);line-height:2.4;margin:2px 0;text-align:left}
+  .sui-phr .f-grp{display:inline-flex;gap:8px;vertical-align:middle}
+  #suiHost .f-eq{font-size:calc(1.35rem * var(--tab-nb,1))}
+  #suiHost math-field.pm-mf{min-width:88px;max-width:150px;font-size:calc(1.35rem * var(--tab-nb,1));line-height:1.15;vertical-align:middle}
+  .sui-mir{display:inline-block;min-width:64px;padding:0 10px;text-align:center;border-bottom:2px dashed var(--ink-soft);color:var(--blue-dark);line-height:1.3;vertical-align:baseline}
+  .sui-mir.sui-vide{color:var(--ink-soft)}
+  #suiHost .mf-cor{font-size:calc(1.1rem * var(--tab-nb,1))}
+  @media(max-width:520px){ .sui-phr,#suiHost math-field.pm-mf,#suiHost .f-eq,.sui-tab{font-size:calc(1.15rem * var(--tab-nb,1))} .sui-tab th,.sui-tab td{min-width:100px;padding:4px 10px} }
   /* ---- Développer avec la distributivité (7.9, thème Calcul littéral) ----
      La fiche « Développer » : le facteur entouré en ROUGE (pointillés), le
      premier terme en BLEU NUIT (pointillés), le second en VERT (trait plein),
@@ -3496,6 +3517,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   </section>
 
   <!-- TEST : PROBABILITÉS — {lire-probabilites} (3.1), TABLEAU À DOUBLE ENTRÉE (3.3) et {probabilites-fiche} (3.4), un même écran -->
+  <!-- SUITES : AUGMENTATION RÉGULIÈRE — TABLEAU ET CALCULS (7.1) — la fiche « Exercice augmentation tableau », demande de Turquet, novembre 2026 -->
+  <section class="screen" id="scr-sui">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagSui"></span><span class="q-idx" id="suiIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="suiLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="suiPrompt">Une quantit&eacute; qui change toujours de la m&ecirc;me valeur.</p>
+      <div class="mp-stage"><div style="width:100%" id="suiHost"></div></div>
+      <div class="mp-feedback" id="suiFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="suiActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkSuiAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-pbtest">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPb"></span><span class="q-idx" id="pbIdx">Question 1 / 13</span></span>
@@ -3753,7 +3790,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=407;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=408;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4353,6 +4390,9 @@ const TESTS={
   'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() },
   /* 3.10 (novembre 2026) : la fiche en deux parties de Turquet, fréquences puis probabilités */
   'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle ; Partie B, les mêmes calculs dits en probabilités : P(A ∩ D), P<sub>D</sub>(A)… Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
+  /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
+     tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
+  'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -4425,7 +4465,11 @@ const THEMES=[
      mot « image », sans tableau de valeurs. Un thème neuf, ajouté EN DERNIER,
      et le second exercice ajouté EN DERNIER dans le thème : rien ne se
      renumérote. */
-  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation'] }
+  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation'] },
+  /* Demande de Turquet, novembre 2026 : « en première faire un exercice comme
+     le pdf joint » (la fiche « Exercice augmentation tableau »). Un thème
+     neuf, ajouté EN DERNIER : il ne renumérote rien. */
+  { num:7, nom:'Suites', ids:['augmentation-tableau'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -4585,7 +4629,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='ima') startIma(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4868,6 +4912,7 @@ function liveCheckCurrent(){
   else if(k==='dvl') checkDvlAnswer(true);
   else if(k==='dvd') checkDvdAnswer(true);
   else if(k==='tsc') checkTscAnswer(true);
+  else if(k==='sui') checkSuiAnswer(true);
   else if(k==='tsf') checkTsfAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
@@ -5701,7 +5746,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], tsc:['tsc',renderTscTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -6104,7 +6149,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','sui','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -6733,6 +6778,8 @@ function restoreBoxes(boxes){
   });
   /* {revision-fractions} : les nombres divisés recopient des cases qu'on vient de remplir */
   if(test.kind==='rvf') rvfMiroirs();
+  /* {augmentation-tableau} : les cases suivantes d'une donnée recopient la case qu'on vient de remettre */
+  if(test.kind==='sui') suiMiroirs();
   /* la simplification par étapes du thème 4 : de même */
   if(test.etapes && SE_CFG[test.kind]) seMiroirs(test.kind);
 }
@@ -19096,6 +19143,333 @@ function litClavier(){
   try{ if(window.mlDexp && mlDexp.clavier) mlDexp.clavier(); }catch(e){}
 }
 
+/* ===== EXERCICE : AUGMENTATION RÉGULIÈRE — TABLEAU ET CALCULS ==============
+   (identifiant « augmentation-tableau », kind « sui », thème 7 — Suites, 7.1)
+   Demandé par Turquet en novembre 2026, d'après sa fiche papier « Exercice
+   augmentation tableau » (un salaire de 1 800 € qui augmente de 70 € par an :
+   compléter le tableau des années 0 à 3, calculer le salaire en 2036, trouver
+   l'année où il dépasse 3 200 €) : « en première faire un exercice comme le
+   pdf joint. Il faudra des thèmes différents que de l'argent sur un compte.
+   Il faudra des calculs très simples, faciles à faire de tête, avec des
+   nombres ayant un seul chiffre différent de zéro dans toutes les étapes de
+   l'exercice. Pour les phrases à compléter, à chaque question, quand une
+   donnée est complétée, la mettre sur les cases suivantes qui concernent la
+   même donnée dans cette question. »
+
+   UNE SÉANCE = SUI_NB CONTEXTES, CHACUN EN TROIS QUESTIONS, dans l'ordre de
+   la fiche : ① le tableau (les lignes 1 et 2, la ligne 3 est donnée pour se
+   vérifier), ② la valeur au bout de N pas (« Calculer … en 2031 »), ③ le pas
+   où l'on atteint un seuil (« En quelle année … ? »). Chaque question vaut un
+   point (la note de la Première se compte par question parfaite).
+
+   LE TIRAGE N'ÉCRIT QUE DES NOMBRES À UN SEUL CHIFFRE NON NUL — 100, 1 000,
+   50, 9, 10 000 —, à TOUTES les étapes : les quatre lignes du tableau, le
+   nombre de pas, le produit N × r, la somme, l'écart au seuil, le quotient.
+   La valeur de départ est a·10^k, le pas b·10^k (b positif ou négatif selon
+   le contexte) ; a, b, N (question ②) et p (question ③) sont tirés parmi les
+   combinaisons qui tiennent la règle (suiFamilles) : avec la hausse, a + 3b
+   ≤ 10 ; avec la baisse, a − 3b ≥ 1 ; N et p de 4 à 9, différents, N·b et p·b
+   à un chiffre, a ± N·b et a ± p·b à un chiffre (ou 10, qui s'écrit 1 000).
+   Les années (2031, 2035) et les heures (13 h, 17 h) sont des ÉTIQUETTES, pas
+   des nombres à calculer : la fiche écrit 2036 et 2046 de la même façon.
+
+   ON RANGE LE TIRAGE, JAMAIS LES RÉPONSES : suiVals(q) recalcule tout dans
+   la fonction même qui corrige. La question part en base pour la reprise
+   après pause : des nombres et des indices, pas de fonction (q.ci est
+   l'indice du contexte dans SUI_CTX).
+
+   LES CASES SUIVANTES RECOPIENT LA DONNÉE DÉJÀ ÉCRITE (la demande) : dans une
+   question, la PREMIÈRE case d'une donnée est celle où l'élève écrit ; les
+   suivantes qui parlent de la même donnée (le [n] de « en [n] années il y
+   aura [n] × [r] ») sont des miroirs (.sui-mir) qui la recopient à chaque
+   frappe (suiMiroirs), et après une reprise de pause (restoreBoxes). Un
+   miroir n'est pas une case : il ne se juge pas, ne compte pas dans la note,
+   ne se capture pas. Les contextes écrivent leurs phrases avec des jetons —
+   [n], [r], [p], [u0], [res], [e], [k], [fin] — et c'est suiPhrase() qui
+   décide, jeton par jeton, de la case ou du miroir ; « = [p] » passe par la
+   fabrique fEq, pour que le « = » ne se sépare jamais de sa case.
+
+   LE JUGE lit chaque case par parseDecToFrac (« 6 000 », « 6000 », « 50 % »
+   sont lus pareil) et la compare à l'entier attendu : chaque case a UNE bonne
+   réponse qui ne dépend d'aucune autre, une case juste ne rougit jamais pour
+   une voisine. corrChoix pose les verdicts (juste en bleu, faux en rouge avec
+   la bonne réponse en vert à côté, vide remplie en vert ; en soutien, rien
+   n'est révélé). Le soutien colore au fil de la frappe (liveColorDec). */
+const SUI_NB=2;            /* contextes par séance : 3 questions chacun — 6 questions */
+/* Les contextes. sens : +1 (une quantité qui augmente) ou −1 (qui diminue) ;
+   k : les puissances de 10 permises pour la valeur de départ ; aOk : la
+   contrainte propre au contexte (une batterie part toujours de 100 %) ;
+   tps : la façon d'étiqueter les pas — année (2026 + n), heure (h0 + n),
+   date (le jour 1 + n du mois). Chaque contexte écrit lui-même ses phrases,
+   avec les jetons que suiPhrase() remplace. Tous les nombres qu'elles
+   reçoivent sont déjà écrits en français (suiFmt). */
+const SUI_CTX=[
+  { nom:'les arbres du parc', sens:1, k:[2], tps:{type:'annee', t0:2026}, u:'arbres', pas:'année', pass:'années',
+    intro:(u0,r)=>`En 2026, le parc de la ville compte <b>${u0} arbres</b>. Chaque année, les jardiniers plantent <b>${r} arbres</b> de plus.`,
+    tabL:'Année', tabC:'Nombre d’arbres',
+    q2:(m)=>`Calculer le nombre d’arbres en ${m}.`,
+    p2:(m)=>[`Entre 2026 et ${m} il y a [n] années.`,
+             `Comme chaque année il y a [r] arbres de plus, en [n] années il y aura [n] × [r] = [p] arbres de plus.`,
+             `Donc en ${m} il y aura [u0] + [p] = [res] arbres.`],
+    q3:(T)=>`En quelle année le parc comptera-t-il ${T} arbres ?`,
+    p3:(T,u0)=>[`Entre ${T} arbres et ${u0} arbres il y a [e] arbres d’écart.`,
+                `Chaque année il y a [r] arbres de plus. Comme [e] = [r] × [k], pour avoir [e] arbres de plus il faudra [k] années.`,
+                `Donc ce sera en 2026 + [k] = [fin].`] },
+  { nom:'la batterie du téléphone', sens:-1, k:[1], aOk:(a,k)=>a===10, tps:{type:'heure', t0:8}, u:'%', pas:'heure', pass:'heures',
+    intro:(u0,r)=>`À 8 h, la batterie d’un téléphone est chargée à <b>${u0} %</b>. Chaque heure, elle perd <b>${r} %</b>.`,
+    tabL:'Heures écoulées', tabC:'Batterie en %',
+    q2:(m)=>`Calculer le niveau de la batterie à ${m}.`,
+    p2:(m)=>[`Entre 8 h et ${m} il y a [n] heures.`,
+             `Comme chaque heure la batterie perd [r] %, en [n] heures elle va perdre [n] × [r] = [p] %.`,
+             `Donc à ${m} la batterie sera à [u0] − [p] = [res] %.`],
+    q3:(T)=>`À quelle heure la batterie sera-t-elle à ${T} % ?`,
+    p3:(T,u0)=>[`Entre ${u0} % et ${T} % il y a [e] % d’écart.`,
+                `Chaque heure elle perd [r] %. Comme [e] = [r] × [k], pour perdre [e] %, il faudra [k] heures.`,
+                `Donc ce sera à 8 h + [k] h = [fin] h.`] },
+  { nom:'le remplissage de la piscine', sens:1, k:[3], tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
+    intro:(u0,r)=>`À 9 h, une piscine contient <b>${u0} L</b> d’eau. On la remplit avec un tuyau qui apporte <b>${r} L</b> par heure.`,
+    tabL:'Heures écoulées', tabC:'Eau en L',
+    q2:(m)=>`Calculer la quantité d’eau dans la piscine à ${m}.`,
+    p2:(m)=>[`Entre 9 h et ${m} il y a [n] heures.`,
+             `Comme chaque heure le tuyau apporte [r] L, en [n] heures il apportera [n] × [r] = [p] L.`,
+             `Donc à ${m} la piscine contiendra [u0] + [p] = [res] L.`],
+    q3:(T)=>`À quelle heure la piscine contiendra-t-elle ${T} L ?`,
+    p3:(T,u0)=>[`Entre ${T} L et ${u0} L il y a [e] L d’écart.`,
+                `Chaque heure le tuyau apporte [r] L. Comme [e] = [r] × [k], pour apporter [e] L, il faudra [k] heures.`,
+                `Donc ce sera à 9 h + [k] h = [fin] h.`] },
+  { nom:'le roman de Léa', sens:-1, k:[2], tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
+    intro:(u0,r)=>`Le 1<sup>er</sup> juin, il reste <b>${u0} pages</b> à lire à Léa dans son roman. Elle lit <b>${r} pages</b> chaque jour.`,
+    tabL:'Jour', tabC:'Pages restantes',
+    q2:(m)=>`Combien de pages lui restera-t-il à lire le ${m} ?`,
+    p2:(m)=>[`Entre le 1<sup>er</sup> juin et le ${m} il y a [n] jours.`,
+             `Comme chaque jour elle lit [r] pages, en [n] jours elle lira [n] × [r] = [p] pages.`,
+             `Donc le ${m} il lui restera [u0] − [p] = [res] pages.`],
+    q3:(T)=>`Quel jour ne lui restera-t-il plus que ${T} pages à lire ?`,
+    p3:(T,u0)=>[`Entre ${u0} pages et ${T} pages il y a [e] pages d’écart.`,
+                `Chaque jour elle lit [r] pages. Comme [e] = [r] × [k], pour lire [e] pages, il faudra [k] jours.`,
+                `Donc ce sera le 1 + [k] = [fin] juin.`] },
+  { nom:'la cuve d’eau de pluie', sens:-1, k:[2,3], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
+    intro:(u0,r)=>`Le 1<sup>er</sup> juillet, une cuve contient <b>${u0} L</b> d’eau de pluie. Chaque jour, on en utilise <b>${r} L</b> pour arroser le jardin.`,
+    tabL:'Jour', tabC:'Eau en L',
+    q2:(m)=>`Calculer la quantité d’eau dans la cuve le ${m}.`,
+    p2:(m)=>[`Entre le 1<sup>er</sup> juillet et le ${m} il y a [n] jours.`,
+             `Comme chaque jour on utilise [r] L, en [n] jours on utilisera [n] × [r] = [p] L.`,
+             `Donc le ${m} la cuve contiendra [u0] − [p] = [res] L.`],
+    q3:(T)=>`Quel jour ne restera-t-il plus que ${T} L dans la cuve ?`,
+    p3:(T,u0)=>[`Entre ${u0} L et ${T} L il y a [e] L d’écart.`,
+                `Chaque jour on utilise [r] L. Comme [e] = [r] × [k], pour utiliser [e] L, il faudra [k] jours.`,
+                `Donc ce sera le 1 + [k] = [fin] juillet.`] },
+  { nom:'les abonnés de la chaîne', sens:1, k:[3], tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
+    intro:(u0,r)=>`En 2026, une chaîne de vidéos compte <b>${u0} abonnés</b>. Chaque année, elle gagne <b>${r} abonnés</b> de plus.`,
+    tabL:'Année', tabC:'Nombre d’abonnés',
+    q2:(m)=>`Calculer le nombre d’abonnés en ${m}.`,
+    p2:(m)=>[`Entre 2026 et ${m} il y a [n] années.`,
+             `Comme chaque année la chaîne gagne [r] abonnés, en [n] années elle gagnera [n] × [r] = [p] abonnés.`,
+             `Donc en ${m} elle aura [u0] + [p] = [res] abonnés.`],
+    q3:(T)=>`En quelle année la chaîne aura-t-elle ${T} abonnés ?`,
+    p3:(T,u0)=>[`Entre ${T} abonnés et ${u0} abonnés il y a [e] abonnés d’écart.`,
+                `Chaque année elle gagne [r] abonnés. Comme [e] = [r] × [k], pour gagner [e] abonnés il faudra [k] années.`,
+                `Donc ce sera en 2026 + [k] = [fin].`] }
+];
+/* Un entier s'écrit avec ses espaces de milliers (espace fine insécable) :
+   « 1 000 », « 10 000 ». Les années restent nues. */
+function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+/* Un seul chiffre différent de zéro : 1 à 9, ou 10 (qui, multiplié par 10^k,
+   s'écrit 1 000). C'est la règle de la demande, en unités de 10^k. */
+function suiUn(x){ return Number.isInteger(x) && x>=1 && (x<=9 || x===10); }
+/* Toutes les combinaisons (a, b, k, N, p) d'un contexte qui tiennent la
+   règle à chaque étape : les lignes 1 à 3 du tableau, N·b, a ± N·b, p·b,
+   a ± p·b ; N et p de 4 à 9 (au-delà du tableau), différents. */
+function suiFamilles(c){
+  const out=[];
+  c.k.forEach(function(k){
+    for(let a=1;a<=10;a++) for(let b=1;b<=3;b++){
+      if(c.aOk && !c.aOk(a,k)) continue;
+      const v=n=>a+c.sens*n*b;
+      if(![1,2,3].every(n=>suiUn(v(n)))) continue;
+      for(let N=4;N<=9;N++){ if(!suiUn(N*b)||!suiUn(v(N))) continue;
+        for(let p=4;p<=9;p++){ if(p===N||!suiUn(p*b)||!suiUn(v(p))) continue;
+          out.push({a:a,b:b,k:k,N:N,p:p}); } }
+    }
+  });
+  return out;
+}
+/* Une question : le contexte, le tirage, et la partie (1 : le tableau,
+   2 : la valeur au bout de N pas, 3 : le pas du seuil). */
+function suiTirer(ci, part){
+  const f=pick(suiFamilles(SUI_CTX[ci]));
+  return {ci:ci, a:f.a, b:f.b, k:f.k, N:f.N, p:f.p, part:part||1};
+}
+/* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
+function suiMoment(c, n){
+  const t=c.tps;
+  if(t.type==='annee') return String(t.t0+n);
+  if(t.type==='heure') return (t.t0+n)+' h';
+  return (1+n)+' '+t.mois;
+}
+/* Tout ce que la question attend, recalculé du tirage. */
+function suiVals(q){
+  const c=SUI_CTX[q.ci], m=Math.pow(10,q.k), r=c.sens*q.b*m, u0=q.a*m;
+  const t=c.tps, fin=(t.type==='annee')?t.t0+q.p:(t.type==='heure'?t.t0+q.p:1+q.p);
+  return { c:c, u0:u0, r:r, rAbs:Math.abs(r),
+    t1:u0+r, t2:u0+2*r, t3:u0+3*r,
+    n:q.N, prod:q.N*Math.abs(r), res:u0+q.N*r,
+    e:q.p*Math.abs(r), kk:q.p, T:u0+q.p*r, fin:fin,
+    m2:suiMoment(c,q.N) };
+}
+/* Les cases d'une question, dans l'ordre d'écriture, avec l'entier attendu.
+   Le nom suit la convention xxxCases(q) que lit le réglage « Questions »
+   d'un devoir. */
+function suiCases(q){
+  const v=suiVals(q);
+  if(q.part===1) return [{id:'sui-t1', bon:v.t1}, {id:'sui-t2', bon:v.t2}];
+  if(q.part===2) return [{id:'sui-n', bon:v.n}, {id:'sui-r', bon:v.rAbs}, {id:'sui-p', bon:v.prod}, {id:'sui-u0', bon:v.u0}, {id:'sui-res', bon:v.res}];
+  return [{id:'sui-e', bon:v.e}, {id:'sui-r', bon:v.rAbs}, {id:'sui-k', bon:v.kk}, {id:'sui-fin', bon:v.fin}];
+}
+/* La séance : nQ questions, par contextes entiers (trois questions chacun),
+   les contextes sans remise tant qu'il y en a ; le tirage d'un contexte est
+   distinct de ceux déjà tirés (distincte : cleQuestion ignore ci). */
+function suiBuildQuestions(nQ){
+  const ordre=ensShuffle(SUI_CTX.map(function(_,i){ return i; }));
+  const nCtx=Math.ceil(nQ/3), qs=[], tires=[];
+  for(let i=0;i<nCtx;i++){
+    const ci=ordre[i%ordre.length];
+    const t=distincte(tires, function(){ return suiTirer(ci,1); });
+    tires.push(t);
+    [1,2,3].forEach(function(part){ qs.push(Object.assign({}, t, {part:part})); });
+  }
+  return qs.slice(0,nQ);
+}
+/* Une question seule, pour le banc du contexte IA (aide.ctx.kinds). */
+function genSui(){ return suiBuildQuestions(3)[1]; }
+/* Une phrase à jetons devient du HTML : la première case d'une donnée est
+   une case MathLive (id sui-<jeton>), les suivantes des miroirs ; « = [x] »
+   passe par fEq. « vus » traverse les phrases d'une même question. */
+function suiPhrase(txt, vus){
+  const un=function(tok){
+    if(vus[tok]){ return '<span class="sui-mir sui-vide" data-de="sui-'+tok+'" aria-hidden="true">…</span>'; }
+    vus[tok]=true;
+    return pmMF('', 'sui-'+tok, ' aria-label="'+esc(SUI_LIB[tok]||tok)+'"');
+  };
+  /* les jetons se lisent dans l'ordre du texte : c'est lui qui décide de la
+     première case — « [r] … Comme [e] = [r] » : le second r est le miroir */
+  return '<p class="sui-phr">'+txt.replace(/(= )?\[(\w+)\]/g, function(_,eq,tok){ return eq ? fEq(un(tok)) : un(tok); })+'</p>';
+}
+const SUI_LIB={ n:'le nombre de pas', r:'de combien on change à chaque pas', p:'le produit', u0:'la valeur de départ', res:'le résultat',
+  e:'l’écart', k:'le nombre de pas pour combler l’écart', fin:'le moment cherché', t1:'la ligne 1 du tableau', t2:'la ligne 2 du tableau' };
+/* Le tableau de la question ① — avec ses deux cases, ou rempli (questions ②
+   et ③, en rappel). */
+function suiTableau(q, rempli){
+  const v=suiVals(q), c=v.c;
+  const cell=function(i,val,id){ return '<tr><td>'+i+'</td><td>'+(id?pmMF('',id,' aria-label="'+esc(SUI_LIB[id.slice(4)])+'"'):suiFmt(val))+'</td></tr>'; };
+  return '<table class="sui-tab'+(rempli?' sui-rappel':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
+    +cell(0,v.u0)+cell(1,v.t1,rempli?'':'sui-t1')+cell(2,v.t2,rempli?'':'sui-t2')+cell(3,v.t3)+'</table>';
+}
+/* Les miroirs recopient la case dont ils dépendent — à chaque frappe, et à
+   la reprise d'une pause (restoreBoxes). Le miroir d'une case vide montre
+   des points de suspension. */
+function suiMiroirs(){
+  if(!test || test.kind!=='sui') return;
+  document.querySelectorAll('#suiHost .sui-mir').forEach(function(m){
+    const src=$(m.dataset.de); const v=src?String(src.value==null?'':src.value).trim():'';
+    m.textContent=v===''?'…':v; m.classList.toggle('sui-vide', v==='');
+  });
+}
+function renderSuiTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const v=suiVals(q), c=v.c;
+  $('suiIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagSui').innerHTML=modeTagHTML();
+  $('suiLiveScore').textContent=test.score;
+  $('suiFeedback').textContent=''; $('suiFeedback').className='mp-feedback';
+  $('suiActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuiAnswer()">Vérifier</button>';
+  $('suiPrompt').innerHTML=c.intro(suiFmt(v.u0), suiFmt(v.rAbs));
+  let h='';
+  const vus={};
+  if(q.part===1){
+    h+='<div class="sui-q">1. Compléter le tableau.</div>'+suiTableau(q,false);
+  } else if(q.part===2){
+    h+='<div class="sui-q">2. '+c.q2(v.m2)+'</div>';
+    h+=c.p2(v.m2).map(function(t){ return suiPhrase(t,vus); }).join('');
+  } else {
+    h+='<div class="sui-q">3. '+c.q3(suiFmt(v.T))+'</div>';
+    h+=c.p3(suiFmt(v.T), suiFmt(v.u0)).map(function(t){ return suiPhrase(t,vus); }).join('');
+  }
+  if(q.part!==1) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);
+  $('suiHost').innerHTML=h;
+  const cases=suiCases(q).map(function(x){ return $(x.id); }).filter(Boolean);
+  cases.forEach(function(el){
+    el.addEventListener('input', function(){ suiMiroirs(); if(isSoutien()) checkSuiAnswer(true);
+      clearTimeout(test.suiSave); test.suiSave=setTimeout(autoSave,1000); });
+  });
+  suiMiroirs();
+  setTimeout(function(){ try{ if(cases[0] && !cases[0].disabled) cases[0].focus(); }catch(e){} },70);
+}
+/* Le pourquoi : le calcul de CETTE question, étape par étape. */
+function suiPourquoi(q){
+  const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−', pl=c.sens>0?'ajoute':'retire';
+  if(q.part===1) return 'À chaque '+c.pas+', on '+pl+' '+suiFmt(v.rAbs)+' : '+suiFmt(v.u0)+' → '+suiFmt(v.t1)+' → '+suiFmt(v.t2)+' → '+suiFmt(v.t3)+'.';
+  if(q.part===2) return 'Il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.';
+  return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk)+'.';
+}
+function checkSuiAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], cases=suiCases(q);
+  if(live){   /* soutien : on ne juge que les cases déjà remplies */
+    if(!isSoutien()) return;
+    cases.forEach(function(x){ liveColorDec(x.id, x.bon, 1); });
+    return;
+  }
+  const subs=cases.map(function(x){ const el=$(x.id), s=el?String(el.value==null?'':el.value).trim():'', fr=parseDecToFrac(s);
+    return {c:x, el:el, vide:s==='', ok:!!fr && fr.n===x.bon*fr.d}; });
+  const allOk=subs.every(function(s){ return s.ok; });
+  const pourquoi=suiPourquoi(q);   /* lu AVANT la correction, qui écrit dans les cases */
+  subs.forEach(function(s){ corrChoix(s.el, String(s.c.bon), s.ok); });
+  suiMiroirs();   /* les miroirs suivent la correction écrite en vert */
+  if(!allOk && isSoutien()){ soutienAgain('suiFeedback','suiActions','checkSuiAnswer','suiHost'); return; }
+  test.locked=true;
+  if(allOk) test.score++; $('suiLiveScore').textContent=test.score;   /* un point par question parfaite */
+  if(allOk){ $('suiFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('suiFeedback').className='mp-feedback good'; }
+  else { $('suiFeedback').textContent=msgAvecVides(subs, pourquoi); $('suiFeedback').className='mp-feedback bad'; }
+  const v=suiVals(q);
+  test.answers.push({...(ptsExo()||{}), correct:allOk,
+    q:v.c.nom+' — question '+q.part,
+    answer:cases.map(function(x){ return x.id.slice(4)+' = '+x.bon; }).join(' ; '),
+    given:subs.map(function(s){ return s.c.id.slice(4)+' = '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; ')});
+  const last=test.idx===test.questions.length-1;
+  $('suiActions').innerHTML='<button class="btn btn-primary" id="suiNext" onclick="nextSuiQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('suiNext'); if(nb) nb.focus();
+}
+function nextSuiQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSuiTest(); autoSave(); } else finishTest(); }
+function startSui(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=suiBuildQuestions(dmNbQuestions(SUI_NB*3));
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'sui', questions:qs, idx:0, score:0,
+    maxScore:qs.length, answers:[], startTime:Date.now(),
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='augmentation-tableau';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('sui'); renderSuiTest();
+}
+/* Le contexte envoyé au modèle : l'énoncé, la question, les réponses
+   attendues (secrètes), la méthode, et ce que l'élève a écrit. */
+function ctxSui(q){
+  const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−';
+  const ecrit=function(id){ const el=$(id); const s=el?String(el.value==null?'':el.value).trim():''; return s===''?'(vide)':s; };
+  let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs)).replace(/<[^>]+>/g,'')+' ';
+  t+='Une quantité qui change toujours de la même valeur à chaque '+c.pas+' : la valeur au bout de n pas est la valeur de départ '+sg+' n × '+suiFmt(v.rAbs)+'. ';
+  if(q.part===1) t+='Question 1 : compléter le tableau des pas 0 à 3 (le pas 0 vaut '+suiFmt(v.u0)+', le pas 3 vaut '+suiFmt(v.t3)+', donnés). Réponses attendues, STRICTEMENT SECRÈTES : pas 1 = '+suiFmt(v.t1)+', pas 2 = '+suiFmt(v.t2)+'. ';
+  else if(q.part===2) t+='Question 2 : '+c.q2(v.m2)+' Phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. ';
+  else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk)+' (case : '+v.fin+'). ';
+  t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
+  t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
+  const ecrits=suiCases(q).map(function(x){ return x.id.slice(4)+' : '+ecrit(x.id); });
+  if(typeof document!=='undefined' && $('suiHost')) t+='Ce que l’élève a écrit : '+ecrits.join(' ; ')+'.';
+  return {nombre:'', contexte:t};
+}
+
 /* ===== EXERCICE : RÉDUIRE CHAQUE PRODUIT AVEC x ==============================
    (identifiant « reduire-produit », kind « rpd », thème 7.8 — Calcul littéral)
    Demandé par Turquet en septembre 2026, d'après une fiche papier « Réduire
@@ -30169,6 +30543,12 @@ Bloqué sur une question rédigée ? Le bouton <b>Aide méthode</b> affiche les 
 const RAP_SGL=`<b>Synthèse générale rédigée : deux familles de questions, deux rédactions</b><br>
 Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme dans {synthese-pourcentages-libre} : tu choisis la proposition, puis tu JUSTIFIES en écrivant ta vérification. Une question sur <b>deux évolutions successives</b>, comme dans {synthese-evolutions-successives-libre} : tu RÉDIGES tout le calcul, puis tu conclus en mots. Dans les deux cas, la feuille est celle de {synthese-diminutions-libre-dix} : la barre d’espace écrit une espace, la touche % est sur le clavier.<br><br>`+RAP_SPL+`<br><br>`+RAP_ESL;
 /* Le calcul littéral (5.1 à 5.3) : les rappels de la Seconde, et la question rédigée */
+/* 7.1 {augmentation-tableau} : la méthode de la fiche, sans ses nombres. */
+const RAP_SUI=`<b>Une quantité qui change toujours de la même valeur</b><br>
+<b>① Le tableau.</b> À chaque pas (une année, une heure, un jour), on <b>ajoute</b> — ou on <b>retire</b> — toujours le <b>même nombre</b> : la ligne suivante, c'est la ligne d'avant + ce nombre. La dernière ligne est donnée : elle sert à se vérifier.<br>
+<b>② La valeur au bout de plusieurs pas.</b> On compte d'abord <b>le nombre de pas</b> (entre 2026 et 2031, il y a 5 années). On multiplie ce nombre par la valeur d'un pas : c'est de combien on a changé en tout. Puis on l'<b>ajoute</b> à la valeur de départ (ou on le <b>retire</b>, si la quantité diminue).<br>
+<b>③ Atteindre un seuil.</b> On calcule <b>l'écart</b> entre le seuil et la valeur de départ. Puis on cherche <b>par combien multiplier</b> la valeur d'un pas pour obtenir cet écart : c'est le nombre de pas qu'il faut. On l'ajoute au moment de départ.<br>
+Tous les nombres n'ont qu'un seul chiffre différent de zéro : <b>tout se calcule de tête</b>. Et une donnée déjà écrite dans une question se recopie d'elle-même dans les cases suivantes qui en parlent.`;
 const RAP_RPD=`<b>Réduire un produit avec x</b><br>
 <b>① Le signe d'abord : la règle des signes.</b> Deux signes <b>pareils</b> donnent <b>+</b> ; deux signes <b>contraires</b> donnent <b>−</b>. Comme pour multiplier deux nombres relatifs.<br>
 <b>② Puis les coefficients se multiplient</b>, sans leurs signes : dans (−3<i>x</i>) × (−5<i>x</i>), on calcule 3 × 5 = 15.<br>
@@ -30195,7 +30575,7 @@ const RAP_FPB=`<b>Fréquences, puis probabilités, dans un tableau d’effectifs
 <b>En probabilités.</b> On choisit une pièce au hasard : sa probabilité est la fréquence. \\(P(A\\cap D)=\\dfrac{A\\cap D}{\\text{tout}}\\) (« et », sans condition) ; \\(P_D(A)=\\dfrac{A\\cap D}{D}\\) (« sachant que », « parmi » : la condition s’écrit en indice).<br>
 <b>Une intersection.</b> « Provenant de A ET présentant un défaut » : on compte \\(A\\cap D\\) dans toute la production, \\(\\dfrac{A\\cap D}{\\text{effectif total}}\\) — aucun « parmi », le dénominateur reste le total.<br>
 Piège classique : diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle — le dénominateur est l’effectif du groupe où l’on se place.`;
-const RAPPELS_ID={ 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'augmentation-tableau':RAP_SUI, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -30224,6 +30604,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
+  sui:["Comment compter le nombre d’années entre 2026 et 2031 ?","Pourquoi multiplie-t-on le nombre d’années par ce qu’on gagne chaque année ?","Comment trouver combien d’années il faut pour atteindre un seuil ?","Que faire quand la quantité diminue au lieu d’augmenter ?"],
   rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
@@ -30720,6 +31101,7 @@ function conseilCtxCourant(){
   if(k==='pqd' && q) att=q.redac ? sfrCtxTexte(q) : ctxPqd(q).contexte;
   if(k==='rpd' && q) att=ctxRpd(q).contexte;
   if(k==='ima' && q) att=ctxIma(q).contexte;
+  if(k==='sui' && q) att=ctxSui(q).contexte;
   if(k==='dvl' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvl(q).contexte;
   if(k==='dvd' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvd(q).contexte;
   if(k==='tsc' && q) att=ctxTsc(q).contexte;
@@ -30998,7 +31380,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderSuiTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
