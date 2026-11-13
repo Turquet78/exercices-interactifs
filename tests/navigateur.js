@@ -7503,6 +7503,9 @@ if(require.main === module) (async () => {
             for(let i = 0; i < 40; i++){
               if(moteur === 'lv'){
                 host.innerHTML = (i % 2) ? lvGraphSVG(lvGenPts(i % 3 ? 2 : 3).pts) : adrSVG({ pts: adrGenPts() });
+              } else if(moteur === 'ima'){
+                /* la Première : la courbe de la Seconde, le chemin de lecture par-dessus */
+                host.innerHTML = imaGraphSVG({ pts: lvGenPts(i % 3 ? 2 : 3).pts, x0: [-3, -2, -1, 1, 2, 3][i % 6] });
               } else {
                 const roots = (i % 2) ? [[-2, -1, 0, 1, 2][i % 5]] : [-2, [0, 1, 2][i % 3]];
                 host.innerHTML = afGraphSVG(afpCourbeDer(roots, (i % 4 < 2) ? 1 : -1), i % 3 !== 0);
