@@ -710,7 +710,7 @@ suffixée, produit du 3.8, cases de tableau. Vérifié dans Chromium : 36/69
 pour 12/23 au 3.2, 36/132 pour 12/44 au 3.6 comptés « Parfait » ; la fiche du
 3.3 aux fractions doublées, 7/7.
 
-## {frequences-probabilites} (3.10, v404) : fréquences, puis probabilités — la fiche en deux parties
+## {frequences-probabilites} (3.10, v405) : fréquences, puis probabilités — la fiche en deux parties
 
 Demande de Turquet (novembre 2026), d'après sa fiche papier « proba tableau
 et fréquence » : « en première faire un exercice comme le pdf dans le thème

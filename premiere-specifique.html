@@ -788,7 +788,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1517,6 +1517,69 @@ i.pb-P{margin-right:.14em}
   .dvl-mk{color:#C81E25;border-color:#D9262B}
   .dvl-ma{color:#1F3864;border-color:#1F3864}
   .dvl-mb{color:#157A3E;border-color:#1A9A4A;border-style:solid}
+  /* ---- Thème 6, Étude de fonction : {tableau-signes-courbe}, porté du
+     tableau de signes graphique de la Seconde (demande de Turquet, novembre
+     2026). Le dessin est celui de la lecture graphique de la Seconde (famille
+     .lv-*), les cases sont ses listes (.itv-sel) : bleu juste, rouge faux,
+     vert correction — les classes, pas les couleurs, sont celles de la
+     Seconde ; la feuille de styles les peint comme partout ici. ---- */
+  .lv-graph{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:6px 4px 2px;margin:0 0 16px;overflow-x:auto}
+  .lv-svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
+  .lv-grid{stroke:var(--grid);stroke-width:1}
+  .lv-axis{stroke:var(--ink-soft);stroke-width:1.4}
+  .lv-axfill{fill:var(--ink-soft)}
+  .lv-ax{font-family:'Nunito',sans-serif;font-size:12px;fill:var(--ink-soft)}
+  .lv-curve{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+  .lv-cf{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:15px;fill:var(--blue)}
+  .itv-fiche{display:flex;flex-direction:column;gap:12px;align-items:center;width:100%}
+  .itv-ligne{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;width:100%;max-width:560px;box-sizing:border-box;background:#F7FAFF;border:1.5px solid #DCE7FB;border-radius:14px;padding:10px 14px}
+  .itv-lbl{font-family:"Fredoka";font-weight:600;color:var(--blue-dark);font-size:.95rem;white-space:nowrap}
+  .itv-corps{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--ink)}
+  .itv-fixe{color:var(--blue-dark)}
+  /* La feuille pose « select{width:100%} » : sans largeur explicite, chaque
+     case s'étirerait sur toute la ligne. */
+  .itv-sel{flex:0 0 auto;appearance:none;-webkit-appearance:none;text-align:center;text-align-last:center;width:62px;padding:0 6px;height:44px;font-family:"Fredoka";font-weight:600;font-size:1.2rem;color:var(--blue-dark);background:#F3F7FF;border:2px solid #BBD0F7;border-radius:12px;outline:none;cursor:pointer}
+  .itv-sel:focus{border-color:var(--blue);background:#EAF2FF;box-shadow:0 0 0 4px rgba(43,80,200,.16)}
+  /* « ok » et non « good » : ptsEcran() ne compte que les cases « ok », « bad » ou « sol » */
+  .itv-sel.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .itv-sel.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .itv-sel.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  .itv-sel:disabled{opacity:1;cursor:default}
+  .itq-ineg{font-family:"Fredoka";font-weight:600;font-size:2rem;color:var(--blue-dark);text-align:center;letter-spacing:.02em;padding:10px 14px;background:#fff;border:1.5px solid #DCE7FB;border-radius:14px;width:100%;max-width:560px;box-sizing:border-box}
+  /* la partie AU-DESSUS de l'axe en rouge (f>0), EN DESSOUS en bleu (f<0) —
+     même épaisseur, aucune moitié ne domine l'autre ; et le SIGNE écrit sur
+     chaque morceau porte l'encre de son morceau */
+  .tsg-pos{stroke:#E5232B;stroke-width:4;fill:none;stroke-linecap:round}
+  .tsg-neg{stroke:var(--blue);stroke-width:4;fill:none;stroke-linecap:round}
+  .tsc-signe{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px}
+  .tsc-signe-pos{fill:#E5232B}
+  .tsc-signe-neg{fill:var(--blue)}
+  /* les mots « rouge » et « bleu » de l'énoncé portent LEUR encre : la règle
+     « .mp-instr b » peint tous les gras en rouge, et « bleu » écrit en rouge
+     dirait l'inverse de ce que l'exercice enseigne */
+  .tsg-mot-rouge{color:#E5232B;font-weight:800}
+  .tsg-mot-bleu{color:var(--blue);font-weight:800}
+  /* « width:100% » et non la seule max-width : dans une colonne flex, un
+     enfant prend sa largeur INTRINSÈQUE — le dessin resterait à 300 px */
+  .tsg-graph{width:100%;max-width:620px;margin:0 auto 14px}
+  .tsg-graph .lv-svg{max-width:600px}
+  /* le tableau de signes « comme en Terminale » : traits horizontaux, trait
+     vertical aux seules racines (le 0 posé dessus) */
+  .tsg-corps{flex-direction:column;align-items:flex-start}
+  .tsg-tbl{width:100%;max-width:560px;border-collapse:collapse;table-layout:fixed;background:var(--surface);margin-top:6px}
+  .tsg-tbl td{border:none;border-bottom:1.6px solid var(--grid);padding:10px 5px;text-align:center;vertical-align:middle;font-size:.95rem}
+  .tsg-tbl tr:first-child td{border-top:1.6px solid var(--grid)}
+  .tsg-tbl td.lab{text-align:right;font-weight:700;color:var(--ink);background:var(--paper);white-space:nowrap;width:27%;font-size:.9rem;border-right:1.6px solid var(--grid)}
+  .tsg-tbl td.bnd{font-weight:700;color:var(--ink-soft)}
+  .tsg-tbl td.tsg-bl{text-align:left}
+  .tsg-tbl td.tsg-br{text-align:right}
+  .tsg-tbl td.tsg-root{font-weight:800;color:var(--ink)}
+  .tsg-tbl td.tsg-zero{font-weight:800;color:var(--ink);background:linear-gradient(var(--ink-soft),var(--ink-soft)) center/2px 100% no-repeat}
+  .tsg-tbl td.tsg-zero span{display:inline-block;background:var(--surface);padding:2px 7px}
+  .tsg-tbl .itv-sel{width:64px;min-width:64px}
+  /* la ligne de l'équation ne doit pas se replier dans la colonne de 560 px */
+  #scr-tsc .itv-ligne{max-width:1160px}
+  @media(max-width:520px){ .itq-ineg{font-size:1.5rem} .itv-ligne{grid-template-columns:1fr;padding:8px 10px} .itv-corps{font-size:1.05rem;gap:5px} .itv-sel{width:48px;height:40px;font-size:1.05rem;padding:0 2px} }
   .dvl-page{display:flex;justify-content:center;width:100%}
   .dvl-schema{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:100%;overflow-x:auto;
     padding:46px 14px 10px;font-family:"Fredoka";font-weight:600;font-size:1.45rem;color:var(--blue-dark);font-variant-numeric:tabular-nums}
@@ -3359,6 +3422,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- ÉTUDE DE FONCTION (6.1) : le tableau de signes lu sur une courbe à deux encres — porté du tableau de signes graphique de la Seconde -->
+  <section class="screen" id="scr-tsc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagTsc"></span><span class="q-idx" id="tscIdx">Question 1 / 5</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tscLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr">Sur le dessin, la partie de la courbe <span class="tsg-mot-rouge">au-dessus</span> de l&rsquo;axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span>&nbsp;; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">&minus;</span>. Compl&egrave;te le tableau de signes &mdash; les racines et les z&eacute;ros sont d&eacute;j&agrave; &eacute;crits, tu ne places que les signes &mdash;, puis r&eacute;sous l&rsquo;&eacute;quation <i>f</i>&nbsp;(<i>x</i>) = 0.</p>
+      <div class="mp-stage"><div style="width:100%" id="tscHost"></div></div>
+      <div class="mp-feedback" id="tscFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center">
+        <span id="tscActions" style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-primary" type="button" onclick="checkTscAnswer()">V&eacute;rifier</button></span>
+      </div>
+    </div>
+  </section>
+
   <!-- FRACTIONS : RÉVISER LES QUATRE RÈGLES (4.1) — porté de la Seconde (5.11) -->
   <section class="screen" id="scr-rvf">
     <div class="test-top">
@@ -3635,7 +3714,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=404;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=405;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4223,6 +4302,7 @@ const TESTS={
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'developper-distributivite': { name:'D\u00e9velopper avec la distributivit\u00e9', icon:'\u21aa\ufe0f', desc:'k \u00d7 (a + b) = k \u00d7 a + k \u00d7 b, en suivant les fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade. Six expressions, la derni\u00e8re \u00e0 r\u00e9duire, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvl() },
   'developper-double': { name:'D\u00e9velopper avec la double distributivit\u00e9', icon:'\ud83d\udd00', desc:'(a + b) \u00d7 (c + d) = a \u00d7 c + a \u00d7 d + b \u00d7 c + b \u00d7 d, en suivant les quatre fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade, puis la forme r\u00e9duite. Quatre expressions, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvd() },
+  'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Une courbe dont la partie au-dessus de l’axe des abscisses est en ROUGE et porte le signe +, la partie en dessous en BLEU et porte le signe −. Place les signes dans le tableau — les racines et les zéros sont donnés —, puis résous f (x) = 0. Cinq courbes.', start:()=>startTsc() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -4294,7 +4374,12 @@ const THEMES=[
      d'une question rédigée. Ajouté EN DERNIER, il ne renumérote rien ; les
      identifiants sont ceux de la Seconde (les tables des deux niveaux sont
      séparées). */
-  { num:5, nom:'Calcul litt\u00e9ral', ids:['reduire-produit','developper-distributivite','developper-double'] }
+  { num:5, nom:'Calcul litt\u00e9ral', ids:['reduire-produit','developper-distributivite','developper-double'] },
+  /* Demande de Turquet, novembre 2026 : « en première dans un nouveau thème
+     étude de fonction, faire un exercice comme le 3.3.4 de seconde » — le
+     tableau de signes lu sur une courbe, les signes écrits sur le dessin.
+     Ajouté EN DERNIER, il ne renumérote rien. */
+  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe'] }
 ];
 /* « ids » reste la liste plate des exercices du thème, dans l'ordre : tout le reste du
    fichier (côté prof, comptages, devoirs) ne connaît que celle-là et n'a pas à savoir
@@ -4454,7 +4539,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4735,6 +4820,7 @@ function liveCheckCurrent(){
   else if(k==='rpd') checkRpdAnswer(true);
   else if(k==='dvl') checkDvlAnswer(true);
   else if(k==='dvd') checkDvdAnswer(true);
+  else if(k==='tsc') checkTscAnswer(true);
   else if(k==='tsf') checkTsfAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
@@ -5568,7 +5654,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], tsc:['tsc',renderTscTest], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -5971,7 +6057,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -18400,6 +18486,450 @@ async function checkSFR(){
 /* Ce que les deux aides savent de la question rédigée. */
 function sfrCtxTexte(q){ return redMath(q).ctx; }
 
+/* ===== THÈME 6 — ÉTUDE DE FONCTION : le tableau de signes lu sur une courbe =====
+   {tableau-signes-courbe} (Première, 6.1 — demande de Turquet, novembre 2026 :
+   « en première dans un nouveau thème étude de fonction, faire un exercice
+   comme le 3.3.4 de seconde mais il faudra mettre les signes + et − sur les
+   parties des courbes correspondantes sur le dessin. Il faudra supprimer les
+   deux phrases à compléter avec f(x) > 0 et f(x) < 0. On laissera le tableau à
+   compléter et l'équation f(x) = 0 à compléter. On supprimera donc les
+   dernières lignes sur la résolution d'inéquation. »)
+   Une courbe dont la partie AU-DESSUS de l'axe des abscisses est en ROUGE et
+   porte un « + », la partie EN DESSOUS en BLEU et porte un « − ». L'élève
+   place les signes dans un tableau de signes dont les racines et les zéros
+   sont donnés, puis résout f(x) = 0 (S = { … ; … }, la règle des paires).
+   Ni phrase couleur/signe, ni inéquation : le signe est ÉCRIT sur le dessin.
+   LE DESSIN EST CELUI DE LA SECONDE, recopié tel quel (lvGenPts, lvAnalyze,
+   lvTangents, lvPath, lvEchantillon, etqLibre, etqCandidats, lvGraphSVG — la
+   famille « lv » de {lecture-variations}, et le placement de « Cf » hors de
+   la courbe et des axes), comme les cases de la famille .itv-sel (itvSelHTML,
+   itvNum) : corrChoix et msgAvecVides, déjà partagées, les corrigent.
+   LE TIRAGE EST CELUI DU 3.3.4 DE LA SECONDE (tscOkPts, le filtre posé à la
+   hauteur zéro) : exactement deux racines intérieures, chacune un vrai
+   CROISEMENT, zéro jamais traversé entre deux graduations ; les DEUX visages
+   (+ − + et − + −) sortent dans chaque séance d'au moins deux questions.
+   La question ne porte QUE la courbe (pts) : tout se recalcule par les
+   fonctions qui corrigent.
+   LA NOTE EST CELLE DE LA PREMIÈRE : un point par question PARFAITE
+   (finishTest compte total = test.questions.length), les cases justes vont au
+   crédit partiel (ptsExo) ; « Exercices parfaits » en tête, comme les
+   fractions et le calcul littéral. */
+function numFmt(n){ return n<0 ? '−'+Math.abs(n) : String(n); }
+/* Le signe moins typographique, celui des listes : un nombre écrit « −2 » dans
+   la liste et « -2 » sur l'axe se lirait comme deux nombres. */
+function itvNum(v){ return v<0 ? '−'+Math.abs(v) : String(v); }
+function itvSelHTML(id,opts,aria,cls){
+  return '<select class="itv-sel'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(aria)+'">'
+    +'<option value="" selected disabled>?</option>'
+    +opts.map(o=>'<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>').join('')
+    +'</select>';
+}
+function lvPickSubset(arr, m){
+  if(m<=0) return [];
+  if(m>=arr.length) return arr.slice();
+  const idx=arr.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=idx[i]; idx[i]=idx[j]; idx[j]=t; }
+  return idx.slice(0,m).sort((a,b)=>a-b).map(i=>arr[i]);
+}
+/* Génère 7 valeurs entières f(-3..3) formant k segments monotones (k=2 ou 3),
+   valeurs dans [-3,3], changements de sens à des abscisses entières. */
+function lvGenPts(k){
+  const FALL2=[[-3,-1,1,3,1,-1,-3],[3,1,-1,-3,-1,1,3],[-2,0,2,3,2,0,-2]];
+  const FALL3=[[-3,-1,2,0,-2,0,2],[2,0,-2,0,2,0,-2],[-2,0,3,1,-1,1,3]];
+  for(let att=0; att<600; att++){
+    let turns;
+    if(k===2){ turns=[pick([1,2,3,4,5])]; }
+    else{ const a=pick([1,2,3]); const opts=[a+2,a+3,a+4].filter(v=>v<=5); if(!opts.length) continue; turns=[a,pick(opts)]; }
+    const nodeIdx=[0].concat(turns,[6]);
+    const d0=pick([1,-1]);
+    const segDir=[]; for(let s=0;s<nodeIdx.length-1;s++) segDir.push(d0*(s%2===0?1:-1));
+    const y=new Array(7);
+    y[0] = d0>0 ? pick([-3,-2,-1]) : pick([1,2,3]);
+    let ok=true;
+    for(let s=0;s<nodeIdx.length-1 && ok;s++){
+      const ai=nodeIdx[s], bi=nodeIdx[s+1], dir=segDir[s], len=bi-ai, cur=y[ai];
+      const cands=[]; for(let v=-3; v<=3; v++){ if(dir>0 ? (v-cur>=len) : (cur-v>=len)) cands.push(v); }
+      if(!cands.length){ ok=false; break; }
+      const end=pick(cands);
+      const lo=Math.min(cur,end), hi=Math.max(cur,end);
+      const inner=[]; for(let v=lo+1; v<=hi-1; v++) inner.push(v);
+      if(inner.length < len-1){ ok=false; break; }
+      const chosen=lvPickSubset(inner, len-1);
+      const seq = dir>0 ? chosen : chosen.slice().reverse();
+      for(let t=1;t<len;t++) y[ai+t]=seq[t-1];
+      y[bi]=end;
+    }
+    if(!ok) continue;
+    const mn=Math.min.apply(null,y), mx=Math.max.apply(null,y);
+    if(mx-mn<4 || mn<-3 || mx>3) continue;
+    if(lvAnalyze(y).segments.length!==k) continue;
+    return {pts:y};
+  }
+  const fb = k===2?pick(FALL2):pick(FALL3);
+  return {pts:fb.slice()};
+}
+/* À partir des 7 valeurs, retrouve nœuds (bornes + sommets) et segments avec leur sens. */
+function lvAnalyze(pts){
+  const xs=[-3,-2,-1,0,1,2,3];
+  const d=[]; for(let i=0;i<6;i++) d.push(Math.sign(pts[i+1]-pts[i]));
+  const turnIdx=[]; for(let i=1;i<=5;i++){ if(d[i-1]!==d[i]) turnIdx.push(i); }
+  const nodeIdx=[0].concat(turnIdx,[6]);
+  const nodes=nodeIdx.map(i=>({x:xs[i], y:pts[i]}));
+  const segments=[]; for(let s=0;s<nodeIdx.length-1;s++){ const a=nodeIdx[s], b=nodeIdx[s+1]; segments.push({fromX:xs[a], toX:xs[b], dir: pts[b]>pts[a]?'croissante':'décroissante'}); }
+  return {xs, dir:d, turnIdx, nodeIdx, nodes, segments};
+}
+/* Spline cubique monotone (Fritsch–Carlson), tangente nulle aux sommets -> jolis extrema arrondis. */
+function lvTangents(pts){
+  const n=pts.length, d=[];
+  for(let i=0;i<n-1;i++) d.push(pts[i+1]-pts[i]);
+  const m=new Array(n); m[0]=d[0]; m[n-1]=d[n-2];
+  for(let i=1;i<n-1;i++){ m[i] = (Math.sign(d[i-1])!==Math.sign(d[i])) ? 0 : (d[i-1]+d[i])/2; }
+  for(let i=0;i<n-1;i++){
+    if(d[i]===0){ m[i]=0; m[i+1]=0; continue; }
+    const a=m[i]/d[i], b=m[i+1]/d[i], s=a*a+b*b;
+    if(s>9){ const t=3/Math.sqrt(s); m[i]=t*a*d[i]; m[i+1]=t*b*d[i]; }
+  }
+  return m;
+}
+/* lvPath sait ne dessiner qu'un MORCEAU de la courbe (de la graduation ia à la
+   graduation ib) : les tangentes restent calculées sur la courbe ENTIÈRE, si
+   bien que le morceau se superpose exactement au tout — c'est ce qui permet de
+   poser le rouge et le bleu par-dessus. */
+function lvPath(pts, sx, sy, ia, ib){
+  const xs=[-3,-2,-1,0,1,2,3], m=lvTangents(pts);
+  const a=(ia==null)?0:ia, b=(ib==null)?6:ib;
+  let d='M '+sx(xs[a]).toFixed(1)+' '+sy(pts[a]).toFixed(1);
+  for(let i=a;i<b;i++){
+    const x0=xs[i],x1=xs[i+1],y0=pts[i],y1=pts[i+1];
+    d+=' C '+sx(x0+1/3).toFixed(1)+' '+sy(y0+m[i]/3).toFixed(1)+' '+sx(x1-1/3).toFixed(1)+' '+sy(y1-m[i+1]/3).toFixed(1)+' '+sx(x1).toFixed(1)+' '+sy(y1).toFixed(1);
+  }
+  return d;
+}
+/* L'étiquette « Cf » : sa boîte (en px), posée hors de la courbe et des axes
+   — le placement de la Seconde, recopié tel quel. */
+const ETQ_W=16, ETQ_MONTEE=15, ETQ_DESCENTE=7, ETQ_H=ETQ_MONTEE+ETQ_DESCENTE, ETQ_MARGE=5;
+/* l'échantillon, en px, du morceau [a ; b] de la courbe */
+function lvEchantillon(pts, x0, m, sx, sy, a, b){
+  const out=[];
+  for(let i=a;i<b;i++){
+    const xa=x0+i, xb=x0+i+1, ya=pts[i], yb=pts[i+1];
+    const P=[[xa,ya],[xa+1/3,ya+m[i]/3],[xb-1/3,yb-m[i+1]/3],[xb,yb]];
+    for(let k=0;k<=30;k++){ const t=k/30,u=1-t;
+      const x=u*u*u*P[0][0]+3*u*u*t*P[1][0]+3*u*t*t*P[2][0]+t*t*t*P[3][0];
+      const y=u*u*u*P[0][1]+3*u*u*t*P[1][1]+3*u*t*t*P[2][1]+t*t*t*P[3][1];
+      out.push([sx(x),sy(y)]); }
+  }
+  return out;
+}
+function etqLibre(ech, cadre, xsCand, W, H, obst){
+  const admissible=function(bx,by){
+    if(bx<cadre.PL||bx+W>cadre.PR+6||by<cadre.PT||by+H>cadre.PB) return false;        /* le cadre */
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) return false;                                /* l'axe des abscisses et ses graduations */
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) return false;                                /* l'axe des ordonnées et ses graduations */
+    if(obst&&obst.some(function(p){ return p[0]>=bx-ETQ_MARGE&&p[0]<=bx+W+ETQ_MARGE&&p[1]>=by-ETQ_MARGE&&p[1]<=by+H+ETQ_MARGE; })) return false;
+    return true;
+  };
+  const places=function(){
+    const out=[];
+    xsCand.forEach(function(lx){
+      const dans=ech.filter(function(p){ return p[0]>=lx-ETQ_MARGE&&p[0]<=lx+W+ETQ_MARGE; });
+      if(!dans.length) return;
+      const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+      out.push([lx, haut-ETQ_MARGE-H]); out.push([lx, bas+ETQ_MARGE]);
+    });
+    return out;
+  };
+  const cands=places();
+  for(let i=0;i<cands.length;i++){ if(admissible(cands[i][0],cands[i][1])) return {x:cands[i][0], y:cands[i][1]+ETQ_MONTEE, place:i, marge:ETQ_MARGE}; }
+  const ecartDe=function(pts, bx, by){
+    let d=Infinity;
+    for(let i=0;i<pts.length;i++){ const p=pts[i];
+      const dx=Math.max(bx-p[0],0,p[0]-(bx+W)), dy=Math.max(by-p[1],0,p[1]-(by+H));
+      const q=dx*dx+dy*dy; if(q<d) d=q; }
+    return Math.sqrt(d);
+  };
+  const debut=ech.length?ech[0]:[cadre.PL,cadre.PT];
+  {
+    let vu=null, sMin=Infinity;
+    for(let bx=cadre.PL; bx<=cadre.PR+6-W; bx+=4){
+      for(let by=cadre.PT; by<=cadre.PB-H; by+=4){
+        if(!admissible(bx,by)) continue;
+        const d=ecartDe(ech,bx,by);
+        if(d<ETQ_MARGE || d>ETQ_MARGE+10) continue;
+        if(obst && obst.length && ecartDe(obst,bx,by)<ETQ_MARGE) continue;
+        const sc=Math.hypot(bx+W/2-debut[0], by+H/2-debut[1]);
+        if(sc<sMin){ sMin=sc; vu=[bx,by]; }
+      }
+    }
+    if(vu) return {x:vu[0], y:vu[1]+ETQ_MONTEE, place:-2, marge:ETQ_MARGE};
+  }
+  const tous=ech.concat(obst||[]), base=cands.length?cands:[[cadre.PL+4, cadre.PT]];
+  let meilleur=null, pire=Infinity;
+  base.forEach(function(c){
+    const bx=Math.min(Math.max(c[0],cadre.PL),cadre.PR+6-W), by=Math.min(Math.max(c[1],cadre.PT),cadre.PB-H);
+    let n=tous.filter(function(p){ return p[0]>=bx-2&&p[0]<=bx+W+2&&p[1]>=by-2&&p[1]<=by+H+2; }).length;
+    if(!(by+H<cadre.y0-1||by>cadre.y0+17)) n+=200;
+    if(!(bx+W<cadre.x0-24||bx>cadre.x0+3)) n+=200;
+    if(n<pire){ pire=n; meilleur=[bx,by]; }
+  });
+  return {x:meilleur[0], y:meilleur[1]+ETQ_MONTEE, place:-1, marge:0};
+}
+function etqCandidats(a, b, larg, droiteDabord){
+  const out=[];
+  for(let k=0;k<40;k++){
+    const g=a+0.05+0.5*k, d=b-larg-0.05-0.5*k, gOk=g<=b-larg, dOk=d>=a&&Math.abs(d-g)>1e-9;
+    if(!gOk&&!dOk) break;
+    if(droiteDabord){ if(dOk) out.push(d); if(gOk) out.push(g); } else { if(gOk) out.push(g); if(dOk) out.push(d); }
+  }
+  return out;
+}
+/* Le dessin : quadrillage, axes, graduations, la courbe et son étiquette « Cf » ;
+   « extra » dessine PAR-DESSUS (les morceaux colorés et leurs signes) et reçoit
+   la boîte de « Cf », pour ne pas la recouvrir. */
+function lvGraphSVG(pts, extra, ia, ib, obst){
+  const XA=-3.5,XB=3.5,YA=-3.6,YB=3.6, PL=52,PR=310,PT=16,PB=190;
+  const sx=x=> PL + (x-XA)/(XB-XA)*(PR-PL);
+  const sy=y=> PB - (y-YA)/(YB-YA)*(PB-PT);
+  let grid='';
+  for(let x=-3;x<=3;x++) grid+='<line x1="'+sx(x).toFixed(1)+'" y1="'+PT+'" x2="'+sx(x).toFixed(1)+'" y2="'+PB+'" class="lv-grid"/>';
+  for(let y=-3;y<=3;y++) grid+='<line x1="'+PL+'" y1="'+sy(y).toFixed(1)+'" x2="'+PR+'" y2="'+sy(y).toFixed(1)+'" class="lv-grid"/>';
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(PR+6)+'" y2="'+y0.toFixed(1)+'" class="lv-axis"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+(PB)+'" x2="'+x0.toFixed(1)+'" y2="'+(PT-6)+'" class="lv-axis"/>'
+    +'<polygon points="'+(PR+8)+','+y0.toFixed(1)+' '+(PR)+','+(y0-3.5).toFixed(1)+' '+(PR)+','+(y0+3.5).toFixed(1)+'" class="lv-axfill"/>'
+    +'<polygon points="'+x0.toFixed(1)+','+(PT-8)+' '+(x0-3.5).toFixed(1)+','+(PT)+' '+(x0+3.5).toFixed(1)+','+(PT)+'" class="lv-axfill"/>'
+    +'<text x="'+(PR+6)+'" y="'+(y0+15).toFixed(1)+'" class="lv-ax" text-anchor="middle">x</text>';
+  let labels='';
+  for(let x=-3;x<=3;x++){ if(x===0) continue; labels+='<text x="'+sx(x).toFixed(1)+'" y="'+(y0+13).toFixed(1)+'" class="lv-ax" text-anchor="middle">'+numFmt(x)+'</text>'; }
+  for(let y=-3;y<=3;y++){ if(y===0) continue; labels+='<text x="'+(x0-7).toFixed(1)+'" y="'+(sy(y)+3.5).toFixed(1)+'" class="lv-ax" text-anchor="end">'+numFmt(y)+'</text>'; }
+  const a0=(ia==null)?0:ia, b0=(ib==null)?6:ib;
+  const ech=lvEchantillon(pts,-3,lvTangents(pts),sx,sy,a0,b0);
+  const cands=etqCandidats(-3+a0,-3+b0,0.85);
+  const etq=etqLibre(ech,{PL:PL,PR:PR,PT:PT,PB:PB,x0:x0,y0:y0},cands.map(sx),ETQ_W,ETQ_H, obst?obst(sx,sy):null);
+  const cf='<text x="'+etq.x.toFixed(1)+'" y="'+etq.y.toFixed(1)+'" class="lv-cf">C<tspan dy="3" font-size="10" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 362 206" xmlns="http://www.w3.org/2000/svg" class="lv-svg">'+grid+axes+labels+'<path class="lv-curve" d="'+lvPath(pts,sx,sy,ia,ib)+'"/>'+cf+(extra?extra(sx,sy,{x:etq.x,y:etq.y-ETQ_MONTEE,w:ETQ_W,h:ETQ_H}):'')+'</svg>';
+}
+
+/* ---- Le tirage : celui du 3.3.4 de la Seconde ---- */
+const TSC_NB=5;
+function tscSols(pts){ const out=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===0) out.push(x); } return out; }
+/* Le tirage garde une courbe où le signe se LIT : exactement deux racines,
+   strictement intérieures, chacune un vrai CROISEMENT (les voisins de part et
+   d'autre de zéro — exclut la tangence ET les racines voisines), et zéro
+   jamais traversé entre deux graduations (la spline est monotone entre deux
+   points voisins : une traversée hors graduation serait illisible). */
+function tscOkPts(pts){
+  for(let i=0;i<6;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(0>lo&&0<hi) return false; }
+  const so=tscSols(pts);
+  if(so.length!==2||so[0]<=-3||so[1]>=3) return false;
+  return so.every(function(x){ return pts[x+2]*pts[x+4]<0; });
+}
+function tscGen(){
+  for(let att=0;att<800;att++){
+    const pts=lvGenPts(pick([2,3])).pts;
+    if(tscOkPts(pts)) return {pts:pts};
+  }
+  /* repli RÉEL, relevé sur le générateur (en Seconde, 12,7 % des tirages
+     bruts passent le filtre — à 800 essais le repli ne sert à peu près
+     jamais) ; il passe par tscOkPts comme les autres */
+  return {pts:[3,2,0,-1,-3,0,1]};
+}
+/* Le signe du MILIEU, lu sur une graduation intérieure entre les deux racines. */
+function tscSide(q){
+  const so=tscSols(q.pts);
+  for(let x=so[0]+1;x<so[1];x++){ if(q.pts[x+3]!==0) return q.pts[x+3]>0?1:-1; }
+  return 1;
+}
+/* Les DEUX visages dans chaque séance d'au moins deux questions : au moins un
+   milieu positif et un négatif — sans quoi l'élève apprendrait que le tableau
+   est toujours le même. Le nombre de questions se lit sur le devoir
+   (dmNbQuestions), jamais sur la constante nue. */
+function tscBuildQuestions(){
+  const n=dmNbQuestions(TSC_NB);
+  const out=[]; for(let i=0;i<n;i++) out.push(distincte(out, tscGen));
+  if(n<2) return out;
+  for(let att=0;att<200;att++){
+    const sides=out.map(function(q){ return tscSide(q); });
+    if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
+    const j=att%n; out[j]=distincte(out.filter(function(_,k){ return k!==j; }), tscGen);
+  }
+  return out;
+}
+/* La liste des cases et leur bonne réponse CANONIQUE (le jugement passe par
+   tscJuge, où S = { … ; … } est à ordre libre). */
+function tscCases(q){
+  const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
+  const mid=s>0?'+':'-', dehors=s>0?'-':'+';
+  return [
+    {id:'tsc-t0',bon:dehors},{id:'tsc-t1',bon:mid},{id:'tsc-t2',bon:dehors},
+    {id:'tsc-e0',bon:String(x1)},{id:'tsc-e1',bon:String(x2)}
+  ];
+}
+function tscJuge(q){
+  const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
+  const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
+  const mid=s>0?'+':'-', dehors=s>0?'-':'+';
+  let subs=['tsc-t0','tsc-t1','tsc-t2'].map(function(id,i){ const spec=[dehors,mid,dehors][i]; return {id:id, val:spec, ok:lire(id)===spec}; });
+  /* S = { x1 ; x2 } : ordre libre, le même nombre posé deux fois est défendable
+     une fois, faux la seconde — la règle des paires. */
+  const left=[String(x1),String(x2)], rows=[];
+  for(let i=0;i<2;i++){ const v=lire('tsc-e'+i); const j=(v!=='')?left.indexOf(v):-1;
+    rows.push({id:'tsc-e'+i, v:v, ok:j>=0}); if(j>=0) left.splice(j,1); }
+  subs=subs.concat(rows.map(function(r){ return {id:r.id, val:(r.ok? r.v : left.shift()), ok:r.ok}; }));
+  const nCorrect=subs.filter(function(x){ return x.ok; }).length;
+  return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
+}
+function tscPlain(q){ const so=tscSols(q.pts); return '{ '+itvNum(so[0])+' ; '+itvNum(so[1])+' }'; }
+function tscWhy(q){
+  const so=tscSols(q.pts), X1=itvNum(so[0]), X2=itvNum(so[1]), s=tscSide(q);
+  return 'La partie ROUGE est au-dessus de l’axe et porte le signe + : là, f(x) > 0. La partie BLEUE est en dessous et porte le signe − : là, f(x) < 0.'
+    +' Le tableau se lit sur le dessin, de gauche à droite, morceau par morceau : '+(s>0?'− puis + puis −':'+ puis − puis +')+', et un 0 s’écrit sous chaque racine.'
+    +' f(x) = 0 là où la courbe coupe l’axe : S = { '+X1+' ; '+X2+' }.';
+}
+/* Le SIGNE posé sur un morceau de la courbe : « + » au-dessus du point le plus
+   haut du morceau rouge, « − » au-dessous du point le plus bas du morceau
+   bleu. On essaie d'abord le milieu du morceau, puis de part et d'autre, et
+   l'on garde la première place qui tient dans le dessin, hors de l'axe des
+   ordonnées et de ses graduations. Les signes se posent AVANT « Cf », et
+   c'est « Cf » qui les évite (lvGraphSVG reçoit leurs boîtes en obstacles,
+   le motif de « Cg » en Seconde) : un morceau de 37 px n'a pas la place de
+   deux étiquettes, et le signe, qui enseigne, passe avant le nom. */
+const TSC_SIGNE_W=14, TSC_SIGNE_H=14, TSC_SIGNE_MARGE=6;
+function tscSigne(ech, xa, xb, pos, cadre){
+  const W=TSC_SIGNE_W, H=TSC_SIGNE_H;
+  const poser=function(cx){
+    const dans=ech.filter(function(p){ return p[0]>=cx-W/2-2&&p[0]<=cx+W/2+2; });
+    if(!dans.length) return null;
+    const haut=Math.min.apply(null,dans.map(function(p){ return p[1]; })), bas=Math.max.apply(null,dans.map(function(p){ return p[1]; }));
+    const by=pos ? haut-TSC_SIGNE_MARGE-H : bas+TSC_SIGNE_MARGE;
+    return {bx:cx-W/2, by:by};
+  };
+  const cands=[]; const mil=(xa+xb)/2;
+  for(let k=0;k<12;k++){ const d=8*k; if(mil+d<=xb-W/2) cands.push(mil+d); if(d&&mil-d>=xa+W/2) cands.push(mil-d); }
+  if(!cands.length) cands.push(mil);
+  let repli=null;
+  for(let i=0;i<cands.length;i++){
+    const p=poser(cands[i]); if(!p) continue;
+    if(!repli) repli=p;
+    if(p.by<2||p.by+H>cadre.HT-2) continue;                                   /* le dessin */
+    if(!(p.bx+W<cadre.x0-24||p.bx>cadre.x0+3)) continue;                       /* l'axe des ordonnées et ses graduations */
+    return {x:p.bx+W/2, y:p.by+H-2};
+  }
+  const p=repli||{bx:mil-W/2, by:pos?cadre.y0-30:cadre.y0+16};
+  return {x:p.bx+W/2, y:Math.min(Math.max(p.by,2),cadre.HT-2-H)+H-2};
+}
+/* la boîte d'un signe (son x est le centre, son y la ligne de base), en points
+   que « Cf » doit éviter : les coins, le centre et les milieux des côtés */
+function tscSigneObst(e){
+  const W=TSC_SIGNE_W, H=TSC_SIGNE_H, x0=e.x-W/2, y0=e.y-H+2, out=[];
+  [0,0.5,1].forEach(function(u){ [0,0.5,1].forEach(function(v){ out.push([x0+u*W, y0+v*H]); }); });
+  return out;
+}
+let _tscSaveTimer=null;
+function renderTscTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tscIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagTsc').innerHTML=modeTagHTML();
+  $('tscLiveScore').textContent=test.score;
+  $('tscFeedback').textContent=''; $('tscFeedback').className='mp-feedback';
+  $('tscActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTscAnswer()">Vérifier</button>';
+  const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
+  /* chaque morceau de la courbe porte la couleur de son SIGNE — rouge au-dessus
+     de l'axe, bleu en dessous — par-dessus le tracé de lvGraphSVG (lvPath par
+     morceaux : les tangentes restent celles de la courbe entière), et son SIGNE
+     écrit à côté : « + » au-dessus du rouge, « − » au-dessous du bleu */
+  const xs=[-3,-2,-1,0,1,2,3], morceaux=[[0,x1+3,s<0],[x1+3,x2+3,s>0],[x2+3,6,s<0]];
+  let signes=null;
+  /* les signes se posent d'abord — lvGraphSVG les demande en OBSTACLES pour
+     poser « Cf » hors d'eux — puis le dessin les écrit par-dessus la courbe */
+  const poserSignes=function(sx,sy){
+    if(signes) return signes;
+    const m=lvTangents(q.pts), cadre={x0:sx(0), y0:sy(0), HT:206};
+    signes=morceaux.map(function(mo){ const ech=lvEchantillon(q.pts,-3,m,sx,sy,mo[0],mo[1]); return tscSigne(ech, sx(xs[mo[0]]), sx(xs[mo[1]]), mo[2], cadre); });
+    return signes;
+  };
+  const obst=function(sx,sy){ return poserSignes(sx,sy).reduce(function(a,e){ return a.concat(tscSigneObst(e)); },[]); };
+  const extra=function(sx,sy){
+    const es=poserSignes(sx,sy);
+    return morceaux.map(function(mo,i){ const pos=mo[2], e=es[i];
+      return '<path class="'+(pos?'tsg-pos':'tsg-neg')+'" d="'+lvPath(q.pts,sx,sy,mo[0],mo[1])+'"/>'
+        +'<text class="tsc-signe '+(pos?'tsc-signe-pos':'tsc-signe-neg')+'" x="'+e.x.toFixed(1)+'" y="'+e.y.toFixed(1)+'" text-anchor="middle">'+(pos?'+':'−')+'</text>';
+    }).join('');
+  };
+  const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
+  const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
+  const selS=function(id,aria){ return itvSelHTML(id,[['+','+'],['-','−']],aria); };
+  const table='<table class="tsg-tbl"><tbody>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+itvNum(-3)+'</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">'+itvNum(3)+'</td></tr>'
+    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('tsc-t0','Signe avant '+itvNum(x1))+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t1','Signe entre les deux racines')+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t2','Signe après '+itvNum(x2))+'</td></tr>'
+    +'</tbody></table>';
+  $('tscHost').innerHTML='<div class="itv-fiche">'
+    +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    /* le dessin est SEUL et sert de support de LECTURE : il vit dans le cadre
+       de la lecture graphique (.lv-graph, fond opaque), en pleine largeur */
+    +'<div class="lv-graph tsg-graph">'+lvGraphSVG(q.pts, extra, null, null, obst)+'</div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps">'
+    +'<span class="itv-fixe">Place les signes — les racines et les zéros sont déjà écrits.</span>'+table+'</span></div>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Équation</span><span class="itv-corps">'
+    +'<span class="itv-fixe"><i>f</i> (<i>x</i>) = 0 : S = {</span>'+selN('tsc-e0','Première solution')
+    +'<span class="itv-fixe">;</span>'+selN('tsc-e1','Seconde solution')+'<span class="itv-fixe">} , dans l’ordre que tu veux.</span></span></div>'
+    +'</div>';
+  tscCases(q).forEach(function(c){ const sel=$(c.id); if(!sel) return;
+    sel.addEventListener('change',function(){ if(isSoutien()) tscLive(); clearTimeout(_tscSaveTimer); _tscSaveTimer=setTimeout(autoSave,1000); });
+  });
+}
+/* Mode soutien : chaque case au fil du choix — la case vide ne reçoit RIEN. */
+function tscLive(){
+  if(test.kind!=='tsc' || !isSoutien() || test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  tscJuge(q).subs.forEach(function(s){ const sel=$(s.id); if(!sel) return;
+    sel.classList.remove('ok','bad');
+    if(sel.value==='') return;
+    sel.classList.add(s.ok?'ok':'bad');
+  });
+}
+function checkTscAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx];
+  if(live){ tscLive(); return; }
+  const res=tscJuge(q);
+  res.subs.forEach(function(s){ const el=$(s.id); s.vide=!el||String(el.value==null?'':el.value).trim()===''; corrChoix(el, s.val, s.ok); });
+  if(!res.allOk && isSoutien()){ soutienAgain('tscFeedback','tscActions','checkTscAnswer','tscHost'); return; }
+  test.locked=true;
+  if(res.allOk) test.score++; $('tscLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
+  if(res.allOk){ $('tscFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('tscFeedback').className='mp-feedback good'; }
+  else { $('tscFeedback').textContent=msgAvecVides(res.subs, tscWhy(q)); $('tscFeedback').className='mp-feedback bad'; }
+  const answer=tscCases(q).map(function(c){ return c.bon; }).join(' ');
+  const given=res.subs.map(function(s){ const el=$(s.id); return el?String(el.value):''; }).join(' ');
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Tableau de signes → S = '+tscPlain(q)+' — '+res.nCorrect+'/'+res.subs.length+' justes', answer:answer, given:given});
+  const last=test.idx===test.questions.length-1;
+  $('tscActions').innerHTML='<button class="btn btn-primary" id="tscNext" onclick="nextTscQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('tscNext'); if(nb) nb.focus();
+}
+function nextTscQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTscTest(); autoSave(); } else finishTest(); }
+async function startTsc(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=tscBuildQuestions();
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'tsc', questions:qs, idx:0, score:0,
+    maxScore:qs.length, answers:[], startTime:Date.now(),   /* Première : un point par question */
+    qTimer:null, fbTimer:null, locked:false});
+  test.qId='tableau-signes-courbe';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('tsc'); renderTscTest();
+}
+function ctxTsc(q){
+  const res=tscJuge(q), so=tscSols(q.pts), s=tscSide(q);
+  const faux=res.subs.filter(function(x){ const el=$(x.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !x.ok; }).length;
+  let c='L’élève a sous les yeux une courbe dont la partie au-dessus de l’axe des abscisses est ROUGE et porte le signe + (f(x) > 0), et la partie en dessous BLEUE et porte le signe − (f(x) < 0).'
+    +' Il doit placer les signes dans un tableau de signes dont les racines et les zéros sont donnés, puis résoudre f(x) = 0.'
+    +' Réponses attendues, STRICTEMENT SECRÈTES : les signes '+(s>0?'−, +, −':'+, −, +')+' de gauche à droite, et S = { '+itvNum(so[0])+' ; '+itvNum(so[1])+' } (dans l’ordre que l’élève veut).'
+    +' Méthode : le signe se lit sur le dessin, morceau par morceau ; f(x) = 0 aux abscisses où la courbe coupe l’axe.';
+  if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
+  return {nombre:'', contexte:c};
+}
+
 /* ===== THÈME 5 — CALCUL LITTÉRAL : les 7.8, 7.9 et 7.10 de la Seconde ======
    Demande de Turquet (novembre 2026) : « mets les exercices de seconde 7.8 ;
    7.9 ; 7.10 en première dans un thème calcul littérale. On proposera après
@@ -29274,6 +29804,12 @@ const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>④ On simplifie si c’est possible</b> : 2 divise 10 et 8, donc \\(\\frac{10}{8}=\\frac{10\\div 2}{8\\div 2}=\\frac{5}{4}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
 <b>Avec une soustraction, même chemin</b> : le produit d’abord, puis on SOUSTRAIT les numérateurs sur le dénominateur commun : \\(\\frac{3}{2}-\\frac{1}{2}\\times\\frac{3}{2}=\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}\\). Dans cet exercice, la différence est toujours positive.<br>
 Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de multiplier par \\(\\frac{3}{2}\\) — la priorité s’en trouve inversée, et le résultat change.`;
+const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
+<b>① Au-dessus de l’axe des abscisses</b>, la courbe est en <span class="tsg-mot-rouge">rouge</span> et porte un <span class="tsg-mot-rouge">+</span> : là, <i>f</i>(<i>x</i>) est <b>positif</b>.<br>
+<b>② En dessous de l’axe</b>, la courbe est en <span class="tsg-mot-bleu">bleu</span> et porte un <span class="tsg-mot-bleu">−</span> : là, <i>f</i>(<i>x</i>) est <b>négatif</b>.<br>
+<b>③ Là où la courbe coupe l’axe</b>, <i>f</i>(<i>x</i>) = 0 : ce sont les <b>racines</b>. Dans le tableau, un <b>0</b> s’écrit sous chaque racine, et le signe change de part et d’autre.<br>
+<b>④ Le tableau de signes</b> se lit de gauche à droite, morceau par morceau : le signe avant la première racine, le signe entre les deux racines, le signe après la seconde — chaque signe est celui écrit sur le morceau de courbe correspondant.<br>
+<b>⑤ Résoudre <i>f</i>(<i>x</i>) = 0</b>, c’est donner les abscisses des points où la courbe coupe l’axe : S = { <i>x</i>₁ ; <i>x</i>₂ }, dans l’ordre que tu veux.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
@@ -29355,7 +29891,7 @@ const RAP_FPB=`<b>Fréquences, puis probabilités, dans un tableau d’effectifs
 <b>En probabilités.</b> On choisit une pièce au hasard : sa probabilité est la fréquence. \\(P(A\\cap D)=\\dfrac{A\\cap D}{\\text{tout}}\\) (« et », sans condition) ; \\(P_D(A)=\\dfrac{A\\cap D}{D}\\) (« sachant que », « parmi » : la condition s’écrit en indice).<br>
 <b>La réunion.</b> \\(P(A\\cup D)=P(A)+P(D)-P(A\\cap D)\\) : l’intersection, comptée dans \\(P(A)\\) et dans \\(P(D)\\), se retire une fois.<br>
 Piège classique : diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle — le dénominateur est l’effectif du groupe où l’on se place.`;
-const RAPPELS_ID={ 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -29442,6 +29978,7 @@ const QIA_SUGG={
   rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
   dvl:["Pourquoi les fl\u00e8ches partent-elles du facteur devant la parenth\u00e8se\u00a0?","Pourquoi le second terme garde-t-il son signe\u00a0?","Comment multiplier 3x par 2x\u00a0?","Comment r\u00e9duire apr\u00e8s avoir d\u00e9velopp\u00e9\u00a0?"],
   dvd:["Pourquoi y a-t-il quatre fl\u00e8ches\u00a0?","Pourquoi le terme noir garde-t-il son signe\u00a0?","Comment multiplier \u22123 par \u22125\u00a0?","Pourquoi regroupe-t-on les deux termes en x\u00a0?"],
+  tsc:["Comment lire le signe de f(x) sur le dessin\u00a0?","Pourquoi écrit-on un 0 sous chaque racine\u00a0?","Que veut dire résoudre f(x) = 0\u00a0?","Pourquoi le signe change-t-il à chaque racine\u00a0?"],
   pqd:["Pourquoi calculer la parenth\u00e8se en premier\u00a0?","Comment croiser les d\u00e9nominateurs dans la parenth\u00e8se\u00a0?","Le r\u00e9sultat de la parenth\u00e8se peut-il \u00eatre n\u00e9gatif\u00a0?","Comment diviser par une fraction\u00a0?"],
   tsf:["Comment mettre trois fractions au m\u00eame d\u00e9nominateur\u00a0?","Par quoi je multiplie chaque terme\u00a0?","Y a-t-il une priorit\u00e9 \u00e0 respecter ici\u00a0?","Comment savoir que le d\u00e9nominateur commun est correct\u00a0?"],
   spf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment croiser les d\u00e9nominateurs\u00a0?","Que faire une fois le produit calcul\u00e9\u00a0?","Comment savoir si la fraction finale se simplifie\u00a0?"],
@@ -29879,6 +30416,7 @@ function conseilCtxCourant(){
   if(k==='rpd' && q) att=ctxRpd(q).contexte;
   if(k==='dvl' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvl(q).contexte;
   if(k==='dvd' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvd(q).contexte;
+  if(k==='tsc' && q) att=ctxTsc(q).contexte;
   if(k==='tsf' && q) att=q.redac ? sfrCtxTexte(q) : ctxTsf(q).contexte;
   if(k==='pb' && q) att=(test.qId==='frequences-probabilites' ? fpbCtxTexte() : pbEstFiche() ? pbfCtxTexte() : pbCtxTexte(q));
   const ec=ctxEcranPremiere();
@@ -30154,7 +30692,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
