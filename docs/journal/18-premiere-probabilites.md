@@ -802,3 +802,31 @@ case rouge, la question vide remplie en vert sans rougir, 3 cases justes sur
 tableau collé en haut de l'écran après défilement. MathLive est servi aux
 bancs depuis le paquet npm (`npm pack mathlive@0.110.0`, `mathlive.min.mjs`
 copié dans `tests/.cache/mathlive-0.110.0.mjs`) quand le CDN est fermé.
+
+**Puis la réunion est partie, et la partie A a gagné une fréquence (v406).**
+Demande de Turquet, le jour même : « supprimer la question sur l'union et
+rajouter une question dans la partie A sur les fréquences ; dans la partie A,
+écrire “fréquence” dans la question et mettre entre parenthèses
+“proportion” ».
+- La question P(A ∪ D) et sa ligne sur deux rangées (`fpbLigneUnion`,
+  `fpbOp`, `PBX.fpbunion`, `.fpb-lignes`) sont retirées, ainsi que le
+  paragraphe « La réunion » du rappel et la question à l'IA qui la citait.
+- La partie A compte quatre questions : le tableau, la fréquence globale
+  d'un évènement simple, la FRÉQUENCE D'UNE INTERSECTION (`fpbfint` : « des
+  pièces provenant de la machine A et présentant un défaut dans la
+  production journalière » — la même ligne, lettres puis effectifs, la case
+  du milieu sur le total), puis la fréquence conditionnelle. La partie B en
+  compte trois : l'intersection en mots, « sachant que », le nom. Les deux
+  intersections de la séance sont différentes (`qdMelanger(PB_INTER)`,
+  deux tirées) ; `FPB_NB_A` porte la coupure A / B, lue par `fpbNum`, la page
+  et le contexte du modèle.
+- Les trois questions de fréquence disent « fréquence (proportion) » :
+  « Calcule la fréquence (proportion) globale de… », « … la fréquence
+  (proportion) des pièces … et … », « … la fréquence (proportion)
+  conditionnelle des … parmi les … ». Après « et », le contraire du défaut
+  se dit « ne présentant pas de défaut » (forme `pe` de `fpbMot`) — « sans
+  défaut » reste pour « parmi les pièces sans défaut ».
+Vérifié dans Chromium (1280 et 390 px) : copie juste 7 / 7 (fréquence
+globale simplifiée comprise), copie fausse 5 / 7 avec une seule case rouge,
+aucun débordement, aucune erreur JavaScript.
+
