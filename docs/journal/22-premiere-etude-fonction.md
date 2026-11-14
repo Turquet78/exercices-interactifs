@@ -346,3 +346,92 @@ et le juge ne lit pas les cases absentes ; sans points rouges, les cercles
 des axes portent `data-des="2"` et n'apparaissent qu'avec le chemin, à la
 vérification. La onzième veut un antécédent OU deux, à pile ou face
 (`voulu`), là où les autres en veulent deux.
+
+---
+
+## {tracer-droite} — tracer la droite d'une fonction affine, du calcul au tableau de signes (6.3, novembre 2026, Première v414)
+
+**La demande** (Turquet, sur le sujet papier « Exercice 3 », f(x) = −2x + 3) :
+« en première faire un exercice comme le pdf. On mettra en rouge le point sur
+le graphique s'il est mal placé, donc on ne passera pas au point suivant tant
+que le premier point sera mal placé. Quand les deux points sont bien placés,
+demander de compléter la règle : la représentation d'une fonction du premier
+degré de la forme ax + b est … Puis demander de tracer la droite en cliquant
+sur les deux points placés. Pour déterminer graphiquement l'antécédent, faire
+une animation comme dans l'exercice 6.2. Pour le calcul de l'antécédent avec
+la résolution d'une équation, demander à compléter les règles en face des
+lignes correspondantes. En mode soutien, quand on doit calculer la somme de
+deux relatifs, faire une bulle d'aide à compléter de manière facultative […] ;
+si on doit calculer une division, faire une bulle d'aide qui rappelle la
+règle des signes. Pour le tableau de signes, refaire le dessin de la droite
+et demander de compléter le tableau de signes ; on présentera la question
+comme au début de l'exercice 6.1. »
+
+**Une question = une fonction, les cinq parties du sujet** (kind `trd`,
+identifiant neuf, ajouté en dernier dans le thème : il ne renumérote rien).
+① f(x₁) = a × ( … ) + b = … pour deux abscisses ; ② A puis B posés d'un clic
+sur le repère (−5…5 × −6…6, le clic arrondi au nœud le plus proche) : un
+point mal placé se peint en ROUGE avec la raison écrite au-dessus du repère,
+et B attend qu'A soit juste ; les deux justes, la règle « … est une droite »
+(une liste) s'ouvre ; la règle choisie, le tracé : un clic sur A (cerclé),
+un clic sur B, et la droite traverse le cadre ; ③ l'antécédent de k lu par
+le chemin inverse du 6.2, déplié sur ce repère par le MÊME animateur
+(`imaAnimer` prend désormais la racine du dessin, `'#imaGraph'` par défaut) ;
+④ l'équation, chaque ligne face à sa règle (règle 1 : on fait l'opération
+inverse, donc on change le signe ; règle 2 : on divise, donc on garde le même
+signe), le terme transposé entouré de pointillés comme sur le papier, la
+fraction empilée ; ⑤ la droite redessinée comme au palier 1 du 6.1 (rouge et
+« + » au-dessus, bleu et « − » en dessous, point vert sur la racine), la
+racine et le zéro donnés, deux signes à placer. ③ à ⑤ s'ouvrent quand la
+droite est tracée.
+
+**Le tirage** (`trdTirage`, par `distinctes()`) : a ∈ {−3, −2, 2, 3} — ±1
+rendrait la division sans objet —, b ≠ 0, la racine −b/a entière ou
+demi-entière (lisible, écrite « 1,5 ») ; x₁, x₂ non nuls, écartés d'au moins
+2, images dans le repère, jamais |a·x| = |b| (la somme « grand − petit »
+vaudrait 0, sans signe) ; k ≠ 0, k ≠ b, d'antécédent entier non nul, autre
+que x₁ et x₂ de préférence. La question ne porte que a, b, x₁, x₂, k.
+
+**L'état de la question** (`test.trdE`) : l'étape, les points posés et leurs
+erreurs, le point choisi, les listes — il part avec la pause et revient avec
+elle (les listes, que `captureBoxes` ne lit pas, y sont rangées).
+
+**« Vérifier » est toujours là.** Une copie vide se corrige comme ailleurs :
+les parties fermées s'ouvrent, les points et la droite qui manquent se
+dessinent en VERT (`.trd-pt.sol`, `.trd-droite.sol`), le chemin se déplie,
+les cases se remplissent en vert — c'est ce qui laisse les bancs des notes et
+de la pause mener l'exercice. En entraînement, un graphique inachevé sans
+case vide visible (la boîte `#confirmer-vides` ne voit pas les parties
+fermées) est signalé une fois par le message de la page ; les bancs le
+coupent avec la boîte (`confirmerCasesVides=false`).
+
+**La note** : un point par question PARFAITE (les 17 cases justes et le
+graphique achevé), les cases au crédit partiel. Un point d'abord mal placé ne
+retire rien : le premier jet le pénalisait, et la note de l'exercice, qui
+compte des CASES (`ptsRep` borne un « 17 sur 17 » non parfait à 16/17),
+affichait « 16 cases justes sur 17 » devant 17 cases justes — vu à l'essai.
+
+**Les bulles du soutien** (`trdBulleSomme`, `trdBulleDivision`) : sous
+chaque image (le produit donné, puis la somme p + b), sous l'équation (k et
+−b) — « les signes sont différents, donc on fait la soustraction grand −
+petit = … et on prend le signe du plus fort entre … et …, ici … », ou « les
+signes sont les mêmes, donc on additionne … et on garde le même signe » —, et
+la règle des signes de la division. Leurs cases sont `.hors-note` : colorées
+au fil de la frappe, jamais comptées, jamais demandées par la boîte des cases
+vides.
+
+**Les quinze branchements** : `TESTS`, `THEMES` (thème 6), `scr-trd`,
+`testScreens`, la réserve du bas, `liveCheckCurrent` (`trdLive`),
+`restartCurrentTest`, `afficherEcranDe`, la liste des rendus enveloppés
+(`renderTrd`), `RAPPELS_ID['tracer-droite']` (`RAP_TRD`, HTML pur),
+`QIA_SUGG.trd`, `ctxTrd` (l'étape, les saisies, les attendus « STRICTEMENT
+SECRETS »), `test.qId`, l'énoncé en `.mp-instr`. Pas de `QIA_MODELES`.
+
+**Essai dans Chromium (hors banc)** : A cliqué une case trop haut → rouge,
+message ; un clic sur la place de B pendant que A est faux reste une tentative
+pour A ; A puis B justes → la règle ; la droite tracée → le chemin déplié
+(état `fini`) ; copie juste → 1 / 1, 17 cases `ok` ; en soutien, une case
+fausse rougit, les bulles s'affichent, « Revérifier ». Aucune erreur
+JavaScript. Le mot « antécédent » se pose à la première place libre (hors de
+l'axe, loin de A et B, sans que la droite le traverse) — la première capture
+le montrait sur B.
