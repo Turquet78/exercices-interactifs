@@ -1524,7 +1524,13 @@ i.pb-P{margin-right:.14em}
   .ima-mot{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:12px;fill:var(--red)}
   /* la graduation lue, récrite en rouge sur un halo par-dessus le pointillé */
   .lv-ax.ima-grad{fill:var(--red);font-weight:800;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
-  .ima-sep{margin:0 .35em;font-weight:800;color:var(--ink-soft)}
+  /* les deux écritures du 6.2 tiennent sur UNE ligne (demande de Turquet) :
+     une rangée qui ne se replie jamais et qui défile sur un petit écran, son
+     contenu centré tant qu'il tient */
+  .ima-ligne{display:flex;overflow-x:auto;line-height:2.4}
+  .ima-ligne .ima-contenu{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin:0 auto;padding:0 4px}
+  .ima-ligne .lv-in{flex:0 0 auto}
+  .ima-signifie{color:var(--ink-soft);font-weight:600;margin:0 2px}
   .ima-rejouer{text-align:center;margin:0 0 14px}
   .ima-rejouer .btn{font-size:.9rem;padding:6px 12px}
   /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
@@ -3791,7 +3797,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=410;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=411;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30340,15 +30346,18 @@ Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de
    « antécédent(s) » sous l'axe des abscisses quand le chemin descend d'en
    haut, au-dessus sinon — sinon le pointillé le traverserait (vu à l'essai).
 
-   DEUX ÉCRITURES pour l'image — « L'image de X est : … » (la hauteur ne
-   s'écrit plus, demande de Turquet) et « f( … ) = … » —, une seule pour les
-   antécédents — « L'antécédent de Y est : … » ou « Les antécédents de Y
-   sont : … ; … », autant de cases que d'antécédents. L'ORDRE DES ANTÉCÉDENTS
-   EST LIBRE : chaque case se juge sur ce qu'elle promet (être l'un des
-   antécédents attendus), la liste les prend une fois chacun — le même posé
-   deux fois est juste une fois —, et les cases sans correspondance reçoivent
-   en partage les antécédents restants : c'est la valeur que la correction
-   écrira en vert (la règle du 3.1.3 de la Seconde).
+   UNE LIGNE PAR ÉCRITURE (demande de Turquet) : « L'image de X est : … qui
+   signifie que : f( … ) = … » (la hauteur ne s'écrit plus), et « Les
+   antécédents de Y sont … et … qui signifie que : f( … ) = f( … ) = … » (ou
+   « L'antécédent de Y est : … qui signifie que : f( … ) = … »), autant de
+   cases que d'antécédents, deux de préférence au tirage. L'ORDRE DES
+   ANTÉCÉDENTS EST LIBRE, dans la liste comme entre les parenthèses : chaque
+   case se juge sur ce qu'elle promet (être l'un des antécédents attendus), la
+   liste les prend une fois chacun — le même posé deux fois est juste une
+   fois —, et les cases sans correspondance reçoivent en partage les
+   antécédents restants : c'est la valeur que la correction écrira en vert (la
+   règle du 3.1.3 de la Seconde). La rangée ne se replie pas : sur un petit
+   écran elle défile.
    La NOTE se compte par question parfaite, comme tout exercice de ce niveau
    (finishTest note sur le nombre de questions) ; les cases justes vont au
    crédit partiel (ptsExo). Les cases se peignent par corrChoix, la fonction de
@@ -30406,9 +30415,9 @@ function imaCibles(pts){
    mélangées, chacune une fois tant qu'il y en a (le rang de la question parmi
    celles à image, jamais un compteur : distinctes() peut rappeler la fabrique
    pour la même question) ; la hauteur des questions à antécédents se tire
-   parmi les cibles de la courbe, en préférant UN antécédent sur la première
-   question de chaque paire et PLUSIEURS sur la seconde — les deux visages de
-   la notion, la leçon du 3.1.3. */
+   parmi les cibles de la courbe, en préférant DEUX antécédents (demande de
+   Turquet : « deux antécédents régulièrement ») — un ou trois seulement quand
+   la courbe n'en offre pas deux. */
 function imaTirage(nb){
   const xs=[-3,-2,-1,1,2,3];
   for(let i=xs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=xs[i]; xs[i]=xs[j]; xs[j]=t; }
@@ -30424,7 +30433,8 @@ function imaTirage(nb){
         let cibles=imaCibles(pts);
         if(vImg) cibles=cibles.filter(function(y){ return y!==pts[x0+3]; });   /* l'image demandée n'est pas la hauteur des antécédents */
         if(!cibles.length) continue;
-        const pref=cibles.filter(function(y){ return (i%2===0) ? pts.filter(function(v){ return v===y; }).length===1 : pts.filter(function(v){ return v===y; }).length>1; });
+        const pref=cibles.filter(function(y){ return pts.filter(function(v){ return v===y; }).length===2; });   /* deux antécédents, de préférence */
+        if(!pref.length && att<120) continue;             /* une autre courbe, tant qu'il en reste à tirer, plutôt qu'un ou trois antécédents */
         y0=pick(pref.length?pref:cibles);
       }
       return {pts:pts, x0:x0, y0:y0, anim:anim};
@@ -30567,12 +30577,18 @@ function renderIma(){
   const inp=function(id, cls, aria){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+aria+'">'; };
   let h='';
   if(q.x0!=null){
-    h+='<div class="img-line">L’image de '+X+' est : '+inp('ima-c','', 'l’image de '+X)+'</div>'
-      +'<div class="img-line"><i>f</i> ( '+inp('ima-fx','sm','le nombre de départ')+' ) = '+inp('ima-fv','sm','son image')+'</div>';
+    /* UNE ligne (demande de Turquet) : « L'image de X est : … qui signifie que : f( … ) = … » */
+    h+='<div class="img-line ima-ligne"><span class="ima-contenu">L’image de '+X+' est : '+inp('ima-c','', 'l’image de '+X)
+      +' <span class="ima-signifie">qui signifie que :</span> <i>f</i> ( '+inp('ima-fx','sm','le nombre de départ')+' ) = '+inp('ima-fv','sm','son image')+'</span></div>';
   }
   if(q.y0!=null){
-    const cases=[]; for(let i=0;i<n;i++) cases.push(inp('ima-a-'+i,'', (n>1?'un antécédent':'l’antécédent')+' de '+Y));
-    h+='<div class="img-line">'+(n===1 ? 'L’antécédent de '+Y+' est : '+cases[0] : 'Les antécédents de '+Y+' sont : '+cases.join('<span class="ima-sep">;</span>'))+'</div>';
+    /* UNE ligne (demande de Turquet) : « Les antécédents de Y sont … et … qui signifie que : f( … ) = f( … ) = … » */
+    const cases=[], fs=[];
+    for(let i=0;i<n;i++){ cases.push(inp('ima-a-'+i,'', (n>1?'un antécédent':'l’antécédent')+' de '+Y));
+      fs.push('<i>f</i> ( '+inp('ima-ax-'+i,'sm',(n>1?'un antécédent':'l’antécédent')+' de '+Y+', entre les parenthèses')+' )'); }
+    const liste=n===1 ? cases[0] : cases.slice(0,-1).join(', ')+' et '+cases[n-1];
+    h+='<div class="img-line ima-ligne"><span class="ima-contenu">'+(n===1 ? 'L’antécédent de '+Y+' est : ' : 'Les antécédents de '+Y+' sont : ')+liste
+      +' <span class="ima-signifie">qui signifie que :</span> '+fs.join(' = ')+' = '+inp('ima-ay','sm','la hauteur '+Y)+'</span></div>';
   }
   $('imaHost').innerHTML=h;
   $('imaHost').querySelectorAll('input').forEach(function(el){
@@ -30645,8 +30661,13 @@ function imaAnimer(){
   groupe(0);
 }
 /* ---- Le juge : chaque case SEULE, la réponse lue dans la courbe ---- */
-const IMA_NOMS={'ima-c':'« L’image de … est : … »','ima-fx':'le nombre entre les parenthèses de f( … )','ima-fv':'la valeur après « f( … ) = »'};
-function imaNom(id){ return IMA_NOMS[id] || ('la case '+(parseInt(id.slice(6),10)+1)+' des antécédents'); }
+const IMA_NOMS={'ima-c':'« L’image de … est : … »','ima-fx':'le nombre entre les parenthèses de f( … )','ima-fv':'la valeur après « f( … ) = »','ima-ay':'la hauteur après le dernier « = » de « f( … ) = f( … ) = … »'};
+function imaNom(id){
+  if(IMA_NOMS[id]) return IMA_NOMS[id];
+  const m=/^ima-(a|ax)-(\d+)$/.exec(id); if(!m) return id;
+  const k=parseInt(m[2],10)+1;
+  return m[1]==='a' ? 'la case '+k+' des antécédents (« sont … et … »)' : 'le nombre entre les parenthèses du '+k+(k===1?'er':'e')+' f( … )';
+}
 function imaCheck(q){
   const subs=[];
   const lire=function(id){ const el=$(id); return {id:id, el:el, v:lvReadInt(id), vide:!el||String(el.value==null?'':el.value).trim()===''}; };
@@ -30658,9 +30679,14 @@ function imaCheck(q){
     /* l'ordre est libre : chaque case promet d'être l'un des antécédents, la
        liste les prend une fois chacun, les cases sans correspondance reçoivent
        les antécédents restants (la valeur que la correction écrira) */
-    const reste=imaAnts(q).slice(), lus=[];
-    for(let i=0;i<imaAnts(q).length;i++){ const r=lire('ima-a-'+i); const k=(r.v===null||Number.isNaN(r.v))?-1:reste.indexOf(r.v); if(k>=0) reste.splice(k,1); r.ok=k>=0; lus.push(r); }
-    lus.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : reste.shift()), el:r.el, ok:r.ok, vide:r.vide}); });
+    const juge=function(prefixe){
+      const reste=imaAnts(q).slice(), lus=[];
+      for(let i=0;i<imaAnts(q).length;i++){ const r=lire(prefixe+i); const k=(r.v===null||Number.isNaN(r.v))?-1:reste.indexOf(r.v); if(k>=0) reste.splice(k,1); r.ok=k>=0; lus.push(r); }
+      lus.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : reste.shift()), el:r.el, ok:r.ok, vide:r.vide}); });
+    };
+    juge('ima-a-');     /* « … sont … et … » */
+    juge('ima-ax-');    /* « f( … ) = f( … ) » : les mêmes antécédents, chacun une fois, dans l'ordre qu'on veut */
+    { const r=lire('ima-ay'); subs.push({id:'ima-ay', val:q.y0, el:r.el, ok:r.v===q.y0, vide:r.vide}); }   /* « = Y » */
   }
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
@@ -30719,10 +30745,10 @@ function ctxIma(q){
   let c='L’élève a sous les yeux la courbe d’une fonction f, tracée sur un quadrillage qui va de −3 à 3 en abscisse et en ordonnée (graduations de 1 en 1). La courbe passe par les points '+pp.join(', ')+' ; entre deux de ces points voisins, elle ne fait que monter ou que descendre.';
   if(q.x0!=null) c+=' On demande l’image de '+numFmt(q.x0)+' par f. Un point rouge marque '+numFmt(q.x0)+' sur l’axe des abscisses'
     +(q.anim?', et une animation trace le chemin de lecture en pointillés : vertical, du point jusqu’à la courbe, puis horizontal, de la courbe jusqu’à l’axe des ordonnées, où le mot « image » est écrit à la hauteur atteinte.':' ; aucun chemin n’est tracé avant la vérification.')
-    +' L’élève complète « L’image de '+numFmt(q.x0)+' est : … », puis « f( … ) = … ».';
+    +' L’élève complète, sur une ligne, « L’image de '+numFmt(q.x0)+' est : … qui signifie que : f( … ) = … ».';
   if(q.y0!=null) c+=' On demande '+(ants.length>1?'les antécédents':'le ou les antécédents')+' de '+numFmt(q.y0)+' par f. Un point rouge marque '+numFmt(q.y0)+' sur l’axe des ordonnées'
     +(q.anim?', et une animation trace le chemin inverse en pointillés : horizontal, de l’axe des ordonnées jusqu’à la courbe, puis vertical, de chaque croisement jusqu’à l’axe des abscisses, où le mot « antécédent(s) » est écrit.':' ; aucun chemin n’est tracé avant la vérification.')
-    +' L’élève complète « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : …':'L’antécédent de '+numFmt(q.y0)+' est : …')+' » — '+ants.length+' case'+(ants.length>1?'s, dans l’ordre qu’il veut':'')+'.';
+    +' L’élève complète, sur une ligne, « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : '+ants.map(function(){ return '…'; }).join(' et '):'L’antécédent de '+numFmt(q.y0)+' est : …')+' qui signifie que : '+ants.map(function(){ return 'f( … )'; }).join(' = ')+' = … » — '+ants.length+' case'+(ants.length>1?'s pour les antécédents, dans l’ordre qu’il veut, autant entre les parenthèses, dans l’ordre qu’il veut':' pour l’antécédent, une entre les parenthèses')+', et la hauteur après le dernier « = ».';
   c+=(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +(ecrit.length&&vides.length?' Cases encore vides : '+vides.join(', ')+'.':'')
     +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : '
