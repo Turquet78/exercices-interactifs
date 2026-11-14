@@ -36537,7 +36537,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, et chaque nombre de chaque étape n’a qu’un seul chiffre non nul', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2, et chaque nombre de chaque étape n’a qu’un seul chiffre non nul', `(function(){
     const vus=[]; const un=function(x){ return /^[1-9]0*$/.test(String(x)); };
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36546,7 +36546,7 @@ function augmentationTableau(w, P){
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       qs.forEach(function(q){ const v=suiVals(q);
         [v.u0,v.rAbs,v.t1,v.t2,v.t3,v.n,v.prod,v.res,v.e,v.kk,v.T].forEach(function(x){ if(!un(x)) vus.push(SUI_CTX[q.ci].nom+" : "+x+" a plus d’un chiffre non nul"); });
-        if(v.n<4||v.kk<4||v.n===v.kk) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau et différents");
+        if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
       });
@@ -36554,6 +36554,7 @@ function augmentationTableau(w, P){
     SUI_CTX.forEach(function(c){ if(!suiFamilles(c).length) vus.push(c.nom+" : aucune combinaison possible"); });
     if(SUI_CTX.length<4) vus.push("moins de quatre contextes");
     if(SUI_CTX.some(function(c){ return /€|euro|argent|salaire|banque|prix/i.test(c.intro(1,1)); })) vus.push("un contexte parle d’argent");
+    if(SUI_CTX.some(function(c){ return /%/.test(c.intro(1,1)+c.tabC+c.q2("x")+c.p2("x").join("")+c.q3(1)+c.p3(1,1).join("")); })) vus.push("un contexte parle en pourcentages");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
   /* ---- 3. le rendu, les miroirs, le juge ---- */

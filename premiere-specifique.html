@@ -3801,7 +3801,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=411;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=412;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19234,7 +19234,7 @@ function litClavier(){
 
    UNE SÉANCE = SUI_NB CONTEXTES, CHACUN EN TROIS QUESTIONS, dans l'ordre de
    la fiche : ① le tableau (les lignes 1 et 2, la ligne 3 est donnée pour se
-   vérifier), ② la valeur au bout de N pas (« Calculer … en 2031 »), ③ le pas
+   vérifier), ② la valeur au bout de N pas (« Calculer … en 2030 »), ③ le pas
    où l'on atteint un seuil (« En quelle année … ? »). Chaque question vaut un
    point (la note de la Première se compte par question parfaite).
 
@@ -19244,9 +19244,10 @@ function litClavier(){
    La valeur de départ est a·10^k, le pas b·10^k (b positif ou négatif selon
    le contexte) ; a, b, N (question ②) et p (question ③) sont tirés parmi les
    combinaisons qui tiennent la règle (suiFamilles) : avec la hausse, a + 3b
-   ≤ 10 ; avec la baisse, a − 3b ≥ 1 ; N et p de 4 à 9, différents, N·b et p·b
-   à un chiffre, a ± N·b et a ± p·b à un chiffre (ou 10, qui s'écrit 1 000).
-   Les années (2031, 2035) et les heures (13 h, 17 h) sont des ÉTIQUETTES, pas
+   ≤ 10 ; avec la baisse, a − 3b ≥ 1 ; N de 4 à 9, p ≥ 2N (le seuil de la
+   question ③ au moins deux fois plus loin que la question ②), N·b et p·b à un
+   chiffre, a ± N·b et a ± p·b à un chiffre (ou 10, qui s'écrit 1 000).
+   Les années (2030, 2035) et les heures (12 h, 17 h) sont des ÉTIQUETTES, pas
    des nombres à calculer : la fiche écrit 2036 et 2046 de la même façon.
 
    ON RANGE LE TIRAGE, JAMAIS LES RÉPONSES : suiVals(q) recalcule tout dans
@@ -19291,16 +19292,16 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${T} arbres et ${u0} arbres il y a [e] arbres d’écart.`,
                 `Chaque année il y a [r] arbres de plus. Comme [e] = [r] × [k], pour avoir [e] arbres de plus il faudra [k] années.`,
                 `Donc ce sera en 2026 + [k] = [fin].`] },
-  { nom:'la batterie du téléphone', sens:-1, k:[1], aOk:(a,k)=>a===10, tps:{type:'heure', t0:8}, u:'%', pas:'heure', pass:'heures',
-    intro:(u0,r)=>`À 8 h, la batterie d’un téléphone est chargée à <b>${u0} %</b>. Chaque heure, elle perd <b>${r} %</b>.`,
-    tabL:'Heures écoulées', tabC:'Batterie en %',
-    q2:(m)=>`Calculer le niveau de la batterie à ${m}.`,
+  { nom:'les feuilles de l’imprimante', sens:-1, k:[1,2], tps:{type:'heure', t0:8}, u:'feuilles', pas:'heure', pass:'heures',
+    intro:(u0,r)=>`À 8 h, le bac de l’imprimante du lycée contient <b>${u0} feuilles</b>. Chaque heure, elle utilise <b>${r} feuilles</b>.`,
+    tabL:'Heures écoulées', tabC:'Feuilles restantes',
+    q2:(m)=>`Calculer le nombre de feuilles restantes à ${m}.`,
     p2:(m)=>[`Entre 8 h et ${m} il y a [n] heures.`,
-             `Comme chaque heure la batterie perd [r] %, en [n] heures elle va perdre [n] × [r] = [p] %.`,
-             `Donc à ${m} la batterie sera à [u0] − [p] = [res] %.`],
-    q3:(T)=>`À quelle heure la batterie sera-t-elle à ${T} % ?`,
-    p3:(T,u0)=>[`Entre ${u0} % et ${T} % il y a [e] % d’écart.`,
-                `Chaque heure elle perd [r] %. Comme [e] = [r] × [k], pour perdre [e] %, il faudra [k] heures.`,
+             `Comme chaque heure l’imprimante utilise [r] feuilles, en [n] heures elle utilisera [n] × [r] = [p] feuilles.`,
+             `Donc à ${m} il restera [u0] − [p] = [res] feuilles.`],
+    q3:(T)=>`À quelle heure ne restera-t-il plus que ${T} feuilles ?`,
+    p3:(T,u0)=>[`Entre ${u0} feuilles et ${T} feuilles il y a [e] feuilles d’écart.`,
+                `Chaque heure elle utilise [r] feuilles. Comme [e] = [r] × [k], pour utiliser [e] feuilles, il faudra [k] heures.`,
                 `Donc ce sera à 8 h + [k] h = [fin] h.`] },
   { nom:'le remplissage de la piscine', sens:1, k:[3], tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 9 h, une piscine contient <b>${u0} L</b> d’eau. On la remplit avec un tuyau qui apporte <b>${r} L</b> par heure.`,
@@ -19355,7 +19356,7 @@ function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace
 function suiUn(x){ return Number.isInteger(x) && x>=1 && (x<=9 || x===10); }
 /* Toutes les combinaisons (a, b, k, N, p) d'un contexte qui tiennent la
    règle à chaque étape : les lignes 1 à 3 du tableau, N·b, a ± N·b, p·b,
-   a ± p·b ; N et p de 4 à 9 (au-delà du tableau), différents. */
+   a ± p·b ; N de 4 à 9 (au-delà du tableau), p ≥ 2N. */
 function suiFamilles(c){
   const out=[];
   c.k.forEach(function(k){
@@ -19364,7 +19365,10 @@ function suiFamilles(c){
       const v=n=>a+c.sens*n*b;
       if(![1,2,3].every(n=>suiUn(v(n)))) continue;
       for(let N=4;N<=9;N++){ if(!suiUn(N*b)||!suiUn(v(N))) continue;
-        for(let p=4;p<=9;p++){ if(p===N||!suiUn(p*b)||!suiUn(v(p))) continue;
+        /* le seuil de la question ③ est AU MOINS DEUX FOIS plus loin que la
+           question ② (demande de Turquet, novembre 2026) : p ≥ 2N — avec p ≤ 9,
+           N vaut donc toujours 4, et p 8 ou 9 */
+        for(let p=2*N;p<=9;p++){ if(!suiUn(p*b)||!suiUn(v(p))) continue;
           out.push({a:a,b:b,k:k,N:N,p:p}); } }
     }
   });

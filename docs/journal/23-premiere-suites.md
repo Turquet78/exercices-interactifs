@@ -46,7 +46,8 @@ contrôle tire 300 séances et relit chaque nombre de `suiVals` au regex
 `^[1-9]0*$`.
 
 **Six contextes, sans argent** (`SUI_CTX`) : les arbres du parc (par année),
-la batterie du téléphone (par heure, part toujours de 100 %, `aOk`), le
+les feuilles de l'imprimante (par heure ; c'était d'abord la batterie du
+téléphone en %, retirée le lendemain — voir plus bas), le
 remplissage de la piscine (par heure, des milliers de litres), le roman de
 Léa (pages restantes, par jour, des dates de juin), la cuve d'eau de pluie
 (par jour, des dates de juillet), les abonnés de la chaîne (par année). Un
@@ -169,3 +170,25 @@ intermédiaires vaut 1 point, sans rouge, les lignes sautées en vert hors
 note, `ptsEcran` ne comptant que les cases attendues, le message ne disant
 rien de « manquant » ; une ligne intermédiaire fausse refuse la question,
 rougit, reçoit sa correction en vert ; le tableau entier juste vaut le point.
+
+## Puis : plus de pourcentage, et le seuil au moins deux fois plus loin (novembre 2026, v412)
+
+**La demande** (Turquet) : « ne pas mettre d'exemple avec des %, dans la
+question 3 il faut que l'on demande un résultat qui soit au moins deux fois
+plus loin que la question 2. »
+
+**Plus de pourcentage.** La batterie du téléphone (100 %, −10 % par heure) était
+le seul contexte en % : elle laisse place aux **feuilles de l'imprimante** (à
+8 h, 100 ou 1 000 feuilles dans le bac, 10 ou 100 de moins par heure) — même
+sens, mêmes heures, une unité qui se compte. Le contrôle refuse désormais un
+contexte dont l'énoncé, les en-têtes ou les phrases écrivent « % ».
+
+**Le seuil au moins deux fois plus loin** : dans `suiFamilles`, p ≥ 2N remplace
+p ≠ N. Avec la règle du chiffre unique (p·b ≤ 9, donc p ≤ 9) et N ≥ 4 (au-delà
+du tableau), N vaut toujours 4 et p vaut 8 ou 9 : la question ② porte sur
+quatre pas (2030, 12 h, le 5 juin), la question ③ sur huit ou neuf (2034 ou
+2035, 16 h ou 17 h, le 9 ou le 10 juin). La variété vient des contextes, de la
+valeur de départ (100 ou 200 ; 1 000 ou 2 000 ; 900 ou 1 000) et de
+l'échelle. Les familles restent assez nombreuses pour que `distincte` tienne
+(trois à six par contexte, deux contextes par séance). Le contrôle vérifie
+p ≥ 2N sur 300 séances.
