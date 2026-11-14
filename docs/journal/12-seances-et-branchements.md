@@ -259,9 +259,11 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
   rougi, à juste titre — le lancement d'un devoir ne passe que par la page des
   modes. Si la base refuse l'effacement, rien ne démarre et l'élève le lit :
   sinon deux brouillons vivraient côte à côte.
-* **Au niveau global.** `sortirExercice`, `choisirReprise` et leurs aides sont
-  des fonctions globales, pas une IIFE : un `onclick` les appelle, et le banc
-  (« chaque bouton appelle une fonction définie ») ne voit que celles-là.
+* **Au niveau global.** `choisirReprise` et ses aides sont
+  des fonctions globales, pas une IIFE ; et `sortirExercice` vit dans le
+  script PRINCIPAL, à côté de `pauseTest` : le banc (« chaque bouton appelle
+  une fonction définie ») ne cherche la fonction d'un `onclick` que dans le
+  plus long script de la page — posée dans le bloc de fin, elle y rougissait.
 * **Le bord nommé.** La carte « Reprendre l'évaluation » d'une ÉVALUATION de
   la Première garde `resumeTest('train')` direct : une seule tentative, donc
   jamais « Recommencer ».

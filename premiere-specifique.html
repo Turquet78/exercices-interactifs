@@ -6169,6 +6169,14 @@ async function pauseTest(){
   /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
   await retourAvantExo();
 }
+/* Le lien « Sortie » de l'en-tête (#sortieLien) : une pause, sans bouton
+   « Pause » ni « Abandonner » — voir #sortie-reprise, fin de fichier. */
+async function sortirExercice(){
+  const l=document.getElementById('sortieLien');
+  if(l){ if(l.dataset.enCours==='1') return; l.dataset.enCours='1'; l.hidden=true; }
+  try{ await pauseTest(); }
+  finally{ if(l) delete l.dataset.enCours; }
+}
 async function abandonTest(){
   if(!currentEleve) return;
   if(!confirm('Abandonner cet exercice ? Aucune note ne sera enregistrée.')) return;
@@ -33986,16 +33994,10 @@ function evalRetourProf(onglet, y){
      pause de CE mode (clearRecovery, comme l'abandon), redessine la page des
      modes et y clique la carte de départ du même mode — la porte unique d'un
      devoir reste la page des modes.
-   · Fonctions au niveau global : un onclick les appelle, et le banc exige
-     que chaque bouton appelle une fonction qu'il voit.
+   · sortirExercice() vit dans le script principal, à côté de pauseTest() :
+     le banc ne cherche la fonction d'un onclick que là.
    · abandonTest() reste défini — aucun bouton n'y mène plus. */
 let repriseMode=null, repriseBoite=null;
-async function sortirExercice(){
-  const l=document.getElementById('sortieLien');
-  if(l){ if(l.dataset.enCours==='1') return; l.dataset.enCours='1'; l.hidden=true; }
-  try{ await pauseTest(); }
-  finally{ if(l) delete l.dataset.enCours; }
-}
 function repriseConstruire(){
   if(repriseBoite) return repriseBoite;
   const b=document.createElement('div'); b.id='choixReprise'; b.hidden=true;
