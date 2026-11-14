@@ -3801,7 +3801,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=411;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=413;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4391,7 +4391,7 @@ const TESTS={
   'developper-double': { name:'D\u00e9velopper avec la double distributivit\u00e9', icon:'\ud83d\udd00', desc:'(a + b) \u00d7 (c + d) = a \u00d7 c + a \u00d7 d + b \u00d7 c + b \u00d7 d, en suivant les quatre fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade, puis la forme r\u00e9duite. Quatre expressions, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvd() },
   'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Six courbes, en trois paliers : d’abord la partie au-dessus de l’axe en ROUGE avec le signe +, en dessous en BLEU avec le signe −, un point vert sur chaque racine — place les signes ; puis sans les signes — écris aussi les racines et les zéros ; enfin la courbe nue — tout le tableau. À chaque fois, résous f (x) = 0.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
-  'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Dix questions en cinq temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, le ou les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, puis l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique.', start:()=>startIma() },
+  'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -30513,14 +30513,16 @@ function lvReadInt(id){ const el=$(id); if(!el) return null;
   return /^[-+]?\d+(\.\d+)?$/.test(v) ? parseFloat(v) : NaN; }
 
 /* ---- Le 6.2 lui-même ---- */
-const IMA_NB=10;
+const IMA_NB=11;
 const IMA_DUREE=800, IMA_PAUSE=300;   /* ms : chaque pointillé, et le temps d'arrêt sur la courbe */
 /* la séance en cinq temps, deux questions chacun ; au-delà de dix (un devoir
    qui règle plus de questions), on recommence le cycle */
-const IMA_PLAN=['img-anim','img','ant-anim','ant','mix'];
+/* ... et une onzième, seule dans son temps : image et antécédents SANS les
+   points rouges sur les axes (demande de Turquet) */
+const IMA_PLAN=['img-anim','img','ant-anim','ant','mix','mix-nu'];
 function imaPlan(i){ return IMA_PLAN[Math.floor((i%IMA_NB)/2)]; }
 function imaVeutImg(plan){ return plan!=='ant' && plan!=='ant-anim'; }
-function imaVeutAnt(plan){ return plan==='ant' || plan==='ant-anim' || plan==='mix'; }
+function imaVeutAnt(plan){ return plan==='ant' || plan==='ant-anim' || plan==='mix' || plan==='mix-nu'; }
 function imaY(q){ return q.x0==null ? null : q.pts[q.x0+3]; }   /* l'image, lue dans la courbe elle-même */
 function imaAnts(q){ const out=[]; if(q.y0==null) return out; for(let x=-3;x<=3;x++){ if(q.pts[x+3]===q.y0) out.push(x); } return out; }
 /* Une hauteur n'est posable que si la ligne de niveau ne coupe la courbe
@@ -30551,6 +30553,11 @@ function imaTirage(nb){
   const rangImg=function(i){ let r=0; for(let k=0;k<i;k++){ if(imaVeutImg(imaPlan(k))) r++; } return r; };
   return distinctes(nb, function(_, i){
     const plan=imaPlan(i), vImg=imaVeutImg(plan), vAnt=imaVeutAnt(plan), anim=/anim$/.test(plan);
+    /* « qui signifie que : f( … ) = … » ne se demande que sur les deux premières
+       questions d'images et les deux premières d'antécédents — les animées —,
+       plus jamais ensuite ; la dernière question n'a pas de points rouges
+       (demande de Turquet) ; elle veut un antécédent OU deux, à pile ou face */
+    const sig=anim, nus=(plan==='mix-nu'), voulu=(plan==='mix-nu') ? pick([1,2]) : 2;
     const x0=vImg ? xs[rangImg(i)%xs.length] : null;
     for(let att=0; att<160; att++){
       const pts=lvGenPts(pick([2,3])).pts;
@@ -30560,15 +30567,15 @@ function imaTirage(nb){
         let cibles=imaCibles(pts);
         if(vImg) cibles=cibles.filter(function(y){ return y!==pts[x0+3]; });   /* l'image demandée n'est pas la hauteur des antécédents */
         if(!cibles.length) continue;
-        const pref=cibles.filter(function(y){ return pts.filter(function(v){ return v===y; }).length===2; });   /* deux antécédents, de préférence */
+        const pref=cibles.filter(function(y){ return pts.filter(function(v){ return v===y; }).length===voulu; });   /* deux antécédents, de préférence (un ou deux sur la dernière) */
         if(!pref.length && att<120) continue;             /* une autre courbe, tant qu'il en reste à tirer, plutôt qu'un ou trois antécédents */
         y0=pick(pref.length?pref:cibles);
       }
-      return {pts:pts, x0:x0, y0:y0, anim:anim};
+      return {pts:pts, x0:x0, y0:y0, anim:anim, sig:sig, nus:nus};
     }
     /* repli : une courbe sûre — image non nulle partout, cibles 1 (x = −1 et 1), −1 (−2 et 2), −3 (−3 et 3) */
     const pts=[-3,-1,1,3,1,-1,-3];
-    return {pts:pts, x0:x0, y0:vAnt ? ((vImg && pts[x0+3]===1) ? -1 : 1) : null, anim:anim};
+    return {pts:pts, x0:x0, y0:vAnt ? ((vImg && pts[x0+3]===1) ? -1 : 1) : null, anim:anim, sig:sig, nus:nus};
   });
 }
 /* ---- Le dessin : la courbe de la Seconde, le ou les chemins par-dessus ----
@@ -30624,7 +30631,7 @@ function imaCheminImage(q, sx, sy){
     +'<line class="ima-marque" data-des="2" x1="'+(sx(0)-4).toFixed(1)+'" y1="'+Y+'" x2="'+(sx(0)+4).toFixed(1)+'" y2="'+Y+'" visibility="hidden"/>'
     +'<text class="lv-ax ima-grad" data-des="2" x="'+(sx(0)-7).toFixed(1)+'" y="'+(sy(y0)+3.5).toFixed(1)+'" text-anchor="end" visibility="hidden">'+numFmt(y0)+'</text>'
     +'<text class="ima-mot" data-des="2" x="'+mot.x.toFixed(1)+'" y="'+mot.y.toFixed(1)+'" text-anchor="'+mot.ancre+'" visibility="hidden">image</text>'
-    +'<circle class="ima-pt ima-pt-axe" cx="'+X+'" cy="'+Y0+'" r="4.5"/>'
+    +'<circle class="ima-pt ima-pt-axe"'+(q.nus?' data-des="2" visibility="hidden"':'')+' cx="'+X+'" cy="'+Y0+'" r="4.5"/>'
     +'</g>';
 }
 function imaCheminAnt(q, sx, sy){
@@ -30643,7 +30650,7 @@ function imaCheminAnt(q, sx, sy){
       +'<text class="lv-ax ima-grad" data-des="2" x="'+X+'" y="'+(sy(0)+13).toFixed(1)+'" text-anchor="middle" visibility="hidden">'+numFmt(x)+'</text>';
   });
   g+='<text class="ima-mot" data-des="2" x="'+mot.x.toFixed(1)+'" y="'+mot.y.toFixed(1)+'" text-anchor="'+mot.ancre+'" visibility="hidden">'+mot.mot+'</text>'
-    +'<circle class="ima-pt ima-pt-axe" cx="'+X0+'" cy="'+Y+'" r="4.5"/>'
+    +'<circle class="ima-pt ima-pt-axe"'+(q.nus?' data-des="2" visibility="hidden"':'')+' cx="'+X0+'" cy="'+Y+'" r="4.5"/>'
     +'</g>';
   return g;
 }
@@ -30682,6 +30689,8 @@ function startIma(){
 function imaEnonce(q){
   const X=q.x0==null?'':numFmt(q.x0), Y=q.y0==null?'':numFmt(q.y0), n=imaAnts(q).length;
   const ant=n>1?'les antécédents':'le ou les antécédents';
+  if(q.nus)
+    return 'Sur le même graphique, lis l’image de <b>'+X+'</b> par la fonction <i>f</i> et '+ant+' de <b>'+Y+'</b>. Cette fois, aucun point rouge ne te guide : repère toi-même '+X+' sur l’axe des abscisses et '+Y+' sur l’axe des ordonnées, imagine les chemins, puis complète les écritures.';
   if(q.x0!=null && q.y0!=null)
     return 'Sur le même graphique, lis l’image de <b>'+X+'</b> par la fonction <i>f</i> — le point rouge sur l’axe des abscisses — et '+ant+' de <b>'+Y+'</b> — le point rouge sur l’axe des ordonnées. Aucun chemin n’est tracé : imagine-les, puis complète les écritures.';
   if(q.y0!=null)
@@ -30706,7 +30715,7 @@ function renderIma(){
   if(q.x0!=null){
     /* UNE ligne (demande de Turquet) : « L'image de X est : … qui signifie que : f( … ) = … » */
     h+='<div class="img-line ima-ligne"><span class="ima-contenu">L’image de '+X+' est : '+inp('ima-c','', 'l’image de '+X)
-      +' <span class="ima-signifie">qui signifie que :</span> <i>f</i> ( '+inp('ima-fx','sm','le nombre de départ')+' ) = '+inp('ima-fv','sm','son image')+'</span></div>';
+      +(q.sig ? ' <span class="ima-signifie">qui signifie que :</span> <i>f</i> ( '+inp('ima-fx','sm','le nombre de départ')+' ) = '+inp('ima-fv','sm','son image') : '')+'</span></div>';
   }
   if(q.y0!=null){
     /* UNE ligne (demande de Turquet) : « Les antécédents de Y sont … et … qui signifie que : f( … ) = f( … ) = … » */
@@ -30715,7 +30724,7 @@ function renderIma(){
       fs.push('<i>f</i> ( '+inp('ima-ax-'+i,'sm',(n>1?'un antécédent':'l’antécédent')+' de '+Y+', entre les parenthèses')+' )'); }
     const liste=n===1 ? cases[0] : cases.slice(0,-1).join(', ')+' et '+cases[n-1];
     h+='<div class="img-line ima-ligne"><span class="ima-contenu">'+(n===1 ? 'L’antécédent de '+Y+' est : ' : 'Les antécédents de '+Y+' sont : ')+liste
-      +' <span class="ima-signifie">qui signifie que :</span> '+fs.join(' = ')+' = '+inp('ima-ay','sm','la hauteur '+Y)+'</span></div>';
+      +(q.sig ? ' <span class="ima-signifie">qui signifie que :</span> '+fs.join(' = ')+' = '+inp('ima-ay','sm','la hauteur '+Y) : '')+'</span></div>';
   }
   $('imaHost').innerHTML=h;
   $('imaHost').querySelectorAll('input').forEach(function(el){
@@ -30800,7 +30809,7 @@ function imaCheck(q){
   const lire=function(id){ const el=$(id); return {id:id, el:el, v:lvReadInt(id), vide:!el||String(el.value==null?'':el.value).trim()===''}; };
   if(q.x0!=null){
     const y=imaY(q);
-    [{id:'ima-c', val:y},{id:'ima-fx', val:q.x0},{id:'ima-fv', val:y}].forEach(function(c){ const r=lire(c.id); subs.push({id:c.id, val:c.val, el:r.el, ok:r.v===c.val, vide:r.vide}); });
+    [{id:'ima-c', val:y}].concat(q.sig ? [{id:'ima-fx', val:q.x0},{id:'ima-fv', val:y}] : []).forEach(function(c){ const r=lire(c.id); subs.push({id:c.id, val:c.val, el:r.el, ok:r.v===c.val, vide:r.vide}); });
   }
   if(q.y0!=null){
     /* l'ordre est libre : chaque case promet d'être l'un des antécédents, la
@@ -30812,8 +30821,10 @@ function imaCheck(q){
       lus.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : reste.shift()), el:r.el, ok:r.ok, vide:r.vide}); });
     };
     juge('ima-a-');     /* « … sont … et … » */
-    juge('ima-ax-');    /* « f( … ) = f( … ) » : les mêmes antécédents, chacun une fois, dans l'ordre qu'on veut */
-    { const r=lire('ima-ay'); subs.push({id:'ima-ay', val:q.y0, el:r.el, ok:r.v===q.y0, vide:r.vide}); }   /* « = Y » */
+    if(q.sig){
+      juge('ima-ax-');    /* « f( … ) = f( … ) » : les mêmes antécédents, chacun une fois, dans l'ordre qu'on veut */
+      const r=lire('ima-ay'); subs.push({id:'ima-ay', val:q.y0, el:r.el, ok:r.v===q.y0, vide:r.vide});   /* « = Y » */
+    }
   }
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
@@ -30870,12 +30881,14 @@ function ctxIma(q){
     else ecrit.push(imaNom(s.id)+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
   let c='L’élève a sous les yeux la courbe d’une fonction f, tracée sur un quadrillage qui va de −3 à 3 en abscisse et en ordonnée (graduations de 1 en 1). La courbe passe par les points '+pp.join(', ')+' ; entre deux de ces points voisins, elle ne fait que monter ou que descendre.';
-  if(q.x0!=null) c+=' On demande l’image de '+numFmt(q.x0)+' par f. Un point rouge marque '+numFmt(q.x0)+' sur l’axe des abscisses'
+  if(q.x0!=null) c+=' On demande l’image de '+numFmt(q.x0)+' par f.'+(q.nus?' Aucun point rouge ne marque '+numFmt(q.x0)+' sur l’axe des abscisses : l’élève doit le repérer lui-même':' Un point rouge marque '+numFmt(q.x0)+' sur l’axe des abscisses')
     +(q.anim?', et une animation trace le chemin de lecture en pointillés : vertical, du point jusqu’à la courbe, puis horizontal, de la courbe jusqu’à l’axe des ordonnées, où le mot « image » est écrit à la hauteur atteinte.':' ; aucun chemin n’est tracé avant la vérification.')
-    +' L’élève complète, sur une ligne, « L’image de '+numFmt(q.x0)+' est : … qui signifie que : f( … ) = … ».';
-  if(q.y0!=null) c+=' On demande '+(ants.length>1?'les antécédents':'le ou les antécédents')+' de '+numFmt(q.y0)+' par f. Un point rouge marque '+numFmt(q.y0)+' sur l’axe des ordonnées'
+    +(q.sig?' L’élève complète, sur une ligne, « L’image de '+numFmt(q.x0)+' est : … qui signifie que : f( … ) = … ».':' L’élève complète « L’image de '+numFmt(q.x0)+' est : … » (une seule case : l’écriture f( … ) = … n’est plus demandée à ce stade).');
+  if(q.y0!=null) c+=' On demande '+(ants.length>1?'les antécédents':'le ou les antécédents')+' de '+numFmt(q.y0)+' par f.'+(q.nus?' Aucun point rouge ne marque '+numFmt(q.y0)+' sur l’axe des ordonnées : l’élève doit le repérer lui-même':' Un point rouge marque '+numFmt(q.y0)+' sur l’axe des ordonnées')
     +(q.anim?', et une animation trace le chemin inverse en pointillés : horizontal, de l’axe des ordonnées jusqu’à la courbe, puis vertical, de chaque croisement jusqu’à l’axe des abscisses, où le mot « antécédent(s) » est écrit.':' ; aucun chemin n’est tracé avant la vérification.')
-    +' L’élève complète, sur une ligne, « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : '+ants.map(function(){ return '…'; }).join(' et '):'L’antécédent de '+numFmt(q.y0)+' est : …')+' qui signifie que : '+ants.map(function(){ return 'f( … )'; }).join(' = ')+' = … » — '+ants.length+' case'+(ants.length>1?'s pour les antécédents, dans l’ordre qu’il veut, autant entre les parenthèses, dans l’ordre qu’il veut':' pour l’antécédent, une entre les parenthèses')+', et la hauteur après le dernier « = ».';
+    +(q.sig
+      ? ' L’élève complète, sur une ligne, « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : '+ants.map(function(){ return '…'; }).join(' et '):'L’antécédent de '+numFmt(q.y0)+' est : …')+' qui signifie que : '+ants.map(function(){ return 'f( … )'; }).join(' = ')+' = … » — '+ants.length+' case'+(ants.length>1?'s pour les antécédents, dans l’ordre qu’il veut, autant entre les parenthèses, dans l’ordre qu’il veut':' pour l’antécédent, une entre les parenthèses')+', et la hauteur après le dernier « = ».'
+      : ' L’élève complète « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : '+ants.map(function(){ return '…'; }).join(' et '):'L’antécédent de '+numFmt(q.y0)+' est : …')+' » — '+ants.length+' case'+(ants.length>1?'s, dans l’ordre qu’il veut':'')+' ; l’écriture f( … ) = … n’est plus demandée à ce stade.');
   c+=(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +(ecrit.length&&vides.length?' Cases encore vides : '+vides.join(', ')+'.':'')
     +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : '
