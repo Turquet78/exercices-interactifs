@@ -108,4 +108,64 @@ fausse rougit avec son badge), le soutien, puis la reprise d'une pause par
 
 **Le portail** (`site-maths`) a reçu le même exercice en PDF imprimable et
 en page HTML autonome le même jour, avant que la demande ne précise « sur le
-site de maths » : c'est ici, dans les exercices interactifs, qu'il vit.
+site de maths » : c'est ici, dans les exercices interactifs, qu'il vit. Les
+deux fichiers du portail ont été retirés le lendemain, à la demande de
+Turquet.
+
+## Puis la question ② a gagné une méthode 1 : le tableau prolongé (novembre 2026, v409)
+
+**La demande** (Turquet, le lendemain de la mise en ligne) : « pour la
+question 2, proposer une autre méthode qui passera en méthode 1, avec un
+tableau qui affiche les résultats de la question précédente, avec comme
+première colonne "année" avec 2036, 2037… puis comme deuxième colonne nombre
+d'années avec 0 ; 1 ; 2, et qui demande de compléter jusqu'à 2036. On
+acceptera si l'élève saute des cases. La méthode déjà existante passera en
+méthode 2. Les deux méthodes seront obligatoires. Inutile d'afficher le
+tableau pour la méthode 2 finalement. »
+
+**Méthode 1, le tableau prolongé** (`suiTableauM1`) : trois colonnes — le
+moment réel (2026, 2027, … ; 8 h, 9 h, … ; 1<sup>er</sup> juin, 2 juin, …,
+`suiMomentHTML`), le nombre de pas écoulés (0, 1, 2, …), la valeur. Les
+lignes 0 à 3 sont ÉCRITES — les résultats de la question ①, pas la copie de
+l'élève — ; les lignes 4 à N sont des cases (`sui-m1-4` … `sui-m1-N`), une
+par ligne, jusqu'au pas N de la question. Le tableau « pour mémoire » qui
+suivait les phrases a disparu de la question ② (la méthode 1 le contient) ;
+la question ③ garde le sien.
+
+**« On acceptera si l'élève saute des cases ».** Seule la dernière ligne est
+attendue ; les lignes intermédiaires sont facultatives (`opt` dans
+`suiCases`) : laissées vides, elles ne rougissent pas, ne comptent pas comme
+oubliées dans le message (`comptees` exclut les lignes sautées de
+`msgAvecVides`) et la correction les remplit en vert, pour que le tableau se
+lise entier ; écrites, elles se jugent comme les autres — une ligne
+intermédiaire FAUSSE refuse la question (`allOk = ok || (opt && vide)`). Elles
+portent `.hors-note` : `ptsEcran()` ne les compte pas dans la note affichée
+ni dans le crédit partiel d'une évaluation, et la boîte « Il reste des cases
+vides » ne les relève pas. La convention est celle du 4.1 (la simplification
+qu'on n'avait pas à écrire) ; `.hors-note` sur une case MathLive se pose par
+le premier argument de `pmMF`.
+
+**Les deux méthodes sont obligatoires** : une seule vérification, la question
+est parfaite quand la dernière ligne du tableau ET les cinq cases des phrases
+sont justes. Le pourquoi (`suiPourquoi`) et le contexte du modèle (`ctxSui`)
+disent les deux méthodes ; le rappel de cours aussi (« les deux méthodes
+donnent le même résultat : c'est une vérification »).
+
+**Un commentaire non refermé a avalé une ligne.** Le premier jet écrivait
+`const comptees = … ;   /* les lignes sautées ne « manquent » pas` sans `*/` :
+le commentaire courait jusqu'au `*/` de la ligne suivante, et `suiMiroirs()`
+— l'appel qui fait suivre les miroirs à la correction — était devenu du
+commentaire, sans une erreur de syntaxe. C'est le contrôle de l'exercice qui
+l'a vu (« après la correction, le miroir ne montre pas la valeur écrite en
+vert »), à la question ③ qui n'avait pas changé : un contrôle écrit pour un
+autre jour tient le lendemain.
+
+**Le contrôle** (`tests/verifier.js`, bloc « question 2, deux méthodes
+obligatoires ») : le tableau a N + 1 lignes et trois colonnes, sa ligne 3
+écrit le résultat de la question ① et n'est pas une case, les cases 4 à N − 1
+portent `.hors-note` et la dernière non, plus de tableau « pour mémoire » ;
+une copie qui remplit la dernière ligne et les phrases en sautant les
+intermédiaires vaut 1 point, sans rouge, les lignes sautées en vert hors
+note, `ptsEcran` ne comptant que les cases attendues, le message ne disant
+rien de « manquant » ; une ligne intermédiaire fausse refuse la question,
+rougit, reçoit sa correction en vert ; le tableau entier juste vaut le point.

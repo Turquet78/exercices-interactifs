@@ -36521,12 +36521,26 @@ function augmentationTableau(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
   /* ---- 3. le rendu, les miroirs, le juge ---- */
-  verifierEval(w, 'question 2 : la première case d’une donnée est une case, les suivantes des miroirs qui la recopient à la frappe, « = » collé à sa case ; copie juste → 1 point ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
+  verifierEval(w, 'question 2, deux méthodes obligatoires : le tableau prolongé (lignes 0 à 3 écrites, une case par ligne jusqu’au pas N, les intermédiaires facultatives) et les phrases (première case saisie, les suivantes des miroirs, « = » collé) ; copie juste → 1 point ; lignes sautées acceptées ; ligne intermédiaire fausse refusée ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
     const vus=[]; currentEleve={id:"test",prenom:"Test"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     window.confirmerCasesVides=false;
     startSui(); test.idx=1; renderSuiTest();
     const q=test.questions[1]; if(q.part!==2) vus.push("la question 2 n’est pas la partie 2");
-    const host=$("suiHost");
+    const host=$("suiHost"), v=suiVals(q), cases=suiCases(q);
+    /* méthode 1 : le tableau */
+    const tab=host.querySelector(".sui-tab.sui-m1");
+    if(!tab) vus.push("pas de tableau de méthode 1");
+    else {
+      const lignes=tab.querySelectorAll("tr").length-1;
+      if(lignes!==v.n+1) vus.push("tableau de "+lignes+" lignes pour un pas "+v.n);
+      const cols=tab.querySelectorAll("tr:first-child th").length; if(cols!==3) vus.push(cols+" colonnes au lieu de 3");
+      const l3=tab.querySelectorAll("tr")[4]; if(!l3||l3.textContent.indexOf(suiFmt(v.t3))<0) vus.push("la ligne 3 n’écrit pas le résultat de la question 1");
+      if(tab.querySelector("math-field")&&tab.querySelectorAll("tr")[4].querySelector("math-field")) vus.push("la ligne 3 est une case");
+    }
+    for(let n=4;n<=v.n;n++){ const el=$("sui-m1-"+n); if(!el) vus.push("pas de case au pas "+n);
+      else if(el.classList.contains("hors-note")!==(n<v.n)) vus.push("hors-note mal posé au pas "+n); }
+    if(host.querySelector(".sui-tab.sui-rappel")) vus.push("le tableau « pour mémoire » est encore là");
+    /* méthode 2 : les phrases, cases et miroirs */
     ["sui-n","sui-r","sui-p","sui-u0","sui-res"].forEach(function(id){ if(host.querySelectorAll("#"+id).length!==1) vus.push(id+" : "+host.querySelectorAll("#"+id).length+" case(s)"); });
     const mirN=host.querySelectorAll('.sui-mir[data-de="sui-n"]'), mirR=host.querySelectorAll('.sui-mir[data-de="sui-r"]'), mirP=host.querySelectorAll('.sui-mir[data-de="sui-p"]');
     if(mirN.length!==2||mirR.length!==1||mirP.length!==1) vus.push("miroirs : n×"+mirN.length+", r×"+mirR.length+", p×"+mirP.length);
@@ -36535,24 +36549,48 @@ function augmentationTableau(w, P){
     $("sui-n").value="5"; $("sui-n").dispatchEvent(new Event("input"));
     if(![].every.call(mirN,function(m){ return m.textContent==="5"; })) vus.push("le miroir de n ne recopie pas 5");
     if(mirP[0].textContent!=="…") vus.push("un miroir vide n’affiche pas …");
-    const v=suiVals(q), cases=suiCases(q);
-    cases.forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+    /* copie juste, lignes intermédiaires SAUTÉES : acceptée, 1 point */
+    cases.filter(function(c){ return !c.opt; }).forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
     checkSuiAnswer();
-    if(test.score!==1||!test.locked) vus.push("copie juste : score "+test.score+", verrou "+test.locked);
-    if(host.querySelectorAll("math-field.ok").length!==5||host.querySelector(".bad,.sol")) vus.push("copie juste : "+host.querySelectorAll("math-field.ok").length+" cases ok");
+    if(test.score!==1||!test.locked) vus.push("copie juste aux lignes sautées : score "+test.score+", verrou "+test.locked);
+    if(host.querySelector(".bad")) vus.push("copie juste : une case rougit");
+    const nObl=cases.filter(function(c){ return !c.opt; }).length;
+    if(host.querySelectorAll("math-field.ok").length!==nObl) vus.push("copie juste : "+host.querySelectorAll("math-field.ok").length+" cases ok pour "+nObl+" attendues");
+    cases.filter(function(c){ return c.opt; }).forEach(function(c){ const el=$(c.id);
+      if(!el.classList.contains("sol")||!el.classList.contains("hors-note")) vus.push("la ligne sautée "+c.id+" n’est pas remplie en vert hors note"); });
     if(mirP[0].textContent!==String(v.prod)) vus.push("le miroir du produit n’a pas suivi");
+    if(/manquait/.test($("suiFeedback").textContent)) vus.push("les lignes sautées sont dites manquantes : "+$("suiFeedback").textContent);
     if(test.answers.length!==1||!test.answers[0].correct) vus.push("réponse non rangée");
+    /* la note vue par la page : les lignes sautées ne comptent pas */
+    const pts=ptsEcran(); if(!pts||pts.cases!==nObl||pts.justes!==nObl) vus.push("ptsEcran compte "+(pts?pts.justes+"/"+pts.cases:"rien")+" au lieu de "+nObl+"/"+nObl);
+    /* une ligne intermédiaire FAUSSE refuse la question (quand il y en a une) */
+    const opt=cases.filter(function(c){ return c.opt; });
+    if(opt.length){
+      renderSuiTest(); test.locked=false;
+      cases.forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+      $(opt[0].id).value=String(opt[0].bon+1); $(opt[0].id).dispatchEvent(new Event("input"));
+      checkSuiAnswer();
+      if(test.score!==1) vus.push("une ligne intermédiaire fausse est comptée juste");
+      if(!$(opt[0].id).classList.contains("bad")) vus.push("la ligne intermédiaire fausse ne rougit pas");
+      if(!host.querySelector("#"+opt[0].id+" + .mf-cor")) vus.push("la ligne fausse n’a pas sa correction en vert");
+      /* et toutes les lignes écrites justes : parfait */
+      renderSuiTest(); test.locked=false;
+      cases.forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+      checkSuiAnswer();
+      if(test.score!==2||host.querySelectorAll("math-field.ok").length!==cases.length) vus.push("tableau entier juste : score "+test.score+", "+host.querySelectorAll("math-field.ok").length+" ok sur "+cases.length);
+    }
+    const scoreAvant=test.score;
     test.idx=2; renderSuiTest(); checkSuiAnswer();
     const h2=$("suiHost");
     if(h2.querySelector(".bad")) vus.push("copie vide : une case rougit");
     if(h2.querySelectorAll("math-field.sol").length!==4) vus.push("copie vide : "+h2.querySelectorAll("math-field.sol").length+" case(s) corrigée(s) en vert sur 4");
-    if(test.score!==1) vus.push("copie vide comptée");
+    if(test.score!==scoreAvant) vus.push("copie vide comptée");
     if(h2.querySelector('.sui-mir[data-de="sui-e"]').textContent!==String(suiVals(test.questions[2]).e)) vus.push("après la correction, le miroir ne montre pas la valeur écrite en vert");
     if(!/vert/.test($("suiFeedback").textContent)) vus.push("le message ne dit pas la correction : "+$("suiFeedback").textContent);
     test.idx=0; renderSuiTest(); $("sui-t1").value="1"; $("sui-t2").value=String(suiVals(test.questions[0]).t2); checkSuiAnswer();
     if(!$("sui-t1").classList.contains("bad")||!$("sui-t2").classList.contains("ok")) vus.push("copie fausse : la case juste doit rester juste, la fausse rougir");
     if(!$("suiHost").querySelector("#sui-t1 + .mf-cor")) vus.push("copie fausse : pas de bonne réponse en vert à côté");
-    if(test.answers.length!==3||test.answers[2].correct) vus.push("la copie fausse n’est pas rangée fausse");
+    if(!test.answers.length||test.answers[test.answers.length-1].correct) vus.push("la copie fausse n’est pas rangée fausse");
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 4. le soutien, puis la reprise ---- */
