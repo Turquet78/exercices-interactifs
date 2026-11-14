@@ -193,7 +193,7 @@ l'échelle. Les familles restent assez nombreuses pour que `distincte` tienne
 (trois à six par contexte, deux contextes par séance). Le contrôle vérifie
 p ≥ 2N sur 300 séances.
 
-## Puis : au moins trois lignes à compléter dans la méthode 1 (novembre 2026, v416)
+## Puis : au moins trois lignes à compléter dans la méthode 1 (novembre 2026, v417)
 
 **La demande** (Turquet) : « dans la méthode 1 l'élève doit compléter au moins
 trois lignes pour arriver au résultat ».
@@ -225,7 +225,7 @@ du pas 2 au pas N — et vérifie la présence de chaque case `sui-m1-2` à
 de méthode 1. Le reste du bloc (copie aux lignes sautées, ligne intermédiaire
 fausse, tableau entier) tourne inchangé sur les nouvelles cases.
 
-## Puis : le pas est un multiple de 10, ou 25, ou 110, 120, 150 (novembre 2026, v416)
+## Puis : le pas est un multiple de 10, ou 25, ou 110, 120, 150 (novembre 2026, v417)
 
 **La demande** (Turquet, le même jour) : « il faut que l'addition ou soustraction
 à faire soit un multiple de 10 quand il est inférieur à 100 ou sinon 25, et
