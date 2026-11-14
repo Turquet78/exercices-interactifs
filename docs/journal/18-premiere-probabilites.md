@@ -830,3 +830,13 @@ Vérifié dans Chromium (1280 et 390 px) : copie juste 7 / 7 (fréquence
 globale simplifiée comprise), copie fausse 5 / 7 avec une seule case rouge,
 aucun débordement, aucune erreur JavaScript.
 
+**Puis les deux parties ont été inversées (v409).** Demande de Turquet, le
+lendemain : « inverse la partie A et la partie B ». La partie A est celle des
+PROBABILITÉS — l'énoncé des évènements A et D en tête, puis le tableau à
+compléter en question 1 (tout en dépend, il reste la première question de la
+fiche), l'intersection en mots, « sachant que », le nom ; la partie B celle
+des FRÉQUENCES : globale, intersection, conditionnelle. Seul l'ordre de
+`fpbSeance` et la page changent ; `FPB_NB_A` vaut toujours 4 et chaque sorte
+de question garde ses cases, son juge et sa méthode. Vérifié dans Chromium
+(1280 et 390 px) : copie juste 7 / 7, copie fausse 5 / 7.
+
