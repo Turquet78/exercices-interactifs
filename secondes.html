@@ -53133,12 +53133,12 @@ function renderPFP(){
       inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkPFP(); } });
     });
   }
-  if(enA && q.fait){ test.locked=true; pfpActions('<button class="btn btn-primary" id="pfpNext" type="button" onclick="nextPFPTour()">Étape suivante</button>'); }
+  if(enA && q.fait){ test.locked=true; pfpActions('<button class="btn btn-primary" id="pfpNext" type="button" onclick="pfpTourSuivant()">Étape suivante</button>'); }
   else if(!enA && q.ok){ test.locked=true; pfpSuivante(); }
   else pfpActions('<button class="btn btn-primary" id="pfpValidate" type="button" onclick="checkPFP()">Vérifier</button>');
 }
 function pfpFocus(id){ const el=$(id); if(el) setTimeout(function(){ try{ el.focus(); }catch(e){} },40); }
-function nextPFPTour(){
+function pfpTourSuivant(){
   const q=test.questions[test.idx]; if(!q||q.etape!=='a'||!q.fait) return;
   q.pas++; q.fait=false; renderPFP(); pfpSauver(); pfpFocus('pfp-t'+q.pas+'-0');
 }

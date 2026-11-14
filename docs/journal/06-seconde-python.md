@@ -6846,7 +6846,7 @@ la valeur de la variable ....... qui est .... ; et après passer à la question 
   de la variable … qui est … » (le retour à la ligne est voulu, `.pfp-br` : il
   coupe la phrase à son articulation plutôt qu'au hasard de la largeur). La
   vérification d'un tour écrit SA ligne dans la console ; « Étape suivante »
-  (`nextPFPTour`) ouvre le tour suivant, les tours jugés restent peints et
+  (`pfpTourSuivant`) ouvre le tour suivant, les tours jugés restent peints et
   fermés au-dessus ; le dernier tour vérifié ouvre le b) sous le a). Trois
   cases par tour, deux au b) : le barème compte chaque case (3n + 2).
 · **Les juges** : le texte comme les autres textes entre guillemets du thème
@@ -6861,8 +6861,12 @@ la valeur de la variable ....... qui est .... ; et après passer à la question 
   range(4)), les suivantes tirent variable, texte (« valeur= », « tour »,
   « nombre = », « résultat : ») et n de 3 à 5 par `distinctes()`.
 · **La pause** : l'état d'un tour (`pas`, `fait`, `rs`, `oks`) vit dans la
-  question ; un tour jugé mis en pause reprend sur « Étape suivante »
-  (`suiteDeLEcran` lit `nextPFPTour`), sans se rejuger.
+  question ; un tour jugé mis en pause reprend SUR LUI-MÊME, peint et
+  verrouillé, devant son « Étape suivante » — sans se rejuger. La fonction
+  s'appelle `pfpTourSuivant` et non `next…` EXPRÈS : un nom en `next…` est
+  une « suite » pour `suiteDeLEcran`, et la reprise sautait alors au tour
+  suivant, ouvert — le banc de la pause l'a lu, à juste titre, comme une
+  question corrigée rouverte déverrouillée (même idx, test.locked faux).
 Banc jsdom : `pythonForPasAPas` (après `pythonForRange`) — la place et la
 numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à

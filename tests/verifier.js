@@ -37391,9 +37391,9 @@ function pythonForPasAPas(w, P){
   const nom = '{python-for-pas-a-pas} : la boucle for … in range(…), pas à pas';
   if(!P.pythonForPasAPas){ ignorer(nom, 'ce niveau n\'a pas l\'exercice pas à pas'); return; }
   const D = P.pythonForPasAPas, ID = D.exercice, NB = D.nb, NUM = D.numero, F = D.fiche, J = JSON.stringify;
-  const present = evaluer(w, "typeof startPFP==='function' && typeof pfpBuildQuestions==='function' && typeof checkPFP==='function' && typeof nextPFPTour==='function'");
+  const present = evaluer(w, "typeof startPFP==='function' && typeof pfpBuildQuestions==='function' && typeof checkPFP==='function' && typeof pfpTourSuivant==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPFP / pfpBuildQuestions / checkPFP / nextPFPTour introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPFP / pfpBuildQuestions / checkPFP / pfpTourSuivant introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   verifierEval(w, 'il ouvre le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', devant {python-for-range} : le reste du 6.6 recule d’un cran, rien d’autre ne bouge', `(function(){
@@ -37454,7 +37454,7 @@ function pythonForPasAPas(w, P){
       if(test.score!==3*(t+1)) vus.push("score "+test.score);
       if(t<n-1){
         if(!document.getElementById("pfpNext")||document.getElementById("pfpValidate")) vus.push("pas d’« Étape suivante » au tour "+(t+1));
-        nextPFPTour();
+        pfpTourSuivant();
         if(!document.getElementById("pfp-t"+(t+1)+"-0")||document.getElementById("pfp-t"+(t+1)+"-0").value!=="") vus.push("le tour suivant ne s’ouvre pas");
         if(!document.getElementById("pfp-t"+t+"-0").disabled) vus.push("le tour vérifié reste ouvert");
       }
@@ -37508,7 +37508,7 @@ function pythonForPasAPas(w, P){
     const sc=test.score; renderPFP();
     if(test.score!==sc||document.getElementById("pfpValidate")||!document.getElementById("pfpNext")) vus.push("un tour jugé se rejuge");
     if(!document.getElementById("pfp-t0-1").classList.contains("bad")||!document.getElementById("pfp-t0-0").classList.contains("ok")) vus.push("le verdict est perdu");
-    nextPFPTour();
+    pfpTourSuivant();
     const e=document.getElementById("pfp-t1-2"); e.value="1"; e.dispatchEvent(new Event("input",{bubbles:true}));
     renderPFP();
     if(document.getElementById("pfp-t1-2").value!=="1") vus.push("la saisie est perdue");
