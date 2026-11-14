@@ -4920,6 +4920,7 @@ function exercices(suite){
     pythonNomVariable(w, P);
     pythonPrint(w, P);
     pythonInputReponse(w, P);
+    pythonInputSport(w, P);
     serpentsHalloween(w, P);
     pythonInput(w, P);
     augmentationTableau(w, P);
@@ -36506,6 +36507,148 @@ function pythonInputReponse(w, P){
     if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
     return vus.join(" | ");
   })()`, v => v === '');
+}
+
+/* {python-input-sport} (Seconde, 6.3.19, demande de Turquet, novembre 2026) :
+   compléter les deux trous d'un programme — la question de input, le texte du
+   print —, l'exécuter en répondant dans la console, puis donner le nom de la
+   variable qui contient la réponse et son type (str (texte), int (nombre
+   entier), float (un nombre décimal)). Le contrôle épingle la place au menu,
+   le juge des trous (justes acceptés, faux refusés chacun pour SA raison),
+   le trajet en entraînement (« Vérifier » fermé avant l'exécution, la case
+   vide qui ne rougit pas, la correction en vert), le soutien (rouge sans
+   verrou ni réponse), la reprise d'une pause, les branchements, et la sortie
+   du programme juste comparée à un vrai CPython. */
+function pythonInputSport(w, P){
+  const nom = '{python-input-sport} : compléter input et print, puis le nom et le type de la variable';
+  if(!P.pythonInputSport){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du sport favori'); return; }
+  const ID = P.pythonInputSport.exercice, NUM = P.pythonInputSport.numero;
+  const present = evaluer(w, "typeof startPSF==='function' && typeof psfJugeTrou==='function' && typeof pynLancer==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPSF / psfJugeTrou / pynLancer introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, nom + ' — il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!s3||s3.ids[s3.ids.length-1]!=="${ID}") vus.push("pas en fin du sous-thème 6.3");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-image"]!=="6.3.18") vus.push("les autres exercices du 6.3 ont bougé");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge des trous, du nom et du type ---- */
+  verifierEval(w, 'le juge : les deux trous justes passent (espaces, guillemets simples sans apostrophe, virgule finale), les faux sont refusés chacun pour SA raison ; le nom « sport » seul est juste ; le type attendu est str, même pour une réponse « 12 »', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    [[1,Q+"quel est ton sport favori ? "+Q],[1,Q+"quel est ton sport favori ?"+Q],[1,A+"quel est ton sport favori ? "+A],[1,Q+"Quel est ton sport favori ?"+Q],
+     [2,Q+"c"+A+"est formidable le sport"+Q],[2,Q+"c"+A+"est formidable le sport,"+Q],[2,Q+" c"+A+"est formidable le sport "+Q]].forEach(function(c){
+      const j=psfJugeTrou(c[0],c[1]); if(!j.ok) vus.push("refusé à tort, trou "+c[0]+" : "+c[1]+" — "+j.diag); });
+    [[1,"quel est ton sport favori ?",/guillemets/],[1,"input("+Q+"quel est ton sport favori ?"+Q+")",/déjà écrits/],[1,Q+"quel âge as-tu ?"+Q,/doit être/],
+     [2,A+"c"+A+"est formidable le sport"+A,/apostrophe/],[2,Q+"c"+A+"est formidable le sport"+Q+", sport",/deux fois/],[2,"print("+Q+"c"+A+"est formidable le sport"+Q,/déjà écrit/],
+     [2,Q+"bravo"+Q,/doit être/]].forEach(function(c){
+      const j=psfJugeTrou(c[0],c[1]); if(j.ok) vus.push("accepté à tort, trou "+c[0]+" : "+c[1]); else if(!c[2].test(j.diag)) vus.push(c[1]+" : "+j.diag); });
+    if(!psfJugeTrou(1,"  ").vide) vus.push("le trou vide n’est pas reconnu vide");
+    if(!psfJugeNom(" sport ").ok) vus.push("« sport » refusé");
+    [[Q+"sport"+Q,/SANS guillemets/],["Sport",/majuscules/],["input",/fonctions/],["favori",/GAUCHE/]].forEach(function(c){
+      const j=psfJugeNom(c[0]); if(j.ok) vus.push("nom accepté à tort : "+c[0]); else if(!c[1].test(j.diag)) vus.push(c[0]+" : "+j.diag); });
+    if(psfTypeAttendu({rep:"12"})!=="str"||psfTypeAttendu({rep:"tennis"})!=="str") vus.push("le type attendu n’est pas str");
+    if(PSF_TYPES.map(function(t){ return t[1]; }).join("|")!=="str (texte)|int (nombre entier)|float (un nombre décimal)") vus.push("les trois réponses du c) : "+PSF_TYPES.join(" / "));
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le trajet en entraînement ---- */
+  verifierEval(w, 'entraînement : « Vérifier » reste fermé tant que le programme n’est pas exécuté tel qu’il est écrit ; la console pose la question puis affiche la phrase ; un trou faux rougit et le texte juste s’écrit en vert ; au b), une case vide ne rougit pas et reçoit la réponse en vert ; la note dit 2 cases justes sur 4', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
+    currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPSF();
+    if(!$("psfAvant")||!/input/.test($("psfAvant").textContent)) vus.push("la définition manque");
+    if(!document.querySelector("#psfEtapeA .pyn-titre")||!/sport favori/.test(document.querySelector("#psfEtapeA .pyn-titre").textContent)) vus.push("l’énoncé du a) manque dans son cadre");
+    if($("psf-nom")||$("psf-type")) vus.push("le b) est ouvert avant le a)");
+    if(!$("psfValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
+    $("psf-l1").value=Q+"quel est ton sport favori ? "+Q; $("psf-l1").dispatchEvent(new Event("input"));
+    $("psf-l2").value=Q+"c"+A+"est super le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    psfExecuter();
+    if(!$("pynEntree")) vus.push("la console n’attend pas la réponse");
+    else { $("pynEntree").value="handball"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
+    const att="quel est ton sport favori ? handball"+NL+"c"+A+"est super le sport handball";
+    if($("psfConsoleA").textContent!==att) vus.push("console : "+JSON.stringify($("psfConsoleA").textContent));
+    if($("psfValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
+    $("psf-l1").value=$("psf-l1").value+" "; $("psf-l1").dispatchEvent(new Event("input"));
+    if(!$("psfValidate").disabled) vus.push("« Vérifier » reste ouvert sur un programme modifié depuis l’exécution");
+    psfExecuter(); $("pynEntree").value="handball"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPSF();
+    if(!$("psf-l1").classList.contains("ok")||!$("psf-l2").classList.contains("bad")) vus.push("les trous ne sont pas peints : "+$("psf-l1").className+" / "+$("psf-l2").className);
+    const cor=document.querySelector("#psfHost .psf-cor[data-pour=psf-l2]");
+    if(!cor||cor.textContent!==Q+"c"+A+"est formidable le sport"+Q) vus.push("le texte juste du trou 2 n’est pas écrit en vert");
+    if(test.score!==1) vus.push("score après le a) : "+test.score);
+    if(!$("psfSuite")) vus.push("pas de « Passer au b) »"); else psfVersB();
+    if(!document.querySelector("#psfEtapeA .pyn-titre")) vus.push("l’énoncé du a) disparaît au b)");
+    if(!$("psf-l1").disabled||!$("psf-l2").classList.contains("bad")) vus.push("le a) n’est plus figé ni peint au b)");
+    if(!$("psf-nom")||!$("psf-type")) vus.push("le b) et le c) ne s’ouvrent pas");
+    $("psf-type").value="str"; $("psf-type").dispatchEvent(new Event("change"));
+    checkPSF();
+    if($("psf-nom").classList.contains("bad")) vus.push("la case VIDE du nom rougit");
+    if(!$("psf-nom").classList.contains("sol")||$("psf-nom").value!=="sport") vus.push("la case vide du nom ne reçoit pas la réponse en vert");
+    if(!$("psf-type").classList.contains("ok")) vus.push("le type juste n’est pas en bleu");
+    if(test.score!==2) vus.push("score final "+test.score);
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.justes!==2||a.cases!==4||a.correct) vus.push("la réponse enregistrée : "+JSON.stringify(a));
+    if(!$("psfNext")) vus.push("pas de « Voir mes résultats »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le soutien, puis la reprise ---- */
+  verifierEval(w, 'soutien : un trou faux rougit et dit OÙ est l’erreur, sans verrouiller ni écrire le texte juste ; corrigé, il compte ; le nom faux rougit sans montrer « sport » ; puis la reprise d’une pause rend l’écran du b) tel qu’il était', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentMode="soutien"; startPSF();
+    $("psf-l1").value=Q+"quel est ton sport favori ?"+Q; $("psf-l2").value=A+"c"+A+"est formidable le sport"+A; psfModifie();
+    psfExecuter(); if($("pynEntree")){ $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
+    checkPSF();
+    if(!$("psf-l2").classList.contains("bad")||test.locked||$("psf-l2").disabled) vus.push("le trou faux en soutien : verrouillé ou pas rouge");
+    if(!/apostrophe/.test($("psfFeedback").textContent)) vus.push("le soutien ne dit pas où est l’erreur : "+$("psfFeedback").textContent);
+    if(document.querySelector("#psfHost .psf-cor")) vus.push("le soutien écrit le texte juste");
+    $("psf-l2").value=Q+"c"+A+"est formidable le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    psfExecuter(); $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPSF();
+    if(test.score!==2||!$("psf-l2").classList.contains("ok")) vus.push("les trous corrigés ne comptent pas : "+test.score);
+    psfVersB();
+    $("psf-nom").value="favori"; $("psf-nom").dispatchEvent(new Event("input")); $("psf-type").value="int"; $("psf-type").dispatchEvent(new Event("change"));
+    checkPSF();
+    if(!$("psf-nom").classList.contains("bad")||!$("psf-type").classList.contains("bad")||test.locked) vus.push("le b) faux en soutien");
+    if(/« sport »|: sport\b/.test($("psfFeedback").textContent)||document.querySelector("#psfHost .psf-cor")) vus.push("le soutien donne le nom : "+$("psfFeedback").textContent);
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; test.locked=false;
+    if(!afficherEcranDe("psf")) vus.push("afficherEcranDe ne connaît pas psf");
+    if(!$("psf-nom")||$("psf-nom").value!=="favori") vus.push("le nom tapé est perdu à la reprise");
+    if(!$("psf-l1")||!$("psf-l1").disabled||!$("psf-l1").classList.contains("ok")) vus.push("le a) n’est plus juste et figé à la reprise");
+    if($("psfConsoleA").textContent.indexOf("judo")<0) vus.push("la console du a) à la reprise : "+JSON.stringify($("psfConsoleA").textContent));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. les branchements ---- */
+  verifierEval(w, 'branchements : écran, rappel de cours, questions à l’IA, contexte du modèle, serpent d’Halloween', `(function(){
+    const vus=[];
+    if(!$("scr-psf")) vus.push("pas d’écran");
+    if(!RAPPELS.psf||!/input/.test(RAPPELS.psf)||!/str/.test(RAPPELS.psf)) vus.push("rappel de cours");
+    if(!QIA_SUGG.psf||QIA_SUGG.psf.length<3) vus.push("questions à l’IA");
+    const c=ctxPsf({etape:"b",rep:"judo"});
+    if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
+    if(!HW_SERPENTS["${ID}"]) vus.push("pas de serpent d’Halloween");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. CPython : le programme juste affiche la même chose ---- */
+  const py = (() => { try{ execFileSync('python3', ['--version']); return 'python3'; }catch(e){ return null; } })();
+  if(!py){ ignorer(nom + ' (CPython)', 'python3 absent'); return; }
+  const r = evaluer(w, `JSON.stringify((function(){ const s=psfTemoin(); return {src:s, page:pyRun(s,["natation"]).out}; })())`);
+  if(!r.ok){ verifier(nom + ' (CPython)', false, 'le programme juste ne s’exécute pas dans la page'); return; }
+  const c = JSON.parse(r.valeur);
+  let cp = null;
+  try{ cp = execFileSync(py, ['-c', c.src], { input: 'natation\n', encoding: 'utf8', timeout: 60000 }); }
+  catch(e){ verifier(nom + ' (CPython)', false, 'CPython n\'a pas pu être lancé : ' + e.message); return; }
+  /* CPython lit sa réponse dans un fichier : il n'écrit ni la réponse ni le retour à la ligne après la question */
+  const page = c.page.replace('quel est ton sport favori ? natation\n', 'quel est ton sport favori ? ');
+  verifier(nom + ' (le programme juste, comparé à CPython)', page === cp, 'page ' + JSON.stringify(page) + ', CPython ' + JSON.stringify(cp));
 }
 
 /* {augmentation-tableau} (Première, 7.1, thème 7 « Suites », novembre 2026) :
