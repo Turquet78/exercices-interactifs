@@ -398,3 +398,15 @@ reviendrait se lirait dans la mémoire mesurée, pas dans un banc mort. Ce n'est
 pas non plus une licence : un contrôle relit un SVG comme du texte plutôt que
 de redessiner des centaines de figures (la leçon du 8.1.9).
 
+
+**Et un contrôle qui CHERCHE une touche du clavier à l'écran attend qu'elle
+soit rendue, jamais un délai fixe.** Le bloc « 11 decies » (le clavier C des
+feuilles de rédaction, Première) ouvrait le clavier, attendait 600 ms, puis
+cherchait la touche « clavier B » : sur l'action GitHub, où le banc partage
+la machine avec d'autres travaux, MathLive a rendu le clavier après ce délai
+et le contrôle a rougi — « aucune touche « clavier B » sur le clavier rendu »
+sur `synthese-generale-libre`, vert en local, vert sur les deux passages
+précédents du même banc (novembre 2026, PR 1015). `toucheRendue(noms, ms)`
+relit les touches toutes les 150 ms jusqu'à 3 s, et les trois endroits du bloc
+qui attendaient à l'aveugle passent par lui. Même famille que le piège
+précédent : un délai fixe mesure la machine, pas la page.

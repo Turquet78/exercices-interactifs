@@ -36681,16 +36681,19 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2, et chaque nombre de chaque étape n’a qu’un seul chiffre non nul', `(function(){
-    const vus=[]; const un=function(x){ return /^[1-9]0*$/.test(String(x)); };
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas un multiple de 10 sous 100, ou 25, ou 110, 120, 150 au-dessus de 100, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       qs.forEach(function(q){ const v=suiVals(q);
-        [v.u0,v.rAbs,v.t1,v.t2,v.t3,v.n,v.prod,v.res,v.e,v.kk,v.T].forEach(function(x){ if(!un(x)) vus.push(SUI_CTX[q.ci].nom+" : "+x+" a plus d’un chiffre non nul"); });
+        if(PAS.indexOf(v.rAbs)<0) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", ni multiple de 10 sous 100, ni 25, ni 110, 120 ou 150");
+        if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
+        if(v.kk>10) vus.push("p="+v.kk+" : la question 3 sort de la table de 10");
         if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
+        if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
       });
@@ -36702,7 +36705,7 @@ function augmentationTableau(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
   /* ---- 3. le rendu, les miroirs, le juge ---- */
-  verifierEval(w, 'question 2, deux méthodes obligatoires : le tableau prolongé (lignes 0 à 3 écrites, une case par ligne jusqu’au pas N, les intermédiaires facultatives) et les phrases (première case saisie, les suivantes des miroirs, « = » collé) ; copie juste → 1 point ; lignes sautées acceptées ; ligne intermédiaire fausse refusée ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
+  verifierEval(w, 'question 2, deux méthodes obligatoires : le tableau prolongé (lignes 0 et 1 écrites, une case par ligne du pas 2 au pas N — au moins trois —, les intermédiaires facultatives) et les phrases (première case saisie, les suivantes des miroirs, « = » collé) ; copie juste → 1 point ; lignes sautées acceptées ; ligne intermédiaire fausse refusée ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
     const vus=[]; currentEleve={id:"test",prenom:"Test"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     window.confirmerCasesVides=false;
     startSui(); test.idx=1; renderSuiTest();
@@ -36715,10 +36718,15 @@ function augmentationTableau(w, P){
       const lignes=tab.querySelectorAll("tr").length-1;
       if(lignes!==v.n+1) vus.push("tableau de "+lignes+" lignes pour un pas "+v.n);
       const cols=tab.querySelectorAll("tr:first-child th").length; if(cols!==3) vus.push(cols+" colonnes au lieu de 3");
-      const l3=tab.querySelectorAll("tr")[4]; if(!l3||l3.textContent.indexOf(suiFmt(v.t3))<0) vus.push("la ligne 3 n’écrit pas le résultat de la question 1");
-      if(tab.querySelector("math-field")&&tab.querySelectorAll("tr")[4].querySelector("math-field")) vus.push("la ligne 3 est une case");
+      const trs=tab.querySelectorAll("tr");
+      if(!trs[1]||trs[1].textContent.indexOf(suiFmt(v.u0))<0||trs[1].querySelector("math-field")) vus.push("la ligne 0 n’écrit pas la valeur de départ");
+      if(!trs[2]||trs[2].textContent.indexOf(suiFmt(v.t1))<0||trs[2].querySelector("math-field")) vus.push("la ligne 1 n’écrit pas le premier pas de la question 1");
+      /* au moins TROIS lignes à compléter pour arriver au résultat (Turquet, novembre 2026) */
+      const nCases=tab.querySelectorAll("math-field").length;
+      if(nCases<3) vus.push("seulement "+nCases+" ligne(s) à compléter dans la méthode 1 : il en faut au moins trois");
+      if(nCases!==v.n-1||!trs[3]||!trs[3].querySelector("math-field")) vus.push(nCases+" case(s) : attendues du pas 2 au pas "+v.n);
     }
-    for(let n=4;n<=v.n;n++){ const el=$("sui-m1-"+n); if(!el) vus.push("pas de case au pas "+n);
+    for(let n=2;n<=v.n;n++){ const el=$("sui-m1-"+n); if(!el) vus.push("pas de case au pas "+n);
       else if(el.classList.contains("hors-note")!==(n<v.n)) vus.push("hors-note mal posé au pas "+n); }
     if(host.querySelector(".sui-tab.sui-rappel")) vus.push("le tableau « pour mémoire » est encore là");
     /* méthode 2 : les phrases, cases et miroirs */
