@@ -1524,6 +1524,7 @@ i.pb-P{margin-right:.14em}
   .ima-mot{font-family:'Nunito',sans-serif;font-style:italic;font-weight:800;font-size:12px;fill:var(--red)}
   /* la graduation lue, récrite en rouge sur un halo par-dessus le pointillé */
   .lv-ax.ima-grad{fill:var(--red);font-weight:800;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+  .ima-sep{margin:0 .35em;font-weight:800;color:var(--ink-soft)}
   .ima-rejouer{text-align:center;margin:0 0 14px}
   .ima-rejouer .btn{font-size:.9rem;padding:6px 12px}
   /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
@@ -4384,7 +4385,7 @@ const TESTS={
   'developper-double': { name:'D\u00e9velopper avec la double distributivit\u00e9', icon:'\ud83d\udd00', desc:'(a + b) \u00d7 (c + d) = a \u00d7 c + a \u00d7 d + b \u00d7 c + b \u00d7 d, en suivant les quatre fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade, puis la forme r\u00e9duite. Quatre expressions, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvd() },
   'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Une courbe dont la partie au-dessus de l’axe des abscisses est en ROUGE et porte le signe +, la partie en dessous en BLEU et porte le signe −. Place les signes dans le tableau — les racines et les zéros sont donnés —, puis résous f (x) = 0. Cinq courbes.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
-  'lire-image-animation': { name:'Lire l\u2019image d\u2019un nombre', icon:'\ud83d\udccd', desc:'Un point rouge marque le nombre sur l\u2019axe des abscisses, et le chemin en pointill\u00e9s s\u2019anime\u00a0: on monte (ou on descend) jusqu\u2019\u00e0 la courbe, puis on va jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es, o\u00f9 se lit l\u2019image. Puis \u00e9cris la hauteur et f(x) = \u2026', start:()=>startIma() },
+  'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Dix questions en cinq temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, le ou les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, puis l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique.', start:()=>startIma() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -4393,7 +4394,7 @@ const TESTS={
   'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question, aux petits effectifs : calcule P(A ∩ B) et P(A) × P(B), puis compare-les. Égales : A et B sont indépendants.', start:()=>startPBInd() },
   'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() },
   /* 3.10 (novembre 2026) : la fiche en deux parties de Turquet, fréquences puis probabilités */
-  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle ; Partie B, les mêmes calculs dits en probabilités : P(A ∩ D), P<sub>D</sub>(A)… Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
+  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, trois probabilités : P(A ∩ D) posée en mots, P<sub>D</sub>(A)… ; Partie B, les mêmes calculs dits en fréquences : une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle. Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
@@ -24523,7 +24524,18 @@ PBX.auto={
      données — le total, toujours (l'énoncé le dit), et quatre autres tirées
      parmi les jeux qui se résolvent pas à pas sans ligne pleine
      (pbResoluble) ; quatre à trouver, de tête : 2 000 − 1 400, 1 000 − 600.
-   - PARTIE A, EN FRÉQUENCES — les questions disent « fréquence
+   - PARTIE A, EN PROBABILITÉS (d'abord la partie B ; les deux parties ont
+     été inversées en v409, demande de Turquet) : A et D sont définis ; le
+     tableau à compléter en est la question 1, puisque tout en dépend ; une
+     intersection posée en mots (« provienne de la machine A ET présente un
+     défaut » — l'élève choisit l'indice « tout » et l'évènement, comme au
+     3.4 ; une autre intersection que celle de la partie B) ; une
+     conditionnelle posée en mots (« sachant que »), dont le nom est écrit
+     entre parenthèses ; une conditionnelle donnée par son nom. Les trois
+     conditionnelles de la séance sont différentes. La question P(A ∪ D) de
+     la v405 est partie en v406 (demande de Turquet : « supprimer la
+     question sur l'union »).
+   - PARTIE B, EN FRÉQUENCES — les questions disent « fréquence
      (proportion) » (demande de Turquet, v406) : la fréquence globale d'un
      évènement (« de pièces présentant un défaut dans la production
      journalière »), la fréquence d'une intersection (« des pièces provenant
@@ -24531,14 +24543,6 @@ PBX.auto={
      conditionnelle (« des pièces provenant de la machine A parmi les pièces
      sans défaut »). La ligne : fréquence = lettres / lettres = effectifs /
      effectifs. Aucun P.
-   - PARTIE B, EN PROBABILITÉS : A et D sont définis ; une intersection posée
-     en mots (« provienne de la machine A ET présente un défaut » — l'élève
-     choisit l'indice « tout » et l'évènement, comme au 3.4 ; une autre
-     intersection que celle de la partie A) ; une conditionnelle posée en
-     mots (« sachant que »), dont le nom est écrit entre parenthèses ; une
-     conditionnelle donnée par son nom. Les trois conditionnelles de la
-     séance sont différentes. La question P(A ∪ D) de la v405 est partie en
-     v406 (demande de Turquet : « supprimer la question sur l'union »).
    Sept questions ; une question est juste quand toutes ses cases le sont ;
    toute fraction égale à l'attendue est juste (pbFracJuger). Chaque sorte
    de question range dans PBX ses attendus (att), sa méthode (pourquoi), son
@@ -24615,22 +24619,25 @@ function fpbTableau(){
    fréquence d'une intersection, une fréquence conditionnelle ; puis une
    autre intersection en mots, une conditionnelle en mots (« sachant que »)
    et une conditionnelle par son nom — les trois conditionnelles
-   différentes, les deux intersections aussi. Les tirages se font hors de la
-   fabrique passée à distincte(), qui peut la rappeler. */
+   différentes, les deux intersections aussi. Depuis la v409 les
+   probabilités viennent d'abord (partie A, le tableau en tête), les
+   fréquences ensuite (partie B). Les tirages se font hors de la fabrique
+   passée à distincte(), qui peut la rappeler. */
 function fpbSeance(){
   const t=fpbTableau(), ci=rand(0,FPB_CTX.length-1), qs=[], conds=qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,3);
   const simple=pick(PB_SIMPLES), inters=qdMelanger(PB_INTER.slice()).slice(0,2);
   const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { fpb:1, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   pose({ t:'fpbtab' });
-  pose({ t:'fpbfreq', ev:[simple,'T'] });
-  pose({ t:'fpbfint', ev:[inters[0],'T'] });
-  pose({ t:'fpbcond', ev:conds[0] });
   pose({ t:'fpbinter', ev:[inters[1],'T'] });
   pose({ t:'fpbsach', ev:conds[1] });
   pose({ t:'fpbnom', ev:conds[2] });
+  pose({ t:'fpbfreq', ev:[simple,'T'] });
+  pose({ t:'fpbfint', ev:[inters[0],'T'] });
+  pose({ t:'fpbcond', ev:conds[0] });
   return qs;
 }
-/* Le numéro d'une question sur la fiche : A1 à A4, B1 à B3. */
+/* Le numéro d'une question sur la fiche : A1 à A4 (le tableau, puis les
+   trois probabilités), B1 à B3 (les trois fréquences). */
 const FPB_NB_A=4;
 function fpbNum(i){ return i<FPB_NB_A ? 'A'+(i+1) : 'B'+(i-FPB_NB_A+1); }
 /* Le tableau TRANSPOSÉ : les provenances en lignes, le défaut en colonnes.
@@ -24770,9 +24777,10 @@ PBX.fpbnom={
   label(q){ return pbNomTxt(q.ev[0],q.ev[1]); },
   ctx(q){ return fpbCtxCommun(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+'. '; }
 };
-/* La page : le tableau à compléter collé en haut, puis « Partie A » (quatre
-   questions) et « Partie B » (l'énoncé des évènements, trois questions),
-   chaque question numérotée comme sur la fiche papier. */
+/* La page : le tableau à compléter collé en haut, puis « Partie A »
+   (l'énoncé des évènements, le tableau et trois probabilités) et « Partie
+   B » (trois fréquences), chaque question numérotée comme sur la fiche
+   papier. */
 function renderFPBFiche(){
   test.locked=false; test.idx=0;
   pbPlacerEnonce(false);
@@ -24787,11 +24795,11 @@ function renderFPBFiche(){
   $('pbHost').innerHTML=
     '<div class="pbf-tete">'+fpbTableHTML(qs[0])+'</div>'
    +'<h3 class="fpb-partie">Partie A</h3>'
-   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
-   +'<h3 class="fpb-partie">Partie B</h3>'
    +'<p class="fpb-intro">On choisit au hasard '+esc(C.un)+' parmi '+esc(C.tot)+'. On considère les évènements : '
      +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+fpbMot(C,'B',''))+' ». '
      +'<span class="fpb-note">Dans cet exercice, les probabilités seront données en écriture fractionnaire.</span></p>'
+   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
+   +'<h3 class="fpb-partie">Partie B</h3>'
    +'<ol class="pbf-liste">'+qs.slice(FPB_NB_A).map((q,j)=>li(q,j+FPB_NB_A)).join('')+'</ol>';
   pbAffMaj();
 }
@@ -24801,9 +24809,9 @@ function fpbCtxTexte(){
   const net=s=>String(s).replace(/<[^>]+>/g,'');
   return 'FICHE en deux parties, toutes les questions à l’écran ensemble, le tableau collé en haut. '+fpbCtxCommun(qs[0])
     +'Cases données : '+qs[0].k.map(i=>pbValeurs(qs[0].n)[i]).join(', ')+' ; les quatre autres sont à trouver, de tête (des centaines). '
-    +'Partie A, en FRÉQUENCES (sans la lettre P) : '+qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
-    +'Partie B, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
-    +qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie A, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
+    +qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie B, en FRÉQUENCES (sans la lettre P) : '+qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +'Chaque réponse s’écrit sur une ligne : fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '
     +'Fréquence globale = effectif de l’évènement / effectif total ; fréquence d’une intersection « … et … » = effectif de l’intersection / effectif total ; fréquence conditionnelle de Y parmi X = effectif de X∩Y / effectif de X ; en probabilités, P sans indice divise par tout, P_X(Y) se restreint à X. '
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '+pbMethodeTxt()
@@ -30248,7 +30256,7 @@ const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>④ On simplifie si c’est possible</b> : 2 divise 10 et 8, donc \\(\\frac{10}{8}=\\frac{10\\div 2}{8\\div 2}=\\frac{5}{4}\\). Si la fraction obtenue se simplifie encore, on recommence.<br>
 <b>Avec une soustraction, même chemin</b> : le produit d’abord, puis on SOUSTRAIT les numérateurs sur le dénominateur commun : \\(\\frac{3}{2}-\\frac{1}{2}\\times\\frac{3}{2}=\\frac{3}{2}-\\frac{3}{4}=\\frac{6}{4}-\\frac{3}{4}=\\frac{3}{4}\\). Dans cet exercice, la différence est toujours positive.<br>
 Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de multiplier par \\(\\frac{3}{2}\\) — la priorité s’en trouve inversée, et le résultat change.`;
-/* ===== EXERCICE : LIRE L'IMAGE D'UN NOMBRE — LE CHEMIN ANIMÉ ================
+/* ===== EXERCICE : IMAGE ET ANTÉCÉDENTS D'UN NOMBRE — LE CHEMIN ANIMÉ ========
    (identifiant « lire-image-animation », kind « ima », thème 6 — Étude de
    fonction, 6.2 — le 6.1, {tableau-signes-courbe}, est arrivé le même jour)
    Demande de Turquet (novembre 2026) : « en première créer un exercice dans le
@@ -30257,44 +30265,82 @@ Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de
    tracera des pointillés depuis ce point jusqu'à la courbe verticalement et on
    tracera ensuite des pointillés de la courbe jusqu'à l'axe des ordonnées qui
    indique l'image. On écrira image sur l'axe des ordonnées. Supprimer le
-   tableau de valeurs à la fin de l'exercice. » Puis, le même jour : « il
-   faudrait faire une animation pour que l'élève comprenne que l'on part de
-   l'abscisse verticalement jusqu'à la courbe puis que l'on va horizontalement
-   sur l'axe des ordonnées pour lire l'image. »
+   tableau de valeurs à la fin de l'exercice. » Puis : « il faudrait faire une
+   animation pour que l'élève comprenne que l'on part de l'abscisse
+   verticalement jusqu'à la courbe puis que l'on va horizontalement sur l'axe
+   des ordonnées pour lire l'image. » Puis, le lendemain : « écrire simplement
+   l'image de .. est : .... sans écrire "est la hauteur de ...". Après deux
+   questions avec l'animation poser deux autres questions sans l'animation.
+   Puis deux questions sur le ou les antécédents avec une animation inverse de
+   celle de l'image d'un point, qui part de l'image pour aller vers le ou les
+   antécédents. Puis deux autres questions sur le ou les antécédents sans les
+   animations, puis deux autres questions sans animation qui demandent une
+   image et le ou les antécédents sur le même graphique. »
+
+   LA SÉANCE EN CINQ TEMPS, deux questions chacun (imaPlan) : l'image avec le
+   chemin animé ; l'image sans chemin ; les antécédents avec le chemin INVERSE
+   animé ; les antécédents sans chemin ; l'image ET les antécédents sur le même
+   dessin, sans chemin. Sans chemin, le ou les points rouges marquent quand
+   même le nombre donné sur son axe, et le chemin entier se dessine À LA
+   VÉRIFICATION — la méthode de la Seconde : montré pendant la recherche, il
+   donnerait la réponse.
 
    LE DESSIN EST CELUI DE LA SECONDE, porté dans cette page par le 6.1 (plus
-   haut dans le fichier) : lvGenPts (sept valeurs entières sur [-3 ; 3], deux ou trois
-   morceaux monotones), la spline de lvPath, le cadre de lvGraphSVG,
+   haut dans le fichier) : lvGenPts (sept valeurs entières sur [-3 ; 3], deux
+   ou trois morceaux monotones), la spline de lvPath, le cadre de lvGraphSVG,
    l'étiquette Cf posée hors de sa courbe par etqLibre ; le lecteur lvReadInt
    arrive avec le 6.2. Les noms sont ceux de la Seconde : un contrôle qui les
    connaît là-bas (l'étiquette jamais sur sa courbe, lvReadInt lit un entier
-   strictement) les retrouve ici sans rien déclarer. Le TIRAGE
-   est celui du 3.1.1 de la Seconde (imgTirage) : jamais x = 0 — le point rouge
-   tomberait sur l'axe des ordonnées et le pointillé vertical n'aurait rien à
-   tracer —, jamais d'image nulle — le pointillé horizontal serait invisible,
-   on retire la COURBE, pas l'abscisse —, les abscisses toutes différentes tant
-   qu'il y en a, et distinctes() par-dessus : jamais deux fois la même question.
+   strictement) les retrouve ici sans rien déclarer. Le TIRAGE des images est
+   celui du 3.1.1 de la Seconde (imgTirage) : jamais x = 0, jamais d'image
+   nulle, les abscisses toutes différentes tant qu'il y en a ; celui des
+   antécédents est celui du 3.1.3 (antCibles) : une hauteur que la ligne de
+   niveau ne coupe qu'AUX graduations (strictement comprise entre deux valeurs
+   voisines, elle serait traversée entre deux graduations, là où rien ne se
+   lit), un à trois antécédents, jamais la hauteur 0 (la ligne serait sur
+   l'axe) ni un antécédent en 0 (son pointillé serait sur l'axe des ordonnées).
+   Sur le dessin à deux questions, l'image demandée n'est jamais la hauteur
+   des antécédents : les deux chemins se confondraient. Et distinctes()
+   par-dessus : jamais deux fois la même question.
 
-   CE QUI CHANGE, et seulement cela :
-   · LE CHEMIN DE LECTURE EST MONTRÉ À L'ÉLÈVE, pas gardé pour la correction
-     comme en Seconde : le point rouge sur l'axe des abscisses dès la question,
-     puis l'ANIMATION — le pointillé vertical monte (ou descend) du point
-     jusqu'à la courbe, puis le pointillé horizontal va de la courbe jusqu'à
-     l'axe des ordonnées, où le mot « image » s'écrit à la hauteur atteinte.
-     La valeur se lit sur la graduation : c'est le GESTE que l'exercice
-     enseigne, et le mot « image » dit où lire. « Revoir le chemin » rejoue
-     l'animation ; « moins d'animations » (prefers-reduced-motion) la fige à
-     sa fin ; la vérification la fige aussi.
-   · DEUX écritures au lieu de trois : « L'image de X est la hauteur de X.
-     C'est … » et « f( … ) = … » — le tableau de valeurs est retiré.
-   · la NOTE se compte par question parfaite, comme tout exercice de ce niveau
-     (finishTest note sur le nombre de questions) ; les cases justes vont au
-     crédit partiel (ptsExo). Les cases se peignent par corrChoix, la fonction
-     de ce niveau : juste en bleu, faux en rouge avec la bonne réponse en vert
-     à côté, vide remplie en vert — jamais rouge.
+   LE CHEMIN DE LECTURE. Pour l'image : le point rouge sur l'axe des abscisses,
+   le pointillé vertical se déplie du point jusqu'à la courbe, un arrêt, puis
+   le pointillé horizontal va de la courbe jusqu'à l'axe des ordonnées, où la
+   marque, la graduation lue (récrite en rouge sur un halo) et le mot « image »
+   apparaissent. Pour les antécédents, le chemin INVERSE : le point rouge sur
+   l'axe des ordonnées, le pointillé horizontal se déplie de l'axe vers la
+   courbe — vers la gauche et vers la droite à la fois, jusqu'aux antécédents
+   extrêmes —, un point rouge se pose à chaque croisement, un arrêt, puis un
+   pointillé vertical descend (ou monte) de chaque croisement jusqu'à l'axe des
+   abscisses, où la marque, la graduation lue et le mot « antécédent(s) »
+   apparaissent. Tout est posé à sa place finale dans le SVG (data-x2,
+   data-y2, data-phase) : l'animation ne calcule rien, elle déplie, groupe par
+   groupe (imaAnimer). « ▶ Revoir le chemin » rejoue ; « moins d'animations »
+   (prefers-reduced-motion) et la vérification figent le chemin à sa fin.
+   Le mot s'écrit DU CÔTÉ DE L'AXE OPPOSÉ AU CHEMIN : « image » à gauche de la
+   graduation quand le chemin arrive par la droite, à droite de l'axe sinon ;
+   « antécédent(s) » sous l'axe des abscisses quand le chemin descend d'en
+   haut, au-dessus sinon — sinon le pointillé le traverserait (vu à l'essai).
+
+   DEUX ÉCRITURES pour l'image — « L'image de X est : … » (la hauteur ne
+   s'écrit plus, demande de Turquet) et « f( … ) = … » —, une seule pour les
+   antécédents — « L'antécédent de Y est : … » ou « Les antécédents de Y
+   sont : … ; … », autant de cases que d'antécédents. L'ORDRE DES ANTÉCÉDENTS
+   EST LIBRE : chaque case se juge sur ce qu'elle promet (être l'un des
+   antécédents attendus), la liste les prend une fois chacun — le même posé
+   deux fois est juste une fois —, et les cases sans correspondance reçoivent
+   en partage les antécédents restants : c'est la valeur que la correction
+   écrira en vert (la règle du 3.1.3 de la Seconde).
+   La NOTE se compte par question parfaite, comme tout exercice de ce niveau
+   (finishTest note sur le nombre de questions) ; les cases justes vont au
+   crédit partiel (ptsExo). Les cases se peignent par corrChoix, la fonction de
+   ce niveau : juste en bleu, faux en rouge avec la bonne réponse en vert à
+   côté, vide remplie en vert — jamais rouge.
    La bonne réponse n'est jamais rangée à côté de la question : l'image est
-   q.pts[x0 + 3], lue dans la courbe même par imaCheck — la question ne porte
-   QUE la courbe et l'abscisse. */
+   q.pts[x0 + 3], les antécédents sont les x tels que q.pts[x + 3] = y0 — lus
+   dans la courbe même par imaCheck. La question ne porte que la courbe,
+   l'abscisse demandée (x0, ou null), la hauteur demandée (y0, ou null) et
+   « anim » (le chemin se déplie-t-il avant la réponse). */
 /* LE MOTEUR DE DESSIN N'EST PAS RECOPIÉ ICI : {tableau-signes-courbe} (6.1,
    fusionné le même jour) l'a porté de la Seconde — numFmt, lvGenPts,
    lvAnalyze, lvTangents, lvPath, les constantes ETQ_*, lvEchantillon,
@@ -30308,73 +30354,165 @@ Piège classique : additionner \\(\\frac{1}{2}\\) et \\(\\frac{1}{2}\\) AVANT de
    jamais un nombre tronqué par parseFloat, qui lisait 2 et 1. Le moins
    typographique « − » (U+2212, celui des énoncés) vaut le tiret du clavier. */
 function lvReadInt(id){ const el=$(id); if(!el) return null;
-  const v=(el.value||'').trim().replace(/\s+/g,'').replace(/\u2212/g,'-').replace(',','.');
+  const v=(el.value||'').trim().replace(/\s+/g,'').replace(/−/g,'-').replace(',','.');
   if(v==='') return null;
   return /^[-+]?\d+(\.\d+)?$/.test(v) ? parseFloat(v) : NaN; }
 
-/* ---- Le 6.1 lui-même ---- */
-const IMA_NB=4;
+/* ---- Le 6.2 lui-même ---- */
+const IMA_NB=10;
 const IMA_DUREE=800, IMA_PAUSE=300;   /* ms : chaque pointillé, et le temps d'arrêt sur la courbe */
-function imaY(q){ return q.pts[q.x0+3]; }   /* l'image, lue dans la courbe elle-même */
-/* le chemin de lecture, dessiné PAR-DESSUS la courbe (le paramètre extra de
-   lvGraphSVG) : tout est posé à sa place finale, les deux pointillés repliés
-   sur leur point de départ et le reste caché — l'animation les déplie */
-/* Le mot « image » s'écrit DE L'AUTRE CÔTÉ de l'axe des ordonnées que le
-   chemin, à la hauteur de l'image, contre l'axe : à gauche de la graduation
-   quand le chemin arrive par la droite (x > 0), à droite de l'axe quand il
-   arrive par la gauche — sinon le pointillé horizontal le traverserait (vu à
-   l'essai, x = −3). Et la graduation lue se récrit par-dessus le pointillé,
-   en rouge sur un halo : le chemin qui arrive par la gauche la barrait. */
-const IMA_MOT_W=36, IMA_MOT_H=12;
+/* la séance en cinq temps, deux questions chacun ; au-delà de dix (un devoir
+   qui règle plus de questions), on recommence le cycle */
+const IMA_PLAN=['img-anim','img','ant-anim','ant','mix'];
+function imaPlan(i){ return IMA_PLAN[Math.floor((i%IMA_NB)/2)]; }
+function imaVeutImg(plan){ return plan!=='ant' && plan!=='ant-anim'; }
+function imaVeutAnt(plan){ return plan==='ant' || plan==='ant-anim' || plan==='mix'; }
+function imaY(q){ return q.x0==null ? null : q.pts[q.x0+3]; }   /* l'image, lue dans la courbe elle-même */
+function imaAnts(q){ const out=[]; if(q.y0==null) return out; for(let x=-3;x<=3;x++){ if(q.pts[x+3]===q.y0) out.push(x); } return out; }
+/* Une hauteur n'est posable que si la ligne de niveau ne coupe la courbe
+   qu'AUX graduations (le filtre du 3.1.3 de la Seconde), jamais 0, un à trois
+   antécédents, aucun en 0. */
+function imaCibles(pts){
+  const ok=[];
+  for(let y=-3;y<=3;y++){
+    if(y===0 || pts.indexOf(y)<0) continue;
+    let traverse=false;
+    for(let i=0;i<6;i++){ const lo=Math.min(pts[i],pts[i+1]), hi=Math.max(pts[i],pts[i+1]); if(y>lo && y<hi) traverse=true; }
+    if(traverse) continue;
+    const xs=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===y) xs.push(x); }
+    if(xs.length>=1 && xs.length<=3 && xs.indexOf(0)<0) ok.push(y);
+  }
+  return ok;
+}
+/* Le tirage : les abscisses des questions à image sont les six possibles,
+   mélangées, chacune une fois tant qu'il y en a (le rang de la question parmi
+   celles à image, jamais un compteur : distinctes() peut rappeler la fabrique
+   pour la même question) ; la hauteur des questions à antécédents se tire
+   parmi les cibles de la courbe, en préférant UN antécédent sur la première
+   question de chaque paire et PLUSIEURS sur la seconde — les deux visages de
+   la notion, la leçon du 3.1.3. */
+function imaTirage(nb){
+  const xs=[-3,-2,-1,1,2,3];
+  for(let i=xs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=xs[i]; xs[i]=xs[j]; xs[j]=t; }
+  const rangImg=function(i){ let r=0; for(let k=0;k<i;k++){ if(imaVeutImg(imaPlan(k))) r++; } return r; };
+  return distinctes(nb, function(_, i){
+    const plan=imaPlan(i), vImg=imaVeutImg(plan), vAnt=imaVeutAnt(plan), anim=/anim$/.test(plan);
+    const x0=vImg ? xs[rangImg(i)%xs.length] : null;
+    for(let att=0; att<160; att++){
+      const pts=lvGenPts(pick([2,3])).pts;
+      if(vImg && pts[x0+3]===0) continue;             /* une image nulle : le pointillé horizontal serait invisible */
+      let y0=null;
+      if(vAnt){
+        let cibles=imaCibles(pts);
+        if(vImg) cibles=cibles.filter(function(y){ return y!==pts[x0+3]; });   /* l'image demandée n'est pas la hauteur des antécédents */
+        if(!cibles.length) continue;
+        const pref=cibles.filter(function(y){ return (i%2===0) ? pts.filter(function(v){ return v===y; }).length===1 : pts.filter(function(v){ return v===y; }).length>1; });
+        y0=pick(pref.length?pref:cibles);
+      }
+      return {pts:pts, x0:x0, y0:y0, anim:anim};
+    }
+    /* repli : une courbe sûre — image non nulle partout, cibles 1 (x = −1 et 1), −1 (−2 et 2), −3 (−3 et 3) */
+    const pts=[-3,-1,1,3,1,-1,-3];
+    return {pts:pts, x0:x0, y0:vAnt ? ((vImg && pts[x0+3]===1) ? -1 : 1) : null, anim:anim};
+  });
+}
+/* ---- Le dessin : la courbe de la Seconde, le ou les chemins par-dessus ----
+   Chaque chemin est un groupe .ima-chemin (data-sens image | antecedent), tout
+   posé à sa place finale : les pointillés de la phase 1 (data-phase="1") et de
+   la phase 2 (data-phase="2") repliés sur leur départ, leur bout dans data-x2
+   ou data-y2 ; les éléments cachés (visibility) portent data-des="1" (après la
+   phase 1 : les points sur la courbe) ou data-des="2" (à la fin : marques,
+   graduations récrites, mot). Sans animation, seul le point rouge de l'axe se
+   voit, jusqu'à la vérification (imaFin). */
+const IMA_MOT_W=36, IMA_MOT_H=12, IMA_MOT_ANT_W=72;
 function imaMot(q, sx, sy){
-  const droite=q.x0>0;
-  return { x: droite ? sx(0)-24 : sx(0)+8, y: sy(imaY(q))+4, ancre: droite?'end':'start',
-           boite: { x: droite ? sx(0)-24-IMA_MOT_W : sx(0)+8, y: sy(imaY(q))-9, w: IMA_MOT_W, h: IMA_MOT_H } };
+  const droite=q.x0>0, y=imaY(q);
+  return { x: droite ? sx(0)-24 : sx(0)+8, y: sy(y)+4, ancre: droite?'end':'start',
+           boite: { x: droite ? sx(0)-24-IMA_MOT_W : sx(0)+8, y: sy(y)-9, w: IMA_MOT_W, h: IMA_MOT_H } };
+}
+/* « antécédent(s) » : sous l'axe des abscisses et ses graduations quand le
+   chemin descend d'en haut (y0 > 0), au-dessus de l'axe quand il monte d'en
+   bas ; centré sur les antécédents, sinon à côté d'eux (à gauche du premier, à
+   droite du dernier), sinon juste à gauche ou juste à droite de l'axe des
+   ordonnées. La PLACE SE CHOISIT parmi ces candidates, la première
+   dont la boîte ne touche ni la bande de l'axe des ordonnées, ni le mot
+   « image » et le chemin de l'image (le dessin à deux questions), ni la ligne
+   de niveau et ses pointillés verticaux — à l'essai, centré d'office, le mot
+   chevauchait l'axe des ordonnées, et sur le dessin à deux questions il se
+   mêlait au mot « image » et au pointillé horizontal de l'image. */
+function imaMotAnt(q, sx, sy){
+  const ants=imaAnts(q), haut=q.y0>0, X0=sx(0), Y0=sy(0), yl=sy(q.y0);
+  const mot=ants.length>1 ? 'antécédents' : 'antécédent', w=ants.length>1 ? IMA_MOT_ANT_W : 62, h=IMA_MOT_H;
+  const xa=sx(Math.min.apply(null,ants)), xb=sx(Math.max.apply(null,ants)), cx=(xa+xb)/2;
+  const obst=[{x:X0-8, y:-1e4, w:16, h:2e4}];                                        /* l'axe des ordonnées et sa bande */
+  if(q.x0!=null){ const m=imaMot(q,sx,sy), yi=sy(imaY(q)), xi=sx(q.x0); obst.push(m.boite);
+    obst.push({x:Math.min(xi,X0)-2, y:yi-2, w:Math.abs(xi-X0)+4, h:4});               /* le pointillé horizontal de l'image */
+    obst.push({x:xi-2, y:Math.min(yi,Y0)-2, w:4, h:Math.abs(yi-Y0)+4}); }             /* son pointillé vertical */
+  obst.push({x:Math.min(X0,xa)-2, y:yl-2, w:Math.max(X0,xb)-Math.min(X0,xa)+4, h:4});  /* la ligne de niveau */
+  ants.forEach(function(x){ obst.push({x:sx(x)-2, y:Math.min(yl,Y0)-2, w:4, h:Math.abs(yl-Y0)+4}); });   /* ses pointillés verticaux */
+  const libre=function(b){ return b.x>=2 && b.x+b.w<=360 && !obst.some(function(o){ return b.x<o.x+o.w && o.x<b.x+b.w && b.y<o.y+o.h && o.y<b.y+b.h; }); };
+  const ys=haut ? [Y0+27, Y0-9] : [Y0-9, Y0+27];
+  const xs=[{x:cx, ancre:'middle', bx:cx-w/2}, {x:xa-8, ancre:'end', bx:xa-8-w}, {x:xb+8, ancre:'start', bx:xb+8}, {x:X0-12, ancre:'end', bx:X0-12-w}, {x:X0+12, ancre:'start', bx:X0+12}];
+  let choix=null;
+  ys.forEach(function(y){ xs.forEach(function(c){ if(choix) return; const b={x:c.bx, y:y-10, w:w, h:h}; if(libre(b)) choix={x:c.x, y:y, ancre:c.ancre, boite:b}; }); });
+  if(!choix) choix={x:cx, y:ys[0], ancre:'middle', boite:{x:cx-w/2, y:ys[0]-10, w:w, h:h}};
+  choix.mot=mot;
+  return choix;
+}
+function imaCheminImage(q, sx, sy){
+  const x0=q.x0, y0=imaY(q), mot=imaMot(q,sx,sy);
+  const X=sx(x0).toFixed(1), Y=sy(y0).toFixed(1), X0=sx(0).toFixed(1), Y0=sy(0).toFixed(1);
+  return '<g class="ima-chemin" data-sens="image" data-etat="depart">'
+    +'<line class="ima-trait" data-phase="1" x1="'+X+'" y1="'+Y0+'" x2="'+X+'" y2="'+Y0+'" data-y2="'+Y+'"/>'
+    +'<line class="ima-trait" data-phase="2" x1="'+X+'" y1="'+Y+'" x2="'+X+'" y2="'+Y+'" data-x2="'+X0+'" visibility="hidden"/>'
+    +'<circle class="ima-pt ima-pt-courbe" data-des="1" cx="'+X+'" cy="'+Y+'" r="3.5" visibility="hidden"/>'
+    +'<line class="ima-marque" data-des="2" x1="'+(sx(0)-4).toFixed(1)+'" y1="'+Y+'" x2="'+(sx(0)+4).toFixed(1)+'" y2="'+Y+'" visibility="hidden"/>'
+    +'<text class="lv-ax ima-grad" data-des="2" x="'+(sx(0)-7).toFixed(1)+'" y="'+(sy(y0)+3.5).toFixed(1)+'" text-anchor="end" visibility="hidden">'+numFmt(y0)+'</text>'
+    +'<text class="ima-mot" data-des="2" x="'+mot.x.toFixed(1)+'" y="'+mot.y.toFixed(1)+'" text-anchor="'+mot.ancre+'" visibility="hidden">image</text>'
+    +'<circle class="ima-pt ima-pt-axe" cx="'+X+'" cy="'+Y0+'" r="4.5"/>'
+    +'</g>';
+}
+function imaCheminAnt(q, sx, sy){
+  const ants=imaAnts(q), mot=imaMotAnt(q,sx,sy);
+  const Y=sy(q.y0).toFixed(1), X0=sx(0).toFixed(1), Y0=sy(0).toFixed(1);
+  const xmin=Math.min.apply(null,ants), xmax=Math.max.apply(null,ants);
+  let g='<g class="ima-chemin" data-sens="antecedent" data-etat="depart">';
+  /* la ligne de niveau se déplie depuis l'axe, vers la gauche et vers la droite à la fois */
+  if(xmin<0) g+='<line class="ima-trait" data-phase="1" x1="'+X0+'" y1="'+Y+'" x2="'+X0+'" y2="'+Y+'" data-x2="'+sx(xmin).toFixed(1)+'"/>';
+  if(xmax>0) g+='<line class="ima-trait" data-phase="1" x1="'+X0+'" y1="'+Y+'" x2="'+X0+'" y2="'+Y+'" data-x2="'+sx(xmax).toFixed(1)+'"/>';
+  ants.forEach(function(x){
+    const X=sx(x).toFixed(1);
+    g+='<circle class="ima-pt ima-pt-courbe" data-des="1" cx="'+X+'" cy="'+Y+'" r="3.5" visibility="hidden"/>'
+      +'<line class="ima-trait" data-phase="2" x1="'+X+'" y1="'+Y+'" x2="'+X+'" y2="'+Y+'" data-y2="'+Y0+'" visibility="hidden"/>'
+      +'<line class="ima-marque" data-des="2" x1="'+X+'" y1="'+(sy(0)-4).toFixed(1)+'" x2="'+X+'" y2="'+(sy(0)+4).toFixed(1)+'" visibility="hidden"/>'
+      +'<text class="lv-ax ima-grad" data-des="2" x="'+X+'" y="'+(sy(0)+13).toFixed(1)+'" text-anchor="middle" visibility="hidden">'+numFmt(x)+'</text>';
+  });
+  g+='<text class="ima-mot" data-des="2" x="'+mot.x.toFixed(1)+'" y="'+mot.y.toFixed(1)+'" text-anchor="'+mot.ancre+'" visibility="hidden">'+mot.mot+'</text>'
+    +'<circle class="ima-pt ima-pt-axe" cx="'+X0+'" cy="'+Y+'" r="4.5"/>'
+    +'</g>';
+  return g;
 }
 function imaChemin(q){
-  const x0=q.x0, y0=imaY(q);
   return function(sx,sy){
-    const X=sx(x0).toFixed(1), Y=sy(y0).toFixed(1), X0=sx(0).toFixed(1), Y0=sy(0).toFixed(1), mot=imaMot(q,sx,sy);
-    return '<g class="ima-chemin" data-etat="depart">'
-      +'<line class="ima-trait ima-vert" x1="'+X+'" y1="'+Y0+'" x2="'+X+'" y2="'+Y0+'" data-y2="'+Y+'"/>'
-      +'<line class="ima-trait ima-horiz" x1="'+X+'" y1="'+Y+'" x2="'+X+'" y2="'+Y+'" data-x2="'+X0+'" visibility="hidden"/>'
-      +'<circle class="ima-pt ima-pt-courbe" cx="'+X+'" cy="'+Y+'" r="3.5" visibility="hidden"/>'
-      +'<line class="ima-marque" x1="'+(sx(0)-4).toFixed(1)+'" y1="'+Y+'" x2="'+(sx(0)+4).toFixed(1)+'" y2="'+Y+'" visibility="hidden"/>'
-      +'<text class="lv-ax ima-grad" x="'+(sx(0)-7).toFixed(1)+'" y="'+(sy(y0)+3.5).toFixed(1)+'" text-anchor="end" visibility="hidden">'+numFmt(y0)+'</text>'
-      +'<text class="ima-mot" x="'+mot.x.toFixed(1)+'" y="'+mot.y.toFixed(1)+'" text-anchor="'+mot.ancre+'" visibility="hidden">image</text>'
-      +'<circle class="ima-pt ima-pt-axe" cx="'+X+'" cy="'+Y0+'" r="4.5"/>'
-      +'</g>';
+    return (q.x0==null ? '' : imaCheminImage(q,sx,sy)) + (q.y0==null ? '' : imaCheminAnt(q,sx,sy));
   };
 }
-/* L'étiquette Cf évite le chemin et le mot « image » : etqLibre reçoit en
-   obstacles les coins et le centre de la boîte du mot, et les deux pointillés
-   échantillonnés tous les 4 px (le mécanisme de la Seconde pour « Cg »). */
+/* L'étiquette Cf évite les chemins et les mots : etqLibre reçoit en obstacles
+   les coins et le centre des boîtes des mots, et les pointillés échantillonnés
+   tous les 4 px (le mécanisme de la Seconde pour « Cg »). */
 function imaObstacles(q){
   return function(sx,sy){
-    const b=imaMot(q,sx,sy).boite, out=[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w/2,b.y+b.h/2]];
-    const X=sx(q.x0), Y=sy(imaY(q)), Y0=sy(0), X0=sx(0);
-    for(let y=Math.min(Y,Y0); y<=Math.max(Y,Y0); y+=4) out.push([X,y]);
-    for(let x=Math.min(X,X0); x<=Math.max(X,X0); x+=4) out.push([x,Y]);
+    const out=[], boite=function(b){ out.push([b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h],[b.x+b.w/2,b.y+b.h/2]); };
+    const segV=function(X,ya,yb){ for(let y=Math.min(ya,yb); y<=Math.max(ya,yb); y+=4) out.push([X,y]); };
+    const segH=function(Y,xa,xb){ for(let x=Math.min(xa,xb); x<=Math.max(xa,xb); x+=4) out.push([x,Y]); };
+    if(q.x0!=null){ boite(imaMot(q,sx,sy).boite); segV(sx(q.x0), sy(imaY(q)), sy(0)); segH(sy(imaY(q)), sx(q.x0), sx(0)); }
+    if(q.y0!=null){ const ants=imaAnts(q); boite(imaMotAnt(q,sx,sy).boite);
+      segH(sy(q.y0), sx(Math.min(0,Math.min.apply(null,ants))), sx(Math.max(0,Math.max.apply(null,ants))));
+      ants.forEach(function(x){ segV(sx(x), sy(q.y0), sy(0)); }); }
     return out;
   };
 }
 function imaGraphSVG(q){ return lvGraphSVG(q.pts, imaChemin(q), null, null, imaObstacles(q)); }
-/* Le tirage du 3.1.1 de la Seconde, par distinctes() : six abscisses possibles,
-   mélangées, chacune une fois pour les six premières questions ; au-delà — un
-   devoir qui règle plus de questions — on repart au début avec une AUTRE
-   courbe, et distinctes() refuse la copie exacte. */
-function imaTirage(nb){
-  const xs=[-3,-2,-1,1,2,3];
-  for(let i=xs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=xs[i]; xs[i]=xs[j]; xs[j]=t; }
-  return distinctes(nb, function(_, i){
-    const x0=xs[i%xs.length];
-    /* une image nulle rendrait le pointillé horizontal invisible : on retire
-       la courbe, pas l'abscisse — les abscisses restent distinctes */
-    let pts=lvGenPts(pick([2,3])).pts;
-    for(let att=0; att<80 && pts[x0+3]===0; att++) pts=lvGenPts(pick([2,3])).pts;
-    return {pts:pts, x0:x0};
-  });
-}
 function startIma(){
   if(!currentEleve){ accueil(); return; }
   const qs=imaTirage(dmNbQuestions(IMA_NB));
@@ -30385,84 +30523,127 @@ function startIma(){
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('ima'); renderIma();
 }
+/* l'énoncé, selon le temps de la séance */
+function imaEnonce(q){
+  const X=q.x0==null?'':numFmt(q.x0), Y=q.y0==null?'':numFmt(q.y0), n=imaAnts(q).length;
+  const ant=n>1?'les antécédents':'le ou les antécédents';
+  if(q.x0!=null && q.y0!=null)
+    return 'Sur le même graphique, lis l’image de <b>'+X+'</b> par la fonction <i>f</i> — le point rouge sur l’axe des abscisses — et '+ant+' de <b>'+Y+'</b> — le point rouge sur l’axe des ordonnées. Aucun chemin n’est tracé : imagine-les, puis complète les écritures.';
+  if(q.y0!=null)
+    return q.anim
+      ? 'C’est le chemin inverse. On te donne <b>'+Y+'</b>, lu sur l’axe des ordonnées (le point rouge), et il faut retrouver le ou les nombres de départ : '+ant+' de '+Y+'. Suis le chemin en pointillés — on part de '+Y+' horizontalement jusqu’à la courbe, puis on descend (ou on monte) jusqu’à l’axe des abscisses, où se lit chaque antécédent. Complète ensuite l’écriture.'
+      : 'On te donne <b>'+Y+'</b>, lu sur l’axe des ordonnées (le point rouge), et il faut retrouver '+ant+' de '+Y+'. Cette fois, aucun chemin n’est tracé : imagine la ligne horizontale à la hauteur '+Y+', et lis sur l’axe des abscisses chaque point où elle coupe la courbe. Complète ensuite l’écriture.';
+  return q.anim
+    ? 'Lis sur le graphique l’image de <b>'+X+'</b> par la fonction <i>f</i>. Le point rouge marque '+X+' sur l’axe des abscisses : suis le chemin en pointillés — on monte (ou on descend) jusqu’à la courbe, puis on va vers l’axe des ordonnées, où se lit l’image. Complète ensuite les deux écritures.'
+    : 'Lis sur le graphique l’image de <b>'+X+'</b> par la fonction <i>f</i>. Le point rouge marque '+X+' sur l’axe des abscisses ; cette fois, aucun chemin n’est tracé : imagine-le, jusqu’à la courbe puis jusqu’à l’axe des ordonnées. Complète ensuite les deux écritures.';
+}
 function renderIma(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer); clearTimeout(test.imaAnim);
   const q=test.questions[test.idx]; test.locked=false;
-  const X=numFmt(q.x0);
+  const X=q.x0==null?'':numFmt(q.x0), Y=q.y0==null?'':numFmt(q.y0), n=imaAnts(q).length;
   $('imaIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagIma').innerHTML=modeTagHTML();
   $('imaLiveScore').textContent=test.score;
-  $('imaInstr').innerHTML='Lis sur le graphique l’image de <b>'+X+'</b> par la fonction <i>f</i>. Le point rouge marque '+X+' sur l’axe des abscisses : suis le chemin en pointillés — on monte (ou on descend) jusqu’à la courbe, puis on va vers l’axe des ordonnées, où se lit l’image. Complète ensuite les deux écritures.';
+  $('imaInstr').innerHTML=imaEnonce(q);
   $('imaGraph').innerHTML=imaGraphSVG(q);
-  $('imaHost').innerHTML=
-    '<div class="img-line">L’image de '+X+' est la hauteur de '+X+'. C’est <input id="ima-c" class="lv-in" inputmode="numeric" autocomplete="off" aria-label="l’image de '+X+'">.</div>'
-    +'<div class="img-line"><i>f</i> ( <input id="ima-fx" class="lv-in sm" inputmode="numeric" autocomplete="off" aria-label="le nombre de départ"> ) = <input id="ima-fv" class="lv-in sm" inputmode="numeric" autocomplete="off" aria-label="son image"></div>';
+  const inp=function(id, cls, aria){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+aria+'">'; };
+  let h='';
+  if(q.x0!=null){
+    h+='<div class="img-line">L’image de '+X+' est : '+inp('ima-c','', 'l’image de '+X)+'</div>'
+      +'<div class="img-line"><i>f</i> ( '+inp('ima-fx','sm','le nombre de départ')+' ) = '+inp('ima-fv','sm','son image')+'</div>';
+  }
+  if(q.y0!=null){
+    const cases=[]; for(let i=0;i<n;i++) cases.push(inp('ima-a-'+i,'', (n>1?'un antécédent':'l’antécédent')+' de '+Y));
+    h+='<div class="img-line">'+(n===1 ? 'L’antécédent de '+Y+' est : '+cases[0] : 'Les antécédents de '+Y+' sont : '+cases.join('<span class="ima-sep">;</span>'))+'</div>';
+  }
+  $('imaHost').innerHTML=h;
   $('imaHost').querySelectorAll('input').forEach(function(el){
     el.addEventListener('input', function(){ imaLive(); clearTimeout(test.imaSave); test.imaSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); submitIma(); } });
   });
   $('imaFeedback').textContent=''; $('imaFeedback').className='mp-feedback';
   $('imaActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="submitIma()">Vérifier</button>';
-  const rj=$('imaRejouer'); if(rj) rj.hidden=false;
-  /* le point rouge se voit d'abord seul, puis le chemin se déplie */
-  test.imaAnim=setTimeout(imaAnimer, 350);
+  /* « Revoir le chemin » n'existe que là où le chemin se déplie avant la réponse */
+  const rj=$('imaRejouer'); if(rj) rj.hidden=!q.anim;
+  /* le ou les points rouges se voient d'abord seuls, puis le chemin se déplie — s'il doit se déplier */
+  if(q.anim) test.imaAnim=setTimeout(imaAnimer, 350);
 }
 /* ---- L'animation du chemin ----
-   Deux temps : le pointillé vertical se déplie du point rouge jusqu'à la
-   courbe (le point sur la courbe apparaît), un court arrêt, puis le pointillé
-   horizontal se déplie de la courbe jusqu'à l'axe des ordonnées, où la marque
-   et le mot « image » s'écrivent. Les positions finales sont déjà dans le
-   dessin (data-y2, data-x2) : l'animation ne calcule rien, elle déplie. Un
+   Chaque groupe se déplie en deux temps : les pointillés de la phase 1 (du
+   point rouge de l'axe vers la courbe), les points sur la courbe, un court
+   arrêt, puis les pointillés de la phase 2 (de la courbe vers l'autre axe), et
+   enfin les marques, les graduations récrites et le mot. Les positions finales
+   sont déjà dans le dessin (data-x2, data-y2) : l'animation ne calcule rien,
+   elle déplie. Les groupes se suivent (l'image, puis les antécédents). Un
    jeton annule l'animation en cours quand une autre commence (question
    suivante, « Revoir le chemin ») ; « moins d'animations » saute à la fin. */
 let imaAnimJeton=0;
 function imaCalme(){ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
 function imaTick(f){ if(typeof requestAnimationFrame==='function') requestAnimationFrame(f); else setTimeout(f,16); }
+function imaBout(l){ if(l.hasAttribute('data-x2')) l.setAttribute('x2', l.getAttribute('data-x2')); if(l.hasAttribute('data-y2')) l.setAttribute('y2', l.getAttribute('data-y2')); }
+function imaDepart(g){
+  g.querySelectorAll('line[data-phase]').forEach(function(l){ l.setAttribute('x2', l.getAttribute('x1')); l.setAttribute('y2', l.getAttribute('y1')); if(l.getAttribute('data-phase')==='2') l.setAttribute('visibility','hidden'); });
+  g.querySelectorAll('[data-des]').forEach(function(e){ e.setAttribute('visibility','hidden'); });
+  g.setAttribute('data-etat','depart');
+}
 function imaFin(g){
-  const v=g.querySelector('.ima-vert'), h=g.querySelector('.ima-horiz');
-  if(v) v.setAttribute('y2', v.getAttribute('data-y2'));
-  if(h){ h.setAttribute('visibility','visible'); h.setAttribute('x2', h.getAttribute('data-x2')); }
-  g.querySelectorAll('.ima-pt-courbe,.ima-marque,.ima-grad,.ima-mot').forEach(function(e){ e.setAttribute('visibility','visible'); });
+  g.querySelectorAll('line[data-phase]').forEach(function(l){ l.setAttribute('visibility','visible'); imaBout(l); });
+  g.querySelectorAll('[data-des]').forEach(function(e){ e.setAttribute('visibility','visible'); });
   g.setAttribute('data-etat','fini');
 }
 function imaAnimer(){
-  const g=document.querySelector('#imaGraph .ima-chemin'); if(!g) return;
+  const groupes=[].slice.call(document.querySelectorAll('#imaGraph .ima-chemin')); if(!groupes.length) return;
   const jeton=++imaAnimJeton;
-  const v=g.querySelector('.ima-vert'), h=g.querySelector('.ima-horiz'); if(!v||!h) return;
-  /* retour au départ */
-  v.setAttribute('y2', v.getAttribute('y1'));
-  h.setAttribute('visibility','hidden'); h.setAttribute('x2', h.getAttribute('x1'));
-  g.querySelectorAll('.ima-pt-courbe,.ima-marque,.ima-grad,.ima-mot').forEach(function(e){ e.setAttribute('visibility','hidden'); });
-  g.setAttribute('data-etat','vertical');
-  if(imaCalme()){ imaFin(g); return; }
-  const y1=parseFloat(v.getAttribute('y1')), y2=parseFloat(v.getAttribute('data-y2'));
-  const x1=parseFloat(h.getAttribute('x1')), x2=parseFloat(h.getAttribute('data-x2'));
-  const deplier=function(duree, f, suite){
+  groupes.forEach(imaDepart);
+  if(imaCalme()){ groupes.forEach(imaFin); return; }
+  /* un lot de pointillés se déplie ensemble, de son départ à son bout */
+  const deplier=function(lignes, suite){
     const t0=Date.now();
+    const cibles=lignes.map(function(l){ return { l:l, x1:parseFloat(l.getAttribute('x1')), y1:parseFloat(l.getAttribute('y1')),
+      x2:l.hasAttribute('data-x2')?parseFloat(l.getAttribute('data-x2')):null, y2:l.hasAttribute('data-y2')?parseFloat(l.getAttribute('data-y2')):null }; });
+    cibles.forEach(function(c){ c.l.setAttribute('visibility','visible'); });
     const tick=function(){
       if(jeton!==imaAnimJeton) return;
-      const k=Math.min(1,(Date.now()-t0)/duree);
-      f(k);
+      const k=Math.min(1,(Date.now()-t0)/IMA_DUREE);
+      cibles.forEach(function(c){ if(c.x2!=null) c.l.setAttribute('x2', (c.x1+(c.x2-c.x1)*k).toFixed(1)); if(c.y2!=null) c.l.setAttribute('y2', (c.y1+(c.y2-c.y1)*k).toFixed(1)); });
       if(k<1) imaTick(tick); else suite();
     };
     tick();
   };
-  deplier(IMA_DUREE, function(k){ v.setAttribute('y2', (y1+(y2-y1)*k).toFixed(1)); }, function(){
-    g.querySelector('.ima-pt-courbe').setAttribute('visibility','visible');
-    g.setAttribute('data-etat','horizontal');
-    setTimeout(function(){
-      if(jeton!==imaAnimJeton) return;
-      h.setAttribute('visibility','visible');
-      deplier(IMA_DUREE, function(k){ h.setAttribute('x2', (x1+(x2-x1)*k).toFixed(1)); }, function(){ imaFin(g); });
-    }, IMA_PAUSE);
-  });
+  const groupe=function(n){
+    if(jeton!==imaAnimJeton) return;
+    if(n>=groupes.length) return;
+    const g=groupes[n];
+    g.setAttribute('data-etat','phase1');
+    deplier([].slice.call(g.querySelectorAll('line[data-phase="1"]')), function(){
+      g.querySelectorAll('[data-des="1"]').forEach(function(e){ e.setAttribute('visibility','visible'); });
+      g.setAttribute('data-etat','phase2');
+      setTimeout(function(){
+        if(jeton!==imaAnimJeton) return;
+        deplier([].slice.call(g.querySelectorAll('line[data-phase="2"]')), function(){ imaFin(g); groupe(n+1); });
+      }, IMA_PAUSE);
+    });
+  };
+  groupe(0);
 }
 /* ---- Le juge : chaque case SEULE, la réponse lue dans la courbe ---- */
-const IMA_NOMS={'ima-c':'« C’est … » (la hauteur)','ima-fx':'le nombre entre les parenthèses de f( … )','ima-fv':'la valeur après « f( … ) = »'};
-function imaCases(q){ const y0=imaY(q); return [{id:'ima-c', val:y0},{id:'ima-fx', val:q.x0},{id:'ima-fv', val:y0}]; }
+const IMA_NOMS={'ima-c':'« L’image de … est : … »','ima-fx':'le nombre entre les parenthèses de f( … )','ima-fv':'la valeur après « f( … ) = »'};
+function imaNom(id){ return IMA_NOMS[id] || ('la case '+(parseInt(id.slice(6),10)+1)+' des antécédents'); }
 function imaCheck(q){
-  const subs=imaCases(q).map(function(c){ const el=$(c.id);
-    return {id:c.id, val:c.val, el:el, ok:lvReadInt(c.id)===c.val, vide:!el||String(el.value==null?'':el.value).trim()===''}; });
+  const subs=[];
+  const lire=function(id){ const el=$(id); return {id:id, el:el, v:lvReadInt(id), vide:!el||String(el.value==null?'':el.value).trim()===''}; };
+  if(q.x0!=null){
+    const y=imaY(q);
+    [{id:'ima-c', val:y},{id:'ima-fx', val:q.x0},{id:'ima-fv', val:y}].forEach(function(c){ const r=lire(c.id); subs.push({id:c.id, val:c.val, el:r.el, ok:r.v===c.val, vide:r.vide}); });
+  }
+  if(q.y0!=null){
+    /* l'ordre est libre : chaque case promet d'être l'un des antécédents, la
+       liste les prend une fois chacun, les cases sans correspondance reçoivent
+       les antécédents restants (la valeur que la correction écrira) */
+    const reste=imaAnts(q).slice(), lus=[];
+    for(let i=0;i<imaAnts(q).length;i++){ const r=lire('ima-a-'+i); const k=(r.v===null||Number.isNaN(r.v))?-1:reste.indexOf(r.v); if(k>=0) reste.splice(k,1); r.ok=k>=0; lus.push(r); }
+    lus.forEach(function(r){ subs.push({id:r.id, val:(r.ok? r.v : reste.shift()), el:r.el, ok:r.ok, vide:r.vide}); });
+  }
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
@@ -30472,60 +30653,77 @@ function imaLive(){
   const q=test.questions[test.idx]; if(!q) return;
   imaCheck(q).subs.forEach(function(s){ if(!s.el) return; s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
 }
+function imaPourquoi(q){
+  const parts=[];
+  if(q.x0!=null){ const X=numFmt(q.x0), Y=numFmt(imaY(q));
+    parts.push('Le chemin en pointillés le montre : on part de '+X+' sur l’axe des abscisses, on rejoint la courbe, puis on va jusqu’à l’axe des ordonnées — la hauteur lue est '+Y+'. Donc f ('+X+') = '+Y+' : l’image de '+X+' est '+Y+'.'); }
+  if(q.y0!=null){ const ants=imaAnts(q), Y=numFmt(q.y0), liste=ants.map(numFmt).join(' et ');
+    parts.push('Pour les antécédents, le chemin inverse : on part de '+Y+' sur l’axe des ordonnées, la ligne horizontale coupe la courbe '+(ants.length>1?ants.length+' fois':'une fois')+', et chaque croisement se lit sur l’axe des abscisses : '+(ants.length>1?'les antécédents de '+Y+' sont '+liste:'l’antécédent de '+Y+' est '+liste)+'.'); }
+  return parts.join(' ');
+}
 function submitIma(){
   if(test.locked) return;
   const q=test.questions[test.idx], res=imaCheck(q);
-  const y0=imaY(q), X=numFmt(q.x0), Y=numFmt(y0);
   res.subs.forEach(function(s){ corrChoix(s.el, numFmt(s.val), s.ok); });
   if(!res.allOk && isSoutien()){ soutienAgain('imaFeedback','imaActions','submitIma','imaHost'); return; }
   test.locked=true; clearTimeout(test.qTimer);
   if(res.allOk) test.score++; $('imaLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
-  const pourquoi='Le chemin en pointillés le montre : on part de '+X+' sur l’axe des abscisses, on rejoint la courbe, puis on va jusqu’à l’axe des ordonnées — la hauteur lue est '+Y+'. Donc f ('+X+') = '+Y+' : l’image de '+X+' est '+Y+'.';
   if(res.allOk){ $('imaFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('imaFeedback').className='mp-feedback good'; }
-  else { $('imaFeedback').textContent=msgAvecVides(res.subs, pourquoi); $('imaFeedback').className='mp-feedback bad'; }
-  /* le chemin entier, figé : la correction se lit aussi sur le dessin */
-  const g=document.querySelector('#imaGraph .ima-chemin'); if(g){ ++imaAnimJeton; clearTimeout(test.imaAnim); imaFin(g); }
+  else { $('imaFeedback').textContent=msgAvecVides(res.subs, imaPourquoi(q)); $('imaFeedback').className='mp-feedback bad'; }
+  /* le ou les chemins entiers, figés : la correction se lit aussi sur le dessin
+     — et c'est là que les questions sans animation le découvrent */
+  ++imaAnimJeton; clearTimeout(test.imaAnim);
+  document.querySelectorAll('#imaGraph .ima-chemin').forEach(imaFin);
+  const quoi=[]; if(q.x0!=null) quoi.push('Image de '+numFmt(q.x0)); if(q.y0!=null) quoi.push('Antécédents de '+numFmt(q.y0));
+  const attendu=[]; if(q.x0!=null) attendu.push('f('+numFmt(q.x0)+') = '+numFmt(imaY(q))); if(q.y0!=null) attendu.push('antécédents de '+numFmt(q.y0)+' : '+imaAnts(q).map(numFmt).join(' ; '));
   test.answers.push({...(ptsExo()||{}), correct:res.allOk,
-    q:'Image de '+X+' — '+res.nCorrect+'/'+res.nTotal+' correct',
-    answer:'f('+X+') = '+Y,
-    given:res.subs.map(function(s){ return IMA_NOMS[s.id]+' : '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; '),
+    q:quoi.join(' et ')+' — '+res.nCorrect+'/'+res.nTotal+' correct',
+    answer:attendu.join(' ; '),
+    given:res.subs.map(function(s){ return imaNom(s.id)+' : '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; '),
     type:'ima'});
   const last=test.idx===test.questions.length-1;
   $('imaActions').innerHTML='<button class="btn btn-primary" id="imaNext" type="button" onclick="nextImaQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('imaNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
 function nextImaQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderIma(); autoSave(); } else finishTest(); }
-/* Le contexte envoyé au modèle : la courbe point par point, le chemin montré,
-   ce que l'élève a écrit, les réponses attendues sous la clause de secret, et
-   la méthode enseignée — rien d'autre que ce que l'écran dit. */
+/* Le contexte envoyé au modèle : la courbe point par point, ce que le dessin
+   montre, ce que l'élève a écrit, les réponses attendues sous la clause de
+   secret, et la méthode enseignée — rien d'autre que ce que l'écran dit. */
 function ctxIma(q){
-  const y0=imaY(q), X=numFmt(q.x0), res=imaCheck(q);
+  const res=imaCheck(q), ants=imaAnts(q);
   const pp=[]; for(let i=0;i<7;i++) pp.push('('+numFmt(i-3)+' ; '+numFmt(q.pts[i])+')');
   const ecrit=[], vides=[];
   res.subs.forEach(function(s){
-    if(s.vide) vides.push(IMA_NOMS[s.id]);
-    else if(s.el.classList.contains('sol')) ecrit.push(IMA_NOMS[s.id]+' : laissée vide, corrigée par l’application');
-    else ecrit.push(IMA_NOMS[s.id]+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
+    if(s.vide) vides.push(imaNom(s.id));
+    else if(s.el.classList.contains('sol')) ecrit.push(imaNom(s.id)+' : laissée vide, corrigée par l’application');
+    else ecrit.push(imaNom(s.id)+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
-  const c='L’élève a sous les yeux la courbe d’une fonction f, tracée sur un quadrillage qui va de −3 à 3 en abscisse et en ordonnée (graduations de 1 en 1). La courbe passe par les points '+pp.join(', ')+' ; entre deux de ces points voisins, elle ne fait que monter ou que descendre.'
-    +' On demande l’image de '+X+' par f. Un point rouge marque '+X+' sur l’axe des abscisses, et une animation trace le chemin de lecture en pointillés : vertical, du point jusqu’à la courbe, puis horizontal, de la courbe jusqu’à l’axe des ordonnées, où le mot « image » est écrit à la hauteur atteinte.'
-    +' L’élève complète « L’image de '+X+' est la hauteur de '+X+'. C’est … », puis « f( … ) = … ».'
-    +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
+  let c='L’élève a sous les yeux la courbe d’une fonction f, tracée sur un quadrillage qui va de −3 à 3 en abscisse et en ordonnée (graduations de 1 en 1). La courbe passe par les points '+pp.join(', ')+' ; entre deux de ces points voisins, elle ne fait que monter ou que descendre.';
+  if(q.x0!=null) c+=' On demande l’image de '+numFmt(q.x0)+' par f. Un point rouge marque '+numFmt(q.x0)+' sur l’axe des abscisses'
+    +(q.anim?', et une animation trace le chemin de lecture en pointillés : vertical, du point jusqu’à la courbe, puis horizontal, de la courbe jusqu’à l’axe des ordonnées, où le mot « image » est écrit à la hauteur atteinte.':' ; aucun chemin n’est tracé avant la vérification.')
+    +' L’élève complète « L’image de '+numFmt(q.x0)+' est : … », puis « f( … ) = … ».';
+  if(q.y0!=null) c+=' On demande '+(ants.length>1?'les antécédents':'le ou les antécédents')+' de '+numFmt(q.y0)+' par f. Un point rouge marque '+numFmt(q.y0)+' sur l’axe des ordonnées'
+    +(q.anim?', et une animation trace le chemin inverse en pointillés : horizontal, de l’axe des ordonnées jusqu’à la courbe, puis vertical, de chaque croisement jusqu’à l’axe des abscisses, où le mot « antécédent(s) » est écrit.':' ; aucun chemin n’est tracé avant la vérification.')
+    +' L’élève complète « '+(ants.length>1?'Les antécédents de '+numFmt(q.y0)+' sont : …':'L’antécédent de '+numFmt(q.y0)+' est : …')+' » — '+ants.length+' case'+(ants.length>1?'s, dans l’ordre qu’il veut':'')+'.';
+  c+=(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +(ecrit.length&&vides.length?' Cases encore vides : '+vides.join(', ')+'.':'')
-    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : l’image de '+X+' est '+numFmt(y0)+' ; '
-    +res.subs.map(function(s){ return IMA_NOMS[s.id]+' = '+numFmt(s.val); }).join(' ; ')+'.'
-    +' Méthode enseignée : partir du nombre sur l’axe des abscisses, monter ou descendre verticalement jusqu’à la courbe, puis aller horizontalement jusqu’à l’axe des ordonnées ; la graduation lue là est l’image, et on l’écrit f(nombre de départ) = image. Ne pas confondre le nombre (axe horizontal) et son image (axe vertical).';
+    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : '
+    +(q.x0!=null?'l’image de '+numFmt(q.x0)+' est '+numFmt(imaY(q))+' ; ':'')
+    +(q.y0!=null?(ants.length>1?'les antécédents de '+numFmt(q.y0)+' sont '+ants.map(numFmt).join(' et '):'l’antécédent de '+numFmt(q.y0)+' est '+numFmt(ants[0]))+' ; ':'')
+    +res.subs.map(function(s){ return imaNom(s.id)+' = '+numFmt(s.val); }).join(' ; ')+'.'
+    +' Méthode enseignée : pour une image, partir du nombre sur l’axe des abscisses, monter ou descendre verticalement jusqu’à la courbe, puis aller horizontalement jusqu’à l’axe des ordonnées ; la graduation lue là est l’image, et on l’écrit f(nombre de départ) = image. Pour les antécédents, le chemin inverse : partir de la hauteur sur l’axe des ordonnées, aller horizontalement jusqu’à la courbe — elle peut être coupée plusieurs fois —, puis descendre ou monter verticalement de chaque croisement jusqu’à l’axe des abscisses. Ne pas confondre le nombre (axe horizontal) et son image (axe vertical).';
   return {nombre:'', contexte:c};
 }
-/* HTML pur, sans un seul \( : la seule « formule » est f(a) = 2, qui n'empile
-   rien — la leçon du rappel de {placer-image} de la Seconde : le contrôle des
-   fractions empilées ouvre tout rappel qui porte une formule et exige qu'une
-   fraction s'y dessine. */
-const RAP_IMA=`<b>L'image d'un nombre, lue sur une courbe</b><br>
+/* HTML pur, sans un seul \( : les seules « formules » sont f(a) = 2 et
+   f(x) = 2, qui n'empilent rien — la leçon du rappel de {placer-image} de la
+   Seconde : le contrôle des fractions empilées ouvre tout rappel qui porte une
+   formule et exige qu'une fraction s'y dessine. */
+const RAP_IMA=`<b>L'image et les antécédents d'un nombre, lus sur une courbe</b><br>
 L'<b>image</b> d'un nombre <i>a</i> par la fonction <i>f</i> est la <b>hauteur</b> de la courbe au-dessus (ou au-dessous) de <i>a</i>. On la note <i>f</i>(<i>a</i>).<br>
-<b>Le chemin de lecture</b>, celui que le dessin anime : on part du <b>point rouge</b> posé sur <i>a</i>, sur l'axe des abscisses ; on suit le <b>pointillé vertical</b> qui monte ou qui descend jusqu'à la courbe ; puis le <b>pointillé horizontal</b> qui va de la courbe jusqu'à l'axe des ordonnées. La graduation atteinte là est l'image — c'est là que le mot « image » est écrit.<br>
-Si le chemin arrive à la hauteur 2, alors <i>f</i>(<i>a</i>) = 2 : l'image de <i>a</i> est 2.<br>
-Piège classique : ne confonds pas le nombre et son image — le nombre se lit sur l'axe <b>horizontal</b>, l'image sur l'axe <b>vertical</b>.`;
+<b>Le chemin de l'image</b>, celui que le dessin anime : on part du <b>point rouge</b> posé sur <i>a</i>, sur l'axe des abscisses ; on suit le <b>pointillé vertical</b> qui monte ou qui descend jusqu'à la courbe ; puis le <b>pointillé horizontal</b> qui va de la courbe jusqu'à l'axe des ordonnées. La graduation atteinte là est l'image — c'est là que le mot « image » est écrit. Si le chemin arrive à la hauteur 2, alors <i>f</i>(<i>a</i>) = 2 : l'image de <i>a</i> est 2.<br>
+Un <b>antécédent</b> de <i>b</i> est un nombre dont l'image est <i>b</i> : un nombre <i>x</i> tel que <i>f</i>(<i>x</i>) = <i>b</i>. Un nombre peut avoir <b>plusieurs</b> antécédents, ou un seul.<br>
+<b>Le chemin des antécédents</b> est le chemin <b>inverse</b> : on part du <b>point rouge</b> posé sur <i>b</i>, sur l'axe des ordonnées ; on suit le <b>pointillé horizontal</b> jusqu'à la courbe — il peut la couper plusieurs fois — ; puis, de chaque croisement, le <b>pointillé vertical</b> qui descend ou monte jusqu'à l'axe des abscisses. Chaque graduation atteinte là est un antécédent.<br>
+Piège classique : ne confonds pas le nombre et son image — le nombre se lit sur l'axe <b>horizontal</b>, l'image sur l'axe <b>vertical</b>. L'image se cherche en PARTANT de l'axe des abscisses, les antécédents en PARTANT de l'axe des ordonnées.`;
 
 const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
 <b>① Au-dessus de l’axe des abscisses</b>, la courbe est en <span class="tsg-mot-rouge">rouge</span> et porte un <span class="tsg-mot-rouge">+</span> : là, <i>f</i>(<i>x</i>) est <b>positif</b>.<br>
@@ -30725,7 +30923,7 @@ const QIA_SUGG={
   'frequences-probabilites':["Quelle différence entre une fréquence et une probabilité ?","Quelle différence entre la fréquence de « A et D » et la fréquence de A parmi D ?","Pourquoi P_D(A) ne se divise-t-elle pas par le total ?","Comment trouver une case qui manque dans le tableau ?"],
   'lire-probabilites':["Que veut dire l’indice sous P ?","Comment lire P_A(B) avec le mot « parmi » ?","Quelle différence entre P_A(B) et P_B(A) ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
-  ima:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","Pourquoi le chemin part-il de l\u2019axe des abscisses et finit-il sur l\u2019axe des ordonn\u00e9es ?","Quelle est la diff\u00e9rence entre un nombre et son image ?","Que veut dire f(2) = 3 ?"],
+  ima:["Comment lire l\u2019image d\u2019un nombre sur une courbe ?","Comment trouver les ant\u00e9c\u00e9dents d\u2019un nombre sur une courbe ?","Pourquoi un nombre peut-il avoir plusieurs ant\u00e9c\u00e9dents ?","Quelle est la diff\u00e9rence entre image et ant\u00e9c\u00e9dent ?","Que veut dire f(2) = 3 ?"],
   gen:["Explique-moi simplement la notion principale de cet exercice.","Quelles sont les erreurs classiques à éviter ici ?"]
 };
 
