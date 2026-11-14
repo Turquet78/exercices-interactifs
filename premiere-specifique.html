@@ -788,7 +788,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima,#scr-trd,#scr-sui{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-voctest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima,#scr-trd,#scr-sui{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1569,20 +1569,53 @@ i.pb-P{margin-right:.14em}
   .trd-regle .trd-contenu{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin:0 auto;padding:0 4px}
   .itv-sel.trd-sel{width:auto;min-width:64px;height:38px;font-size:1rem;padding:0 10px;text-align-last:center}
   /* l'équation, chaque ligne face à sa règle (le sujet papier) */
-  .trd-eq{display:grid;grid-template-columns:max-content 1fr;column-gap:22px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
-  .trd-eq .trd-g{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:46px}
-  .trd-eq .trd-d{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--ink-soft)}
+  .trd-eq{position:relative;padding:30px 0 4px 34px;display:grid;grid-template-columns:max-content max-content max-content 1fr;column-gap:12px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
+  .trd-eq .trd-g{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap;min-height:46px}
+  .trd-eq .trd-d{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--ink-soft);font-size:.9rem}
+  .trd-eq .trd-d .itv-sel.trd-sel{height:34px;font-size:.9rem;padding:0 6px;min-width:0}
   .trd-eq .trd-d b{color:var(--blue-dark)}
   .trd-cercle{display:inline-block;border:1.6px dotted var(--ink-soft);border-radius:999px;padding:0 6px;line-height:1.5}
   .trd-frac{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
   .trd-frac .trd-bar{display:block;width:100%;min-width:48px;height:2.4px;background:var(--ink)}
-  /* la bulle d'aide du soutien : facultative, hors de la note */
-  .trd-bulle{position:relative;margin:2px auto 10px;max-width:640px;padding:8px 12px;border:1.5px solid #F2C94C;border-radius:12px;background:#FFF9E6;font-size:1.02rem;font-weight:600;line-height:2.3;overflow-x:auto}
-  .trd-bulle::before{content:'';position:absolute;top:-8px;left:42px;border:8px solid transparent;border-top:0;border-bottom-color:#F2C94C}
-  .trd-bulle .trd-bulle-tag{display:inline-block;font-size:.8rem;font-weight:800;color:#9A6B00;text-transform:uppercase;letter-spacing:.04em;margin-right:6px}
-  .trd-bulle .itv-sel{height:36px;width:56px;font-size:1.02rem}
-  .trd-mot{white-space:nowrap}
+  /* ① trois lignes par image, les « = » l'un sous l'autre (la fiche « suite ») */
+  .trd-images{display:flex;flex-wrap:wrap;gap:8px 48px;justify-content:center}
+  .trd-calc{display:grid;grid-template-columns:max-content max-content max-content;column-gap:8px;row-gap:4px;align-items:center;font-weight:600;font-size:1.02rem;white-space:nowrap;margin:0 0 8px}
+  .trd-calc .trd-g{text-align:right}
+  .trd-calc .trd-dr,.trd-eq .trd-dr{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:40px}
+  .trd-eg{text-align:center}
+  /* la bulle d'aide du soutien, ouverte au clic d'une case de calcul — le
+     geste du 8.4.4 de la Seconde (vcdGpOuvrir) */
+  .trd-gp{position:fixed;z-index:58;max-width:min(260px,calc(100vw - 16px));box-sizing:border-box;
+    background:#FBFDFC;border:1px solid #9CC8BF;border-radius:10px;padding:5px 24px 6px 9px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);font-family:'Nunito',sans-serif;font-weight:600;font-size:.8rem;color:var(--ink-soft)}
+  .trd-gp p{margin:0;line-height:1.9}
+  .trd-gp b{font-family:"Fredoka";font-weight:600;white-space:nowrap;color:var(--ink)}
+  .trd-gp .trd-gp-tag{font-size:.66rem;font-weight:800;color:#1f7a6b;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+  /* la règle des signes : une colonne, les signes en grand */
+  .trd-gp-regle{display:flex;flex-direction:column;gap:0;font-family:"Fredoka";font-weight:600;font-size:1.25rem;line-height:1.3;color:var(--ink);padding:2px 0 2px 6px}
+  .trd-gp-regle .trd-gp-fl{font-family:'Nunito',sans-serif;font-weight:700;margin:0 .2em}
+  .trd-gp-regle span{white-space:nowrap}
+  .trd-gp-s{display:inline-block;width:auto;min-width:0;font:inherit;font-family:"Fredoka";font-size:.9rem;height:1.7em;padding:0 2px;margin:0}
+  .trd-gp-n{font-family:"Fredoka";font-weight:600;font-size:.9rem;width:2.6em;height:1.6em;text-align:center;border:1px solid var(--ink-soft);border-radius:5px;padding:0}
+  .trd-gp-x{position:absolute;top:2px;right:4px;border:none;background:none;cursor:pointer;font-size:12px;color:inherit;padding:2px}
+  .trd-gp[data-bexp-cote]::before,.trd-gp[data-bexp-cote]::after{content:'';position:absolute;width:0;height:0;border:7px solid transparent}
+  .trd-gp[data-bexp-cote="droite"]::before{left:-14px;top:calc(var(--bexp-fx) - 7px);border-right-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="droite"]::after{left:-12.5px;top:calc(var(--bexp-fx) - 7px);border-right-color:var(--surface)}
+  .trd-gp[data-bexp-cote="gauche"]::before{right:-14px;top:calc(var(--bexp-fx) - 7px);border-left-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="gauche"]::after{right:-12.5px;top:calc(var(--bexp-fx) - 7px);border-left-color:var(--surface)}
+  .trd-gp[data-bexp-cote="haut"]::before{bottom:-14px;left:calc(var(--bexp-fx) - 7px);border-top-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="haut"]::after{bottom:-12.5px;left:calc(var(--bexp-fx) - 7px);border-top-color:var(--surface)}
+  .trd-gp[data-bexp-cote="bas"]::before{top:-14px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="bas"]::after{top:-12.5px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:var(--surface)}
   .trd-signes-regle{display:inline-flex;gap:14px;flex-wrap:wrap}
+  .trd-mot{white-space:nowrap}
+  /* les flèches de la transposition (la fiche papier) : pointillées, sans prise */
+  .trd-fl{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+  .trd-fl path{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:3 3}
+  .trd-fl .trd-fl-pointe{fill:var(--ink-soft)}
+  /* SOUTIEN : une case qui manque est entourée de ROUGE (demande de Turquet) —
+     pas « .bad » : elle n'est pas fausse, elle est à compléter */
+  .lv-in.trd-manque,.itv-sel.trd-manque{border-color:var(--red);box-shadow:0 0 0 2px rgba(229,35,43,.22)}
   .trd-signes-regle span{white-space:nowrap}
   /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
      du texte courant où les cases prennent place (pas une rangée flex : sur
@@ -1938,6 +1971,41 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* les nombres de la ligne à la taille de ses cases (la règle des cases) */
 #vapHost .f-whole{font-size:calc(1.7rem * var(--tab-nb,1));}
 @media(max-width:900px){ #vapHost .f-whole{font-size:calc(1.4rem * var(--tab-nb,1));} }
+/* {vocabulaire-calcul} (1.13) : la phrase, les calculs à choisir (des
+   étiquettes, les fractions empilées), et la case du résultat — les tailles
+   de l'écran du 1.12. Le choisi juste est BLEU, le faux rouge, la bonne
+   étiquette montrée par la page VERTE (la règle des couleurs). */
+#vocHost math-field.pm-mf{font-size:calc(1.7rem * var(--tab-nb,1));line-height:1.15;max-width:320px;}
+@media(max-width:900px){ #vocHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));} }
+#vocHost .f-dec{width:auto;min-width:110px;max-width:320px;}
+#vocHost math-field.pm-mf.f-dec{height:auto;min-height:50px;}
+#vocHost .pt-row{margin:12px 0;gap:12px}
+.voc-phrase{text-align:center;font-size:calc(1.35rem * var(--tab-nb,1));margin:4px 0 10px;color:var(--ink)}
+.voc-lab{font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+.voc-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:6px auto 4px}
+.voc-ch{min-width:96px;min-height:64px;padding:4px 14px;font-family:"Fredoka";font-weight:600;font-size:calc(1.6rem * var(--tab-nb,1));
+  color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:14px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center}
+.voc-ch .fr .fn,.voc-ch .fr .fd{font-size:calc(1.45rem * var(--tab-nb,1));font-weight:600;color:inherit;padding:0 8px}
+.voc-ch .fr .fb{background:currentColor;margin:2px 0}
+.voc-ch:hover:not(:disabled){border-color:var(--blue)}
+.voc-ch.voc-sel{border-color:var(--blue-dark);background:#F3F7FF;box-shadow:0 0 0 4px rgba(43,80,200,.18)}
+.voc-ch.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+.voc-ch.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+.voc-ch.sol{color:var(--green);background:var(--green-soft);border-color:var(--green);border-style:dashed}
+.voc-ch:disabled{cursor:default;opacity:1}
+#vocFeedback .rlf-frp{font-size:.85em}
+/* La fenêtre des ÉCRITURES DÉCIMALES À CONNAÎTRE : la fenêtre des tables,
+   les mêmes classes, en haut à droite, déplaçable. */
+#decOverlay{align-items:flex-start;justify-content:flex-end}
+#decOverlay .qia-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+.dec-card{max-width:380px;max-height:min(78vh,620px);margin:8px}
+@media (max-width:720px){ #decOverlay{justify-content:center} .dec-card{max-width:100%} }
+.dec-corps{padding:12px 14px;overflow-y:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dec-ligne{display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:6px 8px;background:var(--paper);
+  font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+.dec-ligne .fr .fn,.dec-ligne .fr .fd{font-size:calc(1.25rem * var(--tab-nb,1));font-weight:600;padding:0 6px}
+.dec-ligne .fr .fb{margin:2px 0}
 /* {relier-fractions} (4.7) : les deux colonnes à relier, et les calculs de la
    partie 5 aux tailles du 1.12. Les nombres et les fractions s'écrivent à la
    même taille ; le trait prend la couleur du verdict de son nombre — juste en
@@ -2932,6 +3000,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- TEST : LE VOCABULAIRE DU CALCUL (1.13) -->
+  <section class="screen" id="scr-voctest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagVoc"></span><span class="q-idx" id="vocIdx">Question 1 / 21</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="vocLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="vocPrompt">Choisis le calcul qui correspond à la phrase, puis écris le résultat.</p>
+      <div class="mp-stage"><div style="width:100%" id="vocHost"></div></div>
+      <div class="mp-feedback" id="vocFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center" id="vocActions">
+        <button class="btn btn-primary" onclick="checkVocAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : RELIER DÉCIMAUX, POURCENTAGES ET FRACTIONS (4.7) -->
   <section class="screen" id="scr-rlftest">
     <div class="test-top">
@@ -3804,6 +3888,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     <div class="tables-corps" id="tablesCorps"></div>
   </div>
 </div>
+<!-- LES ÉCRITURES DÉCIMALES À CONNAÎTRE — aide de référence du 1.13
+     {vocabulaire-calcul}, construite comme la fenêtre des tables. -->
+<div id="decOverlay" class="qia-overlay">
+  <div class="qia-card dec-card">
+    <div class="qia-head"><b>½ Écritures décimales à connaître</b><span class="qia-headbtns"><button type="button" class="qia-close" onclick="fermerDecimales()" title="Fermer">✕</button></span></div>
+    <div class="dec-corps" id="decCorps"></div>
+  </div>
+</div>
 <div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
@@ -3868,7 +3960,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=415;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=417;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4224,9 +4316,14 @@ function ptsEcran(){
        fraction écrite ne se simplifie pas — voir checkRvfAnswer) */
     const els=[].filter.call(scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
       +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol'), e=>!e.classList.contains('hors-note'));
-    if(!els.length) return null;
-    let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
-    return {pts:ok/els.length, justes:ok, cases:els.length};
+    /* un CHOIX à étiquettes ([data-pts-choix], le calcul choisi du 1.13)
+       compte pour UNE case, juste si l'étiquette choisie est juste — la
+       bonne étiquette montrée par la page (.sol) ne s'y ajoute pas */
+    let ok=0, n=els.length;
+    scr.querySelectorAll('[data-pts-choix]').forEach(g=>{ if(!g.querySelector('.ok,.bad,.sol')) return; n++; if(g.querySelector('.ok')) ok++; });
+    if(!n) return null;
+    els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
+    return {pts:ok/n, justes:ok, cases:n};
   }catch(e){ return null; }
 }
 function ptsRep(a){
@@ -4431,6 +4528,7 @@ const TESTS={
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
+  'vocabulaire-calcul': { name:'Vocabulaire du calcul', icon:'\ud83d\udde3\ufe0f', desc:'Le double, le tiers, le quart, l\u2019inverse, la somme, le produit, la diff\u00e9rence, le quotient\u00a0: choisis le bon calcul, puis \u00e9cris le r\u00e9sultat \u2014 et enfin des calculs en deux ou trois \u00e9tapes (le double du tiers de 12). Les nombres de la fiche, dans son ordre.', start:()=>startVoc() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
   'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète d’abord les évènements contraires, puis le tableau à partir de quatre nombres, et lis-y sept probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
@@ -4497,7 +4595,7 @@ const THEMES=[
      pas un titre. Les références écrites ailleurs suivent d'elles-mêmes :
      elles s'écrivent {identifiant} et sont résolues à l'affichage par
      numeros(). */
-  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee'] },
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee','vocabulaire-calcul'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -4711,7 +4809,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4957,6 +5055,7 @@ function liveCheckCurrent(){
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='sdec') checkSdAnswer(true);
   else if(k==='vap') checkVapAnswer(true);
+  else if(k==='voc') checkVocAnswer(true);
   else if(k==='rlf') checkRlfAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
@@ -5829,7 +5928,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], voc:['voctest',renderVoc], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -6232,7 +6331,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','trd','sui','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','trd','sui','sdtest','vaptest','voctest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -9282,6 +9381,189 @@ async function finishVap(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'valeur-approchee',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,note,total,percent:pct,durationSec});
+}
+
+/* ============ 1.13 {vocabulaire-calcul} : le vocabulaire du calcul ============
+   Demande de Turquet, novembre 2026, sur sa fiche « vocabulaire calcul » :
+   « créer un exercice dans calcul mental comme le pdf, on gardera les mêmes
+   nombres que dans le pdf ». La séance suit les lignes de la fiche, DANS SON
+   ORDRE et AVEC SES NOMBRES — aucun tirage : chaque question n'est que le
+   rang de sa ligne (q.n, l'indice, jamais l'objet).
+     Partie 1 — « Le double de 12 signifie que l'on doit calculer 12 × 1 ;
+       12 × 2 ; … le résultat est : … » : l'élève CHOISIT le bon calcul parmi
+       ceux de la fiche (des étiquettes à cliquer, les fractions empilées),
+       puis écrit le résultat. Double, triple, quadruple, moitié, tiers, quart,
+       dixième de 12, moitié de 5, quart de 1, inverse de 2, 4, 5 et 10,
+       somme, produit, différence et quotient de 6 et 2. La fiche pose deux
+       fois « le dixième de 12 », à l'identique : la ligne n'est posée qu'une
+       fois (aucune séance ne pose deux fois la même question).
+     Partie 2 — les calculs en plusieurs étapes, une case par étape, comme
+       la fiche : « On commence par la moitié de 5 : … puis la somme de 3 et
+       de la moitié de 5 : … ».
+   La question est juste quand le calcul choisi ET chaque case le sont. Un
+   résultat s'écrit en décimal ou en fraction (0,25 ou 1/4 : vapLit). Les
+   valeurs se tiennent en millièmes entiers (VAP_D, celles du 1.12).
+   Un bouton « Écritures décimales » ouvre la fenêtre des huit écritures
+   décimales à connaître (½ = 0,5 …), comme celle des tables. */
+const VOC_LIGNES=[
+  {t:'ch', nom:'Le double de 12',     ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:1, r:24000},
+  {t:'ch', nom:'Le triple de 12',     ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:2, r:36000},
+  {t:'ch', nom:'Le quadruple de 12',  ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:3, r:48000},
+  {t:'ch', nom:'La moitié de 12',     ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:1, r:6000},
+  {t:'ch', nom:'Le tiers de 12',      ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:2, r:4000},
+  {t:'ch', nom:'Le quart de 12',      ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:3, r:3000},
+  {t:'ch', nom:'Le dixième de 12',    ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:4, r:1200},
+  {t:'ch', nom:'La moitié de 5',      ch:[['f',5,1],['f',5,2],['f',5,3],['f',5,4],['f',5,10]], bon:1, r:2500},
+  {t:'ch', nom:'Le quart de 1',       ch:[['f',1,1],['f',1,2],['f',1,3],['f',1,4],['f',1,10]], bon:3, r:250},
+  {t:'ch', nom:'L’inverse de 2',      ch:[['n',-2],['f',1,2],['f',1,-2]], bon:1, r:500, faire:true},
+  {t:'ch', nom:'L’inverse de 4',      ch:[['n',-4],['f',1,4],['f',1,-4]], bon:1, r:250, faire:true},
+  {t:'ch', nom:'L’inverse de 5',      ch:[['n',-5],['f',1,5],['f',1,-5]], bon:1, r:200, faire:true},
+  {t:'ch', nom:'L’inverse de 10',     ch:[['n',-10],['f',1,10],['f',1,-10]], bon:1, r:100, faire:true},
+  {t:'ch', nom:'La somme de 6 et 2',      ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:0, r:8000},
+  {t:'ch', nom:'Le produit de 6 et 2',    ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:2, r:12000},
+  {t:'ch', nom:'La différence entre 6 et 2', ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:1, r:4000},
+  {t:'ch', nom:'Le quotient de 6 par 2',  ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:3, r:3000},
+  {t:'en', titre:'Calcule la somme de 3 et de la moitié de 5.', et:[
+    {lab:'On commence par <b>la moitié de 5</b> :', txt:'la moitié de 5', r:2500, calc:['f',5,2]},
+    {lab:'puis la somme de 3 et de <b>la moitié de 5</b> :', txt:'la somme de 3 et de la moitié de 5', r:5500, calc:'3 + 2,5'}]},
+  {t:'en', titre:'Calcule la somme du double de 4 et de la moitié de 6.', et:[
+    {lab:'On commence par <b>le double de 4</b> :', txt:'le double de 4', r:8000, calc:['x',4,2]},
+    {lab:'puis <b>la moitié de 6</b> :', txt:'la moitié de 6', r:3000, calc:['f',6,2]},
+    {lab:'puis la somme du <b>double de 4</b> et de la <b>moitié de 6</b> :', txt:'la somme du double de 4 et de la moitié de 6', r:11000, calc:'8 + 3'}]},
+  {t:'en', titre:'Calcule le double du tiers de 12.', et:[
+    {lab:'On commence par <b>le tiers de 12</b> :', txt:'le tiers de 12', r:4000, calc:['f',12,3]},
+    {lab:'puis le double du <b>tiers de 12</b> :', txt:'le double du tiers de 12', r:8000, calc:'4 × 2'}]},
+  {t:'en', titre:'Calcule la somme de 3 et de l’inverse de 2.', et:[
+    {lab:'On commence par <b>l’inverse de 2</b> :', txt:'l’inverse de 2', r:500, calc:['f',1,2]},
+    {lab:'puis la somme de 3 et de <b>l’inverse de 2</b> :', txt:'la somme de 3 et de l’inverse de 2', r:3500, calc:'3 + 0,5'}]}
+];
+const VOC_NB=VOC_LIGNES.length;
+function vocRang(i,n){ return Math.min(VOC_NB-1, Math.floor(i*VOC_NB/Math.max(1,n))); }
+function genVoc(i,n){ return {n:vocRang(i,n)}; }
+const vocL=q=>VOC_LIGNES[q.n];
+const vocSigne=n=>n<0?'−'+(-n):String(n);
+/* un calcul de la fiche : en HTML (étiquette, fraction empilée) et en texte */
+function vocCalcHTML(c){
+  if(typeof c==='string') return esc(c);
+  if(c[0]==='n') return vocSigne(c[1]);
+  if(c[0]==='f') return '<span class="fr"><span class="fn">'+vocSigne(c[1])+'</span><span class="fb"></span><span class="fd">'+vocSigne(c[2])+'</span></span>';
+  return c[1]+' '+({x:'×','+':'+','-':'−'})[c[0]]+' '+c[2];
+}
+function vocCalcPetit(c){   /* dans une phrase : la petite fraction empilée */
+  if(c && c[0]==='f') return '<span class="rlf-frp"><span>'+vocSigne(c[1])+'</span><span>'+vocSigne(c[2])+'</span></span>';
+  return vocCalcHTML(c);
+}
+function vocCalcTxt(c){
+  if(typeof c==='string') return c;
+  if(c[0]==='n') return vocSigne(c[1]);
+  if(c[0]==='f') return vocSigne(c[1])+'/'+vocSigne(c[2]);
+  return vocCalcHTML(c);
+}
+function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
+function vocTexte(q){ const L=vocL(q); return L.t==='ch' ? L.nom+' signifie que l’on doit '+(L.faire?'faire':'calculer')+' '+L.ch.map(vocCalcTxt).join(' ; ') : L.titre; }
+/* la correction écrite, en HTML (écran) ou en texte (aide, compte rendu) */
+function vocCorrection(q,html){
+  const L=vocL(q), C=html?vocCalcPetit:vocCalcTxt;
+  if(L.t==='ch') return L.nom+', c’est '+C(L.ch[L.bon])+' = '+vapStr(L.r)+'.';
+  return L.et.map(e=>(html?e.txt.charAt(0).toUpperCase()+e.txt.slice(1):e.txt)+' : '+C(e.calc)+' = '+vapStr(e.r)).join(' ; ')+'.';
+}
+async function startVoc(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='voc';
+  const n=dmNbQuestions(VOC_NB);
+  test.questions=distinctes(dmNbQuestions(VOC_NB),function(_,i){ return genVoc(i,n); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.vocChoix=null;
+  test.maxScore=test.questions.length;
+  show('voctest'); renderVoc();
+}
+/* le calcul choisi vit dans test (rangé par la pause avec le reste) */
+function vocChoixDe(){ const c=test.vocChoix; return (c && c.i===test.idx) ? c.c : null; }
+function vocChoisir(k){
+  if(test.locked) return;
+  const b=document.querySelectorAll('#vocHost .voc-ch')[k]; if(!b || b.disabled) return;
+  test.vocChoix={i:test.idx, c:k};
+  document.querySelectorAll('#vocHost .voc-ch').forEach((x,j)=>{
+    x.classList.toggle('voc-sel', j===k); x.setAttribute('aria-pressed', j===k?'true':'false');
+    if(!x.disabled) x.classList.remove('ok','bad','sol'); });
+  autoSave();
+  const r=$('vocR'); if(r && !r.disabled) setTimeout(()=>r.focus(),30);
+}
+function renderVoc(){
+  const q=test.questions[test.idx], L=vocL(q); test.locked=false;
+  const partie=L.t==='ch'?1:2;
+  $('vocIdx').textContent=`Partie ${partie} · Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagVoc').innerHTML=modeTagHTML();
+  $('vocLiveScore').textContent=test.score;
+  $('vocFeedback').textContent=''; $('vocFeedback').className='mp-feedback';
+  $('vocActions').innerHTML='<button class="btn btn-primary" onclick="checkVocAnswer()">Vérifier</button>';
+  const R=id=>vapCase(id,'f-dec','résultat');
+  let h;
+  if(L.t==='ch'){
+    $('vocPrompt').innerHTML='Choisis le calcul qui correspond à la phrase, puis écris le résultat.';
+    const ch=vocChoixDe();
+    h='<p class="voc-phrase"><b>'+L.nom+'</b> signifie que l’on doit '+(L.faire?'faire':'calculer')+' :</p>'
+      +'<div class="voc-choix" data-pts-choix="1" role="group" aria-label="les calculs proposés">'
+      +L.ch.map((c,k)=>'<button type="button" class="voc-ch'+(ch===k?' voc-sel':'')+'" aria-pressed="'+(ch===k)+'" onclick="vocChoisir('+k+')">'+vocCalcHTML(c)+'</button>').join('')
+      +'</div>'
+      +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
+  } else {
+    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">Une case par étape, comme sur la fiche.</span>';
+    h=L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
+  }
+  $('vocHost').innerHTML=h;
+  const order=vocIds(q).map(id=>$(id)).filter(Boolean);
+  order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkVocAnswer(); } }));
+  if(L.t==='en') setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkVocAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], L=vocL(q), soutien=isSoutien();
+  if(live){
+    if(L.t==='ch') vapLive('vocR',L.r); else L.et.forEach((e,k)=>vapLive('vocE'+k,e.r));
+    return;
+  }
+  let ok=true, okC=true;
+  if(L.t==='ch'){
+    const ch=vocChoixDe(); okC=ch===L.bon;
+    const bt=[...document.querySelectorAll('#vocHost .voc-ch')];
+    bt.forEach((b,k)=>{ b.classList.remove('ok','bad','sol');
+      if(k===ch) b.classList.add(okC?'ok':'bad');
+      else if(k===L.bon && !okC && !soutien) b.classList.add('sol'); });
+    if(okC || !soutien) bt.forEach(b=>{ b.disabled=true; });
+    const okR=vapVaut(vapVal('vocR'),L.r); marqueSaufVide('vocR',okR,soutien);
+    ok=okC&&okR;
+  } else {
+    L.et.forEach((e,k)=>{ const o=vapVaut(vapVal('vocE'+k),e.r); marqueSaufVide('vocE'+k,o,soutien); ok=ok&&o; });
+  }
+  if(!ok && soutien){ soutienAgain('vocFeedback','vocActions','checkVocAnswer','vocHost'); return; }
+  test.locked=true;
+  if(ok){ test.score++; $('vocLiveScore').textContent=test.score;
+    $('vocFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('vocFeedback').className='mp-feedback good';
+  } else {
+    if(L.t==='ch') corTrainDec('vocR',vapStr(L.r,false)); else L.et.forEach((e,k)=>corTrainDec('vocE'+k,vapStr(e.r,false)));
+    $('vocFeedback').innerHTML=(L.t==='ch' && vocChoixDe()==null ? 'Choisis d’abord le calcul. ' : '')+'Réponse : '+vocCorrection(q,true); $('vocFeedback').className='mp-feedback bad';
+  }
+  const lus=vocIds(q).map(vapVal), ch=L.t==='ch'?vocChoixDe():null;
+  const vide=lus.every(s=>s==='') && ch==null;
+  const given=vide?null:(L.t==='ch' ? (ch==null?'aucun calcul':vocCalcTxt(L.ch[ch]))+' ; '+(lus[0]||'…') : lus.map(s=>s||'…').join(' ; '));
+  const answer=L.t==='ch' ? vocCalcTxt(L.ch[L.bon])+' ; '+vapStr(L.r,false) : L.et.map(e=>vapStr(e.r,false)).join(' ; ');
+  test.answers.push({...(ptsExo()||{}),q:L.t==='ch'?L.nom:L.titre,answer,given,correct:ok});
+  const last=test.idx===test.questions.length-1;
+  $('vocActions').innerHTML=`<button class="btn btn-primary" id="vocNext" onclick="nextVocQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('vocNext').focus();
+}
+function nextVocQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.vocChoix=null; renderVoc(); autoSave(); } else finishVoc(); }
+async function finishVoc(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'vocabulaire-calcul',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,note,total,percent:pct,durationSec});
 }
@@ -19344,14 +19626,15 @@ function litClavier(){
    n'est révélé). Le soutien colore au fil de la frappe (liveColorDec). */
 const SUI_NB=2;            /* contextes par séance : 3 questions chacun — 6 questions */
 /* Les contextes. sens : +1 (une quantité qui augmente) ou −1 (qui diminue) ;
-   k : les puissances de 10 permises pour la valeur de départ ; aOk : la
-   contrainte propre au contexte (une batterie part toujours de 100 %) ;
+   u0 : les valeurs de départ permises (des nombres ronds, qui conviennent à
+   la situation) ; rMin, rMax : les bornes du pas propres au contexte (un
+   tuyau de piscine apporte au moins 100 L par heure) ;
    tps : la façon d'étiqueter les pas — année (2026 + n), heure (h0 + n),
    date (le jour 1 + n du mois). Chaque contexte écrit lui-même ses phrases,
    avec les jetons que suiPhrase() remplace. Tous les nombres qu'elles
    reçoivent sont déjà écrits en français (suiFmt). */
 const SUI_CTX=[
-  { nom:'les arbres du parc', sens:1, k:[2], tps:{type:'annee', t0:2026}, u:'arbres', pas:'année', pass:'années',
+  { nom:'les arbres du parc', sens:1, u0:[100,200,300,400,500,600,700,800,900,1000], tps:{type:'annee', t0:2026}, u:'arbres', pas:'année', pass:'années',
     intro:(u0,r)=>`En 2026, le parc de la ville compte <b>${u0} arbres</b>. Chaque année, les jardiniers plantent <b>${r} arbres</b> de plus.`,
     tabL:'Année', tabC:'Nombre d’arbres',
     q2:(m)=>`Calculer le nombre d’arbres en ${m}.`,
@@ -19362,7 +19645,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${T} arbres et ${u0} arbres il y a [e] arbres d’écart.`,
                 `Chaque année il y a [r] arbres de plus. Comme [e] = [r] × [k], pour avoir [e] arbres de plus il faudra [k] années.`,
                 `Donc ce sera en 2026 + [k] = [fin].`] },
-  { nom:'les feuilles de l’imprimante', sens:-1, k:[1,2], tps:{type:'heure', t0:8}, u:'feuilles', pas:'heure', pass:'heures',
+  { nom:'les feuilles de l’imprimante', sens:-1, u0:[300,400,500,600,700,800,900,1000,1500,2000], tps:{type:'heure', t0:8}, u:'feuilles', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 8 h, le bac de l’imprimante du lycée contient <b>${u0} feuilles</b>. Chaque heure, elle utilise <b>${r} feuilles</b>.`,
     tabL:'Heures écoulées', tabC:'Feuilles restantes',
     q2:(m)=>`Calculer le nombre de feuilles restantes à ${m}.`,
@@ -19373,7 +19656,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} feuilles et ${T} feuilles il y a [e] feuilles d’écart.`,
                 `Chaque heure elle utilise [r] feuilles. Comme [e] = [r] × [k], pour utiliser [e] feuilles, il faudra [k] heures.`,
                 `Donc ce sera à 8 h + [k] h = [fin] h.`] },
-  { nom:'le remplissage de la piscine', sens:1, k:[3], tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
+  { nom:'le remplissage de la piscine', sens:1, u0:[1000,2000,3000,4000,5000], rMin:100, tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 9 h, une piscine contient <b>${u0} L</b> d’eau. On la remplit avec un tuyau qui apporte <b>${r} L</b> par heure.`,
     tabL:'Heures écoulées', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la piscine à ${m}.`,
@@ -19384,7 +19667,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${T} L et ${u0} L il y a [e] L d’écart.`,
                 `Chaque heure le tuyau apporte [r] L. Comme [e] = [r] × [k], pour apporter [e] L, il faudra [k] heures.`,
                 `Donc ce sera à 9 h + [k] h = [fin] h.`] },
-  { nom:'le roman de Léa', sens:-1, k:[2], tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
+  { nom:'le roman de Léa', sens:-1, u0:[200,300,400,500,600,700,800,900,1000], rMax:90, tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
     intro:(u0,r)=>`Le 1<sup>er</sup> juin, il reste <b>${u0} pages</b> à lire à Léa dans son roman. Elle lit <b>${r} pages</b> chaque jour.`,
     tabL:'Jour', tabC:'Pages restantes',
     q2:(m)=>`Combien de pages lui restera-t-il à lire le ${m} ?`,
@@ -19395,7 +19678,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} pages et ${T} pages il y a [e] pages d’écart.`,
                 `Chaque jour elle lit [r] pages. Comme [e] = [r] × [k], pour lire [e] pages, il faudra [k] jours.`,
                 `Donc ce sera le 1 + [k] = [fin] juin.`] },
-  { nom:'la cuve d’eau de pluie', sens:-1, k:[2,3], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
+  { nom:'la cuve d’eau de pluie', sens:-1, u0:[500,1000,1500,2000,3000], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
     intro:(u0,r)=>`Le 1<sup>er</sup> juillet, une cuve contient <b>${u0} L</b> d’eau de pluie. Chaque jour, on en utilise <b>${r} L</b> pour arroser le jardin.`,
     tabL:'Jour', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la cuve le ${m}.`,
@@ -19406,7 +19689,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} L et ${T} L il y a [e] L d’écart.`,
                 `Chaque jour on utilise [r] L. Comme [e] = [r] × [k], pour utiliser [e] L, il faudra [k] jours.`,
                 `Donc ce sera le 1 + [k] = [fin] juillet.`] },
-  { nom:'les abonnés de la chaîne', sens:1, k:[3], tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
+  { nom:'les abonnés de la chaîne', sens:1, u0:[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000], rMin:50, tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
     intro:(u0,r)=>`En 2026, une chaîne de vidéos compte <b>${u0} abonnés</b>. Chaque année, elle gagne <b>${r} abonnés</b> de plus.`,
     tabL:'Année', tabC:'Nombre d’abonnés',
     q2:(m)=>`Calculer le nombre d’abonnés en ${m}.`,
@@ -19421,26 +19704,29 @@ const SUI_CTX=[
 /* Un entier s'écrit avec ses espaces de milliers (espace fine insécable) :
    « 1 000 », « 10 000 ». Les années restent nues. */
 function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-/* Un seul chiffre différent de zéro : 1 à 9, ou 10 (qui, multiplié par 10^k,
-   s'écrit 1 000). C'est la règle de la demande, en unités de 10^k. */
-function suiUn(x){ return Number.isInteger(x) && x>=1 && (x<=9 || x===10); }
-/* Toutes les combinaisons (a, b, k, N, p) d'un contexte qui tiennent la
-   règle à chaque étape : les lignes 1 à 3 du tableau, N·b, a ± N·b, p·b,
-   a ± p·b ; N de 4 à 9 (au-delà du tableau), p ≥ 2N. */
+/* Le pas — ce qu'on ajoute ou retire à chaque fois — est un multiple de 10
+   sous 100, ou 25, ou 110, 120 ou 150 au-dessus de 100 (demande de Turquet,
+   novembre 2026 ; elle remplace la règle du chiffre unique : les valeurs du
+   tableau en découlent, et restent des additions qui se font de tête). 100,
+   multiple de 10 à la frontière, est gardé. */
+const SUI_PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
+/* Le pas le plus lointain : la question ③ reste dans la table de 10. */
+const SUI_P_MAX=10;
+/* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
+   rondes, r dans SUI_PAS entre ses bornes, N au-delà du tableau (≥ 4), le
+   seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
+   (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
+   vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
 function suiFamilles(c){
   const out=[];
-  c.k.forEach(function(k){
-    for(let a=1;a<=10;a++) for(let b=1;b<=3;b++){
-      if(c.aOk && !c.aOk(a,k)) continue;
-      const v=n=>a+c.sens*n*b;
-      if(![1,2,3].every(n=>suiUn(v(n)))) continue;
-      for(let N=4;N<=9;N++){ if(!suiUn(N*b)||!suiUn(v(N))) continue;
-        /* le seuil de la question ③ est AU MOINS DEUX FOIS plus loin que la
-           question ② (demande de Turquet, novembre 2026) : p ≥ 2N — avec p ≤ 9,
-           N vaut donc toujours 4, et p 8 ou 9 */
-        for(let p=2*N;p<=9;p++){ if(!suiUn(p*b)||!suiUn(v(p))) continue;
-          out.push({a:a,b:b,k:k,N:N,p:p}); } }
-    }
+  c.u0.forEach(function(u0){
+    SUI_PAS.forEach(function(r){
+      if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
+      for(let N=4;2*N<=SUI_P_MAX;N++) for(let p=2*N;p<=SUI_P_MAX;p++){
+        if(u0+c.sens*p*r<=0) continue;
+        out.push({u0:u0, r:r, N:N, p:p});
+      }
+    });
   });
   return out;
 }
@@ -19448,7 +19734,7 @@ function suiFamilles(c){
    2 : la valeur au bout de N pas, 3 : le pas du seuil). */
 function suiTirer(ci, part){
   const f=pick(suiFamilles(SUI_CTX[ci]));
-  return {ci:ci, a:f.a, b:f.b, k:f.k, N:f.N, p:f.p, part:part||1};
+  return {ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
 }
 /* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
 function suiMoment(c, n){
@@ -19459,7 +19745,8 @@ function suiMoment(c, n){
 }
 /* Tout ce que la question attend, recalculé du tirage. */
 function suiVals(q){
-  const c=SUI_CTX[q.ci], m=Math.pow(10,q.k), r=c.sens*q.b*m, u0=q.a*m;
+  /* un brouillon de pause d'avant la v416 range (a, b, k) : u0 = a·10^k, r = b·10^k */
+  const c=SUI_CTX[q.ci], u0=(q.u0!=null?q.u0:q.a*Math.pow(10,q.k)), r=c.sens*(q.r!=null?q.r:q.b*Math.pow(10,q.k));
   const t=c.tps, fin=(t.type==='annee')?t.t0+q.p:(t.type==='heure'?t.t0+q.p:1+q.p);
   return { c:c, u0:u0, r:r, rAbs:Math.abs(r),
     t1:u0+r, t2:u0+2*r, t3:u0+3*r,
@@ -19470,14 +19757,20 @@ function suiVals(q){
 /* Les cases d'une question, dans l'ordre d'écriture, avec l'entier attendu.
    Le nom suit la convention xxxCases(q) que lit le réglage « Questions »
    d'un devoir. */
+/* Méthode 1 de la question ② : les lignes 0 à SUI_M1_ECRITES − 1 du tableau
+   sont écrites, les suivantes sont des cases. Deux lignes écrites (le départ
+   et le premier pas) : avec N ≥ 4, l'élève a toujours AU MOINS TROIS lignes à
+   compléter pour arriver au résultat (demande de Turquet, novembre 2026). */
+const SUI_M1_ECRITES=2;
 function suiCases(q){
   const v=suiVals(q);
   if(q.part===1) return [{id:'sui-t1', bon:v.t1}, {id:'sui-t2', bon:v.t2}];
   if(q.part===2){
     /* MÉTHODE 1 : le tableau prolongé jusqu'au pas N (demande de Turquet,
-       novembre 2026) — une case par ligne de 4 à N ; seule la DERNIÈRE est
-       exigée, les lignes intermédiaires peuvent être sautées (opt) */
-    const m1=[]; for(let n=4;n<=v.n;n++) m1.push({id:'sui-m1-'+n, bon:v.u0+n*v.r, opt:n<v.n, n:n});
+       novembre 2026) — une case par ligne de SUI_M1_ECRITES à N, au moins
+       trois ; seule la DERNIÈRE est exigée, les lignes intermédiaires peuvent
+       être sautées (opt) */
+    const m1=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) m1.push({id:'sui-m1-'+n, bon:v.u0+n*v.r, opt:n<v.n, n:n});
     return m1.concat([{id:'sui-n', bon:v.n}, {id:'sui-r', bon:v.rAbs}, {id:'sui-p', bon:v.prod}, {id:'sui-u0', bon:v.u0}, {id:'sui-res', bon:v.res}]);
   }
   return [{id:'sui-e', bon:v.e}, {id:'sui-r', bon:v.rAbs}, {id:'sui-k', bon:v.kk}, {id:'sui-fin', bon:v.fin}];
@@ -19529,8 +19822,10 @@ function suiMomentHTML(c, n){
 /* LA MÉTHODE 1 DE LA QUESTION ② (demande de Turquet, novembre 2026) : le
    tableau de la question ①, prolongé jusqu'au pas N — trois colonnes : le
    moment réel (2026, 2027, …), le nombre de pas écoulés (0, 1, 2, …), la
-   valeur. Les lignes 0 à 3 sont écrites (les résultats de la question ①),
-   les lignes 4 à N sont des cases. « On acceptera si l'élève saute des
+   valeur. Les lignes 0 et 1 sont écrites (le départ et le premier pas, lus
+   à la question ①), les lignes 2 à N sont des cases — au moins trois,
+   puisque N ≥ 4 (demande de Turquet, novembre 2026 : « l'élève doit
+   compléter au moins trois lignes pour arriver au résultat »). « On acceptera si l'élève saute des
    cases » : seule la dernière ligne est attendue ; les lignes intermédiaires
    portent .hors-note — ni comptées dans la note, ni relevées comme oubliées
    par la boîte « Il reste des cases vides » —, et ne se jugent que si l'élève
@@ -19543,7 +19838,7 @@ function suiTableauM1(q){
   for(let n=0;n<=v.n;n++){
     const val=v.u0+n*v.r;
     h+='<tr><td>'+suiMomentHTML(c,n)+'</td><td>'+n+'</td><td>'
-      +(n<4 ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
+      +(n<SUI_M1_ECRITES ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
       +'</td></tr>';
   }
   return h+'</table>';
@@ -19596,8 +19891,8 @@ function renderSuiTest(){
 function suiPourquoi(q){
   const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−', pl=c.sens>0?'ajoute':'retire';
   if(q.part===1) return 'À chaque '+c.pas+', on '+pl+' '+suiFmt(v.rAbs)+' : '+suiFmt(v.u0)+' → '+suiFmt(v.t1)+' → '+suiFmt(v.t2)+' → '+suiFmt(v.t3)+'.';
-  if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
-    return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.t3)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
+  if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
+    return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.u0+(SUI_M1_ECRITES-1)*v.r)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
   return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk)+'.';
 }
 function checkSuiAnswer(live){
@@ -19651,8 +19946,8 @@ function ctxSui(q){
   let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs)).replace(/<[^>]+>/g,'')+' ';
   t+='Une quantité qui change toujours de la même valeur à chaque '+c.pas+' : la valeur au bout de n pas est la valeur de départ '+sg+' n × '+suiFmt(v.rAbs)+'. ';
   if(q.part===1) t+='Question 1 : compléter le tableau des pas 0 à 3 (le pas 0 vaut '+suiFmt(v.u0)+', le pas 3 vaut '+suiFmt(v.t3)+', donnés). Réponses attendues, STRICTEMENT SECRÈTES : pas 1 = '+suiFmt(v.t1)+', pas 2 = '+suiFmt(v.t2)+'. ';
-  else if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
-    t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 à 3 écrits), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
+  else if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
+    t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 et 1 écrits ; l’élève reprend au pas 2, au moins trois lignes à compléter), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
   else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk)+' (case : '+v.fin+'). ';
   t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
   t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
@@ -30012,7 +30307,7 @@ function rendreDeplacable(carte, poignee){
 /* --- Fermer (et vider) les fenêtres d'aide à chaque changement d'écran : quitter l'exercice les fait disparaître. --- */
 function fermerFenetresIA(vider){
   reattacherFenetres();
-  fermerQIA(); fermerConseil(); fermerTables();
+  fermerQIA(); fermerConseil(); fermerTables(); if(typeof fermerDecimales==="function") fermerDecimales();
   if(!vider) return;
   const d=$('qiaDialog'); if(d) d.innerHTML='';
   const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
@@ -30209,6 +30504,13 @@ const RAP_VAP=`<b>Valeur approchée et ordre de grandeur</b><br>
 <b>② Multiplier par 10, 100, 1000</b> : \\(100\\times 1000=100\\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\\times 1000=\\frac{1}{10}\\times 1000=\\frac{1000}{10}=100\\) ; \\(0{,}01\\times 10=\\frac{1}{100}\\times 10=\\frac{10}{100}=0{,}1\\).<br>
 <b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\\times 99\\approx 10\\times 100=1000\\) ; \\(0{,}01\\times 999\\approx 0{,}01\\times 1000=10\\).<br>
 Piège classique : \\(0{,}1\\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
+const RAP_VOC=`<b>Le vocabulaire du calcul</b><br>
+<b>① Multiplier</b> : le <b>double</b> de 12, c’est \\(12\\times 2=24\\) ; le <b>triple</b>, \\(12\\times 3\\) ; le <b>quadruple</b>, \\(12\\times 4\\).<br>
+<b>② Diviser</b> : la <b>moitié</b> de 12, c’est \\(\\frac{12}{2}=6\\) ; le <b>tiers</b>, \\(\\frac{12}{3}\\) ; le <b>quart</b>, \\(\\frac{12}{4}\\) ; le <b>dixième</b>, \\(\\frac{12}{10}=1{,}2\\).<br>
+<b>③ L’inverse</b> de 2, c’est \\(\\frac{1}{2}=0{,}5\\) — pas \\(-2\\), qui est l’<b>opposé</b> de 2.<br>
+<b>④ Les quatre opérations</b> : la <b>somme</b> de 6 et 2 est \\(6+2\\), la <b>différence</b> \\(6-2\\), le <b>produit</b> \\(6\\times 2\\), le <b>quotient</b> \\(\\frac{6}{2}\\).<br>
+<b>⑤ Plusieurs étapes</b> : le double du tiers de 12 — on commence par le tiers de 12 (4), puis on prend son double (8).<br>
+Les écritures décimales à connaître : \\(\\frac{1}{2}=0{,}5\\) ; \\(\\frac{1}{4}=0{,}25\\) ; \\(\\frac{3}{4}=0{,}75\\) ; \\(\\frac{1}{10}=0{,}1\\) ; \\(\\frac{1}{5}=0{,}2\\) ; \\(\\frac{2}{5}=0{,}4\\) ; \\(\\frac{3}{5}=0{,}6\\) ; \\(\\frac{4}{5}=0{,}8\\).`;
 const RAP_RLF=`<b>Décimaux, pourcentages et fractions</b><br>
 <b>① Les quarts, la moitié, le dixième</b> : \\(0{,}5=\\frac{1}{2}\\), \\(0{,}25=\\frac{1}{4}\\), \\(0{,}75=\\frac{3}{4}\\) et \\(0{,}1=\\frac{1}{10}\\).<br>
 <b>② Les cinquièmes</b> : \\(\\frac{1}{5}=\\frac{2}{10}=0{,}2\\), puis \\(\\frac{2}{5}=0{,}4\\), \\(\\frac{3}{5}=0{,}6\\), \\(\\frac{4}{5}=0{,}8\\) — on double le numérateur pour passer en dixièmes.<br>
@@ -31168,9 +31470,11 @@ function trdSignesSVG(q){
   const signe=function(m, txt, cls){
     /* le long du morceau, la première place à 30 px au moins de l'axe des
        ordonnées et de ses graduations ; à défaut, le milieu */
-    const dx=q.a<0 ? 18 : -18;
-    let xm=(m[0]+m[1])/2;
-    for(const t of [0.5,0.65,0.35,0.8,0.2]){ const c=m[0]+(m[1]-m[0])*t; if(Math.abs(trdSx(c)+dx-trdSx(0))>=30 && Math.abs(trdF(q,c))>=0.8){ xm=c; break; } }
+    /* d'un côté de la droite puis de l'autre (à 18 px, la droite s'en écarte
+       d'au moins 36 px : |a| ≥ 2) */
+    let xm=(m[0]+m[1])/2, dx=q.a<0 ? 18 : -18, trouve=false;
+    [dx,-dx].forEach(function(d){ [0.5,0.65,0.35,0.8,0.2].forEach(function(t){ if(trouve) return;
+      const c=m[0]+(m[1]-m[0])*t; if(Math.abs(trdSx(c)+d-trdSx(0))>=30 && Math.abs(trdF(q,c))>=0.8){ xm=c; dx=d; trouve=true; } }); });
     const X=trdSx(xm), Y=trdSy(trdF(q,xm));
     return '<text class="tsc-signe '+cls+'" x="'+(X+dx).toFixed(1)+'" y="'+(Y+7).toFixed(1)+'" text-anchor="middle">'+txt+'</text>';
   };
@@ -31183,7 +31487,7 @@ function trdSignesSVG(q){
 /* ---- Les listes ---- */
 const TRD_LISTES={
   'trd-regle':[['parabole','une parabole'],['droite','une droite'],['hyperbole','une hyperbole'],['cercle','un cercle']],
-  'trd-r1':[['meme','garder la même opération'],['inverse','faire l’opération inverse'],['ordre','changer l’ordre des termes']],
+  'trd-r1':[['inverse','prendre l’inverse'],['oppose','prendre l’opposé'],['meme','garder le même nombre']],
   'trd-r2':[['nombre','nombre'],['signe','signe'],['sens','sens de l’égalité']],
   'trd-r3':[['multiplie','on multiplie'],['soustrait','on soustrait'],['divise','on divise'],['ajoute','on ajoute']],
   'trd-r4':[['membre','membre'],['nombre','nombre'],['signe','signe']],
@@ -31192,23 +31496,145 @@ const TRD_LISTES={
 };
 function trdSel(id, aria, cls){ return itvSelHTML(id, TRD_LISTES[id], aria, cls||'trd-sel'); }
 function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+esc(aria)+'">'; }
-/* ---- Les bulles d'aide du soutien (facultatives, hors de la note) ---- */
-function trdBulleSomme(id, t1, t2, intro){
-  const meme=(t1>0)===(t2>0), A=Math.abs(t1), B=Math.abs(t2), g=Math.max(A,B), p=Math.min(A,B);
-  const s=t1+t2, signe=s>0?'+':'-';
-  const vin='<input id="'+id+'-v" class="lv-in hors-note trd-aide" data-exp="'+(meme?A+B:g-p)+'" inputmode="numeric" autocomplete="off" aria-label="aide facultative : le résultat sans son signe">';
-  const sin='<select class="itv-sel hors-note trd-aide" id="'+id+'-s" data-exp="'+signe+'" aria-label="aide facultative : le signe"><option value="" selected disabled>?</option><option value="+">+</option><option value="-">−</option></select>';
-  return '<div class="trd-bulle" id="'+id+'"><span class="trd-bulle-tag">Aide facultative</span>'+intro+' '
-    +(meme
-      ? 'les signes sont les <b>mêmes</b>, donc on <b>additionne</b> '+A+' et '+B+' : '+A+' + '+B+' = '+vin+' et on garde le même signe que '+trdNb(t1)+' et '+trdNb(t2)+', ici c’est '+sin+' .'
-      : 'les signes sont <b>différents</b>, donc on fait la <b>soustraction</b> grand − petit = '+g+' − '+p+' = '+vin+' et on prend le signe du plus fort entre '+trdNb(t1)+' et '+trdNb(t2)+', ici '+sin+' .')
-    +'</div>';
+/* ---- La bulle d'aide du soutien, à côté de la case cliquée ----
+   Demande de Turquet (novembre 2026) : « en mode soutien, je veux que la
+   bulle apparaisse quand on clique sur la case et que l'aide corresponde
+   uniquement à l'opération de la case, comme dans l'exercice de seconde
+   8.4.4 ». Le geste est celui du 8.4.4 ({coordonnees-vecteur-calculer},
+   vcdGpOuvrir) : la case d'un CALCUL prend le focus, la bulle s'ouvre à côté
+   d'elle, flèche pointée, et ne parle que de son opération —
+     · le produit a × x (trd-p1, trd-p2) : on multiplie sans les signes, puis
+       la règle des signes du produit ;
+     · la somme p + b (trd-y1, trd-y2) et la somme k + (−b) (trd-e2) : « les
+       signes sont différents, donc on fait la soustraction grand − petit … et
+       on prend le signe du plus fort », ou « les signes sont les mêmes, donc
+       on additionne … et on garde le même signe » ;
+     · la division (trd-e5) : on divise sans les signes, puis la règle des
+       signes de la division.
+   Les nombres de la bulle sont ceux que l'élève a ÉCRITS dans les cases
+   d'avant (le 8.4.4 aussi) ; tant qu'ils manquent, elle dit lesquels écrire
+   d'abord. Ses deux cases (le nombre, le signe) sont facultatives : remplies,
+   elles écrivent le résultat dans la case du calcul, qui se juge comme si
+   l'élève l'avait tapé. Soutien seulement, jamais sur un écran verrouillé.
+   Elle vit sur <body> (l'écran est le repère d'un « fixed »), n'existe que
+   pendant son ouverture (aucun banc qui parcourt les cases ne la voit, la
+   saisie de la pause ne la lit pas), se place par bexpPoser (la géométrie de
+   « Comprendre mon erreur »), porte data-bulle-aide (« Comprendre mon
+   erreur » ne s'ouvre pas sous elle), et se ferme au premier geste ailleurs,
+   à Échap, à la croix, à un redessin et à la vérification. */
+const TRD_GP_CASES=/^trd-(p1|p2|y1|y2|e2|e5)$/;
+let trdGpAncre=null;
+/* un nombre écrit : décimal (« 1,5 ») ou fraction (« 3/2 ») ; null = vide, NaN = illisible */
+function trdLitNb(v){
+  const t=String(v==null?'':v).trim().replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
+  if(t==='') return null;
+  const m=/^([-+]?\d+(?:\.\d+)?)\/([-+]?\d+(?:\.\d+)?)$/.exec(t);
+  if(m){ const d=parseFloat(m[2]); return d===0?NaN:parseFloat(m[1])/d; }
+  return /^[-+]?\d+(\.\d+)?$/.test(t) ? parseFloat(t) : NaN;
 }
-function trdBulleDivision(q){
-  const n=q.k-q.b;
-  return '<div class="trd-bulle" id="trd-bd"><span class="trd-bulle-tag">Aide facultative</span>Pour la division '+trdNb(n)+' ÷ '+(q.a<0?'('+trdNb(q.a)+')':trdNb(q.a))+', la règle des signes : '
-    +'<span class="trd-signes-regle"><span>+ ÷ − → −</span><span>− ÷ + → −</span><span>− ÷ − → +</span><span>+ ÷ + → +</span></span></div>';
+function trdLuCase(id){ const el=$(id); if(!el) return null; const v=trdLitNb(el.value); return (v===null||Number.isNaN(v))?null:v; }
+function trdPar(n){ return n<0 ? '('+trdNb(n)+')' : trdNb(n); }
+/* l'opération de la case : ses deux nombres, ou ce qu'il faut écrire d'abord */
+function trdGpOperation(q, id){
+  const k=id.slice(-1);
+  if(id==='trd-p1'||id==='trd-p2') return {op:'mul'};
+  if(id==='trd-y1'||id==='trd-y2'){ const p=trdLuCase('trd-p'+k);
+    return p===null ? {manque:'le produit, sur la ligne du dessus'} : {op:'som', a:p, b:q.b}; }
+  if(id==='trd-e2'){ const t=trdLuCase('trd-e1');
+    return t===null ? {manque:'le terme transposé, sur la ligne du dessus'} : {op:'som', a:q.k, b:t}; }
+  if(id==='trd-e5') return {op:'div'};
+  return null;
 }
+function trdGpHTML(o){
+  const sin='<select id="trdGpS" class="trd-gp-s" aria-label="le signe du résultat"><option value="">…</option><option value="+">+</option><option value="-">−</option></select>';
+  const nin='<input id="trdGpN" class="trd-gp-n" type="text" inputmode="decimal" maxlength="5" autocomplete="off" spellcheck="false" aria-label="le résultat sans son signe">';
+  if(o.op==='som'){
+    const A=Math.abs(o.a), B=Math.abs(o.b), meme=(o.a>0)===(o.b>0), g=Math.max(A,B), p=Math.min(A,B);
+    return '<p>Pour <b>'+trdNb(o.a)+(o.b<0?' − '+B:' + '+B)+'</b> : '
+      +(meme ? 'les signes sont les <b>mêmes</b>, donc on additionne '+A+' et '+B+' : '+A+' + '+B+' = '+nin+' et on garde le même signe que '+trdNb(o.a)+' et '+trdNb(o.b)+', ici c’est '+sin+'.'
+             : 'les signes sont <b>différents</b>, donc on fait la soustraction grand − petit = '+g+' − '+p+' = '+nin+' et on prend le signe du plus fort entre '+trdNb(o.a)+' et '+trdNb(o.b)+', ici '+sin+'.')+'</p>';
+  }
+  /* le produit, la division : la règle des signes SEULE, en une colonne, les
+     signes en grand (demande de Turquet) — rien d'autre */
+  const s=o.op==='mul' ? '×' : '÷';
+  return '<p>Règle des signes '+(o.op==='mul'?'d’un produit':'d’une division')+' :</p>'
+    +'<p class="trd-gp-regle">'+[['+','+','+'],['−','−','+'],['+','−','−'],['−','+','−']].map(function(l){ return '<span>'+l[0]+' '+s+' '+l[1]+'<span class="trd-gp-fl">→</span>'+l[2]+'</span>'; }).join('')+'</p>';
+}
+function trdGpFermer(){ const b=$('trdGp'); if(b) b.remove(); trdGpAncre=null; }
+function trdGpOuvrir(el){
+  if(!el||!isSoutien()||test.locked||test.kind!=='trd'||el.disabled||el.classList.contains('sol')) return;
+  if(trdGpAncre===el&&$('trdGp')) return;
+  const q=test.questions[test.idx], o=q?trdGpOperation(q, el.id):null; if(!o) return;
+  trdGpFermer();
+  if(!el.closest('.screen.on')) return;
+  if(typeof bexpMasquer==='function') bexpMasquer();
+  const b=document.createElement('div');
+  b.id='trdGp'; b.className='trd-gp'; b.setAttribute('data-bulle-aide',''); b.setAttribute('role','group');
+  b.setAttribute('aria-label','Aide facultative : le calcul de cette case');
+  b.innerHTML='<button type="button" class="trd-gp-x" aria-label="Fermer" onclick="trdGpFermer()">✕</button>'
+    +'<p class="trd-gp-tag">Aide facultative</p>'
+    +(o.manque ? '<p>Écris d’abord '+o.manque+' : je t’aiderai ensuite à faire le calcul de cette case.</p>' : trdGpHTML(o));
+  document.body.appendChild(b);
+  trdGpAncre=el;
+  setTimeout(function(){ if(trdGpAncre===el && typeof bexpMasquer==='function') bexpMasquer(); }, 0);
+  if(!o.manque){
+    /* les deux remplies : le résultat s'écrit dans la case du calcul */
+    const ecrire=function(){
+      const s=$('trdGpS'), n=$('trdGpN'), r=trdGpAncre;
+      if(!s||!n||!r||!r.isConnected||test.locked||!s.value) return;
+      const v=trdLitNb(n.value); if(v===null||Number.isNaN(v)) return;
+      const val=trdNb(s.value==='-'?-Math.abs(v):Math.abs(v));
+      if(r.value===val) return;
+      r.value=val; r.dispatchEvent(new Event('input',{bubbles:true}));
+    };
+    /* seule la bulle d'une SOMME a des cases : celles du produit et de la
+       division ne portent que la règle des signes */
+    const s=$('trdGpS'), n=$('trdGpN');
+    if(s && n){ s.addEventListener('change', ecrire); n.addEventListener('input', ecrire); }
+  }
+  trdGpPlacer();
+}
+/* LA BULLE NE CACHE NI LE CALCUL EN COURS NI LES RÈGLES À COMPLÉTER
+   (demande de Turquet) : le bloc entier — les deux calculs d'images de la
+   question 1, ou l'équation et ses règles de la question 4 — est mesuré par
+   ce qu'il ÉCRIT (ses cellules, pas la largeur de sa grille), et la bulle se
+   pose À CÔTÉ de lui : à droite, à gauche, dessous, sinon dessus — la flèche
+   tournée vers la case. */
+function trdGpBloc(el){ return el.closest('.trd-images') || el.closest('.trd-eq'); }
+function trdGpEmprise(bloc, c){
+  let L=c.left, R=c.right, T=c.top, B=c.bottom;
+  bloc.querySelectorAll('.trd-calc, .trd-g, .trd-eg, .trd-dr, .trd-d > *').forEach(function(e){
+    const r=e.getBoundingClientRect(); if(!r.width||!r.height) return;
+    L=Math.min(L,r.left); R=Math.max(R,r.right); T=Math.min(T,r.top); B=Math.max(B,r.bottom);
+  });
+  return {left:L, right:R, top:T, bottom:B};
+}
+function trdGpPlacer(){
+  const b=$('trdGp'), el=trdGpAncre; if(!b) return;
+  if(!el||!el.isConnected||!el.closest('.screen.on')||test.kind!=='trd'){ trdGpFermer(); return; }
+  b.removeAttribute('data-bexp-cote'); b.style.left='0px'; b.style.top='0px';
+  const rb=b.getBoundingClientRect(), c=el.getBoundingClientRect();
+  if(!rb.width||!rb.height||(!c.width&&!c.height)) return;
+  const bl=trdGpBloc(el), e=bl ? trdGpEmprise(bl, c) : {left:c.left, right:c.right, top:c.top, bottom:c.bottom};
+  const W=window.innerWidth, H=window.innerHeight, M=8, E=12, w=rb.width, hh=rb.height;
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const bornY=function(y){ return Math.max(M, Math.min(H-M-hh, y)); }, bornX=function(x){ return Math.max(M, Math.min(W-M-w, x)); };
+  let x, y, cote;
+  if(e.right+E+w<=W-M){ x=e.right+E; y=bornY(cy-hh/2); cote='droite'; }
+  else if(e.left-E-w>=M){ x=e.left-E-w; y=bornY(cy-hh/2); cote='gauche'; }
+  else if(e.bottom+E+hh<=H-M){ y=e.bottom+E; x=bornX(cx-w/2); cote='bas'; }
+  else if(e.top-E-hh>=M){ y=e.top-E-hh; x=bornX(cx-w/2); cote='haut'; }
+  else { y=e.bottom+E; x=bornX(cx-w/2); cote='bas'; }
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+  b.dataset.bexpCote=cote;
+  const fx=(cote==='droite'||cote==='gauche') ? cy-y : cx-x;
+  b.style.setProperty('--bexp-fx', Math.round(Math.max(14, Math.min((cote==='droite'||cote==='gauche'?hh:w)-14, fx)))+'px');
+}
+document.addEventListener('focusin', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); });
+document.addEventListener('pointerdown', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); }, true);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&trdGpAncre) trdGpFermer(); });
+window.addEventListener('resize', function(){ if(trdGpAncre) trdGpPlacer(); });
+document.addEventListener('scroll', function(){ if(trdGpAncre) trdGpPlacer(); }, true);
 /* ---- L'écran ---- */
 function startTrd(){
   if(!currentEleve){ accueil(); return; }
@@ -31232,12 +31658,17 @@ function renderTrd(){
   const soutien=isSoutien();
   let h='';
   /* ① les images */
-  h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div>';
+  /* trois lignes, les « = » l'un sous l'autre (la fiche « suite » de
+     Turquet) : le produit à remplacer, le produit calculé, la somme */
+  h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div><div class="trd-images">';
   [[q.x1,'1'],[q.x2,'2']].forEach(function(c){
-    h+='<div class="trd-ligne"><span class="trd-contenu">'+fx(c[0])+' = '+trdNb(q.a)+' × ( '+trdIn('trd-x'+c[1],'le nombre à remplacer dans f ('+trdNb(c[0])+')','sm')+' )'+bSig+' = '+trdIn('trd-y'+c[1],'la valeur de f ('+trdNb(c[0])+')')+'</span></div>';
-    if(soutien){ const p=q.a*c[0]; h+=trdBulleSomme('trd-b'+c[1], p, q.b, 'On calcule d’abord '+trdNb(q.a)+' × '+(c[0]<0?'('+trdNb(c[0])+')':trdNb(c[0]))+' = '+trdNb(p)+', puis '+trdNb(p)+bSig+' :'); }
+    h+='<div class="trd-calc">'
+      +'<span class="trd-g">'+fx(c[0])+'</span><span class="trd-eg">=</span><span class="trd-dr">'+trdNb(q.a)+' × ( '+trdIn('trd-x'+c[1],'le nombre à remplacer dans f ('+trdNb(c[0])+')','sm')+' )'+bSig+'</span>'
+      +'<span class="trd-g"></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-p'+c[1],'le produit '+trdNb(q.a)+' × '+trdNb(c[0])+' calculé')+bSig+'</span>'
+      +'<span class="trd-g"></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-y'+c[1],'la valeur de f ('+trdNb(c[0])+')')+'</span>'
+      +'</div>';
   });
-  h+='</div>';
+  h+='</div></div>';
   /* ② les points, la règle, la droite */
   h+='<div class="trd-partie"><div class="trd-titre">2. Place le point A correspondant à '+fx(q.x1)+', puis le point B correspondant à '+fx(q.x2)+' ; construis ensuite la représentation graphique de <i>f</i>.</div>'
     +'<div class="trd-consigne" id="trdConsigne" aria-live="polite"></div>'
@@ -31253,35 +31684,36 @@ function renderTrd(){
   /* ④ l'équation, chaque ligne face à sa règle */
   const ax=trdAx(q.a);
   h+='<div class="trd-partie"><div class="trd-titre">4. Détermine par le calcul l’antécédent de '+K+' par <i>f</i> : résous <i>f</i> (<i>x</i>) = '+K+'. Complète chaque ligne, et la règle écrite en face.</div>'
+    /* quatre colonnes : le premier membre, le « = » (tous l'un sous
+       l'autre), le second membre, et la règle en face — chaque règle sur
+       UNE ligne, son « donc … » compris (demande de Turquet) */
     +'<div class="trd-eq">'
-    +'<span class="trd-g">'+ax+' <span class="trd-cercle">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span> = '+K+'</span>'
-    +'<span class="trd-d"><b>Règle 1</b> : quand on transpose un terme, on doit '+trdSel('trd-r1','règle 1 : quand on transpose un terme, on doit')+'</span>'
-    +'<span class="trd-g">'+ax+' = '+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span>'
-    +'<span class="trd-d">donc on change le '+trdSel('trd-r2','donc on change le')+'</span>'
-    +'<span class="trd-g"><span class="trd-cercle">'+trdNb(q.a)+'</span><i>x</i> = '+trdIn('trd-e2','le second membre calculé')+'</span>'
-    +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+'</span>'
-    +'<span class="trd-g"><i>x</i> = <span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span>'
-    +'<span class="trd-d">donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
-    +'<span class="trd-g"><i>x</i> = '+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
+    +'<span class="trd-g">'+ax+' <span class="trd-cercle trd-cercle-t">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span></span><span class="trd-eg">=</span><span class="trd-dr">'+K+'</span>'
+    +'<span class="trd-d"><b>Règle 1</b> : quand on transpose un terme, on doit '+trdSel('trd-r1','règle 1 : quand on transpose un terme, on doit')+' donc on change le '+trdSel('trd-r2','donc on change le')+'</span>'
+    +'<span class="trd-g">'+ax+'</span><span class="trd-eg">=</span><span class="trd-dr">'+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span><span class="trd-d"></span>'
+    +'<span class="trd-g"><span class="trd-cercle trd-cercle-a">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
+    +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
     +'</div>';
-  if(soutien) h+=trdBulleSomme('trd-b3', q.k, -q.b, 'Pour la ligne 3, '+K+(q.b>0?' − '+q.b:' + '+Math.abs(q.b))+' est la somme de '+K+' et de '+trdNb(-q.b)+' :')+trdBulleDivision(q);
   h+='</div>';
   /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
-  const r=trdRacine(q);
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
-    +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0.</p>'
+    +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
     +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
     +'<div class="lv-graph tsg-graph" id="trdSignes">'+trdSignesSVG(q)+'</div>'
-    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Place les signes — la racine et le zéro sont déjà écrits.</span>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdNb(r)+'</td><td class="bnd tsg-br">+∞</td></tr>'
-    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant '+trdNb(r),' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après '+trdNb(r),' ')+'</td></tr>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant la racine',' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après la racine',' ')+'</td></tr>'
     +'</tbody></table></span></div></div>';
   h+='</div>';
   $('trdHost').innerHTML=h;
   /* les listes rangées dans l'état reviennent (une pause, un redessin) */
   Object.keys(st.sels).forEach(function(id){ const el=$(id); if(el && st.sels[id]) el.value=st.sels[id]; });
+  trdGpFermer();
   $('trdHost').querySelectorAll('input').forEach(function(el){
+    if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
     el.addEventListener('input', function(){ trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); trdEntree(el); } });
   });
@@ -31324,6 +31756,7 @@ function trdDessiner(anim){
   const rang=TRD_RANG[st.etape];
   $('trdRegleL').hidden=!(rang>=1 || st.corrige);
   $('trdSuite').hidden=!(rang>=3 || st.corrige);
+  requestAnimationFrame(trdFleches);
   if(st.corrige){ g.querySelectorAll('.ima-chemin').forEach(imaFin); trdConsigne('Correction : ce qui manquait au graphique est tracé en vert.',''); return; }
   if(st.etape==='points'){
     const p=st.pts[st.cur];
@@ -31338,6 +31771,34 @@ function trdDessiner(anim){
     else g.querySelectorAll('.ima-chemin').forEach(imaFin);
   }
 }
+/* LES FLÈCHES DE LA TRANSPOSITION, comme sur la fiche papier : le terme
+   entouré de la ligne 1 part, au-dessus de la ligne, vers sa place à la
+   ligne 2 ; le facteur entouré de la ligne 3 descend, par la gauche, au
+   dénominateur de la ligne 4. Un SVG posé sur la grille, recalculé à chaque
+   mise en page (ouverture des parties, correction, fenêtre redimensionnée) :
+   les positions sont lues sur les cases rendues. */
+function trdFleches(){
+  const g=document.querySelector('#trdHost .trd-eq'); if(!g) return;
+  const vieux=g.querySelector('svg.trd-fl'); if(vieux) vieux.remove();
+  if(!g.getClientRects().length) return;
+  const R=g.getBoundingClientRect(), ox=R.left-g.scrollLeft, oy=R.top-g.scrollTop;
+  const rel=function(e){ const r=e.getBoundingClientRect(); return {l:r.left-ox, r:r.right-ox, t:r.top-oy, b:r.bottom-oy, cx:(r.left+r.right)/2-ox, cy:(r.top+r.bottom)/2-oy}; };
+  const c1=g.querySelector('.trd-cercle-t'), e1=$('trd-e1'), c2=g.querySelector('.trd-cercle-a'), e4=$('trd-e4');
+  if(!c1||!e1||!c2||!e4) return;
+  const a=rel(c1), b=rel(e1), c=rel(c2), d=rel(e4);
+  const haut=Math.min(a.t, b.t)-24;
+  const p1='M'+a.cx.toFixed(1)+' '+(a.t-1).toFixed(1)+' C'+a.cx.toFixed(1)+' '+haut.toFixed(1)+' '+b.cx.toFixed(1)+' '+haut.toFixed(1)+' '+b.cx.toFixed(1)+' '+(b.t-7).toFixed(1);
+  const gx=Math.min(c.l, d.l)-26;
+  const p2='M'+(c.l+3).toFixed(1)+' '+(c.b-2).toFixed(1)+' C'+gx.toFixed(1)+' '+(c.b+10).toFixed(1)+' '+gx.toFixed(1)+' '+d.cy.toFixed(1)+' '+(d.l-8).toFixed(1)+' '+d.cy.toFixed(1);
+  const pointe=function(x,y,dir){ return dir==='bas' ? '<polygon class="trd-fl-pointe" points="'+(x-4)+','+(y-6)+' '+(x+4)+','+(y-6)+' '+x+','+y+'"/>' : '<polygon class="trd-fl-pointe" points="'+(x-6)+','+(y-4)+' '+(x-6)+','+(y+4)+' '+x+','+y+'"/>'; };
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('class','trd-fl'); s.setAttribute('aria-hidden','true');
+  s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
+  s.innerHTML='<path d="'+p1+'"/>'+pointe(+b.cx.toFixed(1), +(b.t-1).toFixed(1), 'bas')
+    +'<path d="'+p2+'"/>'+pointe(+(d.l-2).toFixed(1), +d.cy.toFixed(1), 'droite');
+  g.appendChild(s);
+}
+window.addEventListener('resize', function(){ if(typeof test!=='undefined' && test.kind==='trd') trdFleches(); });
 function trdRejouer(){ const st=trdEtat(); if(st.etape==='fin' || st.corrige) imaAnimer('#trdGraph'); }
 /* le clic sur le repère : poser un point (et le reposer tant qu'il est mal
    placé), puis choisir les deux points de la droite */
@@ -31369,19 +31830,21 @@ function trdClic(ev){
   clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,800);
 }
 /* ---- Le juge : chaque case seule ---- */
-const TRD_NOMS={'trd-x1':'le nombre remplacé dans f(x₁)','trd-y1':'f(x₁)','trd-x2':'le nombre remplacé dans f(x₂)','trd-y2':'f(x₂)',
+const TRD_NOMS={'trd-x1':'le nombre remplacé dans f(x₁)','trd-p1':'le produit calculé pour f(x₁)','trd-y1':'f(x₁)','trd-x2':'le nombre remplacé dans f(x₂)','trd-p2':'le produit calculé pour f(x₂)','trd-y2':'f(x₂)','trd-rac':'la racine dans le tableau de signes',
   'trd-regle':'la règle « … est une droite »','trd-ag':'l’antécédent lu sur le graphique',
-  'trd-r1':'la règle 1 (on doit …)','trd-e1':'le terme transposé (ligne 2)','trd-r2':'« donc on change le … »','trd-e2':'le second membre (ligne 3)',
+  'trd-r1':'la règle 1 (on doit prendre …)','trd-e1':'le terme transposé (ligne 2)','trd-r2':'« donc on change le … »','trd-e2':'le second membre (ligne 3)',
   'trd-r3':'la règle 2 (quand on transpose une multiplication …)','trd-e3':'le numérateur (ligne 4)','trd-e4':'le dénominateur (ligne 4)','trd-r4':'« donc on garde le même … »',
   'trd-e5':'x (ligne 5)','trd-s0':'le signe avant la racine','trd-s1':'le signe après la racine'};
 function trdCases(q){
   const xk=trdXk(q);
   return [
-    {id:'trd-x1', val:q.x1}, {id:'trd-y1', val:trdF(q,q.x1)}, {id:'trd-x2', val:q.x2}, {id:'trd-y2', val:trdF(q,q.x2)},
+    {id:'trd-x1', val:q.x1}, {id:'trd-p1', val:q.a*q.x1}, {id:'trd-y1', val:trdF(q,q.x1)},
+    {id:'trd-x2', val:q.x2}, {id:'trd-p2', val:q.a*q.x2}, {id:'trd-y2', val:trdF(q,q.x2)},
     {id:'trd-regle', val:'droite', liste:true},
     {id:'trd-ag', val:xk},
-    {id:'trd-r1', val:'inverse', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
+    {id:'trd-r1', val:'oppose', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
     {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e3', val:q.k-q.b}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
+    {id:'trd-rac', val:trdRacine(q), nb:true},
     {id:'trd-s0', val:q.a<0?'+':'-', liste:true}, {id:'trd-s1', val:q.a<0?'-':'+', liste:true}
   ];
 }
@@ -31390,9 +31853,10 @@ function trdCheck(q){
     const el=$(c.id), vide=!el || String(el.value==null?'':el.value).trim()==='';
     let ok;
     if(c.liste) ok=!!el && el.value===c.val;
+    else if(c.nb){ const v=el?trdLitNb(el.value):null; ok=v!==null && !Number.isNaN(v) && Math.abs(v-c.val)<1e-9; }
     else ok=lvReadInt(c.id)===c.val;
     /* le terme transposé : « +4 » ou « 4 » pour un terme positif, « −3 » pour un négatif */
-    const aff=c.liste ? c.val : (c.terme && c.val>0 ? '+'+c.val : numFmt(c.val));
+    const aff=c.liste ? c.val : c.nb ? trdNb(c.val) : (c.terme && c.val>0 ? '+'+c.val : numFmt(c.val));
     return {id:c.id, el:el, val:c.val, aff:aff, ok:ok, vide:vide};
   });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
@@ -31400,29 +31864,23 @@ function trdCheck(q){
 }
 /* le graphique est-il fini : A et B justes, la droite tracée */
 function trdGrapheFini(st){ return st.etape==='fin'; }
-/* Soutien : chaque case au fil de la frappe, les bulles comprises — une case
-   vide ne reçoit RIEN. */
+/* Soutien : chaque case au fil de la frappe — une case vide ne reçoit RIEN. */
 function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
-  trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
-  document.querySelectorAll('#trdHost .trd-aide').forEach(function(el){
-    el.classList.remove('ok','bad');
-    const v=String(el.value==null?'':el.value).trim(); if(v==='') return;
-    const bon=el.tagName==='SELECT' ? v===el.getAttribute('data-exp') : lvReadInt(el.id)===parseFloat(el.getAttribute('data-exp'));
-    el.classList.add(bon?'ok':'bad');
-  });
+  trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
 }
 function trdPourquoi(q){
   const xk=trdXk(q), K=trdNb(q.k), y1=trdF(q,q.x1), y2=trdF(q,q.x2);
   return 'f ('+trdNb(q.x1)+') = '+trdNb(q.a)+' × ('+trdNb(q.x1)+')'+(q.b<0?' − '+Math.abs(q.b):' + '+q.b)+' = '+trdNb(y1)+' et f ('+trdNb(q.x2)+') = '+trdNb(y2)
     +' : A ('+trdNb(q.x1)+' ; '+trdNb(y1)+') et B ('+trdNb(q.x2)+' ; '+trdNb(y2)+'). La représentation graphique d’une fonction du premier degré est une droite. '
-    +'Pour f (x) = '+K+' : on transpose '+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+' en faisant l’opération inverse (on change son signe), d’où '+trdNb(q.a)+'x = '+trdNb(q.k-q.b)
+    +'Pour f (x) = '+K+' : on transpose '+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+' en prenant son opposé (on change son signe), d’où '+trdNb(q.a)+'x = '+trdNb(q.k-q.b)
     +' ; puis on transpose la multiplication par '+trdNb(q.a)+' en divisant (on garde son signe) : x = '+trdNb(q.k-q.b)+' / '+(q.a<0?'('+trdNb(q.a)+')':trdNb(q.a))+' = '+trdNb(xk)+'. '
     +'f (x) est '+(q.a<0?'positif avant ':'négatif avant ')+trdNb(trdRacine(q))+', '+(q.a<0?'négatif après.':'positif après.');
 }
 function submitTrd(){
   if(test.locked) return;
+  trdGpFermer();
   const q=test.questions[test.idx], st=trdEtat();
   /* EN ENTRAÎNEMENT, le graphique inachevé se signale une fois : la boîte des
      cases vides ne voit que les cases visibles, et les parties encore fermées
@@ -31439,8 +31897,14 @@ function submitTrd(){
   const parfait=res.allOk && fini;
   if(isSoutien() && !(res.allOk && fini)){
     res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+    /* les cases qui manquent (et qu'on voit) s'entourent de rouge — demande de
+       Turquet ; la classe n'est pas « bad » : rien n'y est faux */
+    let manque=0;
+    res.subs.forEach(function(s){ if(s.el && s.vide && s.el.getClientRects().length){ s.el.classList.add('trd-manque'); manque++; } });
     soutienAgain('trdFeedback','trdActions','submitTrd','trdHost');
-    if(!fini) $('trdFeedback').textContent='Termine d’abord le graphique : '+(st.etape==='points'?'place les points A et B':st.etape==='regle'?'complète la règle':'trace la droite')+', puis revérifie.';
+    if(manque) $('trdFeedback').textContent=($('trdHost').querySelector('.bad')?'Corrige les cases en rouge, et complète celles entourées de rouge, puis revérifie.':'Complète les cases entourées de rouge, puis revérifie.');
+    requestAnimationFrame(trdFleches);
+    if(!fini) $('trdFeedback').textContent='Termine d’abord le graphique : '+(st.etape==='points'?'place les points A et B':st.etape==='regle'?'complète la règle':'trace la droite')+(manque?' ; et complète les cases entourées de rouge':'')+', puis revérifie.';
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
@@ -31449,7 +31913,8 @@ function submitTrd(){
   if(!fini) st.corrige=true;
   trdDessiner(false);
   if(!fini){ $('trdRegleL').hidden=false; $('trdSuite').hidden=false; }
-  res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+  res.subs.forEach(function(s){ if(s.el) s.el.classList.remove('trd-manque'); corrChoix(s.el, s.aff, s.ok); });
+  requestAnimationFrame(trdFleches);
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
   if(parfait){ $('trdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('trdFeedback').className='mp-feedback good'; }
   else {
@@ -31480,12 +31945,12 @@ function ctxTrd(q){
     else ecrit.push(TRD_NOMS[s.id]+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
   const etapes={points:'il place les points A et B sur le repère (un point mal placé se peint en rouge, B attend qu’A soit juste)', regle:'A et B sont placés, il complète la règle « la représentation graphique d’une fonction du premier degré est … »', tracer:'il trace la droite en cliquant sur A puis sur B', fin:'la droite est tracée ; les questions 3 à 5 sont ouvertes'};
-  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') en écrivant « f(x) = a × ( … ) + b = … » ; 2. placer A et B, compléter la règle, tracer la droite en cliquant sur les deux points ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on fait l’opération inverse, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine '+trdNb(trdRacine(q))+' donnée dans le tableau).'
+  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') sur trois lignes, les « = » alignés : « f(x) = a × ( … ) + b », « = … + b » (le produit), « = … » ; 2. placer A et B, compléter la règle, tracer la droite en cliquant sur les deux points ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on doit prendre l’opposé, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine) : écrire la racine dans la ligne des x, puis les deux signes.'
     +' Où en est l’élève : '+etapes[st.etape]+'.'
     +(st.err[0]+st.err[1]?' Il a déjà mal placé un point '+(st.err[0]+st.err[1])+' fois.':'')
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +(vides.length&&ecrit.length?' Cases encore vides : '+vides.join(', ')+'.':'')
-    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; la représentation est une droite ; l’antécédent de '+q.k+' est '+xk+' ; ligne 2 : '+(q.b>0?'−'+q.b:'+'+(-q.b))+' ; ligne 3 : '+(q.k-q.b)+' ; ligne 4 : '+(q.k-q.b)+' / '+q.a+' ; x = '+xk+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
+    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; la représentation est une droite ; l’antécédent de '+q.k+' est '+xk+' ; ligne 2 : '+(q.b>0?'−'+q.b:'+'+(-q.b))+' ; ligne 3 : '+(q.k-q.b)+' ; ligne 4 : '+(q.k-q.b)+' / '+q.a+' ; x = '+xk+' ; la racine est '+trdNb(trdRacine(q))+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
     +' Méthode enseignée : remplacer x par le nombre (entre parenthèses), calculer le produit puis la somme de deux relatifs (signes différents : on soustrait grand − petit et on prend le signe du plus fort ; signes identiques : on additionne et on garde le signe) ; diviser avec la règle des signes.';
   return {nombre:'', contexte:c};
 }
@@ -31503,16 +31968,16 @@ Piège classique : ne confonds pas le nombre et son image — le nombre se lit s
 /* HTML pur, sans un seul \( : la seule fraction du calcul s'écrit « 2 / (−2) »
    en toutes lettres — la leçon du rappel de {placer-image} de la Seconde. */
 const RAP_TRD=`<b>La droite d'une fonction affine, f(<i>x</i>) = <i>a</i><i>x</i> + <i>b</i></b><br>
-<b>① Calculer une image</b> : on remplace <i>x</i> par le nombre, entre parenthèses : <i>f</i>(2) = −2 × (2) + 3 = −4 + 3 = −1. On calcule le produit d'abord, puis la somme de deux relatifs.<br>
+<b>① Calculer une image</b> : on remplace <i>x</i> par le nombre, entre parenthèses, puis on calcule le produit d'abord, la somme ensuite — une ligne par étape, les « = » l'un sous l'autre : <i>f</i>(2) = −2 × (2) + 3 = −4 + 3 = −1.<br>
 <b>Somme de deux relatifs</b> : signes <b>différents</b> → on soustrait grand − petit et on prend le signe du plus fort (−4 + 3 : 4 − 3 = 1, le plus fort est −4, donc −1) ; signes <b>identiques</b> → on additionne et on garde le signe (−3 − 5 : 3 + 5 = 8, donc −8).<br>
 <b>② Placer le point</b> A(2 ; <i>f</i>(2)) : l'abscisse 2 sur l'axe horizontal, l'ordonnée <i>f</i>(2) sur l'axe vertical.<br>
 <b>La représentation graphique d'une fonction du premier degré est une droite</b> : deux points suffisent pour la tracer.<br>
 <b>③ Lire un antécédent</b> de 5 : on part de 5 sur l'axe des ordonnées, horizontalement jusqu'à la droite, puis verticalement jusqu'à l'axe des abscisses.<br>
 <b>④ Le calculer</b> : on résout <i>f</i>(<i>x</i>) = 5.<br>
-−2<i>x</i> + 3 = 5 — <b>règle 1</b> : quand on transpose un terme, on fait l'opération inverse, donc on change son signe ;<br>
+−2<i>x</i> + 3 = 5 — <b>règle 1</b> : quand on transpose un terme, on doit prendre l'opposé, donc on change le signe ;<br>
 −2<i>x</i> = 5 − 3, soit −2<i>x</i> = 2 — <b>règle 2</b> : quand on transpose une multiplication, on divise, et on garde le même signe ;<br>
 <i>x</i> = 2 / (−2) = −1. <b>Règle des signes</b> d'une division : + ÷ + → + ; − ÷ − → + ; + ÷ − → − ; − ÷ + → −.<br>
-<b>⑤ Le signe de <i>f</i>(<i>x</i>)</b> se lit sur la droite : au-dessus de l'axe des abscisses, <i>f</i>(<i>x</i>) est positif (+) ; en dessous, négatif (−) ; <i>f</i>(<i>x</i>) = 0 là où la droite coupe l'axe.<br>
+<b>⑤ Le signe de <i>f</i>(<i>x</i>)</b> : la racine est le nombre où la droite coupe l'axe des abscisses (pour −2<i>x</i> + 3, c'est 1,5, solution de −2<i>x</i> + 3 = 0) ; puis le signe se lit sur la droite : au-dessus de l'axe des abscisses, <i>f</i>(<i>x</i>) est positif (+) ; en dessous, négatif (−) ; <i>f</i>(<i>x</i>) = 0 là où la droite coupe l'axe.<br>
 Piège classique : oublier les parenthèses autour d'un nombre négatif, ou changer le signe du −2 en le faisant passer au dénominateur.`;
 
 const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
@@ -31523,7 +31988,7 @@ const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
 <b>⑤ Résoudre <i>f</i>(<i>x</i>) = 0</b>, c’est donner les abscisses des points où la courbe coupe l’axe : S = { <i>x</i>₁ ; <i>x</i>₂ }, dans l’ordre que tu veux.<br>
 <b>⑥ Quand les signes, puis les couleurs, ne sont plus dessinés</b>, c’est toi qui lis la position de la courbe : au-dessus de l’axe, +&nbsp;; en dessous, −&nbsp;; sur l’axe, une racine. Dans le tableau, les racines s’écrivent dans l’ordre, la plus petite à gauche.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, voc:RAP_VOC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -31640,6 +32105,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 const QIA_SUGG={
   sui:["Pourquoi le tableau et le calcul donnent-ils le même résultat ?","Comment compter le nombre d’années entre 2026 et 2031 ?","Pourquoi multiplie-t-on le nombre d’années par ce qu’on gagne chaque année ?","Comment trouver combien d’années il faut pour atteindre un seuil ?","Que faire quand la quantité diminue au lieu d’augmenter ?"],
   rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
+  voc:["Quelle différence entre le double et la moitié ?","C’est quoi, l’inverse d’un nombre ?","Comment écrire 5/2 en écriture décimale ?","Le double du tiers de 12 : par quoi commencer ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
@@ -31854,6 +32320,15 @@ function conseilCtxCourant(){
         +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
         +'Erreurs classiques : multiplier aussi le dénominateur, ou se tromper de fraction (20 % = 1/2).';
     }
+  } else if(k==='voc' && q){
+    const L=vocL(q), ch=L.t==='ch'?vocChoixDe():null;
+    att=(L.t==='ch'
+        ? 'Partie 1 (vocabulaire). Phrase affichée : « '+vocTexte(q)+'. Le résultat est : … ». L’élève CHOISIT d’abord le bon calcul parmi ceux proposés, puis écrit le résultat dans une case. Calcul actuellement choisi : '+(ch==null?'aucun':vocCalcTxt(L.ch[ch]))+'. '
+        : 'Partie 2 (calcul en plusieurs étapes). Consigne : '+L.titre+' Une case par étape : '+L.et.map(e=>e.txt).join(', puis ')+'. ')
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+vocCorrection(q,false)+' '
+      +'Un résultat s’accepte en décimal ou en fraction (0,25 ou 1/4). Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
+      +'Vocabulaire enseigné : double, triple, quadruple = multiplier par 2, 3, 4 ; moitié, tiers, quart, dixième = diviser par 2, 3, 4, 10 ; inverse de a = 1/a (pas −a, qui est l’opposé) ; somme +, différence −, produit ×, quotient ÷. '
+      +'Erreurs classiques : confondre le double et la moitié, l’inverse et l’opposé, le produit et la somme ; dans un calcul en étapes, ne pas commencer par l’expression la plus « intérieure » (le tiers de 12 avant son double).';
   } else if(k==='vap' && q){
     const A=vapAttendus(q);
     att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
@@ -32173,6 +32648,11 @@ const QIA_MODELES={
     const seq=rlfCalculs(), c=seq.find(x=>!act || x.P!==act.P || x.N!==act.N)||seq[0], k=rlfPgcd(c.P,100);
     return rlfCorrection({P:c.P,N:c.N,n:c.P/k,d:100/k});
   },
+  voc:function(){   /* une autre ligne de la même partie de la fiche */
+    const act=(test && test.questions && test.questions[test.idx])||null, t=act?vocL(act).t:'ch';
+    const rangs=VOC_LIGNES.map((L,i)=>i).filter(i=>VOC_LIGNES[i].t===t && (!act || i!==act.n));
+    return vocCorrection({n:pick(rangs)},false);
+  },
   vap:function(){   /* la même ligne de la fiche, d'autres nombres */
     const g=(test && test.questions) ? vapGabarit(test.idx, test.questions.length) : 0;
     const q=qdmAutre(()=>VAP_GABARITS[g](), c=>vapTexte(c));
@@ -32355,6 +32835,26 @@ function ouvrirTables(){
 function fermerTables(){ const ov=$('tablesOverlay'); if(ov) ov.classList.remove('on'); }
 function tablesOuvertes(){ const ov=$('tablesOverlay'); return !!(ov && ov.classList.contains('on')); }
 function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
+/* LES ÉCRITURES DÉCIMALES À CONNAÎTRE (demande de Turquet, novembre 2026, au
+   1.13 {vocabulaire-calcul}) : « un bouton pour afficher les écritures
+   décimales à connaître 1/2 = 0,5 ; 1/4 = 0,25 ; 1/10 = 0,1 ; 3/4 = 0,75 ;
+   1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 dans une fenêtre comme pour
+   les tables de multiplication ». Même fenêtre flottante et déplaçable, qui
+   reste ouverte à côté de l'exercice ; le bouton n'est posé que sur les
+   écrans de DEC_ECRANS. */
+const DEC_ECRANS=['scr-voctest'];
+const DEC_A_CONNAITRE=[[1,2,'0,5'],[1,4,'0,25'],[1,10,'0,1'],[3,4,'0,75'],[1,5,'0,2'],[2,5,'0,4'],[3,5,'0,6'],[4,5,'0,8']];
+function decimalesHTML(){
+  return DEC_A_CONNAITRE.map(d=>'<div class="dec-ligne"><span class="fr"><span class="fn">'+d[0]+'</span><span class="fb"></span><span class="fd">'+d[1]+'</span></span><span>=</span><b>'+d[2]+'</b></div>').join('');
+}
+function ouvrirDecimales(){
+  const ov=$('decOverlay'); if(!ov) return;
+  const c=$('decCorps'); if(c && !c.innerHTML) c.innerHTML=decimalesHTML();
+  rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
+  ov.classList.add('on');
+}
+function fermerDecimales(){ const ov=$('decOverlay'); if(ov) ov.classList.remove('on'); }
+function basculerDecimales(){ const ov=$('decOverlay'); (ov && ov.classList.contains('on')) ? fermerDecimales() : ouvrirDecimales(); }
 /* « Revenir à l'exercice », c'est y toucher : cliquer dedans ou y remettre le
    clavier. On écoute donc à la CAPTURE, pour être prévenu avant que le champ ne
    reçoive la frappe. Le bouton qui l'ouvre est exclu, sinon il la refermerait au
@@ -32395,7 +32895,8 @@ function iaBoutons(scr){
   const aide = currentMode!=='eval' && !enEvaluation() && IA_ECRANS_SANS.indexOf(s.id)<0;
   row.innerHTML=(aide&&isSoutien()?'<button class="btn btn-ghost" type="button" onclick="conseilCourant()">🎓 Soutien</button>':'')
     +(aide?'<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button>':'')
-    +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
+    +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>'
+    +(DEC_ECRANS.indexOf(s.id)>=0?'<button class="btn btn-ghost dec-btn" type="button" onclick="basculerDecimales()">½ Écritures décimales</button>':'');
 }
 
 /* ============ GREFFE TERMINALE : activation apres chaque rendu ============
@@ -32417,7 +32918,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderTrd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderSuiTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderVoc','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderSuiTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
