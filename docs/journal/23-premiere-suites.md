@@ -264,3 +264,20 @@ dur dans le banc, pas lue dans la page —, la valeur de départ parmi les valeu
 rondes de son contexte et multiple de 100, p ≤ 10, le seuil au moins deux fois
 plus loin, rien de nul ni de négatif, et toujours au moins trois lignes de
 méthode 1.
+
+## Puis : le pas est uniquement un multiple de 10, de 10 à 100 (novembre 2026, v419)
+
+**La demande** (Turquet, l'après-midi) : « finalement enlever ou ajouter
+uniquement un multiple de 10 compris entre 10 et 100 inclus ».
+
+La liste du matin (dizaines, 25, 110, 120, 150) se resserre : `SUI_PAS` ne
+garde que 10, 20, …, 100. Rien d'autre ne bouge — la valeur de départ ronde du
+contexte, N à 4 ou 5, le seuil au moins deux fois plus loin dans la table de
+10, les trois lignes au moins de la méthode 1. Le tuyau de la piscine, qui
+exigeait un pas d'au moins 100 L par heure quand 110, 120 et 150 existaient,
+descend à 50 L par heure (`rMin:50`) pour garder six pas possibles au lieu
+d'un seul ; Léa reste à 90 pages par jour au plus, la chaîne à 50 abonnés au
+moins. 1 414 combinaisons sur les six contextes.
+
+**Le contrôle** (`tests/verifier.js`, bloc des 300 séances) relit le pas dans
+la liste « 10 à 100 de dix en dix », écrite en dur dans le banc.
