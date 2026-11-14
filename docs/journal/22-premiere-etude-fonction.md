@@ -514,3 +514,18 @@ cases à compléter dans le mode soutien, les mettre en rouge. »
   « f (x) = ax + b » d'un seul morceau) avait disparu avec l'ancienne bulle.
 · Une erreur JavaScript trouvée par l'essai et corrigée avant de partir : la
   bulle sans cases (produit, division) cherchait encore à brancher les siennes.
+· Et la version a dû passer à 418 après la fusion : le 7.1 ({augmentation-
+  tableau}, PR #1015) est arrivé sur `main` quelques minutes avant, en v417
+  lui aussi — la même ligne `APP_VERSION=417` des deux côtés, git n'y a vu
+  aucun conflit, et deux pages différentes portaient le même numéro.
+
+**Puis la règle trace la droite (v419).** Demande de Turquet : « quand on
+complète par le mot droite, tracer la droite directement et passer à la
+suite ; si le mot droite n'est pas mis, ne pas continuer ». `trdAvancer` :
+« une droite » choisi, la liste se fige en bleu (`ok`, désactivée), l'étape
+passe directement à `fin` — la droite se dessine par A et B, les questions 3
+à 5 s'ouvrent, le chemin de l'antécédent se déplie ; un autre mot, la liste
+rougit (`bad` : un choix FAUX, pas une case vide) et le message dit que la
+suite attend la bonne réponse. Le tracé par deux clics (l'étape `tracer`)
+n'est plus atteint ; son code reste, inoffensif. La description du menu, le
+contexte du modèle et les consignes le disent.

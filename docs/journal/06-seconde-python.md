@@ -6926,3 +6926,55 @@ affiche la phrase, le texte juste en vert, la case vide qui ne rougit pas,
 branchements, et le programme juste comparé à un vrai CPython. Pas de
 section propre au banc navigateur : la visite universelle (section 9)
 l'ouvre dans les deux modes.
+
+---
+
+## {python-for-pas-a-pas} (6.6.1) — la boucle for exécutée pas à pas (novembre 2026, v679)
+
+Demande de Turquet : « faire un exercice comme le 6.6.1 et le placer en premier
+dans le thème boucle for ; le programme s'exécute pas à pas, et à chaque étape
+l'élève doit compléter `print("valeur=",nombre)` affiche le texte "........." et
+la valeur de la variable ....... qui est .... ; et après passer à la question b ».
+
+· **La place : il OUVRE le sous-thème 6.6**, devant {python-for-range} (la
+  fiche de la définition, devenue 6.6.2). Tout le 6.6 recule d'un cran — 6.6.2
+  à 6.6.15. Les numéros ne vivent nulle part dans la page (ils découlent de
+  `THEMES`), mais les bancs les épinglaient en dur : 75 `TEST_NUM[…]` et dix
+  `st.ids[k]` de `tests/verifier.js`, quatorze `numero` de `tests/profils.js`,
+  décalés d'un cran par script — seuls ceux du 6.6. Les commentaires de la
+  page gardent les numéros de leur époque, comme ailleurs.
+· **Le moteur est celui du 6.6.2** : le dessin et la définition de la fiche au
+  premier écran (`pfrFigHTML`, `pfrDefHTML` réutilisés, mot pour mot), les
+  étapes dans leurs cadres `pii-etape` ouverts par leur énoncé en gras, la
+  console vide qui ne dit rien, le b) « la valeur de la variable … varie de …
+  à … » jugé sans modèle.
+· **Le a) pas à pas** : la ligne print surlignée, une phrase par tour —
+  « Tour n°t : `print("valeur=", nombre)` affiche le texte "…" / et la valeur
+  de la variable … qui est … » (le retour à la ligne est voulu, `.pfp-br` : il
+  coupe la phrase à son articulation plutôt qu'au hasard de la largeur). La
+  vérification d'un tour écrit SA ligne dans la console ; « Étape suivante »
+  (`pfpTourSuivant`) ouvre le tour suivant, les tours jugés restent peints et
+  fermés au-dessus ; le dernier tour vérifié ouvre le b) sous le a). Trois
+  cases par tour, deux au b) : le barème compte chaque case (3n + 2).
+· **Les juges** : le texte comme les autres textes entre guillemets du thème
+  (`pyTexteProche`, avec le nom de la variable pour « autre » — « nombre » ne
+  passe pas pour le texte « nombre = »), les guillemets recopiés acceptés ; le
+  nom de la variable EXACT (Python distingue les majuscules) ; la valeur, lue
+  dans la ligne que `pyRun` écrit pour ce tour — rien n'est rangé. Les erreurs
+  NOMMÉES : la variable écrite à la place du texte, le texte (ou des
+  guillemets) à la place de la variable, le tour compté depuis 1.
+· **Le tirage** : deux questions (`PFP_NB`, le réglage « Questions » d'un
+  devoir l'allonge) ; la première est la fiche (nombre, « valeur= »,
+  range(4)), les suivantes tirent variable, texte (« valeur= », « tour »,
+  « nombre = », « résultat : ») et n de 3 à 5 par `distinctes()`.
+· **La pause** : l'état d'un tour (`pas`, `fait`, `rs`, `oks`) vit dans la
+  question ; un tour jugé mis en pause reprend SUR LUI-MÊME, peint et
+  verrouillé, devant son « Étape suivante » — sans se rejuger. La fonction
+  s'appelle `pfpTourSuivant` et non `next…` EXPRÈS : un nom en `next…` est
+  une « suite » pour `suiteDeLEcran`, et la reprise sautait alors au tour
+  suivant, ouvert — le banc de la pause l'a lu, à juste titre, comme une
+  question corrigée rouverte déverrouillée (même idx, test.locked faux).
+Banc jsdom : `pythonForPasAPas` (après `pythonForRange`) — la place et la
+numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
+le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
+un vrai CPython.
