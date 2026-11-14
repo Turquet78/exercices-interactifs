@@ -840,3 +840,44 @@ des FRÉQUENCES : globale, intersection, conditionnelle. Seul l'ordre de
 de question garde ses cases, son juge et sa méthode. Vérifié dans Chromium
 (1280 et 390 px) : copie juste 7 / 7, copie fausse 5 / 7.
 
+## {frequences-probabilites-fractions} (3.11, v411) : la fiche, fractions seules — et une probabilité d'un seul évènement aux deux fiches
+
+Demande de Turquet (novembre 2026) : « faire un deuxième exercice après le
+premier avec un énoncé différent et où on demande uniquement la fraction à
+rentrer, sans donner de formule avant ; dans la partie A on pourra demander
+aussi une probabilité non conditionnelle d'un seul évènement, qui n'est pas
+une intersection, pour les deux exercices ».
+
+**Aux deux fiches, la partie A gagne une question** (`fpbsimple`, en
+deuxième position, après le tableau) : la probabilité d'un seul évènement
+simple posée en mots — « Calcule la probabilité que la pièce provienne de la
+machine A. », « … ne présente pas de défaut. » — ni conditionnelle, ni
+intersection. Au 3.10 sa ligne est celle de l'intersection en mots : l'indice
+« tout » et l'évènement à choisir, puis lettres, puis effectifs. L'évènement
+simple tiré est différent de celui de la fréquence globale (deux tirés dans
+`PB_SIMPLES`). `FPB_NB_A` vaut 5 : A1 à A5, B1 à B3, huit questions.
+
+**Le 3.11 est le même moteur** (`fpbSeance(2)`, `q.fpb = 2`, démarreur
+`startFPB2`, identité `frequences-probabilites-fractions` ; `fpbEstFiche()`
+couvre les deux identités pour la page, le juge, le contexte du modèle et le
+mot « tout »), avec deux différences :
+- D'AUTRES ÉNONCÉS (`FPB2_CTX`, lue par `pbCtx` quand `q.fpb` vaut 2) : un
+  contrôle technique et deux marques (défaut de freinage), un aéroport et
+  deux compagnies (dommage), un fabricant de jouets et deux ateliers (défaut
+  de couture), un vigneron et deux cuves (défaut de bouchon), un laboratoire
+  photo et deux boutiques (rayure, R), une chocolaterie et deux lignes de
+  production (défaut de moulage).
+- SEULEMENT LA FRACTION DES EFFECTIFS sur chaque ligne (`fpbSeul()`,
+  `fpbLigneSeule`) : « probabilité = □/□ » pour une question en mots, le nom
+  écrit (« P_D(A) = □/□ ») quand la question le donne, « fréquence = □/□ »
+  en partie B. Aucune fraction en lettres, aucun indice ni évènement à
+  composer : les attendus (`fpbAttLigne`, `fpbAttNom`) ne portent alors que
+  `pb-n1` et `pb-n2`, et une fraction égale reste juste (`pbFracJuger`).
+  L'énoncé encadré le dit (« chaque réponse est une fraction écrite avec les
+  effectifs du tableau »). Rappel de cours et questions à l'IA du 3.10.
+
+Vérifié dans Chromium (1280 et 390 px), sur les deux fiches : copie juste
+8 / 8 (fréquence globale simplifiée comprise), copie fausse avec une
+question vide et, au 3.10, une case fausse ; aucun débordement, aucune
+erreur JavaScript.
+
