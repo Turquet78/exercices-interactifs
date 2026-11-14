@@ -318,3 +318,16 @@ d'antécédents, l'ordre LIBRE — chaque case promet d'être l'un des attendus,
 la liste les prend une fois chacun, les cases sans correspondance reçoivent
 les antécédents restants pour la correction (la règle du 3.1.3). Le rappel,
 les questions à l'IA et le contexte parlent des deux chemins.
+
+**Puis une ligne par écriture, et deux antécédents de préférence (v411).**
+Demande de Turquet : « écrire sur la même ligne "l'image de .... est : ....
+qui signifie que : f(....) = ......" ; pour le ou les antécédents je souhaite
+avoir deux antécédents régulièrement ; écrire sur la même ligne "l'antécédent
+de ... est .... et ... qui signifie f(...) = f(...) = ...." ». La rangée est
+une ligne flex qui ne se replie jamais (`.ima-ligne`, contenu centré tant
+qu'il tient, défilement horizontal sur un petit écran). Les antécédents
+s'écrivent deux fois : dans la liste (« sont … et … ») et entre les
+parenthèses (« f( … ) = f( … ) »), chaque liste jugée dans l'ordre libre par
+le même juge (`juge(prefixe)`), puis la hauteur après le dernier « = ». Le
+tirage préfère désormais DEUX antécédents sur chaque question à antécédents —
+un ou trois seulement quand la courbe n'en offre pas deux.
