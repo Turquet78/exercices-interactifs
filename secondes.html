@@ -9301,7 +9301,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=676;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=677;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -41268,7 +41268,7 @@ const PW={
 PWD_SITS.forEach(function(S){ S.vars={}; S.vars[S.n]=S.v; S.autres={}; S.autres[S.n]=S.w; });
 PWS_SITS.forEach(function(S){ S.vars={}; S.vars[S.n]=S.v; S.autres={}; S.autres[S.n]=S.w; });
 /* 6.1.16 : le juge lit la PHRASE (espaces ignorés), pas seulement le nombre. */
-PW.pws.verifier=function(S, src, out, vals){ const v=(vals||S.vars)[S.n]; return out.split('\n').some(function(l){ return pwsSerre(l)===pwsSerre(pwsTexte(S, v)); }); };
+PW.pws.verifier=function(S, src, out, vals){ const v=(vals||S.vars)[S.n]; return out.split('\n').some(function(l){ return pwsSerre(l)===pwsSerre(pwsTexte(S, v)) || (pyTexteProche(l, pwsTexte(S, v)) && pyValeurJeton(l, v)); }); };   /* le texte retapé : casse, accents, fautes tolérés (novembre 2026) ; la valeur, jamais */
 PW.pws.faute=function(S, src, out){
   if(out.indexOf(S.n)>=0 && out.indexOf(String(S.v))<0) return 'Le nom de la variable est entre guillemets : c’est son NOM, « '+S.n+' », qui s’affiche, pas sa valeur. Écris-le SANS guillemets.';
   if(out.indexOf(String(S.v))<0) return 'La valeur de '+S.n+' ne s’affiche pas : la variable doit être dans le print.';
@@ -43029,7 +43029,7 @@ function pfvJugeB(q, src){
     if(m[1].toLowerCase()===v.toLowerCase()) return {ok:false, vide:false, diag:'Python fait la différence entre majuscules et minuscules : la variable doit s’appeler '+v+', pas '+m[1]+'.'};
     return {ok:false, vide:false, diag:'La variable de la boucle s’appelle '+m[1]+' : on demande qu’elle s’appelle '+v+'.'};
   }
-  if(x.out===att) return {ok:true, vide:false, diag:''};
+  if(x.out===att || pyTexteProche(x.out, att)) return {ok:true, vide:false, diag:''};   /* « valeur= » retapé : fautes tolérées (novembre 2026) */
   if(String(x.out).split('\n').some(function(l){ return new RegExp('^valeur=\\s*'+v+'\\s*$').test(l); }))
     return {ok:false, vide:false, diag:'Ton programme affiche « valeur= '+v+' » : entre guillemets, '+v+' est un TEXTE, et il s’affiche tel quel. Le nom de la variable s’écrit sans guillemets.'};
   return {ok:false, vide:false, diag:'Ton programme n’affiche plus la même chose qu’au a) : ne change que le nom de la variable, sans toucher à range ( '+pfvFin(q)+' ) ni au texte.'};

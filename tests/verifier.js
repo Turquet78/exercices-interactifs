@@ -4949,6 +4949,7 @@ function exercices(suite){
     pythonForRange(w, P);
     pythonTexteProche(w, P);
     pythonFautesOrthographe(w, P);
+    pythonTextesSemblables(w, P);
     tableauVraiFaux(w, P);
     fractionsDecimalesVides(w, P);
     paireFausseCaseFautive(w, P);
@@ -45157,6 +45158,52 @@ function pythonFautesOrthographe(w, P){
     else if(!/apostrophe/.test(j.diag)) vus.push("l’apostrophe n’est plus nommée : "+j.diag);
     const j2=pynJuge(q,"print("+A+"je mappelle Léa"+A+")","Léa");
     if(j2.ok) vus.push("la réponse recopiée passe parce que le texte a été toléré");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+/* ---- Les textes SEMBLABLES, partout (Seconde) ----
+   Décision de Turquet (novembre 2026) : « en seconde dans les algorithmes,
+   quand l'élève doit placer du texte entre des guillemets, on acceptera tous
+   les textes similaires à ce qui est attendu, avec des majuscules s'il y en
+   a, avec des fautes d'orthographe s'il y en a. » La casse ne compte plus, la
+   limite de deux fautes est levée (une par tranche de quatre), et six juges
+   qui comparaient encore leur phrase à l'identique passent par la règle
+   partagée : if/else, pile ou face, cinéma, table de multiplication, images
+   de f, texte et nombre. Le bord opposé est tenu : une phrase plus proche de
+   l'AUTRE phrase de l'exercice (« Tu es majeur. » pour « Tu es mineur. »)
+   reste refusée, et un nombre faux aussi. */
+function pythonTextesSemblables(w, P){
+  const nom = 'les textes semblables sont acceptés par les juges qui choisissaient une phrase exacte, l’autre phrase et un autre nombre jamais';
+  if(!P.toleranceTexte){ ignorer(nom, 'ce niveau n\'a aucun exercice qui fasse afficher un texte'); return; }
+  const present = evaluer(w, "['pceDiag','pceModele','pofA','pofNet','pciPhrase','ptmLire','pfiDiag','pyTexteProche','pyMotDans'].every(function(f){ return typeof window[f]==='function'; }) && !!PW.pws");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'un des juges est introuvable'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[];
+    /* {python-if-else} : la fiche, les phrases mal tapées et en majuscules */
+    const q={s:0,prog:""}, M=pceModele(q);
+    const juste=function(src){ const d=pceDiag(src,q); return d.ok; };
+    if(!juste(M)) vus.push("le modèle du if/else est refusé");
+    if(!juste(M.replace("Tu es mineur.","TU ES MINNEUR").replace("Tu es majeur.","tu é majeure"))) vus.push("if/else : « TU ES MINNEUR » / « tu é majeure » refusés");
+    if(juste(M.replace("Tu es mineur.","Tu es majeur."))) vus.push("if/else : « Tu es majeur. » accepté pour « Tu es mineur. »");
+    if(juste(M.replace("Tu es mineur.","Bonjour"))) vus.push("if/else : un autre texte accepté");
+    const q1={s:1,prog:""}, M1=pceModele(q1);
+    if(pceDiag(M1.replace("Tu n'as pas la moyenne.","Tu as la moyenne."),q1).ok) vus.push("if/else : « Tu as la moyenne. » accepté pour « Tu n’as pas la moyenne. »");
+    if(!pceDiag(M1.replace("Tu n'as pas la moyenne.","tu na pas la moyene"),q1).ok) vus.push("if/else : « tu na pas la moyene » refusé");
+    /* {python-pile-face} : les mots clés */
+    if(!pofA(pofNet("Vous avez choisi FASE"),"face")||!pofA(pofNet("Brava !"),"bravo")||!pofA(pofNet("C est pa mal"),"pas mal")) vus.push("pile ou face : un mot clé mal tapé n’est pas lu");
+    if(pofA(pofNet("Vous avez choisi Pile"),"face")||pofA(pofNet("Perdu"),"bravo")) vus.push("pile ou face : un mot en lit un autre");
+    /* {python-if-cinema} : « Tu dois payer 9 €. » */
+    if(pciPhrase("tu doit payé 9 €")!==9||pciPhrase("TU DOIS PAYER 9 EUROS")!==9) vus.push("cinéma : la phrase mal tapée n’est pas lue");
+    if(pciPhrase("tu as 9 ans")!==null) vus.push("cinéma : un autre texte est lu comme la phrase");
+    /* {python-for-table} : « 3 fois 2 est égal à 6 » */
+    const r=ptmLire("3 foi 2 et égale à 6");
+    if(!r||r.t!==3||r.k!==2||r.p!==6) vus.push("table : « 3 foi 2 et égale à 6 » n’est pas lu");
+    if(ptmLire("3 plus 2 vaut 6")) vus.push("table : « 3 plus 2 vaut 6 » est lu comme la phrase");
+    /* {python-texte-nombre} : le texte retapé, la valeur exacte */
+    const S={n:"age", v:15, w:17, av:"J’ai ", ap:" ans"};
+    if(!PW.pws.verifier(S,"","jai 15 an\n",{age:15})) vus.push("texte et nombre : « jai 15 an » refusé");
+    if(PW.pws.verifier(S,"","jai 16 an\n",{age:15})) vus.push("texte et nombre : une autre valeur acceptée");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }
