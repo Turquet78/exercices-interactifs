@@ -214,3 +214,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: ${{ matrix.niveau }} — une question corrigée ne se rejuge pas à la reprise
         run: node tests/pause.js ${{ matrix.niveau }}
+      # « Sortie » remplace Pause et Abandonner, et « Reprendre » demande
+      # « Continuer » ou « Recommencer » (novembre 2026) : le vrai geste, deux fenêtres.
+      - name: ${{ matrix.niveau }} — la sortie garde l'exercice, la reprise demande continuer ou recommencer
+        run: node tests/sortie.js ${{ matrix.niveau }}
