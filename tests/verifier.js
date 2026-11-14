@@ -36682,15 +36682,15 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas un multiple de 10 sous 100, ou 25, ou 110, 120, 150 au-dessus de 100, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
-    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100];
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       qs.forEach(function(q){ const v=suiVals(q);
-        if(PAS.indexOf(v.rAbs)<0) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", ni multiple de 10 sous 100, ni 25, ni 110, 120 ou 150");
+        if(PAS.indexOf(v.rAbs)<0) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
         if(v.kk>10) vus.push("p="+v.kk+" : la question 3 sort de la table de 10");
         if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
