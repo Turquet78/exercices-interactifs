@@ -514,3 +514,7 @@ cases à compléter dans le mode soutien, les mettre en rouge. »
   « f (x) = ax + b » d'un seul morceau) avait disparu avec l'ancienne bulle.
 · Une erreur JavaScript trouvée par l'essai et corrigée avant de partir : la
   bulle sans cases (produit, division) cherchait encore à brancher les siennes.
+· Et la version a dû passer à 418 après la fusion : le 7.1 ({augmentation-
+  tableau}, PR #1015) est arrivé sur `main` quelques minutes avant, en v417
+  lui aussi — la même ligne `APP_VERSION=417` des deux côtés, git n'y a vu
+  aucun conflit, et deux pages différentes portaient le même numéro.
