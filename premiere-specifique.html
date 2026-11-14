@@ -1535,6 +1535,10 @@ i.pb-P{margin-right:.14em}
   #scr-sui .sui-q{font-family:"Nunito";font-weight:800;font-size:1.12rem;color:var(--ink);margin:14px 0 6px;text-align:left}
   #scr-sui .sui-q:first-child{margin-top:0}
   #scr-sui .sui-q-rappel{font-weight:700;color:var(--ink-soft);font-size:.98rem;margin-top:22px}
+  #scr-sui .sui-meth{font-weight:700;color:var(--blue-dark);font-size:1.02rem;margin-top:18px}
+  /* la méthode 1 de la question 2 : trois colonnes, plus étroites */
+  .sui-tab.sui-m1 th,.sui-tab.sui-m1 td{min-width:110px;padding:3px 14px}
+  .sui-tab.sui-m1 math-field.pm-mf{min-width:88px}
   .sui-tab{border-collapse:collapse;margin:4px auto 8px;font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink);background:#fff}
   .sui-tab th{font-family:"Nunito";font-weight:700;font-size:calc(1rem * var(--tab-nb,1));color:var(--ink-soft);background:var(--surface);font-style:italic}
   .sui-tab th,.sui-tab td{border:1.5px solid var(--ink);padding:4px 16px;text-align:left;min-width:150px}
@@ -3791,7 +3795,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=410;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=411;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19387,7 +19391,13 @@ function suiVals(q){
 function suiCases(q){
   const v=suiVals(q);
   if(q.part===1) return [{id:'sui-t1', bon:v.t1}, {id:'sui-t2', bon:v.t2}];
-  if(q.part===2) return [{id:'sui-n', bon:v.n}, {id:'sui-r', bon:v.rAbs}, {id:'sui-p', bon:v.prod}, {id:'sui-u0', bon:v.u0}, {id:'sui-res', bon:v.res}];
+  if(q.part===2){
+    /* MÉTHODE 1 : le tableau prolongé jusqu'au pas N (demande de Turquet,
+       novembre 2026) — une case par ligne de 4 à N ; seule la DERNIÈRE est
+       exigée, les lignes intermédiaires peuvent être sautées (opt) */
+    const m1=[]; for(let n=4;n<=v.n;n++) m1.push({id:'sui-m1-'+n, bon:v.u0+n*v.r, opt:n<v.n, n:n});
+    return m1.concat([{id:'sui-n', bon:v.n}, {id:'sui-r', bon:v.rAbs}, {id:'sui-p', bon:v.prod}, {id:'sui-u0', bon:v.u0}, {id:'sui-res', bon:v.res}]);
+  }
   return [{id:'sui-e', bon:v.e}, {id:'sui-r', bon:v.rAbs}, {id:'sui-k', bon:v.kk}, {id:'sui-fin', bon:v.fin}];
 }
 /* La séance : nQ questions, par contextes entiers (trois questions chacun),
@@ -19429,6 +19439,33 @@ function suiTableau(q, rempli){
   return '<table class="sui-tab'+(rempli?' sui-rappel':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
     +cell(0,v.u0)+cell(1,v.t1,rempli?'':'sui-t1')+cell(2,v.t2,rempli?'':'sui-t2')+cell(3,v.t3)+'</table>';
 }
+/* L'étiquette d'un pas, en HTML : « 1<sup>er</sup> juin » au pas 0 d'une date. */
+function suiMomentHTML(c, n){
+  if(c.tps.type==='date' && n===0) return '1<sup>er</sup> '+c.tps.mois;
+  return suiMoment(c, n);
+}
+/* LA MÉTHODE 1 DE LA QUESTION ② (demande de Turquet, novembre 2026) : le
+   tableau de la question ①, prolongé jusqu'au pas N — trois colonnes : le
+   moment réel (2026, 2027, …), le nombre de pas écoulés (0, 1, 2, …), la
+   valeur. Les lignes 0 à 3 sont écrites (les résultats de la question ①),
+   les lignes 4 à N sont des cases. « On acceptera si l'élève saute des
+   cases » : seule la dernière ligne est attendue ; les lignes intermédiaires
+   portent .hors-note — ni comptées dans la note, ni relevées comme oubliées
+   par la boîte « Il reste des cases vides » —, et ne se jugent que si l'élève
+   y a écrit. */
+function suiTableauM1(q){
+  const v=suiVals(q), c=v.c, t=c.tps.type;
+  const th1=t==='annee'?'Année':(t==='heure'?'Heure':'Date');
+  const th2=t==='annee'?'Nombre d’années':(t==='heure'?'Heures écoulées':'Jours écoulés');
+  let h='<table class="sui-tab sui-m1"><tr><th>'+th1+'</th><th>'+esc(th2)+'</th><th>'+esc(c.tabC)+'</th></tr>';
+  for(let n=0;n<=v.n;n++){
+    const val=v.u0+n*v.r;
+    h+='<tr><td>'+suiMomentHTML(c,n)+'</td><td>'+n+'</td><td>'
+      +(n<4 ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
+      +'</td></tr>';
+  }
+  return h+'</table>';
+}
 /* Les miroirs recopient la case dont ils dépendent — à chaque frappe, et à
    la reprise d'une pause (restoreBoxes). Le miroir d'une case vide montre
    des points de suspension. */
@@ -19453,13 +19490,17 @@ function renderSuiTest(){
   if(q.part===1){
     h+='<div class="sui-q">1. Compléter le tableau.</div>'+suiTableau(q,false);
   } else if(q.part===2){
+    /* deux méthodes, toutes deux obligatoires : le tableau prolongé, puis le calcul */
     h+='<div class="sui-q">2. '+c.q2(v.m2)+'</div>';
+    const prep=c.tps.type==='annee'?'jusqu’en ':(c.tps.type==='heure'?'jusqu’à ':'jusqu’au ');
+    h+='<div class="sui-q sui-meth">Méthode 1 : complète le tableau '+prep+suiMoment(c,v.n)+'. Tu peux sauter des lignes : seule la dernière est attendue.</div>'+suiTableauM1(q);
+    h+='<div class="sui-q sui-meth">Méthode 2 : par le calcul.</div>';
     h+=c.p2(v.m2).map(function(t){ return suiPhrase(t,vus); }).join('');
   } else {
     h+='<div class="sui-q">3. '+c.q3(suiFmt(v.T))+'</div>';
     h+=c.p3(suiFmt(v.T), suiFmt(v.u0)).map(function(t){ return suiPhrase(t,vus); }).join('');
   }
-  if(q.part!==1) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);
+  if(q.part===3) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);   /* la question 2 l'a dans sa méthode 1 */
   $('suiHost').innerHTML=h;
   const cases=suiCases(q).map(function(x){ return $(x.id); }).filter(Boolean);
   cases.forEach(function(el){
@@ -19473,7 +19514,8 @@ function renderSuiTest(){
 function suiPourquoi(q){
   const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−', pl=c.sens>0?'ajoute':'retire';
   if(q.part===1) return 'À chaque '+c.pas+', on '+pl+' '+suiFmt(v.rAbs)+' : '+suiFmt(v.u0)+' → '+suiFmt(v.t1)+' → '+suiFmt(v.t2)+' → '+suiFmt(v.t3)+'.';
-  if(q.part===2) return 'Il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.';
+  if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
+    return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.t3)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
   return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk)+'.';
 }
 function checkSuiAnswer(live){
@@ -19486,15 +19528,17 @@ function checkSuiAnswer(live){
   }
   const subs=cases.map(function(x){ const el=$(x.id), s=el?String(el.value==null?'':el.value).trim():'', fr=parseDecToFrac(s);
     return {c:x, el:el, vide:s==='', ok:!!fr && fr.n===x.bon*fr.d}; });
-  const allOk=subs.every(function(s){ return s.ok; });
+  /* une ligne intermédiaire du tableau laissée vide est acceptée (opt) ; écrite, elle se juge */
+  const allOk=subs.every(function(s){ return s.ok || (s.c.opt && s.vide); });
   const pourquoi=suiPourquoi(q);   /* lu AVANT la correction, qui écrit dans les cases */
   subs.forEach(function(s){ corrChoix(s.el, String(s.c.bon), s.ok); });
+  const comptees=subs.filter(function(s){ return !(s.c.opt && s.vide); });   /* les lignes sautées ne « manquent » pas */
   suiMiroirs();   /* les miroirs suivent la correction écrite en vert */
   if(!allOk && isSoutien()){ soutienAgain('suiFeedback','suiActions','checkSuiAnswer','suiHost'); return; }
   test.locked=true;
   if(allOk) test.score++; $('suiLiveScore').textContent=test.score;   /* un point par question parfaite */
   if(allOk){ $('suiFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('suiFeedback').className='mp-feedback good'; }
-  else { $('suiFeedback').textContent=msgAvecVides(subs, pourquoi); $('suiFeedback').className='mp-feedback bad'; }
+  else { $('suiFeedback').textContent=msgAvecVides(comptees, pourquoi); $('suiFeedback').className='mp-feedback bad'; }
   const v=suiVals(q);
   test.answers.push({...(ptsExo()||{}), correct:allOk,
     q:v.c.nom+' — question '+q.part,
@@ -19525,7 +19569,8 @@ function ctxSui(q){
   let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs)).replace(/<[^>]+>/g,'')+' ';
   t+='Une quantité qui change toujours de la même valeur à chaque '+c.pas+' : la valeur au bout de n pas est la valeur de départ '+sg+' n × '+suiFmt(v.rAbs)+'. ';
   if(q.part===1) t+='Question 1 : compléter le tableau des pas 0 à 3 (le pas 0 vaut '+suiFmt(v.u0)+', le pas 3 vaut '+suiFmt(v.t3)+', donnés). Réponses attendues, STRICTEMENT SECRÈTES : pas 1 = '+suiFmt(v.t1)+', pas 2 = '+suiFmt(v.t2)+'. ';
-  else if(q.part===2) t+='Question 2 : '+c.q2(v.m2)+' Phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. ';
+  else if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
+    t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 à 3 écrits), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
   else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk)+' (case : '+v.fin+'). ';
   t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
   t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
@@ -30808,7 +30853,7 @@ Une question sur <b>un pourcentage</b> — prendre, augmenter ou diminuer, comme
 /* 7.1 {augmentation-tableau} : la méthode de la fiche, sans ses nombres. */
 const RAP_SUI=`<b>Une quantité qui change toujours de la même valeur</b><br>
 <b>① Le tableau.</b> À chaque pas (une année, une heure, un jour), on <b>ajoute</b> — ou on <b>retire</b> — toujours le <b>même nombre</b> : la ligne suivante, c'est la ligne d'avant + ce nombre. La dernière ligne est donnée : elle sert à se vérifier.<br>
-<b>② La valeur au bout de plusieurs pas.</b> On compte d'abord <b>le nombre de pas</b> (entre 2026 et 2031, il y a 5 années). On multiplie ce nombre par la valeur d'un pas : c'est de combien on a changé en tout. Puis on l'<b>ajoute</b> à la valeur de départ (ou on le <b>retire</b>, si la quantité diminue).<br>
+<b>② La valeur au bout de plusieurs pas — deux méthodes.</b> <b>Méthode 1, le tableau :</b> on prolonge le tableau ligne à ligne, en ajoutant (ou retirant) toujours le même nombre, jusqu'au moment demandé ; on peut sauter des lignes si on sait compter de tête. <b>Méthode 2, le calcul :</b> on compte d'abord <b>le nombre de pas</b> (entre 2026 et 2031, il y a 5 années). On multiplie ce nombre par la valeur d'un pas : c'est de combien on a changé en tout. Puis on l'<b>ajoute</b> à la valeur de départ (ou on le <b>retire</b>, si la quantité diminue). Les deux méthodes donnent le même résultat : c'est une vérification.<br>
 <b>③ Atteindre un seuil.</b> On calcule <b>l'écart</b> entre le seuil et la valeur de départ. Puis on cherche <b>par combien multiplier</b> la valeur d'un pas pour obtenir cet écart : c'est le nombre de pas qu'il faut. On l'ajoute au moment de départ.<br>
 Tous les nombres n'ont qu'un seul chiffre différent de zéro : <b>tout se calcule de tête</b>. Et une donnée déjà écrite dans une question se recopie d'elle-même dans les cases suivantes qui en parlent.`;
 const RAP_RPD=`<b>Réduire un produit avec x</b><br>
@@ -30866,7 +30911,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 
 /* ---------- Questions proposées d'un clic ---------- */
 const QIA_SUGG={
-  sui:["Comment compter le nombre d’années entre 2026 et 2031 ?","Pourquoi multiplie-t-on le nombre d’années par ce qu’on gagne chaque année ?","Comment trouver combien d’années il faut pour atteindre un seuil ?","Que faire quand la quantité diminue au lieu d’augmenter ?"],
+  sui:["Pourquoi le tableau et le calcul donnent-ils le même résultat ?","Comment compter le nombre d’années entre 2026 et 2031 ?","Pourquoi multiplie-t-on le nombre d’années par ce qu’on gagne chaque année ?","Comment trouver combien d’années il faut pour atteindre un seuil ?","Que faire quand la quantité diminue au lieu d’augmenter ?"],
   rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
