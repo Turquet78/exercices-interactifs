@@ -9301,7 +9301,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=676;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=677;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -38177,6 +38177,12 @@ function ctxPnv(q){
      est : 12 » à un caractère près : c'est une autre note. Sans ce garde,
      print("la note est :", note + 1) passerait, et l'exercice enseignerait
      l'inverse de ce qu'il dit.
+   (Novembre 2026, Turquet : « on acceptera tous les textes similaires à ce
+   qui est attendu, avec des majuscules s'il y en a, avec des fautes
+   d'orthographe s'il y en a » — la casse ne compte plus du tout, la limite de
+   deux est levée, et un exercice qui choisit entre plusieurs phrases passe
+   les AUTRES à pyTexteProche : la phrase n'est acceptée que si elle est plus
+   proche de l'attendue que de chacune d'elles.)
    · UN CARACTÈRE PAR TRANCHE DE QUATRE, DEUX AU PLUS. Le plus court texte des
      deux exercices affiche « age : 16 » — six caractères une fois les espaces
      retirées : deux fautes n'y seraient plus une faute de frappe mais un
@@ -38206,13 +38212,39 @@ function pyDist(a,b){
 }
 function pySansEspaces(s){ return String(s).replace(/\s+/g,''); }
 function pySansAccents(s){ return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-/* un caractère par tranche de quatre, deux au plus */
-function pyTolerance(att){ return Math.min(2, Math.floor(pySansEspaces(att).length/4)); }
-function pyTexteProche(vu, att){
-  const a=pySansEspaces(vu), b=pySansEspaces(att);
-  if(a===b) return true;                                        /* seules les espaces diffèrent */
+/* Le texte tel que la tolérance le lit (décision de Turquet, novembre 2026) :
+   sans espaces, sans accents, SANS MAJUSCULES, les apostrophes confondues. */
+function pyPlier(s){ return pySansAccents(pySansEspaces(s)).toLowerCase().replace(/[’‘`´]/g,"'"); }
+/* un caractère par tranche de quatre — la limite de deux est levée en
+   novembre 2026 (« avec des fautes d'orthographe si il y en a ») */
+function pyTolerance(att){ return Math.floor(pyPlier(att).length/4); }
+/* autres : les AUTRES phrases que le même exercice peut demander (« Tu es
+   majeur. » quand on attend « Tu es mineur. ») — un texte n'est « proche »
+   que s'il est plus près de la phrase attendue que de chacune d'elles. */
+function pyTexteProche(vu, att, autres){
+  const a=pyPlier(vu), b=pyPlier(att);
+  if(a===b) return true;                                        /* espaces, accents, majuscules */
   if(a.replace(/[^0-9]/g,'')!==b.replace(/[^0-9]/g,'')) return false;   /* un nombre n'est jamais « presque bon » */
-  return pyDist(a,b)<=pyTolerance(b);
+  const d=pyDist(a,b);
+  if(d>pyTolerance(att)) return false;
+  return !(autres||[]).some(function(x){ const c=pyPlier(x); return c!==b && pyDist(a,c)<=d; });
+}
+/* La phrase, parmi celles d'un exercice, que l'élève a voulu écrire — ou -1. */
+function pyPhraseVoulue(vu, phrases){
+  for(let i=0;i<phrases.length;i++) if(pyTexteProche(vu, phrases[i], phrases)) return i;
+  return -1;
+}
+/* Un MOT (ou quelques mots : « pas mal ») d'une phrase imposée se lit-il
+   dans ce qui est affiché, à la tolérance du thème ? Pour les juges qui
+   cherchent un mot clé (« Bravo », « Face ») plutôt qu'une phrase entière. */
+function pyMots(t){ return pySansAccents(String(t)).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean); }
+function pyMotDans(t, mot){
+  const mots=pyMots(t), cle=pyMots(mot), n=cle.length||1, c=cle.join(''), tol=pyTolerance(c);
+  for(let i=0;i<mots.length;i++) for(let k=Math.max(1,n-1);k<=n+1 && i+k<=mots.length;k++){
+    const seg=mots.slice(i,i+k).join('');
+    if(seg.replace(/[^0-9]/g,'')===c.replace(/[^0-9]/g,'') && pyDist(seg,c)<=tol) return true;
+  }
+  return false;
 }
 /* Ce qui diffère, NOMMÉ — rend '' quand l'élève a écrit le texte exact. */
 function pyEcart(vu, att){
@@ -38221,9 +38253,12 @@ function pyEcart(vu, att){
   const nv=pySansEspaces(v), na=pySansEspaces(a);
   if(nv===na) return 'il y a une espace en trop ou en moins';
   if(nv.replace(/["']/g,'')===na) return 'les guillemets ne s’affichent pas : ils entourent le texte, ils n’en font pas partie';
-  if(pySansAccents(nv)===pySansAccents(na)) return 'attention aux accents';
+  const sv=pySansAccents(nv), sa=pySansAccents(na);
+  if(sv===sa) return 'attention aux accents';
   if(nv.toLowerCase()===na.toLowerCase()) return 'attention aux majuscules';
-  return pyDist(nv,na)<=1?'un caractère diffère':'deux caractères diffèrent';
+  if(sv.toLowerCase()===sa.toLowerCase()) return 'attention aux majuscules et aux accents';
+  const d=pyDist(pyPlier(v),pyPlier(a)), casse=pyDist(sv,sa)>pyDist(sv.toLowerCase(),sa.toLowerCase());
+  return (d<=1?'un caractère diffère':(d===2?'deux caractères diffèrent':d+' caractères diffèrent'))+(casse?', et attention aux majuscules':'');
 }
 
 /* ---------- Exercice : écris ton premier print (Python) ------------------
@@ -38372,7 +38407,6 @@ function pypDiag(src, attendu){
       /* les petits écarts sont ACCEPTÉS plus haut : ne restent ici que la
          casse d'un bout à l'autre, et un texte qui n'est pas celui-là */
       if(l==='') dits.push('print() n’a rien entre ses parenthèses : il affiche une ligne vide. Écris le texte entre les parenthèses, entre guillemets.');
-      else if(pySansEspaces(l).toLowerCase()===pySansEspaces(attendu).toLowerCase()) dits.push('Ton programme affiche « '+l+' » : les majuscules et les minuscules comptent, il faut écrire « '+attendu+' ».');
       else dits.push('Ton programme affiche « '+l+' » au lieu de « '+attendu+' » : relis le texte à afficher, lettre par lettre.');
     }
   }
@@ -41234,7 +41268,7 @@ const PW={
 PWD_SITS.forEach(function(S){ S.vars={}; S.vars[S.n]=S.v; S.autres={}; S.autres[S.n]=S.w; });
 PWS_SITS.forEach(function(S){ S.vars={}; S.vars[S.n]=S.v; S.autres={}; S.autres[S.n]=S.w; });
 /* 6.1.16 : le juge lit la PHRASE (espaces ignorés), pas seulement le nombre. */
-PW.pws.verifier=function(S, src, out, vals){ const v=(vals||S.vars)[S.n]; return out.split('\n').some(function(l){ return pwsSerre(l)===pwsSerre(pwsTexte(S, v)); }); };
+PW.pws.verifier=function(S, src, out, vals){ const v=(vals||S.vars)[S.n]; return out.split('\n').some(function(l){ return pwsSerre(l)===pwsSerre(pwsTexte(S, v)) || (pyTexteProche(l, pwsTexte(S, v)) && pyValeurJeton(l, v)); }); };   /* le texte retapé : casse, accents, fautes tolérés (novembre 2026) ; la valeur, jamais */
 PW.pws.faute=function(S, src, out){
   if(out.indexOf(S.n)>=0 && out.indexOf(String(S.v))<0) return 'Le nom de la variable est entre guillemets : c’est son NOM, « '+S.n+' », qui s’affiche, pas sa valeur. Écris-le SANS guillemets.';
   if(out.indexOf(String(S.v))<0) return 'La valeur de '+S.n+' ne s’affiche pas : la variable doit être dans le print.';
@@ -42995,7 +43029,7 @@ function pfvJugeB(q, src){
     if(m[1].toLowerCase()===v.toLowerCase()) return {ok:false, vide:false, diag:'Python fait la différence entre majuscules et minuscules : la variable doit s’appeler '+v+', pas '+m[1]+'.'};
     return {ok:false, vide:false, diag:'La variable de la boucle s’appelle '+m[1]+' : on demande qu’elle s’appelle '+v+'.'};
   }
-  if(x.out===att) return {ok:true, vide:false, diag:''};
+  if(x.out===att || pyTexteProche(x.out, att)) return {ok:true, vide:false, diag:''};   /* « valeur= » retapé : fautes tolérées (novembre 2026) */
   if(String(x.out).split('\n').some(function(l){ return new RegExp('^valeur=\\s*'+v+'\\s*$').test(l); }))
     return {ok:false, vide:false, diag:'Ton programme affiche « valeur= '+v+' » : entre guillemets, '+v+' est un TEXTE, et il s’affiche tel quel. Le nom de la variable s’écrit sans guillemets.'};
   return {ok:false, vide:false, diag:'Ton programme n’affiche plus la même chose qu’au a) : ne change que le nom de la variable, sans toucher à range ( '+pfvFin(q)+' ) ni au texte.'};
@@ -46335,7 +46369,8 @@ function pofEssai(src, rep, alea){
 /* un texte sans majuscules, sans accents, aux espaces simples */
 function pofNet(s){ return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim(); }
 function pofLignes(r){ return r.prints.map(function(p){ return pofNet(p.vals.map(pyRep).join(' ')); }); }
-function pofA(l, mot){ return l.indexOf(mot)>=0; }
+/* le mot de la fiche, à la tolérance du thème (« Brava », « fase » : novembre 2026) */
+function pofA(l, mot){ return l.indexOf(mot)>=0 || (/[a-z]/.test(mot) && pyMotDans(l, mot)); }
 const POF_MSG=[['incapable','vous êtes incapable de deviner l’avenir !'],['pas mal','C’est pas mal !'],['impressionnant','Vous êtes impressionnant !'],['medium','Vous êtes un vrai medium !!!!!!']];
 function pofMsg(l){ for(let k=0;k<POF_MSG.length;k++) if(pofA(l, POF_MSG[k][0])) return k; return -1; }
 function pofVerdict(l){ return pofA(l,'bravo')?'B':(pofA(l,'perdu')?'P':''); }
@@ -47456,7 +47491,7 @@ function pfiDiag(src, q){
   }
   const phrase=L.every(function(l){
     const t=l.replace(PFI_NOMBRE, '#').replace(/[’`]/g, '\'').replace(/\s+/g, ' ').trim().toLowerCase();
-    return /^(l ?'? ?)?image de # par f est( ?[:=])? #( ?\.+)?$/.test(t);
+    return /^(l ?'? ?)?image de # par f est( ?[:=])? #( ?\.+)?$/.test(t) || pyTexteProche(t, 'l\'image de # par f est #');   /* fautes et casse tolérées (novembre 2026) */
   });
   if(!phrase) return non('Chaque ligne doit s’écrire de la façon suivante : L’image de 0.1 par f est …');
   const boucle=src.split('\n').some(function(l){ return ptrUtile(l) && /^\s*for\b/.test(l); });
@@ -48015,7 +48050,11 @@ function pceDiag(src, q){
   /* ce que chaque réponse fait afficher */
   const L=ex.map(function(e){ return pceLignes(e.r); });
   const att=xs.map(function(x){ return x<S.n?S.oui:S.non; });
-  const juste=function(i){ return L[i].length===1 && pceNet(L[i][0])===pceNet(att[i]); };
+  /* la phrase à la tolérance du thème (casse, accents, fautes), mais plus
+     proche de la phrase attendue que de l'autre — « Tu es majeur. » n'est
+     jamais un « Tu es mineur. » mal tapé */
+  const proche=function(l, p){ return pyTexteProche(pceNet(l), pceNet(p), [pceNet(S.oui), pceNet(S.non)]); };
+  const juste=function(i){ return L[i].length===1 && proche(L[i][0], att[i]); };
   if(xs.every(function(_, i){ return juste(i); })){
     if(!/^\s*else\s*:/m.test(c)) return non('Ton programme affiche les bonnes phrases, mais la fiche demande un else : après le bloc du if, écris else : puis le print décalé en dessous.');
     return {ok:true, vide:false, dits:[], x:xs[0]};
@@ -48024,7 +48063,7 @@ function pceDiag(src, q){
   for(let i=0;i<xs.length;i++){
     if(L[i].length>1) return non('Si l’on répond '+xs[i]+', ton programme affiche '+dit(i)+' : il ne doit afficher qu’UNE phrase. Les deux print doivent être décalés, l’un sous le if, l’autre sous le else.', xs[i]);
   }
-  const est=function(i, p){ return L[i].length===1 && pceNet(L[i][0])===pceNet(p); };
+  const est=function(i, p){ return L[i].length===1 && proche(L[i][0], p); };
   if(xs.every(function(_, i){ return est(i, att[i]===S.oui?S.non:S.oui); })) return non('Les deux phrases sont inversées : quand '+S.v+' est plus petit que '+S.n+', il faut afficher « '+S.oui+' », sinon « '+S.non+' ».');
   const k=xs.indexOf(S.n);
   if(est(0, S.oui) && est(1, S.oui) && est(3, S.non) && est(k, S.oui)) return non('Si l’on répond '+S.n+', ton programme affiche « '+S.oui+' » : '+S.n+' n’est pas plus petit que '+S.n+'. La condition est '+S.v+' < '+S.n+', pas '+S.v+' <= '+S.n+'.', S.n);
@@ -48303,7 +48342,12 @@ function pciCode(src){ return String(src).replace(/"[^"\n]*"|'[^'\n]*'/g, '""').
 /* Une phrase affichée, réduite à ses lettres et chiffres : « Tu dois payer 9€. » → tudoispayer9. */
 function pciCle(t){ return String(t).toLowerCase().replace(/[^a-z0-9àâäéèêëîïôöùûüç]/g, ''); }
 /* Le prix qu'une phrase annonce, si elle est celle de la fiche ; null sinon. */
-function pciPhrase(t){ const m=pciCle(t).match(/^tudoispayer(\d+)(euros?)?$/); return m?Number(m[1]):null; }
+function pciPhrase(t){
+  const m=pciCle(t).match(/^tudoispayer(\d+)(euros?)?$/); if(m) return Number(m[1]);
+  /* fautes, accents et casse tolérés (novembre 2026) : « Tu doit payé 9 € » */
+  const f=pciCle(t).match(/^([^0-9]+)(\d+)([^0-9]*)$/);
+  return (f && pyTexteProche(f[1], 'tudoispayer') && (f[3]==='' || pyTexteProche(f[3], 'euros')))?Number(f[2]):null;
+}
 const PCI_NOMBRE=/-?\d+(?:\.\d+)?/g;
 function pciTraduire(src, err){
   const msg=ptrMessage(err); let m;
@@ -48928,7 +48972,10 @@ function ptmNet(l){ return String(l).normalize('NFD').replace(/[̀-ͯ]/g,'').toL
 /* « 3 fois 2 est égal à 6 » → {t:3, k:2, p:6}, ou null. */
 function ptmLire(l){
   const m=ptmNet(l).match(/^(-?\d+) fois (-?\d+) est egal a (-?\d+(?:\.\d+)?)$/);
-  return m?{t:+m[1], k:+m[2], p:+m[3]}:null;
+  if(m) return {t:+m[1], k:+m[2], p:+m[3]};
+  /* fautes, accents et casse tolérés (novembre 2026) : « 3 foi 2 et égale à 6 » */
+  const N=/-?\d+(?:\.\d+)?/g, nb=ptmNet(l).match(N)||[];
+  return (nb.length===3 && /^\s*-?\d/.test(ptmNet(l)) && pyTexteProche(ptmNet(l).replace(N,'#'), '# fois # est egal a #'))?{t:+nb[0], k:+nb[1], p:+nb[2]}:null;
 }
 /* ptmDiag rend { ok, vide, dits } pour la table t. */
 function ptmDiag(src, t){
@@ -51781,10 +51828,10 @@ function pyxDiagErreur(q, l, msg, att){
   return 'Python s’arrête sur une erreur : « '+msg+' ». Relis ta ligne : print, une parenthèse, le texte entre guillemets, une virgule, la variable, la parenthèse fermante.';
 }
 /* Le texte diffère assez pour n'être plus « presque » celui qu'on demande —
-   l'espace, l'accent et le caractère isolé ont été acceptés plus haut : reste
-   la casse d'un bout à l'autre, qu'on nomme, et le reste, qu'on montre. */
+   l'espace, l'accent, les majuscules (même d'un bout à l'autre, depuis
+   novembre 2026) et les fautes ont été acceptés plus haut : reste un autre
+   texte, qu'on montre. */
 function pyxDiagTexte(vu, att){
-  if(pySansEspaces(vu).toLowerCase()===pySansEspaces(att).toLowerCase()) return 'Python affiche le texte tel quel, majuscules comprises : « '+vu+' » n’est pas « '+att+' ».';
   return 'La forme est bonne, mais le texte affiché est « '+vu+' » au lieu de « '+att+' » : relis-le caractère par caractère.';
 }
 function pyxDiagSortie(q, l, r, att){

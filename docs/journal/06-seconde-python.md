@@ -6781,3 +6781,43 @@ Seconde, « un brouillon étiqueté d'un devoir compte comme une note provisoire
 quand on jouait ce contrôle SEUL. Un observateur de plus sur tout le document
 décale les minuteries d'un banc qui enchaîne mille contrôles : le grisé est
 passé en CSS `:has()`, sans observateur, et le contrôle est revenu au vert.
+
+**Puis les textes SEMBLABLES ont été acceptés — les majuscules et les fautes,
+sans plafond de deux.** Décision de Turquet (novembre 2026, APP_VERSION 677) :
+« en seconde dans les algorithmes quand l'élève doit placer du texte entre des
+guillemets, on acceptera tous les textes similaires à ce qui est attendu, avec
+des majuscules s'il y en a, avec des fautes d'orthographe s'il y en a. »
+· **La règle partagée change de mesure, à son seul endroit.** `pyTexteProche`
+  lit les deux textes PLIÉS (`pyPlier` : sans espaces, sans accents, sans
+  majuscules, apostrophes confondues) ; « JE SUIS EN SECONDE » est juste, et la
+  branche qui nommait « la casse d'un bout à l'autre » (`pypDiag`,
+  `pyxDiagTexte`) est retirée, devenue inatteignable. La tolérance reste d'un
+  caractère par tranche de quatre, mais la limite de DEUX est levée : trois
+  fautes passent sur « je suis en seconde », quatre non ; « agi ; 16 » reste
+  refusé pour « age : 16 ». Les CHIFFRES comptent toujours.
+· **Un garde nouveau, parce que la mesure s'élargit : l'AUTRE phrase.** Avec
+  deux fautes permises sur dix lettres, « Tu es majeur. » serait un « Tu es
+  mineur. » mal tapé. `pyTexteProche(vu, att, autres)` n'accepte un texte que
+  s'il est STRICTEMENT plus proche de la phrase attendue que de chacune des
+  autres phrases de l'exercice. Le 6.7.1 lui passe ses deux phrases.
+· **L'écart reste NOMMÉ** : `pyEcart` dit « attention aux majuscules et aux
+  accents », « 3 caractères diffèrent », et ajoute « et attention aux
+  majuscules » quand la casse s'ajoute aux fautes.
+· **Six juges comparaient encore leur phrase à l'identique**, tous postérieurs
+  à l'inventaire d'octobre (inventaire refait sur tout le thème) :
+  {python-if-else} (`pceNet` en égalité), {python-pile-face} (mots clés par
+  `indexOf` — désormais `pyMotDans`, le mot ou deux mots voisins à la
+  tolérance du thème), {python-if-cinema} (`pciPhrase`, une expression
+  régulière), {python-for-table} (`ptmLire`), {python-for-images} (la forme
+  de la ligne), {python-texte-nombre} (`PW.pws.verifier`, le texte retapé à
+  l'espace près ; la valeur doit s'y lire en jeton, `pyValeurJeton`). Et la
+  partie b) de {python-for-renommer}, dont le texte « valeur= » est donné mais
+  souvent retapé. Les expressions exactes restent en tête : elles ne font que
+  gagner un repli toléré.
+· **Restent dehors, et c'est nommé** : les sorties qui sont des nombres (les
+  if du 6.7 hors 6.7.1, les boucles de calcul), les phrases libres jugées sur
+  « contient des lettres », le prénom de l'élève, les explications jugées par
+  le modèle, les chaînes CALCULÉES (6.4.2, 6.4.3, 6.4.4) et les étoiles.
+Banc jsdom : `pythonTextesSemblables` (après `pythonFautesOrthographe`), qui
+éprouve les six juges dans les deux sens ; `pythonTexteProche` gagne les
+majuscules d'un bout à l'autre et les trois fautes, son seuil passe à quatre.
