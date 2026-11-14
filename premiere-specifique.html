@@ -1569,7 +1569,7 @@ i.pb-P{margin-right:.14em}
   .trd-regle .trd-contenu{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin:0 auto;padding:0 4px}
   .itv-sel.trd-sel{width:auto;min-width:64px;height:38px;font-size:1rem;padding:0 10px;text-align-last:center}
   /* l'équation, chaque ligne face à sa règle (le sujet papier) */
-  .trd-eq{display:grid;grid-template-columns:max-content max-content max-content 1fr;column-gap:12px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
+  .trd-eq{position:relative;padding:30px 0 4px 34px;display:grid;grid-template-columns:max-content max-content max-content 1fr;column-gap:12px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
   .trd-eq .trd-g{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap;min-height:46px}
   .trd-eq .trd-d{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--ink-soft);font-size:.9rem}
   .trd-eq .trd-d .itv-sel.trd-sel{height:34px;font-size:.9rem;padding:0 6px;min-width:0}
@@ -1585,27 +1585,37 @@ i.pb-P{margin-right:.14em}
   .trd-eg{text-align:center}
   /* la bulle d'aide du soutien, ouverte au clic d'une case de calcul — le
      geste du 8.4.4 de la Seconde (vcdGpOuvrir) */
-  .trd-gp{position:fixed;z-index:58;max-width:min(380px,calc(100vw - 16px));box-sizing:border-box;
-    background:var(--surface);border:1.5px solid #1f7a6b;border-radius:14px;padding:8px 30px 10px 12px;
-    box-shadow:0 8px 24px rgba(0,0,0,.18);font-family:'Nunito',sans-serif;font-weight:600;font-size:1rem;color:var(--ink)}
-  .trd-gp p{margin:0;line-height:2.1}
-  .trd-gp b{font-family:"Fredoka";font-weight:600;white-space:nowrap}
-  .trd-gp .trd-gp-tag{font-size:.75rem;font-weight:800;color:#1f7a6b;text-transform:uppercase;letter-spacing:.04em;line-height:1.4}
-  .trd-gp-regle{display:flex;flex-wrap:wrap;gap:4px 14px}
-  .trd-gp-regle span{white-space:nowrap;font-family:"Fredoka"}
-  .trd-gp-s{display:inline-block;width:auto;min-width:0;font:inherit;font-family:"Fredoka";font-size:1.05rem;height:1.9em;padding:0 2px;margin:0}
-  .trd-gp-n{font-family:"Fredoka";font-weight:600;font-size:1.05rem;width:2.8em;height:1.75em;text-align:center;border:1.5px solid var(--ink-soft);border-radius:6px;padding:0}
-  .trd-gp-x{position:absolute;top:4px;right:6px;border:none;background:none;cursor:pointer;font-size:14px;color:inherit;padding:2px}
-  .trd-gp[data-bexp-cote]::before,.trd-gp[data-bexp-cote]::after{content:'';position:absolute;width:0;height:0;border:10px solid transparent}
-  .trd-gp[data-bexp-cote="droite"]::before{left:-20px;top:calc(var(--bexp-fx) - 10px);border-right-color:#1f7a6b}
-  .trd-gp[data-bexp-cote="droite"]::after{left:-18px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--surface)}
-  .trd-gp[data-bexp-cote="gauche"]::before{right:-20px;top:calc(var(--bexp-fx) - 10px);border-left-color:#1f7a6b}
-  .trd-gp[data-bexp-cote="gauche"]::after{right:-18px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--surface)}
-  .trd-gp[data-bexp-cote="haut"]::before{bottom:-20px;left:calc(var(--bexp-fx) - 10px);border-top-color:#1f7a6b}
-  .trd-gp[data-bexp-cote="haut"]::after{bottom:-18px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--surface)}
-  .trd-gp[data-bexp-cote="bas"]::before{top:-20px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:#1f7a6b}
-  .trd-gp[data-bexp-cote="bas"]::after{top:-18px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--surface)}
+  .trd-gp{position:fixed;z-index:58;max-width:min(260px,calc(100vw - 16px));box-sizing:border-box;
+    background:#FBFDFC;border:1px solid #9CC8BF;border-radius:10px;padding:5px 24px 6px 9px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);font-family:'Nunito',sans-serif;font-weight:600;font-size:.8rem;color:var(--ink-soft)}
+  .trd-gp p{margin:0;line-height:1.9}
+  .trd-gp b{font-family:"Fredoka";font-weight:600;white-space:nowrap;color:var(--ink)}
+  .trd-gp .trd-gp-tag{font-size:.66rem;font-weight:800;color:#1f7a6b;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+  /* la règle des signes : une colonne, les signes en grand */
+  .trd-gp-regle{display:flex;flex-direction:column;gap:0;font-family:"Fredoka";font-weight:600;font-size:1.25rem;line-height:1.3;color:var(--ink);padding:2px 0 2px 6px}
+  .trd-gp-regle .trd-gp-fl{font-family:'Nunito',sans-serif;font-weight:700;margin:0 .2em}
+  .trd-gp-regle span{white-space:nowrap}
+  .trd-gp-s{display:inline-block;width:auto;min-width:0;font:inherit;font-family:"Fredoka";font-size:.9rem;height:1.7em;padding:0 2px;margin:0}
+  .trd-gp-n{font-family:"Fredoka";font-weight:600;font-size:.9rem;width:2.6em;height:1.6em;text-align:center;border:1px solid var(--ink-soft);border-radius:5px;padding:0}
+  .trd-gp-x{position:absolute;top:2px;right:4px;border:none;background:none;cursor:pointer;font-size:12px;color:inherit;padding:2px}
+  .trd-gp[data-bexp-cote]::before,.trd-gp[data-bexp-cote]::after{content:'';position:absolute;width:0;height:0;border:7px solid transparent}
+  .trd-gp[data-bexp-cote="droite"]::before{left:-14px;top:calc(var(--bexp-fx) - 7px);border-right-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="droite"]::after{left:-12.5px;top:calc(var(--bexp-fx) - 7px);border-right-color:var(--surface)}
+  .trd-gp[data-bexp-cote="gauche"]::before{right:-14px;top:calc(var(--bexp-fx) - 7px);border-left-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="gauche"]::after{right:-12.5px;top:calc(var(--bexp-fx) - 7px);border-left-color:var(--surface)}
+  .trd-gp[data-bexp-cote="haut"]::before{bottom:-14px;left:calc(var(--bexp-fx) - 7px);border-top-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="haut"]::after{bottom:-12.5px;left:calc(var(--bexp-fx) - 7px);border-top-color:var(--surface)}
+  .trd-gp[data-bexp-cote="bas"]::before{top:-14px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:#9CC8BF}
+  .trd-gp[data-bexp-cote="bas"]::after{top:-12.5px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:var(--surface)}
   .trd-signes-regle{display:inline-flex;gap:14px;flex-wrap:wrap}
+  .trd-mot{white-space:nowrap}
+  /* les flèches de la transposition (la fiche papier) : pointillées, sans prise */
+  .trd-fl{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+  .trd-fl path{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:3 3}
+  .trd-fl .trd-fl-pointe{fill:var(--ink-soft)}
+  /* SOUTIEN : une case qui manque est entourée de ROUGE (demande de Turquet) —
+     pas « .bad » : elle n'est pas fausse, elle est à compléter */
+  .lv-in.trd-manque,.itv-sel.trd-manque{border-color:var(--red);box-shadow:0 0 0 2px rgba(229,35,43,.22)}
   .trd-signes-regle span{white-space:nowrap}
   /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
      du texte courant où les cases prennent place (pas une rangée flex : sur
@@ -3950,7 +3960,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=416;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=417;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -31514,31 +31524,28 @@ function trdPar(n){ return n<0 ? '('+trdNb(n)+')' : trdNb(n); }
 /* l'opération de la case : ses deux nombres, ou ce qu'il faut écrire d'abord */
 function trdGpOperation(q, id){
   const k=id.slice(-1);
-  if(id==='trd-p1'||id==='trd-p2'){ const x=trdLuCase('trd-x'+k);
-    return x===null ? {manque:'le nombre entre les parenthèses'} : {op:'mul', a:q.a, b:x}; }
+  if(id==='trd-p1'||id==='trd-p2') return {op:'mul'};
   if(id==='trd-y1'||id==='trd-y2'){ const p=trdLuCase('trd-p'+k);
     return p===null ? {manque:'le produit, sur la ligne du dessus'} : {op:'som', a:p, b:q.b}; }
   if(id==='trd-e2'){ const t=trdLuCase('trd-e1');
     return t===null ? {manque:'le terme transposé, sur la ligne du dessus'} : {op:'som', a:q.k, b:t}; }
-  if(id==='trd-e5'){ const n=trdLuCase('trd-e3'), d=trdLuCase('trd-e4');
-    return (n===null||d===null||d===0) ? {manque:'le numérateur et le dénominateur de la fraction'} : {op:'div', a:n, b:d}; }
+  if(id==='trd-e5') return {op:'div'};
   return null;
 }
 function trdGpHTML(o){
   const sin='<select id="trdGpS" class="trd-gp-s" aria-label="le signe du résultat"><option value="">…</option><option value="+">+</option><option value="-">−</option></select>';
   const nin='<input id="trdGpN" class="trd-gp-n" type="text" inputmode="decimal" maxlength="5" autocomplete="off" spellcheck="false" aria-label="le résultat sans son signe">';
-  const A=Math.abs(o.a), B=Math.abs(o.b);
   if(o.op==='som'){
-    const meme=(o.a>0)===(o.b>0), g=Math.max(A,B), p=Math.min(A,B);
+    const A=Math.abs(o.a), B=Math.abs(o.b), meme=(o.a>0)===(o.b>0), g=Math.max(A,B), p=Math.min(A,B);
     return '<p>Pour <b>'+trdNb(o.a)+(o.b<0?' − '+B:' + '+B)+'</b> : '
       +(meme ? 'les signes sont les <b>mêmes</b>, donc on additionne '+A+' et '+B+' : '+A+' + '+B+' = '+nin+' et on garde le même signe que '+trdNb(o.a)+' et '+trdNb(o.b)+', ici c’est '+sin+'.'
              : 'les signes sont <b>différents</b>, donc on fait la soustraction grand − petit = '+g+' − '+p+' = '+nin+' et on prend le signe du plus fort entre '+trdNb(o.a)+' et '+trdNb(o.b)+', ici '+sin+'.')+'</p>';
   }
-  if(o.op==='mul')
-    return '<p>Pour <b>'+trdNb(o.a)+' × '+trdPar(o.b)+'</b> : on multiplie sans les signes, '+A+' × '+B+' = '+nin+', puis la règle des signes d’un produit :</p>'
-      +'<p class="trd-gp-regle"><span>+ × + → +</span><span>− × − → +</span><span>+ × − → −</span><span>− × + → −</span></p><p>Ici, le signe est '+sin+'.</p>';
-  return '<p>Pour <b>'+trdNb(o.a)+' ÷ '+trdPar(o.b)+'</b> : on divise sans les signes, '+A+' ÷ '+B+' = '+nin+', puis la règle des signes d’une division :</p>'
-    +'<p class="trd-gp-regle"><span>+ ÷ + → +</span><span>− ÷ − → +</span><span>+ ÷ − → −</span><span>− ÷ + → −</span></p><p>Ici, le signe est '+sin+'.</p>';
+  /* le produit, la division : la règle des signes SEULE, en une colonne, les
+     signes en grand (demande de Turquet) — rien d'autre */
+  const s=o.op==='mul' ? '×' : '÷';
+  return '<p>Règle des signes '+(o.op==='mul'?'d’un produit':'d’une division')+' :</p>'
+    +'<p class="trd-gp-regle">'+[['+','+','+'],['−','−','+'],['+','−','−'],['−','+','−']].map(function(l){ return '<span>'+l[0]+' '+s+' '+l[1]+'<span class="trd-gp-fl">→</span>'+l[2]+'</span>'; }).join('')+'</p>';
 }
 function trdGpFermer(){ const b=$('trdGp'); if(b) b.remove(); trdGpAncre=null; }
 function trdGpOuvrir(el){
@@ -31567,29 +31574,48 @@ function trdGpOuvrir(el){
       if(r.value===val) return;
       r.value=val; r.dispatchEvent(new Event('input',{bubbles:true}));
     };
-    $('trdGpS').addEventListener('change', ecrire);
-    $('trdGpN').addEventListener('input', ecrire);
+    /* seule la bulle d'une SOMME a des cases : celles du produit et de la
+       division ne portent que la règle des signes */
+    const s=$('trdGpS'), n=$('trdGpN');
+    if(s && n){ s.addEventListener('change', ecrire); n.addEventListener('input', ecrire); }
   }
   trdGpPlacer();
 }
-/* ce que la bulle ne doit pas couvrir : les cases et boutons de l'écran, sa
-   case exceptée, et les commandes du bas (le patron de vcdGpPlacer) */
+/* LA BULLE NE CACHE NI LE CALCUL EN COURS NI LES RÈGLES À COMPLÉTER
+   (demande de Turquet) : le bloc entier — les deux calculs d'images de la
+   question 1, ou l'équation et ses règles de la question 4 — est mesuré par
+   ce qu'il ÉCRIT (ses cellules, pas la largeur de sa grille), et la bulle se
+   pose À CÔTÉ de lui : à droite, à gauche, dessous, sinon dessus — la flèche
+   tournée vers la case. */
+function trdGpBloc(el){ return el.closest('.trd-images') || el.closest('.trd-eq'); }
+function trdGpEmprise(bloc, c){
+  let L=c.left, R=c.right, T=c.top, B=c.bottom;
+  bloc.querySelectorAll('.trd-calc, .trd-g, .trd-eg, .trd-dr, .trd-d > *').forEach(function(e){
+    const r=e.getBoundingClientRect(); if(!r.width||!r.height) return;
+    L=Math.min(L,r.left); R=Math.max(R,r.right); T=Math.min(T,r.top); B=Math.max(B,r.bottom);
+  });
+  return {left:L, right:R, top:T, bottom:B};
+}
 function trdGpPlacer(){
   const b=$('trdGp'), el=trdGpAncre; if(!b) return;
   if(!el||!el.isConnected||!el.closest('.screen.on')||test.kind!=='trd'){ trdGpFermer(); return; }
   b.removeAttribute('data-bexp-cote'); b.style.left='0px'; b.style.top='0px';
   const rb=b.getBoundingClientRect(), c=el.getBoundingClientRect();
   if(!rb.width||!rb.height||(!c.width&&!c.height)) return;
-  const obs=[], ecr=document.querySelector('.screen.on');
-  const vus=ecr?[...ecr.querySelectorAll('input,select,textarea,button')]:[];
-  const cmd=$('testCtrls'); if(cmd&&!cmd.hidden) vus.push(cmd);
-  vus.forEach(function(e){ if(b.contains(e)||e.contains(el)) return; const r=e.getBoundingClientRect(); if(r.width>0&&r.height>0) obs.push(r); });
-  if(typeof bexpPoser==='function' && bexpPoser(b, c, rb.width, rb.height, obs)) return;
-  const W=window.innerWidth, cx=(c.left+c.right)/2, M=(typeof BEXP_MARGE!=='undefined')?BEXP_MARGE:8, E=(typeof BEXP_ECART!=='undefined')?BEXP_ECART:14;
-  const x=Math.max(M, Math.min(W-M-rb.width, cx-rb.width/2));
-  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(c.bottom+E)+'px';
-  b.dataset.bexpCote='bas';
-  b.style.setProperty('--bexp-fx', Math.round(Math.max(18, Math.min(rb.width-18, cx-x)))+'px');
+  const bl=trdGpBloc(el), e=bl ? trdGpEmprise(bl, c) : {left:c.left, right:c.right, top:c.top, bottom:c.bottom};
+  const W=window.innerWidth, H=window.innerHeight, M=8, E=12, w=rb.width, hh=rb.height;
+  const cx=(c.left+c.right)/2, cy=(c.top+c.bottom)/2;
+  const bornY=function(y){ return Math.max(M, Math.min(H-M-hh, y)); }, bornX=function(x){ return Math.max(M, Math.min(W-M-w, x)); };
+  let x, y, cote;
+  if(e.right+E+w<=W-M){ x=e.right+E; y=bornY(cy-hh/2); cote='droite'; }
+  else if(e.left-E-w>=M){ x=e.left-E-w; y=bornY(cy-hh/2); cote='gauche'; }
+  else if(e.bottom+E+hh<=H-M){ y=e.bottom+E; x=bornX(cx-w/2); cote='bas'; }
+  else if(e.top-E-hh>=M){ y=e.top-E-hh; x=bornX(cx-w/2); cote='haut'; }
+  else { y=e.bottom+E; x=bornX(cx-w/2); cote='bas'; }
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+  b.dataset.bexpCote=cote;
+  const fx=(cote==='droite'||cote==='gauche') ? cy-y : cx-x;
+  b.style.setProperty('--bexp-fx', Math.round(Math.max(14, Math.min((cote==='droite'||cote==='gauche'?hh:w)-14, fx)))+'px');
 }
 document.addEventListener('focusin', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); });
 document.addEventListener('pointerdown', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); }, true);
@@ -31649,10 +31675,10 @@ function renderTrd(){
        l'autre), le second membre, et la règle en face — chaque règle sur
        UNE ligne, son « donc … » compris (demande de Turquet) */
     +'<div class="trd-eq">'
-    +'<span class="trd-g">'+ax+' <span class="trd-cercle">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span></span><span class="trd-eg">=</span><span class="trd-dr">'+K+'</span>'
+    +'<span class="trd-g">'+ax+' <span class="trd-cercle trd-cercle-t">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span></span><span class="trd-eg">=</span><span class="trd-dr">'+K+'</span>'
     +'<span class="trd-d"><b>Règle 1</b> : quand on transpose un terme, on doit '+trdSel('trd-r1','règle 1 : quand on transpose un terme, on doit')+' donc on change le '+trdSel('trd-r2','donc on change le')+'</span>'
     +'<span class="trd-g">'+ax+'</span><span class="trd-eg">=</span><span class="trd-dr">'+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span><span class="trd-d"></span>'
-    +'<span class="trd-g"><span class="trd-cercle">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
+    +'<span class="trd-g"><span class="trd-cercle trd-cercle-a">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
     +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
@@ -31717,6 +31743,7 @@ function trdDessiner(anim){
   const rang=TRD_RANG[st.etape];
   $('trdRegleL').hidden=!(rang>=1 || st.corrige);
   $('trdSuite').hidden=!(rang>=3 || st.corrige);
+  requestAnimationFrame(trdFleches);
   if(st.corrige){ g.querySelectorAll('.ima-chemin').forEach(imaFin); trdConsigne('Correction : ce qui manquait au graphique est tracé en vert.',''); return; }
   if(st.etape==='points'){
     const p=st.pts[st.cur];
@@ -31731,6 +31758,34 @@ function trdDessiner(anim){
     else g.querySelectorAll('.ima-chemin').forEach(imaFin);
   }
 }
+/* LES FLÈCHES DE LA TRANSPOSITION, comme sur la fiche papier : le terme
+   entouré de la ligne 1 part, au-dessus de la ligne, vers sa place à la
+   ligne 2 ; le facteur entouré de la ligne 3 descend, par la gauche, au
+   dénominateur de la ligne 4. Un SVG posé sur la grille, recalculé à chaque
+   mise en page (ouverture des parties, correction, fenêtre redimensionnée) :
+   les positions sont lues sur les cases rendues. */
+function trdFleches(){
+  const g=document.querySelector('#trdHost .trd-eq'); if(!g) return;
+  const vieux=g.querySelector('svg.trd-fl'); if(vieux) vieux.remove();
+  if(!g.getClientRects().length) return;
+  const R=g.getBoundingClientRect(), ox=R.left-g.scrollLeft, oy=R.top-g.scrollTop;
+  const rel=function(e){ const r=e.getBoundingClientRect(); return {l:r.left-ox, r:r.right-ox, t:r.top-oy, b:r.bottom-oy, cx:(r.left+r.right)/2-ox, cy:(r.top+r.bottom)/2-oy}; };
+  const c1=g.querySelector('.trd-cercle-t'), e1=$('trd-e1'), c2=g.querySelector('.trd-cercle-a'), e4=$('trd-e4');
+  if(!c1||!e1||!c2||!e4) return;
+  const a=rel(c1), b=rel(e1), c=rel(c2), d=rel(e4);
+  const haut=Math.min(a.t, b.t)-24;
+  const p1='M'+a.cx.toFixed(1)+' '+(a.t-1).toFixed(1)+' C'+a.cx.toFixed(1)+' '+haut.toFixed(1)+' '+b.cx.toFixed(1)+' '+haut.toFixed(1)+' '+b.cx.toFixed(1)+' '+(b.t-7).toFixed(1);
+  const gx=Math.min(c.l, d.l)-26;
+  const p2='M'+(c.l+3).toFixed(1)+' '+(c.b-2).toFixed(1)+' C'+gx.toFixed(1)+' '+(c.b+10).toFixed(1)+' '+gx.toFixed(1)+' '+d.cy.toFixed(1)+' '+(d.l-8).toFixed(1)+' '+d.cy.toFixed(1);
+  const pointe=function(x,y,dir){ return dir==='bas' ? '<polygon class="trd-fl-pointe" points="'+(x-4)+','+(y-6)+' '+(x+4)+','+(y-6)+' '+x+','+y+'"/>' : '<polygon class="trd-fl-pointe" points="'+(x-6)+','+(y-4)+' '+(x-6)+','+(y+4)+' '+x+','+y+'"/>'; };
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('class','trd-fl'); s.setAttribute('aria-hidden','true');
+  s.setAttribute('width', g.scrollWidth); s.setAttribute('height', g.scrollHeight);
+  s.innerHTML='<path d="'+p1+'"/>'+pointe(+b.cx.toFixed(1), +(b.t-1).toFixed(1), 'bas')
+    +'<path d="'+p2+'"/>'+pointe(+(d.l-2).toFixed(1), +d.cy.toFixed(1), 'droite');
+  g.appendChild(s);
+}
+window.addEventListener('resize', function(){ if(typeof test!=='undefined' && test.kind==='trd') trdFleches(); });
 function trdRejouer(){ const st=trdEtat(); if(st.etape==='fin' || st.corrige) imaAnimer('#trdGraph'); }
 /* le clic sur le repère : poser un point (et le reposer tant qu'il est mal
    placé), puis choisir les deux points de la droite */
@@ -31800,7 +31855,7 @@ function trdGrapheFini(st){ return st.etape==='fin'; }
 function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
-  trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
+  trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
 }
 function trdPourquoi(q){
   const xk=trdXk(q), K=trdNb(q.k), y1=trdF(q,q.x1), y2=trdF(q,q.x2);
@@ -31829,8 +31884,14 @@ function submitTrd(){
   const parfait=res.allOk && fini;
   if(isSoutien() && !(res.allOk && fini)){
     res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+    /* les cases qui manquent (et qu'on voit) s'entourent de rouge — demande de
+       Turquet ; la classe n'est pas « bad » : rien n'y est faux */
+    let manque=0;
+    res.subs.forEach(function(s){ if(s.el && s.vide && s.el.getClientRects().length){ s.el.classList.add('trd-manque'); manque++; } });
     soutienAgain('trdFeedback','trdActions','submitTrd','trdHost');
-    if(!fini) $('trdFeedback').textContent='Termine d’abord le graphique : '+(st.etape==='points'?'place les points A et B':st.etape==='regle'?'complète la règle':'trace la droite')+', puis revérifie.';
+    if(manque) $('trdFeedback').textContent=($('trdHost').querySelector('.bad')?'Corrige les cases en rouge, et complète celles entourées de rouge, puis revérifie.':'Complète les cases entourées de rouge, puis revérifie.');
+    requestAnimationFrame(trdFleches);
+    if(!fini) $('trdFeedback').textContent='Termine d’abord le graphique : '+(st.etape==='points'?'place les points A et B':st.etape==='regle'?'complète la règle':'trace la droite')+(manque?' ; et complète les cases entourées de rouge':'')+', puis revérifie.';
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
@@ -31839,7 +31900,8 @@ function submitTrd(){
   if(!fini) st.corrige=true;
   trdDessiner(false);
   if(!fini){ $('trdRegleL').hidden=false; $('trdSuite').hidden=false; }
-  res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+  res.subs.forEach(function(s){ if(s.el) s.el.classList.remove('trd-manque'); corrChoix(s.el, s.aff, s.ok); });
+  requestAnimationFrame(trdFleches);
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
   if(parfait){ $('trdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('trdFeedback').className='mp-feedback good'; }
   else {
