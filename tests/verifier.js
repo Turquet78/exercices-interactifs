@@ -45202,8 +45202,8 @@ function pythonTextesSemblables(w, P){
     if(ptmLire("3 plus 2 vaut 6")) vus.push("table : « 3 plus 2 vaut 6 » est lu comme la phrase");
     /* {python-texte-nombre} : le texte retapé, la valeur exacte */
     const S={n:"age", v:15, w:17, av:"J’ai ", ap:" ans"};
-    if(!PW.pws.verifier(S,"","jai 15 an\n",{age:15})) vus.push("texte et nombre : « jai 15 an » refusé");
-    if(PW.pws.verifier(S,"","jai 16 an\n",{age:15})) vus.push("texte et nombre : une autre valeur acceptée");
+    if(!PW.pws.verifier(S,"","jai 15 an",{age:15})) vus.push("texte et nombre : « jai 15 an » refusé");
+    if(PW.pws.verifier(S,"","jai 16 an",{age:15})) vus.push("texte et nombre : une autre valeur acceptée");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 }
@@ -47110,7 +47110,8 @@ function pythonDeuxLignes(w, P){
       ['print("la 2ème note vaut",note2)', 'print( "le prénom est" , prenom )'],
       ['  print("la 2ème note vaut", note2)  ', 'print("le prénom est", prenom)  # le prénom'],
       ['print("la 2ème note vaut " + str(note2))', 'print("le prénom est" + " " + prenom)'],
-      ['print("la 2eme note vaut", note2)', 'print("le prenom est", prenom)']
+      ['print("la 2eme note vaut", note2)', 'print("le prenom est", prenom)'],
+      ['print("LA 2ÈME NOTE VAUT", note2)', 'print("Le prénon et", prenom)']
     ];
     justes.forEach(function(L){
       const j=pydJuge(q,L);
@@ -47145,7 +47146,6 @@ function pythonDeuxLignes(w, P){
       ['print("la 2ème note vaut", note2, note2)', '3 choses'],
       ['print("la 2ème note vaut", Note2)', 'majuscules'],
       ['print("la 2ème note vaut", moyenne)', 'les variables sont'],
-      ['print("LA 2ÈME NOTE VAUT", note2)', 'majuscules comprises'],
       ['print("bonjour", note2)', 'caractère par caractère'],
       ['print("la 2ème note vaut" + note2)', 'VIRGULE'],
       ['note2 = 13', 'RIEN'],
