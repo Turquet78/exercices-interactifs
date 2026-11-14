@@ -3790,7 +3790,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=408;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=409;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4389,7 +4389,7 @@ const TESTS={
   'independance': { name:'Évènements indépendants', icon:'\u2696\ufe0f', desc:'Un tableau par question, aux petits effectifs : calcule P(A ∩ B) et P(A) × P(B), puis compare-les. Égales : A et B sont indépendants.', start:()=>startPBInd() },
   'automatismes-probabilites': { name:'Automatismes : probabilités', icon:'\u26a1', desc:'Une série flash de dix QCM : lire un tableau, un arbre pondéré, le contraire, un pourcentage, la notation P sachant A, un dé… Choisis la bonne proposition parmi quatre.', start:()=>startPBAuto() },
   /* 3.10 (novembre 2026) : la fiche en deux parties de Turquet, fréquences puis probabilités */
-  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle ; Partie B, les mêmes calculs dits en probabilités : P(A ∩ D), P<sub>D</sub>(A)… Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
+  'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, trois probabilités : P(A ∩ D) posée en mots, P<sub>D</sub>(A)… ; Partie B, les mêmes calculs dits en fréquences : une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle. Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
@@ -24478,7 +24478,18 @@ PBX.auto={
      données — le total, toujours (l'énoncé le dit), et quatre autres tirées
      parmi les jeux qui se résolvent pas à pas sans ligne pleine
      (pbResoluble) ; quatre à trouver, de tête : 2 000 − 1 400, 1 000 − 600.
-   - PARTIE A, EN FRÉQUENCES — les questions disent « fréquence
+   - PARTIE A, EN PROBABILITÉS (d'abord la partie B ; les deux parties ont
+     été inversées en v409, demande de Turquet) : A et D sont définis ; le
+     tableau à compléter en est la question 1, puisque tout en dépend ; une
+     intersection posée en mots (« provienne de la machine A ET présente un
+     défaut » — l'élève choisit l'indice « tout » et l'évènement, comme au
+     3.4 ; une autre intersection que celle de la partie B) ; une
+     conditionnelle posée en mots (« sachant que »), dont le nom est écrit
+     entre parenthèses ; une conditionnelle donnée par son nom. Les trois
+     conditionnelles de la séance sont différentes. La question P(A ∪ D) de
+     la v405 est partie en v406 (demande de Turquet : « supprimer la
+     question sur l'union »).
+   - PARTIE B, EN FRÉQUENCES — les questions disent « fréquence
      (proportion) » (demande de Turquet, v406) : la fréquence globale d'un
      évènement (« de pièces présentant un défaut dans la production
      journalière »), la fréquence d'une intersection (« des pièces provenant
@@ -24486,14 +24497,6 @@ PBX.auto={
      conditionnelle (« des pièces provenant de la machine A parmi les pièces
      sans défaut »). La ligne : fréquence = lettres / lettres = effectifs /
      effectifs. Aucun P.
-   - PARTIE B, EN PROBABILITÉS : A et D sont définis ; une intersection posée
-     en mots (« provienne de la machine A ET présente un défaut » — l'élève
-     choisit l'indice « tout » et l'évènement, comme au 3.4 ; une autre
-     intersection que celle de la partie A) ; une conditionnelle posée en
-     mots (« sachant que »), dont le nom est écrit entre parenthèses ; une
-     conditionnelle donnée par son nom. Les trois conditionnelles de la
-     séance sont différentes. La question P(A ∪ D) de la v405 est partie en
-     v406 (demande de Turquet : « supprimer la question sur l'union »).
    Sept questions ; une question est juste quand toutes ses cases le sont ;
    toute fraction égale à l'attendue est juste (pbFracJuger). Chaque sorte
    de question range dans PBX ses attendus (att), sa méthode (pourquoi), son
@@ -24570,22 +24573,25 @@ function fpbTableau(){
    fréquence d'une intersection, une fréquence conditionnelle ; puis une
    autre intersection en mots, une conditionnelle en mots (« sachant que »)
    et une conditionnelle par son nom — les trois conditionnelles
-   différentes, les deux intersections aussi. Les tirages se font hors de la
-   fabrique passée à distincte(), qui peut la rappeler. */
+   différentes, les deux intersections aussi. Depuis la v409 les
+   probabilités viennent d'abord (partie A, le tableau en tête), les
+   fréquences ensuite (partie B). Les tirages se font hors de la fabrique
+   passée à distincte(), qui peut la rappeler. */
 function fpbSeance(){
   const t=fpbTableau(), ci=rand(0,FPB_CTX.length-1), qs=[], conds=qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,3);
   const simple=pick(PB_SIMPLES), inters=qdMelanger(PB_INTER.slice()).slice(0,2);
   const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { fpb:1, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
   pose({ t:'fpbtab' });
-  pose({ t:'fpbfreq', ev:[simple,'T'] });
-  pose({ t:'fpbfint', ev:[inters[0],'T'] });
-  pose({ t:'fpbcond', ev:conds[0] });
   pose({ t:'fpbinter', ev:[inters[1],'T'] });
   pose({ t:'fpbsach', ev:conds[1] });
   pose({ t:'fpbnom', ev:conds[2] });
+  pose({ t:'fpbfreq', ev:[simple,'T'] });
+  pose({ t:'fpbfint', ev:[inters[0],'T'] });
+  pose({ t:'fpbcond', ev:conds[0] });
   return qs;
 }
-/* Le numéro d'une question sur la fiche : A1 à A4, B1 à B3. */
+/* Le numéro d'une question sur la fiche : A1 à A4 (le tableau, puis les
+   trois probabilités), B1 à B3 (les trois fréquences). */
 const FPB_NB_A=4;
 function fpbNum(i){ return i<FPB_NB_A ? 'A'+(i+1) : 'B'+(i-FPB_NB_A+1); }
 /* Le tableau TRANSPOSÉ : les provenances en lignes, le défaut en colonnes.
@@ -24725,9 +24731,10 @@ PBX.fpbnom={
   label(q){ return pbNomTxt(q.ev[0],q.ev[1]); },
   ctx(q){ return fpbCtxCommun(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+'. '; }
 };
-/* La page : le tableau à compléter collé en haut, puis « Partie A » (quatre
-   questions) et « Partie B » (l'énoncé des évènements, trois questions),
-   chaque question numérotée comme sur la fiche papier. */
+/* La page : le tableau à compléter collé en haut, puis « Partie A »
+   (l'énoncé des évènements, le tableau et trois probabilités) et « Partie
+   B » (trois fréquences), chaque question numérotée comme sur la fiche
+   papier. */
 function renderFPBFiche(){
   test.locked=false; test.idx=0;
   pbPlacerEnonce(false);
@@ -24742,11 +24749,11 @@ function renderFPBFiche(){
   $('pbHost').innerHTML=
     '<div class="pbf-tete">'+fpbTableHTML(qs[0])+'</div>'
    +'<h3 class="fpb-partie">Partie A</h3>'
-   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
-   +'<h3 class="fpb-partie">Partie B</h3>'
    +'<p class="fpb-intro">On choisit au hasard '+esc(C.un)+' parmi '+esc(C.tot)+'. On considère les évènements : '
      +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+fpbMot(C,'B',''))+' ». '
      +'<span class="fpb-note">Dans cet exercice, les probabilités seront données en écriture fractionnaire.</span></p>'
+   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
+   +'<h3 class="fpb-partie">Partie B</h3>'
    +'<ol class="pbf-liste">'+qs.slice(FPB_NB_A).map((q,j)=>li(q,j+FPB_NB_A)).join('')+'</ol>';
   pbAffMaj();
 }
@@ -24756,9 +24763,9 @@ function fpbCtxTexte(){
   const net=s=>String(s).replace(/<[^>]+>/g,'');
   return 'FICHE en deux parties, toutes les questions à l’écran ensemble, le tableau collé en haut. '+fpbCtxCommun(qs[0])
     +'Cases données : '+qs[0].k.map(i=>pbValeurs(qs[0].n)[i]).join(', ')+' ; les quatre autres sont à trouver, de tête (des centaines). '
-    +'Partie A, en FRÉQUENCES (sans la lettre P) : '+qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
-    +'Partie B, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
-    +qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie A, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
+    +qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie B, en FRÉQUENCES (sans la lettre P) : '+qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +'Chaque réponse s’écrit sur une ligne : fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). '
     +'Fréquence globale = effectif de l’évènement / effectif total ; fréquence d’une intersection « … et … » = effectif de l’intersection / effectif total ; fréquence conditionnelle de Y parmi X = effectif de X∩Y / effectif de X ; en probabilités, P sans indice divise par tout, P_X(Y) se restreint à X. '
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '+pbMethodeTxt()
