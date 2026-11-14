@@ -6781,3 +6781,67 @@ Seconde, « un brouillon étiqueté d'un devoir compte comme une note provisoire
 quand on jouait ce contrôle SEUL. Un observateur de plus sur tout le document
 décale les minuteries d'un banc qui enchaîne mille contrôles : le grisé est
 passé en CSS `:has()`, sans observateur, et le contrôle est revenu au vert.
+
+---
+
+## {python-input-sport} — compléter input et print : ton sport favori (6.3.19, Input)
+
+Demande de Turquet, novembre 2026 : « fais un exercice avec input, sur le
+modèle des exercices déjà faits sur input ; l'énoncé sera compléter le
+programme pour que la question soit « quel est ton sport favori ? » et que
+le programme affiche après « c'est formidable le sport », … avec la réponse
+de l'élève. L'élève exécute le programme, et on demande ensuite le nom de la
+variable qui contient la réponse, et son type, en affichant les réponses
+possibles : str (texte), int (nombre entier), float (un nombre décimal) ».
+
+**Le modèle est le 6.3.1** ({python-input-reponse}) : la définition en tête
+(`nom = input("comment tu t'appelles ? ")`, puis `print("je m'appelle", nom)`
+— le modèle, pas la réponse), les étapes sur le MÊME écran, chacune dans son
+cadre `.pyn-etape` ouvert par SA question en gras et gardée quand la suivante
+s'ouvre, et la console qui ATTEND (`pynLancer`, réutilisé tel quel : une
+seconde console aurait été une seconde vérité). Kind `psf`.
+
+**a) Deux trous dans un programme donné** : `sport = input( … )` et
+`print( … , sport)`. Chaque trou se juge SEUL (`psfJugeTrou`) : il doit être
+UN texte Python — `pyRun('x = '+trou)` doit rendre un `str` — qui vaut la
+phrase demandée à une espace, une majuscule ou un accent près
+(`pyTexteProche`, la règle partagée ; l'écart est nommé par `pyEcart`). Le
+texte du print accepte une virgule finale (« c'est formidable le sport, »),
+l'écriture même de la demande. Nommés : les guillemets oubliés, `input(` ou
+`print(` recopié dans le trou, « , sport » recopié (la réponse s'afficherait
+deux fois), l'apostrophe de « c'est » entre guillemets SIMPLES (elle ferme le
+texte trop tôt), un autre texte. « Vérifier » ne s'ouvre que sur un programme
+EXÉCUTÉ tel qu'il est écrit (une frappe le referme, comme au c) du 6.3.1) :
+l'élève répond dans la console et voit sa phrase avant d'être jugé.
+
+**b) le nom de la variable** (une case en texte) : `sport` exactement ; les
+guillemets, la majuscule, `input`/`print` sont nommés. **c) le type** : une
+liste aux trois réponses écrites comme la demande — « str (texte) », « int
+(nombre entier) », « float (un nombre décimal) ». L'attendu se lit dans
+`pyRun` (jamais rangé) : `str`, même si l'élève a tapé un nombre, et le
+message le dit avec sa réponse.
+
+**Une seule question** : la fiche ne tire rien, il n'y a rien à répéter
+(le motif du 6.6.12). Quatre cases notées : les deux trous, le nom, le type.
+En entraînement, la case fausse rougit et la bonne réponse s'écrit en vert à
+côté (`.psf-cor`), et le programme juste s'affiche sous la console quand un
+trou était faux ; une case laissée vide ne rougit pas. En soutien, le rouge
+dit OÙ est l'erreur sans verrouiller ni écrire la réponse. Pas de correction
+au fil de la frappe (`soutienEnDirect.sans`).
+
+Placé en FIN du sous-thème 6.3 (6.3.19) : l'insérer derrière le 6.3.1, où il
+irait par la difficulté, aurait renuméroté dix-sept exercices dont les
+numéros sont épinglés par leurs contrôles. Son serpent d'Halloween (exigé de
+tout le 6.3) : un serpent au bandeau de sport à côté d'une citrouille ronde
+comme un ballon, dessiné en SVG puis converti en WebP
+(`dessins/secondes/python-input-sport-halloween.webp`).
+
+Banc jsdom (`pythonInputSport`, déclaré dans `tests/profils.js`) : la place
+au menu, le juge des trous, du nom et du type (justes acceptés, faux refusés
+chacun pour SA raison), le trajet en entraînement (« Vérifier » fermé avant
+l'exécution et après une frappe, la console qui pose la question puis
+affiche la phrase, le texte juste en vert, la case vide qui ne rougit pas,
+2 cases sur 4 enregistrées), le soutien et la reprise d'une pause, les
+branchements, et le programme juste comparé à un vrai CPython. Pas de
+section propre au banc navigateur : la visite universelle (section 9)
+l'ouvre dans les deux modes.
