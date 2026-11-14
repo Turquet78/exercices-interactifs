@@ -19435,7 +19435,14 @@ if(require.main === module) (async () => {
           if(!c) return null; const q = c.getBoundingClientRect();
           return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2), coupe: c.scrollWidth > c.clientWidth + 1 };
         }, t);
-        const versC = aChamp ? await touche(KL.versC) : null;
+        /* Sous charge (l'action GitHub), MathLive rend son clavier APRÈS un délai
+           fixe de 600 ms : « aucune touche « clavier B » sur le clavier rendu »
+           rougissait au hasard (novembre 2026, synthese-generale-libre). On
+           attend qu'une des touches nommées soit rendue, jusqu'à 3 s. */
+        const toucheRendue = async (noms, ms) => { const t0 = Date.now();
+          while(Date.now() - t0 < (ms || 3000)){ for(const n of noms){ const k = await touche(n); if(k) return k; } await s.page.waitForTimeout(150); }
+          return null; };
+        const versC = aChamp ? await toucheRendue([KL.versC]) : null;
         let surC = null;
         if(versC){ await s.page.mouse.click(versC.x, versC.y); await s.page.waitForTimeout(400);
           surC = { a: !!(await touche('a')), q: !!(await touche('q')), deux: !!(await touche(':')), cinq: !!(await touche('5')) }; }
@@ -19515,7 +19522,7 @@ if(require.main === module) (async () => {
           if(ici){
             await s.page.click(champ); await s.page.waitForTimeout(700);
             await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
-            await s.page.waitForTimeout(600);
+            await s.page.waitForTimeout(300); await toucheRendue(['a', '5', KL.versC]);
             /* le clavier garde sa couche d'un exercice à l'autre : s'il montre
                déjà les lettres (on quitte le précédent sur le clavier C), on tape */
             const dejaC = !!(await touche('a')) && !(await touche('5'));
@@ -19556,7 +19563,7 @@ if(require.main === module) (async () => {
           await s.page.setViewportSize({ width: w, height: h }); await s.page.waitForTimeout(1200);
           const ici = await s.page.evaluate(q => !!document.querySelector(q), champ);
           if(ici){ await s.page.click(champ); await s.page.waitForTimeout(500);
-            await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); }); await s.page.waitForTimeout(600); }
+            await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); }); await s.page.waitForTimeout(300); await toucheRendue(['a', '5', KL.versC]); }
           const dejaC = !!(await touche('a')) && !(await touche('5'));
           const vc = dejaC ? true : await touche(KL.versC);
           if(vc && !dejaC){ await s.page.mouse.click(vc.x, vc.y); await s.page.waitForTimeout(400); }
