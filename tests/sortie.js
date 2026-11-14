@@ -28,7 +28,7 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
 (async () => {
   console.log('Banc de la sortie — ' + CIBLE + '  (' + P.niveau + ')');
   const { chromium } = require('playwright');
-  for(const vp of [{ width: 1280, height: 900 }, { width: 390, height: 780 }]){
+  for(const vp of [{ width: 1280, height: 900 }, { width: 390, height: 780 }, { width: 360, height: 740 }]){
   console.log(' — fenêtre ' + vp.width + ' × ' + vp.height);
   const s = await ouvrir(chromium, mathlive(), { viewport: vp });
   const page = s.page;
@@ -51,6 +51,17 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
       const m = document.querySelector('.mast').getBoundingClientRect();
       return { x: r.right, y: r.top, bord: m.right, t: document.getElementById('sortieLien').textContent }; });
     verifier('le lien « Sortie » est en haut à droite de la page', pos.y < 120 && Math.abs(pos.bord - pos.x) < 2 && /Sortie/.test(pos.t), JSON.stringify(pos));
+    /* rien ne sort de l'écran — ni avec le décor d'Halloween, dont le logo
+       prend de la place dans l'en-tête (à 360 px, le lien en sortait de 43 px) */
+    for(const decor of [false, true]){
+      const deb = await page.evaluate(d => { document.body.classList.toggle('halloween', d);
+        const W = document.documentElement.clientWidth, r = document.getElementById('sortieLien').getBoundingClientRect();
+        const m = document.querySelector('.mast').getBoundingClientRect();
+        const o = { page: document.documentElement.scrollWidth, vue: W, droite: Math.round(r.right), dansEntete: r.top >= m.top - 1 && r.bottom <= m.bottom + 1 };
+        document.body.classList.remove('halloween'); return o; }, decor);
+      verifier('« Sortie » tient dans l\'écran, dans l\'en-tête, et la page ne déborde pas' + (decor ? ' (décor d\'Halloween)' : ''),
+        deb.page <= deb.vue + 1 && deb.droite <= deb.vue + 1 && deb.dansEntete, JSON.stringify(deb));
+    }
     const q1 = await page.evaluate(() => JSON.stringify(test.questions));
     await page.click('#sortieLien');
     await page.waitForTimeout(900);

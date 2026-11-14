@@ -41795,7 +41795,11 @@ function choisirReprise(mode){
 .sortie-lien{font-family:"Fredoka";font-weight:600;font-size:.95rem;color:#b3402f;background:#fff;border:1.5px solid #e7b9b0;border-radius:999px;padding:5px 14px;text-decoration:none;white-space:nowrap;cursor:pointer;flex:none}
 .sortie-lien:hover,.sortie-lien:focus-visible{background:#fdf1ee}
 .sortie-lien[hidden]{display:none!important}
-@media (max-width:480px){.sortie-lien{padding:4px 9px;font-size:.86rem}}
+/* Sur un téléphone, le nom de l'élève et le décor (le logo d'Halloween)
+   peuvent ne plus laisser la place au lien : l'en-tête passe alors à la
+   ligne, et « Sortie » reste à droite, sous le nom — jamais hors de l'écran. */
+@media (max-width:480px){.sortie-lien{padding:4px 9px;font-size:.86rem;margin-left:auto}
+  .mast:has(.sortie-lien:not([hidden])){flex-wrap:wrap;row-gap:6px}}
 #choixReprise{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,32,70,.38)}
 #choixReprise[hidden]{display:none!important}
 #choixReprise .cr-boite{background:#fff;color:#1d2340;border-radius:14px;max-width:460px;width:100%;padding:18px 20px 16px;box-shadow:0 14px 44px rgba(0,0,0,.28);font-size:1rem;line-height:1.4}

@@ -279,3 +279,14 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
   l'ancien brouillon — hors devoir, puis dans un devoir posé en mémoire. Sa première exécution a trouvé l'en-tête de la
   Terminale qui débordait de 4 px sur un téléphone : le lien se resserre
   sous 480 px.
+  Puis le banc navigateur de la Seconde l'a pris en défaut une seconde fois,
+  par le décor d'Halloween : son logo prend place dans l'en-tête, et à 390
+  comme à 360 px le lien sortait de l'écran (la page passait à 403 px). Sous
+  480 px, l'en-tête passe désormais à la ligne quand le lien n'y tient plus
+  (`.mast:has(.sortie-lien:not([hidden])){flex-wrap:wrap}`), « Sortie » reste
+  à droite, sous le nom. Le banc de la sortie mesure maintenant trois
+  largeurs, avec et sans le décor — éprouvé en retirant la règle : deux
+  rouges, à 390 et 360 px.
+  Et le banc navigateur choisit un mode par `prendreMode()` : une pause
+  REMPLACE la carte de départ par « Reprendre », qui ouvre maintenant le
+  choix — le banc y clique « Continuer », le geste qu'il supposait.
