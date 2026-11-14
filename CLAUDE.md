@@ -300,6 +300,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Abandonner ne pose aucune note, et n'efface que la pause de son mode.**
 - **Cinq oublis silencieux en ajoutant un exercice.**
 - **Une question corrigée ne se rejuge plus après une pause.** Le brouillon range le verrou et la suite ; une correction dont le bouton « Question suivante » n'apparaît qu'après un autre geste (« ▶ Exécuter », une minuterie) nomme sa suite : `marquerSuite('nextXxx')`.
+- **« Sortie » (en-tête, `#sortieLien`) remplace « Mettre en pause » et « Abandonner », et « Reprendre » demande « Continuer » ou « Recommencer ».** Bloc `#sortie-reprise` ; la sortie est une pause (`pauseTest`), la carte appelle `choisirReprise(mode)` — sauf l'évaluation de la Première, une seule tentative. Banc : `tests/sortie.js`.
 
 ### Cours en PDF, porte du professeur et portail
 
@@ -534,6 +535,7 @@ npm run test:secondes # un seul, quand on travaille dessus
 npm run test:navigateur # les trois pages ouvertes dans un vrai Chromium
 npm run test:notes   # chaque exercice mené à sa fin : la note enregistrée est celle qui s'affiche
 npm run test:pause   # chaque exercice : une question corrigée ne se rejuge pas à la reprise
+npm run test:sortie  # « Sortie » garde l'exercice, « Reprendre » demande continuer ou recommencer
 npm run test:base    # les règles d'accès de la base, sur un PostgreSQL jetable
 npm run test:fonction # les deux fonctions Edge, réellement exécutées
 npm run test:version # les numéros de version, comparés à ceux de `main`

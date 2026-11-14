@@ -232,3 +232,48 @@ Chromium par un sceptique avant d'être retenu :
   refuse le vide de toute façon. Le banc lit d'abord le verrou (une question
   corrigée qui rouvre déverrouillée est le défaut même, « rouverte »), puis
   revérifie avec la copie qui l'avait validée.
+
+**« Sortie » remplace « Mettre en pause » et « Abandonner » — et la reprise
+demande « Continuer » ou « Recommencer » (novembre 2026, les trois niveaux).**
+Demande de Turquet : « sur tous les exercices du site, supprimer les boutons
+abandonner et mettre pause, et remplacer par un lien "sortie" en haut à
+droite de la page qui ramène à la page précédente. Quand un élève reprend un
+exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. »
+
+* **Le lien.** `#sortieLien`, dans l'en-tête (`.mast`), à droite de la
+  pastille du prénom. `show()` le montre là où la pause se montrait —
+  entraînement et soutien, élève connecté — et nulle part ailleurs : en
+  évaluation, il n'y avait ni pause ni abandon, et il n'y a pas de sortie.
+  Il appelle `pauseTest()` tel quel (via `sortirExercice()`, bloc
+  `#sortie-reprise` en fin de fichier) : le brouillon est gardé, la note
+  partielle d'un devoir aussi, et `retourAvantExo()` ramène à l'écran d'où
+  l'exercice a été lancé. Rien n'étant perdu, rien n'est confirmé. Le toast
+  dit « Exercice gardé — tu pourras le reprendre ».
+* **La reprise.** Chaque carte « Reprendre » appelle `choisirReprise(mode)`,
+  qui ouvre `#choixReprise` : « Continuer » → `resumeTest(mode)`, inchangé ;
+  « Recommencer » → `clearRecovery()` (la pause de CE mode, comme l'abandon),
+  puis la page des modes REDESSINÉE (`openTest`, ou `openTestDevoir` dans un
+  devoir), où la page clique elle-même la carte de départ du même mode. Le
+  premier jet appelait `lancerDevoirExo` directement : le banc de la porte
+  unique (« rien d'autre ne lance un exercice de devoir », Terminale) l'a
+  rougi, à juste titre — le lancement d'un devoir ne passe que par la page des
+  modes. Si la base refuse l'effacement, rien ne démarre et l'élève le lit :
+  sinon deux brouillons vivraient côte à côte.
+* **Au niveau global.** `sortirExercice`, `choisirReprise` et leurs aides sont
+  des fonctions globales, pas une IIFE : un `onclick` les appelle, et le banc
+  (« chaque bouton appelle une fonction définie ») ne voit que celles-là.
+* **Le bord nommé.** La carte « Reprendre l'évaluation » d'une ÉVALUATION de
+  la Première garde `resumeTest('train')` direct : une seule tentative, donc
+  jamais « Recommencer ».
+* **Ce qui reste.** `pauseTest()` et `abandonTest()` restent définis : les
+  bancs (`tests/pause.js`, `tests/verifier.js`) les appellent, et la sortie
+  passe par le premier. Aucun bouton ne mène plus au second.
+* **Le banc.** `tests/sortie.js` (`npm run test:sortie`, et une étape du
+  travail « pause » de l'action) : le vrai geste dans un vrai Chromium, à
+  1280 px et à 390 px — plus de Pause ni d'Abandonner, « Signaler » reste,
+  le lien à droite de l'en-tête, la sortie ramène aux modes avec un brouillon,
+  « Reprendre » ouvre la boîte sans rouvrir l'exercice, « Continuer » rend les
+  mêmes questions, « Recommencer » repart de la question 1 et efface
+  l'ancien brouillon — hors devoir, puis dans un devoir posé en mémoire. Sa première exécution a trouvé l'en-tête de la
+  Terminale qui débordait de 4 px sur un téléphone : le lien se resserre
+  sous 480 px.
