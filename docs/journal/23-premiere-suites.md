@@ -265,7 +265,7 @@ rondes de son contexte et multiple de 100, p ≤ 10, le seuil au moins deux fois
 plus loin, rien de nul ni de négatif, et toujours au moins trois lignes de
 méthode 1.
 
-## Puis : le pas est uniquement un multiple de 10, de 10 à 100 (novembre 2026, v419)
+## Puis : le pas est uniquement un multiple de 10, de 10 à 100 (novembre 2026, v420)
 
 **La demande** (Turquet, l'après-midi) : « finalement enlever ou ajouter
 uniquement un multiple de 10 compris entre 10 et 100 inclus ».
