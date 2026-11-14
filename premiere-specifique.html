@@ -4558,7 +4558,7 @@ const TESTS={
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
   /* 6.3 : le sujet papier « Exercice 3 » — les images, les deux points (rouges tant qu'ils sont mal placés), la règle, la droite tracée d'un clic sur chaque point, l'antécédent lu par le chemin animé du 6.2 puis calculé, le tableau de signes (demande de Turquet, novembre 2026) */
-  'tracer-droite': { name:'Tracer la droite d\u2019une fonction affine', icon:'\ud83d\udcc8', desc:'Pour f(x) = ax + b\u00a0: calcule deux images, place les deux points sur le rep\u00e8re \u2014 un point mal plac\u00e9 devient rouge et le suivant attend \u2014, compl\u00e8te la r\u00e8gle, trace la droite en cliquant sur les deux points, lis l\u2019ant\u00e9c\u00e9dent d\u2019un nombre par le chemin anim\u00e9, calcule-le en r\u00e9solvant l\u2019\u00e9quation, r\u00e8gle par r\u00e8gle, puis compl\u00e8te le tableau de signes.', start:()=>startTrd() },
+  'tracer-droite': { name:'Tracer la droite d\u2019une fonction affine', icon:'\ud83d\udcc8', desc:'Pour f(x) = ax + b\u00a0: calcule deux images, place les deux points sur le rep\u00e8re \u2014 un point mal plac\u00e9 devient rouge et le suivant attend \u2014, compl\u00e8te la r\u00e8gle \u2014 \u00ab\u00a0une droite\u00a0\u00bb trace la droite et ouvre la suite \u2014, lis l\u2019ant\u00e9c\u00e9dent d\u2019un nombre par le chemin anim\u00e9, calcule-le en r\u00e9solvant l\u2019\u00e9quation, r\u00e8gle par r\u00e8gle, puis compl\u00e8te le tableau de signes.', start:()=>startTrd() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -31732,17 +31732,34 @@ function trdEntree(el){
   else submitTrd();
 }
 /* l'étape suivante s'ouvre : la règle choisie ouvre le tracé */
+/* LA RÈGLE OUVRE LA SUITE — et seulement la bonne (demande de Turquet,
+   novembre 2026 : « quand on complète par le mot droite, tracer la droite
+   directement et passer à la suite ; si le mot droite n'est pas mis, ne pas
+   continuer »). « une droite » : la droite se trace d'elle-même par A et B,
+   la liste se fige en bleu, les questions 3 à 5 s'ouvrent et le chemin de
+   l'antécédent se déplie. Un autre mot : la liste rougit, le message le dit,
+   rien ne s'ouvre — l'élève choisit de nouveau. (Le tracé par deux clics sur
+   A et B, l'étape « tracer », n'est plus atteint.) */
 function trdAvancer(){
-  const st=trdEtat();
-  if(st.etape==='regle' && st.sels['trd-regle']){ st.etape='tracer'; trdDessiner(false); }
+  const st=trdEtat(), sel=$('trd-regle');
+  if(st.etape!=='regle' || !st.sels['trd-regle']) return;
+  if(sel) sel.classList.remove('ok','bad');
+  if(st.sels['trd-regle']==='droite'){
+    if(sel){ sel.classList.add('ok'); sel.disabled=true; }
+    st.etape='fin'; st.choisi=null;
+    trdDessiner(true);
+  } else {
+    if(sel) sel.classList.add('bad');
+    trdConsigne('Ce n’est pas le bon mot : regarde comment sont placés les points A et B. La suite s’ouvrira avec la bonne réponse.','trd-mal');
+  }
 }
 const TRD_CONSIGNES={
   0:'Clique sur le repère pour placer le point A.',
   1:'A est bien placé ! Clique maintenant pour placer le point B.',
-  regle:'A et B sont bien placés ! Complète la règle sous le repère.',
+  regle:'A et B sont bien placés ! Complète la règle sous le repère : la droite se tracera d’elle-même.',
   tracer:'Trace la droite : clique sur le point A, puis sur le point B.',
   tracer2:'Clique maintenant sur l’autre point.',
-  fin:'La droite est tracée. Passe à la question 3.'
+  fin:'C’est bien une droite : la voici, tracée par A et B. Passe à la question 3.'
 };
 function trdConsigne(txt, cls){ const c=$('trdConsigne'); if(!c) return; c.textContent=txt; c.className='trd-consigne'+(cls?' '+cls:''); }
 /* redessine le repère et ouvre ce que l'étape permet ; anim : la droite vient
@@ -31944,8 +31961,8 @@ function ctxTrd(q){
     else if(s.el.classList.contains('sol')) ecrit.push(TRD_NOMS[s.id]+' : laissée vide, corrigée par l’application');
     else ecrit.push(TRD_NOMS[s.id]+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
-  const etapes={points:'il place les points A et B sur le repère (un point mal placé se peint en rouge, B attend qu’A soit juste)', regle:'A et B sont placés, il complète la règle « la représentation graphique d’une fonction du premier degré est … »', tracer:'il trace la droite en cliquant sur A puis sur B', fin:'la droite est tracée ; les questions 3 à 5 sont ouvertes'};
-  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') sur trois lignes, les « = » alignés : « f(x) = a × ( … ) + b », « = … + b » (le produit), « = … » ; 2. placer A et B, compléter la règle, tracer la droite en cliquant sur les deux points ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on doit prendre l’opposé, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine) : écrire la racine dans la ligne des x, puis les deux signes.'
+  const etapes={points:'il place les points A et B sur le repère (un point mal placé se peint en rouge, B attend qu’A soit juste)', regle:'A et B sont placés, il complète la règle « la représentation graphique d’une fonction du premier degré est … » (tant qu’il ne choisit pas le bon mot, la suite reste fermée)', tracer:'il trace la droite en cliquant sur A puis sur B', fin:'la droite est tracée ; les questions 3 à 5 sont ouvertes'};
+  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') sur trois lignes, les « = » alignés : « f(x) = a × ( … ) + b », « = … + b » (le produit), « = … » ; 2. placer A et B, puis compléter la règle « la représentation graphique d’une fonction du premier degré est … » : la bonne réponse (une droite) trace la droite par A et B et ouvre la suite, une autre réponse ne l’ouvre pas ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on doit prendre l’opposé, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine) : écrire la racine dans la ligne des x, puis les deux signes.'
     +' Où en est l’élève : '+etapes[st.etape]+'.'
     +(st.err[0]+st.err[1]?' Il a déjà mal placé un point '+(st.err[0]+st.err[1])+' fois.':'')
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
