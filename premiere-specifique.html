@@ -3490,7 +3490,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="tscLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr">Sur le dessin, la partie de la courbe <span class="tsg-mot-rouge">au-dessus</span> de l&rsquo;axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span>&nbsp;; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">&minus;</span>. Compl&egrave;te le tableau de signes &mdash; les racines et les z&eacute;ros sont d&eacute;j&agrave; &eacute;crits, tu ne places que les signes &mdash;, puis r&eacute;sous l&rsquo;&eacute;quation <i>f</i>&nbsp;(<i>x</i>) = 0.</p>
+      <p class="mp-instr">Six courbes, en trois paliers. D&rsquo;abord, la partie de la courbe <span class="tsg-mot-rouge">au-dessus</span> de l&rsquo;axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span>&nbsp;; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">&minus;</span>&nbsp;; un point vert marque chaque racine&nbsp;: tu places les signes dans le tableau. Puis les signes ne sont plus &eacute;crits&nbsp;: tu compl&egrave;tes aussi les racines et les z&eacute;ros. Enfin la courbe est nue&nbsp;: tout le tableau est &agrave; compl&eacute;ter. &Agrave; chaque fois, r&eacute;sous l&rsquo;&eacute;quation <i>f</i>&nbsp;(<i>x</i>) = 0.</p>
       <div class="mp-stage"><div style="width:100%" id="tscHost"></div></div>
       <div class="mp-feedback" id="tscFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -3791,7 +3791,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=409;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=410;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4379,7 +4379,7 @@ const TESTS={
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
   'developper-distributivite': { name:'D\u00e9velopper avec la distributivit\u00e9', icon:'\u21aa\ufe0f', desc:'k \u00d7 (a + b) = k \u00d7 a + k \u00d7 b, en suivant les fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade. Six expressions, la derni\u00e8re \u00e0 r\u00e9duire, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvl() },
   'developper-double': { name:'D\u00e9velopper avec la double distributivit\u00e9', icon:'\ud83d\udd00', desc:'(a + b) \u00d7 (c + d) = a \u00d7 c + a \u00d7 d + b \u00d7 c + b \u00d7 d, en suivant les quatre fl\u00e8ches comme sur la fiche\u00a0: les facteurs dans les bulles, le r\u00e9sultat de chaque produit sous son accolade, puis la forme r\u00e9duite. Quatre expressions, chacune suivie d\u2019une expression \u00e0 d\u00e9velopper en r\u00e9digeant.', start:()=>startDvd() },
-  'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Une courbe dont la partie au-dessus de l’axe des abscisses est en ROUGE et porte le signe +, la partie en dessous en BLEU et porte le signe −. Place les signes dans le tableau — les racines et les zéros sont donnés —, puis résous f (x) = 0. Cinq courbes.', start:()=>startTsc() },
+  'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Six courbes, en trois paliers : d’abord la partie au-dessus de l’axe en ROUGE avec le signe +, en dessous en BLEU avec le signe −, un point vert sur chaque racine — place les signes ; puis sans les signes — écris aussi les racines et les zéros ; enfin la courbe nue — tout le tableau. À chaque fois, résous f (x) = 0.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Dix questions en cinq temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, le ou les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, puis l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique.', start:()=>startIma() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
@@ -18806,7 +18806,23 @@ function lvGraphSVG(pts, extra, ia, ib, obst){
 }
 
 /* ---- Le tirage : celui du 3.3.4 de la Seconde ---- */
-const TSC_NB=5;
+/* TROIS PALIERS, deux questions chacun (demande de Turquet, novembre 2026 :
+   « après deux questions, faire deux autres questions avec les signes qui ne
+   sont plus sur le dessin et les racines à placer dans le tableau avec les
+   zéros, puis deux autres questions avec aucune couleur, aucun signe, aucun
+   point sur le dessin et le tableau complet à compléter avec les racines et
+   les zéros ») : q.et vaut 1, 2 ou 3.
+   · palier 1 : rouge/bleu, les signes + et − écrits, un point vert sur chaque
+     racine ; le tableau donne les racines et les zéros, seuls les trois
+     signes se placent ;
+   · palier 2 : rouge/bleu et les points verts, mais plus de signe écrit ; le
+     tableau se complète entièrement — les deux racines À LEUR PLACE (la plus
+     petite à gauche : un tableau se lit de gauche à droite), puis +, − ou 0
+     dans chacune des cinq cases de la ligne du signe ;
+   · palier 3 : la courbe NUE — ni couleur, ni signe, ni point — et le même
+     tableau complet.
+   À chaque palier, f(x) = 0 se résout dans S = { … ; … }, à ordre libre. */
+const TSC_NB=6;
 function tscSols(pts){ const out=[]; for(let x=-3;x<=3;x++){ if(pts[x+3]===0) out.push(x); } return out; }
 /* Le tirage garde une courbe où le signe se LIT : exactement deux racines,
    strictement intérieures, chacune un vrai CROISEMENT (les voisins de part et
@@ -18835,36 +18851,50 @@ function tscSide(q){
   for(let x=so[0]+1;x<so[1];x++){ if(q.pts[x+3]!==0) return q.pts[x+3]>0?1:-1; }
   return 1;
 }
+/* Le palier de la i-ième question sur n : les trois tiers de la séance, dans
+   l'ordre — 1,1,2,2,3,3 sur six ; une séance coupée à deux questions par un
+   devoir en garde le début (1, 2). */
+function tscEtape(i, n){ return 1+Math.floor(i*3/Math.max(n,1)); }
 /* Les DEUX visages dans chaque séance d'au moins deux questions : au moins un
    milieu positif et un négatif — sans quoi l'élève apprendrait que le tableau
    est toujours le même. Le nombre de questions se lit sur le devoir
-   (dmNbQuestions), jamais sur la constante nue. */
+   (dmNbQuestions), jamais sur la constante nue. Le palier est RANGÉ dans la
+   question (q.et) : la reprise d'une pause le relit, il ne se recalcule pas
+   à l'affichage. */
 function tscBuildQuestions(){
   const n=dmNbQuestions(TSC_NB);
   const out=[]; for(let i=0;i<n;i++) out.push(distincte(out, tscGen));
-  if(n<2) return out;
-  for(let att=0;att<200;att++){
-    const sides=out.map(function(q){ return tscSide(q); });
-    if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
-    const j=att%n; out[j]=distincte(out.filter(function(_,k){ return k!==j; }), tscGen);
+  if(n>=2){
+    for(let att=0;att<200;att++){
+      const sides=out.map(function(q){ return tscSide(q); });
+      if(sides.indexOf(1)>=0 && sides.indexOf(-1)>=0) break;
+      const j=att%n; out[j]=distincte(out.filter(function(_,k){ return k!==j; }), tscGen);
+    }
   }
+  out.forEach(function(q,i){ q.et=tscEtape(i,n); });
   return out;
 }
+function tscEt(q){ return q.et===2||q.et===3 ? q.et : 1; }
 /* La liste des cases et leur bonne réponse CANONIQUE (le jugement passe par
-   tscJuge, où S = { … ; … } est à ordre libre). */
+   tscJuge, où S = { … ; … } est à ordre libre). Au palier 1, trois signes ;
+   aux paliers 2 et 3, les deux racines du tableau, puis les cinq cases de la
+   ligne du signe (+, − ou 0) ; partout, les deux solutions de f(x) = 0. */
 function tscCases(q){
   const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
   const mid=s>0?'+':'-', dehors=s>0?'-':'+';
-  return [
-    {id:'tsc-t0',bon:dehors},{id:'tsc-t1',bon:mid},{id:'tsc-t2',bon:dehors},
-    {id:'tsc-e0',bon:String(x1)},{id:'tsc-e1',bon:String(x2)}
-  ];
+  const eq=[{id:'tsc-e0',bon:String(x1)},{id:'tsc-e1',bon:String(x2)}];
+  if(tscEt(q)===1) return [{id:'tsc-t0',bon:dehors},{id:'tsc-t1',bon:mid},{id:'tsc-t2',bon:dehors}].concat(eq);
+  return [{id:'tsc-r0',bon:String(x1)},{id:'tsc-r1',bon:String(x2)},
+    {id:'tsc-s0',bon:dehors},{id:'tsc-s1',bon:'0'},{id:'tsc-s2',bon:mid},{id:'tsc-s3',bon:'0'},{id:'tsc-s4',bon:dehors}].concat(eq);
 }
 function tscJuge(q){
   const lire=function(id){ const el=$(id); return el?String(el.value==null?'':el.value):''; };
-  const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
-  const mid=s>0?'+':'-', dehors=s>0?'-':'+';
-  let subs=['tsc-t0','tsc-t1','tsc-t2'].map(function(id,i){ const spec=[dehors,mid,dehors][i]; return {id:id, val:spec, ok:lire(id)===spec}; });
+  const so=tscSols(q.pts), x1=so[0], x2=so[1];
+  /* les cases du tableau : chacune à SA place — les racines y sont dans
+     l'ordre, la plus petite à gauche, et les racines échangées sont fausses
+     toutes les deux (la règle de la Seconde) */
+  let subs=tscCases(q).filter(function(c){ return c.id.indexOf('tsc-e')!==0; })
+    .map(function(c){ return {id:c.id, val:c.bon, ok:lire(c.id)===c.bon}; });
   /* S = { x1 ; x2 } : ordre libre, le même nombre posé deux fois est défendable
      une fois, faux la seconde — la règle des paires. */
   const left=[String(x1),String(x2)], rows=[];
@@ -18876,10 +18906,15 @@ function tscJuge(q){
 }
 function tscPlain(q){ const so=tscSols(q.pts); return '{ '+itvNum(so[0])+' ; '+itvNum(so[1])+' }'; }
 function tscWhy(q){
-  const so=tscSols(q.pts), X1=itvNum(so[0]), X2=itvNum(so[1]), s=tscSide(q);
-  return 'La partie ROUGE est au-dessus de l’axe et porte le signe + : là, f(x) > 0. La partie BLEUE est en dessous et porte le signe − : là, f(x) < 0.'
-    +' Le tableau se lit sur le dessin, de gauche à droite, morceau par morceau : '+(s>0?'− puis + puis −':'+ puis − puis +')+', et un 0 s’écrit sous chaque racine.'
-    +' f(x) = 0 là où la courbe coupe l’axe : S = { '+X1+' ; '+X2+' }.';
+  const so=tscSols(q.pts), X1=itvNum(so[0]), X2=itvNum(so[1]), s=tscSide(q), et=tscEt(q);
+  const ordre=(s>0?'− puis + puis −':'+ puis − puis +');
+  let m=et===3
+    ? 'La courbe est au-dessus de l’axe des abscisses là où f(x) > 0 (signe +), en dessous là où f(x) < 0 (signe −), et elle coupe l’axe aux racines, où f(x) = 0.'
+    : 'La partie ROUGE est au-dessus de l’axe'+(et===1?' et porte le signe +':'')+' : là, f(x) > 0. La partie BLEUE est en dessous'+(et===1?' et porte le signe −':'')+' : là, f(x) < 0.'+(et===2?' Les points verts marquent les racines, où f(x) = 0.':'');
+  m+=' Le tableau se lit sur le dessin, de gauche à droite, morceau par morceau : '+ordre+', et un 0 s’écrit sous chaque racine.';
+  if(et>1) m+=' Les racines s’écrivent dans la ligne des x, la plus petite à gauche : '+X1+' puis '+X2+'.';
+  m+=' f(x) = 0 là où la courbe coupe l’axe : S = { '+X1+' ; '+X2+' }.';
+  return m;
 }
 /* Le SIGNE posé sur un morceau de la courbe : « + » au-dessus du point le plus
    haut du morceau rouge, « − » au-dessous du point le plus bas du morceau
@@ -18920,19 +18955,12 @@ function tscSigneObst(e){
   [0,0.5,1].forEach(function(u){ [0,0.5,1].forEach(function(v){ out.push([x0+u*W, y0+v*H]); }); });
   return out;
 }
-let _tscSaveTimer=null;
-function renderTscTest(){
-  const q=test.questions[test.idx]; test.locked=false;
-  $('tscIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
-  $('modeTagTsc').innerHTML=modeTagHTML();
-  $('tscLiveScore').textContent=test.score;
-  $('tscFeedback').textContent=''; $('tscFeedback').className='mp-feedback';
-  $('tscActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTscAnswer()">Vérifier</button>';
+/* Le dessin d'un palier : au 1, les deux encres, les signes et les points ;
+   au 2, les encres et les points, sans signe ; au 3, la courbe nue. */
+function tscDessin(q){
+  const et=tscEt(q);
+  if(et===3) return lvGraphSVG(q.pts);
   const so=tscSols(q.pts), x1=so[0], x2=so[1], s=tscSide(q);
-  /* chaque morceau de la courbe porte la couleur de son SIGNE — rouge au-dessus
-     de l'axe, bleu en dessous — par-dessus le tracé de lvGraphSVG (lvPath par
-     morceaux : les tangentes restent celles de la courbe entière), et son SIGNE
-     écrit à côté : « + » au-dessus du rouge, « − » au-dessous du bleu */
   const xs=[-3,-2,-1,0,1,2,3], morceaux=[[0,x1+3,s<0],[x1+3,x2+3,s>0],[x2+3,6,s<0]];
   let signes=null;
   /* les signes se posent d'abord — lvGraphSVG les demande en OBSTACLES pour
@@ -18943,31 +18971,63 @@ function renderTscTest(){
     signes=morceaux.map(function(mo){ const ech=lvEchantillon(q.pts,-3,m,sx,sy,mo[0],mo[1]); return tscSigne(ech, sx(xs[mo[0]]), sx(xs[mo[1]]), mo[2], cadre); });
     return signes;
   };
-  const obst=function(sx,sy){ return poserSignes(sx,sy).reduce(function(a,e){ return a.concat(tscSigneObst(e)); },[]); };
+  const obst=(et===1) ? function(sx,sy){ return poserSignes(sx,sy).reduce(function(a,e){ return a.concat(tscSigneObst(e)); },[]); } : null;
   const extra=function(sx,sy){
-    const es=poserSignes(sx,sy);
-    return morceaux.map(function(mo,i){ const pos=mo[2], e=es[i];
+    const es=(et===1)?poserSignes(sx,sy):null;
+    return morceaux.map(function(mo,i){ const pos=mo[2];
       return '<path class="'+(pos?'tsg-pos':'tsg-neg')+'" d="'+lvPath(q.pts,sx,sy,mo[0],mo[1])+'"/>'
-        +'<text class="tsc-signe '+(pos?'tsc-signe-pos':'tsc-signe-neg')+'" x="'+e.x.toFixed(1)+'" y="'+e.y.toFixed(1)+'" text-anchor="middle">'+(pos?'+':'−')+'</text>';
+        +(es ? '<text class="tsc-signe '+(pos?'tsc-signe-pos':'tsc-signe-neg')+'" x="'+es[i].x.toFixed(1)+'" y="'+es[i].y.toFixed(1)+'" text-anchor="middle">'+(pos?'+':'−')+'</text>' : '');
     }).join('')
     /* les racines : un point vert sur l'axe, là où f(x) = 0 — posé en DERNIER,
        par-dessus les deux encres, pour qu'aucun trait ne le recouvre */
     +[x1,x2].map(function(r){ return '<circle class="tsc-racine" cx="'+sx(r).toFixed(1)+'" cy="'+sy(0).toFixed(1)+'" r="4.5"/>'; }).join('');
   };
+  return lvGraphSVG(q.pts, extra, null, null, obst);
+}
+const TSC_TITRES={
+  1:'Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin',
+  2:'Les signes ne sont plus écrits : lis-les sur les couleurs',
+  3:'La courbe est nue : lis sa position par rapport à l’axe'
+};
+let _tscSaveTimer=null;
+function renderTscTest(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('tscIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('modeTagTsc').innerHTML=modeTagHTML();
+  $('tscLiveScore').textContent=test.score;
+  $('tscFeedback').textContent=''; $('tscFeedback').className='mp-feedback';
+  $('tscActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTscAnswer()">Vérifier</button>';
+  const so=tscSols(q.pts), x1=so[0], x2=so[1], et=tscEt(q);
   const optN=[]; for(let v=-3;v<=3;v++) optN.push([String(v),itvNum(v)]);
   const selN=function(id,aria){ return itvSelHTML(id,optN,aria); };
   const selS=function(id,aria){ return itvSelHTML(id,[['+','+'],['-','−']],aria); };
-  const table='<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+itvNum(-3)+'</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">'+itvNum(3)+'</td></tr>'
-    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('tsc-t0','Signe avant '+itvNum(x1))+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t1','Signe entre les deux racines')+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t2','Signe après '+itvNum(x2))+'</td></tr>'
-    +'</tbody></table>';
+  const selZ=function(id,aria){ return itvSelHTML(id,[['+','+'],['-','−'],['0','0']],aria); };
+  let table, consigne;
+  if(et===1){
+    consigne='Place les signes — les racines et les zéros sont déjà écrits.';
+    table='<table class="tsg-tbl"><tbody>'
+      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+itvNum(-3)+'</td><td class="tsg-root">'+itvNum(x1)+'</td><td></td><td class="tsg-root">'+itvNum(x2)+'</td><td class="bnd tsg-br">'+itvNum(3)+'</td></tr>'
+      +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selS('tsc-t0','Signe avant '+itvNum(x1))+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t1','Signe entre les deux racines')+'</td><td class="tsg-zero"><span>0</span></td><td>'+selS('tsc-t2','Signe après '+itvNum(x2))+'</td></tr>'
+      +'</tbody></table>';
+  } else {
+    /* le tableau ENTIER : les racines dans la ligne des x, la plus petite à
+       gauche, et +, − ou 0 dans chacune des cinq cases — savoir que le 0 va
+       sous une racine EST évalué, des cases qui ne l'offriraient que sous les
+       racines révéleraient la réponse (la règle du {lecture-signes} de la
+       Seconde) */
+    consigne='Écris les deux racines dans la ligne des x (la plus petite à gauche), puis choisis +, − ou 0 dans chaque case de la ligne du signe.';
+    table='<table class="tsg-tbl"><tbody>'
+      +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">'+itvNum(-3)+'</td><td class="tsg-root">'+selN('tsc-r0','Première racine')+'</td><td></td><td class="tsg-root">'+selN('tsc-r1','Seconde racine')+'</td><td class="bnd tsg-br">'+itvNum(3)+'</td></tr>'
+      +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+selZ('tsc-s0','Signe avant la première racine')+'</td><td class="tsg-zero">'+selZ('tsc-s1','Sous la première racine')+'</td><td>'+selZ('tsc-s2','Signe entre les deux racines')+'</td><td class="tsg-zero">'+selZ('tsc-s3','Sous la seconde racine')+'</td><td>'+selZ('tsc-s4','Signe après la seconde racine')+'</td></tr>'
+      +'</tbody></table>';
+  }
   $('tscHost').innerHTML='<div class="itv-fiche">'
-    +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    +'<div class="itq-ineg">'+TSC_TITRES[et]+'</div>'
     /* le dessin est SEUL et sert de support de LECTURE : il vit dans le cadre
        de la lecture graphique (.lv-graph, fond opaque), en pleine largeur */
-    +'<div class="lv-graph tsg-graph">'+lvGraphSVG(q.pts, extra, null, null, obst)+'</div>'
+    +'<div class="lv-graph tsg-graph">'+tscDessin(q)+'</div>'
     +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps">'
-    +'<span class="itv-fixe">Place les signes — les racines et les zéros sont déjà écrits.</span>'+table+'</span></div>'
+    +'<span class="itv-fixe">'+consigne+'</span>'+table+'</span></div>'
     +'<div class="itv-ligne"><span class="itv-lbl">Équation</span><span class="itv-corps">'
     +'<span class="itv-fixe"><i>f</i> (<i>x</i>) = 0 : S = {</span>'+selN('tsc-e0','Première solution')
     +'<span class="itv-fixe">;</span>'+selN('tsc-e1','Seconde solution')+'<span class="itv-fixe">} , dans l’ordre que tu veux.</span></span></div>'
@@ -18999,7 +19059,7 @@ function checkTscAnswer(live){
   else { $('tscFeedback').textContent=msgAvecVides(res.subs, tscWhy(q)); $('tscFeedback').className='mp-feedback bad'; }
   const answer=tscCases(q).map(function(c){ return c.bon; }).join(' ');
   const given=res.subs.map(function(s){ const el=$(s.id); return el?String(el.value):''; }).join(' ');
-  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Tableau de signes → S = '+tscPlain(q)+' — '+res.nCorrect+'/'+res.subs.length+' justes', answer:answer, given:given});
+  test.answers.push({...(ptsExo()||{}),correct:res.allOk, q:'Tableau de signes (palier '+tscEt(q)+') → S = '+tscPlain(q)+' — '+res.nCorrect+'/'+res.subs.length+' justes', answer:answer, given:given});
   const last=test.idx===test.questions.length-1;
   $('tscActions').innerHTML='<button class="btn btn-primary" id="tscNext" onclick="nextTscQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('tscNext'); if(nb) nb.focus();
@@ -19018,12 +19078,15 @@ async function startTsc(){
   show('tsc'); renderTscTest();
 }
 function ctxTsc(q){
-  const res=tscJuge(q), so=tscSols(q.pts), s=tscSide(q);
+  const res=tscJuge(q), so=tscSols(q.pts), s=tscSide(q), et=tscEt(q);
   const faux=res.subs.filter(function(x){ const el=$(x.id), v=el?String(el.value==null?'':el.value):''; return v!=='' && !x.ok; }).length;
-  let c='L’élève a sous les yeux une courbe dont la partie au-dessus de l’axe des abscisses est ROUGE et porte le signe + (f(x) > 0), et la partie en dessous BLEUE et porte le signe − (f(x) < 0).'
-    +' Il doit placer les signes dans un tableau de signes dont les racines et les zéros sont donnés, puis résoudre f(x) = 0.'
-    +' Réponses attendues, STRICTEMENT SECRÈTES : les signes '+(s>0?'−, +, −':'+, −, +')+' de gauche à droite, et S = { '+itvNum(so[0])+' ; '+itvNum(so[1])+' } (dans l’ordre que l’élève veut).'
-    +' Méthode : le signe se lit sur le dessin, morceau par morceau ; f(x) = 0 aux abscisses où la courbe coupe l’axe.';
+  let c=et===3
+    ? 'L’élève a sous les yeux une courbe NUE (ni couleur, ni signe, ni point) : il doit compléter tout le tableau de signes — les deux racines dans la ligne des x, la plus petite à gauche, puis +, − ou 0 dans chacune des cinq cases de la ligne du signe — puis résoudre f(x) = 0.'
+    : 'L’élève a sous les yeux une courbe dont la partie au-dessus de l’axe des abscisses est ROUGE'+(et===1?' et porte le signe +':'')+' (f(x) > 0), la partie en dessous BLEUE'+(et===1?' et porte le signe −':'')+' (f(x) < 0), et un point vert sur chaque racine.'
+      +(et===1 ? ' Il doit placer les signes dans un tableau de signes dont les racines et les zéros sont donnés, puis résoudre f(x) = 0.'
+               : ' Il doit compléter tout le tableau de signes — les deux racines dans la ligne des x, la plus petite à gauche, puis +, − ou 0 dans chacune des cinq cases de la ligne du signe — puis résoudre f(x) = 0.');
+  c+=' Réponses attendues, STRICTEMENT SECRÈTES : racines '+itvNum(so[0])+' et '+itvNum(so[1])+' ; les signes '+(s>0?'−, +, −':'+, −, +')+' de gauche à droite, avec un 0 sous chaque racine ; S = { '+itvNum(so[0])+' ; '+itvNum(so[1])+' } (dans l’ordre que l’élève veut).'
+    +' Méthode : le signe se lit sur le dessin, morceau par morceau — au-dessus de l’axe f(x) > 0, en dessous f(x) < 0 ; f(x) = 0 aux abscisses où la courbe coupe l’axe.';
   if(faux) c+=' Il a pour l’instant '+faux+' case(s) fausse(s).';
   return {nombre:'', contexte:c};
 }
@@ -30685,7 +30748,8 @@ const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
 <b>② En dessous de l’axe</b>, la courbe est en <span class="tsg-mot-bleu">bleu</span> et porte un <span class="tsg-mot-bleu">−</span> : là, <i>f</i>(<i>x</i>) est <b>négatif</b>.<br>
 <b>③ Là où la courbe coupe l’axe</b>, <i>f</i>(<i>x</i>) = 0 : ce sont les <b>racines</b>. Dans le tableau, un <b>0</b> s’écrit sous chaque racine, et le signe change de part et d’autre.<br>
 <b>④ Le tableau de signes</b> se lit de gauche à droite, morceau par morceau : le signe avant la première racine, le signe entre les deux racines, le signe après la seconde — chaque signe est celui écrit sur le morceau de courbe correspondant.<br>
-<b>⑤ Résoudre <i>f</i>(<i>x</i>) = 0</b>, c’est donner les abscisses des points où la courbe coupe l’axe : S = { <i>x</i>₁ ; <i>x</i>₂ }, dans l’ordre que tu veux.`;
+<b>⑤ Résoudre <i>f</i>(<i>x</i>) = 0</b>, c’est donner les abscisses des points où la courbe coupe l’axe : S = { <i>x</i>₁ ; <i>x</i>₂ }, dans l’ordre que tu veux.<br>
+<b>⑥ Quand les signes, puis les couleurs, ne sont plus dessinés</b>, c’est toi qui lis la position de la courbe : au-dessus de l’axe, +&nbsp;; en dessous, −&nbsp;; sur l’axe, une racine. Dans le tableau, les racines s’écrivent dans l’ordre, la plus petite à gauche.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
@@ -30861,7 +30925,7 @@ const QIA_SUGG={
   rpd:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi x \u00d7 x fait-il x\u00b2\u00a0?","Comment calculer le coefficient sans les signes\u00a0?","Pourquoi n\u2019\u00e9crit-on jamais 1x\u00a0?"],
   dvl:["Pourquoi les fl\u00e8ches partent-elles du facteur devant la parenth\u00e8se\u00a0?","Pourquoi le second terme garde-t-il son signe\u00a0?","Comment multiplier 3x par 2x\u00a0?","Comment r\u00e9duire apr\u00e8s avoir d\u00e9velopp\u00e9\u00a0?"],
   dvd:["Pourquoi y a-t-il quatre fl\u00e8ches\u00a0?","Pourquoi le terme noir garde-t-il son signe\u00a0?","Comment multiplier \u22123 par \u22125\u00a0?","Pourquoi regroupe-t-on les deux termes en x\u00a0?"],
-  tsc:["Comment lire le signe de f(x) sur le dessin\u00a0?","Pourquoi écrit-on un 0 sous chaque racine\u00a0?","Que veut dire résoudre f(x) = 0\u00a0?","Pourquoi le signe change-t-il à chaque racine\u00a0?"],
+  tsc:["Comment lire le signe de f(x) sur le dessin\u00a0?","Pourquoi écrit-on un 0 sous chaque racine\u00a0?","Que veut dire résoudre f(x) = 0\u00a0?","Pourquoi le signe change-t-il à chaque racine\u00a0?","Comment trouver les racines quand la courbe n’a plus de couleur\u00a0?"],
   pqd:["Pourquoi calculer la parenth\u00e8se en premier\u00a0?","Comment croiser les d\u00e9nominateurs dans la parenth\u00e8se\u00a0?","Le r\u00e9sultat de la parenth\u00e8se peut-il \u00eatre n\u00e9gatif\u00a0?","Comment diviser par une fraction\u00a0?"],
   tsf:["Comment mettre trois fractions au m\u00eame d\u00e9nominateur\u00a0?","Par quoi je multiplie chaque terme\u00a0?","Y a-t-il une priorit\u00e9 \u00e0 respecter ici\u00a0?","Comment savoir que le d\u00e9nominateur commun est correct\u00a0?"],
   spf:["Pourquoi calculer le produit avant la somme\u00a0?","Comment croiser les d\u00e9nominateurs\u00a0?","Que faire une fois le produit calcul\u00e9\u00a0?","Comment savoir si la fraction finale se simplifie\u00a0?"],
