@@ -3868,7 +3868,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=415;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=416;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19344,14 +19344,15 @@ function litClavier(){
    n'est révélé). Le soutien colore au fil de la frappe (liveColorDec). */
 const SUI_NB=2;            /* contextes par séance : 3 questions chacun — 6 questions */
 /* Les contextes. sens : +1 (une quantité qui augmente) ou −1 (qui diminue) ;
-   k : les puissances de 10 permises pour la valeur de départ ; aOk : la
-   contrainte propre au contexte (une batterie part toujours de 100 %) ;
+   u0 : les valeurs de départ permises (des nombres ronds, qui conviennent à
+   la situation) ; rMin, rMax : les bornes du pas propres au contexte (un
+   tuyau de piscine apporte au moins 100 L par heure) ;
    tps : la façon d'étiqueter les pas — année (2026 + n), heure (h0 + n),
    date (le jour 1 + n du mois). Chaque contexte écrit lui-même ses phrases,
    avec les jetons que suiPhrase() remplace. Tous les nombres qu'elles
    reçoivent sont déjà écrits en français (suiFmt). */
 const SUI_CTX=[
-  { nom:'les arbres du parc', sens:1, k:[2], tps:{type:'annee', t0:2026}, u:'arbres', pas:'année', pass:'années',
+  { nom:'les arbres du parc', sens:1, u0:[100,200,300,400,500,600,700,800,900,1000], tps:{type:'annee', t0:2026}, u:'arbres', pas:'année', pass:'années',
     intro:(u0,r)=>`En 2026, le parc de la ville compte <b>${u0} arbres</b>. Chaque année, les jardiniers plantent <b>${r} arbres</b> de plus.`,
     tabL:'Année', tabC:'Nombre d’arbres',
     q2:(m)=>`Calculer le nombre d’arbres en ${m}.`,
@@ -19362,7 +19363,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${T} arbres et ${u0} arbres il y a [e] arbres d’écart.`,
                 `Chaque année il y a [r] arbres de plus. Comme [e] = [r] × [k], pour avoir [e] arbres de plus il faudra [k] années.`,
                 `Donc ce sera en 2026 + [k] = [fin].`] },
-  { nom:'les feuilles de l’imprimante', sens:-1, k:[1,2], tps:{type:'heure', t0:8}, u:'feuilles', pas:'heure', pass:'heures',
+  { nom:'les feuilles de l’imprimante', sens:-1, u0:[300,400,500,600,700,800,900,1000,1500,2000], tps:{type:'heure', t0:8}, u:'feuilles', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 8 h, le bac de l’imprimante du lycée contient <b>${u0} feuilles</b>. Chaque heure, elle utilise <b>${r} feuilles</b>.`,
     tabL:'Heures écoulées', tabC:'Feuilles restantes',
     q2:(m)=>`Calculer le nombre de feuilles restantes à ${m}.`,
@@ -19373,7 +19374,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} feuilles et ${T} feuilles il y a [e] feuilles d’écart.`,
                 `Chaque heure elle utilise [r] feuilles. Comme [e] = [r] × [k], pour utiliser [e] feuilles, il faudra [k] heures.`,
                 `Donc ce sera à 8 h + [k] h = [fin] h.`] },
-  { nom:'le remplissage de la piscine', sens:1, k:[3], tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
+  { nom:'le remplissage de la piscine', sens:1, u0:[1000,2000,3000,4000,5000], rMin:100, tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 9 h, une piscine contient <b>${u0} L</b> d’eau. On la remplit avec un tuyau qui apporte <b>${r} L</b> par heure.`,
     tabL:'Heures écoulées', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la piscine à ${m}.`,
@@ -19384,7 +19385,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${T} L et ${u0} L il y a [e] L d’écart.`,
                 `Chaque heure le tuyau apporte [r] L. Comme [e] = [r] × [k], pour apporter [e] L, il faudra [k] heures.`,
                 `Donc ce sera à 9 h + [k] h = [fin] h.`] },
-  { nom:'le roman de Léa', sens:-1, k:[2], tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
+  { nom:'le roman de Léa', sens:-1, u0:[200,300,400,500,600,700,800,900,1000], rMax:90, tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
     intro:(u0,r)=>`Le 1<sup>er</sup> juin, il reste <b>${u0} pages</b> à lire à Léa dans son roman. Elle lit <b>${r} pages</b> chaque jour.`,
     tabL:'Jour', tabC:'Pages restantes',
     q2:(m)=>`Combien de pages lui restera-t-il à lire le ${m} ?`,
@@ -19395,7 +19396,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} pages et ${T} pages il y a [e] pages d’écart.`,
                 `Chaque jour elle lit [r] pages. Comme [e] = [r] × [k], pour lire [e] pages, il faudra [k] jours.`,
                 `Donc ce sera le 1 + [k] = [fin] juin.`] },
-  { nom:'la cuve d’eau de pluie', sens:-1, k:[2,3], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
+  { nom:'la cuve d’eau de pluie', sens:-1, u0:[500,1000,1500,2000,3000], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
     intro:(u0,r)=>`Le 1<sup>er</sup> juillet, une cuve contient <b>${u0} L</b> d’eau de pluie. Chaque jour, on en utilise <b>${r} L</b> pour arroser le jardin.`,
     tabL:'Jour', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la cuve le ${m}.`,
@@ -19406,7 +19407,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} L et ${T} L il y a [e] L d’écart.`,
                 `Chaque jour on utilise [r] L. Comme [e] = [r] × [k], pour utiliser [e] L, il faudra [k] jours.`,
                 `Donc ce sera le 1 + [k] = [fin] juillet.`] },
-  { nom:'les abonnés de la chaîne', sens:1, k:[3], tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
+  { nom:'les abonnés de la chaîne', sens:1, u0:[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000], rMin:50, tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
     intro:(u0,r)=>`En 2026, une chaîne de vidéos compte <b>${u0} abonnés</b>. Chaque année, elle gagne <b>${r} abonnés</b> de plus.`,
     tabL:'Année', tabC:'Nombre d’abonnés',
     q2:(m)=>`Calculer le nombre d’abonnés en ${m}.`,
@@ -19421,26 +19422,29 @@ const SUI_CTX=[
 /* Un entier s'écrit avec ses espaces de milliers (espace fine insécable) :
    « 1 000 », « 10 000 ». Les années restent nues. */
 function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-/* Un seul chiffre différent de zéro : 1 à 9, ou 10 (qui, multiplié par 10^k,
-   s'écrit 1 000). C'est la règle de la demande, en unités de 10^k. */
-function suiUn(x){ return Number.isInteger(x) && x>=1 && (x<=9 || x===10); }
-/* Toutes les combinaisons (a, b, k, N, p) d'un contexte qui tiennent la
-   règle à chaque étape : les lignes 1 à 3 du tableau, N·b, a ± N·b, p·b,
-   a ± p·b ; N de 4 à 9 (au-delà du tableau), p ≥ 2N. */
+/* Le pas — ce qu'on ajoute ou retire à chaque fois — est un multiple de 10
+   sous 100, ou 25, ou 110, 120 ou 150 au-dessus de 100 (demande de Turquet,
+   novembre 2026 ; elle remplace la règle du chiffre unique : les valeurs du
+   tableau en découlent, et restent des additions qui se font de tête). 100,
+   multiple de 10 à la frontière, est gardé. */
+const SUI_PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
+/* Le pas le plus lointain : la question ③ reste dans la table de 10. */
+const SUI_P_MAX=10;
+/* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
+   rondes, r dans SUI_PAS entre ses bornes, N au-delà du tableau (≥ 4), le
+   seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
+   (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
+   vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
 function suiFamilles(c){
   const out=[];
-  c.k.forEach(function(k){
-    for(let a=1;a<=10;a++) for(let b=1;b<=3;b++){
-      if(c.aOk && !c.aOk(a,k)) continue;
-      const v=n=>a+c.sens*n*b;
-      if(![1,2,3].every(n=>suiUn(v(n)))) continue;
-      for(let N=4;N<=9;N++){ if(!suiUn(N*b)||!suiUn(v(N))) continue;
-        /* le seuil de la question ③ est AU MOINS DEUX FOIS plus loin que la
-           question ② (demande de Turquet, novembre 2026) : p ≥ 2N — avec p ≤ 9,
-           N vaut donc toujours 4, et p 8 ou 9 */
-        for(let p=2*N;p<=9;p++){ if(!suiUn(p*b)||!suiUn(v(p))) continue;
-          out.push({a:a,b:b,k:k,N:N,p:p}); } }
-    }
+  c.u0.forEach(function(u0){
+    SUI_PAS.forEach(function(r){
+      if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
+      for(let N=4;2*N<=SUI_P_MAX;N++) for(let p=2*N;p<=SUI_P_MAX;p++){
+        if(u0+c.sens*p*r<=0) continue;
+        out.push({u0:u0, r:r, N:N, p:p});
+      }
+    });
   });
   return out;
 }
@@ -19448,7 +19452,7 @@ function suiFamilles(c){
    2 : la valeur au bout de N pas, 3 : le pas du seuil). */
 function suiTirer(ci, part){
   const f=pick(suiFamilles(SUI_CTX[ci]));
-  return {ci:ci, a:f.a, b:f.b, k:f.k, N:f.N, p:f.p, part:part||1};
+  return {ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
 }
 /* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
 function suiMoment(c, n){
@@ -19459,7 +19463,8 @@ function suiMoment(c, n){
 }
 /* Tout ce que la question attend, recalculé du tirage. */
 function suiVals(q){
-  const c=SUI_CTX[q.ci], m=Math.pow(10,q.k), r=c.sens*q.b*m, u0=q.a*m;
+  /* un brouillon de pause d'avant la v416 range (a, b, k) : u0 = a·10^k, r = b·10^k */
+  const c=SUI_CTX[q.ci], u0=(q.u0!=null?q.u0:q.a*Math.pow(10,q.k)), r=c.sens*(q.r!=null?q.r:q.b*Math.pow(10,q.k));
   const t=c.tps, fin=(t.type==='annee')?t.t0+q.p:(t.type==='heure'?t.t0+q.p:1+q.p);
   return { c:c, u0:u0, r:r, rAbs:Math.abs(r),
     t1:u0+r, t2:u0+2*r, t3:u0+3*r,
@@ -19470,14 +19475,20 @@ function suiVals(q){
 /* Les cases d'une question, dans l'ordre d'écriture, avec l'entier attendu.
    Le nom suit la convention xxxCases(q) que lit le réglage « Questions »
    d'un devoir. */
+/* Méthode 1 de la question ② : les lignes 0 à SUI_M1_ECRITES − 1 du tableau
+   sont écrites, les suivantes sont des cases. Deux lignes écrites (le départ
+   et le premier pas) : avec N ≥ 4, l'élève a toujours AU MOINS TROIS lignes à
+   compléter pour arriver au résultat (demande de Turquet, novembre 2026). */
+const SUI_M1_ECRITES=2;
 function suiCases(q){
   const v=suiVals(q);
   if(q.part===1) return [{id:'sui-t1', bon:v.t1}, {id:'sui-t2', bon:v.t2}];
   if(q.part===2){
     /* MÉTHODE 1 : le tableau prolongé jusqu'au pas N (demande de Turquet,
-       novembre 2026) — une case par ligne de 4 à N ; seule la DERNIÈRE est
-       exigée, les lignes intermédiaires peuvent être sautées (opt) */
-    const m1=[]; for(let n=4;n<=v.n;n++) m1.push({id:'sui-m1-'+n, bon:v.u0+n*v.r, opt:n<v.n, n:n});
+       novembre 2026) — une case par ligne de SUI_M1_ECRITES à N, au moins
+       trois ; seule la DERNIÈRE est exigée, les lignes intermédiaires peuvent
+       être sautées (opt) */
+    const m1=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) m1.push({id:'sui-m1-'+n, bon:v.u0+n*v.r, opt:n<v.n, n:n});
     return m1.concat([{id:'sui-n', bon:v.n}, {id:'sui-r', bon:v.rAbs}, {id:'sui-p', bon:v.prod}, {id:'sui-u0', bon:v.u0}, {id:'sui-res', bon:v.res}]);
   }
   return [{id:'sui-e', bon:v.e}, {id:'sui-r', bon:v.rAbs}, {id:'sui-k', bon:v.kk}, {id:'sui-fin', bon:v.fin}];
@@ -19529,8 +19540,10 @@ function suiMomentHTML(c, n){
 /* LA MÉTHODE 1 DE LA QUESTION ② (demande de Turquet, novembre 2026) : le
    tableau de la question ①, prolongé jusqu'au pas N — trois colonnes : le
    moment réel (2026, 2027, …), le nombre de pas écoulés (0, 1, 2, …), la
-   valeur. Les lignes 0 à 3 sont écrites (les résultats de la question ①),
-   les lignes 4 à N sont des cases. « On acceptera si l'élève saute des
+   valeur. Les lignes 0 et 1 sont écrites (le départ et le premier pas, lus
+   à la question ①), les lignes 2 à N sont des cases — au moins trois,
+   puisque N ≥ 4 (demande de Turquet, novembre 2026 : « l'élève doit
+   compléter au moins trois lignes pour arriver au résultat »). « On acceptera si l'élève saute des
    cases » : seule la dernière ligne est attendue ; les lignes intermédiaires
    portent .hors-note — ni comptées dans la note, ni relevées comme oubliées
    par la boîte « Il reste des cases vides » —, et ne se jugent que si l'élève
@@ -19543,7 +19556,7 @@ function suiTableauM1(q){
   for(let n=0;n<=v.n;n++){
     const val=v.u0+n*v.r;
     h+='<tr><td>'+suiMomentHTML(c,n)+'</td><td>'+n+'</td><td>'
-      +(n<4 ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
+      +(n<SUI_M1_ECRITES ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
       +'</td></tr>';
   }
   return h+'</table>';
@@ -19596,8 +19609,8 @@ function renderSuiTest(){
 function suiPourquoi(q){
   const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−', pl=c.sens>0?'ajoute':'retire';
   if(q.part===1) return 'À chaque '+c.pas+', on '+pl+' '+suiFmt(v.rAbs)+' : '+suiFmt(v.u0)+' → '+suiFmt(v.t1)+' → '+suiFmt(v.t2)+' → '+suiFmt(v.t3)+'.';
-  if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
-    return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.t3)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
+  if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
+    return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.u0+(SUI_M1_ECRITES-1)*v.r)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
   return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk)+'.';
 }
 function checkSuiAnswer(live){
@@ -19651,8 +19664,8 @@ function ctxSui(q){
   let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs)).replace(/<[^>]+>/g,'')+' ';
   t+='Une quantité qui change toujours de la même valeur à chaque '+c.pas+' : la valeur au bout de n pas est la valeur de départ '+sg+' n × '+suiFmt(v.rAbs)+'. ';
   if(q.part===1) t+='Question 1 : compléter le tableau des pas 0 à 3 (le pas 0 vaut '+suiFmt(v.u0)+', le pas 3 vaut '+suiFmt(v.t3)+', donnés). Réponses attendues, STRICTEMENT SECRÈTES : pas 1 = '+suiFmt(v.t1)+', pas 2 = '+suiFmt(v.t2)+'. ';
-  else if(q.part===2){ const lignes=[]; for(let n=4;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
-    t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 à 3 écrits), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
+  else if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
+    t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 et 1 écrits ; l’élève reprend au pas 2, au moins trois lignes à compléter), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
   else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk)+' (case : '+v.fin+'). ';
   t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
   t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
