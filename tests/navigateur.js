@@ -323,7 +323,7 @@ async function parcours(page, N){
 
   await page.evaluate(id => openTest(id), N.exercice);        /* la page des modes de l'exercice */
   await page.waitForTimeout(400);
-  await page.click('#modeChoices [onclick*="train"]');        /* « M’entraîner » */
+  await page.click('#modeChoices [onclick*="train"]:not(.resume)');        /* « M’entraîner » */
   await page.waitForTimeout(600);
   /* la boîte « Il reste des cases vides » rallumée : une copie JUSTE et
      complète ne doit jamais l'ouvrir (#confirmer-vides) */
@@ -1810,7 +1810,7 @@ if(require.main === module) (async () => {
     await connecter(s.page);
     await s.page.evaluate(id => openTest(id), N.exercice);
     await s.page.waitForTimeout(400);
-    await s.page.click('#modeChoices [onclick*="train"]');
+    await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
     await s.page.waitForTimeout(600);
     await s.page.evaluate(() => { window.__faux.panne = true; });   /* la base refuse tout, à partir d'ici */
     /* toast() ne vide jamais son texte : au bout de 2,6 s il retire seulement la
@@ -1841,7 +1841,7 @@ if(require.main === module) (async () => {
     await connecter(s.page);
     await s.page.evaluate(id => openTest(id), N.exercice);
     await s.page.waitForTimeout(400);
-    await s.page.click('#modeChoices [onclick*="train"]');
+    await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
     await s.page.waitForTimeout(800);
     const exercice = await mesurer();
     verifier('l\'écran de l\'exercice ne déborde pas latéralement', exercice.page <= exercice.vue + 1,
@@ -1849,7 +1849,10 @@ if(require.main === module) (async () => {
     /* Les commandes du bas tiennent sur UNE ligne, chacune en une ligne de
        texte (audit d'octobre 2026, T12) : en libellés longs elles montaient à
        deux ou trois lignes et couvraient en permanence 60 à 76 px du bas de
-       l'exercice. Et chacune reste une cible du doigt (24 px au moins). */
+       l'exercice. Et chacune reste une cible du doigt (24 px au moins).
+       Depuis novembre 2026, « Mettre en pause » et « Abandonner » ont quitté
+       le bas pour le lien « Sortie » de l'en-tête : il n'y reste que
+       « Signaler » (voir tests/sortie.js). */
     const commandes = await s.page.evaluate(() => {
       const c = document.getElementById('testCtrls');
       if(!c || c.hidden) return { absentes: true };
@@ -1864,7 +1867,7 @@ if(require.main === module) (async () => {
                textes: bs.map(b => b.innerText.trim()) };
     });
     verifier('sur un téléphone, les commandes du bas tiennent sur une ligne, en libellés courts',
-      !commandes.absentes && commandes.n === 3 && commandes.rangee && commandes.lignes.every(l => l <= 1) && commandes.min >= 24,
+      !commandes.absentes && commandes.n === 1 && /Signaler/.test(commandes.textes[0]) && commandes.rangee && commandes.lignes.every(l => l <= 1) && commandes.min >= 24,
       JSON.stringify(commandes));
     await s.nav.close(); s = null;
 
@@ -1929,7 +1932,7 @@ if(require.main === module) (async () => {
     await connecter(s.page); await mesurerCadres();                 /* l'accueil de l'élève */
     await s.page.evaluate(() => openThemes()); await mesurerCadres();
     await s.page.evaluate(id => openTest(id), N.exercice); await mesurerCadres();
-    await s.page.click('#modeChoices [onclick*="train"]'); await s.page.waitForTimeout(400); await mesurerCadres();
+    await s.page.click('#modeChoices [onclick*="train"]:not(.resume)'); await s.page.waitForTimeout(400); await mesurerCadres();
     /* un écran SANS AUCUN cadre (l'ardoise du calcul rapide, scr-test : c'est
        l'exercice témoin de la Terminale) n'a rien à tracer — il le dit */
     vus.filter(v => v.ardoise).forEach(v => console.log('    (' + v.ecran + ' est une ardoise, sans cadre : rien à tracer)'));
@@ -1961,7 +1964,7 @@ if(require.main === module) (async () => {
       for(const exo of AVISITER){
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         const vu = await s.page.evaluate(classes => {
           const sel = classes.map(c => '.screen.on .' + c).join(',');
@@ -2008,7 +2011,7 @@ if(require.main === module) (async () => {
       const ouvrirExo = async (id) => {
         await s.page.evaluate(i => openTest(i), id);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(900);
       };
       /* a) l'exercice des tables : elle se referme au retour.
@@ -2108,7 +2111,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.operationPosee.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const vu = await s.page.evaluate(hote => {
         const h = document.getElementById(hote);
@@ -2161,7 +2164,7 @@ if(require.main === module) (async () => {
       for(const [exo, hote] of P.cadrePose.exercices){
         await s.page.evaluate(i => openTest(i), exo);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(900);
         const vu = await s.page.evaluate(h => {
           const host = document.getElementById(h);
@@ -2202,7 +2205,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), G.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const n = await s.page.evaluate(() => test.questions.length);
       verifier('une séance d\'entraînement pose trois graphiques', n === 3, n + ' graphique(s)');
@@ -2251,7 +2254,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), SY.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* le DESSIN : la courbe part de la borne gauche et s'arrête à la borne
          droite, les deux bouts sont marqués, et la droite de g est là */
@@ -2355,7 +2358,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.maxMin.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const vu = await s.page.evaluate(() => {
         const svg = document.querySelector('#mmxGraph svg');
@@ -2424,7 +2427,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.maxMinTableau.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const vu = await s.page.evaluate(() => {
         const hote = document.getElementById('mmtTable');
@@ -2487,7 +2490,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.tableauEquations.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* la première question (les comptes) : on la joue juste, par les
          fonctions de la page, puis on passe à l'inéquation */
@@ -2556,7 +2559,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.tableauVraiFaux.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const mesurer = () => s.page.evaluate(() => {
         const lignes = Array.from(document.querySelectorAll('#tvfBody .tvf-ligne'));
@@ -2651,7 +2654,7 @@ if(require.main === module) (async () => {
         await connecter(s.page);
         await s.page.evaluate(id => openTest(id), Q.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(900);
         const n = await s.page.evaluate(() => test.questions.length);
         const muets = [], manquantes = [], etroits = [];
@@ -2715,7 +2718,7 @@ if(require.main === module) (async () => {
         const ou = ' (' + G.exercice + ')';
         await s.page.evaluate(i => openTest(i), G.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(900);
         if(G.niveauFracp){
           await s.page.evaluate(n => {
@@ -2790,7 +2793,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(i => openTest(i), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
 
       const vu = await s.page.evaluate(() => {
@@ -2922,7 +2925,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(i => openTest(i), E.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* la séance tire les trois inconnues en ordre mélangé : on se place sur
          celle du pourcentage, la seule qui montre la flèche — et on redessine
@@ -2981,7 +2984,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.syntheseConclusion.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1300);
       /* la PHRASE DE CONCLUSION « C'est une hausse de … % » (4.5.2,
          septembre 2026). Sur une hausse ou une baisse dont l'inconnue est le
@@ -3061,7 +3064,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(i => openTest(i), C.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
       let vues = 0, ecarts = [];
       for(let i = 0; i < 4; i++){
@@ -3299,7 +3302,7 @@ if(require.main === module) (async () => {
       }
       await s.page.evaluate(o => openTestDevoir('dm-bonus', o.bonus), { bonus:BO.bonus });
       await s.page.waitForTimeout(900);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1200);
       const bExo = await badge('.screen.on .exo-title .dm-bonus');
       const pastille = await s.page.evaluate(() => {
@@ -4564,7 +4567,7 @@ if(require.main === module) (async () => {
         /* un instantané RÉEL : l'exercice témoin lancé par l'élève connecté */
         await s.page.evaluate(id => openTest(id), P.navigateur.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(600);
         const m = await s.page.evaluate(async exo => {
           const attendre = ms => new Promise(r => setTimeout(r, ms));
@@ -5648,7 +5651,7 @@ if(require.main === module) (async () => {
       for(const exo of P.pleineLargeur.exercices){
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1100);
         const m = await s.page.evaluate(() => {
           const w = document.querySelector('.wrap');
@@ -5682,7 +5685,7 @@ if(require.main === module) (async () => {
         for(const [exo, max] of P.pleineLargeur.chaine){
           await s.page.evaluate(id => openTest(id), exo);
           await s.page.waitForTimeout(400);
-          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
           await s.page.waitForTimeout(1100);
           const n = await s.page.evaluate(() =>
             document.querySelectorAll('.screen.on .pt-step:not(.step-hidden)').length);
@@ -5732,7 +5735,7 @@ if(require.main === module) (async () => {
         for(const exo of TC.exercices){
           await s.page.evaluate(id => openTest(id), exo);
           await s.page.waitForTimeout(400);
-          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
           await s.page.waitForTimeout(1200);
           const m = await s.page.evaluate(() => {
             /* le rectangle d'un nœud, élément OU texte */
@@ -5810,7 +5813,7 @@ if(require.main === module) (async () => {
       } else {
         await s.page.evaluate(id => openTest(id), FD.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="soutien"]');
+        await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
         await s.page.waitForTimeout(900);
         const contexte = s.page.context();
         /* On clique le VRAI bouton de l'écran, celui que l'élève a sous la
@@ -5894,7 +5897,7 @@ if(require.main === module) (async () => {
       for(const AIDE of aidesM){
       await s.page.evaluate(id => openTest(id), AIDE.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const lire = () => s.page.evaluate(sel => {
         const n = [...document.querySelectorAll(sel)];
@@ -5958,7 +5961,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.fenetreSoutien.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* La Première et la Terminale DÉTACHENT le soutien dans une vraie fenêtre
          du système dès que le pointeur est fin : c'est alors le gestionnaire de
@@ -6096,7 +6099,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.signalement.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
 
       const barre = await s.page.evaluate(() => {
@@ -6289,7 +6292,7 @@ if(require.main === module) (async () => {
           const quoi = avecResidu ? 'avec les résidus de l\'élève' : 'sans résidu (contrôle du contrôle)';
           await s.page.evaluate(id => openTest(id), C.exercice);
           await s.page.waitForTimeout(400);
-          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
           await s.page.waitForTimeout(1100);
           await s.page.evaluate(q => { (new Function(q))(); }, C.question);
           await s.page.waitForTimeout(700);
@@ -6364,7 +6367,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.sommeFractions.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(1200);
       /* La question du signalement : 2/5 + 5. Un terme ENTIER, parce que c'est
          là que les deux défauts se voyaient. */
@@ -6461,7 +6464,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.saisieLibre.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1300);
       /* on capte ce qui part vraiment, et on choisit le verdict rendu */
       await s.page.evaluate(() => {
@@ -6648,7 +6651,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), R.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1400);
       /* La question est ÉPINGLÉE : la copie qu'on tape doit coller à l'énoncé
          tiré, sinon le juge refuserait à bon droit et le contrôle mesurerait
@@ -7060,7 +7063,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteAuxRedigee.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1400);
       /* la question est ÉPINGLÉE (le cas de la fiche : p=5, k=4000, U₀=10000),
          et le modèle stubbé — la copie doit coller à l'énoncé tiré, sinon le
@@ -7216,7 +7219,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.chapeauMorte.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1200);
       /* la question est ÉPINGLÉE (la fiche même) : le juge doit pouvoir dire
          vrai sur ce qu'on tape, sinon le contrôle mesurerait un tirage */
@@ -7317,7 +7320,7 @@ if(require.main === module) (async () => {
         await connecter(s.page);
         await s.page.evaluate(id => openTest(id), P.chapeauMorte.quotient);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => {   /* la question de la capture : f(x) = e^x / (x − 3) */
           test.questions[test.idx] = { type: 'dexpq', a: 1, b: -3, k: 1, vStr: 'x − 3', dvTxt: '1', uTxt: 'e^x', duTxt: 'e^x', numCoef: [-4, 1], facAns: 'x − 4', expHtml: 'x' };
@@ -7362,7 +7365,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.recurrenceFractions.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* la question est ÉPINGLÉE sur le cas de la fiche (a = 3, b = 1) : la
          copie tapée doit coller à l'énoncé tiré */
@@ -7459,7 +7462,7 @@ if(require.main === module) (async () => {
       for(const id of P.etiquetteCourbe.exercices){
         await s.page.evaluate(id => openTest(id), id);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(700);
         const r = await s.page.evaluate(moteur => {
           /* LA MESURE EST LA MÊME POUR LES DEUX MOTEURS : toutes les étiquettes
@@ -7541,7 +7544,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.alphaSigne.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
       /* la question est ÉPINGLÉE sur la fiche même (a = 1, b = 2) */
       await s.page.evaluate(() => { test.questions = [{ a: 1, b: 2 }, { a: -1, b: 3 }]; test.idx = 0; test.score = 0; test.answers = []; renderASG(); });
@@ -7620,7 +7623,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.etudeConvexite.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
       /* la question est ÉPINGLÉE sur la fiche même (a = 2, b = −1) */
       await s.page.evaluate(() => { test.questions = [{ a: 2, b: -1 }]; test.idx = 0; test.score = 0; test.answers = []; test.maxScore = ecvMax(test.questions[0]); renderECV(); });
@@ -7697,7 +7700,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.etudeAlgoConvexite.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
       const epingler = q => s.page.evaluate(q => { test.questions = [q]; test.idx = 0; test.score = 0; test.answers = []; test.locked = false; test.maxScore = eavMax(q); renderEAV(); }, q);
       /* la fiche même : a = 3, b = 1, e^(−x) */
@@ -7804,7 +7807,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.syntheseRedigee.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1300);
 
       /* ÉTAPE 1 : « prendre P % », retrouver le pourcentage — le QUOTIENT.
@@ -7917,7 +7920,7 @@ if(require.main === module) (async () => {
         const dit3 = t => dits3.push(X.num + ' : ' + t);
         await s.page.evaluate(id => openTest(id), X.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1300);
         /* une vraie question de l'exercice (genSyn avec dix, dans sa famille)
            où l'on CHERCHE le pourcentage : c'est la forme « 10 % = … ;
@@ -8007,7 +8010,7 @@ if(require.main === module) (async () => {
         for(const X of P.syntheseRedigee.espacesAussi){
           await s.page.evaluate(id => openTest(id), X.exercice);
           await s.page.waitForTimeout(400);
-          await s.page.click('#modeChoices [onclick*="train"]');
+          await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
           await s.page.waitForTimeout(1300);
           const q4 = await s.page.evaluate((fam) => {
             const q = genSyn(fam, 'fin');
@@ -8072,7 +8075,7 @@ if(require.main === module) (async () => {
         const X5 = P.syntheseRedigee.evolutions; const dits5 = [];
         await s.page.evaluate(id => openTest(id), X5.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1300);
         const q5 = await s.page.evaluate(() => {
           if(test.qId !== currentTestId) return { manque: 'l\'exercice ouvert est « ' + test.qId + ' »' };
@@ -8183,7 +8186,7 @@ if(require.main === module) (async () => {
         const X6 = P.syntheseRedigee.generale; const dits6 = [];
         await s.page.evaluate(id => openTest(id), X6.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1300);
         const q6 = await s.page.evaluate(() => {
           if(test.qId !== currentTestId) return { manque: 'l\'exercice ouvert est « ' + test.qId + ' »' };
@@ -8290,7 +8293,7 @@ if(require.main === module) (async () => {
         const ID7 = 'devoir-blanc-pourcentages'; const dits7 = [];
         await s.page.evaluate(id => openTest(id), ID7);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1300);
         const q7 = await s.page.evaluate(() => {
           if(test.kind !== 'dbp') return { manque: 'le kind ouvert est « ' + test.kind + ' »' };
@@ -8507,7 +8510,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.croisement.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1600);
       const c = await s.page.evaluate(() => {
         const hote = document.getElementById('sfHost');
@@ -8649,7 +8652,7 @@ if(require.main === module) (async () => {
       if(P.fractionsEtapes.exercices.indexOf('somme-fractions-2') >= 0){
         await s.page.evaluate(() => openTest('somme-fractions-2'));
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => { test.questions[test.idx] = {n1:1,d1:2,n2:1,d2:4,op:'+',D:4,k1:2,k2:1,N1:2,N2:1,N:3,Nr:3,Dr:4}; renderSFTest(); });
         await s.page.waitForTimeout(700);
@@ -8721,7 +8724,7 @@ if(require.main === module) (async () => {
         if(!(await s.page.evaluate(id => !!TESTS[id], exo))) continue;
         await s.page.evaluate(id => openTest(id), exo);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(([f, q]) => { if(test.questions[1] && test.questions[1].redac){
             if(test.kind === 'rvf'){ test.questions[0] = {type:q.type, d1:3, d2:5, n1:1, n2:2}; renderRvfTest(); }
@@ -8766,7 +8769,7 @@ if(require.main === module) (async () => {
       if(P.fractionsEtapes.exercices.indexOf('multiplier-fractions') >= 0){
         await s.page.evaluate(() => openTest('multiplier-fractions'));
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => { test.questions[test.idx] = {n1:2,d1:3,n2:3,d2:5,a1:2,a2:3,b1:3,b2:5,P:6,Q:15}; delete test.questions[test.idx].sbrut; renderMltTest(); });
         await s.page.waitForTimeout(700);
@@ -8855,7 +8858,7 @@ if(require.main === module) (async () => {
       if(P.sommeProduit){
         await s.page.evaluate(() => openTest('somme-produit-fractions'));
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
         await s.page.evaluate(() => {
           test.questions[0] = {a:1,b:2,c:1,d:2,e:3,f:2,op:'+',P1:3,Q1:4,N:10,D:8,Nr:5,Dr:4};
@@ -9016,7 +9019,7 @@ if(require.main === module) (async () => {
       const ouvrirExo = async id => {
         await s.page.evaluate(i => openTest(i), id);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(1200);
       };
       /* le relevé : chaque nombre, chaque signe et chaque case de l'écran ouvert */
@@ -9236,7 +9239,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.barresSimplifier.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1200);
 
       const dits = [];
@@ -9326,7 +9329,7 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => { window.__tabletteForce = true; });
       await s.page.evaluate(id => openTest(id), P.barresSimplifier.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(1200);
       const ditsT = [];
       const mesPm = await s.page.evaluate(() => {
@@ -9437,7 +9440,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.construireFonction.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* mouse.click ne fait pas défiler : la rangée du bas (y = −4) tombait
@@ -9520,7 +9523,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.solutionsGraphique.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       const dominante = c => { const m = /(\d+)\D+(\d+)\D+(\d+)/.exec(c || ''); if(!m) return '?';
@@ -9679,7 +9682,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* on épingle une inéquation dont S est une RÉUNION : c'est elle qui
          demande le U, les quatre crochets et deux morceaux de courbe */
@@ -9782,7 +9785,7 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
       await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.evaluate(() => { const e = document.getElementById('ecsSol'); e.scrollIntoView({ block: 'center' }); e.focus(); });
       await s.page.waitForTimeout(300);
@@ -9836,7 +9839,7 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => { window.__paveForce = true; paveObserver(); });
       await s.page.evaluate(id => openTest(id), P.ecrireSolutions.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.evaluate(() => { const e = document.getElementById('ecsSol'); e.scrollIntoView({ block: 'center' }); e.focus(); });
       await s.page.waitForTimeout(300);
@@ -9886,7 +9889,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.placerImage.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* l'énoncé dit la DEMANDE (« Déterminer l'image de … »), le mode
@@ -10040,7 +10043,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.translationQuadrillage.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* u⃗ = (3 ; −2) ; A (1 ; 4), B (5 ; 6), C (8 ; 3) : A′ (4 ; 2), B′ (8 ; 4), C′ (11 ; 1) */
@@ -10165,7 +10168,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.egaliteVectoriellePoint.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       const mes = await s.page.evaluate(() => {
@@ -10310,7 +10313,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.sommeVecteurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       const mes = await s.page.evaluate(() => {
@@ -10510,7 +10513,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.sommeVecteursRepere.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       const q0 = await s.page.evaluate(() => JSON.parse(JSON.stringify(test.questions[0])));
@@ -10672,7 +10675,7 @@ if(require.main === module) (async () => {
         await connecter(s.page);
         await s.page.evaluate(id => openTest(id), P.coordonneesVecteurs.calculer.exercice);
         await s.page.waitForTimeout(300);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(700);
         const m = await s.page.evaluate(() => {
           const cx = id => { const e = document.getElementById(id); if(!e) return null; const r = e.getBoundingClientRect(); return r.width ? (r.left + r.right) / 2 : null; };
@@ -10709,7 +10712,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pointSommeVecteurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* la figure de la fiche : AA′ = BC + BD, A′ en (5 ; 2) */
@@ -10886,7 +10889,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pointSommeDifference.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       await s.page.evaluate(() => { test.questions[test.idx] = { l: 'B', ex: 'pm', po: [3, 4], uo: [1, 6], uc: [3, 1], vo: [8, 2], vc: [2, 3], up: null, vp: null, ur: false, vr: false, sel: null };
@@ -11053,7 +11056,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.tracerVecteursEgaux.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* une figure fixe : u (3 ; 4), v (4 ; −2), w (−3 ; 2) */
@@ -11192,7 +11195,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.translationAntecedent.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* u⃗ = (3 ; 2) ; A′ (7 ; 4), B′ (12 ; 6), C′ (6 ; 8) : A (4 ; 2), B (9 ; 4), C (3 ; 6) */
@@ -11283,7 +11286,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.sommeTroisVecteurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       await s.page.evaluate(() => {
@@ -11444,7 +11447,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.translationsSuccessives.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* u = (3 ; 1), v = (1 ; −3), A en (6 ; 5) : A′ en (9 ; 6), A″ en (10 ; 3) */
@@ -11538,7 +11541,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.regleParallelogramme.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* une figure fixe : A (3 ; 2), u (4 ; 1), v (1 ; 3) — D attendu en (8 ; 6) */
@@ -11657,7 +11660,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.antecedentsDroite.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* la position d'un nœud, lue dans les graduations du SVG rendu — le
@@ -11796,7 +11799,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteVariation.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* on ÉPINGLE le cas de la fiche : la mesure ne doit pas dépendre du tirage */
@@ -12125,7 +12128,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteSynthese.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* on ÉPINGLE la fiche : la mesure ne doit pas dépendre du tirage */
@@ -12382,7 +12385,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteTcmLimite.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* la question est ÉPINGLÉE sur l'exemple 1 de la fiche, puis le second
          visage (quadratique, décroissante) : la copie tapée doit coller à
@@ -12477,7 +12480,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteVocabulaire.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(700);
       const dits = [];
       /* on ÉPINGLE l'exemple 1 de la fiche : la mesure ne doit pas dépendre du tirage */
@@ -12562,7 +12565,7 @@ if(require.main === module) (async () => {
       await s.page.evaluate(() => { bexpMasquer(); currentMode = 'soutien'; test.locked = false; });
       await s.page.evaluate(id => openTest(id), P.suiteVocabulaire.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(700);
       /* on ÉPINGLE le même exemple : la mesure ne dépend pas du tirage */
       await s.page.evaluate(q => { test.questions[test.idx] = q; test.locked = false; renderSVQ(); },
@@ -12665,7 +12668,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.suiteVariationDifference.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* on ÉPINGLE le cas de la fiche : U0 = 0, 0 ≤ Un ≤ 1, la suite croît */
@@ -12810,7 +12813,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const code = document.querySelector('#pyHost .py-code'), cons = document.getElementById('pyConsole'), run = document.getElementById('pyRun');
@@ -12860,7 +12863,7 @@ if(require.main === module) (async () => {
       /* le bord du soutien : une copie fausse laisse le bouton verrouillé — la sortie EST la réponse */
       await s.page.evaluate(id => openTest(id), P.pythonAffichage.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const faux = await s.page.evaluate(() => { const q = test.questions[0], a = pyAns(q); return { t: a.texte, v: q.opt.v.filter(x => x !== a.valeur)[0], n: a.variable }; });
       await s.page.selectOption('#py-s-t', faux.t); await s.page.selectOption('#py-s-v', faux.v); await s.page.selectOption('#py-s-n', faux.n);
@@ -12891,7 +12894,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const code = document.querySelector('#ptyHost .py-code'), cons = document.getElementById('ptyConsole'), run = document.getElementById('ptyRun');
@@ -12959,7 +12962,7 @@ if(require.main === module) (async () => {
       /* le bord du soutien : une copie fausse laisse le bouton verrouillé */
       await s.page.evaluate(id => openTest(id), P.pythonTypes.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const faux = await s.page.evaluate(() => { const q = test.questions[0], a = ptyAns(q); return ptyCases(q).map((c, i) => ({ id: c.id, t: i ? a.types[c.nom] : PTY_TYPES.filter(t => t !== a.types[c.nom])[0] })); });
       for(const c of faux) await s.page.selectOption('#' + c.id, c.t);
@@ -12993,7 +12996,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const cours = document.querySelector('#scr-pyc .pyc-cours'), l1 = document.getElementById('pycL1'), ta = document.getElementById('pyc-in');
@@ -13053,7 +13056,7 @@ if(require.main === module) (async () => {
       /* le bord du soutien : OÙ est l'erreur, sans la réponse, puis la copie corrigée */
       await s.page.evaluate(id => openTest(id), P.pythonAfficherVariable.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.click('#pyc-in');
       await s.page.keyboard.type('Print(note)');
@@ -13103,7 +13106,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonNoms.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const rows = [...document.querySelectorAll('#pvnHost .pvn-row')];
@@ -13156,7 +13159,7 @@ if(require.main === module) (async () => {
       /* le bord du soutien : un incorrect déclaré correct rougit, sans révéler sa raison */
       await s.page.evaluate(id => openTest(id), P.pythonNoms.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const plan = await s.page.evaluate(() => { const q = test.questions[0]; const iKo = q.noms.findIndex(n => !pvnCorrect(n));
         return { iKo, rep: q.noms.map((n, i) => ({ v: (i === iKo) ? 'ok' : (pvnCorrect(n) ? 'ok' : 'ko'), r: (i === iKo) ? null : pvnRaison(n) })) }; });
@@ -13204,7 +13207,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonNomVariable.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const avant = await s.page.evaluate(() => {
         const li = [...document.querySelectorAll('#pnvHost .pnv-enonce li')].map(e => e.getBoundingClientRect());
@@ -13274,7 +13277,7 @@ if(require.main === module) (async () => {
       /* le bord du soutien : l'espace rougit à la sortie de la case, sans badge, et rien ne se débloque */
       await s.page.evaluate(id => openTest(id), P.pythonNomVariable.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.click('#pnv-s-0');
       await s.page.keyboard.type('nb filles');
@@ -13316,7 +13319,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* L'encre d'un verdict se compare à la VARIABLE de la convention (--blue,
          --red), jamais à une dominante : le bord de REPOS de la zone est déjà
@@ -13391,7 +13394,7 @@ if(require.main === module) (async () => {
       /* le SOUTIEN : deux erreurs nommées, puis la réussite */
       await s.page.evaluate(id => openTest(id), P.pythonPrint.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.click('#pyp-prog');
       await s.page.keyboard.type('print(' + P.pythonPrint.premier + ')');
@@ -13446,7 +13449,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       /* LE COURS OUVRE LA SÉANCE, et son exemple est un VRAI programme
          (demande de Turquet, septembre 2026). jsdom tient les états ; ce
@@ -13613,7 +13616,7 @@ if(require.main === module) (async () => {
       /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, la correction rouvre la porte */
       await s.page.evaluate(id => openTest(id), P.pythonCompleter.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.click('#pyxExRun');
       await s.page.waitForTimeout(250);
@@ -13671,7 +13674,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const avant = await s.page.evaluate(() => {
@@ -13810,7 +13813,7 @@ if(require.main === module) (async () => {
       /* le soutien : la ligne fausse rougit, la page dit OÙ est l'erreur, rien ne se révèle */
       await s.page.evaluate(id => openTest(id), P.pythonDeuxLignes.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const q3 = await s.page.evaluate(() => {
         const q = test.questions[test.idx], a = pydAns(q);
@@ -13873,7 +13876,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const avant = await s.page.evaluate(() => {
@@ -14014,7 +14017,7 @@ if(require.main === module) (async () => {
          construction. Une ligne de code ne se replie jamais : elle DÉFILE. */
       await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.setViewportSize({ width: 390, height: 844 });
       await s.page.waitForTimeout(300);
@@ -14037,7 +14040,7 @@ if(require.main === module) (async () => {
          variable attendue ne s'écrit NULLE PART */
       await s.page.evaluate(id => openTest(id), P.pythonPlacerVariables.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const q3 = await s.page.evaluate(() => {
         const q = test.questions[test.idx], a = pyvAns(q);
@@ -14091,7 +14094,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       /* LES TROIS ENCRES DE LA CONVENTION, résolues par le navigateur : l'encre
@@ -14241,7 +14244,7 @@ if(require.main === module) (async () => {
       /* LE SOUTIEN : la case fausse rougit, et RIEN ne se révèle */
       await s.page.evaluate(id => openTest(id), P.pythonTableauValeurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const qs = await s.page.evaluate(() => {
         const q = test.questions[test.idx];
@@ -14291,7 +14294,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonChangerValeurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       /* ---- question 1 : la fiche du carnet, valeurs DONNÉES ---- */
@@ -14422,7 +14425,7 @@ if(require.main === module) (async () => {
       /* ---- le soutien : rien ne se révèle ---- */
       await s.page.evaluate(id => openTest(id), P.pythonChangerValeurs.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const att3 = await s.page.evaluate(() => { const q = test.questions[test.idx]; const a = pcvAns(q, q.va, q.vb); return { s: a.somme, p: a.produit }; });
       await s.page.click('#pcv-s');
@@ -14477,7 +14480,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonOperations.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       /* ---- le cours : le a) et le b) de la fiche ---- */
@@ -14645,7 +14648,7 @@ if(require.main === module) (async () => {
       /* ---- le soutien : rien ne se révèle ---- */
       await s.page.evaluate(id => openTest(id), P.pythonOperations.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       await s.page.click('#popDecRun');
       await s.page.waitForTimeout(250);
@@ -14720,7 +14723,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), DD.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const ids = await s.page.evaluate(() => pdcCases(test.questions[test.idx]).map(c => c.id));
@@ -14879,7 +14882,7 @@ if(require.main === module) (async () => {
       /* ---- le soutien : rien ne se révèle ---- */
       await s.page.evaluate(id => openTest(id), DD.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const ids3 = await s.page.evaluate(() => pdcCases(test.questions[test.idx]).map(c => c.id));
       const att3 = await s.page.evaluate(() => {
@@ -14935,7 +14938,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.inequationDroite.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       const posY = async (y, dy) => await s.page.evaluate(([y, dy]) => {
@@ -15079,7 +15082,7 @@ if(require.main === module) (async () => {
       if(J){
         await s.page.evaluate(id => openTest(id), J.exercice);
         await s.page.waitForTimeout(400);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(900);
         await s.page.evaluate(J.pose);
         await s.page.waitForTimeout(600);
@@ -15136,7 +15139,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -15310,7 +15313,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -15503,7 +15506,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -15609,7 +15612,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dits = [];
       /* 1. LA FICHE ÉPINGLÉE, SES QUATRE LIGNES, LES DEUX COLONNES ET LE ▶ */
@@ -15736,7 +15739,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -15865,7 +15868,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       for(let k = 0; k < nL; k++){
         await s.page.click('#pev-val-' + k);
@@ -15963,7 +15966,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -16141,7 +16144,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="soutien"]');
+      await s.page.click('#modeChoices [onclick*="soutien"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const dits = [];
@@ -16223,7 +16226,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), A.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       for(let i = 0; i < ids.length; i++) await s.page.selectOption('#' + ids[i], FC[i]);
       await s.page.click('#pelValidate');
@@ -16267,7 +16270,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), PI.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const ecran0 = await s.page.evaluate(() => ({ def: !!document.querySelector('#scr-pii .pii-def'),
@@ -16409,7 +16412,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), PF.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const dom = c => { const m = String(c).match(/(\d+)\D+(\d+)\D+(\d+)/); if(!m) return ''; const [r, g, b] = [+m[1], +m[2], +m[3]]; return b > r && b > g ? 'bleu' : (r > g && r > b ? 'rouge' : (g > r && g > b ? 'vert' : 'autre')); };
       const e0 = await s.page.evaluate(() => ({ def: (document.querySelector('#scr-pii .pii-def') || {}).textContent || '',
@@ -16476,7 +16479,7 @@ if(require.main === module) (async () => {
       await connecter(s.page);
       await s.page.evaluate(id => openTest(id), P.pythonInputReponse.exercice);
       await s.page.waitForTimeout(400);
-      await s.page.click('#modeChoices [onclick*="train"]');
+      await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
       await s.page.waitForTimeout(900);
       const bleu = await s.page.evaluate(() => { const p = document.createElement('i'); document.body.appendChild(p); p.style.color = 'var(--blue)'; const c = getComputedStyle(p).color; p.remove(); return c; });
       /* a) un vrai clic sur « Exécuter », la case s'ouvre dans la console */
@@ -20522,7 +20525,7 @@ if(require.main === module) (async () => {
       for(const id of ids){
         await s.page.evaluate(id => openTest(id), id);
         await s.page.waitForTimeout(250);
-        await s.page.click('#modeChoices [onclick*="train"]');
+        await s.page.click('#modeChoices [onclick*="train"]:not(.resume)');
         await s.page.waitForTimeout(700);
         const m = await s.page.evaluate(() => {
           const k = test.kind, f = ['Pose', 'Clic'].map(x => window[k + x]).filter(x => typeof x === 'function' && /^function \w+\(i,j\)/.test(String(x)));
