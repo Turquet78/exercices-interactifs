@@ -474,3 +474,43 @@ case, comme dans l'exercice de seconde 8.4.4. »
   Chromium : bulle du produit, de la somme, de la division, la consigne
   quand le produit manque, la fermeture au clic ailleurs, le résultat écrit
   par la bulle et jugé juste ; copie juste 1 / 1, 20 cases `ok`.
+
+**Puis une aide plus discrète, les flèches de la transposition, et les cases
+manquantes en rouge en soutien (v417).** Demande de Turquet : « pour l'aide
+facultative mettre uniquement la règle des signes avec des signes un peu plus
+gros et en une seule colonne ; ne pas écrire qu'on multiplie sans les signes ;
+il ne faut pas que l'aide facultative cache une partie du calcul qu'on est en
+train d'effectuer ainsi que les règles que l'on doit compléter ; faire des
+aides facultatives avec une police plus petite, discrètes sur la page ; il
+manque les flèches comme sur le pdf quand on transpose ; quand il manque des
+cases à compléter dans le mode soutien, les mettre en rouge. »
+· La bulle du produit et celle de la division ne portent plus que la règle
+  des signes, quatre lignes en une colonne, signes à 1,25 rem — plus de
+  cases, plus de « on multiplie sans les signes » ; celle d'une somme garde
+  son texte et ses deux cases. La bulle est petite (0,8 rem, 260 px au plus),
+  bordure fine vert pâle, ombre légère.
+· Sa place (`trdGpPlacer`, qui ne passe plus par `bexpPoser`) : le BLOC
+  entier — les deux calculs d'images, ou l'équation et ses règles — mesuré
+  par ses cellules (`trdGpEmprise` : la quatrième colonne de la grille
+  s'étire sur toute la largeur, sa boîte ne dit rien de ce qui est écrit), et
+  la bulle à droite du bloc, sinon à gauche, dessous, dessus. Mesuré dans
+  Chromium : aucun élément du calcul sous la bulle d'une image (posée à
+  droite) ; sous l'équation pour la division.
+· Les flèches (`trdFleches`) : un SVG posé sur la grille de l'équation
+  (`.trd-eq`, en position relative, une marge en haut et à gauche pour les
+  courbes), pointillé, sans prise ; du terme entouré de la ligne 1, par
+  au-dessus, à sa case de la ligne 2 ; du facteur entouré de la ligne 3, par
+  la gauche, au dénominateur. Positions lues sur les cases rendues, à chaque
+  redessin (`trdDessiner`), à la correction et au redimensionnement.
+· Soutien : une case VIDE (et visible) à la vérification s'entoure de rouge
+  — la classe `trd-manque`, PAS `.bad` : la règle commune « une case vide ne
+  rougit jamais » parle d'une case jugée fausse alors qu'elle était vide, ce
+  qui n'est pas le cas ici (elle n'est pas fausse, et le message dit « à
+  compléter ») ; le contrôle universel ne lit que `.bad`. Le liseré tombe à
+  la première frappe (`trdLive`). Le message nomme les deux : « corrige les
+  cases en rouge, et complète celles entourées de rouge », et, graphique
+  inachevé, « … ; et complète les cases entourées de rouge ».
+· Un oubli de la v416 réparé au passage : la règle `.trd-mot` (qui garde
+  « f (x) = ax + b » d'un seul morceau) avait disparu avec l'ancienne bulle.
+· Une erreur JavaScript trouvée par l'essai et corrigée avant de partir : la
+  bulle sans cases (produit, division) cherchait encore à brancher les siennes.
