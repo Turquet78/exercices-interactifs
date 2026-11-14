@@ -840,7 +840,7 @@ des FRÉQUENCES : globale, intersection, conditionnelle. Seul l'ordre de
 de question garde ses cases, son juge et sa méthode. Vérifié dans Chromium
 (1280 et 390 px) : copie juste 7 / 7, copie fausse 5 / 7.
 
-## {frequences-probabilites-fractions} (3.11, v411) : la fiche, fractions seules — et une probabilité d'un seul évènement aux deux fiches
+## {frequences-probabilites-direct} (3.11, v411) : la fiche, fractions seules — et une probabilité d'un seul évènement aux deux fiches
 
 Demande de Turquet (novembre 2026) : « faire un deuxième exercice après le
 premier avec un énoncé différent et où on demande uniquement la fraction à
@@ -858,7 +858,7 @@ simple tiré est différent de celui de la fréquence globale (deux tirés dans
 `PB_SIMPLES`). `FPB_NB_A` vaut 5 : A1 à A5, B1 à B3, huit questions.
 
 **Le 3.11 est le même moteur** (`fpbSeance(2)`, `q.fpb = 2`, démarreur
-`startFPB2`, identité `frequences-probabilites-fractions` ; `fpbEstFiche()`
+`startFPB2`, identité `frequences-probabilites-direct` ; `fpbEstFiche()`
 couvre les deux identités pour la page, le juge, le contexte du modèle et le
 mot « tout »), avec deux différences :
 - D'AUTRES ÉNONCÉS (`FPB2_CTX`, lue par `pbCtx` quand `q.fpb` vaut 2) : un
@@ -873,6 +873,10 @@ mot « tout »), avec deux différences :
   en partie B. Aucune fraction en lettres, aucun indice ni évènement à
   composer : les attendus (`fpbAttLigne`, `fpbAttNom`) ne portent alors que
   `pb-n1` et `pb-n2`, et une fraction égale reste juste (`pbFracJuger`).
+  L'identifiant ne contient pas le mot « fraction » : le banc principal
+  démarre tout exercice ainsi nommé comme un calcul de fractions et
+  cherche ses fractions de départ — « frequences-probabilites-fractions »
+  a rougi au premier essai, d'où « …-direct ».
   L'énoncé encadré le dit (« chaque réponse est une fraction écrite avec les
   effectifs du tableau »). Rappel de cours et questions à l'IA du 3.10.
 
