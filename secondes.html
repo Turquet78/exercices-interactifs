@@ -1264,6 +1264,7 @@
   .pch-in{font:inherit;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:1px 6px;outline:none;box-sizing:content-box}
   .pch-in-n{width:9ch}
   /* {python-input-sport} : chaque trou tient sa phrase entière, guillemets compris */
+  .psf-img{width:170px;max-width:46%;height:auto}
   #psf-l1{width:31ch} #psf-l2{width:28ch} #psf-nom{width:12ch}
   .pch-in-v{width:7ch}
   .pch-in-c{width:12ch}
@@ -14040,7 +14041,7 @@ const HW_SERPENTS={
   'python-input-ordre':    { v:'epouvantail', img:'dessins/secondes/python-input-ordre-halloween.webp', bulle:['Les lignes','dans l’ordre,','gare au corbeau !'], alt:'un serpent épouvantail, chapeau de paille, à côté d’un corbeau ; il dit : « Les lignes dans l’ordre, gare au corbeau ! »' },
   'python-input-arrondi':  { v:'chaudron', large:true, img:'dessins/secondes/python-input-arrondi-halloween.webp', bulle:['3.4499999…','Arrondis','ma potion !'], alt:'un serpent devant un chaudron de potion verte qui bouillonne ; il dit : « 3.4499999… Arrondis ma potion ! »' },
   'python-input-monnaie':  { v:'chauvesouris', large:true, img:'dessins/secondes/python-input-monnaie-halloween.webp', bulle:['Rends-moi','la monnaie, ou','je m’envole !'], alt:'un serpent aux ailes de chauve-souris ; il dit : « Rends-moi la monnaie, ou je m’envole ! »' },
-  'python-input-sport':    { v:'citrouille-ballon', img:'dessins/secondes/python-input-sport-halloween.webp', bulle:['Ton sport favori ?','Moi : le foot','à la citrouille !'], alt:'un serpent au bandeau de sport orange, à côté d’une citrouille ronde comme un ballon ; il dit : « Ton sport favori ? Moi : le foot à la citrouille ! »' },
+  'python-input-sport':    { v:'footcitrouille', img:'dessins/secondes/python-input-sport-halloween.webp', bulle:['Ton sport','favori ? Moi,','la citrouille !'], alt:'un serpent au bandeau de sport orange, à côté d’une citrouille ronde comme un ballon ; il dit : « Ton sport favori ? Moi, la citrouille ! »' },
   'python-input-image':    { v:'hibou', large:true, img:'dessins/secondes/python-input-image-halloween-2.webp', bulle:['Hou hou…','f(2) vaut','combien ?'], alt:'un serpent sous la lune, à côté d’un hibou perché sur une branche ; il dit : « Hou hou… f(2) vaut combien ? »' },
   /* Sous-thèmes 6.1 et 6.2 « variables » (demande de Turquet, octobre 2026 : « fais des dessins de serpent en rapport avec chaque exercice, et un autre pour Halloween ») : un déguisement par exercice, assorti à l'accessoire de son exercice. */
   'python-affichage': { v:'sorciereaffichage', img:'dessins/secondes/python-affichage-halloween.webp', bulle:['Mon grimoire','affiche quoi ?','Devine !'], alt:'un serpent déguisé en sorcière, chaudron vert bouillonnant, dit : « Mon grimoire affiche quoi ? Devine ! »' },
@@ -52634,7 +52635,7 @@ function renderPSF(){
   $('modeTagPSF').innerHTML=modeTagHTML();
   $('psfLiveScore').textContent=test.score;
   $('psfFeedback').textContent=''; $('psfFeedback').className='mp-feedback';
-  $('psfFig').innerHTML=hwSerpentHTML('python-input-sport');
+  $('psfFig').innerHTML='<img class="psf-img" src="dessins/secondes/python-input-sport.webp" alt="un serpent au bandeau de sport, à côté d’un ballon de football" width="241" height="271">'+hwSerpentHTML('python-input-sport');
   pyAvant('psf', psfCoursHTML());
   const k=q.etape==='a'?0:1;
   let h='<div class="py-cell">'

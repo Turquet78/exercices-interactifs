@@ -6834,7 +6834,7 @@ irait par la difficulté, aurait renuméroté dix-sept exercices dont les
 numéros sont épinglés par leurs contrôles. Son serpent d'Halloween (exigé de
 tout le 6.3) : un serpent au bandeau de sport à côté d'une citrouille ronde
 comme un ballon, dessiné en SVG puis converti en WebP
-(`dessins/secondes/python-input-sport-halloween.webp`).
+(`dessins/secondes/python-input-sport-halloween.webp`), à côté du dessin de l’exercice — le même serpent, un ballon de football (`python-input-sport.webp`).
 
 Banc jsdom (`pythonInputSport`, déclaré dans `tests/profils.js`) : la place
 au menu, le juge des trous, du nom et du type (justes acceptés, faux refusés
