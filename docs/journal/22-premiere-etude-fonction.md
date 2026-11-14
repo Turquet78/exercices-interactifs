@@ -237,3 +237,39 @@ le point, trois cases `ok` ; une copie à une fausse, une juste, une vide :
 rouge avec le badge vert, bleu, verte remplie — « Il te manquait 1 case… »
 puis le pourquoi, note 0,3 / 1 ; « Revoir le chemin » rejoue ; sur un
 téléphone, la page ne déborde pas. Aucune erreur JavaScript.
+
+**Puis trois paliers, deux questions chacun (v409).** Demande de Turquet,
+novembre 2026 : « après deux questions, faire deux autres questions avec les
+signes qui ne sont plus sur le dessin et les racines à placer dans le tableau
+avec les zéros, puis deux autres questions avec aucune couleur, aucun signe,
+aucun point sur le dessin et le tableau complet à compléter avec les racines
+et les zéros ». Six questions (`TSC_NB`), le palier RANGÉ dans la question
+(`q.et`, calculé au tirage par `tscEtape` — 1,1,2,2,3,3 sur six ; une séance
+coupée à deux par un devoir garde 1 puis 2) : la reprise d'une pause le relit,
+rien ne se recalcule à l'affichage, et le contrôle refuse tout autre champ.
+· Palier 1 : inchangé — encres, signes écrits, points verts, trois signes à
+  placer, racines et zéros donnés.
+· Palier 2 : encres et points verts, plus aucun signe (`tscDessin` ne pose
+  ni signe ni obstacle, « Cf » se place comme en Seconde) ; le tableau est
+  ENTIER, celui du {lecture-signes} de la Seconde : les deux racines dans la
+  ligne des x, À LEUR PLACE (la plus petite à gauche — un tableau se lit de
+  gauche à droite, les racines échangées sont fausses toutes les deux, alors
+  que S = { ; } reste à ordre libre), puis +, − ou 0 dans chacune des CINQ
+  cases de la ligne du signe — savoir que le 0 va sous une racine EST évalué,
+  des cases qui ne l'offriraient que sous les racines révéleraient la réponse.
+· Palier 3 : la courbe NUE (`lvGraphSVG` sans rien par-dessus), le même
+  tableau entier.
+Le titre de la fiche (`TSC_TITRES`), la consigne du tableau, le pourquoi
+(`tscWhy`) et le contexte du modèle (`ctxTsc`) changent avec le palier ;
+l'énoncé de l'écran et la description du menu annoncent les trois. Neuf
+cases aux paliers 2 et 3 (2 racines, 5 signes, 2 solutions), cinq au 1 ;
+toujours un point par question parfaite.
+**Le contrôle** : six questions aux paliers 1,1,2,2,3,3 ; par palier, le
+dessin compté (encres, signes, points : 2-1 / 2-1 / 2 au palier 1, 2-1 / 0 /
+2 au 2, 0 / 0 / 0 au 3, la courbe `.lv-curve` toujours là) ; au palier 2 la
+copie juste vaut un point sur neuf cases `ok`, chaque case de la ligne du
+signe offre le 0, les racines échangées rougissent toutes les deux, un + sous
+une racine rougit avec le badge « 0 » ; au palier 3 la copie juste (S à
+l'envers) vaut le point et le titre dit « nue » ; une question posée seule au
+palier 3 se dessine nue — le palier est lu dans la question, pas déduit de sa
+place.

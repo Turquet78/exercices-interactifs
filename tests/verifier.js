@@ -33696,11 +33696,13 @@ function tableauSignesCourbe(w, P){
     /* ---- 1. le tirage : 250 séances, tout par sa propre arithmétique ---- */
     for(let t=0;t<250 && !vus.length;t++){
       const qs=tscBuildQuestions();
-      if(qs.length!==5){ vus.push(qs.length+' questions au lieu de 5'); break; }
+      if(qs.length!==6){ vus.push(qs.length+' questions au lieu de 6 (trois paliers de deux)'); break; }
+      /* les trois paliers, deux questions chacun, dans l'ordre — rangés dans la question */
+      if(qs.map(function(q){ return q.et; }).join(',')!=='1,1,2,2,3,3') vus.push('les paliers ne sont pas 1,1,2,2,3,3 : '+qs.map(function(q){ return q.et; }).join(','));
       const sides=[];
       qs.forEach(function(q){
-        const cles=Object.keys(q).filter(function(k){ return k!=='pts'; });
-        if(cles.length) vus.push('la question range autre chose que la courbe : '+cles.join(','));
+        const cles=Object.keys(q).filter(function(k){ return k!=='pts' && k!=='et'; });
+        if(cles.length) vus.push('la question range autre chose que la courbe et le palier : '+cles.join(','));
         const pts=q.pts, so=[];
         for(let x=-3;x<=3;x++){ if(pts[x+3]===0) so.push(x); }
         if(pts.some(function(v){ return v<-3||v>3||!Number.isInteger(v); })) vus.push('une valeur sort de [−3 ; 3] : '+pts.join(','));
@@ -33769,8 +33771,8 @@ function tableauSignesCourbe(w, P){
     /* ---- 3. les gestes, cliqués, couleurs lues — sur les DEUX visages ---- */
     /* Q0 est LE REPLI du tirage (côté négatif : + − +) ; Q1 un tirage relevé
        au côté positif (− + −). Les deux passent par les gardes du point 1. */
-    const Q0={pts:[3,2,0,-1,-3,0,1]};   /* racines −1 et 2, milieu NÉGATIF */
-    const Q1={pts:[-3,-2,-1,0,1,0,-2]}; /* racines 0 et 2, milieu POSITIF */
+    const Q0={pts:[3,2,0,-1,-3,0,1], et:1};   /* racines −1 et 2, milieu NÉGATIF */
+    const Q1={pts:[-3,-2,-1,0,1,0,-2], et:1}; /* racines 0 et 2, milieu POSITIF */
     function pose(q, valeurs, mode){
       currentMode=mode||'train';
       Object.keys(test).forEach(function(k){ delete test[k]; });
@@ -33784,22 +33786,27 @@ function tableauSignesCourbe(w, P){
     /* le dessin : les morceaux et les signes, par côté ; la géométrie est celle
        de lvGraphSVG (PL=52, PR=310, 7 unités sur 258 px) */
     const sx=function(x){ return 52+(x+3.5)/7*258; };
-    const dessin=function(racines, cote){
+    /* par palier : au 1 les encres, les signes et les points ; au 2 les encres
+       et les points, aucun signe ; au 3 la courbe nue — rien de tout cela */
+    const dessin=function(racines, cote, et){
+      et=et||1;
       const svg=document.querySelector('#tscHost .lv-graph svg');
       if(!svg){ vus.push('le dessin n\\'est pas dans le cadre de lecture (.lv-graph)'); return; }
       const axe=svg.querySelector('.lv-axis'); const y0=axe?parseFloat(axe.getAttribute('y1')):NaN;
       const nPos=svg.querySelectorAll('.tsg-pos').length, nNeg=svg.querySelectorAll('.tsg-neg').length;
-      const attP=cote<0?2:1, attN=cote<0?1:2;
-      if(nPos!==attP||nNeg!==attN) vus.push('côté '+(cote<0?'négatif':'positif')+' : '+nPos+' morceau(x) rouge(s) et '+nNeg+' bleu(s) au lieu de '+attP+' et '+attN);
+      const attP=(et===3)?0:(cote<0?2:1), attN=(et===3)?0:(cote<0?1:2);
+      if(nPos!==attP||nNeg!==attN) vus.push('palier '+et+', côté '+(cote<0?'négatif':'positif')+' : '+nPos+' morceau(x) rouge(s) et '+nNeg+' bleu(s) au lieu de '+attP+' et '+attN);
       const sP=[].slice.call(svg.querySelectorAll('text.tsc-signe-pos')), sN=[].slice.call(svg.querySelectorAll('text.tsc-signe-neg'));
-      if(sP.length!==attP||sN.length!==attN) vus.push('côté '+(cote<0?'négatif':'positif')+' : '+sP.length+' signe(s) + et '+sN.length+' signe(s) − au lieu de '+attP+' et '+attN);
+      const attSP=(et===1)?attP:0, attSN=(et===1)?attN:0;
+      if(sP.length!==attSP||sN.length!==attSN) vus.push('palier '+et+', côté '+(cote<0?'négatif':'positif')+' : '+sP.length+' signe(s) + et '+sN.length+' signe(s) − au lieu de '+attSP+' et '+attSN);
+      if(!svg.querySelector('.lv-curve')) vus.push('la courbe elle-même (.lv-curve) manque au palier '+et);
       const bornes=[[-3,racines[0]],[racines[0],racines[1]],[racines[1],3]];
       const morceaux=bornes.map(function(b,i){ return {a:sx(b[0]), b:sx(b[1]), pos:(i===1)?(cote>0):(cote<0)}; });
       const cf=svg.querySelector('.lv-cf'); const bx=cf?parseFloat(cf.getAttribute('x')):NaN, by=cf?parseFloat(cf.getAttribute('y')):NaN;
       /* un point VERT sur chaque racine, sur l'axe, par-dessus les encres */
       const pts=[].slice.call(svg.querySelectorAll('circle.tsc-racine'));
-      if(pts.length!==2) vus.push(pts.length+' point(s) de racine au lieu de 2');
-      racines.forEach(function(r){ if(!pts.some(function(c){ return Math.abs(parseFloat(c.getAttribute('cx'))-sx(r))<0.6 && Math.abs(parseFloat(c.getAttribute('cy'))-y0)<0.6; }))
+      if(pts.length!==(et===3?0:2)) vus.push('palier '+et+' : '+pts.length+' point(s) de racine au lieu de '+(et===3?0:2));
+      if(et!==3) racines.forEach(function(r){ if(!pts.some(function(c){ return Math.abs(parseFloat(c.getAttribute('cx'))-sx(r))<0.6 && Math.abs(parseFloat(c.getAttribute('cy'))-y0)<0.6; }))
         vus.push('aucun point sur la racine '+r+' (x='+sx(r).toFixed(1)+', axe '+y0+')'); });
       pts.forEach(function(c){ if(c.nextElementSibling && c.nextElementSibling.tagName!=='circle') vus.push('un point de racine est recouvert par '+c.nextElementSibling.tagName); });
       sP.concat(sN).forEach(function(t){
@@ -33825,6 +33832,35 @@ function tableauSignesCourbe(w, P){
     if(document.getElementById('tsc-c1')||document.getElementById('tsc-p-co1')||document.getElementById('tsc-n-co1')) vus.push('une case des phrases ou des inéquations de la Seconde subsiste');
     if(document.querySelector('#tscHost .ing-cartes')) vus.push('le dessin est posé dans la grille à quatre colonnes des propositions');
     dessin([-1,2], -1);
+
+    /* ---- le palier 2 : les encres et les points, aucun signe ; le tableau
+       ENTIER — racines à leur place, +, − ou 0 dans les cinq cases ---- */
+    const JUSTE2={ 'tsc-r0':'-1','tsc-r1':'2', 'tsc-s0':'+','tsc-s1':'0','tsc-s2':'-','tsc-s3':'0','tsc-s4':'+', 'tsc-e0':'-1','tsc-e1':'2' };
+    r=pose({pts:Q0.pts, et:2}, JUSTE2);
+    if(r.score!==1) vus.push('palier 2 : la copie juste vaut '+r.score+' au lieu de 1');
+    Object.keys(JUSTE2).forEach(function(id){ if(cls(id).indexOf('ok')<0) vus.push('palier 2, copie juste : '+id+' n\\'est pas peinte ok ('+cls(id)+')'); });
+    if(document.querySelectorAll('#tscHost select').length!==9) vus.push('palier 2 : '+document.querySelectorAll('#tscHost select').length+' cases au lieu de 9 (2 racines, 5 signes, 2 solutions)');
+    if(document.getElementById('tsc-t0')) vus.push('palier 2 : les cases du palier 1 subsistent');
+    /* chaque case de la ligne du signe offre le 0 : savoir où il va EST évalué */
+    ['tsc-s0','tsc-s2','tsc-s4'].forEach(function(id){ const el=document.getElementById(id);
+      if(!el || ![].some.call(el.options, function(o){ return o.value==='0'; })) vus.push('palier 2 : la case '+id+' n\\'offre pas le 0 — les cases qui ne l\\'offriraient que sous les racines révéleraient la réponse'); });
+    dessin([-1,2], -1, 2);
+    /* les racines du tableau sont À LEUR PLACE : échangées, fausses toutes les deux */
+    r=pose({pts:Q0.pts, et:2}, Object.assign({},JUSTE2,{'tsc-r0':'2','tsc-r1':'-1'}));
+    if(r.score!==0 || cls('tsc-r0').indexOf('bad')<0 || cls('tsc-r1').indexOf('bad')<0) vus.push('palier 2 : les racines échangées dans le tableau ne sont pas fausses toutes les deux ('+cls('tsc-r0')+' / '+cls('tsc-r1')+', score '+r.score+')');
+    /* un + à la place du 0 sous une racine : rouge, badge « 0 » */
+    r=pose({pts:Q0.pts, et:2}, Object.assign({},JUSTE2,{'tsc-s1':'+'}));
+    if(cls('tsc-s1').indexOf('bad')<0) vus.push('palier 2 : un + sous une racine ne rougit pas');
+    { const el=document.getElementById('tsc-s1'), b=el&&el.nextElementSibling;
+      if(!b||!b.classList.contains('mf-cor')||b.textContent!=='0') vus.push('palier 2 : le badge sous la racine n\\'écrit pas « 0 »'); }
+    /* ---- le palier 3 : la courbe NUE, le même tableau entier ---- */
+    r=pose({pts:Q1.pts, et:3}, { 'tsc-r0':'0','tsc-r1':'2', 'tsc-s0':'-','tsc-s1':'0','tsc-s2':'+','tsc-s3':'0','tsc-s4':'-', 'tsc-e0':'2','tsc-e1':'0' });
+    if(r.score!==1) vus.push('palier 3 : la copie juste (S à l\\'envers) vaut '+r.score+' au lieu de 1');
+    dessin([0,2], 1, 3);
+    if(!/nue/i.test(document.querySelector('#tscHost .itq-ineg').textContent)) vus.push('palier 3 : le titre ne dit pas que la courbe est nue');
+    /* la reprise relit le palier RANGÉ dans la question, jamais sa place */
+    r=pose({pts:Q0.pts, et:3}, {});
+    if(document.querySelectorAll('#tscHost .tsg-pos, #tscHost .tsc-racine').length) vus.push('une question au palier 3 posée seule se dessine encore en couleurs : le palier n\\'est pas lu dans la question');
 
     /* le second visage : côté positif */
     const JUSTE1={ 'tsc-t0':'-','tsc-t1':'+','tsc-t2':'-', 'tsc-e0':'0','tsc-e1':'2' };
