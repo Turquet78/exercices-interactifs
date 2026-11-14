@@ -6824,6 +6824,47 @@ majuscules d'un bout à l'autre et les trois fautes, son seuil passe à quatre.
 
 ---
 
+**input, le programme exécuté LIGNE PAR LIGNE — la fiche « input_new ».**
+{python-input-pas-a-pas} (Seconde, 6.3.1, demande de Turquet, novembre 2026 :
+« faire un exercice comme le 6.3.1 sans les questions b et c et le placer en
+premier dans le thème input ; le programme doit s'exécuter pas à pas, et quand
+la 1re ligne est exécutée afficher le cadre correspondant et demander à
+l'élève de le compléter ; quand c'est fait, demander d'exécuter la deuxième
+ligne, puis faire apparaître le deuxième cadre »). Le programme de la fiche,
+`nom = input("comment tu t'appelles ? ")` puis `print("tu es", nom)`, et à
+côté de chaque ligne une flèche vers SON cadre :
+« Ici le programme affiche la question « … » et met la réponse de l'élève dans
+la variable …, ici la valeur de cette variable est le texte … » ; « Ici le
+programme affiche le texte « … » et le texte qui est dans la variable …, ici
+le texte dans cette variable est … ».
+**Le déroulé est une porte à chaque pas** (kind `pnp`) : « ▶ Exécuter la
+ligne 1 » (la ligne surlignée) pose la question dans la console — la console
+qui attend du 6.3.2, sa propre case `pnpEntree` ; la réponse tapée à Entrée,
+le cadre 1 s'ouvre. Vérifié, il cède la place à « ▶ Exécuter la ligne 2 » ;
+la console écrit alors la phrase (« tu es ben »), et le cadre 2 s'ouvre.
+L'étape est rangée dans la question (`q.etape`, 0 à 4) avec la réponse tapée
+(`q.rep`), les six saisies et leurs verdicts : la reprise redessine l'écran
+au pas où il était. **Le juge ne range rien** : la question, le texte et la
+variable se relisent dans la situation, la valeur dans `q.rep`. Les deux
+textes passent par `pyTexteProche` (la tolérance du thème), les guillemets
+autour d'une saisie sont ignorés ; le nom de la variable s'écrit exactement ;
+la valeur se compare pliée. En entraînement, une case fausse rougit et reçoit
+sa correction en vert à côté ; une case VIDE reçoit la valeur DANS la case,
+en vert (`sol`), sans rougir. En soutien, rien ne se verrouille et rien ne
+s'écrit tant que le cadre n'est pas juste. 6 cases par question, trois
+questions : la fiche épinglée, puis deux autres situations distinctes.
+**Le 6.3.1 d'avant ({python-input-reponse}) devient 6.3.2**, et tout le
+sous-thème glisse d'un cran (les notes portent l'identifiant, rien ne se
+perd) : les contrôles qui épinglaient les numéros du 6.3 ont été décalés.
+Sur ordinateur les cadres s'alignent en colonne (une grille : la ligne, la
+flèche, le cadre) ; sous 820 px, chaque cadre passe sous sa ligne et la
+flèche pointe vers le haut. Le serpent d'Halloween (`lanterne`) est dessiné
+en SVG, rendu par Chromium et converti en WebP. Banc jsdom :
+`pythonInputPasAPas` (la place, le tirage, le juge, le trajet en
+entraînement, le soutien).
+
+---
+
 ## {python-input-sport} — compléter input et print : ton sport favori (6.3.19, Input)
 
 Demande de Turquet, novembre 2026 : « fais un exercice avec input, sur le

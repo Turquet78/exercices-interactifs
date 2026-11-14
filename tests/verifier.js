@@ -4919,6 +4919,7 @@ function exercices(suite){
     pythonNoms(w, P);
     pythonNomVariable(w, P);
     pythonPrint(w, P);
+    pythonInputPasAPas(w, P);
     pythonInputReponse(w, P);
     pythonInputSport(w, P);
     serpentsHalloween(w, P);
@@ -36275,6 +36276,125 @@ function serpentsHalloween(w, P){
   })()`, v => v === '');
 }
 
+/* {python-input-pas-a-pas} (Seconde, 6.3.1) : le programme de la fiche
+   « input_new » — nom = input(...), puis print("tu es", nom) — exécuté LIGNE
+   PAR LIGNE ; à côté de chaque ligne exécutée s'ouvre un cadre à compléter
+   (demande de Turquet, novembre 2026). Le contrôle tient la place au menu, le
+   tirage, puis le trajet : la ligne 2 et son cadre fermés tant que le cadre 1
+   n'est pas vérifié, le cadre 2 fermé tant que la ligne 2 n'est pas exécutée,
+   le juge (tolérance des textes, guillemets ignorés, variable exacte), la
+   case vide qui ne rougit pas, et le soutien qui ne verrouille rien. */
+function pythonInputPasAPas(w, P){
+  const nom = '{python-input-pas-a-pas} : input, le programme exécuté ligne par ligne';
+  if(!P.pythonInputPasAPas){ ignorer(nom, 'ce niveau n\'a pas l\'exercice'); return; }
+  const C = P.pythonInputPasAPas, ID = C.exercice, NB = C.nb, NUM = C.numero;
+  const present = evaluer(w, "typeof startPNP==='function' && typeof pnpJugeCase==='function' && typeof pnpBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'startPNP / pnpJugeCase / pnpBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return; }
+
+  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input », numéroté ' + NUM + ', devant {python-input-reponse} (6.3.2) — et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!s3||s3.ids[0]!=="${ID}"||s3.ids[1]!=="python-input-reponse") vus.push("sous-thème 6.3 : "+(s3?s3.ids.slice(0,3).join(","):"absent"));
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-image"]!=="6.3.19") vus.push("le sous-thème n’est pas décalé d’un cran");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le tirage : ' + NB + ' questions de situations distinctes, la fiche (nom, « tu es ») en tête ; chaque situation sort (300 séances)', `(function(){
+    const vus=[], vues={};
+    for(let n=0;n<300;n++){
+      const qs=pnpBuildQuestions();
+      if(qs.length!==${NB}) { vus.push(qs.length+" questions"); break; }
+      if(qs[0].s!==0) vus.push("la fiche n’est pas en tête");
+      const ss=qs.map(function(q){ return q.s; });
+      if(ss.some(function(x,i){ return ss.indexOf(x)!==i; })) vus.push("deux fois la même situation : "+ss.join(","));
+      ss.forEach(function(x){ vues[x]=1; });
+      if(JSON.stringify(qs)!==JSON.stringify(JSON.parse(JSON.stringify(qs)))) vus.push("question non JSON");
+    }
+    if(Object.keys(vues).length!==PNP_SITUATIONS.length) vus.push("situations sorties : "+Object.keys(vues).join(","));
+    const S=PNP_SITUATIONS[0];
+    if(S.nom!=="nom"||S.texte!=="tu es"||S.question.indexOf("comment tu t")!==0) vus.push("la fiche a changé");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le juge : les textes à la tolérance du thème (majuscules, faute, sans « ? »), les guillemets autour ignorés, le nom de la variable exact, la valeur = la réponse tapée ; une case vide n’est ni juste ni fausse', `(function(){
+    const vus=[], q={s:0, rep:"Ben", etape:1, v:[], ok:[]};
+    const doit=function(k,v,att){ const r=pnpJugeCase(q,k,v); if(r!==att) vus.push("case "+k+" « "+v+" » : "+r+" au lieu de "+att); };
+    doit(0,"comment tu t'appelles ?",true); doit(0,"Comment tu t’apelles",true); doit(0,"« comment tu t'appelles ? »",true); doit(0,"tu es",false); doit(0,"quel âge as-tu ?",false);
+    doit(1,"nom",true); doit(1,'"nom"',true); doit(1,"Nom",false); doit(1,"ben",false);
+    doit(2,"Ben",true); doit(2,'"ben"',true); doit(2,"Léa",false);
+    doit(3,"tu es",true); doit(3,'"Tu es"',true); doit(3,"je suis",false);
+    doit(4,"nom",true); doit(4,"prenom",false);
+    doit(5,"Ben",true); doit(5,"nom",false);
+    doit(0,"",null); doit(5,"   ",null);
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le trajet en entraînement : ligne 1 exécutée → réponse à Entrée → cadre 1 seul ; vérifié → bouton « Exécuter la ligne 2 », sans cadre 2 ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPNP();
+    const q=test.questions[0];
+    if(!document.getElementById("pnpRun1")) vus.push("pas de bouton « Exécuter la ligne 1 »");
+    if(document.getElementById("pnpCadre1")) vus.push("cadre 1 ouvert avant l’exécution");
+    if(document.querySelector("#pnpR1.pnp-courante")===null) vus.push("la ligne 1 n’est pas surlignée");
+    pnpExecuter(1);
+    const e=document.getElementById("pnpEntree");
+    if(!e) return "la console n’attend pas de réponse";
+    e.value="Ben"; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+    if(q.rep!=="Ben"||q.etape!==1) vus.push("réponse "+q.rep+", étape "+q.etape);
+    if(!document.getElementById("pnpCadre1")) vus.push("le cadre 1 ne s’ouvre pas");
+    if(document.getElementById("pnpCadre2")||document.getElementById("pnpRun2")) vus.push("la ligne 2 est déjà proposée");
+    document.getElementById("pnp-c0").value="comment tu t'appelles ?";
+    document.getElementById("pnp-c1").value="nom";
+    document.getElementById("pnp-c2").value="Ben";
+    checkPNP();
+    if(q.etape!==2||test.score!==3) vus.push("après le cadre 1 : étape "+q.etape+", score "+test.score);
+    if(document.querySelectorAll("#pnpCadre1 input.ok").length!==3) vus.push("les trois cases justes ne sont pas bleues");
+    if(!document.getElementById("pnpRun2")) vus.push("pas de bouton « Exécuter la ligne 2 »");
+    if(document.getElementById("pnpCadre2")) vus.push("cadre 2 ouvert avant l’exécution de la ligne 2");
+    if(!/ligne 2/.test(document.getElementById("pnpFeedback").textContent)) vus.push("le retour ne demande pas d’exécuter la ligne 2");
+    pnpExecuter(2);
+    const cons=document.getElementById("pnpConsole").textContent;
+    if(cons.indexOf("tu es Ben")<0||cons.indexOf("comment tu t")!==0) vus.push("console : "+cons);
+    if(!document.getElementById("pnpCadre2")) vus.push("le cadre 2 ne s’ouvre pas");
+    document.getElementById("pnp-c3").value="tu es";
+    document.getElementById("pnp-c4").value="prenom";
+    document.getElementById("pnp-c5").value="";
+    checkPNP();
+    const c4=document.getElementById("pnp-c4"), c5=document.getElementById("pnp-c5");
+    if(!c4.classList.contains("bad")||!(c4.nextElementSibling&&c4.nextElementSibling.classList.contains("mf-cor"))) vus.push("la case fausse ne rougit pas avec sa correction");
+    if(c5.classList.contains("bad")||!c5.classList.contains("sol")||c5.value!=="Ben") vus.push("la case vide : "+c5.className+" « "+c5.value+" »");
+    if(test.score!==4||!test.locked||!document.getElementById("pnpNext")) vus.push("fin : score "+test.score+", verrou "+test.locked);
+    if(test.answers.length!==1) vus.push(test.answers.length+" réponses rangées");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'en soutien, une case fausse rougit sans rien verrouiller ni écrire la réponse ; corrigée, la ligne 2 s’ouvre ; un cadre vide ne rougit rien', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="soutien"; currentDM=null; currentTestId="${ID}";
+    startPNP();
+    const q=test.questions[0]; q.rep="15"; q.etape=1; renderPNP();
+    checkPNP();
+    if(document.querySelector("#pnpHost .bad")) vus.push("un cadre vide rougit");
+    if(q.etape!==1) vus.push("un cadre vide fait avancer");
+    document.getElementById("pnp-c0").value="comment tu t'appelles ?";
+    document.getElementById("pnp-c1").value="nom";
+    document.getElementById("pnp-c2").value="16";
+    checkPNP();
+    if(!document.getElementById("pnp-c2").classList.contains("bad")) vus.push("la valeur fausse ne rougit pas");
+    if(q.etape!==1||test.locked||test.score!==0) vus.push("soutien : étape "+q.etape+", verrou "+test.locked+", score "+test.score);
+    if(document.querySelector("#pnpHost .mf-cor")) vus.push("la correction est écrite en soutien");
+    document.getElementById("pnp-c2").value="15";
+    checkPNP();
+    if(q.etape!==2||!document.getElementById("pnpRun2")) vus.push("corrigé, la ligne 2 ne s’ouvre pas");
+    currentMode="train";
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+}
+
 function pythonInputReponse(w, P){
   const nom = '{python-input-reponse} : demander une réponse avec input, en trois étapes';
   if(!P.pythonInputReponse){ ignorer(nom, 'ce niveau n\'a pas l\'exercice sur input'); return; }
@@ -36285,12 +36405,12 @@ function pythonInputReponse(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il ouvre le sous-thème 6.3 « Input », numéroté ' + NUM + ' — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-input-pas-a-pas} en tête du sous-thème 6.3 « Input », numéroté ' + NUM + ' — et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
-    if(!s3||!/input/i.test(s3.nom)||s3.ids[0]!=="${ID}") vus.push("sous-thème 6.3 : "+(s3?s3.nom+" "+s3.ids.join(","):"absent"));
+    if(!s3||!/input/i.test(s3.nom)||s3.ids[0]!=="python-input-pas-a-pas"||s3.ids[1]!=="${ID}") vus.push("sous-thème 6.3 : "+(s3?s3.nom+" "+s3.ids.join(","):"absent"));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input"]!=="6.3.2") vus.push("{python-input} porte "+TEST_NUM["python-input"]+" au lieu de 6.3.2");
+    if(TEST_NUM["python-input"]!=="6.3.3") vus.push("{python-input} porte "+TEST_NUM["python-input"]+" au lieu de 6.3.3");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -36535,7 +36655,7 @@ function pythonInputSport(w, P){
     const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!s3||s3.ids[s3.ids.length-1]!=="${ID}") vus.push("pas en fin du sous-thème 6.3");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-image"]!=="6.3.18") vus.push("les autres exercices du 6.3 ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-image"]!=="6.3.19") vus.push("les autres exercices du 6.3 ont bougé");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -36841,11 +36961,11 @@ function pythonInput(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il est dans le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.2 — derrière {python-input-reponse}, l’exercice 2 du carnet — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il est dans le sous-thème 6.3 « Input » du thème 6, numéroté 6.3.3 — derrière {python-input-reponse}, l’exercice 2 du carnet — et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input : "+(st?st.nom:"aucun"));
-    if(TEST_NUM["${ID}"]!=="6.3.2") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["${ID}"]!=="6.3.3") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -36921,7 +37041,7 @@ function pythonInput(w, P){
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
     /* l'énoncé à puces se pose À CÔTÉ de la cellule, en tête de son cadre et en
-       GRAS (le motif du 6.3.1) ; celui du haut dit l'exercice, sans les puces */
+       GRAS (le motif du 6.3.2) ; celui du haut dit l'exercice, sans les puces */
     const en=document.querySelector("#pyiEtape .pyn-titre"), haut=document.getElementById("pyiInstr");
     if(!en||en.querySelectorAll("li").length!==3||en.textContent.indexOf("animal")<0||en.textContent.indexOf("couleur")<0) vus.push("l’énoncé à côté de la cellule : "+(en&&en.textContent));
     else if(!en.parentNode.contains(document.getElementById("pyi-prog"))) vus.push("l’énoncé n’est pas dans le cadre de la cellule du programme");
@@ -37016,7 +37136,7 @@ function pythonInputCalcul(w, P){
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-int")+1||st.ids.indexOf("python-input-int")<0) vus.push("il ne suit pas {python-input-int} (l’exercice 4 du carnet) : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3") vus.push("les trois autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["python-input-int"]!=="6.3.4") vus.push("les trois autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -37200,7 +37320,7 @@ function pythonChaineLen(w, P){
     if(!st||st.num!==4||st.nom!=="Bonus") vus.push("le quatrième sous-thème n’est pas 6.4 Bonus : "+(st&&st.nom));
     else if(st.ids[0]!=="${ID}") vus.push("il n’ouvre pas le sous-thème : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(RAPPELS.pcl!==RAP_PCL||!QIA_SUGG.pcl) vus.push("rappel ou questions à l’IA absents");
     return vus.join(" | ");
@@ -37375,7 +37495,7 @@ function pythonForRange(w, P){
     if(!st||st.num!==6||!/boucle for in range/i.test(st.nom)) vus.push("le sixième sous-thème n’est pas 6.6 Boucle for in range : "+(st&&st.nom));
     else if(st.ids[1]!=="${ID}"||st.ids[0]!=="python-for-pas-a-pas") vus.push("il ne suit pas {python-for-pas-a-pas} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(RAPPELS.pfr!==RAP_PFR||!QIA_SUGG.pfr) vus.push("rappel ou questions à l’IA absents");
     return vus.join(" | ");
@@ -37715,7 +37835,7 @@ function pythonProgrammeCalcul(w, P){
     if(!st||!/variable et calcul/i.test(st.nom)) vus.push("pas de sous-thème 6.2 Variable et calcul");
     else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-phrases-memoire"||st.ids[i+1]!=="python-egal-affectation") vus.push("il n’est pas entre {python-phrases-memoire} et {python-egal-affectation} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!RAPPELS.pgc) vus.push("pas de rappel");
     return vus.join(" | ");
@@ -37899,7 +38019,7 @@ function pythonForOuiNon(w, P){
     else if(st.ids[1]!=="python-for-range"||st.ids[2]!=="python-for-renommer"||st.ids[3]!=="python-for-nom"||st.ids[4]!=="${ID}") vus.push("il ne suit pas {python-for-range}, {python-for-renommer} puis {python-for-nom} : "+st.ids.join(","));
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4") vus.push("les trois premiers du 6.6 ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!RAPPELS.pfo||!/range \\(9\\)/.test(RAPPELS.pfo)) vus.push("le rappel ne porte pas le programme de la fiche");
     return vus.join(" | ");
@@ -38019,7 +38139,7 @@ function pythonForMultiples(w, P){
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième du thème (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     if(!RAPPELS.pfq||RAPPELS.pfq.indexOf("range ( 11 )")<0||RAPPELS.pfq.indexOf("print (2*k)")<0) vus.push("le rappel ne porte pas le programme de la fiche");
@@ -38249,7 +38369,7 @@ function pythonTriangle(w, P){
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-inverser-lettres")+1||st.ids.indexOf("python-inverser-lettres")<0) vus.push("il ne suit pas {python-inverser-lettres} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-remplacer-lettre"]!=="6.4.3"||TEST_NUM["python-inverser-lettres"]!=="6.4.4") vus.push("les quatre premiers bonus ont bougé");
-    if(TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-phrases-memoire"]!=="6.2.8"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(!RAPPELS.ptr) vus.push("pas de rappel");
     return vus.join(" | ");
@@ -38448,9 +38568,9 @@ function pythonInputMoyenne(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids.indexOf("${ID}")!==6||st.ids[5]!=="python-input-somme") vus.push("il n’est pas le 7e du sous-thème, derrière l’exercice 7 du carnet : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==7||st.ids[6]!=="python-input-somme") vus.push("il n’est pas le 7e du sous-thème, derrière l’exercice 7 du carnet : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4"||TEST_NUM["python-input-float"]!=="6.3.5"||TEST_NUM["python-input-somme"]!=="6.3.6") vus.push("les six autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["python-input-int"]!=="6.3.4"||TEST_NUM["python-input-calcul"]!=="6.3.5"||TEST_NUM["python-input-float"]!=="6.3.6"||TEST_NUM["python-input-somme"]!=="6.3.7") vus.push("les six autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -38623,7 +38743,7 @@ function pythonInputMoyenne(w, P){
 /* {python-input-rectangle} (Seconde, 6.3.8) : l'exercice 9 du carnet — la
    longueur et la largeur d'un rectangle demandées avec float(input(…)), son
    aire et son périmètre, puis deux lignes affichées. Le contrôle tient la
-   place au menu (il ferme le 6.3, derrière le 6.3.7), la fiche épinglée et le
+   place au menu (il ferme le 6.3, derrière le 6.3.8), la fiche épinglée et le
    tirage, le juge sur des copies justes et fausses — chacune avec le mot qui
    la nomme —, les consignes du sous-thème (énoncé en gras dans son cadre,
    coups de pouce repliés, aucune définition, aucune consigne au bouton), le
@@ -38640,13 +38760,13 @@ function pythonInputRectangle(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit le 6.3.7 dans le sous-thème « Input », numéroté ' + NUM + ' (l’exercice 9 du carnet après le 8 ; le 10 le suit), et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit le 6.3.8 dans le sous-thème « Input », numéroté ' + NUM + ' (l’exercice 9 du carnet après le 8 ; le 10 le suit), et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-moyenne")+1||st.ids.indexOf("python-input-moyenne")<0) vus.push("il ne suit pas le 6.3.7 : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-moyenne")+1||st.ids.indexOf("python-input-moyenne")<0) vus.push("il ne suit pas le 6.3.8 : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("les autres ont bougé");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -38853,7 +38973,7 @@ function pythonIfFraisPort(w, P){
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-location")+1||st.ids.indexOf("python-if-location")<0) vus.push("il ne suit pas {python-if-location} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-rectangle"]!=="6.3.8"||TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-rectangle"]!=="6.3.9"||TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -39056,7 +39176,7 @@ function pythonChaines(w, P){
     if(!st||!/print/i.test(st.nom)) vus.push("pas de sous-thème 6.1 Print et variable");
     else { const i=st.ids.indexOf("${ID}"); if(i<1||st.ids[i-1]!=="python-double-triple-carre"||st.ids[i+1]!=="python-type-resultat") vus.push("il n’est pas entre {python-double-triple-carre} et {python-type-resultat} : "+st.ids.join(",")); }
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(typeof RAPPELS==="object"&&!RAPPELS.pch) vus.push("pas de rappel");
     return vus.join(" | ");
@@ -39251,7 +39371,7 @@ function pythonRemplacerLettre(w, P){
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-chaine-tirets")+1||st.ids.indexOf("${ID}")<1) vus.push("il ne suit pas {python-chaine-tirets} : "+st.ids.join(","));
     if(th.sous.indexOf(st)!==3) vus.push("le sous-thème Bonus n’est pas le quatrième");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -39458,7 +39578,7 @@ function pythonInverserLettres(w, P){
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-remplacer-lettre")+1) vus.push("il ne suit pas {python-remplacer-lettre} : "+st.ids.join(","));
     if(TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-chaine-tirets"]!=="6.4.2"||TEST_NUM["python-remplacer-lettre"]!=="6.4.3") vus.push("les trois premiers du Bonus ont bougé : "+TEST_NUM["python-chaine-len"]+", "+TEST_NUM["python-chaine-tirets"]+", "+TEST_NUM["python-remplacer-lettre"]);
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
@@ -39848,7 +39968,7 @@ function pythonForRenommer(w, P){
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième du thème (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6") vus.push("les autres exercices du 6.6 ne sont pas à leur place");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     if(!RAPPELS.pfv) vus.push("pas de rappel");
@@ -40111,7 +40231,7 @@ function pythonMoyenneNotes(w, P){
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids[st.ids.length-1]!=="${ID}"||st.ids[st.ids.length-2]!=="python-input-duree-secondes") vus.push("il ne ferme pas le sous-thème derrière {python-input-duree-secondes} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-input-evolution"]!=="6.5.2"||TEST_NUM["python-input-duree-secondes"]!=="6.5.3"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-input-evolution"]!=="6.5.2"||TEST_NUM["python-input-duree-secondes"]!=="6.5.3"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     if(!RAPPELS.pmn) vus.push("pas de rappel");
@@ -40334,7 +40454,7 @@ function pythonInputSomme(w, P){
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-float")+1||st.ids.indexOf("python-input-float")<0) vus.push("il ne suit pas {python-input-float} (l’exercice 6 du carnet) : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4"||TEST_NUM["python-input-float"]!=="6.3.5") vus.push("les cinq autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["python-input-int"]!=="6.3.4"||TEST_NUM["python-input-calcul"]!=="6.3.5"||TEST_NUM["python-input-float"]!=="6.3.6") vus.push("les cinq autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -40531,7 +40651,7 @@ function pythonPileFace(w, P){
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème 6");
     if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-if-location"]!=="6.7.5"||TEST_NUM["python-if-frais-port"]!=="6.7.6") vus.push("les autres du 6.7 ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -40737,7 +40857,7 @@ function pythonInputPrix(w, P){
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-rectangle")+1) vus.push("il ne suit pas {python-input-rectangle} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-somme"]!=="6.3.6"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-input-rectangle"]!=="6.3.8") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-somme"]!=="6.3.7"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-input-rectangle"]!=="6.3.9") vus.push("les autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -40932,7 +41052,7 @@ function pythonInputImage(w, P){
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-monnaie")+1) vus.push("il ne suit pas {python-input-monnaie}");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-monnaie"]!=="6.3.17"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-monnaie"]!=="6.3.18"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -41016,14 +41136,14 @@ function pythonInputImage(w, P){
 }
 
 /* Les huit exercices qui complètent le sous-thème 6.3 « Input » (Seconde,
-   6.3.10 à 6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3
+   6.3.11 à 6.3.18, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3
    et 5 dans le sous-thème input »). Le contrôle tient la place au menu (à la
-   suite du 6.3.9, rien d'autre ne bouge), le tirage de chacun, chaque juge
+   suite du 6.3.10, rien d'autre ne bouge), le tirage de chacun, chaque juge
    sur des copies justes et fausses — chacune avec le mot qui la nomme —, les
    trois étapes du moteur « réparer » jouées comme un élève (la console au
    clavier, la porte du a), la liste du b), la copie du c)), la copie vide
    qui ne rougit jamais, le soutien qui explique sans révéler, round() exact
-   et réservé au 6.3.16, puis compare à un vrai CPython tout ce que les
+   et réservé au 6.3.17, puis compare à un vrai CPython tout ce que les
    programmes de la page affichent. Aucun accent grave ni antislash littéral
    dans le code évalué. */
 function pythonInputComplements(w, P){
@@ -41034,20 +41154,20 @@ function pythonInputComplements(w, P){
   if(!present.ok || !present.valeur){ verifier(nom, false, 'pzrJuge / pqcBuildQuestions / pprAttendu / podJuge / pmoJuge / pyAvecRound introuvables alors que tests/profils.js déclare les exercices'); return; }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'ils suivent {python-input-prix} dans le sous-thème 6.3, numérotés de ' + C.numero + ' à 6.3.17, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'ils suivent {python-input-prix} dans le sous-thème 6.3, numérotés de ' + C.numero + ' à 6.3.18, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[], ids=${IDS};
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st) return "pas de sous-thème 6.3";
     const i0=st.ids.indexOf("python-input-prix");
     if(i0<0||st.ids.slice(i0+1, i0+1+ids.length).join(",")!==ids.join(",")) vus.push("ils ne suivent pas {python-input-prix} : "+st.ids.join(","));
-    ids.forEach(function(id, i){ if(TEST_NUM[id]!=="6.3."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS"); });
+    ids.forEach(function(id, i){ if(TEST_NUM[id]!=="6.3."+(11+i)) vus.push(id+" numéroté "+TEST_NUM[id]); if(!TESTS[id]||typeof TESTS[id].start!=="function") vus.push(id+" : pas d’entrée TESTS"); });
     if(TEST_NUM["${C.premier}"]!=="${C.numero}") vus.push("le premier est numéroté "+TEST_NUM["${C.premier}"]);
-    if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 2. les tirages ---- */
-  verifierEval(w, 'les tirages : ' + NB + ' questions distinctes par séance, la fiche en tête de chaque exercice « réparer », chaque situation sort (300 séances) ; le 6.3.13 pose 12 questions toutes différentes, chaque série portant les trois types ; le 6.3.15 ne donne jamais un programme déjà dans l’ordre', `(function(){
+  verifierEval(w, 'les tirages : ' + NB + ' questions distinctes par séance, la fiche en tête de chaque exercice « réparer », chaque situation sort (300 séances) ; le 6.3.14 pose 12 questions toutes différentes, chaque série portant les trois types ; le 6.3.16 ne donne jamais un programme déjà dans l’ordre', `(function(){
     const vus=[];
     ["pcz","pte","pfl","prd"].forEach(function(k){
       const vues={};
@@ -41167,7 +41287,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 6. input, int(input) ou float(input) ---- */
-  verifierEval(w, 'le 6.3.13 : quatre choix justes valent 4 ; une copie vide ne rougit pas et reçoit les bonnes écritures en vert ; un choix faux rougit et reçoit la sienne ; en soutien, rien ne verrouille', `(function(){
+  verifierEval(w, 'le 6.3.14 : quatre choix justes valent 4 ; une copie vide ne rougit pas et reçoit les bonnes écritures en vert ; un choix faux rougit et reçoit la sienne ; en soutien, rien ne verrouille', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-conversion";
     TESTS["python-input-conversion"].start();
@@ -41192,7 +41312,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 7. prédire ce que le programme affiche ---- */
-  verifierEval(w, 'le 6.3.14 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés sont nommés, le .0 oublié d’un float n’est pas compté faux ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
+  verifierEval(w, 'le 6.3.15 : la copie juste vaut une case par print ; la virgule française, les guillemets recopiés sont nommés, le .0 oublié d’un float n’est pas compté faux ; une ligne vide ne rougit pas et reçoit la bonne en vert ; « Exécuter » n’apparaît qu’après la vérification', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-predire";
     TESTS["python-input-predire"].start();
@@ -41213,7 +41333,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 8. remettre les lignes dans l'ordre ---- */
-  verifierEval(w, 'le 6.3.15 : les flèches déplacent les lignes ; l’ordre juste vaut 1 ; un autre ordre qui fait la même chose est juste aussi ; une variable utilisée avant d’exister est nommée ; un programme non touché ne rougit pas et se remet en ordre en vert', `(function(){
+  verifierEval(w, 'le 6.3.16 : les flèches déplacent les lignes ; l’ordre juste vaut 1 ; un autre ordre qui fait la même chose est juste aussi ; une variable utilisée avant d’exister est nommée ; un programme non touché ne rougit pas et se remet en ordre en vert', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="python-input-ordre";
     TESTS["python-input-ordre"].start();
@@ -41233,7 +41353,7 @@ function pythonInputComplements(w, P){
   })()`, v => v === '');
 
   /* ---- 9. rendre la monnaie ---- */
-  verifierEval(w, 'le 6.3.17 : le juge accepte toute écriture juste (autres noms, un seul print) et nomme chaque défaut — / au lieu de //, float, le reste oublié, la phrase absente, rien d’affiché, les nombres écrits à la main, int oublié, programme vide', `(function(){
+  verifierEval(w, 'le 6.3.18 : le juge accepte toute écriture juste (autres noms, un seul print) et nomme chaque défaut — / au lieu de //, float, le reste oublié, la phrase absente, rien d’affiché, les nombres écrits à la main, int oublié, programme vide', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
     const I="s = int(input("+Q+"Somme ? "+Q+"))"+NL;
     const justes=[pmoModele(q), I+"a = s // 20"+NL+"r = s % 20"+NL+"b = r // 5"+NL+"c = r % 5"+NL+"print("+Q+"billets de 20 :"+Q+", a, "+Q+"billets de 5 :"+Q+", b, "+Q+"pièces :"+Q+", c)"];
@@ -41263,7 +41383,7 @@ function pythonInputComplements(w, P){
   /* ---- 10. round : exact, et réservé au 6.3.16 ---- */
   verifierEval(w, 'round() n’est exécuté que sous pyAvecRound (ailleurs il reste refusé en le nommant, comme les juges des autres fiches l’attendent), et il arrondit au pair : round(2.5) vaut 2, round(0.125, 2) vaut 0.12', `(function(){
     const vus=[];
-    try{ pyRun("print(round(2.5))"); vus.push("round est exécuté hors du 6.3.16"); }catch(e){ if(!/round/.test(e.message)) vus.push("refus muet : "+e.message); }
+    try{ pyRun("print(round(2.5))"); vus.push("round est exécuté hors du 6.3.17"); }catch(e){ if(!/round/.test(e.message)) vus.push("refus muet : "+e.message); }
     const o=pyAvecRound(function(){ return pyRun("print(round(2.5), round(3.5), round(0.125, 2), round(2.675, 2), round(-1.5), round(7, 2))").out; });
     if(o!=="2 4 0.12 2.67 -2 7"+String.fromCharCode(10)) vus.push("round : "+JSON.stringify(o));
     try{ pyRun("print(round(2.5))"); vus.push("pyAvecRound laisse round permis après lui"); }catch(e){}
@@ -41330,7 +41450,7 @@ function pythonVariablesComplements(w, P){
     if(s2.ids.slice(-ids2.length).join(",")!==ids2.join(",")||s2.ids[s2.ids.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
     ids1.forEach(function(id, i){ if(TEST_NUM[id]!=="6.1."+(15+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
     ids2.forEach(function(id, i){ if(TEST_NUM[id]!=="6.2."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
-    if(TEST_NUM["python-chaines"]!=="6.1.14"||TEST_NUM["python-programme-calcul"]!=="6.2.9"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
+    if(TEST_NUM["python-chaines"]!=="6.1.14"||TEST_NUM["python-programme-calcul"]!=="6.2.9"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
     Object.keys(KS).forEach(function(k){
       const id=KS[k][0];
       if(!PW[k]||PW[k].id!==id) vus.push(k+" : PW ne le connaît pas sous "+id);
@@ -41580,7 +41700,7 @@ function pythonIfCinema(w, P){
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(th&&th.sous&&(th.sous.length!==7||th.sous[5].num!==6||th.sous[5].nom!=="Boucle for in range")) vus.push("les sous-thèmes d’avant ont bougé");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-samoussa"]!=="6.7.2"||TEST_NUM["python-if-plus-grand"]!=="6.7.3"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -41798,7 +41918,7 @@ function pythonSamoussa(w, P){
     else if(st.ids[1]!=="${ID}"||st.ids[0]!=="python-if-else") vus.push("il ne suit pas {python-if-else} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(/bonus/i.test(TESTS["${ID}"].name+TESTS["${ID}"].desc)) vus.push("« Bonus » est écrit : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -42015,7 +42135,7 @@ function pythonIfLocation(w, P){
     if(!st||!/condition if else/i.test(st.nom)) vus.push("pas de sous-thème 6.7 Condition if else");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-if-cinema")+1||st.ids.indexOf("python-if-cinema")<0) vus.push("il ne suit pas {python-if-cinema} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-if-else"]!=="6.7.1"||TEST_NUM["python-if-cinema"]!=="6.7.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
@@ -42224,7 +42344,7 @@ function pythonForImages(w, P){
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième du thème (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -42425,7 +42545,7 @@ function pythonIfElse(w, P){
     else if(st.ids[0]!=="${ID}"||st.ids[1]!=="python-samoussa") vus.push("il n’ouvre pas le sous-thème devant {python-samoussa} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier du thème");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est écrit : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
@@ -42634,7 +42754,7 @@ function pythonIfPlusGrand(w, P){
     else if(st.ids[0]!=="python-if-else"||st.ids[1]!=="python-samoussa"||st.ids[2]!=="${ID}") vus.push("il ne suit pas {python-if-else} puis {python-samoussa} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[th.sous.length-1]!==st) vus.push("le sous-thème n’est pas le dernier");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -42837,7 +42957,7 @@ function pythonForImagesEntiers(w, P){
     else if(st.ids.indexOf("${ID}")<1||st.ids[st.ids.indexOf("${ID}")-1]!=="python-for-couples") vus.push("il ne suit pas {python-for-couples} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-images"]!=="6.6.11"||TEST_NUM["python-for-couples"]!=="6.6.14") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
@@ -43032,7 +43152,7 @@ function pythonForNom(w, P){
     else if(st.ids[1]!=="python-for-range"||st.ids[2]!=="python-for-renommer"||st.ids[3]!=="${ID}") vus.push("il ne suit pas {python-for-range} puis {python-for-renommer} : "+st.ids.join(","));
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -43212,7 +43332,7 @@ function pythonForTable(w, P){
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième du thème (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10"||TEST_NUM["python-for-images"]!=="6.6.11") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
@@ -43387,7 +43507,7 @@ function pythonForTables(w, P){
     if(th&&th.sous&&th.sous[5]!==st) vus.push("le sous-thème n’est pas le sixième du thème (le 6.7 « Condition if else » vient derrière)");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10"||TEST_NUM["python-for-images"]!=="6.6.11") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
-    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
     if(!RAPPELS.pmt) vus.push("pas de rappel");
@@ -44184,7 +44304,7 @@ function pythonInputDuree(w, P){
     /* il fut le dernier du thème ; le 6.6 « Boucle for in range » est venu derrière lui, sans rien renuméroter */
     if(th&&th.sous&&st&&(th.sous.indexOf(st)<1||th.sous[th.sous.indexOf(st)-1].num!==4)) vus.push("le sous-thème ne suit pas le sous-thème « Bonus »");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -44387,7 +44507,7 @@ function pythonInputEvolution(w, P){
     if(!st||!/bonus/i.test(st.nom)||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-duree")+1||st.ids.indexOf("python-input-duree")<0) vus.push("il ne suit pas {python-input-duree} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
     if(th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
@@ -44588,7 +44708,7 @@ function pythonInputDureeSecondes(w, P){
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.5 Bonus : input");
     else if(st.ids.indexOf("python-input-evolution")<0||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-evolution")+1) vus.push("il ne suit pas {python-input-evolution} : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-input-evolution"]!=="6.5.2"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.9"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-duree"]!=="6.5.1"||TEST_NUM["python-input-evolution"]!=="6.5.2"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.10"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -44776,7 +44896,7 @@ function pythonChaineTirets(w, P){
     if(TEST_NUM["python-chaine-len"]!=="6.4.1") vus.push("{python-chaine-len} a bougé : "+TEST_NUM["python-chaine-len"]);
     if(th&&th.sous&&th.sous.indexOf(st)!==3) vus.push("le sous-thème Bonus n’est pas le quatrième");
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-moyenne"]!=="6.3.7"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input-moyenne"]!=="6.3.8"||TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["reduire-produit"]!=="7.8") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -46397,7 +46517,7 @@ function pythonInputInt(w, P){
     var st=th&&th.sous&&th.sous.find(function(x){ return x.num===3; });
     if(!st||!/input/i.test(st.nom)||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input")+1||st.ids.indexOf("python-input")<0) vus.push("sous-theme 6.3 : "+JSON.stringify(st));
     if(TEST_NUM["${ID}"]!=="${D.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-double-triple-carre"]!=="6.1.13"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
     if(/<code>|<b>/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte des balises");
     if(!RAPPELS.pii) vus.push("aucun rappel de cours");
@@ -46641,12 +46761,12 @@ function pythonInputInt(w, P){
 }
 
 /* {python-input-float} (Seconde, 6.3.5) : la fiche « Exercice 6 » du carnet —
-   taille = float(input(...)). Le MOTEUR du 6.3.3, une identite propre : ses
+   taille = float(input(...)). Le MOTEUR du 6.3.4, une identite propre : ses
    questions portent f:1, et c'est ce drapeau qui choisit contextes, definition
    et messages. Le controle tient la fiche, float dans l'interpreteur (le point
    accepte, la virgule refusee, l'entier tape qui devient 2.0), la place au
    menu, les branchements PAR IDENTIFIANT (rappel, questions a l'IA — pas ceux
-   du 6.3.3), le tirage et ses trois visages, le juge (la reponse ecrite a la
+   du 6.3.4), le tirage et ses trois visages, le juge (la reponse ecrite a la
    main, l'accent du carnet « metres » accepte et NOMME), les portes avec la
    virgule refusee en le disant, la case vide, le soutien, l'identite de la
    note, et compare l'interpreteur a un vrai CPython. Aucun accent grave dans
@@ -46685,17 +46805,17 @@ function pythonInputFloat(w, P){
     ["1,65","un metre","",".","1.6.5"].forEach(function(r){ if(piiLit(q,r).ok) vus.push("float accepte « "+r+" »"); });
     [" 1.65 ","2","-3.5",".5"].forEach(function(r){ if(!piiLit(q,r).ok) vus.push("float refuse « "+r+" »"); });
     if(piiDefHTML(q).indexOf("float(")<0||piiDefHTML(q).indexOf("taille")<0) vus.push("la definition n\\u2019est pas celle de la fiche 6");
-    if(piiDefHTML({vis:"int",k:0}).indexOf("int(")<0) vus.push("la definition du 6.3.3 a change");
+    if(piiDefHTML({vis:"int",k:0}).indexOf("int(")<0) vus.push("la definition du 6.3.4 a change");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
   /* ---- 2. la place au menu et les branchements par identifiant ---- */
-  verifierEval(w, 'il suit {python-input-calcul} dans le sous-thème 6.3, numéroté ' + D.numero + ' ; son rappel et ses questions à l’IA sont les SIENS, pas ceux du 6.3.3 — et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-input-calcul} dans le sous-thème 6.3, numéroté ' + D.numero + ' ; son rappel et ses questions à l’IA sont les SIENS, pas ceux du 6.3.4 — et rien d’autre ne bouge', `(function(){
     var vus=[], th=THEMES.find(function(t){ return t.num===6; });
     var st=th&&th.sous&&th.sous.find(function(x){ return x.num===3; });
     if(!st||st.ids.indexOf("${ID}")!==st.ids.indexOf("python-input-calcul")+1||st.ids.indexOf("python-input-calcul")<0) vus.push("sous-theme 6.3 : "+JSON.stringify(st&&st.ids));
     if(TEST_NUM["${ID}"]!=="${D.numero}") vus.push("numero "+TEST_NUM["${ID}"]);
-    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input"]!=="6.3.2"||TEST_NUM["python-input-int"]!=="6.3.3"||TEST_NUM["python-input-calcul"]!=="6.3.4"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
+    if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["python-input-int"]!=="6.3.4"||TEST_NUM["python-input-calcul"]!=="6.3.5"||TEST_NUM["python-echange-par-lettres"]!=="6.2.7"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l\\u2019exercice ajoute a renumerote les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d\\u2019entree TESTS");
     if(/<code>|<b>/.test(TESTS["${ID}"].desc||"")) vus.push("la description porte des balises");
     var rap=RAPPELS_ID["${ID}"];
@@ -46711,7 +46831,7 @@ function pythonInputFloat(w, P){
   })()`, v => v === '');
 
   /* ---- 3. le tirage ---- */
-  verifierEval(w, 'le tirage : ' + NB + ' questions marquées f:1, la fiche EN TÊTE, puis un autre décimal, un entier avec int et un nombre SANS rien, en ordre mélangé — chaque mise en situation sort, et le témoin passe au juge (400 séances) ; le 6.3.3 n’en hérite rien', `(function(){
+  verifierEval(w, 'le tirage : ' + NB + ' questions marquées f:1, la fiche EN TÊTE, puis un autre décimal, un entier avec int et un nombre SANS rien, en ordre mélangé — chaque mise en situation sort, et le témoin passe au juge (400 séances) ; le 6.3.4 n’en hérite rien', `(function(){
     var vus=[], ordres={}, ctx={}, NL=String.fromCharCode(10);
     for(var s=0;s<400 && vus.length<4;s++){
       var qs=pifBuildQuestions();
@@ -46734,7 +46854,7 @@ function pythonInputFloat(w, P){
     if(Object.keys(ordres).length<6) vus.push("l\\u2019ordre des visages ne varie pas");
     var n=0; Object.keys(PIF_CTX).forEach(function(v){ n+=PIF_CTX[v].length; });
     if(Object.keys(ctx).length<n) vus.push("des mises en situation ne sortent jamais : "+Object.keys(ctx).length+" sur "+n);
-    if(piiBuildQuestions().some(function(q){ return q.f; })) vus.push("le 6.3.3 tire des questions du float");
+    if(piiBuildQuestions().some(function(q){ return q.f; })) vus.push("le 6.3.4 tire des questions du float");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
@@ -46769,11 +46889,11 @@ function pythonInputFloat(w, P){
     var def=document.querySelector("#scr-pii .pii-def");
     if(!def||def.textContent.indexOf("float(")<0) vus.push("la definition de la fiche 6 n\\u2019est pas sur l\\u2019ecran");
     /* le dessin de la fiche (les deux serpents, « Quelle est ta taille ? »)
-       est en TETE : avant la definition et l'enonce, et il n'est qu'au 6.3.5 */
+       est en TETE : avant la definition et l'enonce, et il n'est qu'au 6.3.6 */
     var fig=document.querySelector("#piiAvant img.pif-img"), en0=document.getElementById("piiInstr");
-    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin en tete du 6.3.5");
+    if(!fig||!/^dessins[/]secondes[/][a-z0-9-]+[.](webp|png)$/.test(fig.getAttribute("src")||"")) vus.push("pas de dessin en tete du 6.3.6");
     else{
-      if(document.querySelector("#scr-pii img.pii-img:not(.pif-img)")) vus.push("le dessin du 6.3.3 s\\u2019affiche aussi sur le 6.3.5");
+      if(document.querySelector("#scr-pii img.pii-img:not(.pif-img)")) vus.push("le dessin du 6.3.4 s\\u2019affiche aussi sur le 6.3.6");
       if(!(fig.compareDocumentPosition(def)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n\\u2019est pas avant la definition");
       if(!(fig.compareDocumentPosition(en0)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le dessin n\\u2019est pas avant l\\u2019enonce");
       if(!/taille/.test(fig.getAttribute("alt")||"")) vus.push("le dessin n\\u2019a pas de texte de remplacement");
@@ -46809,7 +46929,7 @@ function pythonInputFloat(w, P){
     if(document.querySelector("#scr-pii img.pif-img")) vus.push("le dessin est repete a la question 2"); test.idx=0;
     /* le 6.3.3 partage l'ecran : il ne gagne pas le dessin du 6.3.5 */
     currentTestId="python-input-int"; startPII();
-    if(document.querySelector("#scr-pii img.pif-img")) vus.push("le dessin du 6.3.5 s\\u2019affiche sur le 6.3.3");
+    if(document.querySelector("#scr-pii img.pif-img")) vus.push("le dessin du 6.3.6 s\\u2019affiche sur le 6.3.4");
     demarrer("train");
     var c=ctxPii(test.questions[0]).contexte; if(c.indexOf("float(input(")<0||c.indexOf("SECR\\u00c8TES")<0) vus.push("le contexte du modele");
     return vus.slice(0,5).join(" | ");
