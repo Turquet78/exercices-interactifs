@@ -58448,6 +58448,11 @@ function premiere(w){
     poser(9,1,'1/2'); checkVocAnswer(); if(test.score!==1) vus.push('l’inverse de 2 écrit 1/2 refusé');
     poser(8,3,'0,25'); checkVocAnswer(); if(test.score!==1) vus.push('le quart de 1 écrit 0,25 refusé');
     poser(0,1,null); checkVocAnswer(); if(/\\bbad\\b/.test(document.getElementById('vocR').className)) vus.push('la case vide rougit');
+    /* les calculs à étapes : « On doit calculer … » vient EN PREMIER sur le
+       quadrillage, en .voc-lab comme les étapes (demande de Turquet, novembre 2026) */
+    poser(17,null,null);
+    const tete=document.querySelector('#vocHost').firstElementChild, lab=tete&&tete.querySelector('.voc-lab');
+    if(!lab || lab.textContent!=='On doit calculer la somme de 3 et de la moitié de 5.') vus.push('la première ligne du calcul à étapes n\\'est pas « On doit calculer la somme de 3 et de la moitié de 5. » ('+(tete?tete.textContent:'rien')+')');
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 

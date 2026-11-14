@@ -260,3 +260,12 @@ décimales » rejoint la rangée des aides (`iaBoutons`) sur les écrans de
 changement d'écran (`fermerFenetresIA`).
 Contrôle (banc principal) : « {vocabulaire-calcul} : les lignes de la fiche,
 ses nombres, son ordre, et un juge qui exige le calcul ET le résultat ».
+
+**Le calcul à étapes du 1.13 commence par « On doit calculer … » (v419).**
+Demande de Turquet, novembre 2026 : « pour les calculs à étapes, je veux que
+l'on écrive en premier sur la partie quadrillée "on doit calculer la somme de
+3 et de la moitié de 5", avec la même police et la même taille que la suite
+du calcul ». La phrase (`vocBut`, tirée de la consigne) est la première ligne
+de `#vocHost`, en `.voc-lab` comme les étapes — mesuré dans Chromium : les
+trois lignes à 21,6 px, Nunito. Contrôle : celui du 1.13 au banc principal
+exige cette première ligne sur la somme de 3 et de la moitié de 5.

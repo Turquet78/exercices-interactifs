@@ -1982,6 +1982,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #vocHost .pt-row{margin:12px 0;gap:12px}
 .voc-phrase{text-align:center;font-size:calc(1.35rem * var(--tab-nb,1));margin:4px 0 10px;color:var(--ink)}
 .voc-lab{font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+#vocHost .voc-but{text-align:center;margin:6px 0 14px}
 .voc-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:6px auto 4px}
 .voc-ch{min-width:96px;min-height:64px;padding:4px 14px;font-family:"Fredoka";font-weight:600;font-size:calc(1.6rem * var(--tab-nb,1));
   color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:14px;cursor:pointer;
@@ -3960,7 +3961,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=418;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=419;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9461,6 +9462,8 @@ function vocCalcTxt(c){
   if(c[0]==='f') return vocSigne(c[1])+'/'+vocSigne(c[2]);
   return vocCalcHTML(c);
 }
+/* « Calcule la somme de 3 et de la moitié de 5. » → « On doit calculer la somme de 3 et de la moitié de 5. » */
+function vocBut(L){ return 'On doit calculer '+L.titre.replace(/^Calcule\s+/,''); }
 function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
 function vocTexte(q){ const L=vocL(q); return L.t==='ch' ? L.nom+' signifie que l’on doit '+(L.faire?'faire':'calculer')+' '+L.ch.map(vocCalcTxt).join(' ; ') : L.titre; }
 /* la correction écrite, en HTML (écran) ou en texte (aide, compte rendu) */
@@ -9512,7 +9515,11 @@ function renderVoc(){
       +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
   } else {
     $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">Une case par étape, comme sur la fiche.</span>';
-    h=L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
+    /* Demande de Turquet, novembre 2026 : sur le quadrillage, la phrase
+       « On doit calculer … » vient EN PREMIER, à la police et à la taille
+       des étapes qui la suivent (.voc-lab) */
+    h='<div class="voc-but"><span class="voc-lab">'+vocBut(L)+'</span></div>'
+      +L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
   }
   $('vocHost').innerHTML=h;
   const order=vocIds(q).map(id=>$(id)).filter(Boolean);
