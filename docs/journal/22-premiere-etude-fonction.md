@@ -237,3 +237,49 @@ le point, trois cases `ok` ; une copie à une fausse, une juste, une vide :
 rouge avec le badge vert, bleu, verte remplie — « Il te manquait 1 case… »
 puis le pourquoi, note 0,3 / 1 ; « Revoir le chemin » rejoue ; sur un
 téléphone, la page ne déborde pas. Aucune erreur JavaScript.
+
+**Puis la séance en cinq temps, et les antécédents par le chemin inverse (v409).**
+Demande de Turquet, le lendemain : « écrire simplement l'image de .. est :
+.... sans écrire "est la hauteur de ...". Après deux questions avec
+l'animation poser deux autres questions sans l'animation. Puis deux questions
+sur le ou les antécédents avec une animation inverse de celle de l'image d'un
+point, qui part de l'image pour aller vers le ou les antécédents. Puis deux
+autres questions sur le ou les antécédents sans les animations, puis deux
+autres questions sans animation qui demandent une image et le ou les
+antécédents sur le même graphique. »
+*Dix questions* (`IMA_NB`), le temps de chacune lu dans sa POSITION
+(`imaPlan`) : image animée, image sans chemin, antécédents avec le chemin
+inverse animé, antécédents sans chemin, image et antécédents sur le même
+dessin sans chemin — deux questions par temps, et le cycle recommence si un
+devoir règle plus de dix questions. La question porte `x0` (l'abscisse, ou
+null), `y0` (la hauteur, ou null) et `anim` ; l'image et les antécédents
+restent LUS dans la courbe (`imaY`, `imaAnts`).
+*Le tirage des hauteurs* est celui du 3.1.3 de la Seconde (`antCibles`, ici
+`imaCibles`) : une hauteur que la ligne de niveau ne coupe qu'aux graduations,
+un à trois antécédents ; de plus jamais 0 (la ligne serait sur l'axe) ni un
+antécédent en 0 (son pointillé serait sur l'axe des ordonnées) ; la première
+question de chaque paire préfère UN antécédent, la seconde PLUSIEURS — les
+deux visages de la notion. Sur le dessin à deux questions, l'image demandée
+n'est jamais la hauteur des antécédents : les deux chemins se confondraient.
+Les abscisses des questions à image suivent le RANG de la question parmi
+celles-ci, jamais un compteur : `distinctes()` rappelle la fabrique pour la
+même question quand elle tire un doublon, et un compteur aurait sauté des
+abscisses.
+*Le chemin inverse* : le point rouge sur l'axe des ordonnées, la ligne de
+niveau se déplie depuis l'axe vers la gauche ET vers la droite à la fois,
+jusqu'aux antécédents extrêmes, un point rouge à chaque croisement, l'arrêt,
+puis un pointillé vertical de chaque croisement jusqu'à l'axe des abscisses,
+la marque, la graduation récrite en rouge et le mot « antécédent » ou
+« antécédents », centré sur eux, sous les graduations quand le chemin descend
+d'en haut, au-dessus de l'axe quand il monte d'en bas. L'animateur ne connaît
+plus de chemin particulier : chaque groupe `.ima-chemin` porte ses pointillés
+en `data-phase` 1 et 2 (le bout dans `data-x2` / `data-y2`) et ce qui
+apparaît après chaque phase en `data-des` ; les groupes se suivent (l'image,
+puis les antécédents). Sans animation, le ou les points rouges se voient
+seuls, et `imaFin` déplie tout à la vérification — la méthode de la Seconde.
+*Les cases* : « L'image de X est : … » et « f( … ) = … » ; « L'antécédent de
+Y est : … » ou « Les antécédents de Y sont : … ; … », autant de cases que
+d'antécédents, l'ordre LIBRE — chaque case promet d'être l'un des attendus,
+la liste les prend une fois chacun, les cases sans correspondance reçoivent
+les antécédents restants pour la correction (la règle du 3.1.3). Le rappel,
+les questions à l'IA et le contexte parlent des deux chemins.
