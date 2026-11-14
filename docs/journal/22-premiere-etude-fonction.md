@@ -332,9 +332,24 @@ le même juge (`juge(prefixe)`), puis la hauteur après le dernier « = ». Le
 tirage préfère désormais DEUX antécédents sur chaque question à antécédents —
 un ou trois seulement quand la courbe n'en offre pas deux.
 
+**Puis « qui signifie que » sur quatre questions seulement, et une onzième
+sans points rouges (v413).** Demande de Turquet : « affiche signifie que
+f(....) = ..... dans deux questions pour les images et dans deux questions
+pour les antécédents, ne plus le demander après ; à la fin rajouter une
+question qui demande une image et soit un antécédent soit deux antécédents
+mais sans afficher les points rouges sur les axes ». La question porte deux
+drapeaux de plus : `sig` (l'écriture « qui signifie que : f( … ) = … » se
+demande — les deux questions animées de chaque sorte, c'est-à-dire les deux
+premières), `nus` (aucun point rouge sur les axes — la onzième, `mix-nu`,
+seule dans son temps). Sans `sig`, la ligne s'arrête à la case de la réponse
+et le juge ne lit pas les cases absentes ; sans points rouges, les cercles
+des axes portent `data-des="2"` et n'apparaissent qu'avec le chemin, à la
+vérification. La onzième veut un antécédent OU deux, à pile ou face
+(`voulu`), là où les autres en veulent deux.
+
 ---
 
-## {tracer-droite} — tracer la droite d'une fonction affine, du calcul au tableau de signes (6.3, novembre 2026, Première v412)
+## {tracer-droite} — tracer la droite d'une fonction affine, du calcul au tableau de signes (6.3, novembre 2026, Première v414)
 
 **La demande** (Turquet, sur le sujet papier « Exercice 3 », f(x) = −2x + 3) :
 « en première faire un exercice comme le pdf. On mettra en rouge le point sur
