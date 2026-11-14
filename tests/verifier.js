@@ -44705,7 +44705,7 @@ function pythonPrint(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le diagnostic, cas par cas ---- */
-  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, la casse d’un bout à l’autre, un autre texte, une ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
+  verifierEval(w, 'le diagnostic nomme chaque défaut — print en majuscules ou mal écrit, parenthèses, guillemets absents, non fermés, dépareillés ou typographiques, un autre texte, une ligne de trop, rien d’affiché, point-virgule — et l’apostrophe de « c’est » n’est pas un guillemet dépareillé', `(function(){
     const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
     const cas=[
       ["Print("+Q+T+Q+")", /minuscules/],
@@ -44717,7 +44717,6 @@ function pythonPrint(w, P){
       ["print("+Q+T+")", /pas fermé/],
       ["print("+Q+T+A+")", /MÊMES/],
       ["print(«"+T+"»)", /droits/],
-      ["print("+Q+"JE SUIS EN SECONDE"+Q+")", /majuscules/],
       ["print("+Q+"bonjour"+Q+")", /« bonjour » au lieu de « je suis en seconde »/],
       ["print("+Q+T+Q+")"+NL+"print("+Q+T+Q+")", /2 lignes/],
       ["x = "+Q+T+Q, /aucun print/],
@@ -44940,6 +44939,9 @@ function pythonTexteProche(w, P){
   verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-print} — l’espace, l’accent, la majuscule, les guillemets affichés, un caractère en trop ou en moins — et le « Bravo » nomme ce qui a été toléré', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), T="${PREMIER}";
     const cas=[["print("+Q+"Je suis en seconde"+Q+")", /majuscules/],
+               ["print("+Q+"JE SUIS EN SECONDE"+Q+")", /majuscules/],
+               ["print("+Q+"Je sui en segonde"+Q+")", /deux caractères.*majuscules/],
+               ["print("+Q+"je suis en secondes !!"+Q+")", /3 caractères/],
                ["print("+Q+"je  suis en seconde"+Q+")", /espace/],
                ["print("+Q+"jesuisenseconde"+Q+")", /espace/],
                ["print("+Q+"je suis en séconde"+Q+")", /accents/],
@@ -44970,6 +44972,8 @@ function pythonTexteProche(w, P){
   verifierEval(w, 'le texte presque bon est ACCEPTÉ par {python-completer} — la majuscule, le « : » oublié, l’espace en trop ou manquante — et le « Bravo » nomme ce qui a été toléré', `(function(){
     const vus=[], q=Object.assign({},PYX_FICHE);
     const cas=[['print("La note est :", note)', /majuscules/],
+               ['print("LA NOTE EST :", note)', /majuscules/],
+               ['print("La notte et :", note)', /caractères.*majuscules/],
                ['print("la note est", note)', /caractère/],
                ['print("la note est : ", note)', /espace/],
                ['print("la note est :" + str(note))', /espace/]];
@@ -45016,13 +45020,13 @@ function pythonTexteProche(w, P){
   })()`, v => v === '');
 
   /* ---- 4. un caractère par tranche de quatre, deux au plus ---- */
-  verifierEval(w, 'un caractère par tranche de quatre, deux au plus : sur « age : 16 » une faute passe et deux ne passent pas ; sur une phrase entière, deux passent et trois ne passent pas — et le plus court texte des TROIS tirages est mesuré', `(function(){
+  verifierEval(w, 'un caractère par tranche de quatre : sur « age : 16 » une faute passe et deux ne passent pas ; sur « je suis en seconde », trois passent et quatre ne passent pas — et le plus court texte des TROIS tirages est mesuré', `(function(){
     const vus=[], Q=String.fromCharCode(34), T="${PREMIER}", q={nom:"age", lit:"16", texte:"age :", vis:"int"};
     if(pyxAns(q).sortie.indexOf("age : 16")!==0) vus.push("le témoin court n’affiche pas « age : 16 » : "+JSON.stringify(pyxAns(q).sortie));
     if(!pyxJuge(q,'print("agi :", age)').ok) vus.push("une faute sur un texte court est refusée : « agi : 16 »");
     if(pyxJuge(q,'print("agi ;", age)').ok) vus.push("deux fautes sur six caractères sont acceptées : « agi ; 16 » passerait pour « age : 16 »");
-    if(!pypDiag("print("+Q+T+"s !"+Q+")",T).ok) vus.push("deux caractères en trop sur la phrase sont refusés");
-    if(pypDiag("print("+Q+T+"s !!"+Q+")",T).ok) vus.push("trois caractères en trop sur la phrase sont acceptés");
+    if(!pypDiag("print("+Q+T+"s !!"+Q+")",T).ok) vus.push("trois caractères en trop sur la phrase sont refusés");
+    if(pypDiag("print("+Q+T+"s !!!"+Q+")",T).ok) vus.push("quatre caractères en trop sur la phrase sont acceptés");
     /* le plus court texte des tirages qui partagent la tolérance, MESURÉ —
        {python-deux-lignes} en fait partie, son juge passant par pyxAffiche */
     let court=null;
@@ -45199,7 +45203,6 @@ function pythonCompleter(w, P){
       ['print("la note est :" note)', 'virgule'],
       ['print("la note est :", "note")', 'TEXTE'],
       ['print(note, "la note est :")', 'inversé'],
-      ['print("LA NOTE EST :", note)', 'majuscules comprises'],
       ['print("la note est :")', 'pas la valeur'],
       ['print("la note est :", 12)', 'recopiée'],
       ['print("la note est :", note + 1)', 'pas un calcul'],
