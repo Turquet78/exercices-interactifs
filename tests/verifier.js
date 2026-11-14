@@ -58110,6 +58110,39 @@ function premiere(w){
   })()`);
 
 
+  /* {vocabulaire-calcul} (1.13) : la fiche « vocabulaire calcul » de Turquet
+     (novembre 2026), AVEC SES NOMBRES et dans son ordre — 17 phrases (le
+     double de 12 … le quotient de 6 par 2 ; la ligne « le dixième de 12 »,
+     posée deux fois à l'identique par la fiche, ne l'est qu'une fois), puis
+     4 calculs en étapes. Une séance d'une autre longueur garde l'ordre ;
+     chaque attendu est exact, et le calcul marqué « bon » vaut le résultat ;
+     le juge demande le bon calcul ET le bon résultat (décimal ou fraction),
+     et une case vide ne rougit pas. */
+  verifierEval(w, '{vocabulaire-calcul} : les lignes de la fiche, ses nombres, son ordre, et un juge qui exige le calcul ET le résultat', `(function(){
+    const vus=[];
+    if(VOC_NB!==21) vus.push(VOC_NB+' lignes au lieu de 21');
+    const ATT=[24,36,48,6,4,3,1.2,2.5,0.25,0.5,0.25,0.2,0.1,8,12,4,3];
+    ATT.forEach(function(a,i){ const L=VOC_LIGNES[i]; if(!L||L.t!=='ch'||L.r!==Math.round(a*1000)) vus.push('ligne '+(i+1)+' : attendu faux');
+      else { const c=L.ch[L.bon]; const v=c[0]==='x'?c[1]*c[2]:c[0]==='+'?c[1]+c[2]:c[0]==='-'?c[1]-c[2]:c[0]==='f'?c[1]/c[2]:NaN;
+        if(Math.abs(v*1000-L.r)>1e-6) vus.push('ligne '+(i+1)+' : le bon calcul ne vaut pas le résultat'); } });
+    const ET=[[2.5,5.5],[8,3,11],[4,8],[0.5,3.5]];
+    ET.forEach(function(e,j){ const L=VOC_LIGNES[17+j]; if(!L||L.t!=='en'||L.et.map(x=>x.r/1000).join()!==e.join()) vus.push('calcul en étapes '+(j+1)+' faux'); });
+    for(let n=1;n<=DM_NBQ_MAX;n++){ const qs=distinctes(n,function(_,i){ return genVoc(i,n); });
+      if(new Set(qs.map(q=>q.n)).size!==n || qs.some((q,i)=>i&&q.n<=qs[i-1].n)) vus.push('séance de '+n+' : ordre ou doublon'); }
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVoc();
+    const poser=function(n,ch,val){ test.questions[0]={n:n}; test.idx=0; test.locked=false; test.score=0; test.answers=[]; test.vocChoix=null; renderVoc();
+      if(ch!=null) vocChoisir(ch); const e=document.getElementById('vocR'); if(e&&val!=null) e.value=String(val); };
+    poser(0,1,'24'); checkVocAnswer(); if(test.score!==1) vus.push('le double de 12, 12 × 2 et 24 : pas le point');
+    poser(0,0,'24'); checkVocAnswer(); if(test.score!==0) vus.push('un calcul faux vaut le point');
+    if(!/\\bok\\b/.test(document.getElementById('vocR').className)) vus.push('le résultat juste ne se peint pas juste quand le calcul est faux');
+    poser(0,1,'25'); checkVocAnswer(); if(test.score!==0) vus.push('un résultat faux vaut le point');
+    poser(9,1,'1/2'); checkVocAnswer(); if(test.score!==1) vus.push('l’inverse de 2 écrit 1/2 refusé');
+    poser(8,3,'0,25'); checkVocAnswer(); if(test.score!==1) vus.push('le quart de 1 écrit 0,25 refusé');
+    poser(0,1,null); checkVocAnswer(); if(/\\bbad\\b/.test(document.getElementById('vocR').className)) vus.push('la case vide rougit');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+
   /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
      même dénominateur dans une somme (demande de Turquet, novembre 2026) — le
      niveau 6 posait 315 + 9/100 + 5/10 + 9/100. L'ordre des termes, lui, peut

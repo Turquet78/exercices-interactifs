@@ -53,7 +53,7 @@ const RAPPELS_PREMIERE = `(function(){
     'diminuer-depart-soustraction':'ag2q','synthese-pourcentages':'syn','synthese-augmentations':'syn','synthese-diminutions':'syn','baisses-successives':'bs','lire-coefficient':'lc','hausses-successives':'hs','hausses-successives-cent':'hsc','baisses-successives-dix':'bsd','synthese-evolutions-successives':'ess',
     'tables-multiplication':'tm','tables-multiplication-2':'tm','somme-fractions':'sf','tableau-probabilites':'pb','lire-probabilites':'pb','probabilites-fiche':'pb','probabilites-ecriture':'pb','revision-fractions':'rvf',
     'croiser-denominateurs':'sf','somme-fractions-2':'sf','multiplier-fractions':'mlt','diviser-fractions':'mlt',
-    'somme-produit-fractions':'spf','ecriture-decimale-somme':'eds','ecriture-decimale-fractions':'sdec','valeur-approchee':'vap','lire-image-animation':'ima' };
+    'somme-produit-fractions':'spf','ecriture-decimale-somme':'eds','ecriture-decimale-fractions':'sdec','valeur-approchee':'vap','vocabulaire-calcul':'voc','lire-image-animation':'ima' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     /* un exercice peut avoir SON rappel, indépendant du kind : deux exercices

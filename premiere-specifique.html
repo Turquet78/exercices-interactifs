@@ -788,7 +788,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
      testScreens EXACTEMENT — deux écrans y manquaient. Un contrôle les compare. */
-  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima,#scr-trd,#scr-sui{padding-bottom:84px}
+  #scr-test,#scr-tm,#scr-rvf,#scr-mlt,#scr-spf,#scr-pqd,#scr-tsf,#scr-asptest,#scr-mtest,#scr-ftest,#scr-ptest,#scr-pcol,#scr-pct10,#scr-edstest,#scr-pdc,#scr-atdtest,#scr-pdt,#scr-adx,#scr-ddx,#scr-ddttest,#scr-qtest,#scr-mdtest,#scr-utest,#scr-atest,#scr-vtest,#scr-dtest,#scr-fptest,#scr-ag2test,#scr-a2qtest,#scr-syntest,#scr-bstest,#scr-lctest,#scr-cktest,#scr-actest,#scr-hstest,#scr-hsctest,#scr-esstest,#scr-sf,#scr-psl,#scr-sal,#scr-esl,#scr-evs,#scr-bsd,#scr-dbp,#scr-pbtest,#scr-sdtest,#scr-vaptest,#scr-voctest,#scr-rlftest,#scr-rpd,#scr-dvl,#scr-dvd,#scr-tsc,#scr-ima,#scr-trd,#scr-sui{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   /* Demande de Turquet, septembre 2026 : plus d'espace entre les étapes du 2.2.1
      ({augmenter-pourcentage}) — scopé à #aHost, .pt-step est partagée par toute
@@ -1961,6 +1961,41 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* les nombres de la ligne à la taille de ses cases (la règle des cases) */
 #vapHost .f-whole{font-size:calc(1.7rem * var(--tab-nb,1));}
 @media(max-width:900px){ #vapHost .f-whole{font-size:calc(1.4rem * var(--tab-nb,1));} }
+/* {vocabulaire-calcul} (1.13) : la phrase, les calculs à choisir (des
+   étiquettes, les fractions empilées), et la case du résultat — les tailles
+   de l'écran du 1.12. Le choisi juste est BLEU, le faux rouge, la bonne
+   étiquette montrée par la page VERTE (la règle des couleurs). */
+#vocHost math-field.pm-mf{font-size:calc(1.7rem * var(--tab-nb,1));line-height:1.15;max-width:320px;}
+@media(max-width:900px){ #vocHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));} }
+#vocHost .f-dec{width:auto;min-width:110px;max-width:320px;}
+#vocHost math-field.pm-mf.f-dec{height:auto;min-height:50px;}
+#vocHost .pt-row{margin:12px 0;gap:12px}
+.voc-phrase{text-align:center;font-size:calc(1.35rem * var(--tab-nb,1));margin:4px 0 10px;color:var(--ink)}
+.voc-lab{font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+.voc-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:6px auto 4px}
+.voc-ch{min-width:96px;min-height:64px;padding:4px 14px;font-family:"Fredoka";font-weight:600;font-size:calc(1.6rem * var(--tab-nb,1));
+  color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:14px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center}
+.voc-ch .fr .fn,.voc-ch .fr .fd{font-size:calc(1.45rem * var(--tab-nb,1));font-weight:600;color:inherit;padding:0 8px}
+.voc-ch .fr .fb{background:currentColor;margin:2px 0}
+.voc-ch:hover:not(:disabled){border-color:var(--blue)}
+.voc-ch.voc-sel{border-color:var(--blue-dark);background:#F3F7FF;box-shadow:0 0 0 4px rgba(43,80,200,.18)}
+.voc-ch.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+.voc-ch.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+.voc-ch.sol{color:var(--green);background:var(--green-soft);border-color:var(--green);border-style:dashed}
+.voc-ch:disabled{cursor:default;opacity:1}
+#vocFeedback .rlf-frp{font-size:.85em}
+/* La fenêtre des ÉCRITURES DÉCIMALES À CONNAÎTRE : la fenêtre des tables,
+   les mêmes classes, en haut à droite, déplaçable. */
+#decOverlay{align-items:flex-start;justify-content:flex-end}
+#decOverlay .qia-head{cursor:move;touch-action:none;-webkit-user-select:none;user-select:none}
+.dec-card{max-width:380px;max-height:min(78vh,620px);margin:8px}
+@media (max-width:720px){ #decOverlay{justify-content:center} .dec-card{max-width:100%} }
+.dec-corps{padding:12px 14px;overflow-y:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dec-ligne{display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:6px 8px;background:var(--paper);
+  font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+.dec-ligne .fr .fn,.dec-ligne .fr .fd{font-size:calc(1.25rem * var(--tab-nb,1));font-weight:600;padding:0 6px}
+.dec-ligne .fr .fb{margin:2px 0}
 /* {relier-fractions} (4.7) : les deux colonnes à relier, et les calculs de la
    partie 5 aux tailles du 1.12. Les nombres et les fractions s'écrivent à la
    même taille ; le trait prend la couleur du verdict de son nombre — juste en
@@ -2955,6 +2990,22 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
   </section>
 
+  <!-- TEST : LE VOCABULAIRE DU CALCUL (1.13) -->
+  <section class="screen" id="scr-voctest">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagVoc"></span><span class="q-idx" id="vocIdx">Question 1 / 21</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="vocLiveScore">0</b></span>
+    </div>
+    <div class="card">
+      <p class="mp-instr" id="vocPrompt">Choisis le calcul qui correspond à la phrase, puis écris le résultat.</p>
+      <div class="mp-stage"><div style="width:100%" id="vocHost"></div></div>
+      <div class="mp-feedback" id="vocFeedback" aria-live="polite"></div>
+      <div class="row" style="justify-content:center" id="vocActions">
+        <button class="btn btn-primary" onclick="checkVocAnswer()">Vérifier</button>
+      </div>
+    </div>
+  </section>
+
   <!-- TEST : RELIER DÉCIMAUX, POURCENTAGES ET FRACTIONS (4.7) -->
   <section class="screen" id="scr-rlftest">
     <div class="test-top">
@@ -3827,6 +3878,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     <div class="tables-corps" id="tablesCorps"></div>
   </div>
 </div>
+<!-- LES ÉCRITURES DÉCIMALES À CONNAÎTRE — aide de référence du 1.13
+     {vocabulaire-calcul}, construite comme la fenêtre des tables. -->
+<div id="decOverlay" class="qia-overlay">
+  <div class="qia-card dec-card">
+    <div class="qia-head"><b>½ Écritures décimales à connaître</b><span class="qia-headbtns"><button type="button" class="qia-close" onclick="fermerDecimales()" title="Fermer">✕</button></span></div>
+    <div class="dec-corps" id="decCorps"></div>
+  </div>
+</div>
 <div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
@@ -4247,9 +4306,14 @@ function ptsEcran(){
        fraction écrite ne se simplifie pas — voir checkRvfAnswer) */
     const els=[].filter.call(scr.querySelectorAll('math-field.ok,math-field.bad,math-field.sol,'
       +'select.ok,select.bad,select.sol,input.ok,input.bad,input.sol'), e=>!e.classList.contains('hors-note'));
-    if(!els.length) return null;
-    let ok=0; els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
-    return {pts:ok/els.length, justes:ok, cases:els.length};
+    /* un CHOIX à étiquettes ([data-pts-choix], le calcul choisi du 1.13)
+       compte pour UNE case, juste si l'étiquette choisie est juste — la
+       bonne étiquette montrée par la page (.sol) ne s'y ajoute pas */
+    let ok=0, n=els.length;
+    scr.querySelectorAll('[data-pts-choix]').forEach(g=>{ if(!g.querySelector('.ok,.bad,.sol')) return; n++; if(g.querySelector('.ok')) ok++; });
+    if(!n) return null;
+    els.forEach(e=>{ if(e.classList.contains('ok')) ok++; });
+    return {pts:ok/n, justes:ok, cases:n};
   }catch(e){ return null; }
 }
 function ptsRep(a){
@@ -4454,6 +4518,7 @@ const TESTS={
   'tables-multiplication-2':{ name:'Tables de multiplication — niveau 2', icon:'🎯', desc:'Les '+TM_NB+' produits que tu rates le plus, d\u2019apr\u00e8s tes s\u00e9ances pr\u00e9c\u00e9dentes. M\u00eame r\u00e8gle : '+TM_SECONDES+' secondes par calcul, les rat\u00e9s reviennent.', start:()=>startTM2() },
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
+  'vocabulaire-calcul': { name:'Vocabulaire du calcul', icon:'\ud83d\udde3\ufe0f', desc:'Le double, le tiers, le quart, l\u2019inverse, la somme, le produit, la diff\u00e9rence, le quotient\u00a0: choisis le bon calcul, puis \u00e9cris le r\u00e9sultat \u2014 et enfin des calculs en deux ou trois \u00e9tapes (le double du tiers de 12). Les nombres de la fiche, dans son ordre.', start:()=>startVoc() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
   'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète d’abord les évènements contraires, puis le tableau à partir de quatre nombres, et lis-y sept probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
@@ -4520,7 +4585,7 @@ const THEMES=[
      pas un titre. Les références écrites ailleurs suivent d'elles-mêmes :
      elles s'écrivent {identifiant} et sont résolues à l'affichage par
      numeros(). */
-  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee'] },
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee','vocabulaire-calcul'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -4734,7 +4799,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -4980,6 +5045,7 @@ function liveCheckCurrent(){
   else if(k==='lc') checkLCAnswer(true);
   else if(k==='sdec') checkSdAnswer(true);
   else if(k==='vap') checkVapAnswer(true);
+  else if(k==='voc') checkVocAnswer(true);
   else if(k==='rlf') checkRlfAnswer(true);
   else if(k==='ck') checkCKAnswer(true);
   else if(k==='bs') checkBSAnswer(true);
@@ -5852,7 +5918,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], vap:['vaptest',renderVap], voc:['voctest',renderVoc], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -6255,7 +6321,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','trd','sui','sdtest','vaptest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
+  const testScreens=['test','tm','rvf','mlt','spf','pqd','tsf','rpd','dvl','dvd','tsc','ima','trd','sui','sdtest','vaptest','voctest','rlftest','asptest','mtest','ftest','ptest','pcol','pct10','edstest','pdc','atdtest','pdt','adx','ddx','ddttest','qtest','mdtest','utest','atest','vtest','dtest','fptest','ag2test','a2qtest','syntest','bstest','lctest','cktest','actest','hstest','hsctest','esstest','sf','psl','sal','esl','evs','bsd','dbp','pbtest'];
   document.body.classList.toggle('plein-ecran', testScreens.indexOf(name)>=0);
   /* L'ÉVALUATION À L'AVEUGLE : sur l'écran d'un exercice lancé depuis une
      évaluation, et sur son écran de fin, ni verdict ni correction — voir
@@ -9305,6 +9371,189 @@ async function finishVap(){
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
   try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'valeur-approchee',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  catch(e){ toast('Résultat non enregistré (connexion)','err'); }
+  showResults({score,note,total,percent:pct,durationSec});
+}
+
+/* ============ 1.13 {vocabulaire-calcul} : le vocabulaire du calcul ============
+   Demande de Turquet, novembre 2026, sur sa fiche « vocabulaire calcul » :
+   « créer un exercice dans calcul mental comme le pdf, on gardera les mêmes
+   nombres que dans le pdf ». La séance suit les lignes de la fiche, DANS SON
+   ORDRE et AVEC SES NOMBRES — aucun tirage : chaque question n'est que le
+   rang de sa ligne (q.n, l'indice, jamais l'objet).
+     Partie 1 — « Le double de 12 signifie que l'on doit calculer 12 × 1 ;
+       12 × 2 ; … le résultat est : … » : l'élève CHOISIT le bon calcul parmi
+       ceux de la fiche (des étiquettes à cliquer, les fractions empilées),
+       puis écrit le résultat. Double, triple, quadruple, moitié, tiers, quart,
+       dixième de 12, moitié de 5, quart de 1, inverse de 2, 4, 5 et 10,
+       somme, produit, différence et quotient de 6 et 2. La fiche pose deux
+       fois « le dixième de 12 », à l'identique : la ligne n'est posée qu'une
+       fois (aucune séance ne pose deux fois la même question).
+     Partie 2 — les calculs en plusieurs étapes, une case par étape, comme
+       la fiche : « On commence par la moitié de 5 : … puis la somme de 3 et
+       de la moitié de 5 : … ».
+   La question est juste quand le calcul choisi ET chaque case le sont. Un
+   résultat s'écrit en décimal ou en fraction (0,25 ou 1/4 : vapLit). Les
+   valeurs se tiennent en millièmes entiers (VAP_D, celles du 1.12).
+   Un bouton « Écritures décimales » ouvre la fenêtre des huit écritures
+   décimales à connaître (½ = 0,5 …), comme celle des tables. */
+const VOC_LIGNES=[
+  {t:'ch', nom:'Le double de 12',     ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:1, r:24000},
+  {t:'ch', nom:'Le triple de 12',     ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:2, r:36000},
+  {t:'ch', nom:'Le quadruple de 12',  ch:[['x',12,1],['x',12,2],['x',12,3],['x',12,4],['x',12,5]], bon:3, r:48000},
+  {t:'ch', nom:'La moitié de 12',     ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:1, r:6000},
+  {t:'ch', nom:'Le tiers de 12',      ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:2, r:4000},
+  {t:'ch', nom:'Le quart de 12',      ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:3, r:3000},
+  {t:'ch', nom:'Le dixième de 12',    ch:[['f',12,1],['f',12,2],['f',12,3],['f',12,4],['f',12,10]], bon:4, r:1200},
+  {t:'ch', nom:'La moitié de 5',      ch:[['f',5,1],['f',5,2],['f',5,3],['f',5,4],['f',5,10]], bon:1, r:2500},
+  {t:'ch', nom:'Le quart de 1',       ch:[['f',1,1],['f',1,2],['f',1,3],['f',1,4],['f',1,10]], bon:3, r:250},
+  {t:'ch', nom:'L’inverse de 2',      ch:[['n',-2],['f',1,2],['f',1,-2]], bon:1, r:500, faire:true},
+  {t:'ch', nom:'L’inverse de 4',      ch:[['n',-4],['f',1,4],['f',1,-4]], bon:1, r:250, faire:true},
+  {t:'ch', nom:'L’inverse de 5',      ch:[['n',-5],['f',1,5],['f',1,-5]], bon:1, r:200, faire:true},
+  {t:'ch', nom:'L’inverse de 10',     ch:[['n',-10],['f',1,10],['f',1,-10]], bon:1, r:100, faire:true},
+  {t:'ch', nom:'La somme de 6 et 2',      ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:0, r:8000},
+  {t:'ch', nom:'Le produit de 6 et 2',    ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:2, r:12000},
+  {t:'ch', nom:'La différence entre 6 et 2', ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:1, r:4000},
+  {t:'ch', nom:'Le quotient de 6 par 2',  ch:[['+',6,2],['-',6,2],['x',6,2],['f',6,2]], bon:3, r:3000},
+  {t:'en', titre:'Calcule la somme de 3 et de la moitié de 5.', et:[
+    {lab:'On commence par <b>la moitié de 5</b> :', txt:'la moitié de 5', r:2500, calc:['f',5,2]},
+    {lab:'puis la somme de 3 et de <b>la moitié de 5</b> :', txt:'la somme de 3 et de la moitié de 5', r:5500, calc:'3 + 2,5'}]},
+  {t:'en', titre:'Calcule la somme du double de 4 et de la moitié de 6.', et:[
+    {lab:'On commence par <b>le double de 4</b> :', txt:'le double de 4', r:8000, calc:['x',4,2]},
+    {lab:'puis <b>la moitié de 6</b> :', txt:'la moitié de 6', r:3000, calc:['f',6,2]},
+    {lab:'puis la somme du <b>double de 4</b> et de la <b>moitié de 6</b> :', txt:'la somme du double de 4 et de la moitié de 6', r:11000, calc:'8 + 3'}]},
+  {t:'en', titre:'Calcule le double du tiers de 12.', et:[
+    {lab:'On commence par <b>le tiers de 12</b> :', txt:'le tiers de 12', r:4000, calc:['f',12,3]},
+    {lab:'puis le double du <b>tiers de 12</b> :', txt:'le double du tiers de 12', r:8000, calc:'4 × 2'}]},
+  {t:'en', titre:'Calcule la somme de 3 et de l’inverse de 2.', et:[
+    {lab:'On commence par <b>l’inverse de 2</b> :', txt:'l’inverse de 2', r:500, calc:['f',1,2]},
+    {lab:'puis la somme de 3 et de <b>l’inverse de 2</b> :', txt:'la somme de 3 et de l’inverse de 2', r:3500, calc:'3 + 0,5'}]}
+];
+const VOC_NB=VOC_LIGNES.length;
+function vocRang(i,n){ return Math.min(VOC_NB-1, Math.floor(i*VOC_NB/Math.max(1,n))); }
+function genVoc(i,n){ return {n:vocRang(i,n)}; }
+const vocL=q=>VOC_LIGNES[q.n];
+const vocSigne=n=>n<0?'−'+(-n):String(n);
+/* un calcul de la fiche : en HTML (étiquette, fraction empilée) et en texte */
+function vocCalcHTML(c){
+  if(typeof c==='string') return esc(c);
+  if(c[0]==='n') return vocSigne(c[1]);
+  if(c[0]==='f') return '<span class="fr"><span class="fn">'+vocSigne(c[1])+'</span><span class="fb"></span><span class="fd">'+vocSigne(c[2])+'</span></span>';
+  return c[1]+' '+({x:'×','+':'+','-':'−'})[c[0]]+' '+c[2];
+}
+function vocCalcPetit(c){   /* dans une phrase : la petite fraction empilée */
+  if(c && c[0]==='f') return '<span class="rlf-frp"><span>'+vocSigne(c[1])+'</span><span>'+vocSigne(c[2])+'</span></span>';
+  return vocCalcHTML(c);
+}
+function vocCalcTxt(c){
+  if(typeof c==='string') return c;
+  if(c[0]==='n') return vocSigne(c[1]);
+  if(c[0]==='f') return vocSigne(c[1])+'/'+vocSigne(c[2]);
+  return vocCalcHTML(c);
+}
+function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
+function vocTexte(q){ const L=vocL(q); return L.t==='ch' ? L.nom+' signifie que l’on doit '+(L.faire?'faire':'calculer')+' '+L.ch.map(vocCalcTxt).join(' ; ') : L.titre; }
+/* la correction écrite, en HTML (écran) ou en texte (aide, compte rendu) */
+function vocCorrection(q,html){
+  const L=vocL(q), C=html?vocCalcPetit:vocCalcTxt;
+  if(L.t==='ch') return L.nom+', c’est '+C(L.ch[L.bon])+' = '+vapStr(L.r)+'.';
+  return L.et.map(e=>(html?e.txt.charAt(0).toUpperCase()+e.txt.slice(1):e.txt)+' : '+C(e.calc)+' = '+vapStr(e.r)).join(' ; ')+'.';
+}
+async function startVoc(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='voc';
+  const n=dmNbQuestions(VOC_NB);
+  test.questions=distinctes(dmNbQuestions(VOC_NB),function(_,i){ return genVoc(i,n); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.vocChoix=null;
+  test.maxScore=test.questions.length;
+  show('voctest'); renderVoc();
+}
+/* le calcul choisi vit dans test (rangé par la pause avec le reste) */
+function vocChoixDe(){ const c=test.vocChoix; return (c && c.i===test.idx) ? c.c : null; }
+function vocChoisir(k){
+  if(test.locked) return;
+  const b=document.querySelectorAll('#vocHost .voc-ch')[k]; if(!b || b.disabled) return;
+  test.vocChoix={i:test.idx, c:k};
+  document.querySelectorAll('#vocHost .voc-ch').forEach((x,j)=>{
+    x.classList.toggle('voc-sel', j===k); x.setAttribute('aria-pressed', j===k?'true':'false');
+    if(!x.disabled) x.classList.remove('ok','bad','sol'); });
+  autoSave();
+  const r=$('vocR'); if(r && !r.disabled) setTimeout(()=>r.focus(),30);
+}
+function renderVoc(){
+  const q=test.questions[test.idx], L=vocL(q); test.locked=false;
+  const partie=L.t==='ch'?1:2;
+  $('vocIdx').textContent=`Partie ${partie} · Question ${test.idx+1} / ${test.questions.length}`;
+  $('modeTagVoc').innerHTML=modeTagHTML();
+  $('vocLiveScore').textContent=test.score;
+  $('vocFeedback').textContent=''; $('vocFeedback').className='mp-feedback';
+  $('vocActions').innerHTML='<button class="btn btn-primary" onclick="checkVocAnswer()">Vérifier</button>';
+  const R=id=>vapCase(id,'f-dec','résultat');
+  let h;
+  if(L.t==='ch'){
+    $('vocPrompt').innerHTML='Choisis le calcul qui correspond à la phrase, puis écris le résultat.';
+    const ch=vocChoixDe();
+    h='<p class="voc-phrase"><b>'+L.nom+'</b> signifie que l’on doit '+(L.faire?'faire':'calculer')+' :</p>'
+      +'<div class="voc-choix" data-pts-choix="1" role="group" aria-label="les calculs proposés">'
+      +L.ch.map((c,k)=>'<button type="button" class="voc-ch'+(ch===k?' voc-sel':'')+'" aria-pressed="'+(ch===k)+'" onclick="vocChoisir('+k+')">'+vocCalcHTML(c)+'</button>').join('')
+      +'</div>'
+      +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
+  } else {
+    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">Une case par étape, comme sur la fiche.</span>';
+    h=L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
+  }
+  $('vocHost').innerHTML=h;
+  const order=vocIds(q).map(id=>$(id)).filter(Boolean);
+  order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkVocAnswer(); } }));
+  if(L.t==='en') setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+function checkVocAnswer(live){
+  if(test.locked) return;
+  const q=test.questions[test.idx], L=vocL(q), soutien=isSoutien();
+  if(live){
+    if(L.t==='ch') vapLive('vocR',L.r); else L.et.forEach((e,k)=>vapLive('vocE'+k,e.r));
+    return;
+  }
+  let ok=true, okC=true;
+  if(L.t==='ch'){
+    const ch=vocChoixDe(); okC=ch===L.bon;
+    const bt=[...document.querySelectorAll('#vocHost .voc-ch')];
+    bt.forEach((b,k)=>{ b.classList.remove('ok','bad','sol');
+      if(k===ch) b.classList.add(okC?'ok':'bad');
+      else if(k===L.bon && !okC && !soutien) b.classList.add('sol'); });
+    if(okC || !soutien) bt.forEach(b=>{ b.disabled=true; });
+    const okR=vapVaut(vapVal('vocR'),L.r); marqueSaufVide('vocR',okR,soutien);
+    ok=okC&&okR;
+  } else {
+    L.et.forEach((e,k)=>{ const o=vapVaut(vapVal('vocE'+k),e.r); marqueSaufVide('vocE'+k,o,soutien); ok=ok&&o; });
+  }
+  if(!ok && soutien){ soutienAgain('vocFeedback','vocActions','checkVocAnswer','vocHost'); return; }
+  test.locked=true;
+  if(ok){ test.score++; $('vocLiveScore').textContent=test.score;
+    $('vocFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('vocFeedback').className='mp-feedback good';
+  } else {
+    if(L.t==='ch') corTrainDec('vocR',vapStr(L.r,false)); else L.et.forEach((e,k)=>corTrainDec('vocE'+k,vapStr(e.r,false)));
+    $('vocFeedback').innerHTML=(L.t==='ch' && vocChoixDe()==null ? 'Choisis d’abord le calcul. ' : '')+'Réponse : '+vocCorrection(q,true); $('vocFeedback').className='mp-feedback bad';
+  }
+  const lus=vocIds(q).map(vapVal), ch=L.t==='ch'?vocChoixDe():null;
+  const vide=lus.every(s=>s==='') && ch==null;
+  const given=vide?null:(L.t==='ch' ? (ch==null?'aucun calcul':vocCalcTxt(L.ch[ch]))+' ; '+(lus[0]||'…') : lus.map(s=>s||'…').join(' ; '));
+  const answer=L.t==='ch' ? vocCalcTxt(L.ch[L.bon])+' ; '+vapStr(L.r,false) : L.et.map(e=>vapStr(e.r,false)).join(' ; ');
+  test.answers.push({...(ptsExo()||{}),q:L.t==='ch'?L.nom:L.titre,answer,given,correct:ok});
+  const last=test.idx===test.questions.length-1;
+  $('vocActions').innerHTML=`<button class="btn btn-primary" id="vocNext" onclick="nextVocQuestion()">${last?'Voir mes résultats':'Question suivante'}</button>`;
+  $('vocNext').focus();
+}
+function nextVocQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; test.vocChoix=null; renderVoc(); autoSave(); } else finishVoc(); }
+async function finishVoc(){
+  if(!debutFin()) return;                     /* double-clic : une seule fin de test */
+  recoveryClosed=true; recoveryDirty=false;
+  const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
+  const durationSec=Math.round((Date.now()-test.startTime)/1000);
+  const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'vocabulaire-calcul',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,note,total,percent:pct,durationSec});
 }
@@ -30035,7 +30284,7 @@ function rendreDeplacable(carte, poignee){
 /* --- Fermer (et vider) les fenêtres d'aide à chaque changement d'écran : quitter l'exercice les fait disparaître. --- */
 function fermerFenetresIA(vider){
   reattacherFenetres();
-  fermerQIA(); fermerConseil(); fermerTables();
+  fermerQIA(); fermerConseil(); fermerTables(); if(typeof fermerDecimales==="function") fermerDecimales();
   if(!vider) return;
   const d=$('qiaDialog'); if(d) d.innerHTML='';
   const b=$('conseilBody'); if(b){ b.innerHTML=''; b.className='mp-feedback'; }
@@ -30232,6 +30481,13 @@ const RAP_VAP=`<b>Valeur approchée et ordre de grandeur</b><br>
 <b>② Multiplier par 10, 100, 1000</b> : \\(100\\times 1000=100\\,000\\) (on ajoute les zéros). Avec un décimal, on passe par la fraction décimale : \\(0{,}1\\times 1000=\\frac{1}{10}\\times 1000=\\frac{1000}{10}=100\\) ; \\(0{,}01\\times 10=\\frac{1}{100}\\times 10=\\frac{10}{100}=0{,}1\\).<br>
 <b>③ Un ordre de grandeur</b> : on remplace chaque facteur par la puissance de 10 la plus proche, puis on calcule : \\(11\\times 99\\approx 10\\times 100=1000\\) ; \\(0{,}01\\times 999\\approx 0{,}01\\times 1000=10\\).<br>
 Piège classique : \\(0{,}1\\times 1000\\) ne fait pas \\(0{,}1000\\) — multiplier par 1000 décale la virgule de trois rangs vers la droite.`;
+const RAP_VOC=`<b>Le vocabulaire du calcul</b><br>
+<b>① Multiplier</b> : le <b>double</b> de 12, c’est \\(12\\times 2=24\\) ; le <b>triple</b>, \\(12\\times 3\\) ; le <b>quadruple</b>, \\(12\\times 4\\).<br>
+<b>② Diviser</b> : la <b>moitié</b> de 12, c’est \\(\\frac{12}{2}=6\\) ; le <b>tiers</b>, \\(\\frac{12}{3}\\) ; le <b>quart</b>, \\(\\frac{12}{4}\\) ; le <b>dixième</b>, \\(\\frac{12}{10}=1{,}2\\).<br>
+<b>③ L’inverse</b> de 2, c’est \\(\\frac{1}{2}=0{,}5\\) — pas \\(-2\\), qui est l’<b>opposé</b> de 2.<br>
+<b>④ Les quatre opérations</b> : la <b>somme</b> de 6 et 2 est \\(6+2\\), la <b>différence</b> \\(6-2\\), le <b>produit</b> \\(6\\times 2\\), le <b>quotient</b> \\(\\frac{6}{2}\\).<br>
+<b>⑤ Plusieurs étapes</b> : le double du tiers de 12 — on commence par le tiers de 12 (4), puis on prend son double (8).<br>
+Les écritures décimales à connaître : \\(\\frac{1}{2}=0{,}5\\) ; \\(\\frac{1}{4}=0{,}25\\) ; \\(\\frac{3}{4}=0{,}75\\) ; \\(\\frac{1}{10}=0{,}1\\) ; \\(\\frac{1}{5}=0{,}2\\) ; \\(\\frac{2}{5}=0{,}4\\) ; \\(\\frac{3}{5}=0{,}6\\) ; \\(\\frac{4}{5}=0{,}8\\).`;
 const RAP_RLF=`<b>Décimaux, pourcentages et fractions</b><br>
 <b>① Les quarts, la moitié, le dixième</b> : \\(0{,}5=\\frac{1}{2}\\), \\(0{,}25=\\frac{1}{4}\\), \\(0{,}75=\\frac{3}{4}\\) et \\(0{,}1=\\frac{1}{10}\\).<br>
 <b>② Les cinquièmes</b> : \\(\\frac{1}{5}=\\frac{2}{10}=0{,}2\\), puis \\(\\frac{2}{5}=0{,}4\\), \\(\\frac{3}{5}=0{,}6\\), \\(\\frac{4}{5}=0{,}8\\) — on double le numérateur pour passer en dixièmes.<br>
@@ -31657,7 +31913,7 @@ const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
 <b>⑤ Résoudre <i>f</i>(<i>x</i>) = 0</b>, c’est donner les abscisses des points où la courbe coupe l’axe : S = { <i>x</i>₁ ; <i>x</i>₂ }, dans l’ordre que tu veux.<br>
 <b>⑥ Quand les signes, puis les couleurs, ne sont plus dessinés</b>, c’est toi qui lis la position de la courbe : au-dessus de l’axe, +&nbsp;; en dessous, −&nbsp;; sur l’axe, une racine. Dans le tableau, les racines s’écrivent dans l’ordre, la plus petite à gauche.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
-                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
+                mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, vap:RAP_VAP, voc:RAP_VOC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>
 Diminuer de <b>P %</b>, c\u2019est retirer P % de la valeur : on calcule d\u2019abord <b>la baisse</b> elle-même, \\(\\frac{P}{100}\\) × valeur, exactement comme en {pourcentage}.<br>
 Puis on <b>soustrait</b> : nouvelle valeur = valeur de départ \u2212 baisse — dans cet ordre.<br>
@@ -31774,6 +32030,7 @@ function rappelHTML(){ return rapMaths(numeros(RAPPELS_ID[currentTestId] || (tes
 const QIA_SUGG={
   sui:["Pourquoi le tableau et le calcul donnent-ils le même résultat ?","Comment compter le nombre d’années entre 2026 et 2031 ?","Pourquoi multiplie-t-on le nombre d’années par ce qu’on gagne chaque année ?","Comment trouver combien d’années il faut pour atteindre un seuil ?","Que faire quand la quantité diminue au lieu d’augmenter ?"],
   rlf:["Comment savoir quelle fraction est égale à 0,25 ?","Pourquoi 0,2 vaut-il un cinquième et pas un demi ?","Comment écrire 60 % sous forme de fraction ?","Comment calculer 20 % de 15 avec une fraction ?"],
+  voc:["Quelle différence entre le double et la moitié ?","C’est quoi, l’inverse d’un nombre ?","Comment écrire 5/2 en écriture décimale ?","Le double du tiers de 12 : par quoi commencer ?"],
   vap:["Pourquoi 10⁻² + 10 est-il proche de 10 ?","Comment calculer 0,01 × 1000 en passant par une fraction ?","C’est quoi, un ordre de grandeur ?","Pourquoi remplace-t-on 99 par 100 ?"],
   sdec:["Comment écrire 32/1000 sous forme décimale ?","Que faire quand les fractions sont dans le désordre ?","Pourquoi 10 + 0,1 + 1/1000 ne fait-il pas 10,11 ?","Comment passer de 3,24 à une fraction décimale ?"],
   asp:["Comment aligner les chiffres quand je pose l'opération ?","C'est quoi, une retenue, et où l'écrit-on ?","Pourquoi ajoute-t-on 1 en bas quand on ne peut pas soustraire ?","Comment vérifier mon résultat sans refaire l'opération ?"],
@@ -31988,6 +32245,15 @@ function conseilCtxCourant(){
         +'Méthode enseignée : écrire le pourcentage comme une fraction simple (20 % = 1/5), multiplier le numérateur par le nombre, puis diviser. Le résultat est un entier. '
         +'Erreurs classiques : multiplier aussi le dénominateur, ou se tromper de fraction (20 % = 1/2).';
     }
+  } else if(k==='voc' && q){
+    const L=vocL(q), ch=L.t==='ch'?vocChoixDe():null;
+    att=(L.t==='ch'
+        ? 'Partie 1 (vocabulaire). Phrase affichée : « '+vocTexte(q)+'. Le résultat est : … ». L’élève CHOISIT d’abord le bon calcul parmi ceux proposés, puis écrit le résultat dans une case. Calcul actuellement choisi : '+(ch==null?'aucun':vocCalcTxt(L.ch[ch]))+'. '
+        : 'Partie 2 (calcul en plusieurs étapes). Consigne : '+L.titre+' Une case par étape : '+L.et.map(e=>e.txt).join(', puis ')+'. ')
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+vocCorrection(q,false)+' '
+      +'Un résultat s’accepte en décimal ou en fraction (0,25 ou 1/4). Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
+      +'Vocabulaire enseigné : double, triple, quadruple = multiplier par 2, 3, 4 ; moitié, tiers, quart, dixième = diviser par 2, 3, 4, 10 ; inverse de a = 1/a (pas −a, qui est l’opposé) ; somme +, différence −, produit ×, quotient ÷. '
+      +'Erreurs classiques : confondre le double et la moitié, l’inverse et l’opposé, le produit et la somme ; dans un calcul en étapes, ne pas commencer par l’expression la plus « intérieure » (le tiers de 12 avant son double).';
   } else if(k==='vap' && q){
     const A=vapAttendus(q);
     att='Partie '+q.p+' sur 3 de la fiche. Calcul affiché : '+vapTexte(q)+(q.p===2?' = ':' ≈ ')+(q.p===2&&!q.a?'…/… × '+vapStr(P10(q.m)*VAP_D)+' = …':(q.p===3?'… × … ≈ …':'…'))+'. '
@@ -32307,6 +32573,11 @@ const QIA_MODELES={
     const seq=rlfCalculs(), c=seq.find(x=>!act || x.P!==act.P || x.N!==act.N)||seq[0], k=rlfPgcd(c.P,100);
     return rlfCorrection({P:c.P,N:c.N,n:c.P/k,d:100/k});
   },
+  voc:function(){   /* une autre ligne de la même partie de la fiche */
+    const act=(test && test.questions && test.questions[test.idx])||null, t=act?vocL(act).t:'ch';
+    const rangs=VOC_LIGNES.map((L,i)=>i).filter(i=>VOC_LIGNES[i].t===t && (!act || i!==act.n));
+    return vocCorrection({n:pick(rangs)},false);
+  },
   vap:function(){   /* la même ligne de la fiche, d'autres nombres */
     const g=(test && test.questions) ? vapGabarit(test.idx, test.questions.length) : 0;
     const q=qdmAutre(()=>VAP_GABARITS[g](), c=>vapTexte(c));
@@ -32489,6 +32760,26 @@ function ouvrirTables(){
 function fermerTables(){ const ov=$('tablesOverlay'); if(ov) ov.classList.remove('on'); }
 function tablesOuvertes(){ const ov=$('tablesOverlay'); return !!(ov && ov.classList.contains('on')); }
 function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
+/* LES ÉCRITURES DÉCIMALES À CONNAÎTRE (demande de Turquet, novembre 2026, au
+   1.13 {vocabulaire-calcul}) : « un bouton pour afficher les écritures
+   décimales à connaître 1/2 = 0,5 ; 1/4 = 0,25 ; 1/10 = 0,1 ; 3/4 = 0,75 ;
+   1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 dans une fenêtre comme pour
+   les tables de multiplication ». Même fenêtre flottante et déplaçable, qui
+   reste ouverte à côté de l'exercice ; le bouton n'est posé que sur les
+   écrans de DEC_ECRANS. */
+const DEC_ECRANS=['scr-voctest'];
+const DEC_A_CONNAITRE=[[1,2,'0,5'],[1,4,'0,25'],[1,10,'0,1'],[3,4,'0,75'],[1,5,'0,2'],[2,5,'0,4'],[3,5,'0,6'],[4,5,'0,8']];
+function decimalesHTML(){
+  return DEC_A_CONNAITRE.map(d=>'<div class="dec-ligne"><span class="fr"><span class="fn">'+d[0]+'</span><span class="fb"></span><span class="fd">'+d[1]+'</span></span><span>=</span><b>'+d[2]+'</b></div>').join('');
+}
+function ouvrirDecimales(){
+  const ov=$('decOverlay'); if(!ov) return;
+  const c=$('decCorps'); if(c && !c.innerHTML) c.innerHTML=decimalesHTML();
+  rendreDeplacable(ov.querySelector('.qia-card'), ov.querySelector('.qia-head'));
+  ov.classList.add('on');
+}
+function fermerDecimales(){ const ov=$('decOverlay'); if(ov) ov.classList.remove('on'); }
+function basculerDecimales(){ const ov=$('decOverlay'); (ov && ov.classList.contains('on')) ? fermerDecimales() : ouvrirDecimales(); }
 /* « Revenir à l'exercice », c'est y toucher : cliquer dedans ou y remettre le
    clavier. On écoute donc à la CAPTURE, pour être prévenu avant que le champ ne
    reçoive la frappe. Le bouton qui l'ouvre est exclu, sinon il la refermerait au
@@ -32529,7 +32820,8 @@ function iaBoutons(scr){
   const aide = currentMode!=='eval' && !enEvaluation() && IA_ECRANS_SANS.indexOf(s.id)<0;
   row.innerHTML=(aide&&isSoutien()?'<button class="btn btn-ghost" type="button" onclick="conseilCourant()">🎓 Soutien</button>':'')
     +(aide?'<button class="btn btn-ghost" type="button" onclick="ouvrirQIA()">💬 Poser une question à l’IA</button>':'')
-    +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>';
+    +'<button class="btn btn-ghost tables-btn" type="button" onclick="basculerTables()">✖️ Tables de multiplication</button>'
+    +(DEC_ECRANS.indexOf(s.id)>=0?'<button class="btn btn-ghost dec-btn" type="button" onclick="basculerDecimales()">½ Écritures décimales</button>':'');
 }
 
 /* ============ GREFFE TERMINALE : activation apres chaque rendu ============
@@ -32551,7 +32843,7 @@ function pmJetons(scr){
 }
 (function(){
   const noms=['renderTrd','renderQuestion','renderASPTest','renderMTest','renderFTest','renderPTest','renderPct10','renderEds','renderPdc','renderAtd','renderPdt','renderAdx','renderDdt','renderDdx','renderQTest','renderATest',
-              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderSuiTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
+              'renderDTest','renderVTest','renderMDTest','renderUTest','renderFPTest','renderPctCol','renderAG2Test','renderWTest','renderSynTest','renderBSTest','renderLCTest','renderSdTest','renderVap','renderVoc','renderRlf','renderHSTest','renderHSCTest','renderEssTest','renderSFTest','renderRvfTest','renderMltTest','renderSpfTest','renderPqdTest','renderTsfTest','renderRpdTest','renderDvlTest','renderDvdTest','renderTscTest','renderSuiTest','renderIma','renderPsl','renderSal','renderEsl','renderDbp','renderDbpRed','renderCKTest','renderACTest','renderEvsTest','renderBsdTest','renderPBTest'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

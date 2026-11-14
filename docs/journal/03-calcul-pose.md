@@ -220,3 +220,43 @@ aucune classe : `ptsEcran()` ne les compte pas. Contrôle (banc principal) :
 « en partie 2, la fraction est facultative — vide, elle ne coûte rien ;
 écrite, elle se juge », éprouvé sur la page de v400, où il rougit des quatre
 bords (pas de `data-facultatif`, point refusé, deux cases vides peintes `sol`).
+
+**Le vocabulaire du calcul — {vocabulaire-calcul} (1.13, Première, v416).**
+Demande de Turquet, novembre 2026, sur sa fiche « vocabulaire calcul » :
+« créer un exercice dans calcul mental comme le pdf, on gardera les mêmes
+nombres que dans le pdf », avec « un bouton pour afficher les écritures
+décimales à connaître […] dans une fenêtre comme pour les tables de
+multiplication ». AUCUN TIRAGE : la séance suit les lignes de la fiche, ses
+nombres et son ordre (`VOC_LIGNES`) ; une question n'est que le rang de sa
+ligne (`{n}`, l'indice, jamais l'objet). Une séance d'une autre longueur (un
+devoir) prend les lignes à intervalles réguliers (`vocRang`).
+*Partie 1, dix-sept phrases* : « Le double de 12 signifie que l'on doit
+calculer 12 × 1 ; 12 × 2 ; … le résultat est : … ». L'élève CLIQUE le bon
+calcul parmi ceux de la fiche — des étiquettes (`.voc-ch`), les fractions
+empilées (12 sur 2, 1 sur −2) —, puis écrit le résultat dans une case
+MathLive. La fiche pose deux fois « le dixième de 12 », à l'identique : la
+ligne n'est posée qu'une fois (aucune séance ne pose deux fois la même
+question), d'où 21 questions et non 22.
+*Partie 2, quatre calculs en étapes* : une case par étape, les intitulés de la
+fiche (« On commence par la moitié de 5 : … puis la somme de 3 et de la
+moitié de 5 : … ») — la somme de 3 et de la moitié de 5, la somme du double
+de 4 et de la moitié de 6, le double du tiers de 12, la somme de 3 et de
+l'inverse de 2.
+*Le juge* (`checkVocAnswer`) : la question est juste quand le calcul choisi
+ET chaque case le sont ; un résultat s'écrit en décimal ou en fraction
+(`vapLit` du 1.12 : 0,25 ou 1/4, 0,5 ou 1/2). L'étiquette choisie se peint
+bleue (juste) ou rouge ; la bonne étiquette montrée par la page, verte
+(`.sol`, en entraînement et en évaluation ; en soutien l'élève rechoisit).
+Le calcul choisi vit dans `test.vocChoix` (rangé par la pause avec le
+reste). *Le compte des cases* : `ptsEcran()` compte désormais un groupe
+`[data-pts-choix]` pour UNE case, juste si l'étiquette choisie l'est — sans
+quoi « 12 × 1 » choisi avec « 24 » écrit s'affichait « 0 case juste sur 1 ».
+*La fenêtre des écritures décimales* (`#decOverlay`, `ouvrirDecimales`) :
+celle des tables, mêmes classes, en haut à droite, déplaçable, les huit
+écritures ½ = 0,5 ; ¼ = 0,25 ; 1/10 = 0,1 ; ¾ = 0,75 ; 1/5 = 0,2 ; 2/5 = 0,4 ;
+3/5 = 0,6 ; 4/5 = 0,8, fractions empilées. Son bouton « ½ Écritures
+décimales » rejoint la rangée des aides (`iaBoutons`) sur les écrans de
+`DEC_ECRANS` seulement ; elle se ferme avec les autres fenêtres d'aide au
+changement d'écran (`fermerFenetresIA`).
+Contrôle (banc principal) : « {vocabulaire-calcul} : les lignes de la fiche,
+ses nombres, son ordre, et un juge qui exige le calcul ET le résultat ».
