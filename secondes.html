@@ -52623,9 +52623,12 @@ function psfActions(html){ $('psfActions').innerHTML=conseilInlineBtn()+html; }
 function psfMarque(el, ok, sol){
   if(!el) return;
   el.classList.remove('ok','bad','sol');
-  if(ok===true) el.classList.add('ok');
-  else if(ok===false && psfNet(el.value)) el.classList.add('bad');
-  if(ok===false && sol!=null && !el.parentNode.querySelector('.psf-cor[data-pour="'+el.id+'"]'))
+  if(ok===true){ el.classList.add('ok'); return; }
+  if(ok!==false) return;
+  /* une case laissée VIDE ne rougit jamais : elle reçoit la bonne réponse, en vert (sol) */
+  if(!psfNet(el.value)){ if(sol!=null){ el.value=sol; el.classList.add('sol'); } return; }
+  el.classList.add('bad');
+  if(sol!=null && !el.parentNode.querySelector('.psf-cor[data-pour="'+el.id+'"]'))
     el.insertAdjacentHTML('afterend','<span class="mf-cor pyn-cor psf-cor" data-pour="'+el.id+'">'+esc(sol)+'</span>');
 }
 function renderPSF(){
@@ -52657,7 +52660,7 @@ function renderPSF(){
   test.psfExec=null;
   if(k>0){
     pynConsoleFigee('psfConsoleA', psfSrc(q.l1, q.l2), q.rep?[q.rep]:[]);
-    if(q.aOk){ psfMarque(i1, q.aOk[0]); psfMarque(i2, q.aOk[1]); }
+    if(q.aOk){ psfMarque(i1, q.aOk[0], PSF_SOL1); psfMarque(i2, q.aOk[1], PSF_SOL2); }
     const n=$('psf-nom'), sel=$('psf-type');
     n.value=q.nom||''; sel.value=q.typ||'';
     n.addEventListener('input', function(){ if(test.locked) return; q.nom=n.value; n.classList.remove('bad'); psfSauver(); });
@@ -52764,7 +52767,8 @@ function psfVerifierB(q, fb){
   test.score+=(jn.ok?1:0)+(jt.ok?1:0);
   psfMarque(n, jn.ok, PSF_VAR);
   if(jt.ok) sel.classList.add('ok');
-  else { if(v) sel.classList.add('bad'); sel.insertAdjacentHTML('afterend','<span class="mf-cor pyn-cor psf-cor" data-pour="psf-type">'+esc(psfTypeLibelle(att))+'</span>'); }
+  else if(!v){ sel.value=att; sel.classList.add('sol'); }
+  else { sel.classList.add('bad'); sel.insertAdjacentHTML('afterend','<span class="mf-cor pyn-cor psf-cor" data-pour="psf-type">'+esc(psfTypeLibelle(att))+'</span>'); }
   $('psfLiveScore').textContent=test.score;
   if(jn.ok&&jt.ok){ fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' '+pourquoi; fb.className='mp-feedback good'; }
   else {

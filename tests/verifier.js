@@ -36557,7 +36557,7 @@ function pythonInputSport(w, P){
   })()`, v => v === '');
 
   /* ---- 3. le trajet en entraînement ---- */
-  verifierEval(w, 'entraînement : « Vérifier » reste fermé tant que le programme n’est pas exécuté tel qu’il est écrit ; la console pose la question puis affiche la phrase ; un trou faux rougit et le texte juste s’écrit en vert ; au b), une case vide ne rougit pas ; la note dit 3 cases sur 4', `(function(){
+  verifierEval(w, 'entraînement : « Vérifier » reste fermé tant que le programme n’est pas exécuté tel qu’il est écrit ; la console pose la question puis affiche la phrase ; un trou faux rougit et le texte juste s’écrit en vert ; au b), une case vide ne rougit pas et reçoit la réponse en vert ; la note dit 2 cases justes sur 4', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
     currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPSF();
     if(!$("psfAvant")||!/input/.test($("psfAvant").textContent)) vus.push("la définition manque");
@@ -36587,6 +36587,7 @@ function pythonInputSport(w, P){
     $("psf-type").value="str"; $("psf-type").dispatchEvent(new Event("change"));
     checkPSF();
     if($("psf-nom").classList.contains("bad")) vus.push("la case VIDE du nom rougit");
+    if(!$("psf-nom").classList.contains("sol")||$("psf-nom").value!=="sport") vus.push("la case vide du nom ne reçoit pas la réponse en vert");
     if(!$("psf-type").classList.contains("ok")) vus.push("le type juste n’est pas en bleu");
     if(test.score!==2) vus.push("score final "+test.score);
     const a=test.answers[test.answers.length-1];
