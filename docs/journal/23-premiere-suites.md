@@ -192,3 +192,75 @@ valeur de départ (100 ou 200 ; 1 000 ou 2 000 ; 900 ou 1 000) et de
 l'échelle. Les familles restent assez nombreuses pour que `distincte` tienne
 (trois à six par contexte, deux contextes par séance). Le contrôle vérifie
 p ≥ 2N sur 300 séances.
+
+## Puis : au moins trois lignes à compléter dans la méthode 1 (novembre 2026, v417)
+
+**La demande** (Turquet) : « dans la méthode 1 l'élève doit compléter au moins
+trois lignes pour arriver au résultat ».
+
+**Ce que le tirage interdit.** La méthode 1 écrivait les lignes 0 à 3 (les
+résultats de la question ①) et demandait les lignes 4 à N. Or N vaut toujours
+4 : le chiffre unique borne p à 9, et le seuil au moins deux fois plus loin
+impose p ≥ 2N — la question ② ne peut pas porter plus loin que le pas 4 sans
+casser l'une des deux règles précédentes (pousser N à 6 demanderait p ≥ 12,
+donc p = 20 et une valeur d'arrivée à deux chiffres non nuls, quel que soit le
+départ). La méthode 1 n'offrait donc qu'UNE ligne à remplir : la dernière.
+
+**Le remède est du côté des lignes écrites, pas du tirage.** Le tableau de la
+méthode 1 n'écrit plus que les lignes 0 et 1 — le départ et le premier pas, qui
+montrent de combien on avance — et l'élève complète les lignes 2 à N : trois au
+moins, puisque N ≥ 4 (`SUI_M1_ECRITES`, une constante lue par `suiCases`,
+`suiTableauM1`, `suiPourquoi` et le contexte envoyé au modèle). Les lignes 2 et
+3 sont celles que l'élève a déjà trouvées à la question ① : il les reporte, puis
+poursuit — c'est bien « compléter le tableau », ligne à ligne. La règle
+d'octobre tient : seule la dernière ligne est attendue, les intermédiaires
+restent `.hors-note` et une ligne sautée ne manque pas ; une ligne écrite fausse
+refuse toujours la question.
+
+**Le contrôle** (`tests/verifier.js`, bloc « question 2, deux méthodes
+obligatoires ») lit les lignes 0 et 1 écrites (la valeur de départ, le premier
+pas) sans case, compte les cases du tableau — au moins trois, exactement N − 1,
+du pas 2 au pas N — et vérifie la présence de chaque case `sui-m1-2` à
+`sui-m1-N` ; le bloc des 300 séances exige à chaque tirage au moins trois cases
+de méthode 1. Le reste du bloc (copie aux lignes sautées, ligne intermédiaire
+fausse, tableau entier) tourne inchangé sur les nouvelles cases.
+
+## Puis : le pas est un multiple de 10, ou 25, ou 110, 120, 150 (novembre 2026, v417)
+
+**La demande** (Turquet, le même jour) : « il faut que l'addition ou soustraction
+à faire soit un multiple de 10 quand il est inférieur à 100 ou sinon 25, et
+110 ; 120 ou 150 quand il est supérieur à 100. »
+
+**Ce que la règle remplace.** Jusque-là, chaque nombre de chaque étape n'avait
+qu'un seul chiffre non nul : le pas valait 1, 2 ou 3 fois une puissance de dix,
+la valeur de départ 1 à 10 fois la même puissance, et toute la combinatoire
+(`suiFamilles`, `suiUn`) tenait cette règle. Un pas de 25, de 110 ou de 150 ne
+peut pas la respecter : la règle du chiffre unique s'efface, et c'est la liste
+du pas qui gouverne — `SUI_PAS` : 10 à 90 de dix en dix, 25, 100 (multiple de
+10 posé sur la frontière, gardé), 110, 120, 150. Les valeurs du tableau en
+découlent (1 000, 1 110, 1 220… ; 700, 630, 560… ; 100, 125, 150…) et restent
+des additions ou des soustractions qui se font de tête.
+
+**La valeur de départ** est un nombre rond choisi par le contexte (`u0`, une
+liste par contexte : centaines pour les arbres et le roman, jusqu'à 2 000
+feuilles, milliers pour la piscine et les abonnés) ; un contexte borne son pas
+quand la situation l'exige (`rMin`, `rMax` : le tuyau de la piscine apporte au
+moins 100 L par heure, Léa ne lit pas 150 pages par jour, une chaîne gagne au
+moins 50 abonnés). Une quantité qui diminue ne tombe jamais à zéro au seuil.
+
+**N et p.** Le seuil reste au moins deux fois plus loin (p ≥ 2N) et entre dans
+la table de 10 (`SUI_P_MAX`) : N vaut 4 ou 5, p de 8 à 10. La question ② peut
+donc porter sur cinq pas, la méthode 1 offrir quatre lignes à compléter — trois
+au moins dans tous les cas. 1 809 combinaisons sur les six contextes (80 pour la
+piscine, la plus contrainte) : `distincte` a de quoi tirer.
+
+**La question range `u0` et `r`**, plus `(a, b, k)` : `suiVals` lit encore un
+brouillon de pause rangé avant la v416 (`q.u0` absent → a·10^k), pour qu'une
+reprise le jour de la publication ne casse pas.
+
+**Le contrôle** (`tests/verifier.js`, bloc des 300 séances) ne cherche plus le
+chiffre unique : il relit chaque pas dans la liste de la demande — écrite en
+dur dans le banc, pas lue dans la page —, la valeur de départ parmi les valeurs
+rondes de son contexte et multiple de 100, p ≤ 10, le seuil au moins deux fois
+plus loin, rien de nul ni de négatif, et toujours au moins trois lignes de
+méthode 1.

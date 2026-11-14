@@ -4920,6 +4920,7 @@ function exercices(suite){
     pythonNomVariable(w, P);
     pythonPrint(w, P);
     pythonInputReponse(w, P);
+    pythonInputSport(w, P);
     serpentsHalloween(w, P);
     pythonInput(w, P);
     augmentationTableau(w, P);
@@ -36508,6 +36509,148 @@ function pythonInputReponse(w, P){
   })()`, v => v === '');
 }
 
+/* {python-input-sport} (Seconde, 6.3.19, demande de Turquet, novembre 2026) :
+   compléter les deux trous d'un programme — la question de input, le texte du
+   print —, l'exécuter en répondant dans la console, puis donner le nom de la
+   variable qui contient la réponse et son type (str (texte), int (nombre
+   entier), float (un nombre décimal)). Le contrôle épingle la place au menu,
+   le juge des trous (justes acceptés, faux refusés chacun pour SA raison),
+   le trajet en entraînement (« Vérifier » fermé avant l'exécution, la case
+   vide qui ne rougit pas, la correction en vert), le soutien (rouge sans
+   verrou ni réponse), la reprise d'une pause, les branchements, et la sortie
+   du programme juste comparée à un vrai CPython. */
+function pythonInputSport(w, P){
+  const nom = '{python-input-sport} : compléter input et print, puis le nom et le type de la variable';
+  if(!P.pythonInputSport){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du sport favori'); return; }
+  const ID = P.pythonInputSport.exercice, NUM = P.pythonInputSport.numero;
+  const present = evaluer(w, "typeof startPSF==='function' && typeof psfJugeTrou==='function' && typeof pynLancer==='function'");
+  if(!present.ok || !present.valeur){
+    verifier(nom, false, 'startPSF / psfJugeTrou / pynLancer introuvables alors que tests/profils.js déclare l\'exercice'); return;
+  }
+
+  /* ---- 1. la place au menu ---- */
+  verifierEval(w, nom + ' — il ferme le sous-thème 6.3 « Input », numéroté ' + NUM + ', et rien d’autre ne bouge', `(function(){
+    const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
+    const s3=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
+    if(!s3||s3.ids[s3.ids.length-1]!=="${ID}") vus.push("pas en fin du sous-thème 6.3");
+    if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
+    if(TEST_NUM["python-input-reponse"]!=="6.3.1"||TEST_NUM["python-input-image"]!=="6.3.18") vus.push("les autres exercices du 6.3 ont bougé");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 2. le juge des trous, du nom et du type ---- */
+  verifierEval(w, 'le juge : les deux trous justes passent (espaces, guillemets simples sans apostrophe, virgule finale), les faux sont refusés chacun pour SA raison ; le nom « sport » seul est juste ; le type attendu est str, même pour une réponse « 12 »', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    [[1,Q+"quel est ton sport favori ? "+Q],[1,Q+"quel est ton sport favori ?"+Q],[1,A+"quel est ton sport favori ? "+A],[1,Q+"Quel est ton sport favori ?"+Q],
+     [2,Q+"c"+A+"est formidable le sport"+Q],[2,Q+"c"+A+"est formidable le sport,"+Q],[2,Q+" c"+A+"est formidable le sport "+Q]].forEach(function(c){
+      const j=psfJugeTrou(c[0],c[1]); if(!j.ok) vus.push("refusé à tort, trou "+c[0]+" : "+c[1]+" — "+j.diag); });
+    [[1,"quel est ton sport favori ?",/guillemets/],[1,"input("+Q+"quel est ton sport favori ?"+Q+")",/déjà écrits/],[1,Q+"quel âge as-tu ?"+Q,/doit être/],
+     [2,A+"c"+A+"est formidable le sport"+A,/apostrophe/],[2,Q+"c"+A+"est formidable le sport"+Q+", sport",/deux fois/],[2,"print("+Q+"c"+A+"est formidable le sport"+Q,/déjà écrit/],
+     [2,Q+"bravo"+Q,/doit être/]].forEach(function(c){
+      const j=psfJugeTrou(c[0],c[1]); if(j.ok) vus.push("accepté à tort, trou "+c[0]+" : "+c[1]); else if(!c[2].test(j.diag)) vus.push(c[1]+" : "+j.diag); });
+    if(!psfJugeTrou(1,"  ").vide) vus.push("le trou vide n’est pas reconnu vide");
+    if(!psfJugeNom(" sport ").ok) vus.push("« sport » refusé");
+    [[Q+"sport"+Q,/SANS guillemets/],["Sport",/majuscules/],["input",/fonctions/],["favori",/GAUCHE/]].forEach(function(c){
+      const j=psfJugeNom(c[0]); if(j.ok) vus.push("nom accepté à tort : "+c[0]); else if(!c[1].test(j.diag)) vus.push(c[0]+" : "+j.diag); });
+    if(psfTypeAttendu({rep:"12"})!=="str"||psfTypeAttendu({rep:"tennis"})!=="str") vus.push("le type attendu n’est pas str");
+    if(PSF_TYPES.map(function(t){ return t[1]; }).join("|")!=="str (texte)|int (nombre entier)|float (un nombre décimal)") vus.push("les trois réponses du c) : "+PSF_TYPES.join(" / "));
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 3. le trajet en entraînement ---- */
+  verifierEval(w, 'entraînement : « Vérifier » reste fermé tant que le programme n’est pas exécuté tel qu’il est écrit ; la console pose la question puis affiche la phrase ; un trou faux rougit et le texte juste s’écrit en vert ; au b), une case vide ne rougit pas et reçoit la réponse en vert ; la note dit 2 cases justes sur 4', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39), NL=String.fromCharCode(10);
+    currentEleve=currentEleve||{id:"t",prenom:"T"}; currentMode="train"; currentTestId="${ID}"; startPSF();
+    if(!$("psfAvant")||!/input/.test($("psfAvant").textContent)) vus.push("la définition manque");
+    if(!document.querySelector("#psfEtapeA .pyn-titre")||!/sport favori/.test(document.querySelector("#psfEtapeA .pyn-titre").textContent)) vus.push("l’énoncé du a) manque dans son cadre");
+    if($("psf-nom")||$("psf-type")) vus.push("le b) est ouvert avant le a)");
+    if(!$("psfValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
+    $("psf-l1").value=Q+"quel est ton sport favori ? "+Q; $("psf-l1").dispatchEvent(new Event("input"));
+    $("psf-l2").value=Q+"c"+A+"est super le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    psfExecuter();
+    if(!$("pynEntree")) vus.push("la console n’attend pas la réponse");
+    else { $("pynEntree").value="handball"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
+    const att="quel est ton sport favori ? handball"+NL+"c"+A+"est super le sport handball";
+    if($("psfConsoleA").textContent!==att) vus.push("console : "+JSON.stringify($("psfConsoleA").textContent));
+    if($("psfValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
+    $("psf-l1").value=$("psf-l1").value+" "; $("psf-l1").dispatchEvent(new Event("input"));
+    if(!$("psfValidate").disabled) vus.push("« Vérifier » reste ouvert sur un programme modifié depuis l’exécution");
+    psfExecuter(); $("pynEntree").value="handball"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPSF();
+    if(!$("psf-l1").classList.contains("ok")||!$("psf-l2").classList.contains("bad")) vus.push("les trous ne sont pas peints : "+$("psf-l1").className+" / "+$("psf-l2").className);
+    const cor=document.querySelector("#psfHost .psf-cor[data-pour=psf-l2]");
+    if(!cor||cor.textContent!==Q+"c"+A+"est formidable le sport"+Q) vus.push("le texte juste du trou 2 n’est pas écrit en vert");
+    if(test.score!==1) vus.push("score après le a) : "+test.score);
+    if(!$("psfSuite")) vus.push("pas de « Passer au b) »"); else psfVersB();
+    if(!document.querySelector("#psfEtapeA .pyn-titre")) vus.push("l’énoncé du a) disparaît au b)");
+    if(!$("psf-l1").disabled||!$("psf-l2").classList.contains("bad")) vus.push("le a) n’est plus figé ni peint au b)");
+    if(!$("psf-nom")||!$("psf-type")) vus.push("le b) et le c) ne s’ouvrent pas");
+    $("psf-type").value="str"; $("psf-type").dispatchEvent(new Event("change"));
+    checkPSF();
+    if($("psf-nom").classList.contains("bad")) vus.push("la case VIDE du nom rougit");
+    if(!$("psf-nom").classList.contains("sol")||$("psf-nom").value!=="sport") vus.push("la case vide du nom ne reçoit pas la réponse en vert");
+    if(!$("psf-type").classList.contains("ok")) vus.push("le type juste n’est pas en bleu");
+    if(test.score!==2) vus.push("score final "+test.score);
+    const a=test.answers[test.answers.length-1];
+    if(!a||a.justes!==2||a.cases!==4||a.correct) vus.push("la réponse enregistrée : "+JSON.stringify(a));
+    if(!$("psfNext")) vus.push("pas de « Voir mes résultats »");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 4. le soutien, puis la reprise ---- */
+  verifierEval(w, 'soutien : un trou faux rougit et dit OÙ est l’erreur, sans verrouiller ni écrire le texte juste ; corrigé, il compte ; le nom faux rougit sans montrer « sport » ; puis la reprise d’une pause rend l’écran du b) tel qu’il était', `(function(){
+    const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
+    currentMode="soutien"; startPSF();
+    $("psf-l1").value=Q+"quel est ton sport favori ?"+Q; $("psf-l2").value=A+"c"+A+"est formidable le sport"+A; psfModifie();
+    psfExecuter(); if($("pynEntree")){ $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
+    checkPSF();
+    if(!$("psf-l2").classList.contains("bad")||test.locked||$("psf-l2").disabled) vus.push("le trou faux en soutien : verrouillé ou pas rouge");
+    if(!/apostrophe/.test($("psfFeedback").textContent)) vus.push("le soutien ne dit pas où est l’erreur : "+$("psfFeedback").textContent);
+    if(document.querySelector("#psfHost .psf-cor")) vus.push("le soutien écrit le texte juste");
+    $("psf-l2").value=Q+"c"+A+"est formidable le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    psfExecuter(); $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
+    checkPSF();
+    if(test.score!==2||!$("psf-l2").classList.contains("ok")) vus.push("les trous corrigés ne comptent pas : "+test.score);
+    psfVersB();
+    $("psf-nom").value="favori"; $("psf-nom").dispatchEvent(new Event("input")); $("psf-type").value="int"; $("psf-type").dispatchEvent(new Event("change"));
+    checkPSF();
+    if(!$("psf-nom").classList.contains("bad")||!$("psf-type").classList.contains("bad")||test.locked) vus.push("le b) faux en soutien");
+    if(/« sport »|: sport\b/.test($("psfFeedback").textContent)||document.querySelector("#psfHost .psf-cor")) vus.push("le soutien donne le nom : "+$("psfFeedback").textContent);
+    const sauve=JSON.parse(JSON.stringify(test.questions));
+    test.questions=sauve; test.locked=false;
+    if(!afficherEcranDe("psf")) vus.push("afficherEcranDe ne connaît pas psf");
+    if(!$("psf-nom")||$("psf-nom").value!=="favori") vus.push("le nom tapé est perdu à la reprise");
+    if(!$("psf-l1")||!$("psf-l1").disabled||!$("psf-l1").classList.contains("ok")) vus.push("le a) n’est plus juste et figé à la reprise");
+    if($("psfConsoleA").textContent.indexOf("judo")<0) vus.push("la console du a) à la reprise : "+JSON.stringify($("psfConsoleA").textContent));
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 5. les branchements ---- */
+  verifierEval(w, 'branchements : écran, rappel de cours, questions à l’IA, contexte du modèle, serpent d’Halloween', `(function(){
+    const vus=[];
+    if(!$("scr-psf")) vus.push("pas d’écran");
+    if(!RAPPELS.psf||!/input/.test(RAPPELS.psf)||!/str/.test(RAPPELS.psf)) vus.push("rappel de cours");
+    if(!QIA_SUGG.psf||QIA_SUGG.psf.length<3) vus.push("questions à l’IA");
+    const c=ctxPsf({etape:"b",rep:"judo"});
+    if(!c||!/SECR/.test(c.contexte)) vus.push("contexte du modèle");
+    if(!HW_SERPENTS["${ID}"]) vus.push("pas de serpent d’Halloween");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  /* ---- 6. CPython : le programme juste affiche la même chose ---- */
+  const py = (() => { try{ execFileSync('python3', ['--version']); return 'python3'; }catch(e){ return null; } })();
+  if(!py){ ignorer(nom + ' (CPython)', 'python3 absent'); return; }
+  const r = evaluer(w, `JSON.stringify((function(){ const s=psfTemoin(); return {src:s, page:pyRun(s,["natation"]).out}; })())`);
+  if(!r.ok){ verifier(nom + ' (CPython)', false, 'le programme juste ne s’exécute pas dans la page'); return; }
+  const c = JSON.parse(r.valeur);
+  let cp = null;
+  try{ cp = execFileSync(py, ['-c', c.src], { input: 'natation\n', encoding: 'utf8', timeout: 60000 }); }
+  catch(e){ verifier(nom + ' (CPython)', false, 'CPython n\'a pas pu être lancé : ' + e.message); return; }
+  /* CPython lit sa réponse dans un fichier : il n'écrit ni la réponse ni le retour à la ligne après la question */
+  const page = c.page.replace('quel est ton sport favori ? natation\n', 'quel est ton sport favori ? ');
+  verifier(nom + ' (le programme juste, comparé à CPython)', page === cp, 'page ' + JSON.stringify(page) + ', CPython ' + JSON.stringify(cp));
+}
+
 /* {augmentation-tableau} (Première, 7.1, thème 7 « Suites », novembre 2026) :
    la fiche « Exercice augmentation tableau » de Turquet, sans argent. Le
    contrôle épingle la place au menu (le thème 7, ajouté en dernier, rien
@@ -36538,16 +36681,19 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2, et chaque nombre de chaque étape n’a qu’un seul chiffre non nul', `(function(){
-    const vus=[]; const un=function(x){ return /^[1-9]0*$/.test(String(x)); };
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas un multiple de 10 sous 100, ou 25, ou 110, 120, 150 au-dessus de 100, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       qs.forEach(function(q){ const v=suiVals(q);
-        [v.u0,v.rAbs,v.t1,v.t2,v.t3,v.n,v.prod,v.res,v.e,v.kk,v.T].forEach(function(x){ if(!un(x)) vus.push(SUI_CTX[q.ci].nom+" : "+x+" a plus d’un chiffre non nul"); });
+        if(PAS.indexOf(v.rAbs)<0) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", ni multiple de 10 sous 100, ni 25, ni 110, 120 ou 150");
+        if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
+        if(v.kk>10) vus.push("p="+v.kk+" : la question 3 sort de la table de 10");
         if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
+        if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
       });
@@ -36559,7 +36705,7 @@ function augmentationTableau(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
   /* ---- 3. le rendu, les miroirs, le juge ---- */
-  verifierEval(w, 'question 2, deux méthodes obligatoires : le tableau prolongé (lignes 0 à 3 écrites, une case par ligne jusqu’au pas N, les intermédiaires facultatives) et les phrases (première case saisie, les suivantes des miroirs, « = » collé) ; copie juste → 1 point ; lignes sautées acceptées ; ligne intermédiaire fausse refusée ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
+  verifierEval(w, 'question 2, deux méthodes obligatoires : le tableau prolongé (lignes 0 et 1 écrites, une case par ligne du pas 2 au pas N — au moins trois —, les intermédiaires facultatives) et les phrases (première case saisie, les suivantes des miroirs, « = » collé) ; copie juste → 1 point ; lignes sautées acceptées ; ligne intermédiaire fausse refusée ; copie vide → corrigée en vert sans rouge ; copie fausse → la case juste reste juste', `(function(){
     const vus=[]; currentEleve={id:"test",prenom:"Test"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     window.confirmerCasesVides=false;
     startSui(); test.idx=1; renderSuiTest();
@@ -36572,10 +36718,15 @@ function augmentationTableau(w, P){
       const lignes=tab.querySelectorAll("tr").length-1;
       if(lignes!==v.n+1) vus.push("tableau de "+lignes+" lignes pour un pas "+v.n);
       const cols=tab.querySelectorAll("tr:first-child th").length; if(cols!==3) vus.push(cols+" colonnes au lieu de 3");
-      const l3=tab.querySelectorAll("tr")[4]; if(!l3||l3.textContent.indexOf(suiFmt(v.t3))<0) vus.push("la ligne 3 n’écrit pas le résultat de la question 1");
-      if(tab.querySelector("math-field")&&tab.querySelectorAll("tr")[4].querySelector("math-field")) vus.push("la ligne 3 est une case");
+      const trs=tab.querySelectorAll("tr");
+      if(!trs[1]||trs[1].textContent.indexOf(suiFmt(v.u0))<0||trs[1].querySelector("math-field")) vus.push("la ligne 0 n’écrit pas la valeur de départ");
+      if(!trs[2]||trs[2].textContent.indexOf(suiFmt(v.t1))<0||trs[2].querySelector("math-field")) vus.push("la ligne 1 n’écrit pas le premier pas de la question 1");
+      /* au moins TROIS lignes à compléter pour arriver au résultat (Turquet, novembre 2026) */
+      const nCases=tab.querySelectorAll("math-field").length;
+      if(nCases<3) vus.push("seulement "+nCases+" ligne(s) à compléter dans la méthode 1 : il en faut au moins trois");
+      if(nCases!==v.n-1||!trs[3]||!trs[3].querySelector("math-field")) vus.push(nCases+" case(s) : attendues du pas 2 au pas "+v.n);
     }
-    for(let n=4;n<=v.n;n++){ const el=$("sui-m1-"+n); if(!el) vus.push("pas de case au pas "+n);
+    for(let n=2;n<=v.n;n++){ const el=$("sui-m1-"+n); if(!el) vus.push("pas de case au pas "+n);
       else if(el.classList.contains("hors-note")!==(n<v.n)) vus.push("hors-note mal posé au pas "+n); }
     if(host.querySelector(".sui-tab.sui-rappel")) vus.push("le tableau « pour mémoire » est encore là");
     /* méthode 2 : les phrases, cases et miroirs */
@@ -58109,6 +58260,39 @@ function premiere(w){
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
+
+  /* {vocabulaire-calcul} (1.13) : la fiche « vocabulaire calcul » de Turquet
+     (novembre 2026), AVEC SES NOMBRES et dans son ordre — 17 phrases (le
+     double de 12 … le quotient de 6 par 2 ; la ligne « le dixième de 12 »,
+     posée deux fois à l'identique par la fiche, ne l'est qu'une fois), puis
+     4 calculs en étapes. Une séance d'une autre longueur garde l'ordre ;
+     chaque attendu est exact, et le calcul marqué « bon » vaut le résultat ;
+     le juge demande le bon calcul ET le bon résultat (décimal ou fraction),
+     et une case vide ne rougit pas. */
+  verifierEval(w, '{vocabulaire-calcul} : les lignes de la fiche, ses nombres, son ordre, et un juge qui exige le calcul ET le résultat', `(function(){
+    const vus=[];
+    if(VOC_NB!==21) vus.push(VOC_NB+' lignes au lieu de 21');
+    const ATT=[24,36,48,6,4,3,1.2,2.5,0.25,0.5,0.25,0.2,0.1,8,12,4,3];
+    ATT.forEach(function(a,i){ const L=VOC_LIGNES[i]; if(!L||L.t!=='ch'||L.r!==Math.round(a*1000)) vus.push('ligne '+(i+1)+' : attendu faux');
+      else { const c=L.ch[L.bon]; const v=c[0]==='x'?c[1]*c[2]:c[0]==='+'?c[1]+c[2]:c[0]==='-'?c[1]-c[2]:c[0]==='f'?c[1]/c[2]:NaN;
+        if(Math.abs(v*1000-L.r)>1e-6) vus.push('ligne '+(i+1)+' : le bon calcul ne vaut pas le résultat'); } });
+    const ET=[[2.5,5.5],[8,3,11],[4,8],[0.5,3.5]];
+    ET.forEach(function(e,j){ const L=VOC_LIGNES[17+j]; if(!L||L.t!=='en'||L.et.map(x=>x.r/1000).join()!==e.join()) vus.push('calcul en étapes '+(j+1)+' faux'); });
+    for(let n=1;n<=DM_NBQ_MAX;n++){ const qs=distinctes(n,function(_,i){ return genVoc(i,n); });
+      if(new Set(qs.map(q=>q.n)).size!==n || qs.some((q,i)=>i&&q.n<=qs[i-1].n)) vus.push('séance de '+n+' : ordre ou doublon'); }
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVoc();
+    const poser=function(n,ch,val){ test.questions[0]={n:n}; test.idx=0; test.locked=false; test.score=0; test.answers=[]; test.vocChoix=null; renderVoc();
+      if(ch!=null) vocChoisir(ch); const e=document.getElementById('vocR'); if(e&&val!=null) e.value=String(val); };
+    poser(0,1,'24'); checkVocAnswer(); if(test.score!==1) vus.push('le double de 12, 12 × 2 et 24 : pas le point');
+    poser(0,0,'24'); checkVocAnswer(); if(test.score!==0) vus.push('un calcul faux vaut le point');
+    if(!/\\bok\\b/.test(document.getElementById('vocR').className)) vus.push('le résultat juste ne se peint pas juste quand le calcul est faux');
+    poser(0,1,'25'); checkVocAnswer(); if(test.score!==0) vus.push('un résultat faux vaut le point');
+    poser(9,1,'1/2'); checkVocAnswer(); if(test.score!==1) vus.push('l’inverse de 2 écrit 1/2 refusé');
+    poser(8,3,'0,25'); checkVocAnswer(); if(test.score!==1) vus.push('le quart de 1 écrit 0,25 refusé');
+    poser(0,1,null); checkVocAnswer(); if(/\\bbad\\b/.test(document.getElementById('vocR').className)) vus.push('la case vide rougit');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
 
   /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
      même dénominateur dans une somme (demande de Turquet, novembre 2026) — le
