@@ -435,3 +435,42 @@ fausse rougit, les bulles s'affichent, « Revérifier ». Aucune erreur
 JavaScript. Le mot « antécédent » se pose à la première place libre (hors de
 l'axe, loin de A et B, sans que la droite le traverse) — la première capture
 le montrait sur B.
+
+**Puis la mise en page de la fiche « suite », la racine à trouver, et la bulle
+au clic (v416).** Demande de Turquet, sur la fiche « exercice tracer une droite
+(suite) » : « dans la question 1, quand on calcule l'image d'un nombre,
+présenter comme le pdf joint. Dans la question 4, il faut aligner les signes
+"=" verticalement et la règle 1 doit être "prendre l'opposé" et écrire "donc
+on change le ……" sur la même ligne. Pour la règle 2, mettre aussi sur la même
+ligne le "donc …". Pour le tableau de signes, l'élève doit trouver la racine
+dans le tableau. En mode soutien, je veux que la bulle apparaisse quand on
+clique sur la case et que l'aide corresponde uniquement à l'opération de la
+case, comme dans l'exercice de seconde 8.4.4. »
+· ① trois lignes par image, les « = » l'un sous l'autre (une grille à trois
+  colonnes, `.trd-calc`) : f(2) = −2 × ( … ) + 3, = … + 3, = … — une case de
+  plus par image, le produit (`trd-p1`, `trd-p2`) : 20 cases au lieu de 17.
+· ④ une grille à quatre colonnes (premier membre, « = », second membre,
+  règle) : les « = » s'alignent d'eux-mêmes ; la règle 1 et son « donc on
+  change le … » sur la ligne 1, la règle 2 et son « donc on garde le même … »
+  sur la ligne 3 ; la règle 1 se lit « prendre l'opposé » (listes : prendre
+  l'inverse / prendre l'opposé / garder le même nombre). Les règles écrivent
+  un peu plus petit (0,9 rem) : à pleine taille, la règle 1 sortait du cadre
+  sur un écran de 1 100 px — vu sur la capture.
+· ⑤ la racine est une case (`trd-rac`), lue décimale ou en fraction
+  (`trdLitNb` : « 1,5 », « 1.5 », « 3/2 ») ; le point vert reste sur le
+  dessin. Et le « + » du dessin, qui touchait l'axe des ordonnées sur une
+  droite proche de l'axe, essaie maintenant les deux côtés de la droite.
+· Soutien : les bulles fixes sous les lignes sont retirées ; la bulle
+  s'ouvre au focus d'une case de CALCUL (`TRD_GP_CASES` : les produits, les
+  sommes, le second membre, la division), à côté d'elle, par le patron de
+  `vcdGpOuvrir` du 8.4.4 — sur <body>, placée par `bexpPoser`,
+  `data-bulle-aide`, fermée au premier geste ailleurs, à Échap, au redessin,
+  à la vérification. Elle ne parle que de l'opération de sa case, avec les
+  nombres que l'élève a écrits dans les cases d'avant (sinon : « Écris
+  d'abord … ») : le produit et sa règle des signes, la somme « signes
+  différents → grand − petit, signe du plus fort » ou « signes identiques →
+  on additionne, même signe », la division et sa règle des signes. Ses deux
+  cases remplies écrivent le résultat dans la case du calcul. Essai dans
+  Chromium : bulle du produit, de la somme, de la division, la consigne
+  quand le produit manque, la fermeture au clic ailleurs, le résultat écrit
+  par la bulle et jugé juste ; copie juste 1 / 1, 20 cases `ok`.
