@@ -38260,7 +38260,7 @@ function pythonInputMoyenne(w, P){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===3; });
     if(!st||!/input/i.test(st.nom)) vus.push("pas de sous-thème 6.3 Input");
-    else if(st.ids.indexOf("${ID}")!==6||st.ids[5]!=="python-input-somme") vus.push("il n’est pas le 7e du sous-thème, derrière l’exercice 7 du carnet : "+st.ids.join(","));
+    else if(st.ids.indexOf("${ID}")!==7||st.ids[6]!=="python-input-somme") vus.push("il n’est pas le 7e du sous-thème, derrière l’exercice 7 du carnet : "+st.ids.join(","));
     if(TEST_NUM["${ID}"]!=="${NUM}") vus.push("numéro "+TEST_NUM["${ID}"]);
     if(TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-input"]!=="6.3.3"||TEST_NUM["python-input-int"]!=="6.3.4"||TEST_NUM["python-input-calcul"]!=="6.3.5"||TEST_NUM["python-input-float"]!=="6.3.6"||TEST_NUM["python-input-somme"]!=="6.3.7") vus.push("les six autres ont bougé");
     if(TEST_NUM["python-affichage"]!=="6.1.1"||TEST_NUM["python-pas-a-pas"]!=="6.2.1"||TEST_NUM["pourcentage"]!=="4.1.3") vus.push("l’exercice ajouté a renuméroté les autres");
