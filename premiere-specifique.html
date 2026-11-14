@@ -1569,19 +1569,42 @@ i.pb-P{margin-right:.14em}
   .trd-regle .trd-contenu{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin:0 auto;padding:0 4px}
   .itv-sel.trd-sel{width:auto;min-width:64px;height:38px;font-size:1rem;padding:0 10px;text-align-last:center}
   /* l'équation, chaque ligne face à sa règle (le sujet papier) */
-  .trd-eq{display:grid;grid-template-columns:max-content 1fr;column-gap:22px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
-  .trd-eq .trd-g{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:46px}
-  .trd-eq .trd-d{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--ink-soft)}
+  .trd-eq{display:grid;grid-template-columns:max-content max-content max-content 1fr;column-gap:12px;row-gap:6px;align-items:center;overflow-x:auto;font-weight:600;font-size:1.02rem}
+  .trd-eq .trd-g{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap;min-height:46px}
+  .trd-eq .trd-d{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--ink-soft);font-size:.9rem}
+  .trd-eq .trd-d .itv-sel.trd-sel{height:34px;font-size:.9rem;padding:0 6px;min-width:0}
   .trd-eq .trd-d b{color:var(--blue-dark)}
   .trd-cercle{display:inline-block;border:1.6px dotted var(--ink-soft);border-radius:999px;padding:0 6px;line-height:1.5}
   .trd-frac{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
   .trd-frac .trd-bar{display:block;width:100%;min-width:48px;height:2.4px;background:var(--ink)}
-  /* la bulle d'aide du soutien : facultative, hors de la note */
-  .trd-bulle{position:relative;margin:2px auto 10px;max-width:640px;padding:8px 12px;border:1.5px solid #F2C94C;border-radius:12px;background:#FFF9E6;font-size:1.02rem;font-weight:600;line-height:2.3;overflow-x:auto}
-  .trd-bulle::before{content:'';position:absolute;top:-8px;left:42px;border:8px solid transparent;border-top:0;border-bottom-color:#F2C94C}
-  .trd-bulle .trd-bulle-tag{display:inline-block;font-size:.8rem;font-weight:800;color:#9A6B00;text-transform:uppercase;letter-spacing:.04em;margin-right:6px}
-  .trd-bulle .itv-sel{height:36px;width:56px;font-size:1.02rem}
-  .trd-mot{white-space:nowrap}
+  /* ① trois lignes par image, les « = » l'un sous l'autre (la fiche « suite ») */
+  .trd-images{display:flex;flex-wrap:wrap;gap:8px 48px;justify-content:center}
+  .trd-calc{display:grid;grid-template-columns:max-content max-content max-content;column-gap:8px;row-gap:4px;align-items:center;font-weight:600;font-size:1.02rem;white-space:nowrap;margin:0 0 8px}
+  .trd-calc .trd-g{text-align:right}
+  .trd-calc .trd-dr,.trd-eq .trd-dr{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:40px}
+  .trd-eg{text-align:center}
+  /* la bulle d'aide du soutien, ouverte au clic d'une case de calcul — le
+     geste du 8.4.4 de la Seconde (vcdGpOuvrir) */
+  .trd-gp{position:fixed;z-index:58;max-width:min(380px,calc(100vw - 16px));box-sizing:border-box;
+    background:var(--surface);border:1.5px solid #1f7a6b;border-radius:14px;padding:8px 30px 10px 12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.18);font-family:'Nunito',sans-serif;font-weight:600;font-size:1rem;color:var(--ink)}
+  .trd-gp p{margin:0;line-height:2.1}
+  .trd-gp b{font-family:"Fredoka";font-weight:600;white-space:nowrap}
+  .trd-gp .trd-gp-tag{font-size:.75rem;font-weight:800;color:#1f7a6b;text-transform:uppercase;letter-spacing:.04em;line-height:1.4}
+  .trd-gp-regle{display:flex;flex-wrap:wrap;gap:4px 14px}
+  .trd-gp-regle span{white-space:nowrap;font-family:"Fredoka"}
+  .trd-gp-s{display:inline-block;width:auto;min-width:0;font:inherit;font-family:"Fredoka";font-size:1.05rem;height:1.9em;padding:0 2px;margin:0}
+  .trd-gp-n{font-family:"Fredoka";font-weight:600;font-size:1.05rem;width:2.8em;height:1.75em;text-align:center;border:1.5px solid var(--ink-soft);border-radius:6px;padding:0}
+  .trd-gp-x{position:absolute;top:4px;right:6px;border:none;background:none;cursor:pointer;font-size:14px;color:inherit;padding:2px}
+  .trd-gp[data-bexp-cote]::before,.trd-gp[data-bexp-cote]::after{content:'';position:absolute;width:0;height:0;border:10px solid transparent}
+  .trd-gp[data-bexp-cote="droite"]::before{left:-20px;top:calc(var(--bexp-fx) - 10px);border-right-color:#1f7a6b}
+  .trd-gp[data-bexp-cote="droite"]::after{left:-18px;top:calc(var(--bexp-fx) - 10px);border-right-color:var(--surface)}
+  .trd-gp[data-bexp-cote="gauche"]::before{right:-20px;top:calc(var(--bexp-fx) - 10px);border-left-color:#1f7a6b}
+  .trd-gp[data-bexp-cote="gauche"]::after{right:-18px;top:calc(var(--bexp-fx) - 10px);border-left-color:var(--surface)}
+  .trd-gp[data-bexp-cote="haut"]::before{bottom:-20px;left:calc(var(--bexp-fx) - 10px);border-top-color:#1f7a6b}
+  .trd-gp[data-bexp-cote="haut"]::after{bottom:-18px;left:calc(var(--bexp-fx) - 10px);border-top-color:var(--surface)}
+  .trd-gp[data-bexp-cote="bas"]::before{top:-20px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:#1f7a6b}
+  .trd-gp[data-bexp-cote="bas"]::after{top:-18px;left:calc(var(--bexp-fx) - 10px);border-bottom-color:var(--surface)}
   .trd-signes-regle{display:inline-flex;gap:14px;flex-wrap:wrap}
   .trd-signes-regle span{white-space:nowrap}
   /* 7.1 {augmentation-tableau} : le tableau, puis des PHRASES à compléter —
@@ -3868,7 +3891,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=415;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=416;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -31168,9 +31191,11 @@ function trdSignesSVG(q){
   const signe=function(m, txt, cls){
     /* le long du morceau, la première place à 30 px au moins de l'axe des
        ordonnées et de ses graduations ; à défaut, le milieu */
-    const dx=q.a<0 ? 18 : -18;
-    let xm=(m[0]+m[1])/2;
-    for(const t of [0.5,0.65,0.35,0.8,0.2]){ const c=m[0]+(m[1]-m[0])*t; if(Math.abs(trdSx(c)+dx-trdSx(0))>=30 && Math.abs(trdF(q,c))>=0.8){ xm=c; break; } }
+    /* d'un côté de la droite puis de l'autre (à 18 px, la droite s'en écarte
+       d'au moins 36 px : |a| ≥ 2) */
+    let xm=(m[0]+m[1])/2, dx=q.a<0 ? 18 : -18, trouve=false;
+    [dx,-dx].forEach(function(d){ [0.5,0.65,0.35,0.8,0.2].forEach(function(t){ if(trouve) return;
+      const c=m[0]+(m[1]-m[0])*t; if(Math.abs(trdSx(c)+d-trdSx(0))>=30 && Math.abs(trdF(q,c))>=0.8){ xm=c; dx=d; trouve=true; } }); });
     const X=trdSx(xm), Y=trdSy(trdF(q,xm));
     return '<text class="tsc-signe '+cls+'" x="'+(X+dx).toFixed(1)+'" y="'+(Y+7).toFixed(1)+'" text-anchor="middle">'+txt+'</text>';
   };
@@ -31183,7 +31208,7 @@ function trdSignesSVG(q){
 /* ---- Les listes ---- */
 const TRD_LISTES={
   'trd-regle':[['parabole','une parabole'],['droite','une droite'],['hyperbole','une hyperbole'],['cercle','un cercle']],
-  'trd-r1':[['meme','garder la même opération'],['inverse','faire l’opération inverse'],['ordre','changer l’ordre des termes']],
+  'trd-r1':[['inverse','prendre l’inverse'],['oppose','prendre l’opposé'],['meme','garder le même nombre']],
   'trd-r2':[['nombre','nombre'],['signe','signe'],['sens','sens de l’égalité']],
   'trd-r3':[['multiplie','on multiplie'],['soustrait','on soustrait'],['divise','on divise'],['ajoute','on ajoute']],
   'trd-r4':[['membre','membre'],['nombre','nombre'],['signe','signe']],
@@ -31192,23 +31217,129 @@ const TRD_LISTES={
 };
 function trdSel(id, aria, cls){ return itvSelHTML(id, TRD_LISTES[id], aria, cls||'trd-sel'); }
 function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+esc(aria)+'">'; }
-/* ---- Les bulles d'aide du soutien (facultatives, hors de la note) ---- */
-function trdBulleSomme(id, t1, t2, intro){
-  const meme=(t1>0)===(t2>0), A=Math.abs(t1), B=Math.abs(t2), g=Math.max(A,B), p=Math.min(A,B);
-  const s=t1+t2, signe=s>0?'+':'-';
-  const vin='<input id="'+id+'-v" class="lv-in hors-note trd-aide" data-exp="'+(meme?A+B:g-p)+'" inputmode="numeric" autocomplete="off" aria-label="aide facultative : le résultat sans son signe">';
-  const sin='<select class="itv-sel hors-note trd-aide" id="'+id+'-s" data-exp="'+signe+'" aria-label="aide facultative : le signe"><option value="" selected disabled>?</option><option value="+">+</option><option value="-">−</option></select>';
-  return '<div class="trd-bulle" id="'+id+'"><span class="trd-bulle-tag">Aide facultative</span>'+intro+' '
-    +(meme
-      ? 'les signes sont les <b>mêmes</b>, donc on <b>additionne</b> '+A+' et '+B+' : '+A+' + '+B+' = '+vin+' et on garde le même signe que '+trdNb(t1)+' et '+trdNb(t2)+', ici c’est '+sin+' .'
-      : 'les signes sont <b>différents</b>, donc on fait la <b>soustraction</b> grand − petit = '+g+' − '+p+' = '+vin+' et on prend le signe du plus fort entre '+trdNb(t1)+' et '+trdNb(t2)+', ici '+sin+' .')
-    +'</div>';
+/* ---- La bulle d'aide du soutien, à côté de la case cliquée ----
+   Demande de Turquet (novembre 2026) : « en mode soutien, je veux que la
+   bulle apparaisse quand on clique sur la case et que l'aide corresponde
+   uniquement à l'opération de la case, comme dans l'exercice de seconde
+   8.4.4 ». Le geste est celui du 8.4.4 ({coordonnees-vecteur-calculer},
+   vcdGpOuvrir) : la case d'un CALCUL prend le focus, la bulle s'ouvre à côté
+   d'elle, flèche pointée, et ne parle que de son opération —
+     · le produit a × x (trd-p1, trd-p2) : on multiplie sans les signes, puis
+       la règle des signes du produit ;
+     · la somme p + b (trd-y1, trd-y2) et la somme k + (−b) (trd-e2) : « les
+       signes sont différents, donc on fait la soustraction grand − petit … et
+       on prend le signe du plus fort », ou « les signes sont les mêmes, donc
+       on additionne … et on garde le même signe » ;
+     · la division (trd-e5) : on divise sans les signes, puis la règle des
+       signes de la division.
+   Les nombres de la bulle sont ceux que l'élève a ÉCRITS dans les cases
+   d'avant (le 8.4.4 aussi) ; tant qu'ils manquent, elle dit lesquels écrire
+   d'abord. Ses deux cases (le nombre, le signe) sont facultatives : remplies,
+   elles écrivent le résultat dans la case du calcul, qui se juge comme si
+   l'élève l'avait tapé. Soutien seulement, jamais sur un écran verrouillé.
+   Elle vit sur <body> (l'écran est le repère d'un « fixed »), n'existe que
+   pendant son ouverture (aucun banc qui parcourt les cases ne la voit, la
+   saisie de la pause ne la lit pas), se place par bexpPoser (la géométrie de
+   « Comprendre mon erreur »), porte data-bulle-aide (« Comprendre mon
+   erreur » ne s'ouvre pas sous elle), et se ferme au premier geste ailleurs,
+   à Échap, à la croix, à un redessin et à la vérification. */
+const TRD_GP_CASES=/^trd-(p1|p2|y1|y2|e2|e5)$/;
+let trdGpAncre=null;
+/* un nombre écrit : décimal (« 1,5 ») ou fraction (« 3/2 ») ; null = vide, NaN = illisible */
+function trdLitNb(v){
+  const t=String(v==null?'':v).trim().replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/,/g,'.');
+  if(t==='') return null;
+  const m=/^([-+]?\d+(?:\.\d+)?)\/([-+]?\d+(?:\.\d+)?)$/.exec(t);
+  if(m){ const d=parseFloat(m[2]); return d===0?NaN:parseFloat(m[1])/d; }
+  return /^[-+]?\d+(\.\d+)?$/.test(t) ? parseFloat(t) : NaN;
 }
-function trdBulleDivision(q){
-  const n=q.k-q.b;
-  return '<div class="trd-bulle" id="trd-bd"><span class="trd-bulle-tag">Aide facultative</span>Pour la division '+trdNb(n)+' ÷ '+(q.a<0?'('+trdNb(q.a)+')':trdNb(q.a))+', la règle des signes : '
-    +'<span class="trd-signes-regle"><span>+ ÷ − → −</span><span>− ÷ + → −</span><span>− ÷ − → +</span><span>+ ÷ + → +</span></span></div>';
+function trdLuCase(id){ const el=$(id); if(!el) return null; const v=trdLitNb(el.value); return (v===null||Number.isNaN(v))?null:v; }
+function trdPar(n){ return n<0 ? '('+trdNb(n)+')' : trdNb(n); }
+/* l'opération de la case : ses deux nombres, ou ce qu'il faut écrire d'abord */
+function trdGpOperation(q, id){
+  const k=id.slice(-1);
+  if(id==='trd-p1'||id==='trd-p2'){ const x=trdLuCase('trd-x'+k);
+    return x===null ? {manque:'le nombre entre les parenthèses'} : {op:'mul', a:q.a, b:x}; }
+  if(id==='trd-y1'||id==='trd-y2'){ const p=trdLuCase('trd-p'+k);
+    return p===null ? {manque:'le produit, sur la ligne du dessus'} : {op:'som', a:p, b:q.b}; }
+  if(id==='trd-e2'){ const t=trdLuCase('trd-e1');
+    return t===null ? {manque:'le terme transposé, sur la ligne du dessus'} : {op:'som', a:q.k, b:t}; }
+  if(id==='trd-e5'){ const n=trdLuCase('trd-e3'), d=trdLuCase('trd-e4');
+    return (n===null||d===null||d===0) ? {manque:'le numérateur et le dénominateur de la fraction'} : {op:'div', a:n, b:d}; }
+  return null;
 }
+function trdGpHTML(o){
+  const sin='<select id="trdGpS" class="trd-gp-s" aria-label="le signe du résultat"><option value="">…</option><option value="+">+</option><option value="-">−</option></select>';
+  const nin='<input id="trdGpN" class="trd-gp-n" type="text" inputmode="decimal" maxlength="5" autocomplete="off" spellcheck="false" aria-label="le résultat sans son signe">';
+  const A=Math.abs(o.a), B=Math.abs(o.b);
+  if(o.op==='som'){
+    const meme=(o.a>0)===(o.b>0), g=Math.max(A,B), p=Math.min(A,B);
+    return '<p>Pour <b>'+trdNb(o.a)+(o.b<0?' − '+B:' + '+B)+'</b> : '
+      +(meme ? 'les signes sont les <b>mêmes</b>, donc on additionne '+A+' et '+B+' : '+A+' + '+B+' = '+nin+' et on garde le même signe que '+trdNb(o.a)+' et '+trdNb(o.b)+', ici c’est '+sin+'.'
+             : 'les signes sont <b>différents</b>, donc on fait la soustraction grand − petit = '+g+' − '+p+' = '+nin+' et on prend le signe du plus fort entre '+trdNb(o.a)+' et '+trdNb(o.b)+', ici '+sin+'.')+'</p>';
+  }
+  if(o.op==='mul')
+    return '<p>Pour <b>'+trdNb(o.a)+' × '+trdPar(o.b)+'</b> : on multiplie sans les signes, '+A+' × '+B+' = '+nin+', puis la règle des signes d’un produit :</p>'
+      +'<p class="trd-gp-regle"><span>+ × + → +</span><span>− × − → +</span><span>+ × − → −</span><span>− × + → −</span></p><p>Ici, le signe est '+sin+'.</p>';
+  return '<p>Pour <b>'+trdNb(o.a)+' ÷ '+trdPar(o.b)+'</b> : on divise sans les signes, '+A+' ÷ '+B+' = '+nin+', puis la règle des signes d’une division :</p>'
+    +'<p class="trd-gp-regle"><span>+ ÷ + → +</span><span>− ÷ − → +</span><span>+ ÷ − → −</span><span>− ÷ + → −</span></p><p>Ici, le signe est '+sin+'.</p>';
+}
+function trdGpFermer(){ const b=$('trdGp'); if(b) b.remove(); trdGpAncre=null; }
+function trdGpOuvrir(el){
+  if(!el||!isSoutien()||test.locked||test.kind!=='trd'||el.disabled||el.classList.contains('sol')) return;
+  if(trdGpAncre===el&&$('trdGp')) return;
+  const q=test.questions[test.idx], o=q?trdGpOperation(q, el.id):null; if(!o) return;
+  trdGpFermer();
+  if(!el.closest('.screen.on')) return;
+  if(typeof bexpMasquer==='function') bexpMasquer();
+  const b=document.createElement('div');
+  b.id='trdGp'; b.className='trd-gp'; b.setAttribute('data-bulle-aide',''); b.setAttribute('role','group');
+  b.setAttribute('aria-label','Aide facultative : le calcul de cette case');
+  b.innerHTML='<button type="button" class="trd-gp-x" aria-label="Fermer" onclick="trdGpFermer()">✕</button>'
+    +'<p class="trd-gp-tag">Aide facultative</p>'
+    +(o.manque ? '<p>Écris d’abord '+o.manque+' : je t’aiderai ensuite à faire le calcul de cette case.</p>' : trdGpHTML(o));
+  document.body.appendChild(b);
+  trdGpAncre=el;
+  setTimeout(function(){ if(trdGpAncre===el && typeof bexpMasquer==='function') bexpMasquer(); }, 0);
+  if(!o.manque){
+    /* les deux remplies : le résultat s'écrit dans la case du calcul */
+    const ecrire=function(){
+      const s=$('trdGpS'), n=$('trdGpN'), r=trdGpAncre;
+      if(!s||!n||!r||!r.isConnected||test.locked||!s.value) return;
+      const v=trdLitNb(n.value); if(v===null||Number.isNaN(v)) return;
+      const val=trdNb(s.value==='-'?-Math.abs(v):Math.abs(v));
+      if(r.value===val) return;
+      r.value=val; r.dispatchEvent(new Event('input',{bubbles:true}));
+    };
+    $('trdGpS').addEventListener('change', ecrire);
+    $('trdGpN').addEventListener('input', ecrire);
+  }
+  trdGpPlacer();
+}
+/* ce que la bulle ne doit pas couvrir : les cases et boutons de l'écran, sa
+   case exceptée, et les commandes du bas (le patron de vcdGpPlacer) */
+function trdGpPlacer(){
+  const b=$('trdGp'), el=trdGpAncre; if(!b) return;
+  if(!el||!el.isConnected||!el.closest('.screen.on')||test.kind!=='trd'){ trdGpFermer(); return; }
+  b.removeAttribute('data-bexp-cote'); b.style.left='0px'; b.style.top='0px';
+  const rb=b.getBoundingClientRect(), c=el.getBoundingClientRect();
+  if(!rb.width||!rb.height||(!c.width&&!c.height)) return;
+  const obs=[], ecr=document.querySelector('.screen.on');
+  const vus=ecr?[...ecr.querySelectorAll('input,select,textarea,button')]:[];
+  const cmd=$('testCtrls'); if(cmd&&!cmd.hidden) vus.push(cmd);
+  vus.forEach(function(e){ if(b.contains(e)||e.contains(el)) return; const r=e.getBoundingClientRect(); if(r.width>0&&r.height>0) obs.push(r); });
+  if(typeof bexpPoser==='function' && bexpPoser(b, c, rb.width, rb.height, obs)) return;
+  const W=window.innerWidth, cx=(c.left+c.right)/2, M=(typeof BEXP_MARGE!=='undefined')?BEXP_MARGE:8, E=(typeof BEXP_ECART!=='undefined')?BEXP_ECART:14;
+  const x=Math.max(M, Math.min(W-M-rb.width, cx-rb.width/2));
+  b.style.left=Math.round(x)+'px'; b.style.top=Math.round(c.bottom+E)+'px';
+  b.dataset.bexpCote='bas';
+  b.style.setProperty('--bexp-fx', Math.round(Math.max(18, Math.min(rb.width-18, cx-x)))+'px');
+}
+document.addEventListener('focusin', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); });
+document.addEventListener('pointerdown', function(e){ if(!trdGpAncre) return; const b=$('trdGp'); if(e.target===trdGpAncre||(b&&b.contains(e.target))) return; trdGpFermer(); }, true);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&trdGpAncre) trdGpFermer(); });
+window.addEventListener('resize', function(){ if(trdGpAncre) trdGpPlacer(); });
+document.addEventListener('scroll', function(){ if(trdGpAncre) trdGpPlacer(); }, true);
 /* ---- L'écran ---- */
 function startTrd(){
   if(!currentEleve){ accueil(); return; }
@@ -31232,12 +31363,17 @@ function renderTrd(){
   const soutien=isSoutien();
   let h='';
   /* ① les images */
-  h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div>';
+  /* trois lignes, les « = » l'un sous l'autre (la fiche « suite » de
+     Turquet) : le produit à remplacer, le produit calculé, la somme */
+  h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div><div class="trd-images">';
   [[q.x1,'1'],[q.x2,'2']].forEach(function(c){
-    h+='<div class="trd-ligne"><span class="trd-contenu">'+fx(c[0])+' = '+trdNb(q.a)+' × ( '+trdIn('trd-x'+c[1],'le nombre à remplacer dans f ('+trdNb(c[0])+')','sm')+' )'+bSig+' = '+trdIn('trd-y'+c[1],'la valeur de f ('+trdNb(c[0])+')')+'</span></div>';
-    if(soutien){ const p=q.a*c[0]; h+=trdBulleSomme('trd-b'+c[1], p, q.b, 'On calcule d’abord '+trdNb(q.a)+' × '+(c[0]<0?'('+trdNb(c[0])+')':trdNb(c[0]))+' = '+trdNb(p)+', puis '+trdNb(p)+bSig+' :'); }
+    h+='<div class="trd-calc">'
+      +'<span class="trd-g">'+fx(c[0])+'</span><span class="trd-eg">=</span><span class="trd-dr">'+trdNb(q.a)+' × ( '+trdIn('trd-x'+c[1],'le nombre à remplacer dans f ('+trdNb(c[0])+')','sm')+' )'+bSig+'</span>'
+      +'<span class="trd-g"></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-p'+c[1],'le produit '+trdNb(q.a)+' × '+trdNb(c[0])+' calculé')+bSig+'</span>'
+      +'<span class="trd-g"></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-y'+c[1],'la valeur de f ('+trdNb(c[0])+')')+'</span>'
+      +'</div>';
   });
-  h+='</div>';
+  h+='</div></div>';
   /* ② les points, la règle, la droite */
   h+='<div class="trd-partie"><div class="trd-titre">2. Place le point A correspondant à '+fx(q.x1)+', puis le point B correspondant à '+fx(q.x2)+' ; construis ensuite la représentation graphique de <i>f</i>.</div>'
     +'<div class="trd-consigne" id="trdConsigne" aria-live="polite"></div>'
@@ -31253,35 +31389,36 @@ function renderTrd(){
   /* ④ l'équation, chaque ligne face à sa règle */
   const ax=trdAx(q.a);
   h+='<div class="trd-partie"><div class="trd-titre">4. Détermine par le calcul l’antécédent de '+K+' par <i>f</i> : résous <i>f</i> (<i>x</i>) = '+K+'. Complète chaque ligne, et la règle écrite en face.</div>'
+    /* quatre colonnes : le premier membre, le « = » (tous l'un sous
+       l'autre), le second membre, et la règle en face — chaque règle sur
+       UNE ligne, son « donc … » compris (demande de Turquet) */
     +'<div class="trd-eq">'
-    +'<span class="trd-g">'+ax+' <span class="trd-cercle">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span> = '+K+'</span>'
-    +'<span class="trd-d"><b>Règle 1</b> : quand on transpose un terme, on doit '+trdSel('trd-r1','règle 1 : quand on transpose un terme, on doit')+'</span>'
-    +'<span class="trd-g">'+ax+' = '+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span>'
-    +'<span class="trd-d">donc on change le '+trdSel('trd-r2','donc on change le')+'</span>'
-    +'<span class="trd-g"><span class="trd-cercle">'+trdNb(q.a)+'</span><i>x</i> = '+trdIn('trd-e2','le second membre calculé')+'</span>'
-    +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+'</span>'
-    +'<span class="trd-g"><i>x</i> = <span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span>'
-    +'<span class="trd-d">donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
-    +'<span class="trd-g"><i>x</i> = '+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
+    +'<span class="trd-g">'+ax+' <span class="trd-cercle">'+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+'</span></span><span class="trd-eg">=</span><span class="trd-dr">'+K+'</span>'
+    +'<span class="trd-d"><b>Règle 1</b> : quand on transpose un terme, on doit '+trdSel('trd-r1','règle 1 : quand on transpose un terme, on doit')+' donc on change le '+trdSel('trd-r2','donc on change le')+'</span>'
+    +'<span class="trd-g">'+ax+'</span><span class="trd-eg">=</span><span class="trd-dr">'+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span><span class="trd-d"></span>'
+    +'<span class="trd-g"><span class="trd-cercle">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
+    +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
     +'</div>';
-  if(soutien) h+=trdBulleSomme('trd-b3', q.k, -q.b, 'Pour la ligne 3, '+K+(q.b>0?' − '+q.b:' + '+Math.abs(q.b))+' est la somme de '+K+' et de '+trdNb(-q.b)+' :')+trdBulleDivision(q);
   h+='</div>';
   /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
-  const r=trdRacine(q);
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
-    +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0.</p>'
+    +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
     +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
     +'<div class="lv-graph tsg-graph" id="trdSignes">'+trdSignesSVG(q)+'</div>'
-    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Place les signes — la racine et le zéro sont déjà écrits.</span>'
+    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
-    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdNb(r)+'</td><td class="bnd tsg-br">+∞</td></tr>'
-    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant '+trdNb(r),' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après '+trdNb(r),' ')+'</td></tr>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
+    +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant la racine',' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après la racine',' ')+'</td></tr>'
     +'</tbody></table></span></div></div>';
   h+='</div>';
   $('trdHost').innerHTML=h;
   /* les listes rangées dans l'état reviennent (une pause, un redessin) */
   Object.keys(st.sels).forEach(function(id){ const el=$(id); if(el && st.sels[id]) el.value=st.sels[id]; });
+  trdGpFermer();
   $('trdHost').querySelectorAll('input').forEach(function(el){
+    if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
     el.addEventListener('input', function(){ trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); trdEntree(el); } });
   });
@@ -31369,19 +31506,21 @@ function trdClic(ev){
   clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,800);
 }
 /* ---- Le juge : chaque case seule ---- */
-const TRD_NOMS={'trd-x1':'le nombre remplacé dans f(x₁)','trd-y1':'f(x₁)','trd-x2':'le nombre remplacé dans f(x₂)','trd-y2':'f(x₂)',
+const TRD_NOMS={'trd-x1':'le nombre remplacé dans f(x₁)','trd-p1':'le produit calculé pour f(x₁)','trd-y1':'f(x₁)','trd-x2':'le nombre remplacé dans f(x₂)','trd-p2':'le produit calculé pour f(x₂)','trd-y2':'f(x₂)','trd-rac':'la racine dans le tableau de signes',
   'trd-regle':'la règle « … est une droite »','trd-ag':'l’antécédent lu sur le graphique',
-  'trd-r1':'la règle 1 (on doit …)','trd-e1':'le terme transposé (ligne 2)','trd-r2':'« donc on change le … »','trd-e2':'le second membre (ligne 3)',
+  'trd-r1':'la règle 1 (on doit prendre …)','trd-e1':'le terme transposé (ligne 2)','trd-r2':'« donc on change le … »','trd-e2':'le second membre (ligne 3)',
   'trd-r3':'la règle 2 (quand on transpose une multiplication …)','trd-e3':'le numérateur (ligne 4)','trd-e4':'le dénominateur (ligne 4)','trd-r4':'« donc on garde le même … »',
   'trd-e5':'x (ligne 5)','trd-s0':'le signe avant la racine','trd-s1':'le signe après la racine'};
 function trdCases(q){
   const xk=trdXk(q);
   return [
-    {id:'trd-x1', val:q.x1}, {id:'trd-y1', val:trdF(q,q.x1)}, {id:'trd-x2', val:q.x2}, {id:'trd-y2', val:trdF(q,q.x2)},
+    {id:'trd-x1', val:q.x1}, {id:'trd-p1', val:q.a*q.x1}, {id:'trd-y1', val:trdF(q,q.x1)},
+    {id:'trd-x2', val:q.x2}, {id:'trd-p2', val:q.a*q.x2}, {id:'trd-y2', val:trdF(q,q.x2)},
     {id:'trd-regle', val:'droite', liste:true},
     {id:'trd-ag', val:xk},
-    {id:'trd-r1', val:'inverse', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
+    {id:'trd-r1', val:'oppose', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
     {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e3', val:q.k-q.b}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
+    {id:'trd-rac', val:trdRacine(q), nb:true},
     {id:'trd-s0', val:q.a<0?'+':'-', liste:true}, {id:'trd-s1', val:q.a<0?'-':'+', liste:true}
   ];
 }
@@ -31390,9 +31529,10 @@ function trdCheck(q){
     const el=$(c.id), vide=!el || String(el.value==null?'':el.value).trim()==='';
     let ok;
     if(c.liste) ok=!!el && el.value===c.val;
+    else if(c.nb){ const v=el?trdLitNb(el.value):null; ok=v!==null && !Number.isNaN(v) && Math.abs(v-c.val)<1e-9; }
     else ok=lvReadInt(c.id)===c.val;
     /* le terme transposé : « +4 » ou « 4 » pour un terme positif, « −3 » pour un négatif */
-    const aff=c.liste ? c.val : (c.terme && c.val>0 ? '+'+c.val : numFmt(c.val));
+    const aff=c.liste ? c.val : c.nb ? trdNb(c.val) : (c.terme && c.val>0 ? '+'+c.val : numFmt(c.val));
     return {id:c.id, el:el, val:c.val, aff:aff, ok:ok, vide:vide};
   });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
@@ -31400,29 +31540,23 @@ function trdCheck(q){
 }
 /* le graphique est-il fini : A et B justes, la droite tracée */
 function trdGrapheFini(st){ return st.etape==='fin'; }
-/* Soutien : chaque case au fil de la frappe, les bulles comprises — une case
-   vide ne reçoit RIEN. */
+/* Soutien : chaque case au fil de la frappe — une case vide ne reçoit RIEN. */
 function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
-  document.querySelectorAll('#trdHost .trd-aide').forEach(function(el){
-    el.classList.remove('ok','bad');
-    const v=String(el.value==null?'':el.value).trim(); if(v==='') return;
-    const bon=el.tagName==='SELECT' ? v===el.getAttribute('data-exp') : lvReadInt(el.id)===parseFloat(el.getAttribute('data-exp'));
-    el.classList.add(bon?'ok':'bad');
-  });
 }
 function trdPourquoi(q){
   const xk=trdXk(q), K=trdNb(q.k), y1=trdF(q,q.x1), y2=trdF(q,q.x2);
   return 'f ('+trdNb(q.x1)+') = '+trdNb(q.a)+' × ('+trdNb(q.x1)+')'+(q.b<0?' − '+Math.abs(q.b):' + '+q.b)+' = '+trdNb(y1)+' et f ('+trdNb(q.x2)+') = '+trdNb(y2)
     +' : A ('+trdNb(q.x1)+' ; '+trdNb(y1)+') et B ('+trdNb(q.x2)+' ; '+trdNb(y2)+'). La représentation graphique d’une fonction du premier degré est une droite. '
-    +'Pour f (x) = '+K+' : on transpose '+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+' en faisant l’opération inverse (on change son signe), d’où '+trdNb(q.a)+'x = '+trdNb(q.k-q.b)
+    +'Pour f (x) = '+K+' : on transpose '+(q.b<0?'− '+Math.abs(q.b):'+ '+q.b)+' en prenant son opposé (on change son signe), d’où '+trdNb(q.a)+'x = '+trdNb(q.k-q.b)
     +' ; puis on transpose la multiplication par '+trdNb(q.a)+' en divisant (on garde son signe) : x = '+trdNb(q.k-q.b)+' / '+(q.a<0?'('+trdNb(q.a)+')':trdNb(q.a))+' = '+trdNb(xk)+'. '
     +'f (x) est '+(q.a<0?'positif avant ':'négatif avant ')+trdNb(trdRacine(q))+', '+(q.a<0?'négatif après.':'positif après.');
 }
 function submitTrd(){
   if(test.locked) return;
+  trdGpFermer();
   const q=test.questions[test.idx], st=trdEtat();
   /* EN ENTRAÎNEMENT, le graphique inachevé se signale une fois : la boîte des
      cases vides ne voit que les cases visibles, et les parties encore fermées
@@ -31480,12 +31614,12 @@ function ctxTrd(q){
     else ecrit.push(TRD_NOMS[s.id]+' : « '+String(s.el.value).trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
   const etapes={points:'il place les points A et B sur le repère (un point mal placé se peint en rouge, B attend qu’A soit juste)', regle:'A et B sont placés, il complète la règle « la représentation graphique d’une fonction du premier degré est … »', tracer:'il trace la droite en cliquant sur A puis sur B', fin:'la droite est tracée ; les questions 3 à 5 sont ouvertes'};
-  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') en écrivant « f(x) = a × ( … ) + b = … » ; 2. placer A et B, compléter la règle, tracer la droite en cliquant sur les deux points ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on fait l’opération inverse, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine '+trdNb(trdRacine(q))+' donnée dans le tableau).'
+  let c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée. Questions : 1. calculer f('+q.x1+') et f('+q.x2+') sur trois lignes, les « = » alignés : « f(x) = a × ( … ) + b », « = … + b » (le produit), « = … » ; 2. placer A et B, compléter la règle, tracer la droite en cliquant sur les deux points ; 3. lire graphiquement l’antécédent de '+q.k+' (un chemin en pointillés animé part du point rouge sur l’axe des ordonnées, va horizontalement jusqu’à la droite puis verticalement jusqu’à l’axe des abscisses) ; 4. résoudre f(x) = '+q.k+' en complétant chaque ligne et la règle écrite en face (règle 1 : quand on transpose un terme, on doit prendre l’opposé, donc on change le signe ; règle 2 : quand on transpose une multiplication, on divise, donc on garde le même signe) ; 5. compléter le tableau de signes sur la droite redessinée (rouge et + au-dessus de l’axe, bleu et − en dessous, un point vert sur la racine) : écrire la racine dans la ligne des x, puis les deux signes.'
     +' Où en est l’élève : '+etapes[st.etape]+'.'
     +(st.err[0]+st.err[1]?' Il a déjà mal placé un point '+(st.err[0]+st.err[1])+' fois.':'')
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +(vides.length&&ecrit.length?' Cases encore vides : '+vides.join(', ')+'.':'')
-    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; la représentation est une droite ; l’antécédent de '+q.k+' est '+xk+' ; ligne 2 : '+(q.b>0?'−'+q.b:'+'+(-q.b))+' ; ligne 3 : '+(q.k-q.b)+' ; ligne 4 : '+(q.k-q.b)+' / '+q.a+' ; x = '+xk+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
+    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; la représentation est une droite ; l’antécédent de '+q.k+' est '+xk+' ; ligne 2 : '+(q.b>0?'−'+q.b:'+'+(-q.b))+' ; ligne 3 : '+(q.k-q.b)+' ; ligne 4 : '+(q.k-q.b)+' / '+q.a+' ; x = '+xk+' ; la racine est '+trdNb(trdRacine(q))+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
     +' Méthode enseignée : remplacer x par le nombre (entre parenthèses), calculer le produit puis la somme de deux relatifs (signes différents : on soustrait grand − petit et on prend le signe du plus fort ; signes identiques : on additionne et on garde le signe) ; diviser avec la règle des signes.';
   return {nombre:'', contexte:c};
 }
@@ -31503,16 +31637,16 @@ Piège classique : ne confonds pas le nombre et son image — le nombre se lit s
 /* HTML pur, sans un seul \( : la seule fraction du calcul s'écrit « 2 / (−2) »
    en toutes lettres — la leçon du rappel de {placer-image} de la Seconde. */
 const RAP_TRD=`<b>La droite d'une fonction affine, f(<i>x</i>) = <i>a</i><i>x</i> + <i>b</i></b><br>
-<b>① Calculer une image</b> : on remplace <i>x</i> par le nombre, entre parenthèses : <i>f</i>(2) = −2 × (2) + 3 = −4 + 3 = −1. On calcule le produit d'abord, puis la somme de deux relatifs.<br>
+<b>① Calculer une image</b> : on remplace <i>x</i> par le nombre, entre parenthèses, puis on calcule le produit d'abord, la somme ensuite — une ligne par étape, les « = » l'un sous l'autre : <i>f</i>(2) = −2 × (2) + 3 = −4 + 3 = −1.<br>
 <b>Somme de deux relatifs</b> : signes <b>différents</b> → on soustrait grand − petit et on prend le signe du plus fort (−4 + 3 : 4 − 3 = 1, le plus fort est −4, donc −1) ; signes <b>identiques</b> → on additionne et on garde le signe (−3 − 5 : 3 + 5 = 8, donc −8).<br>
 <b>② Placer le point</b> A(2 ; <i>f</i>(2)) : l'abscisse 2 sur l'axe horizontal, l'ordonnée <i>f</i>(2) sur l'axe vertical.<br>
 <b>La représentation graphique d'une fonction du premier degré est une droite</b> : deux points suffisent pour la tracer.<br>
 <b>③ Lire un antécédent</b> de 5 : on part de 5 sur l'axe des ordonnées, horizontalement jusqu'à la droite, puis verticalement jusqu'à l'axe des abscisses.<br>
 <b>④ Le calculer</b> : on résout <i>f</i>(<i>x</i>) = 5.<br>
-−2<i>x</i> + 3 = 5 — <b>règle 1</b> : quand on transpose un terme, on fait l'opération inverse, donc on change son signe ;<br>
+−2<i>x</i> + 3 = 5 — <b>règle 1</b> : quand on transpose un terme, on doit prendre l'opposé, donc on change le signe ;<br>
 −2<i>x</i> = 5 − 3, soit −2<i>x</i> = 2 — <b>règle 2</b> : quand on transpose une multiplication, on divise, et on garde le même signe ;<br>
 <i>x</i> = 2 / (−2) = −1. <b>Règle des signes</b> d'une division : + ÷ + → + ; − ÷ − → + ; + ÷ − → − ; − ÷ + → −.<br>
-<b>⑤ Le signe de <i>f</i>(<i>x</i>)</b> se lit sur la droite : au-dessus de l'axe des abscisses, <i>f</i>(<i>x</i>) est positif (+) ; en dessous, négatif (−) ; <i>f</i>(<i>x</i>) = 0 là où la droite coupe l'axe.<br>
+<b>⑤ Le signe de <i>f</i>(<i>x</i>)</b> : la racine est le nombre où la droite coupe l'axe des abscisses (pour −2<i>x</i> + 3, c'est 1,5, solution de −2<i>x</i> + 3 = 0) ; puis le signe se lit sur la droite : au-dessus de l'axe des abscisses, <i>f</i>(<i>x</i>) est positif (+) ; en dessous, négatif (−) ; <i>f</i>(<i>x</i>) = 0 là où la droite coupe l'axe.<br>
 Piège classique : oublier les parenthèses autour d'un nombre négatif, ou changer le signe du −2 en le faisant passer au dénominateur.`;
 
 const RAP_TSC=`<b>Le signe d’une fonction se lit sur sa courbe</b><br>
