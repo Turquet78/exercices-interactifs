@@ -111,7 +111,7 @@ const RAPPELS_SECONDE = `(function(){
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-afficher-variable':'pyc',
                'ordre-croissant':'ord','ecrire-solutions':'ecs','python-affichage':'py','python-types':'pty','python-nom-variable':'pnv',
                'python-type-resultat':'pwy', 'python-texte-nombre':'pws', 'python-egal-affectation':'pwe', 'python-x-plus-pas-a-pas':'pwx', 'python-accumulateur':'pwa', 'python-priorites':'pwp', 'python-division-entiere':'pwd', 'python-arrondir':'pwr', 'python-valeur-depart':'pwv', 'python-meme-resultat':'pwm', 'python-choisir-programme':'pwc', 'python-ordre-lignes':'pwo', 'python-variable-inconnue':'pwn', 'python-debogage':'pwg', 'python-formule':'pwf', 'python-traduire-algo':'pwt',
-               'coordonnees-vecteur-lire':'vco', 'coordonnees-vecteur-associer':'vca', 'coordonnees-vecteur-compter':'vcs', 'coordonnees-vecteur-calculer':'vcd', 'coordonnees-vecteur-parallelogramme':'vcp', 'coordonnees-vecteur-quatrieme-point':'vcm', 'coordonnees-vecteur-demontrer-parallelogramme':'vpg', 'coordonnees-vecteur-quatrieme-point-choisi':'vqs', 'coordonnees-vecteur-tracer':'tvx', 'coordonnees-vecteur-tracer-decompose':'tvx', 'construire-multiple-vecteur':'tvx', 'identifier-multiple-vecteur':'kvi', 'identifier-multiple-non-entier':'kvi', 'vecteurs-colineaires-figure':'kco', 'colineaires-sens-longueur':'kss', 'placer-point-colineaire':'kpl', 'phrase-relation-colineaire':'kph', 'milieux-parallele-vecteurs':'kmi', 'demontrer-colineaires':'dco', 'demontrer-egalite-reels':'dcr', 'synthese-fonction':'syn', 'translation-antecedent':'tan', 'chasles-inserer-point':'chi', 'translation-pavage':'tpv', 'demontrer-parallelogramme':'dpa', 'vrai-faux-vecteurs':'vfh', 'vecteurs-criteres':'vcr', 'vecteur-egal-figure':'vef', 'vecteurs-egaux-justifier':'vej', 'lire-somme-dessin':'lsd', 'demontrer-chasles':'dch', 'demontrer-chasles-inserer':'dch', 'milieu-vecteurs-egaux':'vmi', 'somme-trois-vecteurs':'stv', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'valeur-expression':'cvl', 'vrai-faux-calcul':'vfl', 'developper-reduire':'dvr', 'developper-signe-moins':'dvm', 'developper-signe-moins-nu':'dvs', 'developper-distributivite-nu':'dvo', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'translations-successives':'tcp', 'regle-parallelogramme':'spg', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-input-concat':'pcz', 'python-input-erreur-type':'pte', 'python-input-int-float':'pfl', 'python-input-conversion':'pqc', 'python-input-predire':'ppr', 'python-input-ordre':'pod', 'python-input-arrondi':'prd', 'python-input-monnaie':'pmo', 'python-input-image':'pfx', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
+               'coordonnees-vecteur-lire':'vco', 'coordonnees-vecteur-associer':'vca', 'coordonnees-vecteur-compter':'vcs', 'coordonnees-vecteur-calculer':'vcd', 'coordonnees-vecteur-parallelogramme':'vcp', 'coordonnees-vecteur-quatrieme-point':'vcm', 'coordonnees-vecteur-demontrer-parallelogramme':'vpg', 'coordonnees-vecteur-quatrieme-point-choisi':'vqs', 'coordonnees-vecteur-tracer':'tvx', 'coordonnees-vecteur-tracer-decompose':'tvx', 'construire-multiple-vecteur':'tvx', 'identifier-multiple-vecteur':'kvi', 'identifier-multiple-non-entier':'kvi', 'vecteurs-colineaires-figure':'kco', 'colineaires-sens-longueur':'kss', 'placer-point-colineaire':'kpl', 'phrase-relation-colineaire':'kph', 'milieux-parallele-vecteurs':'kmi', 'demontrer-colineaires':'dco', 'demontrer-egalite-reels':'dcr', 'synthese-fonction':'syn', 'translation-antecedent':'tan', 'chasles-inserer-point':'chi', 'translation-pavage':'tpv', 'demontrer-parallelogramme':'dpa', 'vrai-faux-vecteurs':'vfh', 'vecteurs-criteres':'vcr', 'vecteur-egal-figure':'vef', 'vecteurs-egaux-justifier':'vej', 'lire-somme-dessin':'lsd', 'demontrer-chasles':'dch', 'demontrer-chasles-inserer':'dch', 'milieu-vecteurs-egaux':'vmi', 'somme-trois-vecteurs':'stv', 'vecteurs-egaux':'veg', 'relation-chasles':'chs', 'chasles-sans-figure':'chl', 'chasles-trois-vecteurs':'ctv', 'chasles-simplifier':'csp', 'point-somme-difference':'cvp', 'chasles-alignes':'cha', 'additionner-relatifs':'rel', 'associer-expressions':'asx', 'vecteurs-egaux-tableau':'vgt', 'nombres-relatifs':'rgp', 'reduire-somme':'red', 'calcul-itere':'cit', 'multiplier-relatifs':'mrl', 'soustraire-relatifs':'srl', 'reduire-produit':'rpd', 'developper-distributivite':'dvl', 'developper-double':'dvd', 'developper-double-nu':'dvn', 'valeur-expression':'cvl', 'vrai-faux-calcul':'vfl', 'developper-reduire':'dvr', 'developper-signe-moins':'dvm', 'developper-signe-moins-nu':'dvs', 'developper-distributivite-nu':'dvo', 'parallelogramme-point':'vec', 'egalite-vectorielle-point':'vep', 'somme-vecteurs':'svc', 'somme-vecteurs-libre':'svc', 'point-somme-vecteurs':'cps', 'translations-successives':'tcp', 'regle-parallelogramme':'spg', 'tracer-vecteurs-egaux':'tvx', 'tracer-vecteurs-opposes':'tvx', 'somme-vecteurs-repere':'svr', 'translation-grille':'vtr', 'tableau-proportions':'tdp', 'tableau-proportions-lettres':'tdl', 'tableau-proportions-lettres-tirees':'tdl', 'tableau-proportions-directes':'tdl', 'tableau-proportions-parmi':'tdl', 'tableau-proportions-trois-colonnes':'tdc', 'tableau-proportions-trois-colonnes-directes':'tdc', 'python-print':'pyp', 'python-input':'pyi', 'python-input-reponse':'pyn', 'python-deux-lignes':'pyd', 'python-placer-variables':'pyv', 'python-tableau-valeurs':'ptv', 'python-changer-valeurs':'pcv', 'python-operations':'pop', 'python-double-triple-carre':'pdc', 'python-chaines':'pch', 'python-chaine-len':'pcl', 'python-for-range':'pfr', 'python-for-pas-a-pas':'pfp', 'python-input-int':'pii', 'python-input-float':'pii', 'python-input-calcul':'pia', 'python-input-somme':'pis', 'python-input-moyenne':'pmy', 'python-triangle-etoiles':'ptr', 'python-for-oui-non':'pfo', 'python-input-rectangle':'prc','python-if-frais-port':'pcf', 'python-input-prix':'pkg', 'python-input-concat':'pcz', 'python-input-erreur-type':'pte', 'python-input-int-float':'pfl', 'python-input-conversion':'pqc', 'python-input-predire':'ppr', 'python-input-ordre':'pod', 'python-input-arrondi':'prd', 'python-input-monnaie':'pmo', 'python-input-image':'pfx', 'python-pile-face':'pof', 'python-for-nom':'pfn', 'python-if-plus-grand':'pxy', 'python-tables-multiplication':'pmt', 'python-for-table':'ptm', 'python-if-plus-grand-trois':'pgt', 'translation-quadrillage':'trl', 'python-input-duree-secondes':'phm', 'python-input-evolution':'pvo', 'python-input-duree':'pdu', 'python-for-erreur':'pfe', 'python-inverser-lettres':'pbl', 'python-moyenne-notes':'pmn', 'python-for-moyenne-notes':'pmn', 'python-for-renommer':'pfv', 'python-for-images-entiers':'pfk','python-trois-des':'ptds', 'python-for-depart-fin':'pfd', 'python-for-couples':'pfc', 'python-for-multiples':'pfq', 'python-for-images':'pfi', 'python-if-location':'plo', 'python-if-else':'pce', 'python-samoussa':'psm', 'python-if-cinema':'pci', 'python-remplacer-lettre':'prl', 'python-chaine-tirets':'ptt', 'python-pas-a-pas':'pap', 'python-valeur-case':'pvm', 'python-pas-a-pas-calcul':'ppc', 'python-pas-a-pas-chaine':'ppd', 'python-echange-variables':'pev', 'python-pas-a-pas-multiplication':'ppm', 'python-echange-par-lettres':'pel', 'python-phrases-memoire':'pph', 'python-programme-calcul':'pgc', 'revision-fractions':'rvf' };
   const manquants=[];
   Object.keys(TESTS).forEach(function(id){
     const k=cles[id];
@@ -1340,7 +1340,7 @@ module.exports = {
        colorer au fil de la frappe ferait trouver par élimination ; au 8.4.1,
        le signe se devinerait en deux essais. « kss », « kph », « kmi » non plus : des listes à
        deux ou trois choix, une rédaction dont les cases se jugent ensemble. */
-    soutienEnDirect: { sans: ['kss', 'kph', 'kmi', 'kvi', 'kco', 'psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'svr', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pfx', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
+    soutienEnDirect: { sans: ['kss', 'kph', 'kmi', 'kvi', 'kco', 'psl', 'sal', 'ac', 'pwy', 'pws', 'pwe', 'pwx', 'pwa', 'pwp', 'pwd', 'pwr', 'pwv', 'pwm', 'pwc', 'pwo', 'pwn', 'pwg', 'pwf', 'pwt', 'lv', 'img', 'ant', 'def', 'pge', 'sfl', 'mll', 'pf', 'tvg', 'svr', 'ecs', 'py', 'pty', 'pyc', 'pvn', 'pyp', 'pyi', 'pyn', 'pyx', 'pyd', 'pyv', 'ptv', 'pcv', 'pop', 'pdc', 'pch', 'pcl', 'pfr', 'pfp', 'pii', 'pia', 'pis', 'pmy', 'ptr', 'pfo', 'pgc', 'prc', 'pcf', 'pkg', 'pcz', 'pte', 'pfl', 'pqc', 'ppr', 'pod', 'prd', 'pmo', 'pfx', 'pof', 'pfn', 'pfk', 'pxy', 'pmt', 'ptm', 'pgt', 'phm', 'pvo', 'pdu', 'pfe', 'pbl', 'pmn', 'pfv', 'ptds', 'pfd', 'pfc', 'pfq', 'pfi', 'plo', 'pce', 'psm', 'pci', 'prl', 'ptt', 'pap', 'pvm', 'ppc', 'ppd', 'pev', 'ppm', 'pel', 'pph'] },
     /* 4 questions par exercice de fractions, du 4.2 au 4.9 (demande de
        Turquet, août 2026) : les quatre du moteur sf ET les quatre du moteur
        mlt. DEUX sources — la page a ses constantes, le banc compare à
@@ -1833,7 +1833,7 @@ module.exports = {
        la fiche « Exercice 4 » — exécuter une boucle for, puis expliquer pourquoi
        « oui » est répété et « non » une seule fois. « nb » est la seconde source
        du compte (la page a PFO_NB). */
-    pythonForOuiNon: { exercice: 'python-for-oui-non', nb: 2, numero: '6.6.4' },
+    pythonForOuiNon: { exercice: 'python-for-oui-non', nb: 2, numero: '6.6.5' },
     /* {python-programme-calcul} (6.2.9, demande de Turquet, octobre 2026) :
        l'exercice 19 du carnet — un programme de calcul en étapes (A prend la
        valeur 5, multiplier A par 3, soustraire 4, élever au carré, afficher)
@@ -1913,20 +1913,20 @@ module.exports = {
        son nom et son prénom avec une boucle for. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFN_NB). */
-    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.3' },
+    pythonForNom: { exercice: 'python-for-nom', nb: 3, numero: '6.6.4' },
     /* {python-for-couples} (6.6.13, dans le sous-thème « Boucle for in
        range », derrière {python-tables-multiplication} ; demande de Turquet, octobre
        2026) : l'exercice 12 du carnet, BONUS — afficher tous les couples
        d'entiers (a ; b) avec a et b entre 0 et 2. Le juge lit ce que le
        programme AFFICHE. « nb » est la seconde source du compte (la page a
        PFC_NB). */
-    pythonForCouples: { exercice: 'python-for-couples', nb: 3, numero: '6.6.13' },
+    pythonForCouples: { exercice: 'python-for-couples', nb: 3, numero: '6.6.14' },
     /* {python-for-images-entiers} (6.6.14, derrière {python-for-couples}, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 9 du carnet — afficher les
        images de x par f(x) = x² − 6x + 3 pour x allant de 0 à 10. Le juge lit
        ce que le programme AFFICHE. « nb » est la seconde source du compte (la
        page a PFK_NB). */
-    pythonForImagesEntiers: { exercice: 'python-for-images-entiers', nb: 3, numero: '6.6.14' },
+    pythonForImagesEntiers: { exercice: 'python-for-images-entiers', nb: 3, numero: '6.6.15' },
     /* {python-input-duree} (6.5.1, sous-thème « Bonus : input », demande de
        Turquet, octobre 2026) : l'exercice 11 du carnet — demander une durée
        en minutes et l'afficher en heures et minutes (// et %). La fiche ne
@@ -1944,18 +1944,18 @@ module.exports = {
        programme faux, puis expliquer l'erreur (juge : le modèle). Trois
        questions fixes, une faute chacune (deux-points, décalage, i au lieu
        de k) : rien à tirer. */
-    pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.5' },
+    pythonForErreur: { exercice: 'python-for-erreur', numero: '6.6.6' },
     /* {python-for-table} (6.6.11, dernier du sous-thème « Boucle for in range »,
        demande de Turquet, octobre 2026) : l'exercice 8 du carnet — a) la
        table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
        le programme AFFICHE. Une seule question (la fiche), deux cases. */
-    pythonForTable: { exercice: 'python-for-table', numero: '6.6.11' },
+    pythonForTable: { exercice: 'python-for-table', numero: '6.6.12' },
     /* {python-tables-multiplication} (6.6.12, BONUS, derrière {python-for-table}, dans le sous-thème
        « Boucle for in range », demande de Turquet, octobre 2026) :
        l'exercice 12 du carnet — afficher les tables de 2 à 9 avec une double
        boucle for. Le juge lit ce que le programme AFFICHE. Une seule
        question, la fiche : rien à tirer. */
-    pythonForTables: { exercice: 'python-tables-multiplication', numero: '6.6.12' },
+    pythonForTables: { exercice: 'python-tables-multiplication', numero: '6.6.13' },
     /* {python-inverser-lettres} (6.4.4, sous-thème « Bonus », derrière
        {python-chaine-len}, {python-chaine-tirets} et {python-remplacer-lettre} ;
        demande de Turquet, octobre 2026) : l'exercice 29 du carnet — inverser
@@ -1977,35 +1977,35 @@ module.exports = {
        de Turquet, octobre 2026) : l'exercice 2 du carnet sur la boucle —
        a) compléter range, b) renommer la variable, c) le résultat change-t-il ?
        « nb » est la seconde source du compte (la page a PFV_NB). */
-    pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.2' },
+    pythonForRenommer: { exercice: 'python-for-renommer', nb: 3, numero: '6.6.3' },
     /* {python-for-multiples} (6.6.7, sous-thème « Boucle for in range », derrière
        {python-for-depart-fin}, devant les deux bonus ; demande de Turquet,
        octobre 2026) : l'exercice 7 du carnet sur la boucle — a) exécuter
        for k in range ( 11 ): print (2*k), b) expliquer ce qu'il fait (juge :
        le modèle), c) afficher les multiples de 5 de 0 à 50. « nb » est la
        seconde source du compte (la page a PFQ_NB). */
-    pythonForMultiples: { exercice: 'python-for-multiples', nb: 3, numero: '6.6.7' },
+    pythonForMultiples: { exercice: 'python-for-multiples', nb: 3, numero: '6.6.8' },
     /* {python-trois-des} (6.6.8 — 6.6.7 à sa création —, BONUS, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026) : l'exercice 13 du carnet — a) les résultats
        de trois dés, b) compter les totaux de 9, c) ceux au-dessus de 12. Une
        seule question, la fiche : rien à tirer. */
-    pythonTroisDes: { exercice: 'python-trois-des', numero: '6.6.8' },
+    pythonTroisDes: { exercice: 'python-trois-des', numero: '6.6.9' },
     /* {python-for-depart-fin} (6.6.6, sous-thème « Boucle for in range »,
        demande de Turquet, octobre 2026) : l'exercice 6 du carnet —
        for k in range ( départ , fin ), a) de 5 à 15, b) de 1 à 9.
        « nb » est la seconde source du compte (la page a PFD_NB). */
-    pythonForDepartFin: { exercice: 'python-for-depart-fin', nb: 3, numero: '6.6.6' },
+    pythonForDepartFin: { exercice: 'python-for-depart-fin', nb: 3, numero: '6.6.7' },
     /* {python-for-moyenne-notes} (6.6.9 — 6.6.8 à sa création —, sous-thème « Boucle for in range »,
        derrière {python-trois-des} ; demande de Turquet, octobre 2026) :
        l'exercice 11 du carnet — la fiche du 6.5.4, son moteur et son juge,
        présentée comme le sous-thème Input, coups de pouce mot pour mot. */
-    pythonForMoyenneNotes: { exercice: 'python-for-moyenne-notes', nb: 3, numero: '6.6.9' },
+    pythonForMoyenneNotes: { exercice: 'python-for-moyenne-notes', nb: 3, numero: '6.6.10' },
     /* {python-for-images} (6.6.10, derrière {python-for-moyenne-notes}, sous-thème « Boucle for in range », demande
        de Turquet, octobre 2026, BONUS) : l'exercice 10 du carnet — afficher
        les images de f(x) = x² − 6x + 3 pour x de 0 à 1, de dixième en
        dixième. Le juge lit ce que le programme AFFICHE. « nb » est la seconde
        source du compte (la page a PFI_NB). */
-    pythonForImages: { exercice: 'python-for-images', nb: 3, numero: '6.6.10' },
+    pythonForImages: { exercice: 'python-for-images', nb: 3, numero: '6.6.11' },
     /* {python-samoussa} (6.7.2 — 6.7.1 à sa création, puis {python-if-else} est passé devant —, sous-thème « Condition if else »,
        demande de Turquet, octobre 2026) : l'exercice 3 du carnet — le prix
        des samoussas, 1.20 € sous 10, 0.80 € à partir de 10. Le juge lit le
@@ -2479,7 +2479,13 @@ module.exports = {
        questions : les deux premières dans l'ordre de la fiche, les deux
        dernières inversées (compléter les cases AVANT d'exécuter) —
        `inversees`. */
-    pythonForRange: { exercice: 'python-for-range', nb: 4, inversees: [false, false, true, true], numero: '6.6.1',
+    /* {python-for-pas-a-pas} (6.6.1, devant {python-for-range}, demande de
+       Turquet, novembre 2026) : la SECONDE source de la séance (la page a
+       PFP_NB) et de la fiche — la première question (nombre, valeur=,
+       range(4)), ce que la console affiche tour après tour, et les bornes. */
+    pythonForPasAPas: { exercice: 'python-for-pas-a-pas', nb: 2, numero: '6.6.1',
+      fiche: { variable: 'nombre', texte: 'valeur=', n: 4, sortie: ['valeur= 0', 'valeur= 1', 'valeur= 2', 'valeur= 3'], de: '0', a: '3' } },
+    pythonForRange: { exercice: 'python-for-range', nb: 4, inversees: [false, false, true, true], numero: '6.6.2',
       fiche: { definition: '⚠ Définition d’une boucle for … in range (…) for nombre in range ( 5 ): se traduit par Pour nombre allant jusqu’à ( 5 ).',
                sortie: 'valeur= 0\nvaleur= 1\nvaleur= 2\nvaleur= 3\nvaleur= 4', de: '0', a: '4' } },
     pythonPhrasesMemoire: { exercice: 'python-phrases-memoire', nb: 3,
