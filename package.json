@@ -21,7 +21,8 @@
     "test:pause": "node tests/tous-navigateur.js pause",
     "test:pause:premiere": "node tests/pause.js premiere-specifique.html",
     "test:pause:terminale": "node tests/pause.js terminale.html",
-    "test:pause:secondes": "node tests/pause.js secondes.html"
+    "test:pause:secondes": "node tests/pause.js secondes.html",
+    "test:sortie": "node tests/sortie.js secondes.html && node tests/sortie.js premiere-specifique.html && node tests/sortie.js terminale.html"
   },
   "devDependencies": {
     "html2canvas": "1.4.1",

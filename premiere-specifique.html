@@ -743,7 +743,6 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #testCtrls button{border:none;cursor:pointer;font-family:Fredoka,sans-serif;font-weight:600;font-size:.95rem;
     padding:11px 16px;border-radius:30px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
   #testCtrls button:active{transform:translateY(1px)}
-  #pauseBtn{background:#5a4632;color:#fff}
   #signalBtn{background:#fff;color:#8a5a00;border:1.5px solid #f0d69a!important}
   .sig-item{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
   .sig-item.nonlu{border-color:#f0d69a;background:#fffdf6}
@@ -783,7 +782,6 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
      clavier. « display:none » ne conviendrait pas : Chrome ignore ce qu'il ne
      considère pas affiché, et chercherait de nouveau ailleurs. */
   .hors-ecran{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-  #abandonBtn{background:#fff;color:#b3402f;border:1.5px solid #e7b9b0!important}
   /* Les commandes de l'exercice (pause, abandon) flottent en bas à droite,
      #testCtrls : sans cette réserve, elles recouvrent le bas de la carte et
      l'élève ne peut plus atteindre sa dernière case. La liste doit donc suivre
@@ -1982,6 +1980,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #vocHost .pt-row{margin:12px 0;gap:12px}
 .voc-phrase{text-align:center;font-size:calc(1.35rem * var(--tab-nb,1));margin:4px 0 10px;color:var(--ink)}
 .voc-lab{font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+#vocHost .voc-but{text-align:center;margin:6px 0 14px}
 .voc-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:6px auto 4px}
 .voc-ch{min-width:96px;min-height:64px;padding:4px 14px;font-family:"Fredoka";font-weight:600;font-size:calc(1.6rem * var(--tab-nb,1));
   color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:14px;cursor:pointer;
@@ -2526,6 +2525,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     </div>
     <div class="spacer"></div>
     <span class="pill" id="userPill" hidden></span>
+    <a href="#" class="sortie-lien" id="sortieLien" hidden onclick="sortirExercice();return false" title="Sortir de l’exercice : il est gardé, tu pourras le reprendre">Sortie ↩</a>
   </header>
 
   <!-- À CONFIGURER -->
@@ -3896,7 +3896,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     <div class="dec-corps" id="decCorps"></div>
   </div>
 </div>
-<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button><button id="abandonBtn" onclick="abandonTest()" title="Abandonner" aria-label="Abandonner">✕ <span class="tc-court">Abandonner</span><span class="tc-long">Abandonner</span></button><button id="pauseBtn" onclick="pauseTest()" title="Mettre en pause" aria-label="Mettre en pause">⏸ <span class="tc-long">Mettre en pause</span><span class="tc-court">Pause</span></button></div>
+<div id="testCtrls" hidden><button id="signalBtn" onclick="ouvrirSignalement()" title="Signaler un problème" aria-label="Signaler un problème">⚑ <span class="tc-long">Signaler un problème</span><span class="tc-court">Signaler</span></button></div>
 
 <!-- SIGNALER UN PROBLÈME (élève) -->
 <!-- COPIE D'ÉCRAN D'UN SIGNALEMENT (professeur) -->
@@ -3960,7 +3960,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=419;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=421;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -6237,13 +6237,13 @@ async function openTest(testId){
   }catch(e){}
   const qnum=row=>((row&&row.details&&(row.details.idx||0))+1);
   const trainCard = pausedRows.train
-    ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
+    ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`choisirReprise('train')`,'resume')
     : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`currentMode='train';TESTS['${testId}'].start()`);
   /* Les tables de multiplication sont un exercice de rapidite : le mode soutien,
      qui laisse corriger sans limite de temps, n'y a pas de sens. */
   const pasDeSoutien = sansSoutien(testId);
   const soutienCard = pasDeSoutien ? '' : pausedRows.soutien
-    ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`resumeTest('soutien')`,'resume')
+    ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour 5 points.`,`choisirReprise('soutien')`,'resume')
     : cardHTML('🛟','Mode soutien','À chaque étape, on me dit si c\u2019est juste ou faux, et je corrige jusqu\u2019à réussir. Ne compte que pour 5 points.',`currentMode='soutien';TESTS['${testId}'].start()`);
   const evalCard= unlocked
     ? cardHTML('🔓','Évaluation','Mode noté, ouvert par le professeur.',`currentMode='eval';TESTS['${testId}'].start()`)
@@ -6261,12 +6261,20 @@ async function pauseTest(){
     okPause=await doRecoverySave();
   }catch(e){ okPause=false; }
   if(okPause===null) toast('Ce test est déjà en cours d\'enregistrement.','err');
-  else if(okPause) toast('Mis en pause — tu pourras reprendre plus tard ✓','ok');
-  else toast('Pause non enregistrée — reste connecté et réessaie','err');
+  else if(okPause) toast('Exercice gardé — tu pourras le reprendre ✓','ok');
+  else toast('Exercice non gardé — reste connecté et réessaie','err');
   recoveryRowId=null;
   recoveryClosed=true;                      /* plus d'enregistrement automatique : un autoSave différé insérait un SECOND brouillon après le retour au menu (chaque démarreur et la reprise rouvrent) */
   /* retour à l'écran d'où l'exercice a été lancé, comme l'abandon — voir ecranAvantExo */
   await retourAvantExo();
+}
+/* Le lien « Sortie » de l'en-tête (#sortieLien) : une pause, sans bouton
+   « Pause » ni « Abandonner » — voir #sortie-reprise, fin de fichier. */
+async function sortirExercice(){
+  const l=document.getElementById('sortieLien');
+  if(l){ if(l.dataset.enCours==='1') return; l.dataset.enCours='1'; l.hidden=true; }
+  try{ await pauseTest(); }
+  finally{ if(l) delete l.dataset.enCours; }
 }
 async function abandonTest(){
   if(!currentEleve) return;
@@ -6387,8 +6395,8 @@ function show(name){
   const surExercice = testScreens.indexOf(name)>=0 && !!currentEleve;
   const canPause = surExercice && (currentMode==='train'||currentMode==='soutien');
   const tc=$('testCtrls'); if(tc) tc.hidden=!surExercice;
-  const pb=$('pauseBtn'); if(pb) pb.hidden=!canPause;
-  const ab=$('abandonBtn'); if(ab) ab.hidden=!canPause;
+  /* « Sortie » (en-tête) remplace « Mettre en pause » et « Abandonner » : voir #sortie-reprise */
+  const so=$('sortieLien'); if(so) so.hidden=!canPause;
   const pill=$('userPill');
   if((name==='space'||name==='choose'||name==='theme'||name==='soustheme'||name==='mode'||name==='devoirs'||name==='rattrapage'||name==='results'||(name==='evalcopie'&&evalVue&&evalVue.eleve)||testScreens.indexOf(name)>=0) && currentEleve){
     pill.hidden=false;
@@ -6883,7 +6891,7 @@ async function openTestDevoir(devoirId, testId){
   let cards='';
   if(allowed.includes('soutien')){
     cards += pausedRows.soutien
-      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour ${plafond} points.`,`resumeTest('soutien')`,'resume')
+      ? cardHTML('▶️','Reprendre le soutien',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.soutien)}. On continue ! Ne compte que pour ${plafond} points.`,`choisirReprise('soutien')`,'resume')
       : cardHTML('🛟','Mode soutien',`On me dit si c\u2019est juste ou faux à chaque étape, et je corrige jusqu\u2019à réussir. Ne compte que pour ${plafond} points.`,`lancerDevoirExo('${devoirId}','${testId}','soutien')`);
   }
   if(evalu){
@@ -6894,7 +6902,7 @@ async function openTestDevoir(devoirId, testId){
   }
   if(allowed.includes('train')){
     cards += pausedRows.train
-      ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`resumeTest('train')`,'resume')
+      ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`choisirReprise('train')`,'resume')
       : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`lancerDevoirExo('${devoirId}','${testId}','train')`);
   }
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
@@ -9461,6 +9469,8 @@ function vocCalcTxt(c){
   if(c[0]==='f') return vocSigne(c[1])+'/'+vocSigne(c[2]);
   return vocCalcHTML(c);
 }
+/* « Calcule la somme de 3 et de la moitié de 5. » → « On doit calculer la somme de 3 et de la moitié de 5. » */
+function vocBut(L){ return 'On doit calculer '+L.titre.replace(/^Calcule\s+/,''); }
 function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
 function vocTexte(q){ const L=vocL(q); return L.t==='ch' ? L.nom+' signifie que l’on doit '+(L.faire?'faire':'calculer')+' '+L.ch.map(vocCalcTxt).join(' ; ') : L.titre; }
 /* la correction écrite, en HTML (écran) ou en texte (aide, compte rendu) */
@@ -9512,7 +9522,11 @@ function renderVoc(){
       +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
   } else {
     $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">Une case par étape, comme sur la fiche.</span>';
-    h=L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
+    /* Demande de Turquet, novembre 2026 : sur le quadrillage, la phrase
+       « On doit calculer … » vient EN PREMIER, à la police et à la taille
+       des étapes qui la suivent (.voc-lab) */
+    h='<div class="voc-but"><span class="voc-lab">'+vocBut(L)+'</span></div>'
+      +L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
   }
   $('vocHost').innerHTML=h;
   const order=vocIds(q).map(id=>$(id)).filter(Boolean);
@@ -19656,7 +19670,7 @@ const SUI_CTX=[
     p3:(T,u0)=>[`Entre ${u0} feuilles et ${T} feuilles il y a [e] feuilles d’écart.`,
                 `Chaque heure elle utilise [r] feuilles. Comme [e] = [r] × [k], pour utiliser [e] feuilles, il faudra [k] heures.`,
                 `Donc ce sera à 8 h + [k] h = [fin] h.`] },
-  { nom:'le remplissage de la piscine', sens:1, u0:[1000,2000,3000,4000,5000], rMin:100, tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
+  { nom:'le remplissage de la piscine', sens:1, u0:[1000,2000,3000,4000,5000], rMin:50, tps:{type:'heure', t0:9}, u:'L', pas:'heure', pass:'heures',
     intro:(u0,r)=>`À 9 h, une piscine contient <b>${u0} L</b> d’eau. On la remplit avec un tuyau qui apporte <b>${r} L</b> par heure.`,
     tabL:'Heures écoulées', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la piscine à ${m}.`,
@@ -19704,16 +19718,16 @@ const SUI_CTX=[
 /* Un entier s'écrit avec ses espaces de milliers (espace fine insécable) :
    « 1 000 », « 10 000 ». Les années restent nues. */
 function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
-/* Le pas — ce qu'on ajoute ou retire à chaque fois — est un multiple de 10
-   sous 100, ou 25, ou 110, 120 ou 150 au-dessus de 100 (demande de Turquet,
-   novembre 2026 ; elle remplace la règle du chiffre unique : les valeurs du
-   tableau en découlent, et restent des additions qui se font de tête). 100,
-   multiple de 10 à la frontière, est gardé. */
-const SUI_PAS=[10,20,30,40,50,60,70,80,90,25,100,110,120,150];
+/* Le pas — ce qu'on ajoute ou retire à chaque fois — est UNIQUEMENT un
+   multiple de 10 compris entre 10 et 100 inclus (demande de Turquet, novembre
+   2026, qui remplace la liste du matin : 25, 110, 120 et 150 sont sortis).
+   Les valeurs du tableau en découlent : des dizaines ou des centaines rondes,
+   des additions qui se font de tête. */
+const SUI_PAS=[10,20,30,40,50,60,70,80,90,100];
 /* Le pas le plus lointain : la question ③ reste dans la table de 10. */
 const SUI_P_MAX=10;
 /* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
-   rondes, r dans SUI_PAS entre ses bornes, N au-delà du tableau (≥ 4), le
+   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N au-delà du tableau (≥ 4), le
    seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
    (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
    vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
@@ -34487,5 +34501,92 @@ function evalRetourProf(onglet, y){
   }, true);
 })();
 </script>
+<script id="sortie-reprise">
+/* « SORTIE » ET « CONTINUER OU RECOMMENCER » (demande de Turquet, novembre
+   2026 : « sur tous les exercices du site, supprimer les boutons abandonner et
+   mettre pause, et remplacer par un lien "sortie" en haut à droite de la page
+   qui ramène à la page précédente. Quand un élève reprend un exercice arrêté,
+   lui demander s'il veut continuer ou recommencer l'exercice. »)
+   · Le lien « Sortie » (#sortieLien, dans l'en-tête) se montre là où la pause
+     se montrait — entraînement et soutien, élève connecté : show() le règle.
+     Il fait ce que faisait la pause : le brouillon est gardé, la note partielle
+     d'un devoir aussi, et l'élève revient à l'écran d'où il avait lancé
+     l'exercice (retourAvantExo). Rien n'est perdu, il n'y a donc rien à
+     confirmer.
+   · Une carte « Reprendre » ouvre la boîte #choixReprise : « Continuer »
+     reprend le brouillon (resumeTest, inchangé), « Recommencer » efface la
+     pause de CE mode (clearRecovery, comme l'abandon), redessine la page des
+     modes et y clique la carte de départ du même mode — la porte unique d'un
+     devoir reste la page des modes.
+   · sortirExercice() vit dans le script principal, à côté de pauseTest() :
+     le banc ne cherche la fonction d'un onclick que là.
+   · abandonTest() reste défini — aucun bouton n'y mène plus. */
+let repriseMode=null, repriseBoite=null;
+function repriseConstruire(){
+  if(repriseBoite) return repriseBoite;
+  const b=document.createElement('div'); b.id='choixReprise'; b.hidden=true;
+  b.innerHTML='<div class="cr-boite" role="dialog" aria-modal="true" aria-labelledby="crTitre" aria-describedby="crTexte">'
+    +'<p class="cr-titre" id="crTitre">Tu avais commencé cet exercice</p>'
+    +'<p class="cr-texte" id="crTexte"></p>'
+    +'<div class="cr-actions">'
+    +'<button type="button" class="btn btn-ghost" id="crRecommencer">↺ Recommencer l’exercice</button>'
+    +'<button type="button" class="btn btn-primary" id="crContinuer">▶ Continuer</button>'
+    +'</div></div>';
+  document.body.appendChild(b);
+  b.addEventListener('click', function(e){
+    const t=e.target;
+    if(t===b) repriseFermer();
+    else if(t.closest && t.closest('#crContinuer')) repriseContinuer();
+    else if(t.closest && t.closest('#crRecommencer')) repriseRecommencer();
+  });
+  b.addEventListener('keydown', function(e){ if(e.key==='Escape'){ e.preventDefault(); repriseFermer(); } });
+  repriseBoite=b;
+  return b;
+}
+function repriseFermer(){ if(repriseBoite) repriseBoite.hidden=true; }
+function repriseContinuer(){ const m=repriseMode; repriseFermer(); if(m) return resumeTest(m); }
+async function repriseRecommencer(){
+  const m=repriseMode; repriseFermer(); if(!m) return;
+  currentMode=m;
+  let ok=false;
+  try{ ok=await clearRecovery(); }catch(e){ ok=false; }
+  if(!ok){ toast('Impossible d’effacer l’exercice commencé — reste connecté et réessaie','err'); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  const dm=currentDM, id=currentTestId;
+  if(dm && dm!==true) await openTestDevoir(dm, id); else await openTest(id);
+  const carte=[...document.querySelectorAll('#modeChoices [onclick]')]
+    .find(function(c){ return !c.classList.contains('resume') && (c.getAttribute('onclick')||'').indexOf("'"+m+"'")>=0; });
+  if(carte) carte.click();
+  else toast('Exercice effacé — choisis comment le recommencer','ok');
+}
+function choisirReprise(mode){
+  const row=pausedRows && pausedRows[mode];
+  if(!row) return resumeTest(mode);
+  repriseMode=mode;
+  const n=((row.details && row.details.idx)||0)+1;
+  repriseConstruire().querySelector('#crTexte').textContent='Tu t’étais arrêté à la question '+n
+    +'. Veux-tu continuer là où tu en étais, ou recommencer l’exercice depuis le début ?';
+  repriseBoite.hidden=false;
+  try{ repriseBoite.querySelector('#crContinuer').focus(); }catch(x){}
+}
+</script>
+<style id="sortie-reprise-css">
+/* le lien « Sortie », en haut à droite de l'en-tête, et la boîte
+   « Continuer ou recommencer » (#sortie-reprise) */
+.sortie-lien{font-family:"Fredoka";font-weight:600;font-size:.95rem;color:#b3402f;background:#fff;border:1.5px solid #e7b9b0;border-radius:999px;padding:5px 14px;text-decoration:none;white-space:nowrap;cursor:pointer;flex:none}
+.sortie-lien:hover,.sortie-lien:focus-visible{background:#fdf1ee}
+.sortie-lien[hidden]{display:none!important}
+/* Sur un téléphone, le nom de l'élève et le décor (le logo d'Halloween)
+   peuvent ne plus laisser la place au lien : l'en-tête passe alors à la
+   ligne, et « Sortie » reste à droite, sous le nom — jamais hors de l'écran. */
+@media (max-width:480px){.sortie-lien{padding:4px 9px;font-size:.86rem;margin-left:auto}
+  .mast:has(.sortie-lien:not([hidden])){flex-wrap:wrap;row-gap:6px}}
+#choixReprise{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,32,70,.38)}
+#choixReprise[hidden]{display:none!important}
+#choixReprise .cr-boite{background:#fff;color:#1d2340;border-radius:14px;max-width:460px;width:100%;padding:18px 20px 16px;box-shadow:0 14px 44px rgba(0,0,0,.28);font-size:1rem;line-height:1.4}
+#choixReprise .cr-titre{margin:0 0 6px;font-weight:800;font-size:1.12em}
+#choixReprise .cr-texte{margin:0}
+#choixReprise .cr-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:16px}
+</style>
 </body>
 </html>
