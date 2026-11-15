@@ -1421,6 +1421,10 @@
   #pfpRun:disabled{opacity:.45;cursor:default;filter:grayscale(.4)}
   .pfp-consigne{margin:8px 0 2px;font-weight:700;color:var(--blue)}
   select.pfr-in.pfp-sel{width:auto;min-width:5ch;font:inherit;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  /* la liste du texte prend la largeur du texte ; celles du nom et de la
+     valeur, courtes, ne s'élargissent pas à sa mesure (v686) */
+  select.pfr-in.pfp-sel.pfp-sel-court{width:12ch}
+  .pfp-nw{white-space:nowrap;display:inline-flex;align-items:baseline}
   #psfHost .mf-cor.pyn-cor,#pynHost .mf-cor.pyn-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600}
   .pyp-cours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 10px}
   .pyp-regle{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 12px;font-size:.98rem;line-height:1.45;color:var(--ink);text-align:left}
@@ -53718,8 +53722,8 @@ function pfpValOk(q, t, v){ return pfrLu(v)===pfpValeur(q, t); }
    2026) : les mêmes choix dans les trois — le texte du print, le nom de la
    variable, puis chaque valeur que range peut donner. */
 function pfpChoix(q){ const c=[pfpTexte(q), pfpVar(q)]; for(let v=0;v<q.n;v++) c.push(String(v)); return c; }
-function pfpListeHTML(q, id, aria){
-  return '<select class="pfr-in pfp-sel" id="'+id+'" aria-label="'+esc(aria)+'"><option value="">…</option>'
+function pfpListeHTML(q, id, aria, cls){
+  return '<select class="pfr-in pfp-sel'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(aria)+'"><option value="">…</option>'
     +pfpChoix(q).map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join('')+'</select>';
 }
 function pfpCaseHTML(id, cls, aria, mode){
@@ -53733,9 +53737,9 @@ function pfpCodeHTML(q, actif){
 function pfpPhraseTour(q, t){
   const p='pfp-t'+t+'-';
   return '<p class="py-phrase pii-rep-l pfr-rep pfp-tour" id="pfpTour'+t+'"><span class="pfp-num">Tour n°'+(t+1)+' :</span>'
-    +pfrCode(pfpPrint(q))+' affiche le texte "'+pfpListeHTML(q, p+'0','le texte affiché au tour '+(t+1))+'"<span class="pfp-br"></span>'
-    +'et la valeur de la variable '+pfpListeHTML(q, p+'1','le nom de la variable au tour '+(t+1))
-    +' qui est '+pfpListeHTML(q, p+'2','la valeur de la variable au tour '+(t+1))+'.</p>';
+    +pfrCode(pfpPrint(q))+' affiche le texte <span class="pfp-nw">"'+pfpListeHTML(q, p+'0','le texte affiché au tour '+(t+1),'pfp-sel-txt')+'"</span><span class="pfp-br"></span>'
+    +'et la valeur de la variable '+pfpListeHTML(q, p+'1','le nom de la variable au tour '+(t+1),'pfp-sel-court')
+    +' qui est '+pfpListeHTML(q, p+'2','la valeur de la variable au tour '+(t+1),'pfp-sel-court')+'.</p>';
 }
 function pfpEtapeHTML(e, titre, corps){
   return '<div class="pii-etape" id="pfpEtape'+e.toUpperCase()+'"><p class="pii-titre">✏️ '+titre+'</p>'+corps+'</div>';
