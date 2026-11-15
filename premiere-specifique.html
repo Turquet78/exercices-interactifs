@@ -1613,6 +1613,8 @@ i.pb-P{margin-right:.14em}
   .itq-ineg.trd-signe-titre{font-size:1.15rem;padding:5px 12px;max-width:380px;margin:0 auto 8px}
   .lv-graph.tsg-graph.trd-signes-dessin{max-width:330px}
   .lv-graph.tsg-graph.trd-signes-dessin .lv-svg{max-width:310px}
+  /* le tableau de signes centré sous le dessin, comme lui (demande de Turquet) */
+  .itv-ligne.trd-tab-ligne{margin:0 auto 8px}
   /* les flèches de la transposition (la fiche papier) : pointillées, sans prise */
   .trd-fl{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
   .trd-fl path{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:3 3}
@@ -3977,7 +3979,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=427;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=428;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -31912,7 +31914,7 @@ function renderTrd(){
     +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
     +'<div class="itq-ineg trd-signe-titre">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
     +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+trdSignesSVG(q)+'</div>'
-    +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
+    +'<div class="itv-ligne trd-tab-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
     +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
     +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant la racine',' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après la racine',' ')+'</td></tr>'

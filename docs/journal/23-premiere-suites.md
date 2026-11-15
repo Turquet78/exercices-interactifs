@@ -411,7 +411,7 @@ départ et produit écrits, de même ; sur une tablette debout, la dernière lig
 de la méthode 1, qui n'a plus de place à droite, reste dans le cadre et ne
 couvre ni le tableau ni les phrases de la méthode 2 qui suivent.
 
-## Puis les questions en grand, les réponses en petit (novembre 2026, v427)
+## Puis les questions en grand, les réponses en petit (novembre 2026, v428)
 
 **La demande** (Turquet) : « je souhaite que l'on voie mieux les questions et
 moins les textes de la réponse : agrandir la police des questions et mettre en
