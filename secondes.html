@@ -9444,7 +9444,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=689;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=690;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -90291,5 +90291,56 @@ function choisirReprise(mode){
 #choixReprise .cr-texte{margin:0}
 #choixReprise .cr-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:16px}
 </style>
+<style id="correction-non-copiable-css">
+/* La CORRECTION verte d'un exercice Python ne se sélectionne pas (décision
+   de Turquet, novembre 2026) : copiée en entraînement, elle se recollait
+   telle quelle à l'exercice suivant. Une règle CSS, rien à déclarer. */
+section.screen:has(.py-code,.py-console,.pyp-edit) :is(.sol,.mf-cor):not(input,textarea,select),
+section.screen:has(.py-code,.py-console,.pyp-edit) :is(.sol,.mf-cor) *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+</style>
+<script id="correction-non-copiable">
+/* … et ne se COPIE pas, ni ne se COUPE, ni ne se GLISSE : une sélection qui
+   touche une correction (un bloc .sol, une .mf-cor, ou une case .sol où la
+   page a écrit le modèle) est refusée, en capture sur le document. La CSS
+   ci-dessus empêche de la sélectionner ; ce filet tient les portes qu'elle ne
+   ferme pas (une case de texte, Ctrl+A, un navigateur qui l'ignore). */
+(function(){
+  const COR='.sol,.mf-cor';
+  function ecranPython(n){
+    const scr=n && n.closest ? n.closest('section.screen') : null;
+    if(!scr) return false;
+    return String(typeof currentTestId!=='undefined'&&currentTestId||'').indexOf('python-')===0
+      || !!scr.querySelector('.py-code,.py-console,.pyp-edit');
+  }
+  function correction(n){
+    const e=n && (n.nodeType===1 ? n : n.parentElement);
+    const c=e && e.closest ? e.closest(COR) : null;
+    return c && ecranPython(c) ? c : null;
+  }
+  function touche(){
+    const a=document.activeElement;
+    if(a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && correction(a)) return true;
+    const sel=window.getSelection && window.getSelection();
+    if(!sel || sel.isCollapsed || !sel.rangeCount) return false;
+    for(let i=0;i<sel.rangeCount;i++){
+      const r=sel.getRangeAt(i);
+      if(correction(r.startContainer)||correction(r.endContainer)) return true;
+      const anc=r.commonAncestorContainer, racine=anc.nodeType===1?anc:anc.parentElement;
+      if(racine && [...racine.querySelectorAll(COR)].some(c=>r.intersectsNode(c)&&ecranPython(c))) return true;
+    }
+    return false;
+  }
+  function refuser(e){
+    if(!touche()) return;
+    e.preventDefault();
+    if(e.clipboardData) try{ e.clipboardData.setData('text/plain',''); }catch(x){}
+    if(typeof toast==='function') toast('La correction ne se copie pas : réécris le programme toi-même.','err');
+  }
+  document.addEventListener('copy',refuser,true);
+  document.addEventListener('cut',refuser,true);
+  document.addEventListener('dragstart',function(e){ if(correction(e.target)||touche()) e.preventDefault(); },true);
+  window.correctionCopiable=function(){ return !touche(); };
+})();
+</script>
 </body>
 </html>
