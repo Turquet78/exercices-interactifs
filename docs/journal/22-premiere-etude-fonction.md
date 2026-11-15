@@ -548,3 +548,17 @@ dernière question, il faudrait centrer le tableau comme c'est déjà le cas pou
 le dessin ». Le cadre `.itv-ligne` (560 px au plus) est posé directement dans
 la partie, pas dans la colonne flex centrée des fiches (`.itv-fiche`) : il
 restait collé à gauche. Une marge automatique (`.trd-tab-ligne`) le centre.
+
+## {image-antecedents-libre} — la onzième question du 6.2, seule, six fois (6.4, novembre 2026, Première v428)
+
+**La demande** (Turquet) : « faire un autre exercice avec uniquement la
+question 11, donc sans aide mais plusieurs fois ». Ajouté EN DERNIER dans le
+thème 6 : il ne renumérote rien. Un identifiant à lui, sur le moteur du 6.2 —
+deux exercices peuvent partager un moteur, jamais leur identité : la note
+porte l'identifiant (`test.qId`), « Recommencer » le relit, le rappel et les
+questions à l'IA sont ceux du kind `ima`, et le profil déclare l'identifiant
+dans les rappels et dans `etiquetteCourbe`. Le tirage est celui du 6.2 au
+temps 'mix-nu' pour toutes les questions (`imaTirage(nb, planFixe)`) : une
+image et un ou deux antécédents (pile ou face) sur le même graphique, sans
+point rouge, sans chemin avant la vérification, sans l'écriture
+f( … ) = … — six questions, le réglage « Questions » d'un devoir les allonge.
