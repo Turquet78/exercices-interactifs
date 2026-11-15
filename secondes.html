@@ -9445,7 +9445,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=687;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=688;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10434,7 +10434,7 @@ const TESTS={
   'python-input-arrondi': { name:'Arrondir un prix au centime avec round', icon:'\ud83e\uddfe', desc:'Ce programme affiche un prix avec seize chiffres apr\u00e8s la virgule. Ex\u00e9cute-le, choisis ce qui l\u2019explique, puis arrondis le prix au centime avec round.', start:()=>startPRD() },
   'python-input-monnaie': { name:'Rendre la monnaie avec // et %', icon:'\ud83d\udcb6', desc:'\u00c9cris un programme qui demande une somme \u00e0 rendre et affiche le nombre de billets et de pi\u00e8ces, avec // et %. Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPMO() },
   /* {python-input-sport} (6.3.19) : compléter input et print, puis le nom et le type de la variable */
-  'python-input-sport': { name:'Compl\u00e9ter input et print\u00a0: ton sport favori', icon:'\u26bd', desc:'Compl\u00e8te le programme pour qu\u2019il demande \u00ab\u00a0quel est ton sport favori\u00a0?\u00a0\u00bb et affiche \u00ab\u00a0c\u2019est formidable le sport\u00a0\u00bb suivi de ta r\u00e9ponse. Ex\u00e9cute-le, puis donne le nom et le type de la variable qui contient ta r\u00e9ponse.', start:()=>startPSF() },
+  'python-input-sport': { name:'Compl\u00e9ter input et print\u00a0: ton sport favori', icon:'\u26bd', desc:'Compl\u00e8te le programme pour qu\u2019il demande \u00ab\u00a0quel est ton sport favori\u00a0?\u00a0\u00bb et affiche \u00ab\u00a0c\u2019est formidable\u00a0\u00bb suivi de ta r\u00e9ponse. Ex\u00e9cute-le, puis donne le nom et le type de la variable qui contient ta r\u00e9ponse.', start:()=>startPSF() },
   'python-input-image': { name:'L\u2019image d\u2019un nombre par une fonction', icon:'\ud83d\udcc8', desc:'\u00c9cris un programme qui demande un nombre avec input, calcule son image par une fonction et l\u2019affiche avec une phrase, puis ex\u00e9cute-le pour trouver une image.', start:()=>startPFX() },
   'python-input-duree': { name:'Une dur\u00e9e en heures et minutes', icon:'\u23f1\ufe0f', desc:'Bonus\u00a0: \u00e9cris un programme qui demande une dur\u00e9e en minutes et l\u2019affiche en heures et minutes \u2014 135\u00a0min, c\u2019est 2\u00a0heures et 15\u00a0minutes. Ex\u00e9cute-le pour voir ce qu\u2019il affiche.', start:()=>startPDU() },
   /* {python-for-erreur} (6.6.4) : la fiche « Exercice 3 » du carnet — exécuter un programme faux, expliquer l'erreur */
@@ -13278,8 +13278,8 @@ const RAP_PYN=`<b>Demander une réponse : input</b><br>
 <b>③ Pour afficher un texte suivi de la réponse</b> : <code class="inline">print("je m'appelle", nom)</code> — le texte entre guillemets, une virgule, puis le nom de la variable SANS guillemets. Si le texte contient une apostrophe, on l’écrit entre guillemets doubles <code class="inline">"</code>.`;
 /* Le rappel de {python-input-sport} : la question avec input, la phrase avec print, le type de la réponse. */
 const RAP_PSF=`<b>Poser une question, puis afficher la réponse</b><br>
-<b>① <code class="inline">sport = input("quel est ton sport favori ? ")</code></b> : la question s’écrit ENTRE GUILLEMETS dans les parenthèses de input ; la réponse tapée est rangée dans la variable écrite à gauche du <code class="inline">=</code>.<br>
-<b>② <code class="inline">print("texte", sport)</code></b> : le texte entre guillemets, une virgule, puis la variable SANS guillemets. Si le texte contient une apostrophe, comme « c’est », on l’écrit entre guillemets doubles <code class="inline">"</code>.<br>
+<b>① <code class="inline">reponse = input("quel est ton sport favori ? ")</code></b> : la question s’écrit ENTRE GUILLEMETS dans les parenthèses de input ; la réponse tapée est rangée dans la variable écrite à gauche du <code class="inline">=</code>.<br>
+<b>② <code class="inline">print("texte", reponse)</code></b> : le texte entre guillemets, une virgule, puis la variable SANS guillemets. Si le texte contient une apostrophe, comme « c’est », on l’écrit entre guillemets doubles <code class="inline">"</code>.<br>
 <b>③ Le type</b> : ce que input range est TOUJOURS un texte, de type <code class="inline">str</code> — même si l’on tape un nombre. <code class="inline">int</code> est un nombre entier, <code class="inline">float</code> un nombre décimal.`;
 /* Le rappel de {python-chaine-len} : le programme de la fiche, sans une
    phrase de plus (demande de Turquet : rien d'ajouté aux rappels). */
@@ -53007,7 +53007,9 @@ function ctxPnp(q){
    écran, chacune dans son cadre .pyn-etape ouvert par SA question en gras,
    gardée quand la suivante s'ouvre ; la console qui ATTEND (pynLancer).
    a) LES DEUX TROUS : le texte de la question entre les parenthèses de
-      input, le texte du print devant « , sport) ». Chacun se juge SEUL — il
+      input, le texte du print devant « , reponse) » (puis, le 15 novembre :
+      « enlève le mot sport dans la phrase du print, mets reponse pour la
+      variable » — la phrase est « c'est formidable », la variable reponse). Chacun se juge SEUL — il
       doit être un texte Python (entre guillemets) qui vaut la phrase
       demandée, à une espace, une majuscule ou un accent près (pyTexteProche,
       la règle partagée), l'écart NOMMÉ. Le programme doit avoir été EXÉCUTÉ
@@ -53018,9 +53020,9 @@ function ctxPnp(q){
       est un texte : str, même si l'élève a tapé un nombre.
    UNE question (la fiche) : rien n'y est tiré, il n'y a rien à répéter.
    Quatre cases notées : les deux trous, le nom, le type. */
-const PSF_VAR='sport';
+const PSF_VAR='reponse';
 const PSF_Q='quel est ton sport favori ? ';
-const PSF_T='c\'est formidable le sport';
+const PSF_T='c\'est formidable';
 const PSF_TYPES=[['str','str (texte)'],['int','int (nombre entier)'],['float','float (un nombre décimal)']];
 function psfBuildQuestions(){ return [{etape:'a', l1:'', l2:'', rep:'', aOk:null, nom:'', typ:'', bOk:null}]; }
 function psfCases(q){ return [{id:'psf-l1'},{id:'psf-l2'},{id:'psf-nom'},{id:'psf-type'}]; }
@@ -53034,7 +53036,7 @@ function psfJugeTrou(i, saisie){
   if(!s) return {vide:true, ok:false, diag:''};
   if(i===1 && /\binput\b/.test(s)) return {ok:false, diag:'« input( » et « ) » sont déjà écrits : dans le trou, écris seulement la question, entre guillemets.'};
   if(i===2 && /\bprint\b/.test(s)) return {ok:false, diag:'« print( » est déjà écrit : dans le trou, écris seulement le texte, entre guillemets.'};
-  if(i===2 && new RegExp(',\\s*'+PSF_VAR+'\\s*\\)?\\s*$').test(s)) return {ok:false, diag:'« , sport) » est déjà écrit après le trou : écris seulement le texte, entre guillemets — sinon la réponse s’afficherait deux fois.'};
+  if(i===2 && new RegExp(',\\s*'+PSF_VAR+'\\s*\\)?\\s*$').test(s)) return {ok:false, diag:'« , '+PSF_VAR+') » est déjà écrit après le trou : écris seulement le texte, entre guillemets — sinon la réponse s’afficherait deux fois.'};
   if(!/["'’]/.test(s)) return {ok:false, diag:'Un texte s’écrit entre guillemets : "…". Sans eux, Python croit lire des noms de variables.'};
   if(i===2 && /^'/.test(s) && /'.*'.*'/.test(s)) return {ok:false, diag:'Le texte « '+PSF_T+' » contient une apostrophe : entre guillemets simples \' … \', elle FERME le texte trop tôt, et Python ne comprend plus la suite. Écris le texte entre guillemets doubles " … ".'};
   let r=null;
@@ -53052,6 +53054,7 @@ function psfJugeNom(saisie){
   if(!s) return {vide:true, ok:false, diag:''};
   if(s===PSF_VAR) return {ok:true, diag:''};
   if(s.replace(/["'’]/g,'')===PSF_VAR) return {ok:false, diag:'Le nom d’une variable s’écrit SANS guillemets : avec eux, ce serait un texte.'};
+  if(s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()===PSF_VAR && s.toLowerCase()!==PSF_VAR) return {ok:false, diag:'Un nom de variable s’écrit exactement comme à la ligne 1 : ici, sans accent.'};
   if(s.toLowerCase()===PSF_VAR) return {ok:false, diag:'Python distingue les majuscules et les minuscules : le nom s’écrit exactement comme à la ligne 1.'};
   if(/input|print/.test(s)) return {ok:false, diag:'input et print sont des fonctions de Python, pas des variables. La réponse est rangée dans la variable écrite à GAUCHE du signe = de la ligne 1.'};
   return {ok:false, diag:'Relis la ligne 1 : la réponse tapée est rangée dans la variable écrite à GAUCHE du signe =.'};
@@ -53060,7 +53063,7 @@ function psfJugeNom(saisie){
 function psfTypeAttendu(q){ return pyRun(PSF_VAR+' = input("?")', [q.rep||'football']).env[PSF_VAR].t; }
 function psfTypeLibelle(t){ const o=PSF_TYPES.find(function(p){ return p[0]===t; }); return o?o[1]:t; }
 const PSF_ENONCES={
-  a:'<b>a)</b> Complète le programme pour que la question posée soit « <b>quel est ton sport favori ?</b> » et que le programme affiche ensuite « <b>c’est formidable le sport</b> » suivi de ta réponse. Puis exécute-le et réponds à sa question avec la touche Entrée.',
+  a:'<b>a)</b> Complète le programme pour que la question posée soit « <b>quel est ton sport favori ?</b> » et que le programme affiche ensuite « <b>c’est formidable</b> » suivi de ta réponse. Puis exécute-le et réponds à sa question avec la touche Entrée.',
   b:'<b>b)</b> Quel est le nom de la variable qui contient ta réponse&nbsp;?',
   c:'<b>c)</b> Quel est le type de cette variable&nbsp;?'
 };

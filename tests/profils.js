@@ -388,7 +388,8 @@ module.exports = {
        dans des listes, comme au 2.4.2 — colorer une liste au moment du choix
        donnerait la bonne lettre par élimination. Ses cases d'effectifs se
        jugent avec elles, à la vérification. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl', 'pb'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl', 'pb',
+      /* {augmentation-tableau-libre} (7.2) : une rédaction lue par le juge et l'IA, on revérifie */ 'suil'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
@@ -721,7 +722,7 @@ module.exports = {
          la Seconde dérive sa liste de KINDS_PREMIERE, on l'ajoute donc ICI. */
       ctx: { appel: 'conseilCtxCourant()', seuil: 80, kinds: KINDS_PREMIERE.concat([['ess','genEss()'], ['esl','genEss()'], ['sgl',"Object.assign(genEss(),{moteur:'esl'})"], ['bsd','genBaissesDix()'],
              /* {augmentation-tableau} (7.1, novembre 2026) n'existe qu'en Première, comme le 2.5.4 */
-             ['sui','genSui()']]),
+             ['sui','genSui()'], ['suil','genSui()']]),
              prepare: { pctq: 'test.questions[0].choisi=0;', augq: 'test.questions[0].choisi=0;', psl: 'test.questions[0].choisi=0;' } },
       mlStatic: true,
     },
