@@ -534,3 +534,13 @@ Un point par question, la note par `finishTest` sous `test.qId`.
 **Le prix** : comme toutes les rédigées de la Première, le texte de la
 feuille n'est pas rangé par la pause (ses lignes n'ont pas d'identifiant) — la
 reprise rouvre la question, champ vide.
+
+**Puis la question ① est revenue dans le tableau** (demande de Turquet,
+novembre 2026, v435 : « dans la question 1, laisser l'élève remplir les cases
+du tableau sans faire un champ de saisie »). Ses deux cases sont celles du 7.1
+(`suiTableau`, `sui-t1` et `sui-t2`) et son juge aussi (`checkSuilTableau` :
+une bonne réponse par case, `corrChoix`, le soutien qui colore au fil de la
+frappe par `liveColorDec` — `suil` a donc quitté `soutienEnDirect.sans` et
+entre dans `liveCheckCurrent`). Ni feuille ni modèle pour cette question ; les
+questions ② et ③ gardent leur champ unique, lu par le juge et l'IA. Les cases
+ont un identifiant : la pause les range, contrairement à la feuille.

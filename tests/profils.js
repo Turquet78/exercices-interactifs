@@ -388,8 +388,7 @@ module.exports = {
        dans des listes, comme au 2.4.2 — colorer une liste au moment du choix
        donnerait la bonne lettre par élimination. Ses cases d'effectifs se
        jugent avec elles, à la vérification. */
-    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl', 'pb',
-      /* {augmentation-tableau-libre} (7.2) : une rédaction lue par le juge et l'IA, on revérifie */ 'suil'] },
+    soutienEnDirect: { sans: ['psl', 'sal', 'ac', 'esl', 'sgl', 'pb'] },
     /* Chacune des quatorze fins de test épingle l'identifiant sous lequel la
        note part — en toutes lettres, ou par le paramètre d'un démarreur
        partagé. Le banc peut donc exiger que les vingt-cinq exercices y soient :
