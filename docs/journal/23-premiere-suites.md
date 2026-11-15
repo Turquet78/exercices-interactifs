@@ -411,6 +411,30 @@ départ et produit écrits, de même ; sur une tablette debout, la dernière lig
 de la méthode 1, qui n'a plus de place à droite, reste dans le cadre et ne
 couvre ni le tableau ni les phrases de la méthode 2 qui suivent.
 
+## Puis les questions en grand, les réponses en petit (novembre 2026, v428)
+
+**La demande** (Turquet) : « je souhaite que l'on voie mieux les questions et
+moins les textes de la réponse : agrandir la police des questions et mettre en
+gras, réduire la police des réponses et ne pas mettre en gras, faire la même
+chose pour les cases dans les phrases-réponses ».
+
+**Ce qui change.** Les questions (`.sui-q` : « 1. Compléter le tableau. »,
+« 2. Calculer… », « 3. À quelle heure… ») passent de 1,12 rem à 1,42 rem, en
+gras ; les consignes de méthode (`.sui-meth`, « Méthode 1 : complète le
+tableau… ») de 1,02 à 1,18 rem, en gras. Les phrases-réponses (`.sui-phr`)
+descendent de 1,35 à 1,05 rem et perdent leur demi-gras (Fredoka 400) ; leurs
+cases MathLive et le « = » qui les annonce suivent, à 1,05 rem — la règle
+« une case a la taille des nombres qui l'entourent » tient toujours, c'est
+l'entourage qui a rétréci (une règle plus précise, `#suiHost .sui-phr
+math-field.pm-mf`, pour ne pas toucher aux cases du tableau, qui gardent la
+taille de ses nombres). Sur un téléphone, les mêmes proportions, un cran plus
+petit. Les miroirs (`.sui-mir`) héritent de la phrase.
+
+**Ce qui le tient.** Le contrôle universel des tailles (banc navigateur,
+section 9) mesure chaque case contre les nombres qui l'entourent — dans le
+tableau comme dans les phrases ; le contrôle « 11 quindecies » remesure la
+place de la pose, qui dépend de la hauteur des lignes.
+
 ## 7.2 {augmentation-tableau-libre} : le 7.1 rédigé, un seul champ par question
 
 Demande de Turquet, novembre 2026 : « en première créer un exercice comme le
@@ -423,7 +447,7 @@ directement. C'est l'IA qui analysera les réponses. »
 **Rien de neuf dans le tirage** : `suiBuildQuestions`, `SUI_CTX`, `suiVals`
 sont lus, jamais recopiés — les mêmes contextes, les mêmes trois questions
 (le tableau, la valeur au bout de N pas, le pas du seuil), les mêmes nombres à
-un seul chiffre non nul. Kind `suil`, écran `scr-suil`. La question ① montre
+un seul chiffre non nul. Kind `suil`, écran `scr-suil`. Ses questions s'écrivent en grand et en gras, comme celles du 7.1 (v428). La question ① montre
 le tableau, ses lignes 1 et 2 marquées « ? » ; la ③ garde le tableau rempli
 pour mémoire. Le champ unique est la feuille de RÉDACTION du 2.5.6
 (`mlFeuille` en mode « redaction », `salEspaces`) : la barre d'espace écrit
