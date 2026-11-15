@@ -36332,28 +36332,30 @@ function pythonInputPasAPas(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'le trajet en entraînement : chaque case est une liste de quatre propositions (la question, le texte, la variable, la réponse tapée) ; les deux cadres sont là dès le départ, leurs cases fermées, le bouton d’exécution AU-DESSUS du programme ; ligne 1 exécutée → la console rappelle que ⏎ est la touche Entrée → réponse à Entrée → cases du cadre 1 seules ouvertes ; vérifié → bouton « Exécuter la ligne 2 », cadre 2 fermé ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
+  verifierEval(w, 'le trajet en entraînement : chaque case est une liste de quatre propositions (la question, le texte, la variable, la réponse tapée) ; le programme se montre ligne par ligne — la ligne 1 seule et sans cadre au départ —, le bouton d’exécution en haut, la console juste dessous, puis le programme ; ligne 1 exécutée → la console rappelle que ⏎ est la touche Entrée, toujours pas de cadre → réponse à Entrée → le cadre 1 apparaît ; vérifié → la ligne 2 apparaît, sans cadre, et le bouton « Exécuter la ligne 2 » ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPNP();
     const q=test.questions[0];
     if(!document.getElementById("pnpRun1")) vus.push("pas de bouton « Exécuter la ligne 1 »");
-    const ferme=function(n){ const r=document.getElementById("pnpR"+n), c=document.getElementById("pnpCadre"+n); if(!c) return "absent"; const ins=[].slice.call(c.querySelectorAll("select")); return (r.classList.contains("pnp-ferme")&&ins.length===3&&ins.every(function(i){ return i.disabled; }))?"fermé":"ouvert"; };
-    if(ferme(1)!=="fermé"||ferme(2)!=="fermé") vus.push("au départ : cadre 1 "+ferme(1)+", cadre 2 "+ferme(2));
-    const barre=document.getElementById("pnpRunBar"), prog=document.querySelector("#pnpHost .pnp-prog");
-    if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!(barre.compareDocumentPosition(prog)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le bouton d’exécution n’est pas au-dessus du programme");
+    const etat=function(n){ const r=document.getElementById("pnpR"+n), c=document.getElementById("pnpCadre"+n); if(!r) return "ligne absente"; if(!c) return "ligne sans cadre"; const ins=[].slice.call(c.querySelectorAll("select")); return (ins.length===3&&ins.every(function(i){ return !i.disabled; }))?"cadre ouvert":"cadre fermé"; };
+    if(etat(1)!=="ligne sans cadre"||etat(2)!=="ligne absente") vus.push("au départ : ligne 1 "+etat(1)+", ligne 2 "+etat(2));
+    const avant=function(a,b){ return !!(a&&b&&(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)); };
+    const barre=document.getElementById("pnpRunBar"), cons0=document.getElementById("pnpConsole"), prog=document.querySelector("#pnpHost .pnp-prog");
+    if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!avant(barre,cons0)||!avant(cons0,prog)) vus.push("l’ordre n’est pas : bouton, console, programme");
     if(document.querySelector("#pnpR1.pnp-courante")===null) vus.push("la ligne 1 n’est pas surlignée");
     pnpExecuter(1);
     const e=document.getElementById("pnpEntree");
     if(!e) return "la console n’attend pas de réponse";
+    if(etat(1)!=="ligne sans cadre") vus.push("le cadre 1 apparaît avant la réponse validée : "+etat(1));
     const css=[].map.call(document.querySelectorAll("style"),function(st){ return st.textContent; }).join("");
     if(css.indexOf('#pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider."}')<0||e.parentElement!==document.getElementById("pnpConsole")) vus.push("la console ne rappelle pas que ⏎ est la touche Entrée");
     e.value="Ben"; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
     if(q.rep!=="Ben"||q.etape!==1) vus.push("réponse "+q.rep+", étape "+q.etape);
-    if(ferme(1)!=="ouvert") vus.push("le cadre 1 ne s’ouvre pas");
+    if(etat(1)!=="cadre ouvert") vus.push("le cadre 1 n’apparaît pas ouvert : "+etat(1));
     const c0=document.getElementById("pnp-c0"), props=c0?[].slice.call(c0.options).map(function(o){ return o.value; }).filter(Boolean).sort():[];
     if(!c0||c0.tagName!=="SELECT"||JSON.stringify(props)!==JSON.stringify(["Ben","comment tu t'appelles ?","nom","tu es"])) vus.push("les propositions de la case : "+(c0?c0.tagName:"")+" "+JSON.stringify(props));
-    if(ferme(2)!=="fermé"||document.getElementById("pnpRun2")) vus.push("la ligne 2 est déjà proposée");
+    if(etat(2)!=="ligne absente"||document.getElementById("pnpRun2")) vus.push("la ligne 2 est déjà là avant la vérification du cadre 1");
     document.getElementById("pnp-c0").value="comment tu t'appelles ?";
     document.getElementById("pnp-c1").value="nom";
     document.getElementById("pnp-c2").value="Ben";
@@ -36361,13 +36363,14 @@ function pythonInputPasAPas(w, P){
     if(q.etape!==2||test.score!==3) vus.push("après le cadre 1 : étape "+q.etape+", score "+test.score);
     if(document.querySelectorAll("#pnpCadre1 select.ok").length!==3) vus.push("les trois cases justes ne sont pas bleues");
     if(!document.getElementById("pnpRun2")) vus.push("pas de bouton « Exécuter la ligne 2 »");
-    if(ferme(2)!=="fermé") vus.push("cadre 2 ouvert avant l’exécution de la ligne 2");
-    if(!document.getElementById("pnpRunBar").contains(document.getElementById("pnpRun2"))) vus.push("« Exécuter la ligne 2 » n’est pas au-dessus du programme");
+    if(etat(2)!=="ligne sans cadre") vus.push("après le cadre 1, la ligne 2 : "+etat(2));
+    if(!avant(document.getElementById("pnpR1"),document.getElementById("pnpR2"))) vus.push("la ligne 2 n’est pas sous la ligne 1");
+    if(!document.getElementById("pnpRunBar").contains(document.getElementById("pnpRun2"))) vus.push("« Exécuter la ligne 2 » n’est pas en haut");
     if(!/ligne 2/.test(document.getElementById("pnpFeedback").textContent)) vus.push("le retour ne demande pas d’exécuter la ligne 2");
     pnpExecuter(2);
     const cons=document.getElementById("pnpConsole").textContent;
     if(cons.indexOf("tu es Ben")<0||cons.indexOf("comment tu t")!==0) vus.push("console : "+cons);
-    if(ferme(2)!=="ouvert") vus.push("le cadre 2 ne s’ouvre pas");
+    if(etat(2)!=="cadre ouvert") vus.push("le cadre 2 n’apparaît pas : "+etat(2));
     document.getElementById("pnp-c3").value="tu es";
     document.getElementById("pnp-c4").value="Ben";
     document.getElementById("pnp-c5").value="";

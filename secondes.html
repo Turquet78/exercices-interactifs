@@ -1395,9 +1395,8 @@
   .pnp-courante .pnp-code{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16);background:#EAF0FF}
   .pnp-fleche{grid-column:2;color:#1F4E79;font-size:1.4rem;line-height:1}
   .pnp-cadre{grid-column:3;min-width:0;padding:12px 14px;background:#fff;border:1.5px solid var(--ink);border-radius:4px;line-height:2.9;text-align:left}
-  .pnp-ferme .pnp-cadre{color:var(--ink-soft);border-color:#c9d1e0;background:#fafbfd}
-  .pnp-ferme .pnp-in{background:#f3f5f9;border-color:#dde3ee;cursor:not-allowed}
-  .pnp-run{display:flex;justify-content:flex-start;margin:0 0 12px}
+  .pnp-run{display:flex;justify-content:flex-start;margin:0 0 10px}
+  #pnpHost .py-console{margin-bottom:16px}
   /* le 6.3.1 prolonge la phrase commune des consoles : ⏎ veut dire Entrée (demande de Turquet) */
   #pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider."}
   .pnp-in{font:inherit;line-height:1.5;min-width:7ch;cursor:pointer;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;margin:3px 0;outline:none;vertical-align:baseline}
@@ -52684,11 +52683,11 @@ function ctxPyn(q){
    Entrée) ; la réponse rangée, les cases du cadre 1 s'ouvrent. Vérifié, il
    laisse la place au bouton « Exécuter la ligne 2 » ; la console affiche la
    phrase, et les cases du cadre 2 s'ouvrent. La ligne à exécuter est
-   surlignée. LES DEUX CADRES SONT LÀ DÈS LE DÉPART, à côté de leur ligne,
-   leurs cases fermées (.pnp-ferme, disabled) tant que la ligne n'a pas
-   tourné ; le bouton d'exécution est AU-DESSUS du programme (#pnpRunBar), et
-   la console qui attend rappelle que ⏎ est la touche Entrée — cliquer
-   ailleurs ne fait rien (demande de Turquet, novembre 2026).
+   surlignée. LE PROGRAMME SE MONTRE LIGNE PAR LIGNE : la ligne 1 seule au
+   départ, la ligne 2 une fois le cadre 1 vérifié ; le cadre d'une ligne
+   n'apparaît qu'une fois son exécution finie (l'input : la réponse validée).
+   Le bouton d'exécution est en haut (#pnpRunBar), la console juste dessous,
+   puis le programme (demandes de Turquet, novembre 2026).
    LE JUGE NE RANGE RIEN : la question, le texte et la variable se relisent
    dans la situation (q.s), la valeur dans la réponse que l'élève a tapée
    (q.rep). Les textes passent par pyTexteProche (la tolérance du thème :
@@ -52734,7 +52733,7 @@ function pnpJugeCase(q, k, v){
   return pyTexteProche(net, att, [S.question.trim()]);
 }
 function pnpEnonceHTML(q){
-  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton au-dessus du programme, puis complète le cadre à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
+  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton en haut : ce qu’elle affiche s’écrit juste en dessous ; puis complète le cadre qui apparaît à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
 }
 /* Les quatre propositions de chaque case (demande de Turquet, novembre
    2026) : la question, le texte du print, le nom de la variable, la réponse
@@ -52757,12 +52756,18 @@ function pnpCadreHTML(q, n){
     : 'Ici le programme affiche le texte « '+pnpCaseHTML(q,3)+' » et le texte qui est dans la variable '+pnpCaseHTML(q,4)+', ici le texte dans cette variable est '+pnpCaseHTML(q,5)+'.';
   return '<span class="pnp-fleche" aria-hidden="true">⟵</span><div class="pnp-cadre" id="pnpCadre'+n+'">'+corps+'</div>';
 }
+/* Le programme se montre LIGNE PAR LIGNE (demande de Turquet, novembre
+   2026) : la ligne 2 n'apparaît qu'une fois le cadre 1 vérifié ; le cadre
+   d'une ligne n'apparaît qu'une fois son exécution FINIE — pour l'input,
+   la réponse validée par Entrée. */
+function pnpLigneVisible(q, n){ return n===1 || q.etape>=2; }
+function pnpCadreVisible(q, n){ return n===1 ? q.etape>=1 : q.etape>=3; }
 function pnpRangeeHTML(q, n){
+  if(!pnpLigneVisible(q, n)) return '';
   const e=q.etape, courante=(n===1&&e===0)||(n===2&&e===2);
-  const ouvert=n===1?e>=1:e>=3;
-  return '<div class="pnp-rangee'+(courante?' pnp-courante':'')+(ouvert?'':' pnp-ferme')+'" id="pnpR'+n+'">'
+  return '<div class="pnp-rangee'+(courante?' pnp-courante':'')+'" id="pnpR'+n+'">'
     +'<div class="pnp-code"><span class="pyx-num">'+n+'</span><span class="pyx-l1">'+pyColorie(n===1?pnpLigne1(q):pnpLigne2(q))+'</span></div>'
-    +pnpCadreHTML(q, n)+'</div>';
+    +(pnpCadreVisible(q, n)?pnpCadreHTML(q, n):'')+'</div>';
 }
 function pnpActions(html){ $('pnpActions').innerHTML=conseilInlineBtn()+html; }
 let _pnpSaveTimer=null;
@@ -52825,8 +52830,10 @@ function renderPNP(){
   $('pnpFeedback').textContent=''; $('pnpFeedback').className='mp-feedback';
   $('pnpFig').innerHTML=test.idx===0?pynEtiquetteHTML()+hwSerpentHTML('python-input-pas-a-pas'):'';
   pyAvant('pnp', test.idx===0?pynCoursHTML():'');
-  $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-run" id="pnpRunBar"></div><div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div>'
-    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre></div>';
+  /* le bouton, puis la fenêtre d'affichage SOUS le bouton, puis le programme */
+  $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-run" id="pnpRunBar"></div>'
+    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre>'
+    +'<div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div></div>';
   /* la console de ce qui a déjà été exécuté */
   if(q.etape>=1 && q.etape<3) pnpConsoleFigee(pnpLigne1(q), [q.rep]);
   else if(q.etape>=3) pnpConsoleFigee(pnpProg(q), [q.rep]);
@@ -52834,8 +52841,7 @@ function renderPNP(){
   for(let k=0;k<6;k++){
     const inp=$('pnp-c'+k); if(!inp) continue;
     inp.value=q.v[k]||'';
-    const cadreFait=(k<3)?q.etape>=2:q.etape>=4, ouvert=(k<3)?q.etape>=1:q.etape>=3;
-    if(!ouvert){ inp.disabled=true; inp.value=''; continue; }
+    const cadreFait=(k<3)?q.etape>=2:q.etape>=4;
     if(cadreFait){ inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); }
     else inp.addEventListener('change', function(){ if(test.locked) return; q.v[k]=inp.value; inp.classList.remove('bad'); pnpSauver(); });
   }
@@ -52904,7 +52910,7 @@ function checkPNP(live){
   const bravo=tousOk?pick(['Bravo !','Parfait !','Exact !'])+' ':'';
   if(q.etape===1){
     q.etape=2; pnpSauver();
-    fb.textContent=bravo+(tousOk?'':'Les bonnes réponses sont écrites en vert. ')+'Exécute maintenant la ligne 2 avec le bouton au-dessus du programme.';
+    fb.textContent=bravo+(tousOk?'':'Les bonnes réponses sont écrites en vert. ')+'La ligne 2 apparaît : exécute-la avec le bouton en haut.';
     fb.className='mp-feedback'+(tousOk?' good':' bad');
     renderPNPGarderFeedback(fb.textContent, fb.className);
     const rb=$('pnpRun2'); if(rb) rb.focus();
