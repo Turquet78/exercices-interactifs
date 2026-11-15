@@ -435,7 +435,7 @@ section 9) mesure chaque case contre les nombres qui l'entourent — dans le
 tableau comme dans les phrases ; le contrôle « 11 quindecies » remesure la
 place de la pose, qui dépend de la hauteur des lignes.
 
-## Puis la pose d'une case de tableau s'est alignée sur le tableau (novembre 2026, v430)
+## Puis la pose d'une case de tableau s'est alignée sur le tableau (novembre 2026, v431)
 
 **La demande** (Turquet, capture à l'appui) : « mettre l'opération facultative
 sur la même ligne que le tableau et un peu plus à gauche, pour la question 1 ».
@@ -464,7 +464,7 @@ opérations du deuxième tableau »), que le haut de la pose est celui du tablea
 sans couvrir les phrases de la méthode 2 qui suivent : le tableau prolongé a
 cinq ou six lignes, la pose tient dans sa hauteur.
 
-## Puis le jour de départ s'est tiré, et les miroirs ont perdu leur pointillé (novembre 2026, v430)
+## Puis le jour de départ s'est tiré, et les miroirs ont perdu leur pointillé (novembre 2026, v431)
 
 **« Ne pas commencer un premier du mois forcément »** (Turquet). Le roman de
 Léa et la cuve commençaient toujours le 1er : le jour de départ (`q.j0`, 1 à
