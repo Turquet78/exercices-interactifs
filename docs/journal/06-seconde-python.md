@@ -7135,6 +7135,28 @@ message général (la variable à GAUCHE du =). Le contrôle a suivi : le texte
 « c'est formidable le sport » est maintenant FAUX (« doit être »), le nom
 juste « reponse ».
 
+**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v688).**
+Demande de Turquet : la retirer du cadre bleu de la console quand l'élève
+répond à l'input. Le 6.3.1 écrit désormais « ⏎ : Appuyer sur la touche Entrée
+pour valider. » — la phrase commune, précédée du symbole qu'elle explique ; le
+comportement (un clic ailleurs ne fait rien) ne change pas, seule la phrase
+disparaît.
+
+**Puis le 6.3.1 s'est montré LIGNE PAR LIGNE, la console sous le bouton (v688).**
+Demande de Turquet : « afficher le programme ligne par ligne avec le cadre à
+côté » — au départ la ligne 1 seule ; la ligne 2 n'apparaît, sous la ligne 1,
+qu'une fois le cadre 1 vérifié ; le cadre d'une ligne n'apparaît qu'une fois
+son exécution FINIE — pour l'input, la réponse validée par Entrée ; et la
+fenêtre d'affichage passe juste sous le bouton « ▶ Exécuter la ligne … »,
+au-dessus du programme. Les cadres fermés de la v682 (`.pnp-ferme`) sont donc
+partis : ce qui n'est pas encore à faire ne se montre pas. Deux fonctions le
+disent, `pnpLigneVisible` et `pnpCadreVisible`, lues par `pnpRangeeHTML` ; la
+reprise d'une pause redessine depuis `q.etape`, rien d'autre à ranger. Le
+trajet du banc principal le tient : la ligne 1 seule et sans cadre au départ,
+toujours sans cadre pendant que la console attend, le cadre après Entrée, la
+ligne 2 sous la ligne 1 après la vérification, son cadre après son exécution,
+et l'ordre du document bouton → console → programme.
+
 ---
 
 ## Puis le texte du 6.6.1 a nommé la variable (novembre 2026, v689)
