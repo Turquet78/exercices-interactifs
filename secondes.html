@@ -1411,6 +1411,10 @@
   .pfp-num{flex-basis:100%;font-weight:700;color:var(--blue)}
   .pfp-tour.py-phrase{gap:4px 8px}
   .pfp-br{flex-basis:100%;height:0}
+  .pfp-run-row{justify-content:flex-start;margin:4px 0 8px}
+  #pfpRun:disabled{opacity:.45;cursor:default;filter:grayscale(.4)}
+  .pfp-consigne{margin:8px 0 2px;font-weight:700;color:var(--blue)}
+  select.pfr-in.pfp-sel{width:auto;min-width:5ch;font:inherit;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
   #psfHost .mf-cor.pyn-cor,#pynHost .mf-cor.pyn-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600}
   .pyp-cours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 10px}
   .pyp-regle{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 12px;font-size:.98rem;line-height:1.45;color:var(--ink);text-align:left}
@@ -9391,7 +9395,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=683;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=684;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -53665,7 +53669,7 @@ function pfpBuildQuestions(){
   const n=Math.min(dmNbQuestions(PFP_NB), DM_NBQ_MAX);
   return distinctes(n, function(_, i){
     const q=i===0 ? {iv:0, it:0, n:4} : {iv:rand(0,PFP_VARS.length-1), it:rand(0,PFP_TEXTES.length-1), n:rand(3,5)};
-    return Object.assign(q, {etape:'a', pas:0, fait:false, rs:[], oks:[], r:['',''], ok:null});
+    return Object.assign(q, {etape:'a', pas:0, exec:false, fait:false, rs:[], oks:[], r:['',''], ok:null});
   }, function(q){ return q.iv+'|'+q.it+'|'+q.n; });
 }
 function pfpVar(q){ return PFP_VARS[q.iv]||PFP_VARS[0]; }
@@ -53683,6 +53687,14 @@ function pfpTexteLu(v){ return String(v==null?'':v).trim().replace(/^["'«“”
 function pfpTexteOk(q, v){ const s=pfpTexteLu(v); return s!=='' && pyTexteProche(s, pfpTexte(q), [pfpVar(q)]); }
 function pfpVarOk(q, v){ return String(v==null?'':v).trim()===pfpVar(q); }
 function pfpValOk(q, t, v){ return pfrLu(v)===pfpValeur(q, t); }
+/* Les trois cases d'un tour sont des LISTES (demande de Turquet, novembre
+   2026) : les mêmes choix dans les trois — le texte du print, le nom de la
+   variable, puis chaque valeur que range peut donner. */
+function pfpChoix(q){ const c=[pfpTexte(q), pfpVar(q)]; for(let v=0;v<q.n;v++) c.push(String(v)); return c; }
+function pfpListeHTML(q, id, aria){
+  return '<select class="pfr-in pfp-sel" id="'+id+'" aria-label="'+esc(aria)+'"><option value="">…</option>'
+    +pfpChoix(q).map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join('')+'</select>';
+}
 function pfpCaseHTML(id, cls, aria, mode){
   return '<input class="pfr-in '+cls+'" id="'+id+'" type="text" inputmode="'+(mode||'text')+'" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="'+esc(aria)+'">';
 }
@@ -53694,9 +53706,9 @@ function pfpCodeHTML(q, actif){
 function pfpPhraseTour(q, t){
   const p='pfp-t'+t+'-';
   return '<p class="py-phrase pii-rep-l pfr-rep pfp-tour" id="pfpTour'+t+'"><span class="pfp-num">Tour n°'+(t+1)+' :</span>'
-    +pfrCode(pfpPrint(q))+' affiche le texte "'+pfpCaseHTML(p+'0','pfp-txt','le texte affiché au tour '+(t+1))+'"<span class="pfp-br"></span>'
-    +'et la valeur de la variable '+pfpCaseHTML(p+'1','pfp-var','le nom de la variable au tour '+(t+1))
-    +' qui est '+pfpCaseHTML(p+'2','','la valeur de la variable au tour '+(t+1),'numeric')+'.</p>';
+    +pfrCode(pfpPrint(q))+' affiche le texte "'+pfpListeHTML(q, p+'0','le texte affiché au tour '+(t+1))+'"<span class="pfp-br"></span>'
+    +'et la valeur de la variable '+pfpListeHTML(q, p+'1','le nom de la variable au tour '+(t+1))
+    +' qui est '+pfpListeHTML(q, p+'2','la valeur de la variable au tour '+(t+1))+'.</p>';
 }
 function pfpEtapeHTML(e, titre, corps){
   return '<div class="pii-etape" id="pfpEtape'+e.toUpperCase()+'"><p class="pii-titre">✏️ '+titre+'</p>'+corps+'</div>';
@@ -53720,34 +53732,47 @@ function pfpActions(html){ $('pfpActions').innerHTML=conseilInlineBtn()+html; }
 function renderPFP(){
   const q=test.questions[test.idx]; test.locked=false;
   const nom=pfpVar(q), enA=q.etape==='a';
+  if(q.exec==null) q.exec=q.fait||!enA||!!(q.rs[q.pas]||[]).some(Boolean);
   $('pfpIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
-  $('pfpInstr').innerHTML='Le programme s’exécute <b>pas à pas</b> : fais l’étape a), tour après tour, puis l’étape b).';
+  $('pfpInstr').innerHTML='Le programme s’exécute <b>pas à pas</b> : un tour de boucle par étape, puis l’étape b).';
   $('modeTagPFP').innerHTML=modeTagHTML();
   $('pfpLiveScore').textContent=test.score;
   $('pfpFeedback').textContent=''; $('pfpFeedback').className='mp-feedback';
   pyAvant('pfp', test.idx===0?pfrFigHTML()+pfrDefHTML():'');
-  /* les tours déjà vérifiés écrivent leur ligne dans la console */
-  const faits=enA?(q.pas+(q.fait?1:0)):q.n;
-  let tours='';
-  for(let t=0;t<=Math.min(q.pas,q.n-1);t++) tours+=pfpPhraseTour(q, t);
+  /* LE DÉROULÉ (demande de Turquet, novembre 2026) : en haut, le bouton
+     « ▶ Exécuter l'étape N » ; la console, sous le programme, montre la ligne
+     de chaque tour exécuté et grandit d'un tour à l'autre ; sous la console,
+     UNE phrase — celle du tour exécuté —, que le tour suivant remplace,
+     présentée de la même façon. */
+  const vus=enA?(q.pas+(q.exec?1:0)):q.n;
+  const tourVu=enA?(q.exec?q.pas:-1):q.n-1;
+  const peutExec=enA && (!q.exec || (q.fait && q.pas<q.n-1));
+  const etapeN=enA ? (q.exec && q.fait ? q.pas+2 : q.pas+1) : q.n;
+  let consigne='';
+  if(enA && !q.exec) consigne='Clique sur « ▶ Exécuter l’étape '+etapeN+' » : la console affiche ce que fait le tour n°'+etapeN+'.';
+  else if(enA && q.fait) consigne='Clique sur « ▶ Exécuter l’étape '+etapeN+' » pour passer au tour n°'+etapeN+'.';
+  else if(enA) consigne='Complète le tour n°'+(q.pas+1)+' avec ce que la console vient d’afficher, puis vérifie.';
   let h='<div class="py-cell">';
-  h+=pfpEtapeHTML('a', '<b>a)</b> Le programme s’exécute <b>pas à pas</b>, un tour de boucle à la fois. À chaque tour, <b>complète</b> ce qu’affiche la ligne '+pfrCode(pfpPrint(q))+', puis vérifie.',
-    pfpCodeHTML(q, enA)+tours+'<pre class="py-console" id="pfpConsole"></pre>');
+  const bouton='<div class="row pfp-run-row"><button class="btn btn-primary" id="pfpRun" type="button" onclick="pfpExecuter()"'+(peutExec?'':' disabled')+'>▶ Exécuter l’étape '+etapeN+'</button></div>';
+  h+=pfpEtapeHTML('a', '<b>a)</b> Le programme s’exécute <b>pas à pas</b>, un tour de boucle à la fois. À chaque tour, <b>complète</b> ce qu’affiche la ligne '+pfrCode(pfpPrint(q))+'.',
+    (enA?bouton:'')+pfpCodeHTML(q, enA)+'<pre class="py-console" id="pfpConsole"></pre>'
+    +(consigne?'<p class="pfp-consigne" id="pfpConsigne">'+consigne+'</p>':'')
+    +(tourVu>=0?pfpPhraseTour(q, tourVu):''));
   if(!enA) h+=pfpEtapeHTML('b', '<b>b)</b> <b>Explique</b> ce que fait '+pfrCode('for '+nom+' in range('+q.n+'):')+' sur la valeur de la variable '+pfrCode(nom)+'.',
     '<p class="py-phrase pii-rep-l pfr-rep">Ta réponse ✍️&nbsp;: la valeur de la variable '+pfrCode(nom)+' varie de '
     +pfpCaseHTML('pfp-de','','la première valeur de '+nom,'numeric')+' à '+pfpCaseHTML('pfp-a','','la dernière valeur de '+nom,'numeric')+'.</p>');
   h+='</div>';
   $('pfpHost').innerHTML=h;
   const c=$('pfpConsole'), sortie=pfpSortie(q);
-  if(faits>0){ c.classList.add('py-exec'); c.textContent=sortie.slice(0,faits).join('\n'); }
-  /* les tours déjà jugés reviennent peints et fermés ; le tour en cours s'écrit */
-  for(let t=0;t<=Math.min(q.pas,q.n-1);t++){
-    const att=[pfpTexte(q), nom, String(pfpValeur(q,t))], rs=q.rs[t]||['','',''];
+  if(vus>0){ c.classList.add('py-exec'); c.textContent=sortie.slice(0,vus).join('\n'); }
+  /* le tour montré : jugé, il revient peint et fermé ; sinon il s'écrit */
+  if(tourVu>=0){
+    const t=tourVu, att=[pfpTexte(q), nom, String(pfpValeur(q,t))], rs=q.rs[t]||['','',''];
     for(let j=0;j<3;j++){
-      const inp=$('pfp-t'+t+'-'+j); inp.value=rs[j]||'';
-      if(q.oks[t]){ corrChoix(inp, att[j], q.oks[t][j]); continue; }
-      inp.addEventListener('input', function(){ if(test.locked) return; (q.rs[t]=q.rs[t]||['','',''])[j]=inp.value; inp.classList.remove('bad'); pfpSauver(); });
-      inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkPFP(); } });
+      const sel=$('pfp-t'+t+'-'+j); sel.value=rs[j]||'';
+      if(q.oks[t]){ corrChoix(sel, att[j], q.oks[t][j]); sel.disabled=true; continue; }
+      sel.addEventListener('change', function(){ if(test.locked) return; (q.rs[t]=q.rs[t]||['','',''])[j]=sel.value; sel.classList.remove('bad'); pfpSauver(); });
+      sel.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkPFP(); } });
     }
   }
   if(!enA){
@@ -53759,14 +53784,21 @@ function renderPFP(){
       inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); checkPFP(); } });
     });
   }
-  if(enA && q.fait){ test.locked=true; pfpActions('<button class="btn btn-primary" id="pfpNext" type="button" onclick="pfpTourSuivant()">Étape suivante</button>'); }
+  /* un tour jugé verrouille la question jusqu'au clic sur ▶ : la reprise
+     d'une pause n'y rejuge rien (le bouton du haut n'est pas une « suite ») */
+  if(enA && q.fait){ test.locked=true; pfpActions(''); }
   else if(!enA && q.ok){ test.locked=true; pfpSuivante(); }
-  else pfpActions('<button class="btn btn-primary" id="pfpValidate" type="button" onclick="checkPFP()">Vérifier</button>');
+  else pfpActions('<button class="btn btn-primary" id="pfpValidate" type="button" onclick="checkPFP()"'+(enA&&!q.exec?' disabled':'')+'>Vérifier</button>');
 }
 function pfpFocus(id){ const el=$(id); if(el) setTimeout(function(){ try{ el.focus(); }catch(e){} },40); }
-function pfpTourSuivant(){
-  const q=test.questions[test.idx]; if(!q||q.etape!=='a'||!q.fait) return;
-  q.pas++; q.fait=false; renderPFP(); pfpSauver(); pfpFocus('pfp-t'+q.pas+'-0');
+/* « ▶ Exécuter l'étape N » : le premier clic exécute le tour en cours ; après
+   un tour jugé, il passe au tour suivant et l'exécute. */
+function pfpExecuter(){
+  const q=test.questions[test.idx]; if(!q||q.etape!=='a') return;
+  if(!q.exec) q.exec=true;
+  else if(q.fait && q.pas<q.n-1){ q.pas++; q.fait=false; q.exec=true; }
+  else return;
+  renderPFP(); pfpSauver(); pfpFocus('pfp-t'+q.pas+'-0');
 }
 /* Le message nomme l'erreur commise, sans redonner ce qui est juste. */
 function pfpPourquoiTour(q, t, subs){
@@ -53821,7 +53853,10 @@ function checkPFP(live){
   if(parfait){ fb.textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !']); fb.className='mp-feedback good'; }
   else if(allOk){ fb.textContent='Le b) est juste !'; fb.className='mp-feedback good'; }
   else { fb.textContent=msgAvecVides(subs, pfpPourquoiB(q, subs)+' La bonne réponse est écrite en vert à côté.'); fb.className='mp-feedback bad'; }
-  test.answers.push({...(ptsExo()||{}), correct:parfait,
+  /* le compte de la question entière : l'écran ne montre plus que le
+     dernier tour, les verdicts des autres sont rangés dans q.oks */
+  const justes=q.oks.reduce(function(s,o){ return s+(o||[]).filter(Boolean).length; },0)+nOk, cases=3*q.n+2;
+  test.answers.push({...(ptsExo()||{}), pts:justes/cases, justes:justes, cases:cases, correct:parfait,
     q:pfpProg(q).replace(/\n\s*/g,' ⏎ ')+' ⏎ pas à pas : texte, variable, valeur à chaque tour ; '+pfpVar(q)+' varie de … à …',
     answer:pfpSortie(q).join(' | ')+' ; '+b[0]+' à '+b[1],
     given:q.rs.map(function(r){ return (r||[]).map(function(x){ return String(x||'').trim()||'?'; }).join(' / '); }).join(' | ')+' ; '+(q.r[0].trim()||'?')+' à '+(q.r[1].trim()||'?')});
@@ -53830,19 +53865,20 @@ function checkPFP(live){
 }
 function pfpJugerTour(q, fb){
   const t=q.pas; if(q.fait) return;
+  if(!q.exec){ fb.textContent='Clique d’abord sur « ▶ Exécuter l’étape '+(t+1)+' ».'; fb.className='mp-feedback bad'; const r=$('pfpRun'); if(r) r.focus(); return; }
   const att=[pfpTexte(q), pfpVar(q), String(pfpValeur(q,t))];
   const subs=[0,1,2].map(function(j){ const el=$('pfp-t'+t+'-'+j), v=el?String(el.value).trim():'';
     return {sel:el, vide:v==='', ok:!!el && (j===0?pfpTexteOk(q,v):j===1?pfpVarOk(q,v):pfpValOk(q,t,v))}; });
   q.rs[t]=subs.map(function(s){ return s.sel?s.sel.value:''; });
   if(subs.every(function(s){ return s.vide; })){
-    fb.textContent='Complète d’abord les trois cases du tour n°'+(t+1)+', puis vérifie.'; fb.className='mp-feedback bad';
+    fb.textContent='Choisis d’abord les trois réponses du tour n°'+(t+1)+', puis vérifie.'; fb.className='mp-feedback bad';
     subs[0].sel.focus(); return;
   }
   const nOk=subs.filter(function(s){ return s.ok; }).length, allOk=nOk===3;
   subs.forEach(function(s, j){ corrChoix(s.sel, att[j], s.ok); });
   if(!allOk && isSoutien()){
     fb.textContent=subs.some(function(s){ return s.vide; })
-      ? 'Il te manque une case — complète, puis revérifie.'
+      ? 'Il te manque une réponse — choisis-la, puis revérifie.'
       : 'Presque ! '+pfpPourquoiTour(q, t, subs)+' Corrige les cases en rouge, puis revérifie.';
     fb.className='mp-feedback bad';
     pfpActions('<button class="btn btn-primary" id="pfpValidate" type="button" onclick="checkPFP()">Revérifier</button>');
@@ -53851,24 +53887,24 @@ function pfpJugerTour(q, fb){
   q.oks[t]=subs.map(function(s){ return s.ok; });
   test.score+=nOk;
   let msg, cls;
-  if(allOk){ msg=pick(['Bravo !','Juste !','C’est ça !'])+' La console affiche la ligne du tour n°'+(t+1)+'.'; cls='good'; }
+  if(allOk){ msg=pick(['Bravo !','Juste !','C’est ça !']); cls='good'; }
   else { msg=msgAvecVides(subs, pfpPourquoiTour(q, t, subs)+' La bonne réponse est écrite en vert à côté.'); cls='bad'; }
-  if(t<q.n-1){ q.fait=true; renderPFP(); }
+  if(t<q.n-1){ q.fait=true; renderPFP(); msg+=' Clique sur « ▶ Exécuter l’étape '+(t+2)+' » pour passer au tour n°'+(t+2)+'.'; }
   else { q.etape='b'; q.fait=false; renderPFP(); pfpFocus('pfp-de'); msg+=' La boucle est finie : passe au b).'; }
   fb.textContent=msg; fb.className='mp-feedback '+cls;
   pfpSauver();
-  if(q.fait){ const nb=$('pfpNext'); if(nb) nb.focus(); }
+  if(q.fait){ const nb=$('pfpRun'); if(nb) nb.focus(); }
 }
 function pfpSuivante(){
   const last=test.idx===test.questions.length-1;
   pfpActions('<button class="btn btn-primary" id="pfpNextQ" type="button" onclick="nextPFP()">'+(last?'Voir mes résultats':'Question suivante')+'</button>');
   const nb=$('pfpNextQ'); if(nb) nb.focus();
 }
-function nextPFP(){ if(test.idx<test.questions.length-1){ test.idx++; renderPFP(); autoSave(); pfpFocus('pfp-t0-0'); } else finishTest(); }
+function nextPFP(){ if(test.idx<test.questions.length-1){ test.idx++; renderPFP(); autoSave(); pfpFocus('pfpRun'); } else finishTest(); }
 function ctxPfp(q){
   const nom=pfpVar(q), b=pfpBornes(q);
   let c='Exercice sur la boucle for … in range(…) en Python, exécutée pas à pas. Le programme est :\n'+pfpProg(q)+'\n';
-  c+='a) À chaque tour de boucle, l’élève complète la phrase « '+pfpPrint(q)+' affiche le texte \"…\" et la valeur de la variable … qui est … » (réponses attendues, STRICTEMENT SECRÈTES, ne jamais les donner : le texte '+pfpTexte(q)+', la variable '+nom+', et sa valeur à ce tour). Chaque tour vérifié écrit sa ligne dans la console. ';
+  c+='a) À chaque tour de boucle, l’élève complète la phrase « '+pfpPrint(q)+' affiche le texte \"…\" et la valeur de la variable … qui est … » (réponses attendues, STRICTEMENT SECRÈTES, ne jamais les donner : le texte '+pfpTexte(q)+', la variable '+nom+', et sa valeur à ce tour). Le bouton « ▶ Exécuter l’étape N » exécute un tour : la console affiche sa ligne, puis l’élève choisit ses trois réponses dans des listes (le texte, le nom de la variable, les valeurs 0 à '+(q.n-1)+'). ';
   c+='b) il complète la phrase « La valeur de la variable '+nom+' varie de … à … » (STRICTEMENT SECRET : '+b[0]+' et '+b[1]+'). ';
   c+='Étape en cours : '+q.etape+')'+(q.etape==='a'?', tour n°'+(q.pas+1)+' sur '+q.n:'')+'. ';
   c+='Règles à rappeler sans donner la réponse : dans print, ce qui est entre guillemets est un texte affiché tel quel, ce qui est sans guillemets est une variable dont on affiche la valeur ; for nombre in range(5): se traduit par « Pour nombre allant jusqu’à 5 » ; range commence à 0 et s’arrête avant le nombre écrit.';

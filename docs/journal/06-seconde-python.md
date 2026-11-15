@@ -6979,6 +6979,46 @@ numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
 un vrai CPython.
 
+---
+
+## Puis le 6.6.1 s'est exécuté au BOUTON, et ses cases sont devenues des listes (novembre 2026, v682)
+
+Demande de Turquet : « demander à l'élève d'appuyer sur exécution de l'étape 1
+du for ; le résultat du programme s'affiche en dessous ; en dessous, compléter
+le tour 1 ; quand il a fini, mettre le bouton du haut sur l'étape 2 […] le tour
+1 devient le tour 2 présenté exactement de la même façon, en dessous de la
+fenêtre d'affichage qui s'est agrandie ; pour les cases, proposer comme option
+"valeur", nombre, 0, 1, 2, 3 ».
+
+- **Le bouton du haut** : `#pfpRun`, « ▶ Exécuter l'étape N », au-dessus du
+  programme dans le cadre du a). Avant le premier clic, la console est vide,
+  aucune phrase, « Vérifier » grisé (et s'il est forcé, il dit d'exécuter
+  d'abord). Le clic écrit la ligne du tour dans la console ; la phrase du tour
+  s'ouvre SOUS la console. Le tour vérifié rend le bouton, devenu « étape
+  N + 1 » ; son clic ajoute la ligne suivante (la console grandit) et
+  REMPLACE la phrase par celle du tour suivant — une seule phrase à l'écran.
+  Le dernier tour vérifié ouvre le b), comme avant.
+- **Le nouvel état** : `q.exec` (le tour en cours a-t-il été exécuté ?),
+  rangé dans la question pour la pause ; un brouillon ancien sans `exec` le
+  déduit de `fait` et des choix déjà faits.
+- **`pfpExecuter`** remplace `pfpTourSuivant` — même raison de nom : rien
+  qui commence par `next…`, sans quoi la reprise d'une pause prendrait le
+  bouton pour la « suite » de la question (voir plus haut).
+- **Les listes** (`pfpListeHTML`) : les trois cases d'un tour offrent les
+  MÊMES choix — le texte du print tel que la console l'écrit (`valeur=` pour
+  la fiche), le nom de la variable, puis 0 à n − 1. Les juges n'ont pas
+  changé ; le message « SANS guillemets » nomme désormais le texte choisi dans
+  la liste de la variable.
+- Banc jsdom `pythonForPasAPas` réécrit sur ce déroulé : le bouton au-dessus
+  du programme, la console vide et « Vérifier » grisé avant l'exécution, les
+  choix des trois listes, la console qui grandit tour par tour et la phrase
+  remplacée, le message qui nomme l'étape suivante, le soutien (« ▶ » fermé
+  sur un tour faux), la reprise.
+- **La note de la question** ne se relit plus seulement à l'écran : il n'y
+  reste que le dernier tour, alors `justes` et `cases` se comptent sur les
+  verdicts rangés (`q.oks`) plus le b) — 3 n + 2 cases. Le banc l'a vu à la
+  première exécution (« cases : 5 »).
+
 **La console qui attend une réponse dit comment la valider (novembre 2026, v682).**
 Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
 input qui s'exécute, écrire à côté du symbole entré “Appuyer sur la touche
@@ -6996,7 +7036,26 @@ Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
 retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
 (`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
 
-**Puis la phrase est passée en gras et en bleu, et « ▶ Exécuter » montre l'encadré (v683).**
+---
+
+## Le contrôle « Entrée » est devenu UNIVERSEL (novembre 2026, v683)
+
+La même demande a été faite à deux sessions le même jour. L'une a fusionné
+la règle CSS ci-dessus (v682) pendant que l'autre posait la phrase par un
+script au focus (`span.py-entree-aide`) : la seconde a retiré son script à la
+fusion de `main` — une règle CSS sans JavaScript, hors du `textContent` que
+lisent les juges, vaut mieux — et n'a gardé que son CONTRÔLE, qui va partout.
+
+Banc navigateur, section 9, rien à déclarer : en entraînement, chaque « ▶ »
+visible de chaque exercice est cliqué ; toute case de réponse au programme
+qui s'ouvre doit avoir pour parent un élément dont le `::after` écrit
+« Appuyer sur la touche Entrée pour valider. ». Le contrôle du 6.3.5, lui,
+reste à sa place : il éprouve le geste sur un exercice. Le niveau le déclare
+par `pythonConsoles: true` dans son profil (la Première et la Terminale n'ont
+pas de console Python) ; un niveau qui en déclare et n'en ouvre aucune n'a
+rien mesuré, et le dit.
+
+**Puis la phrase est passée en gras et en bleu, et « ▶ Exécuter » montre l'encadré (v684).**
 Même jour, Turquet : « mets la phrase en gras et en bleu, et quand on appuie
 sur le bouton Exécuter ou Continuer, mettre le message de l'encadré orange qui
 s'affiche déjà sur Rappels de cours ou Poser une question à l'IA ». La règle
