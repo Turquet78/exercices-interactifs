@@ -1581,6 +1581,14 @@ i.pb-P{margin-right:.14em}
   .trd-calc .trd-g{text-align:right}
   .trd-calc .trd-dr,.trd-eq .trd-dr{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;min-height:40px}
   .trd-eg{text-align:center}
+  /* 6.4 {tracer-droite-libre} : une case de texte par ligne de calcul */
+  .trd-calc.trd-libre{grid-template-columns:max-content max-content minmax(0,max-content)}
+  .trd-images:has(.trd-libre){align-items:flex-start}
+  .trd-calc.trd-libre{align-content:start}
+  .trd-libre .lv-in.trd-lin,.trd-libre .lv-in.trd-lin-sol{width:10.5em;max-width:62vw;height:36px;box-sizing:border-box;text-align:left;padding:0 8px;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal;font-weight:600;font-size:1.02rem}
+  .trd-libre-eq .lv-in.trd-lin,.trd-libre-eq .lv-in.trd-lin-sol{width:7.5em;max-width:38vw}
+  .trd-libre-eq .trd-g{display:inline-flex;justify-content:flex-end}
+  .trd-droite-nue{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round}
   /* la bulle d'aide du soutien, ouverte au clic d'une case de calcul — le
      geste du 8.4.4 de la Seconde (vcdGpOuvrir) */
   .trd-gp{position:fixed;z-index:58;max-width:min(260px,calc(100vw - 16px));box-sizing:border-box;
@@ -3972,7 +3980,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=427;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=428;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4571,6 +4579,7 @@ const TESTS={
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
   /* 6.3 : le sujet papier « Exercice 3 » — les images, les deux points (rouges tant qu'ils sont mal placés), la règle, la droite tracée d'un clic sur chaque point, l'antécédent lu par le chemin animé du 6.2 puis calculé, le tableau de signes (demande de Turquet, novembre 2026) */
   'tracer-droite': { name:'Tracer la droite d\u2019une fonction affine', icon:'\ud83d\udcc8', desc:'Pour f(x) = ax + b\u00a0: calcule deux images, place les deux points sur le rep\u00e8re \u2014 un point mal plac\u00e9 devient rouge et le suivant attend \u2014, compl\u00e8te la r\u00e8gle \u2014 \u00ab\u00a0une droite\u00a0\u00bb trace la droite et ouvre la suite \u2014, lis l\u2019ant\u00e9c\u00e9dent d\u2019un nombre par le chemin anim\u00e9, calcule-le en r\u00e9solvant l\u2019\u00e9quation, r\u00e8gle par r\u00e8gle, puis compl\u00e8te le tableau de signes.', start:()=>startTrd() },
+  'tracer-droite-libre': { name:'Tracer la droite d\u2019une fonction affine, calculs r\u00e9dig\u00e9s', icon:'\u270d\ufe0f', desc:'Le m\u00eame exercice, mais tu \u00e9cris toi-m\u00eame tes calculs\u00a0: une ligne par \u00e9tape pour chaque image, une \u00e9quation par ligne pour l\u2019ant\u00e9c\u00e9dent (toute \u00e9quation \u00e9quivalente est accept\u00e9e) \u2014 la touche Entr\u00e9e ouvre la ligne suivante \u2014, puis le tableau de signes lu sur la droite seule.', start:()=>startTrdLibre() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
   'probabilites-ecriture': { name:'Probabilités : écrire et calculer', icon:'\u270f\ufe0f', desc:'Le tableau reste en haut de l’écran ; chaque ligne donne une probabilité — P(A), P(Ā), P(A∩B), P sachant A… — à calculer sur la même ligne : la fraction en lettres, puis celle des effectifs.', start:()=>startPBE() },
   'probabilites-sens': { name:'Que veut dire cette probabilité ?', icon:'\ud83d\udcac', desc:'La page écrit une probabilité — P(A), P(A∩B), P sachant B… — et tu choisis la phrase qui la dit, parmi quatre : attention au « parmi » renversé, au « et » de l’intersection. Puis tu la calcules avec les effectifs du tableau.', start:()=>startPBSens() },
@@ -4657,7 +4666,7 @@ const THEMES=[
      mot « image », sans tableau de valeurs. Un thème neuf, ajouté EN DERNIER,
      et le second exercice ajouté EN DERNIER dans le thème : rien ne se
      renumérote. */
-  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation','tracer-droite'] },
+  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation','tracer-droite','tracer-droite-libre'] },
   /* Demande de Turquet, novembre 2026 : « en première faire un exercice comme
      le pdf joint » (la fiche « Exercice augmentation tableau »). Un thème
      neuf, ajouté EN DERNIER : il ne renumérote rien. */
@@ -4821,7 +4830,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -31574,7 +31583,7 @@ function trdTirage(nb){
   });
 }
 /* ---- L'état de la question en cours ---- */
-function trdNouvelEtat(){ return {idx:test.idx, etape:'points', cur:0, pts:[null,null], err:[0,0], choisi:null, sels:{}, averti:false, anime:false, corrige:false}; }
+function trdNouvelEtat(){ const e={idx:test.idx, etape:'points', cur:0, pts:[null,null], err:[0,0], choisi:null, sels:{}, averti:false, anime:false, corrige:false}; if(trdLibre()) e.lignes=trdLignesInit(); return e; }
 function trdEtat(){ if(!test.trdE || test.trdE.idx!==test.idx) test.trdE=trdNouvelEtat(); return test.trdE; }
 const TRD_RANG={points:0, regle:1, tracer:2, fin:3};
 /* ---- Le dessin ---- */
@@ -31865,6 +31874,11 @@ function renderTrd(){
   /* ① les images */
   /* trois lignes, les « = » l'un sous l'autre (la fiche « suite » de
      Turquet) : le produit à remplacer, le produit calculé, la somme */
+  const libre=trdLibre();
+  if(libre && !st.lignes) st.lignes=trdLignesInit();
+  if(libre) h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div>'
+    +'<p class="trd-consigne">Écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante.</p>'+trdLibreImagesHTML(q, st)+'</div>';
+  else {
   h+='<div class="trd-partie"><div class="trd-titre">1. Calcule les images de '+trdNb(q.x1)+' et de '+trdNb(q.x2)+'.</div><div class="trd-images">';
   [[q.x1,'1'],[q.x2,'2']].forEach(function(c){
     h+='<div class="trd-calc">'
@@ -31874,6 +31888,7 @@ function renderTrd(){
       +'</div>';
   });
   h+='</div></div>';
+  }
   /* ② les points, la règle, la droite */
   h+='<div class="trd-partie"><div class="trd-titre">2. Place le point A correspondant à '+fx(q.x1)+', puis le point B correspondant à '+fx(q.x2)+' ; construis ensuite la représentation graphique de <i>f</i>.</div>'
     +'<div class="trd-consigne" id="trdConsigne" aria-live="polite"></div>'
@@ -31888,6 +31903,8 @@ function renderTrd(){
     +'<div class="trd-ligne"><span class="trd-contenu">L’antécédent de '+K+' est : '+trdIn('trd-ag','l’antécédent de '+K+', lu sur le graphique')+'</span></div></div>';
   /* ④ l'équation, chaque ligne face à sa règle */
   const ax=trdAx(q.a);
+  if(libre) h+=trdLibreEquationHTML(q, st);
+  else
   h+='<div class="trd-partie"><div class="trd-titre">4. Détermine par le calcul l’antécédent de '+K+' par <i>f</i> : résous <i>f</i> (<i>x</i>) = '+K+'. Complète chaque ligne, et la règle écrite en face.</div>'
     /* quatre colonnes : le premier membre, le « = » (tous l'un sous
        l'autre), le second membre, et la règle en face — chaque règle sur
@@ -31904,9 +31921,10 @@ function renderTrd(){
   h+='</div>';
   /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
-    +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
+    +(libre ? '<p class="trd-consigne">La droite est redessinée : lis où elle coupe l’axe des abscisses — la racine, où <i>f</i> (<i>x</i>) = 0 —, puis si elle est au-dessus de l’axe (+) ou en dessous (−) de chaque côté.</p>'
+            : '<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>')
     +'<div class="itq-ineg trd-signe-titre">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
-    +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+trdSignesSVG(q)+'</div>'
+    +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+(libre?trdNueSVG(q):trdSignesSVG(q))+'</div>'
     +'<div class="itv-ligne trd-tab-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
     +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
@@ -31917,7 +31935,8 @@ function renderTrd(){
   /* les listes rangées dans l'état reviennent (une pause, un redessin) */
   Object.keys(st.sels).forEach(function(id){ const el=$(id); if(el && st.sels[id]) el.value=st.sels[id]; });
   trdGpFermer();
-  $('trdHost').querySelectorAll('input').forEach(function(el){
+  $('trdHost').querySelectorAll('input.trd-lin').forEach(trdLibreBrancher);
+  $('trdHost').querySelectorAll('input:not(.trd-lin)').forEach(function(el){
     if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
     el.addEventListener('input', function(){ if(el.id==='trd-e2') trdMiroir(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); trdEntree(el); } });
@@ -32073,6 +32092,8 @@ const TRD_NOMS={'trd-x1':'le nombre remplacé dans f(x₁)','trd-p1':'le produit
   'trd-e5':'x (ligne 5)','trd-s0':'le signe avant la racine','trd-s1':'le signe après la racine'};
 function trdCases(q){
   const xk=trdXk(q);
+  if(trdLibre()) return [{id:'trd-regle', val:'droite', liste:true}, {id:'trd-ag', val:xk}, {id:'trd-rac', val:trdRacine(q), nb:true},
+    {id:'trd-s0', val:q.a<0?'+':'-', liste:true}, {id:'trd-s1', val:q.a<0?'-':'+', liste:true}];
   return [
     {id:'trd-x1', val:q.x1}, {id:'trd-p1', val:q.a*q.x1}, {id:'trd-y1', val:trdF(q,q.x1)},
     {id:'trd-x2', val:q.x2}, {id:'trd-p2', val:q.a*q.x2}, {id:'trd-y2', val:trdF(q,q.x2)},
@@ -32095,6 +32116,7 @@ function trdCheck(q){
     const aff=c.liste ? c.val : c.nb ? trdNb(c.val) : (c.terme && c.val>0 ? '+'+c.val : numFmt(c.val));
     return {id:c.id, el:el, val:c.val, aff:aff, ok:ok, vide:vide};
   });
+  if(trdLibre()) [].push.apply(subs, trdLibreSubs(q));
   const nCorrect=subs.filter(function(s){ return s.ok; }).length;
   return {subs:subs, nCorrect:nCorrect, nTotal:subs.length, allOk:nCorrect===subs.length};
 }
@@ -32104,7 +32126,7 @@ function trdGrapheFini(st){ return st.etape==='fin'; }
 function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
-  trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
+  trdCheck(q).subs.forEach(function(s){ if(s.ligne){ trdLignePeindreLive(s); return; } if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
   trdMiroir();
 }
 function trdPourquoi(q){
@@ -32133,14 +32155,16 @@ function submitTrd(){
   const fini=trdGrapheFini(st);
   const parfait=res.allOk && fini;
   if(isSoutien() && !(res.allOk && fini)){
-    res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+    trdCorriger(res.subs, false);
     trdMiroir();
     /* les cases qui manquent (et qu'on voit) s'entourent de rouge — demande de
        Turquet ; la classe n'est pas « bad » : rien n'y est faux */
     let manque=0;
     res.subs.forEach(function(s){ if(s.el && s.vide && s.el.getClientRects().length){ s.el.classList.add('trd-manque'); manque++; } });
     soutienAgain('trdFeedback','trdActions','submitTrd','trdHost');
+    const inacheve=res.subs.filter(function(s){ return s.fin && !s.ok; }).map(function(s){ return s.bloc==='eq'?'la résolution, jusqu’à x = …':'le calcul de '+s.nom.replace('le résultat de ',''); });
     if(manque) $('trdFeedback').textContent=($('trdHost').querySelector('.bad')?'Corrige les cases en rouge, et complète celles entourées de rouge, puis revérifie.':'Complète les cases entourées de rouge, puis revérifie.');
+    if(inacheve.length && !manque && !$('trdHost').querySelector('.bad')) $('trdFeedback').textContent='Va jusqu’au bout : '+inacheve.join(' ; ')+' — la dernière ligne doit être le résultat seul.';
     requestAnimationFrame(trdFleches);
     if(!fini) $('trdFeedback').textContent='Termine d’abord le graphique : '+(st.etape==='points'?'place les points A et B':st.etape==='regle'?'complète la règle':'trace la droite')+(manque?' ; et complète les cases entourées de rouge':'')+', puis revérifie.';
     return;
@@ -32151,7 +32175,7 @@ function submitTrd(){
   if(!fini) st.corrige=true;
   trdDessiner(false);
   if(!fini){ $('trdRegleL').hidden=false; $('trdSuite').hidden=false; }
-  res.subs.forEach(function(s){ if(s.el) s.el.classList.remove('trd-manque'); corrChoix(s.el, s.aff, s.ok); });
+  trdCorriger(res.subs, true);
   trdMiroir();
   requestAnimationFrame(trdFleches);
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
@@ -32165,12 +32189,291 @@ function submitTrd(){
   test.answers.push({...(ptsExo()||{}), correct:parfait,
     q:'f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+' — '+res.nCorrect+'/'+res.nTotal+' cases justes'+(st.err[0]+st.err[1]?' ; '+(st.err[0]+st.err[1])+' point(s) mal placé(s)':'')+(fini?'':' ; graphique inachevé'),
     answer:'A('+q.x1+' ; '+trdF(q,q.x1)+'), B('+q.x2+' ; '+trdF(q,q.x2)+'), antécédent de '+q.k+' : '+trdXk(q),
-    given:res.subs.map(function(s){ return (TRD_NOMS[s.id]||s.id)+' : '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; '),
+    given:res.subs.filter(function(s){ return !s.fin; }).map(function(s){ return (s.nom||TRD_NOMS[s.id]||s.id)+' : '+(s.vide?'?':trdLu(s)); }).join(' ; '),
     type:'trd'});
   const last=test.idx===test.questions.length-1;
   $('trdActions').innerHTML='<button class="btn btn-primary" id="trdNext" type="button" onclick="nextTrdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('trdNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
+/* ===== 6.4 {tracer-droite-libre} : LE 6.3, LES CALCULS RÉDIGÉS ==============
+   Demande de Turquet (novembre 2026) : « faire un exercice comme le 6.3 en
+   première mais les élèves doivent écrire leur calcul dans la 1re question
+   dans un champ de saisie par image ; quand on appuie sur Entrée, afficher le
+   signe égal au début de la nouvelle ligne, aligné verticalement avec le
+   premier signe = de la ligne du dessus. Pour la question 4, écrire la
+   première ligne de calcul et en dessous afficher une case suivie de = et
+   d'une autre case, avec le signe = aligné verticalement avec celui du
+   dessus ; quand un élève appuie sur Entrée, afficher une autre ligne en
+   dessous exactement comme celle d'avant. On acceptera toute équation
+   équivalente pour chaque ligne. Dans la question 5, on ne tracera que la
+   droite, sans les signes et les couleurs et sans le point vert. »
+   LE MÊME MOTEUR que le 6.3 (kind « trd ») — tirage, repère, points, règle,
+   chemin animé, tableau de signes — sous une AUTRE identité
+   (test.qId = 'tracer-droite-libre') : trdLibre() la lit, et seules les
+   questions 1, 4 et 5 changent.
+   · ① une case de TEXTE par ligne (« f (2) = [ … ] ») ; Entrée sur la
+     dernière ligne remplie ouvre la suivante, « = [ … ] », les « = » dans
+     la même colonne de la grille ; ⌫ dans une ligne vide la retire. Chaque
+     ligne est JUGÉE : un calcul dont la valeur est f (x) est juste
+     (trdLin, un petit lecteur : nombres, ×, ÷, *, /, +, −, parenthèses) ;
+     le calcul est FINI quand sa dernière ligne est un nombre seul.
+   · ④ la première ligne écrite par la page (« ax + b = k »), puis des
+     lignes « [ … ] = [ … ] » ; une ligne est juste si c'est une équation du
+     premier degré ÉQUIVALENTE — même solution unique (trdLin lit aussi x,
+     et 2x, 3(x + 1)…) ; le calcul est fini quand une ligne s'écrit
+     « x = nombre » (ou « nombre = x »). Plus de règles à choisir ni de
+     flèches : la demande ne garde que les lignes.
+   · ⑤ la droite seule (trdNueSVG) : ni couleurs, ni signes, ni point vert.
+   Les lignes vivent dans l'état de la question (test.trdE.lignes) : elles
+   partent avec la pause et reviennent avec elle. Une ligne ajoutée et
+   laissée vide n'est pas une réponse (data-facultatif : la boîte des cases
+   vides ne la réclame pas, le juge l'ignore). La correction : une ligne
+   juste en bleu, fausse en rouge ; un calcul qui ne va pas au bout reçoit
+   sa dernière ligne en VERT (le résultat, ou « x = … ») ; une première
+   ligne vide est remplie en vert par le calcul type. La touche Entrée est
+   prise sur la FENÊTRE, en capture, avant la porte commune des cases vides
+   (#confirmer-vides) — qui, dans la dernière case visible de l'écran,
+   aurait ouvert sa boîte au lieu d'ouvrir une ligne. */
+function trdLibre(){ return typeof test!=='undefined' && test.qId==='tracer-droite-libre'; }
+const TRD_PAVE_NB=' inputmode="numeric" data-pave-plus="× ÷ + ( )"';
+const TRD_PAVE_X=' inputmode="numeric" data-pave-plus="x × ÷ + ( )"';
+function trdLignesInit(){ return {i1:[''], i2:[''], eq:[['','']]}; }
+/* un calcul écrit, lu comme une expression du premier degré a·x + b ; null si
+   illisible (ou si x est multiplié par x, ou divisé) */
+function trdLinTexte(s, avecX){
+  let t=String(s==null?'':s).replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/[×·*]/g,'*').replace(/[÷:]/g,'/').replace(/,/g,'.');
+  if(avecX) t=t.replace(/X/g,'x');
+  return t;
+}
+function trdLin(s, avecX){
+  const t=trdLinTexte(s, avecX); if(t==='') return null;
+  let i=0;
+  const peek=function(){ return t[i]; };
+  const chiffre=function(c){ return c!==undefined && /[0-9.]/.test(c); };
+  const mul=function(p,q){ if(!p||!q) return null; if(p.a!==0 && q.a!==0) return null; return {a:p.a*q.b+q.a*p.b, b:p.b*q.b}; };
+  const div=function(p,q){ if(!p||!q||q.a!==0||q.b===0) return null; return {a:p.a/q.b, b:p.b/q.b}; };
+  let expr;
+  const facteur=function(){
+    const c=peek();
+    if(c==='+'){ i++; return facteur(); }
+    if(c==='-'){ i++; const f=facteur(); return f && {a:-f.a, b:-f.b}; }
+    if(c==='('){ i++; const e=expr(); if(!e || peek()!==')') return null; i++; return e; }
+    if(c==='x' && avecX){ i++; return {a:1, b:0}; }
+    if(chiffre(c)){ const m=/^\d+(\.\d+)?|^\.\d+/.exec(t.slice(i)); if(!m) return null; i+=m[0].length; return {a:0, b:parseFloat(m[0])}; }
+    return null;
+  };
+  const terme=function(){
+    let v=facteur(); if(!v) return null;
+    for(;;){
+      const c=peek();
+      if(c==='*'){ i++; v=mul(v, facteur()); }
+      else if(c==='/'){ i++; v=div(v, facteur()); }
+      else if(c==='(' || (c==='x' && avecX) || chiffre(c)){ v=mul(v, facteur()); }   /* « 2x », « 2(x + 1) » */
+      else break;
+      if(!v) return null;
+    }
+    return v;
+  };
+  expr=function(){
+    let v=terme(); if(!v) return null;
+    while(peek()==='+' || peek()==='-'){ const op=t[i++]; const w=terme(); if(!w) return null; v= op==='+' ? {a:v.a+w.a, b:v.b+w.b} : {a:v.a-w.a, b:v.b-w.b}; }
+    return v;
+  };
+  const r=expr();
+  return (r && i===t.length) ? r : null;
+}
+function trdNombreSeul(s){ return /^-?(\d+(\.\d+)?|\.\d+)$/.test(trdLinTexte(s, false)); }
+function trdLigneEquivalente(g, d, xk){
+  const G=trdLin(g, true), D=trdLin(d, true); if(!G || !D) return false;
+  const p=G.a-D.a, c=D.b-G.b;
+  return Math.abs(p)>1e-12 && Math.abs(c/p-xk)<1e-9;
+}
+function trdLigneFinale(g, d){
+  const x=function(s){ return trdLinTexte(s, true)==='x'; };
+  return (x(g) && trdNombreSeul(d)) || (x(d) && trdNombreSeul(g));
+}
+/* le calcul type, pour une première ligne laissée vide */
+function trdModeleImage(q, x){ return trdNb(q.a)+' × '+trdPar(x)+(q.b<0?' − '+Math.abs(q.b):' + '+q.b); }
+/* ---- les lignes à l'écran ---- */
+function trdLinIn(id, v, aria, i, avecX){
+  return '<input type="text" id="'+id+'" class="lv-in trd-lin'+(avecX?' trd-lin-x':'')+'" value="'+esc(v||'')+'"'+(avecX?TRD_PAVE_X:TRD_PAVE_NB)
+    +(i>0?' data-facultatif="1"':'')+' autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'">';
+}
+function trdLibreBlocLignes(q, st, key){
+  const L=st.lignes[key];
+  if(key==='eq'){
+    let h='<span class="trd-g">'+trdExpr(q)+'</span><span class="trd-eg">=</span><span class="trd-dr">'+trdNb(q.k)+'</span>';
+    L.forEach(function(r,i){
+      h+='<span class="trd-g">'+trdLinIn('trd-l-eq-'+i+'-g', r[0], 'ligne '+(i+2)+' de l’équation, membre de gauche', i, true)+'</span>'
+        +'<span class="trd-eg">=</span><span class="trd-dr">'+trdLinIn('trd-l-eq-'+i+'-d', r[1], 'ligne '+(i+2)+' de l’équation, membre de droite', i, true)+'</span>';
+    });
+    return h;
+  }
+  const x=key==='i1'?q.x1:q.x2;
+  return L.map(function(v,i){
+    return '<span class="trd-g">'+(i===0?'<i>f</i> ('+trdNb(x)+')':'')+'</span><span class="trd-eg">=</span><span class="trd-dr">'
+      +trdLinIn('trd-l-'+key+'-'+i, v, (i===0?'le calcul de f ('+trdNb(x)+')':'ligne '+(i+1)+' du calcul de f ('+trdNb(x)+')'), i, false)+'</span>';
+  }).join('');
+}
+function trdLibreImagesHTML(q, st){
+  return '<div class="trd-images">'+[['i1'],['i2']].map(function(c){ return '<div class="trd-calc trd-libre" id="trdBloc-'+c[0]+'">'+trdLibreBlocLignes(q, st, c[0])+'</div>'; }).join('')+'</div>';
+}
+function trdLibreEquationHTML(q, st){
+  const K=trdNb(q.k);
+  return '<div class="trd-partie"><div class="trd-titre">4. Détermine par le calcul l’antécédent de '+K+' par <i>f</i> : résous <i>f</i> (<i>x</i>) = '+K+'.</div>'
+    +'<p class="trd-consigne">Écris une équation par ligne, chacune équivalente à celle du dessus, jusqu’à <i>x</i> = … — la touche Entrée ouvre la ligne suivante.</p>'
+    +'<div class="trd-images"><div class="trd-calc trd-libre trd-libre-eq" id="trdBloc-eq">'+trdLibreBlocLignes(q, st, 'eq')+'</div></div></div>';
+}
+/* la droite seule, pour la question 5 : ni couleurs, ni signes, ni point vert */
+function trdNueSVG(q){
+  return '<svg viewBox="0 0 '+TRD_G.W+' '+TRD_G.H+'" xmlns="http://www.w3.org/2000/svg" class="lv-svg" role="img" aria-label="la droite seule">'+trdGrille()+trdLigne(q,'trd-droite-nue')+'</svg>';
+}
+function trdLibreId(id){ const m=/^trd-l-(i1|i2|eq)-(\d+)(?:-(g|d))?$/.exec(id||''); return m ? {key:m[1], r:+m[2], cote:m[3]||null} : null; }
+/* le « - » tapé s'écrit « − », le vrai signe moins (le curseur reste en place) */
+function trdLibreMoins(el){
+  if(el.value.indexOf('-')<0) return;
+  const p=el.selectionStart; el.value=el.value.replace(/-/g,'−');
+  try{ el.setSelectionRange(p,p); }catch(e){}
+}
+function trdLibreBrancher(el){
+  el.addEventListener('input', function(){ trdLibreMoins(el); trdLibreLire(el); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
+}
+function trdLibreLire(el){
+  const st=trdEtat(), p=trdLibreId(el.id); if(!p || !st.lignes) return;
+  const L=st.lignes[p.key]; if(L[p.r]===undefined) return;
+  if(p.key==='eq') L[p.r][p.cote==='g'?0:1]=el.value; else L[p.r]=el.value;
+}
+function trdLibreRedessiner(key, focusId){
+  const q=test.questions[test.idx], st=trdEtat(), b=$('trdBloc-'+key); if(!b) return;
+  b.innerHTML=trdLibreBlocLignes(q, st, key);
+  b.querySelectorAll('input.trd-lin').forEach(trdLibreBrancher);
+  trdLive();
+  if(focusId){ const f=$(focusId); if(f) setTimeout(function(){ try{ f.focus(); const n=f.value.length; f.setSelectionRange(n,n); }catch(e){} },0); }
+  clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,800);
+}
+/* la case suivante de l'écran (sans jamais vérifier : Entrée dans une ligne
+   vide n'est pas un « j'ai fini ») */
+function trdLibreSuivant(el){
+  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && !e.readOnly && e.getClientRects().length && !e.classList.contains('hors-note'); });
+  const i=l.indexOf(el); if(i>=0 && i<l.length-1){ try{ l[i+1].focus(); }catch(e){} }
+}
+function trdLibreTouche(el, e){
+  const p=trdLibreId(el.id); if(!p) return;
+  const st=trdEtat(); if(!st.lignes) return;
+  const L=st.lignes[p.key];
+  if(e.key==='Enter'){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(test.locked) return;
+    if(p.key==='eq' && p.cote==='g'){ const d=$('trd-l-eq-'+p.r+'-d'); if(d) d.focus(); return; }
+    if(p.r<L.length-1){ const n=$(p.key==='eq' ? 'trd-l-eq-'+(p.r+1)+'-g' : 'trd-l-'+p.key+'-'+(p.r+1)); if(n) n.focus(); return; }
+    const plein = p.key==='eq' ? (String(L[p.r][0]).trim()!=='' && String(L[p.r][1]).trim()!=='') : String(L[p.r]).trim()!=='';
+    if(!plein){ trdLibreSuivant(el); return; }
+    L.push(p.key==='eq' ? ['',''] : '');
+    trdLibreRedessiner(p.key, p.key==='eq' ? 'trd-l-eq-'+(p.r+1)+'-g' : 'trd-l-'+p.key+'-'+(p.r+1));
+    return;
+  }
+  if(e.key==='Backspace' && !el.value && p.r>0 && !test.locked){
+    if(p.key==='eq' && p.cote==='d'){ e.preventDefault(); const g=$('trd-l-eq-'+p.r+'-g'); if(g) g.focus(); return; }
+    const vide = p.key==='eq' ? (!String(L[p.r][0]).trim() && !String(L[p.r][1]).trim()) : true;
+    if(vide && p.r===L.length-1){
+      e.preventDefault(); L.pop();
+      trdLibreRedessiner(p.key, p.key==='eq' ? 'trd-l-eq-'+(p.r-1)+'-d' : 'trd-l-'+p.key+'-'+(p.r-1));
+    }
+  }
+}
+window.addEventListener('keydown', function(e){
+  const t=e.target; if(!t || !t.classList || !t.classList.contains('trd-lin')) return;
+  if(e.key==='Enter' || e.key==='Backspace') trdLibreTouche(t, e);
+}, true);
+/* ---- le juge des lignes ---- */
+function trdLibreSubs(q){
+  const st=trdEtat(), L=st.lignes || trdLignesInit(), out=[];
+  [['i1',q.x1],['i2',q.x2]].forEach(function(c){
+    const fx=trdF(q,c[1]); let derniere=null;
+    L[c[0]].forEach(function(v,r){
+      const s=String(v||'').trim(); if(!s && r>0) return;
+      const val=trdLin(s,false), ok=!!val && val.a===0 && Math.abs(val.b-fx)<1e-9;
+      out.push({id:'trd-l-'+c[0]+'-'+r, el:$('trd-l-'+c[0]+'-'+r), ligne:true, ok:ok, vide:!s, aff:trdModeleImage(q,c[1]),
+                nom:'ligne '+(r+1)+' du calcul de f('+c[1]+')'});
+      if(s) derniere={s:s, ok:ok};
+    });
+    const fin=!!derniere && derniere.ok && trdNombreSeul(derniere.s);
+    out.push({id:'trd-l-'+c[0]+'-fin', el:$('trd-l-'+c[0]+'-fin'), ligne:true, fin:true, bloc:c[0], ok:fin, vide:false, aff:trdNb(fx),
+              nom:'le résultat de f('+c[1]+')'});
+  });
+  const xk=trdXk(q); let fini=false;
+  L.eq.forEach(function(r,i){
+    const g=String(r[0]||'').trim(), d=String(r[1]||'').trim(); if(!g && !d && i>0) return;
+    const ok=!!g && !!d && trdLigneEquivalente(g,d,xk);
+    out.push({id:'trd-l-eq-'+i+'-g', el:$('trd-l-eq-'+i+'-g'), el2:$('trd-l-eq-'+i+'-d'), ligne:true, ok:ok, vide:!g && !d,
+              aff:trdNb(q.a)+'x', aff2:trdNb(q.k)+(q.b>0?' − '+q.b:' + '+Math.abs(q.b)), nom:'ligne '+(i+2)+' de l’équation'});
+    fini = ok && trdLigneFinale(g,d);
+  });
+  out.push({id:'trd-l-eq-fin', el:$('trd-l-eq-fin'), ligne:true, fin:true, bloc:'eq', ok:fini, vide:false, aff:trdNb(xk), nom:'la dernière ligne x = …'});
+  return out;
+}
+/* soutien : chaque ligne écrite se colore au fil de la frappe */
+function trdLignePeindreLive(s){
+  if(s.fin) return;
+  [s.el, s.el2].forEach(function(el){ if(!el || el.disabled) return; el.classList.remove('ok','bad'); if(String(el.value).trim()){ el.classList.add(s.ok?'ok':'bad'); el.classList.remove('trd-manque'); } });
+}
+function trdLibreAjoutSol(s){
+  const b=$('trdBloc-'+s.bloc); if(!b || $(s.id)) return;
+  const mk=function(id,v,aria){ return '<input type="text" id="'+id+'" class="lv-in trd-lin-sol sol" value="'+esc(v)+'" readonly disabled aria-label="'+esc(aria)+'">'; };
+  if(s.bloc==='eq') b.insertAdjacentHTML('beforeend','<span class="trd-g">'+mk(s.id,'x','correction : x')+'</span><span class="trd-eg">=</span><span class="trd-dr">'+mk(s.id+'-d',s.aff,'correction : la valeur de x')+'</span>');
+  else b.insertAdjacentHTML('beforeend','<span class="trd-g"></span><span class="trd-eg">=</span><span class="trd-dr">'+mk(s.id,s.aff,'correction : le résultat')+'</span>');
+  s.el=$(s.id);
+}
+function trdLigneCorriger(s, final){
+  const sout=isSoutien();
+  if(s.fin){ if(!s.ok && final && !sout) trdLibreAjoutSol(s); return; }
+  const els=[s.el, s.el2].filter(Boolean);
+  if(s.vide){
+    if(sout) return;
+    els.forEach(function(el,i){ el.value = i===0 ? s.aff : s.aff2; el.classList.remove('ok','bad'); el.classList.add('sol'); el.disabled=true; });
+    return;
+  }
+  els.forEach(function(el){ el.classList.remove('ok','bad','sol'); if(!String(el.value).trim()) return; el.classList.add(s.ok?'ok':'bad'); el.disabled = !sout; });
+}
+/* la correction de toutes les cases : les lignes par leur juge, le reste par corrChoix */
+function trdCorriger(subs, final){
+  subs.forEach(function(s){
+    if(final && s.el) s.el.classList.remove('trd-manque');
+    if(s.ligne) trdLigneCorriger(s, final); else corrChoix(s.el, s.aff, s.ok);
+  });
+  if(final) document.querySelectorAll('#trdHost input.trd-lin').forEach(function(el){ el.disabled=true; });
+}
+function trdLu(s){
+  if(!s.el) return '?';
+  return s.el2 ? String(s.el.value).trim()+' = '+String(s.el2.value).trim() : String(s.el.value).trim();
+}
+function startTrdLibre(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=trdTirage(dmNbQuestions(TRD_NB));
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'trd', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.qId='tracer-droite-libre';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('trd'); renderTrd();
+}
+/* le contexte envoyé au modèle, pour le 6.4 */
+function ctxTrdLibre(q){
+  const st=trdEtat(), res=trdCheck(q), xk=trdXk(q);
+  const ecrit=[];
+  res.subs.forEach(function(s){
+    if(s.fin || !s.el || s.el.closest('[hidden]') || s.vide) return;
+    ecrit.push((s.nom||TRD_NOMS[s.id]||s.id)+' : « '+trdLu(s)+' » '+(s.ok?'(juste)':'(FAUSSE)'));
+  });
+  const c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée.'
+    +' Questions : 1. calculer f('+q.x1+') et f('+q.x2+') en RÉDIGEANT le calcul, une étape par ligne (« f(x) = … », puis « = … » à chaque ligne), jusqu’au résultat seul ; 2. placer A et B, puis compléter la règle « la représentation graphique d’une fonction du premier degré est … » (une droite : la droite se trace) ; 3. lire graphiquement l’antécédent de '+q.k+' sur un chemin en pointillés animé ; 4. résoudre f(x) = '+q.k+' en écrivant une équation par ligne, chacune équivalente à la précédente, jusqu’à x = … ; 5. compléter le tableau de signes (racine, puis signes) en lisant la droite redessinée seule.'
+    +' Étape du graphique : '+st.etape+'.'
+    +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
+    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; une droite ; l’antécédent de '+q.k+' est '+xk+' ; la racine est '+trdNb(trdRacine(q))+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
+    +' Méthode enseignée : remplacer x par le nombre (entre parenthèses), calculer le produit puis la somme ; pour l’équation, transposer le terme constant en prenant son opposé, puis diviser par le coefficient de x en gardant son signe.';
+  return {nombre:'', contexte:c};
+}
+
 function nextTrdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTrd(); autoSave(); } else finishTest(); }
 /* Le contexte envoyé au modèle : la fonction, ce que montre l'écran, l'étape,
    ce que l'élève a écrit, les attendus sous la clause de secret, la méthode. */
@@ -32313,7 +32616,7 @@ const RAP_FPB=`<b>Fréquences, puis probabilités, dans un tableau d’effectifs
 <b>En probabilités.</b> On choisit une pièce au hasard : sa probabilité est la fréquence. \\(P(A\\cap D)=\\dfrac{A\\cap D}{\\text{tout}}\\) (« et », sans condition) ; \\(P_D(A)=\\dfrac{A\\cap D}{D}\\) (« sachant que », « parmi » : la condition s’écrit en indice).<br>
 <b>Une intersection.</b> « Provenant de A ET présentant un défaut » : on compte \\(A\\cap D\\) dans toute la production, \\(\\dfrac{A\\cap D}{\\text{effectif total}}\\) — aucun « parmi », le dénominateur reste le total.<br>
 Piège classique : diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle — le dénominateur est l’effectif du groupe où l’on se place.`;
-const RAPPELS_ID={ 'tracer-droite':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -32852,7 +33155,7 @@ function conseilCtxCourant(){
   if(k==='pqd' && q) att=q.redac ? sfrCtxTexte(q) : ctxPqd(q).contexte;
   if(k==='rpd' && q) att=ctxRpd(q).contexte;
   if(k==='ima' && q) att=ctxIma(q).contexte;
-  if(k==='trd' && q) att=ctxTrd(q).contexte;
+  if(k==='trd' && q) att=(trdLibre()?ctxTrdLibre(q):ctxTrd(q)).contexte;
   if(k==='sui' && q) att=ctxSui(q).contexte;
   if(k==='dvl' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvl(q).contexte;
   if(k==='dvd' && q) att=q.redac ? sfrCtxTexte(q) : ctxDvd(q).contexte;
