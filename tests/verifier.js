@@ -4911,6 +4911,7 @@ function exercices(suite){
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
+    pythonBoitesMemoire(w, P);
     pythonPhrasesMemoire(w, P);
     pythonPasAPasChaine(w, P);
     pythonEchangerParLettres(w, P);
@@ -4925,6 +4926,7 @@ function exercices(suite){
     serpentsHalloween(w, P);
     pythonInput(w, P);
     augmentationTableau(w, P);
+    retenueRedescend(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
@@ -5114,7 +5116,7 @@ function mineursFonctionsPython(w, P){
       const lig=function(q){ return q.lignes.map(function(l){ return l.nom+' = '+l.expr; }); };
       const tires={'python-pas-a-pas':papBuildQuestions, 'python-valeur-case':pvmBuildQuestions, 'python-pas-a-pas-calcul':ppcBuildQuestions,
         'python-pas-a-pas-chaine':ppdBuildQuestions, 'python-echange-variables':pevBuildQuestions, 'python-pas-a-pas-multiplication':ppmBuildQuestions,
-        'python-phrases-memoire':pphBuildQuestions};
+        'python-phrases-memoire':pphBuildQuestions, 'python-boites-memoire':pbmBuildQuestions};
       const lus={
         'python-echange-par-lettres':function(){ const r=[]; for(let t=0;t<300;t++) pelBuildQuestions().forEach(function(q){ r.push(['a = '+q.a,'b = '+q.b]); }); return r; },
         'python-x-plus-pas-a-pas':function(){ return PWX_SITS.map(function(S){ return S.l; }); },
@@ -36794,6 +36796,37 @@ function pythonInputSport(w, P){
    (copie juste, vide, fausse ; la case juste ne rougit pas pour sa voisine),
    le soutien (rouge sans verrou ni réponse, puis la reprise d'une pause qui
    remet les miroirs) et les branchements. */
+/* ---- La retenue du haut redescend toute seule, dans TOUTE soustraction
+   posée (buildPoseSub) — demande de Turquet, novembre 2026, pour tout le
+   niveau Première. Le script #retenue-redescend tient la règle pour toutes
+   les poses construites par buildPoseSub : on en construit une (42 − 17, un
+   emprunt aux unités), on écrit en haut, on relit en bas. ---- */
+function retenueRedescend(w, P){
+  if(!P.augmentationTableau){ ignorer('la retenue écrite en haut d’une soustraction posée redescend seule en « +1 »', 'demande faite pour la Première'); return; }
+  verifierEval(w, 'dans toute soustraction posée (buildPoseSub), la retenue écrite en haut redescend seule en « +1 » dans la colonne suivante : la case du bas recopie la valeur écrite (juste ou non), s’efface avec elle, ne se tape pas, et le focus qui y arrive passe à la case suivante', `(function(){
+    if(typeof buildPoseSub!=='function') return 'pas de buildPoseSub';
+    if(!document.getElementById('retenue-redescend')) return 'pas de script #retenue-redescend';
+    const vus=[]; const d=document.createElement('div'); d.innerHTML=buildPoseSub(42,17,'__ret_tmp'); document.body.appendChild(d);
+    const op=d.querySelector('.mp-op'), haut=op.querySelector('input.sub-ret'), bas=op.querySelector('input.sub-retb');
+    /* la case suivante dans l'ORDRE DE SAISIE (data-mtab), pas dans l'ordre du document : les unités, écrites à droite, viennent avant les dizaines */
+    const res=bas?[].slice.call(op.querySelectorAll('input')).filter(function(i){ return !i.readOnly && +i.dataset.mtab>+bas.dataset.mtab; }).sort(function(a,b){ return a.dataset.mtab-b.dataset.mtab; })[0]:null;
+    if(!haut||!bas) vus.push('42 − 17 : pas de retenue en haut ('+!!haut+') ou en bas ('+!!bas+')');
+    else {
+      if(!bas.readOnly) vus.push('la case du bas se tape encore');
+      if(haut.dataset.ret!==bas.dataset.ret) vus.push('haut et bas ne sont pas appariés ('+haut.dataset.ret+' / '+bas.dataset.ret+')');
+      haut.value='1'; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='1') vus.push('le 1 écrit en haut ne redescend pas (bas : « '+bas.value+' »)');
+      haut.value='7'; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='7') vus.push('le miroir corrige au lieu de recopier (bas : « '+bas.value+' » pour 7)');
+      haut.value=''; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='') vus.push('la retenue effacée en haut reste en bas (« '+bas.value+' »)');
+      bas.focus();
+      if(document.activeElement===bas) vus.push('le focus reste parqué sur la case du bas');
+      else if(res && document.activeElement!==res) vus.push('le focus ne passe pas à la case suivante de la pose');
+    }
+    d.remove(); return vus.join(' | ');
+  })()`, v => v === '');
+}
 function augmentationTableau(w, P){
   const nom = '{augmentation-tableau} : tableau, valeur au bout de N pas, pas du seuil — un seul chiffre non nul partout';
   if(!P.augmentationTableau){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la fiche « augmentation tableau »'); return; }
@@ -36814,12 +36847,16 @@ function augmentationTableau(w, P){
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
   verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 40 à 90 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
-    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100];
+    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
+      /* les contextes à dates ne commencent pas forcément le 1er (Turquet, novembre 2026) : j0 tiré, et la question 3 reste dans le mois */
+      qs.forEach(function(q){ const c=SUI_CTX[q.ci]; if(c.tps.type!=='date') return; j0s.add(q.j0||1); const v=suiVals(q);
+        if(!(q.j0>=1&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 1 à 20)");
+        if(v.fin>30) vus.push(c.nom+" : le "+v.fin+" "+c.tps.mois+" n’existe pas"); });
       /* le pas selon le rang de l'exemple (Turquet, novembre 2026) : 10 à 30, puis 40 à 90 */
       const r1=suiVals(qs[0]).rAbs; if(r1>30) vus.push("le premier exemple ajoute ou retire "+r1+" : attendu 10, 20 ou 30");
       if(qs[3]){ const r2=suiVals(qs[3]).rAbs; if(r2<40||r2>90) vus.push("le deuxième exemple ajoute ou retire "+r2+" : attendu de 40 à 90"); }
@@ -36833,6 +36870,13 @@ function augmentationTableau(w, P){
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
       });
     }
+    if(j0s.size<3) vus.push("les dates commencent toujours le "+[...j0s].join(", ")+" : le jour de départ n’est pas tiré");
+    { const q=suiBuildQuestions(6).find(function(x){ return SUI_CTX[x.ci].tps.type==='date'; });
+      if(q){ Object.assign(q,{j0:5, part:3}); const v=suiVals(q), c=SUI_CTX[q.ci];
+        if(c.intro("1","1",suiMomentHTML(c,0,v.j0)).indexOf("Le 5 "+c.tps.mois)<0) vus.push("l’énoncé n’écrit pas le jour tiré : "+c.intro("1","1",suiMomentHTML(c,0,v.j0)).slice(0,40));
+        if(c.p3("1","1",suiMomentHTML(c,0,v.j0),v.j0).join("").indexOf("le 5 + [k]")<0) vus.push("la phrase de la question 3 n’écrit pas « le 5 + [k] »");
+        if(suiMoment(c,v.kk,v.j0)!==(5+q.p)+" "+c.tps.mois||v.fin!==5+q.p) vus.push("le moment du seuil ne part pas du jour tiré : "+suiMoment(c,v.kk,v.j0)+", fin "+v.fin);
+        if(suiMomentHTML(c,0,1)!=="1<sup>er</sup> "+c.tps.mois) vus.push("le 1er du mois a perdu son « er »"); } }
     SUI_CTX.forEach(function(c){ if(!suiFamilles(c).length) vus.push(c.nom+" : aucune combinaison possible"); });
     if(SUI_CTX.length<4) vus.push("moins de quatre contextes");
     if(SUI_CTX.some(function(c){ return /€|euro|argent|salaire|banque|prix/i.test(c.intro(1,1)); })) vus.push("un contexte parle d’argent");
@@ -41545,7 +41589,10 @@ function pythonVariablesComplements(w, P){
     const ids1=Object.keys(KS).filter(function(k){ return KS[k][1]===1; }).map(function(k){ return KS[k][0]; });
     const ids2=Object.keys(KS).filter(function(k){ return KS[k][1]===2; }).map(function(k){ return KS[k][0]; });
     if(s1.ids.slice(-ids1.length).join(",")!==ids1.join(",")||s1.ids[s1.ids.length-ids1.length-1]!=="python-chaines") vus.push("6.1 : "+s1.ids.join(","));
-    if(s2.ids.slice(-ids2.length).join(",")!==ids2.join(",")||s2.ids[s2.ids.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
+    /* les exercices ajoutés APRÈS le bloc (au bout du 6.2) sont déclarés : le bloc reste d'un seul tenant, et rien d'autre ne le suit */
+    const apres2=${JSON.stringify(C.apres2||[])}, ids2b=s2.ids.slice(0, s2.ids.length-apres2.length);
+    if(s2.ids.slice(s2.ids.length-apres2.length).join(",")!==apres2.join(",")) vus.push("6.2 se termine autrement que par "+apres2.join(",")+" : "+s2.ids.join(","));
+    if(ids2b.slice(-ids2.length).join(",")!==ids2.join(",")||ids2b[ids2b.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
     ids1.forEach(function(id, i){ if(TEST_NUM[id]!=="6.1."+(15+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
     ids2.forEach(function(id, i){ if(TEST_NUM[id]!=="6.2."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
     if(TEST_NUM["python-chaines"]!=="6.1.14"||TEST_NUM["python-programme-calcul"]!=="6.2.9"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
@@ -59430,6 +59477,107 @@ function pythonPhrasesMemoire(w, P){
     e0.value=pphAttendu(q, cs[0]); checkPPH();
     if(test.score!==cs.length||!test.pphVerdict) vus.push("soutien : corrigee, la question ne passe pas (score "+test.score+")");
     return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-boites-memoire} (Seconde, 6.2.24, novembre 2026) : le programme du
+   6.2.1 à côté de BOÎTES ; l'élève clique la boîte qui va recevoir la valeur,
+   « Exécuter la ligne n° k » juge puis anime. L'animation n'est qu'une image
+   (jsdom n'a pas Element.animate) : tout ce qui suit se lit dans l'état et
+   dans l'écran rendu. Journal 06, « {python-boites-memoire} ». */
+function pythonBoitesMemoire(w, P){
+  const nom = '{python-boites-memoire} : les boîtes de la mémoire';
+  if(!P.pythonBoitesMemoire){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des boîtes de la mémoire'); return; }
+  const D = P.pythonBoitesMemoire, ID = D.exercice, NB = D.nb;
+  const present = evaluer(w, "typeof startPBM==='function' && typeof pbmBuildQuestions==='function' && typeof pbmExecuter==='function' && typeof pbmChoisir==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'startPBM / pbmBuildQuestions / pbmExecuter introuvables alors que tests/profils.js déclare l\'exercice'); return; }
+
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche a = 10 ; b = 2 ; c = b en tête avec ses boîtes a, b, c ; ensuite une boîte par variable, dans un ordre tiré, jamais de boîte x', `(function(){
+    const vus=[], ordres={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pbmBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length); break; }
+      if(papProg(qs[0]).split(String.fromCharCode(10)).join(" ; ")!=="a = 10 ; b = 2 ; c = b") vus.push("la premiere question n est pas la fiche : "+papProg(qs[0]));
+      if(pbmBoites(qs[0]).join(",")!=="a,b,c") vus.push("les boites de la fiche : "+pbmBoites(qs[0]).join(","));
+      qs.forEach(function(q, i){
+        const noms=q.lignes.map(function(l){ return l.nom; }), b=pbmBoites(q);
+        if(b.slice().sort().join(",")!==noms.slice().sort().join(",")) vus.push("les boites ne sont pas les variables : "+b.join(",")+" / "+noms.join(","));
+        if(noms.indexOf("x")>=0) vus.push("une boite x");
+        if(i>0) ordres[b.join(",")===noms.join(",")?"programme":"melange"]=1;
+      });
+    }
+    if(!ordres.melange) vus.push("les boites ne sont jamais melangees : la boite vide suivante est toujours la bonne");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le parcours en entraînement : sans boîte choisie rien n est jugé ; une boîte fausse se peint en rouge au bout de la ligne, la bonne en vert à côté, et le nombre entre quand même dans la BONNE boîte ; la copie c = b laisse 2 dans b ; la fin compte une case par ligne', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const vus=[], q=test.questions[0];
+    const exec=document.getElementById("pbmExec");
+    if(!exec||!/Exécuter la ligne n°[^0-9]*1/.test(exec.textContent)) vus.push("le bouton bleu : "+(exec?exec.textContent:"absent"));
+    pbmExecuter();
+    if(test.pbmVerdicts.length||document.querySelector("#pbmHost .ok,#pbmHost .bad,#pbmHost .sol")) vus.push("une ligne jugee sans boite choisie");
+    if(!/bad/.test(document.getElementById("pbmFeedback").className)) vus.push("aucun message sans boite choisie");
+    pbmChoisir("b"); pbmExecuter();
+    const c0=document.getElementById("pbm-choix-0"), cor=document.querySelector("#pbmHost .pbm-cor");
+    if(!c0||!c0.classList.contains("bad")||!c0.classList.contains("pts-case")) vus.push("la ligne 1 fausse : "+(c0?c0.className:"absente"));
+    if(!cor||cor.textContent.indexOf("a")<0) vus.push("la bonne boite n est pas ecrite en vert");
+    if(document.getElementById("pbm-val-a").textContent!=="10"||document.getElementById("pbm-val-b").textContent!=="") vus.push("apres la ligne 1 : a="+document.getElementById("pbm-val-a").textContent+" b="+document.getElementById("pbm-val-b").textContent);
+    if(test.score!==0) vus.push("score "+test.score+" apres une ligne fausse");
+    if(!/n°[^0-9]*2/.test((document.getElementById("pbmExec")||{}).textContent||"")) vus.push("le bouton ne passe pas a la ligne 2");
+    pbmChoisir("b"); pbmExecuter(); pbmChoisir("c"); pbmExecuter();
+    const v=["a","b","c"].map(function(n){ return document.getElementById("pbm-val-"+n).textContent; }).join(",");
+    if(v!=="10,2,2") vus.push("la memoire a la fin : "+v);
+    if(!test.locked||!document.getElementById("pbmNext")||document.getElementById("pbmExec")) vus.push("la fin de la question n est pas la");
+    const a=test.answers[0]||{};
+    if(test.answers.length!==1||a.cases!==3||a.justes!==2||a.correct!==false) vus.push("la reponse enregistree : "+JSON.stringify(a));
+    if(test.score!==2) vus.push("score "+test.score);
+    if(document.querySelectorAll("#pbmHost .pbm-boite:not([disabled])").length) vus.push("les boites restent cliquables a la fin");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'en soutien, une boîte fausse rougit et RIEN ne s exécute ; la bonne exécute la ligne', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPBM();
+    const vus=[];
+    pbmChoisir("c"); pbmExecuter();
+    if(test.pbmVerdicts.length||test.score) vus.push("la ligne fausse a ete executee");
+    if(!document.getElementById("pbm-boite-c").classList.contains("bad")) vus.push("la boite fausse ne rougit pas");
+    if(document.getElementById("pbm-val-a").textContent!=="") vus.push("le nombre est entre quand meme");
+    pbmChoisir("a");
+    if(document.getElementById("pbm-boite-c").classList.contains("bad")) vus.push("le rouge reste apres un autre choix");
+    pbmExecuter();
+    if(!test.pbmVerdicts[0]||!test.pbmVerdicts[0].ok||test.score!==1) vus.push("la bonne boite n execute pas la ligne");
+    currentMode="train";
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la reprise après une pause : les verdicts, la boîte choisie, l étape et la mémoire reviennent', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const vus=[];
+    pbmChoisir("a"); pbmExecuter(); pbmChoisir("c"); pbmExecuter(); pbmChoisir("c");
+    const snap=JSON.parse(JSON.stringify(snapshotTest())), note=test.score;
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, snap, {locked:false, startTime:Date.now()});
+    if(!afficherEcranDe(test.kind)) vus.push("afficherEcranDe ne connait pas le kind");
+    const c0=document.getElementById("pbm-choix-0"), c1=document.getElementById("pbm-choix-1");
+    if(!c0||!c0.classList.contains("ok")||!c1||!c1.classList.contains("bad")) vus.push("les verdicts ne reviennent pas");
+    if(!/n°[^0-9]*3/.test((document.getElementById("pbmExec")||{}).textContent||"")) vus.push("l etape ne revient pas");
+    if(!document.getElementById("pbm-boite-c").classList.contains("pbm-choisie")) vus.push("la boite choisie ne revient pas");
+    if(document.getElementById("pbm-val-b").textContent!=="2") vus.push("la memoire ne revient pas");
+    if(test.score!==note) vus.push("la note a bouge");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'les branchements : numéroté 6.2.24, rappel de cours propre (il ne déroule pas la fiche), questions à l IA, contexte', `(function(){
+    const vus=[];
+    if(TEST_NUM["${ID}"]!=="6.2.24") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(!RAPPELS.pbm||RAPPELS.pbm===RAPPELS.pap) vus.push("rappel");
+    if(/a = 10.*b = 2.*c = b/.test(String(RAPPELS.pbm).replace(/<[^>]+>/g,""))) vus.push("le rappel deroule la fiche");
+    if(!QIA_SUGG.pbm||QIA_SUGG.pbm.length<3) vus.push("questions a l IA");
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const c=ctxPbm(test.questions[0]);
+    if(!c||!/SECRÈTE/.test(c.contexte)) vus.push("contexte sans clause de secret");
+    return vus.join(" | ");
   })()`, v => v === '');
 }
 

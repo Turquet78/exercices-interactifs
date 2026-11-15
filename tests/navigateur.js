@@ -20782,10 +20782,19 @@ if(require.main === module) (async () => {
           + m.ecrits.concat(m.btn).filter(e => chevauche(m.pose, e)).slice(0, 3).map(e => ' ; COUVRE ' + e.quoi + ' (x ' + Math.round(e.l) + '→' + Math.round(e.r) + ', y ' + Math.round(e.t) + '→' + Math.round(e.b) + ')').join('');
       let m = await mesurer('sui-t1');
       verifier('question 1 : la pose de la ligne 1 se montre à DROITE du tableau entier (pas seulement de la case), dans le cadre de l\'exercice, sans couvrir une écriture ni un bouton',
-        !m.absent && !m.cachee && m.pose.l >= m.bloc.r + 8 && dansCadre(m) && surRien(m), dire(m));
+        !m.absent && !m.cachee && m.pose.l >= m.bloc.r + 6 && dansCadre(m) && surRien(m), dire(m));
+      /* « sur la même ligne que le tableau et un peu plus à gauche » (Turquet, novembre 2026) */
+      verifier('question 1 : la pose s\'aligne sur le haut du tableau et le suit de près (au plus 12 px)',
+        !m.absent && !m.cachee && Math.abs(m.pose.t - m.bloc.t) <= 2 && m.pose.l - m.bloc.r <= 12,
+        m.absent || m.cachee ? dire(m) : 'haut de la pose ' + Math.round(m.pose.t) + ' pour un tableau à ' + Math.round(m.bloc.t) + ' ; écart à droite ' + Math.round(m.pose.l - m.bloc.r) + ' px');
       await s.page.evaluate(() => { test.idx = 1; renderSuiTest(); const v = suiVals(test.questions[1]);
         document.getElementById('sui-u0').value = String(v.u0); document.getElementById('sui-p').value = String(v.prod); });
       await s.page.waitForTimeout(400);
+      /* « même chose pour les opérations du deuxième tableau, donc de la question 2 » (Turquet, novembre 2026) */
+      m = await mesurer('sui-m1-' + (await s.page.evaluate(() => suiVals(test.questions[1]).n)));
+      verifier('question 2, méthode 1 : la pose de la dernière ligne s\'aligne sur le haut du tableau, le suit de près (au plus 12 px), dans le cadre, sans couvrir une écriture (les phrases qui suivent comprises) ni un bouton',
+        !m.absent && !m.cachee && Math.abs(m.pose.t - m.bloc.t) <= 2 && m.pose.l - m.bloc.r <= 12 && dansCadre(m) && surRien(m),
+        m.absent || m.cachee ? dire(m) : dire(m) + ' ; haut de la pose ' + Math.round(m.pose.t) + ' pour un tableau à ' + Math.round(m.bloc.t) + ' ; écart à droite ' + Math.round(m.pose.l - m.bloc.r) + ' px');
       m = await mesurer('sui-res');
       verifier('question 2 : la pose du résultat de la phrase se montre dans le cadre, sans couvrir une écriture ni un bouton',
         !m.absent && !m.cachee && dansCadre(m) && surRien(m), dire(m));
@@ -20793,6 +20802,11 @@ if(require.main === module) (async () => {
       m = await mesurer('sui-e');
       verifier('question 3 : la pose de l\'écart se montre dans le cadre, sans couvrir une écriture (les phrases qui suivent comprises) ni un bouton',
         !m.absent && !m.cachee && dansCadre(m) && surRien(m), dire(m));
+      /* « pour la question 3, l'opération posée à côté du tableau, en bas, alignée avec le tableau et pas trop près » (Turquet, novembre 2026) */
+      const rap = await s.page.evaluate(() => { const t = document.querySelector('#suiHost table.sui-rappel'); if(!t) return null; const b = t.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; });
+      verifier('question 3 : la pose de l\'écart s\'aligne sur le haut du tableau « pour mémoire » et le suit à 16 à 40 px',
+        !!rap && !m.absent && !m.cachee && Math.abs(m.pose.t - rap.t) <= 2 && m.pose.l - rap.r >= 16 && m.pose.l - rap.r <= 40,
+        !rap ? 'pas de tableau « pour mémoire »' : m.absent || m.cachee ? dire(m) : 'haut de la pose ' + Math.round(m.pose.t) + ' pour un tableau à ' + Math.round(rap.t) + ' ; écart à droite ' + Math.round(m.pose.l - rap.r) + ' px');
       await s.page.setViewportSize({ width: 768, height: 1024 }); await s.page.waitForTimeout(600);
       await s.page.evaluate(() => { test.idx = 1; renderSuiTest(); }); await s.page.waitForTimeout(400);
       m = await mesurer('sui-m1-' + (await s.page.evaluate(() => suiVals(test.questions[1]).n)));

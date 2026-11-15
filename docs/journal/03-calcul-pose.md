@@ -281,3 +281,23 @@ celui des étapes, avec une étape : même juge, même correction (« Le tiers d
 questions ; un devoir en prend au plus 20, à intervalles réguliers
 (`vocRang`). Contrôle : celui du 1.13 au banc principal exige les trois
 lignes, une seule case, la phrase en tête, et 9,8 accepté.
+
+**Puis la retenue du haut a redescendu toute seule dans TOUTE soustraction
+posée de la Première (novembre 2026, v429).** Demande de Turquet : « dans une
+soustraction posée, pour tout le niveau Première, quand on met une retenue en
+haut, afficher dans la case du bas +1 automatiquement ». Le 1.x le faisait
+depuis août (`asp-ret`, le miroir de la retenue) ; les soustractions que
+`buildPoseSub` construit — les poses facultatives des pourcentages (2.2.11,
+2.3.2 et suivants, les synthèses) et celle du 7.1 — demandaient encore
+d'écrire deux fois la même retenue. `buildPoseSub` apparie désormais la
+retenue du haut (`sub-ret`, `data-ret` = sa colonne d'emprunt) et le « +1 »
+du bas de la colonne suivante (`sub-retb`, même `data-ret`, en lecture seule,
+hors tabulation) ; une seule porte en capture sur le document,
+`#retenue-redescend` (fin de fichier), recopie la VALEUR écrite en haut —
+juste ou non, un miroir n'est pas une correction — et l'efface avec elle ;
+le focus qui arriverait sur la case du bas (l'avance automatique d'un
+exercice, qui suit `data-mtab`, ou Tab) passe à la case suivante de la pose.
+Les juges ne changent pas : une retenue du bas écrite se juge comme avant, et
+elle vaut ce que vaut celle du haut. Le contrôle (`retenueRedescend`, banc
+principal) construit 42 − 17, écrit 1 puis 7 puis rien en haut, relit le bas,
+et pose le focus sur la case du bas pour le voir repartir.
