@@ -7205,7 +7205,25 @@ juge pas), le kind dans la table du rappel de `tests/profils.js`.
 atterrissage ne se lisent que sur une capture (faite à la main : 1100 px et
 390 px de large).
 
-**Puis la console est passée JUSTE APRÈS LE PROGRAMME (v690).** Demande de
+## La correction verte ne se copie pas (novembre 2026, v690)
+
+**Demande de Turquet** : en entraînement, l'élève copiait le programme modèle
+écrit en vert (« Un programme qui convient », ou la case vide qui reçoit le
+modèle) et le recollait quand il recommençait l'exercice. **Un seul bloc, en
+fin de fichier, rien à déclarer** : `#correction-non-copiable-css` rend
+insélectionnables les `.sol` et `.mf-cor` (hors cases de saisie) de tout écran
+à code Python (`:has(.py-code,.py-console,.pyp-edit)`), et
+`#correction-non-copiable` annule, en capture sur le document, tout
+`copy`/`cut`/`dragstart` dont la sélection touche une correction — y compris
+une case `.sol` où la page a écrit le modèle, que la CSS ne ferme pas. Un
+message le dit à l'élève. **Le contrôle** (banc navigateur, section 9) relit,
+après la vérification d'une copie vide, chaque correction visible de chaque
+exercice `python-…` : elle refuse la sélection et la copie ; **le bord
+opposé** — l'énoncé du même écran se copie toujours — est tenu à côté. Ce
+qu'aucun banc ne voit : une capture d'écran ou une photo de la correction
+reste possible, et l'élève peut toujours la retaper.
+
+**Puis la console est passée JUSTE APRÈS LE PROGRAMME (v691).** Demande de
 Turquet : « met la fenêtre de ce qu'affiche le programme juste après le
 programme finalement ». L'ordre du 6.3.1 devient : le bouton « ▶ Exécuter la
 ligne n° … » en haut, le programme (lignes faites et ligne à exécuter, cadres à
