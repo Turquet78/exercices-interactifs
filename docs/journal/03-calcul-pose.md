@@ -270,7 +270,7 @@ de `#vocHost`, en `.voc-lab` comme les étapes — mesuré dans Chromium : les
 trois lignes à 21,6 px, Nunito. Contrôle : celui du 1.13 au banc principal
 exige cette première ligne sur la somme de 3 et de la moitié de 5.
 
-**Le 1.13 finit par trois calculs SANS LES ÉTAPES (v422).** Demande de
+**Le 1.13 finit par trois calculs SANS LES ÉTAPES (v423).** Demande de
 Turquet, novembre 2026 : « à la fin rajouter les questions suivantes sans
 afficher les étapes : le tiers de 6 plus la moitié de 7, la somme du double
 de 10 et de l'inverse de 2, la différence entre 10 et l'inverse de 5 ». Une
