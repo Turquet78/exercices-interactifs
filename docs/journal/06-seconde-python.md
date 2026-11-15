@@ -7242,3 +7242,8 @@ ligne n° … » en haut, le programme (lignes faites et ligne à exécuter, cad
 droite), puis « Ce que le programme affiche » et sa console. L'énoncé dit
 « ce qu'elle affiche s'écrit juste après le programme ». Le parcours du banc
 principal relit l'ordre bouton → programme → console dans le DOM.
+
+**Et le numéro s'est heurté à une autre fusion (v693).** La PR 1049, fusionnée
+quelques minutes avant celle de la console, portait elle aussi la Seconde en
+692 : les deux pages en ligne auraient affiché le même numéro. Celle de la
+console passe en 693, pour qu'on sache d'un coup d'œil laquelle est ouverte.
