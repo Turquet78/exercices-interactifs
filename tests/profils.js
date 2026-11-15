@@ -845,6 +845,11 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'secondes.html': {
+    /* des consoles Python dont les input() attendent une réponse : le banc
+       navigateur exige « Appuyer sur la touche Entrée pour valider. » à côté
+       de chaque case (section 9, novembre 2026). La Première et la Terminale
+       n'ont aucune console Python : la clé leur est absente. */
+    pythonConsoles: true,
     /* Les cases de calcul en TEXTE : celles du calcul littéral (litPave :
        x, x², +, ( )) offrent x mais pas × — le banc y mesure le x en
        italique et la touche du pavé ; aucune frappe de « * ». */
