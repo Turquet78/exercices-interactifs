@@ -7069,8 +7069,47 @@ pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun
 rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
 sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
 
+**Puis le 6.3.1 a montré ses deux cadres DÈS LE DÉPART (v682, novembre 2026).**
+Demande de Turquet sur la page en ligne : les cases des cadres se collaient
+d'une ligne à l'autre ; les cadres doivent être là, à côté de leur ligne, avant
+toute exécution ; le bouton « ▶ Exécuter la ligne … » passe AU-DESSUS du
+programme (`#pnpRunBar`) ; et la console qui attend rappelle, à côté de la
+réponse, que ⏎ veut dire « appuie sur la touche Entrée » — cliquer ailleurs ne
+fait rien (le bandeau général « Tu dois appuyer sur Entrée ⏎ » le disait déjà).
+Le cadre d'une ligne pas encore exécutée porte `.pnp-ferme`, ses cases
+`disabled` et grisées : on lit tout le travail d'avance, on n'écrit qu'après
+l'exécution. L'interligne du cadre monte à 2,9 et chaque case prend 3 px de
+marge verticale. Le trajet du banc principal le tient : deux cadres fermés au
+départ, le bouton avant le programme (ordre du document), le rappel de la
+touche Entrée dans la console, le cadre 2 fermé jusqu'à la ligne 2.
+
+**Puis chaque case du 6.3.1 est devenue une LISTE de quatre propositions (v683).**
+Demande de Turquet : « dans les cases, le choix entre 4 propositions » — la
+question (`comment tu t'appelles ?`), le texte du print (`tu es`), le nom de la
+variable (`nom`), et la réponse que l'élève a tapée. Les six cases sont des
+`<select class="pnp-in">` à option vide « choisis… » ; l'ordre des propositions
+est tiré à la génération (`q.o`, rangé dans la question — jamais à
+l'affichage), la réponse de l'élève n'y entre qu'une fois la ligne 1 exécutée,
+et une réponse qui coïncide avec une autre proposition (un élève qui répond
+« nom ») ne se montre qu'une fois. Le juge n'a pas changé : une proposition
+choisie est une chaîne comme une autre. Piège rencontré : une règle générale
+donnait aux `select` toute la largeur du cadre, la phrase se cassait en
+morceaux — `#pnpHost select.pnp-in{display:inline-block;width:auto}` la
+remet dans le fil du texte. Le banc principal vérifie les quatre propositions
+de la première case.
+
+**Et les deux rappels de la touche Entrée se sont croisés à la fusion (v685).**
+La phrase commune des consoles (« Appuyer sur la touche Entrée pour valider. »,
+le `::after` posé par une autre branche le même jour, tenu par un contrôle
+universel) s'ajoutait, sur le 6.3.1, au rappel propre de l'exercice : l'élève
+lisait deux fois la même consigne. Le rappel du 6.3.1 n'est plus un `<span>` :
+c'est la règle commune, prolongée pour cet exercice seul —
+`#pnpConsole:has(> input[…])::after` écrit « ⏎ : Appuyer sur la touche Entrée
+pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
+et le contrôle universel la lit comme les autres.
+
 **Puis la variable est devenue `reponse`, et la phrase « c'est formidable »
-(15 novembre 2026, v685).** Demande de Turquet : « enlève le mot sport dans
+(15 novembre 2026, v687).** Demande de Turquet : « enlève le mot sport dans
 la phrase du print, mets reponse pour la variable de l'exercice ». Le
 programme juste est désormais `reponse = input("quel est ton sport favori ? ")`
 puis `print("c'est formidable", reponse)` — la question, elle, garde son
