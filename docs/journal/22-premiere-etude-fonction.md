@@ -549,7 +549,7 @@ le dessin ». Le cadre `.itv-ligne` (560 px au plus) est posé directement dans
 la partie, pas dans la colonne flex centrée des fiches (`.itv-fiche`) : il
 restait collé à gauche. Une marge automatique (`.trd-tab-ligne`) le centre.
 
-## 6.4 {tracer-droite-libre} — le 6.3, les calculs rédigés (v429 — le 7.1 avait pris la v428 sur `main` pendant les contrôles)
+## 6.4 {tracer-droite-libre} — le 6.3, les calculs rédigés (v430 — le 7.1 puis le 7.2 avaient pris les v428 et v429 sur `main` pendant les contrôles)
 
 Demande de Turquet (novembre 2026) : « faire un exercice comme le 6.3 en
 première mais les élèves doivent écrire leur calcul dans la 1re question dans
