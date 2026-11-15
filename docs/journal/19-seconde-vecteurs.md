@@ -6592,3 +6592,19 @@ deux lettres, x, y, M(… ; …) et le point ; les messages, la correction) ; le
 pièges (MC⃗ à l'envers, fin et début échangés, le signe, l'étape « + » mal
 faite, x isolé en retranchant : 17 sur 29) ; le contexte ; une question sans
 étape ; le soutien ; la consigne puis la bulle.
+
+**Puis le nom d'une flèche libre n'a plus été posé plus près d'une AUTRE
+flèche (somme lue sur un dessin, v691, novembre 2026).** Le contrôle « somme
+lue sur un dessin » a rougi deux fois dans l'action d'une pull request de la
+Première (« le dessin n'a pas 4 flèches de chaîne et u, v, w : 4 wv », puis
+« 4 uw ») : sur une figure environ sur 20 000, deux flèches libres qui se
+croisent ou se suivent à un carreau recevaient un nom placé à 16 px de sa
+flèche, mais plus près du MILIEU de l'autre — l'élève pouvait lire v⃗ sur la
+flèche de w⃗. Le défaut était dans le dessin, pas dans le banc : `lsdSvg` ne
+choisissait le côté du nom que par la distance aux points nommés. Désormais un
+côté est écarté quand le nom (son point d'ancrage ou sa ligne de base, 6 px
+plus bas) tombe à moins de 18 px d'une autre flèche libre, ou pas au moins
+6 px plus près de son milieu que de celui d'une autre ; à 16 px d'abord, puis
+à 24 px, du côté le plus dégagé — le choix d'avant ne reste qu'en dernier
+recours. Mesuré dans Chromium : la figure fautive (épinglée) et 20 000 figures
+tirées, aucune ambiguë ; 24 000 noms, aucun hors du dessin.
