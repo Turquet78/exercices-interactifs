@@ -1385,8 +1385,13 @@
   .pnp-code{grid-column:1;justify-self:start;display:flex;align-items:center;gap:10px;padding:6px 12px;background:#fff;border:1.5px solid var(--line);border-radius:8px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;white-space:pre}
   .pnp-courante .pnp-code{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16);background:#EAF0FF}
   .pnp-fleche{grid-column:2;color:#1F4E79;font-size:1.4rem;line-height:1}
-  .pnp-cadre{grid-column:3;min-width:0;padding:10px 14px;background:#fff;border:1.5px solid var(--ink);border-radius:4px;line-height:2.1;text-align:left}
-  .pnp-in{font:inherit;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;outline:none;vertical-align:baseline}
+  .pnp-cadre{grid-column:3;min-width:0;padding:12px 14px;background:#fff;border:1.5px solid var(--ink);border-radius:4px;line-height:2.9;text-align:left}
+  .pnp-ferme .pnp-cadre{color:var(--ink-soft);border-color:#c9d1e0;background:#fafbfd}
+  .pnp-ferme .pnp-in{background:#f3f5f9;border-color:#dde3ee;cursor:not-allowed}
+  .pnp-run{display:flex;justify-content:flex-start;margin:0 0 12px}
+  .pnp-rappel{font-family:Nunito,system-ui,sans-serif;font-size:.86rem;color:var(--ink-soft);margin-left:10px;white-space:normal}
+  .pnp-rappel b{color:var(--ink)}
+  .pnp-in{font:inherit;line-height:1.5;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;margin:3px 0;outline:none;vertical-align:baseline}
   .pnp-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .pnp-in:disabled{opacity:1}
   .pnp-in.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
@@ -9382,7 +9387,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=681;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=682;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -52662,10 +52667,14 @@ function ctxPyn(q){
         variable … ; ici le texte dans cette variable est … »
    LE DÉROULÉ EST CELUI D'UN PAS À PAS : « Exécuter la ligne 1 » pose la
    question dans la console (la console qui attend du 6.3.2, la touche
-   Entrée) ; la réponse rangée, le cadre 1 s'ouvre à côté de la ligne 1.
-   Vérifié, il laisse la place au bouton « Exécuter la ligne 2 » ; la console
-   affiche la phrase, et le cadre 2 s'ouvre à côté de la ligne 2. La ligne à
-   exécuter est surlignée.
+   Entrée) ; la réponse rangée, les cases du cadre 1 s'ouvrent. Vérifié, il
+   laisse la place au bouton « Exécuter la ligne 2 » ; la console affiche la
+   phrase, et les cases du cadre 2 s'ouvrent. La ligne à exécuter est
+   surlignée. LES DEUX CADRES SONT LÀ DÈS LE DÉPART, à côté de leur ligne,
+   leurs cases fermées (.pnp-ferme, disabled) tant que la ligne n'a pas
+   tourné ; le bouton d'exécution est AU-DESSUS du programme (#pnpRunBar), et
+   la console qui attend rappelle que ⏎ est la touche Entrée — cliquer
+   ailleurs ne fait rien (demande de Turquet, novembre 2026).
    LE JUGE NE RANGE RIEN : la question, le texte et la variable se relisent
    dans la situation (q.s), la valeur dans la réponse que l'élève a tapée
    (q.rep). Les textes passent par pyTexteProche (la tolérance du thème :
@@ -52711,7 +52720,7 @@ function pnpJugeCase(q, k, v){
   return pyTexteProche(net, att, [S.question.trim()]);
 }
 function pnpEnonceHTML(q){
-  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne, puis complète le cadre qui s’ouvre à côté d’elle pour expliquer ce qu’elle a fait.';
+  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton au-dessus du programme, puis complète le cadre à côté d’elle pour expliquer ce qu’elle a fait.';
 }
 function pnpCaseHTML(k, large){
   return '<input class="pnp-in" id="pnp-c'+k+'" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:'+large+'ch" aria-label="case '+(k+1)+' du cadre '+(k<3?1:2)+'">';
@@ -52725,9 +52734,9 @@ function pnpCadreHTML(q, n){
 function pnpRangeeHTML(q, n){
   const e=q.etape, courante=(n===1&&e===0)||(n===2&&e===2);
   const ouvert=n===1?e>=1:e>=3;
-  return '<div class="pnp-rangee'+(courante?' pnp-courante':'')+'" id="pnpR'+n+'">'
+  return '<div class="pnp-rangee'+(courante?' pnp-courante':'')+(ouvert?'':' pnp-ferme')+'" id="pnpR'+n+'">'
     +'<div class="pnp-code"><span class="pyx-num">'+n+'</span><span class="pyx-l1">'+pyColorie(n===1?pnpLigne1(q):pnpLigne2(q))+'</span></div>'
-    +(ouvert?pnpCadreHTML(q, n):'')+'</div>';
+    +pnpCadreHTML(q, n)+'</div>';
 }
 function pnpActions(html){ $('pnpActions').innerHTML=conseilInlineBtn()+html; }
 let _pnpSaveTimer=null;
@@ -52744,7 +52753,8 @@ function pnpLancer(src, fin){
     c.classList.add('py-exec'); c.classList.remove('pyx-err','pyx-vide');
     if(err && err.attente){
       c.innerHTML=esc((err.sortie||'')+(err.invite||''))+'<input class="py-entree" id="pnpEntree" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="enter" aria-label="ta réponse à la question du programme">'
-        +'<button class="py-entree-ok" id="pnpEntreeOk" type="button" aria-label="Entrée">⏎</button>';
+        +'<button class="py-entree-ok" id="pnpEntreeOk" type="button" aria-label="Entrée">⏎</button>'
+        +'<span class="pnp-rappel" id="pnpRappelEntree"><b>⏎</b> veut dire : appuie sur la touche <b>Entrée</b> pour valider ta réponse. Cliquer ailleurs sur l’écran ne fait rien.</span>';
       const inp=$('pnpEntree'), ok=$('pnpEntreeOk');
       const envoyer=function(){
         if(test.locked) return;
@@ -52790,7 +52800,7 @@ function renderPNP(){
   $('pnpFeedback').textContent=''; $('pnpFeedback').className='mp-feedback';
   $('pnpFig').innerHTML=test.idx===0?pynEtiquetteHTML()+hwSerpentHTML('python-input-pas-a-pas'):'';
   pyAvant('pnp', test.idx===0?pynCoursHTML():'');
-  $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div>'
+  $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-run" id="pnpRunBar"></div><div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div>'
     +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre></div>';
   /* la console de ce qui a déjà été exécuté */
   if(q.etape>=1 && q.etape<3) pnpConsoleFigee(pnpLigne1(q), [q.rep]);
@@ -52799,7 +52809,8 @@ function renderPNP(){
   for(let k=0;k<6;k++){
     const inp=$('pnp-c'+k); if(!inp) continue;
     inp.value=q.v[k]||'';
-    const cadreFait=(k<3)?q.etape>=2:q.etape>=4;
+    const cadreFait=(k<3)?q.etape>=2:q.etape>=4, ouvert=(k<3)?q.etape>=1:q.etape>=3;
+    if(!ouvert){ inp.disabled=true; inp.value=''; continue; }
     if(cadreFait){ inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); }
     else inp.addEventListener('input', function(){ if(test.locked) return; q.v[k]=inp.value; inp.classList.remove('bad'); pnpSauver(); });
   }
@@ -52817,9 +52828,10 @@ function pnpPeindre(q, k, inp, ok){
 }
 function pnpBoutons(q){
   const e=q.etape;
-  if(e===0) pnpActions('<button class="btn btn-primary" id="pnpRun1" type="button" onclick="pnpExecuter(1)">▶ Exécuter la ligne 1</button>');
+  const bar=$('pnpRunBar');
+  if(bar) bar.innerHTML=(e===0||e===2)?'<button class="btn btn-primary" id="pnpRun'+(e===0?1:2)+'" type="button" onclick="pnpExecuter('+(e===0?1:2)+')">▶ Exécuter la ligne '+(e===0?1:2)+'</button>':'';
+  if(e===0||e===2) pnpActions('');
   else if(e===1) pnpActions('<button class="btn btn-primary" id="pnpValidate" type="button" onclick="checkPNP()">Vérifier</button>');
-  else if(e===2) pnpActions('<button class="btn btn-primary" id="pnpRun2" type="button" onclick="pnpExecuter(2)">▶ Exécuter la ligne 2</button>');
   else if(e===3) pnpActions('<button class="btn btn-primary" id="pnpValidate" type="button" onclick="checkPNP()">Vérifier</button>');
   else pnpActions('<button class="btn btn-primary" id="pnpNext" type="button" onclick="nextPNP()">'+(test.idx===test.questions.length-1?'Voir mes résultats':'Question suivante')+'</button>');
 }
@@ -52832,14 +52844,14 @@ function pnpExecuter(n){
       q.rep=entrees[0]||''; q.etape=1; pnpSauver();
       renderPNP();
       const fb=$('pnpFeedback');
-      fb.textContent='La ligne 1 est exécutée. Complète le cadre qui s’est ouvert à côté d’elle, puis vérifie.'; fb.className='mp-feedback';
+      fb.textContent='La ligne 1 est exécutée. Complète maintenant le cadre à côté d’elle, puis vérifie.'; fb.className='mp-feedback';
       const c=$('pnp-c0'); if(c) setTimeout(function(){ try{ c.focus(); }catch(e){} },40);
     });
   } else if(n===2 && q.etape===2){
     q.etape=3; pnpSauver();
     renderPNP();
     const fb=$('pnpFeedback');
-    fb.textContent='La ligne 2 est exécutée. Complète le cadre qui s’est ouvert à côté d’elle, comme le premier, puis vérifie.'; fb.className='mp-feedback';
+    fb.textContent='La ligne 2 est exécutée. Complète maintenant le cadre à côté d’elle, comme le premier, puis vérifie.'; fb.className='mp-feedback';
     const c=$('pnp-c3'); if(c) setTimeout(function(){ try{ c.focus(); }catch(e){} },40);
   }
 }
@@ -52867,7 +52879,7 @@ function checkPNP(live){
   const bravo=tousOk?pick(['Bravo !','Parfait !','Exact !'])+' ':'';
   if(q.etape===1){
     q.etape=2; pnpSauver();
-    fb.textContent=bravo+(tousOk?'':'Les bonnes réponses sont écrites en vert. ')+'Exécute maintenant la ligne 2.';
+    fb.textContent=bravo+(tousOk?'':'Les bonnes réponses sont écrites en vert. ')+'Exécute maintenant la ligne 2 avec le bouton au-dessus du programme.';
     fb.className='mp-feedback'+(tousOk?' good':' bad');
     renderPNPGarderFeedback(fb.textContent, fb.className);
     const rb=$('pnpRun2'); if(rb) rb.focus();

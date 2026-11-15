@@ -6978,3 +6978,17 @@ Banc jsdom : `pythonForPasAPas` (après `pythonForRange`) — la place et la
 numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
 un vrai CPython.
+
+**Puis le 6.3.1 a montré ses deux cadres DÈS LE DÉPART (v682, novembre 2026).**
+Demande de Turquet sur la page en ligne : les cases des cadres se collaient
+d'une ligne à l'autre ; les cadres doivent être là, à côté de leur ligne, avant
+toute exécution ; le bouton « ▶ Exécuter la ligne … » passe AU-DESSUS du
+programme (`#pnpRunBar`) ; et la console qui attend rappelle, à côté de la
+réponse, que ⏎ veut dire « appuie sur la touche Entrée » — cliquer ailleurs ne
+fait rien (le bandeau général « Tu dois appuyer sur Entrée ⏎ » le disait déjà).
+Le cadre d'une ligne pas encore exécutée porte `.pnp-ferme`, ses cases
+`disabled` et grisées : on lit tout le travail d'avance, on n'écrit qu'après
+l'exécution. L'interligne du cadre monte à 2,9 et chaque case prend 3 px de
+marge verticale. Le trajet du banc principal le tient : deux cadres fermés au
+départ, le bouton avant le programme (ordre du document), le rappel de la
+touche Entrée dans la console, le cadre 2 fermé jusqu'à la ligne 2.
