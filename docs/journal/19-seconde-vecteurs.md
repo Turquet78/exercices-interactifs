@@ -6594,7 +6594,7 @@ faite, x isolé en retranchant : 17 sur 29) ; le contexte ; une question sans
 étape ; le soutien ; la consigne puis la bulle.
 
 **Puis le nom d'une flèche libre n'a plus été posé plus près d'une AUTRE
-flèche (somme lue sur un dessin, v691, novembre 2026).** Le contrôle « somme
+flèche (somme lue sur un dessin, v692, novembre 2026).** Le contrôle « somme
 lue sur un dessin » a rougi deux fois dans l'action d'une pull request de la
 Première (« le dessin n'a pas 4 flèches de chaîne et u, v, w : 4 wv », puis
 « 4 uw ») : sur une figure environ sur 20 000, deux flèches libres qui se
