@@ -563,7 +563,7 @@ image et un ou deux antécédents (pile ou face) sur le même graphique, sans
 point rouge, sans chemin avant la vérification, sans l'écriture
 f( … ) = … — six questions, le réglage « Questions » d'un devoir les allonge.
 
-## 6.5 {tracer-droite-libre} — le 6.3, les calculs rédigés (v431 — le 7.1, le 7.2 puis le 6.4 {image-antecedents-libre} avaient pris les v428 à v430 sur `main` pendant les contrôles ; arrivé après lui dans le thème, l'exercice est devenu le 6.5)
+## 6.5 {tracer-droite-libre} — le 6.3, les calculs rédigés (v432 — le 7.1, le 7.2, le 6.4 {image-antecedents-libre} puis le 7.1 encore avaient pris les v428 à v431 sur `main` pendant les contrôles ; arrivé après lui dans le thème, l'exercice est devenu le 6.5)
 
 Demande de Turquet (novembre 2026) : « faire un exercice comme le 6.3 en
 première mais les élèves doivent écrire leur calcul dans la 1re question dans
