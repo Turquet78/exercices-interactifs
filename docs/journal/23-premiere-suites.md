@@ -367,3 +367,46 @@ faux rougit, garde sa pastille, ne coûte pas le point, ne compte pas dans
 `ptsEcran`, et reste visible après la correction. Le bloc des 300 séances
 relit le pas des deux premiers exemples. Ce qu'il ne voit pas : la place à
 l'écran (jsdom n'a pas de géométrie) — elle se regarde en ligne.
+
+## Puis la pose a trouvé sa place : à droite de tout l'écrit, dans le cadre (novembre 2026, v424)
+
+**La demande** (Turquet, capture d'écran à l'appui) : « l'opération posée doit
+être plus à droite et un peu plus haut pour rester sur le quadrillage de
+l'exercice ; les opérations posées ne doivent pas être sur les écritures et
+rester sur le quadrillage ».
+
+**Ce qui se voyait.** La pose partait du bord de la CASE, 14 px plus loin : la
+case est dans une cellule qui a sa marge, la pose couvrait donc la dernière
+colonne du tableau (le 1 910 de la ligne 3 passait dessous). Et elle descendait
+sous le cadre de l'exercice, sur les boutons « Vérifier » et « Poser une
+question à l'IA » — la question ① n'a qu'un tableau de quatre lignes, plus
+court que la pose.
+
+**La place, désormais** (`suiPosePlacer`) : le bord droit de TOUT ce qui est
+écrit sur la ligne de la case, 24 px plus loin — mesuré sur les rectangles des
+fragments de texte et des cases (`Range.getClientRects`), pas sur les boîtes
+des éléments : un paragraphe occupe toute la ligne même quand son texte est
+court, et la pose aurait toujours cru la droite prise (le premier passage du
+contrôle l'a montré sur la phrase de la question ②). À 34 px au-dessus de la
+case, et SUR RIEN : si la pose y recouvrait une écriture du cadre, on la
+descend au ras de sa ligne, et sinon SOUS tout le contenu de la question,
+alignée à gauche de sa ligne. Le cadre (`#suiHost`) grandit par `min-height`
+quand la pose en sort par le bas — le quadrillage reste derrière elle — et
+reprend sa taille à chaque rendu.
+
+**Le second passage a appris la règle à l'envers.** La première écriture
+REMONTAIT la pose quand elle dépassait du cadre, pour la garder dedans : en
+question ②, la pose du résultat remontait de deux cents pixels et se posait
+sur le tableau de la méthode 1 et sur la phrase du dessus — « COUVRE case
+sui-m1-3, COUVRE texte « jours elle lira » », a dit le contrôle, en nommant ce
+qu'elle couvrait. Une pose ne remonte jamais au-dessus de sa ligne : c'est le
+cadre qui descend.
+
+**Le contrôle** vit dans le banc navigateur — seul un navigateur sait où tombe
+la pose (« 11 quindecies », Première ; les autres niveaux se déclarent) : au
+focus de la ligne 1 de la question ①, la pose est à droite du tableau entier
+(8 px au moins après son bord), dans le cadre, et ne recouvre aucune écriture
+du cadre (cases comprises) ni aucun bouton ; le résultat de la question ②,
+départ et produit écrits, de même ; sur une tablette debout, la dernière ligne
+de la méthode 1, qui n'a plus de place à droite, reste dans le cadre et ne
+couvre ni le tableau ni les phrases de la méthode 2 qui suivent.
