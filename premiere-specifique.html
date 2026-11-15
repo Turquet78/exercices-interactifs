@@ -1607,6 +1607,12 @@ i.pb-P{margin-right:.14em}
   .trd-gp[data-bexp-cote="bas"]::after{top:-12.5px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:var(--surface)}
   .trd-signes-regle{display:inline-flex;gap:14px;flex-wrap:wrap}
   .trd-mot{white-space:nowrap}
+  /* le numérateur de la ligne 4 recopie la ligne 3 : on n'y écrit pas */
+  .lv-in.trd-mir{border-style:dashed;background:transparent;cursor:default}
+  /* question 5 : le titre et le dessin plus petits (demande de Turquet) */
+  .itq-ineg.trd-signe-titre{font-size:1.15rem;padding:5px 12px;max-width:380px;margin:0 auto 8px}
+  .lv-graph.tsg-graph.trd-signes-dessin{max-width:330px}
+  .lv-graph.tsg-graph.trd-signes-dessin .lv-svg{max-width:310px}
   /* les flèches de la transposition (la fiche papier) : pointillées, sans prise */
   .trd-fl{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
   .trd-fl path{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:3 3}
@@ -31845,15 +31851,15 @@ function renderTrd(){
     +'<span class="trd-g">'+ax+'</span><span class="trd-eg">=</span><span class="trd-dr">'+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span><span class="trd-d"></span>'
     +'<span class="trd-g"><span class="trd-cercle trd-cercle-a">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
     +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
-    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac"><input id="trd-e3" class="lv-in trd-mir hors-note" readonly tabindex="-1" aria-label="le numérateur : le résultat de la ligne 3, recopié"><span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
     +'</div>';
   h+='</div>';
   /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
     +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
-    +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
-    +'<div class="lv-graph tsg-graph" id="trdSignes">'+trdSignesSVG(q)+'</div>'
+    +'<div class="itq-ineg trd-signe-titre">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+trdSignesSVG(q)+'</div>'
     +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
     +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
@@ -31866,9 +31872,10 @@ function renderTrd(){
   trdGpFermer();
   $('trdHost').querySelectorAll('input').forEach(function(el){
     if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
-    el.addEventListener('input', function(){ trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
+    el.addEventListener('input', function(){ if(el.id==='trd-e2') trdMiroir(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); trdEntree(el); } });
   });
+  trdMiroir();
   $('trdHost').querySelectorAll('select').forEach(function(el){
     el.addEventListener('change', function(){ if(el.id && !el.classList.contains('hors-note')) st.sels[el.id]=el.value; trdAvancer(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
   });
@@ -31876,9 +31883,22 @@ function renderTrd(){
   $('trdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="submitTrd()">Vérifier</button>';
   trdDessiner(false);
 }
+/* LE NUMÉRATEUR DE LA LIGNE 4 RECOPIE LE RÉSULTAT DE LA LIGNE 3 (demande de
+   Turquet, novembre 2026 : « quand l'élève a mis le résultat dans la case de
+   la 3e ligne, qui est une somme, afficher son résultat dans le numérateur de
+   la 4e ligne »). Le numérateur n'est plus une case à écrire : il est en
+   lecture seule, hors de la note (.hors-note — la ligne 3 est déjà jugée,
+   la compter deux fois punirait deux fois la même faute), et il prend la
+   valeur et la couleur de la ligne 3, à la frappe comme à la correction. */
+function trdMiroir(){
+  const s=$('trd-e2'), m=$('trd-e3'); if(!s||!m) return;
+  m.value=s.value;
+  m.classList.remove('ok','bad','sol');
+  ['ok','bad','sol'].forEach(function(c){ if(s.classList.contains(c)) m.classList.add(c); });
+}
 /* Entrée passe à la case suivante ; dans la dernière, elle vérifie */
 function trdEntree(el){
-  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && e.getClientRects().length && !e.classList.contains('hors-note'); });
+  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && !e.readOnly && e.getClientRects().length && !e.classList.contains('hors-note'); });
   const i=l.indexOf(el);
   if(i>=0 && i<l.length-1){ try{ l[i+1].focus(); }catch(e){} }
   else submitTrd();
@@ -32012,7 +32032,7 @@ function trdCases(q){
     {id:'trd-regle', val:'droite', liste:true},
     {id:'trd-ag', val:xk},
     {id:'trd-r1', val:'oppose', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
-    {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e3', val:q.k-q.b}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
+    {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
     {id:'trd-rac', val:trdRacine(q), nb:true},
     {id:'trd-s0', val:q.a<0?'+':'-', liste:true}, {id:'trd-s1', val:q.a<0?'-':'+', liste:true}
   ];
@@ -32038,6 +32058,7 @@ function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
+  trdMiroir();
 }
 function trdPourquoi(q){
   const xk=trdXk(q), K=trdNb(q.k), y1=trdF(q,q.x1), y2=trdF(q,q.x2);
@@ -32066,6 +32087,7 @@ function submitTrd(){
   const parfait=res.allOk && fini;
   if(isSoutien() && !(res.allOk && fini)){
     res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+    trdMiroir();
     /* les cases qui manquent (et qu'on voit) s'entourent de rouge — demande de
        Turquet ; la classe n'est pas « bad » : rien n'y est faux */
     let manque=0;
@@ -32083,6 +32105,7 @@ function submitTrd(){
   trdDessiner(false);
   if(!fini){ $('trdRegleL').hidden=false; $('trdSuite').hidden=false; }
   res.subs.forEach(function(s){ if(s.el) s.el.classList.remove('trd-manque'); corrChoix(s.el, s.aff, s.ok); });
+  trdMiroir();
   requestAnimationFrame(trdFleches);
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
   if(parfait){ $('trdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('trdFeedback').className='mp-feedback good'; }

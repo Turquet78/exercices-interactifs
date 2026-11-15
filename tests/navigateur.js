@@ -16344,6 +16344,12 @@ if(require.main === module) (async () => {
       await s.page.waitForTimeout(250);
       const att0 = await s.page.evaluate(() => ({ attend: !!document.getElementById('piiConsCIn'),
         grise: +getComputedStyle(document.getElementById('piiValidate')).opacity < 0.6 }));
+      /* …et, à côté de la case, la phrase « Appuyer sur la touche Entrée pour
+         valider. » (la règle ::after de la console qui porte la case) */
+      const attPhrase = await s.page.evaluate(() => { const i = document.getElementById('piiConsCIn');
+        return i ? getComputedStyle(i.parentNode, '::after').content : ''; });
+      verifier('à côté de la case d\'un input en attente, la console écrit « Appuyer sur la touche Entrée pour valider. »',
+        /Appuyer sur la touche Entrée pour valider\./.test(attPhrase), JSON.stringify(attPhrase));
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');

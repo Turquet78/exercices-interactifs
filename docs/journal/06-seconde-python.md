@@ -6978,3 +6978,20 @@ Banc jsdom : `pythonForPasAPas` (après `pythonForRange`) — la place et la
 numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
 un vrai CPython.
+
+**La console qui attend une réponse dit comment la valider (novembre 2026, v682).**
+Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
+input qui s'exécute, écrire à côté du symbole entré “Appuyer sur la touche
+Entrée pour valider.” ». Toutes les consoles de la Seconde qui posent la
+question d'un `input()` — les trois familles `pyi-rep` (dix-huit exercices),
+`py-entree` (`pzLancer` et ses voisins) et `pii-in` — portent la même étiquette,
+`aria-label="ta réponse à la question du programme"`, déjà lue par
+`#console-attend-entree`. Une seule règle CSS s'y accroche :
+`:has(> input[aria-label=…])::after`, posée sur la console qui contient la
+case. La phrase s'écrit donc à la suite de la case (et de son bouton ⏎ quand il
+y en a un), en Nunito italique grise, et disparaît avec la case dès que la
+réponse part sur Entrée. Un pseudo-élément, exprès : le `textContent` de la
+console — ce que lisent les juges et les bancs — ne change pas d'un caractère.
+Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
+retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
+(`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
