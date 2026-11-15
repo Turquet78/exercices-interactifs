@@ -1655,7 +1655,8 @@ i.pb-P{margin-right:.14em}
   #suiHost .f-eq{font-size:calc(1.05rem * var(--tab-nb,1));font-weight:400}
   #suiHost math-field.pm-mf{min-width:88px;max-width:150px;font-size:calc(1.35rem * var(--tab-nb,1));line-height:1.15;vertical-align:middle}
   #suiHost .sui-phr math-field.pm-mf{font-size:calc(1.05rem * var(--tab-nb,1));min-width:72px;max-width:130px}
-  .sui-mir{display:inline-block;min-width:64px;padding:0 10px;text-align:center;border-bottom:2px dashed var(--ink-soft);color:var(--blue-dark);line-height:1.3;vertical-align:baseline}
+  /* le miroir n'a plus de pointillé dessous (demande de Turquet, novembre 2026) : il se lit comme un nombre écrit, en bleu */
+  .sui-mir{display:inline-block;min-width:40px;padding:0 6px;text-align:center;color:var(--blue-dark);line-height:1.3;vertical-align:baseline}
   .sui-mir.sui-vide{color:var(--ink-soft)}
   #suiHost .mf-cor{font-size:calc(1.1rem * var(--tab-nb,1))}
   @media(max-width:520px){ #suiHost .sui-tab math-field.pm-mf,.sui-tab{font-size:calc(1.15rem * var(--tab-nb,1))} .sui-phr,#suiHost .sui-phr math-field.pm-mf,#suiHost .f-eq{font-size:calc(.95rem * var(--tab-nb,1))} #scr-sui .sui-q{font-size:1.25rem} .sui-tab th,.sui-tab td{min-width:100px;padding:4px 10px} }
@@ -3979,7 +3980,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=428;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=429;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12073,7 +12074,10 @@ function buildPoseSub(hTop, hBot, hostId){
   const cell=(cls,inner)=>`<div class="mp-cl ${cls||''}">${inner||''}</div>`;
   const dg=x=>`<span class="mp-digit">${x}</span>`;
   const box=(exp,tab)=>`<input class="mp-box" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="${exp}" data-mtab="${tab}" aria-label="case à compléter">`;
-  const ret=(tab,cls)=>`<input class="mp-carry ${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="1" data-mtab="${tab}" aria-label="retenue">`;
+  /* la retenue de la colonne i s'écrit en haut (sub-ret, data-ret=i) et
+     REDESCEND toute seule en « +1 » devant le chiffre du bas de la colonne
+     i + 1 (sub-retb, data-ret=i, en lecture seule) — voir #retenue-redescend */
+  const ret=(tab,cls,col)=>`<input class="mp-carry ${cls}" type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" data-exp="1" data-mtab="${tab}" data-ret="${col}"${cls==='sub-retb'?' data-bas="1" readonly tabindex="-1" aria-label="retenue reportée, écrite par la page"':' aria-label="retenue"'}>`;
   /* emprunts : la colonne i emprunte si son chiffre du haut est plus petit que
      (chiffre du bas + compensation reçue de la colonne précédente) */
   const emp=[]; let comp=0;
@@ -12081,8 +12085,8 @@ function buildPoseSub(hTop, hBot, hostId){
   const nRes=String(diff).length;
   let rowTop='',rowBot='',rowRes='';
   for(let i=nCol-1;i>=0;i--){
-    rowTop += cell('',(emp[i]?ret(3*i+1,'sub-ret'):'')+dg(dg10(hTop,i)));
-    rowBot += cell('',(i>0&&emp[i-1]?ret(3*(i-1)+2,'sub-retb'):'')+(has(hBot,i)?dg(dg10(hBot,i)):''));
+    rowTop += cell('',(emp[i]?ret(3*i+1,'sub-ret',i):'')+dg(dg10(hTop,i)));
+    rowBot += cell('',(i>0&&emp[i-1]?ret(3*(i-1)+2,'sub-retb',i-1):'')+(has(hBot,i)?dg(dg10(hBot,i)):''));
     rowRes += (i<nRes)?cell('',box(dg10(diff,i),3*i+3)):cell('');
   }
   return `<div class="mp-op" id="${hostId}">`
@@ -19710,27 +19714,27 @@ const SUI_CTX=[
                 `Chaque heure le tuyau apporte [r] L. Comme [e] = [r] × [k], pour apporter [e] L, il faudra [k] heures.`,
                 `Donc ce sera à 9 h + [k] h = [fin] h.`] },
   { nom:'le roman de Léa', sens:-1, u0:[200,300,400,500,600,700,800,900,1000], rMax:90, tps:{type:'date', mois:'juin'}, u:'pages', pas:'jour', pass:'jours',
-    intro:(u0,r)=>`Le 1<sup>er</sup> juin, il reste <b>${u0} pages</b> à lire à Léa dans son roman. Elle lit <b>${r} pages</b> chaque jour.`,
+    intro:(u0,r,m0)=>`Le ${m0}, il reste <b>${u0} pages</b> à lire à Léa dans son roman. Elle lit <b>${r} pages</b> chaque jour.`,
     tabL:'Jour', tabC:'Pages restantes',
     q2:(m)=>`Combien de pages lui restera-t-il à lire le ${m} ?`,
-    p2:(m)=>[`Entre le 1<sup>er</sup> juin et le ${m} il y a [n] jours.`,
+    p2:(m,m0)=>[`Entre le ${m0} et le ${m} il y a [n] jours.`,
              `Comme chaque jour elle lit [r] pages, en [n] jours elle lira [n] × [r] = [p] pages.`,
              `Donc le ${m} il lui restera [u0] − [p] = [res] pages.`],
     q3:(T)=>`Quel jour ne lui restera-t-il plus que ${T} pages à lire ?`,
-    p3:(T,u0)=>[`Entre ${u0} pages et ${T} pages il y a [e] pages d’écart.`,
+    p3:(T,u0,m0,j0)=>[`Entre ${u0} pages et ${T} pages il y a [e] pages d’écart.`,
                 `Chaque jour elle lit [r] pages. Comme [e] = [r] × [k], pour lire [e] pages, il faudra [k] jours.`,
-                `Donc ce sera le 1 + [k] = [fin] juin.`] },
+                `Donc ce sera le ${j0} + [k] = [fin] juin.`] },
   { nom:'la cuve d’eau de pluie', sens:-1, u0:[500,1000,1500,2000,3000], tps:{type:'date', mois:'juillet'}, u:'L', pas:'jour', pass:'jours',
-    intro:(u0,r)=>`Le 1<sup>er</sup> juillet, une cuve contient <b>${u0} L</b> d’eau de pluie. Chaque jour, on en utilise <b>${r} L</b> pour arroser le jardin.`,
+    intro:(u0,r,m0)=>`Le ${m0}, une cuve contient <b>${u0} L</b> d’eau de pluie. Chaque jour, on en utilise <b>${r} L</b> pour arroser le jardin.`,
     tabL:'Jour', tabC:'Eau en L',
     q2:(m)=>`Calculer la quantité d’eau dans la cuve le ${m}.`,
-    p2:(m)=>[`Entre le 1<sup>er</sup> juillet et le ${m} il y a [n] jours.`,
+    p2:(m,m0)=>[`Entre le ${m0} et le ${m} il y a [n] jours.`,
              `Comme chaque jour on utilise [r] L, en [n] jours on utilisera [n] × [r] = [p] L.`,
              `Donc le ${m} la cuve contiendra [u0] − [p] = [res] L.`],
     q3:(T)=>`Quel jour ne restera-t-il plus que ${T} L dans la cuve ?`,
-    p3:(T,u0)=>[`Entre ${u0} L et ${T} L il y a [e] L d’écart.`,
+    p3:(T,u0,m0,j0)=>[`Entre ${u0} L et ${T} L il y a [e] L d’écart.`,
                 `Chaque jour on utilise [r] L. Comme [e] = [r] × [k], pour utiliser [e] L, il faudra [k] jours.`,
-                `Donc ce sera le 1 + [k] = [fin] juillet.`] },
+                `Donc ce sera le ${j0} + [k] = [fin] juillet.`] },
   { nom:'les abonnés de la chaîne', sens:1, u0:[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000], rMin:50, tps:{type:'annee', t0:2026}, u:'abonnés', pas:'année', pass:'années',
     intro:(u0,r)=>`En 2026, une chaîne de vidéos compte <b>${u0} abonnés</b>. Chaque année, elle gagne <b>${r} abonnés</b> de plus.`,
     tabL:'Année', tabC:'Nombre d’abonnés',
@@ -19777,7 +19781,9 @@ function suiFamilles(c){
 function suiTirer(ci, part, bornes){
   const fam=suiFamilles(SUI_CTX[ci]).filter(function(f){ return !bornes || (f.r>=bornes[0] && f.r<=bornes[1]); });
   const f=pick(fam.length?fam:suiFamilles(SUI_CTX[ci]));
-  return {ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
+  const q={ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
+  if(SUI_CTX[ci].tps.type==='date') q.j0=1+Math.floor(Math.random()*SUI_J0_MAX);
+  return q;
 }
 /* Le pas selon le RANG de l'exemple dans la séance (demande de Turquet,
    novembre 2026) : le premier exemple ajoute ou retire 10, 20 ou 30 ; le
@@ -19786,22 +19792,27 @@ function suiTirer(ci, part, bornes){
    piscine ou la chaîne ne descendent pas à 30) prend un autre rang. */
 const SUI_PAS_RANGS=[[10,30],[40,90]];
 /* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
-function suiMoment(c, n){
+function suiMoment(c, n, j0){
   const t=c.tps;
   if(t.type==='annee') return String(t.t0+n);
   if(t.type==='heure') return (t.t0+n)+' h';
-  return (1+n)+' '+t.mois;
+  return ((j0||1)+n)+' '+t.mois;
 }
+/* Le JOUR DE DÉPART d'un contexte à dates est tiré avec la question (q.j0, de
+   1 à SUI_J0_MAX) — « ne pas commencer un premier du mois forcément »
+   (demande de Turquet, novembre 2026). Au plus 20 : avec p ≤ 10, la question
+   ③ reste dans le mois. Un brouillon d'avant (sans j0) lit 1. */
+const SUI_J0_MAX=20;
 /* Tout ce que la question attend, recalculé du tirage. */
 function suiVals(q){
   /* un brouillon de pause d'avant la v416 range (a, b, k) : u0 = a·10^k, r = b·10^k */
   const c=SUI_CTX[q.ci], u0=(q.u0!=null?q.u0:q.a*Math.pow(10,q.k)), r=c.sens*(q.r!=null?q.r:q.b*Math.pow(10,q.k));
-  const t=c.tps, fin=(t.type==='annee')?t.t0+q.p:(t.type==='heure'?t.t0+q.p:1+q.p);
+  const j0=q.j0||1, t=c.tps, fin=(t.type==='annee')?t.t0+q.p:(t.type==='heure'?t.t0+q.p:j0+q.p);
   return { c:c, u0:u0, r:r, rAbs:Math.abs(r),
     t1:u0+r, t2:u0+2*r, t3:u0+3*r,
     n:q.N, prod:q.N*Math.abs(r), res:u0+q.N*r,
     e:q.p*Math.abs(r), kk:q.p, T:u0+q.p*r, fin:fin,
-    m2:suiMoment(c,q.N) };
+    j0:j0, m2:suiMoment(c,q.N,j0) };
 }
 /* Les cases d'une question, dans l'ordre d'écriture, avec l'entier attendu.
    Le nom suit la convention xxxCases(q) que lit le réglage « Questions »
@@ -19870,9 +19881,9 @@ function suiTableau(q, rempli){
     +cell(0,v.u0)+cell(1,v.t1,rempli?'':'sui-t1')+cell(2,v.t2,rempli?'':'sui-t2')+cell(3,v.t3)+'</table>';
 }
 /* L'étiquette d'un pas, en HTML : « 1<sup>er</sup> juin » au pas 0 d'une date. */
-function suiMomentHTML(c, n){
-  if(c.tps.type==='date' && n===0) return '1<sup>er</sup> '+c.tps.mois;
-  return suiMoment(c, n);
+function suiMomentHTML(c, n, j0){
+  if(c.tps.type==='date' && (j0||1)+n===1) return '1<sup>er</sup> '+c.tps.mois;
+  return suiMoment(c, n, j0);
 }
 /* LA MÉTHODE 1 DE LA QUESTION ② (demande de Turquet, novembre 2026) : le
    tableau de la question ①, prolongé jusqu'au pas N — trois colonnes : le
@@ -19892,7 +19903,7 @@ function suiTableauM1(q){
   let h='<table class="sui-tab sui-m1"><tr><th>'+th1+'</th><th>'+esc(th2)+'</th><th>'+esc(c.tabC)+'</th></tr>';
   for(let n=0;n<=v.n;n++){
     const val=v.u0+n*v.r;
-    h+='<tr><td>'+suiMomentHTML(c,n)+'</td><td>'+n+'</td><td>'
+    h+='<tr><td>'+suiMomentHTML(c,n,v.j0)+'</td><td>'+n+'</td><td>'
       +(n<SUI_M1_ECRITES ? suiFmt(val) : pmMF(n<v.n?'hors-note':'', 'sui-m1-'+n, ' aria-label="'+esc('la valeur au pas '+n+(n<v.n?' (facultative)':''))+'"'))
       +'</td></tr>';
   }
@@ -20011,9 +20022,19 @@ function suiPosePlacer(step, el){
   const couvre=function(s){ return ecrits.some(function(q){ return s.left<q.right-1 && q.left<s.right-1 && s.top<q.bottom-1 && q.top<s.bottom-1; }); };
   const poser=function(left, top){ step.style.left=Math.max(0,Math.round(left))+'px'; step.style.top=Math.max(0,Math.round(top))+'px'; return step.getBoundingClientRect(); };
   const cadrer=function(s){ const bas=Math.ceil(s.bottom-h.top+10); if(bas>host.clientHeight) host.style.minHeight=bas+'px'; };
-  const droite=suiBordDroit(bloc)-h.left+24;
-  /* à droite de la ligne : un peu au-dessus de la case, sinon au ras de la case */
-  const hauts=[r.top-h.top-SUI_POSE_HAUT, r.top-h.top-8];
+  /* UNE CASE DE TABLEAU (demande de Turquet, novembre 2026, capture à
+     l'appui : « sur la même ligne que le tableau et un peu plus à gauche ») :
+     la pose s'aligne sur le HAUT du tableau, 8 px après son bord droit — elle
+     accompagne le tableau entier, pas la ligne cliquée, et ne déborde plus
+     sous lui. Une case de phrase : à droite de la phrase, un peu au-dessus
+     de la case, sinon au ras de la case. */
+  /* LA QUESTION ③ (même demande) : l'écart se pose À CÔTÉ DU TABLEAU « pour
+     mémoire », en bas, aligné sur son haut, « pas trop près » — 24 px. */
+  const rappel=host.querySelector('table.sui-rappel');
+  const ancre=(bloc.tagName!=='TABLE' && rappel)?rappel:bloc;
+  const tableau=ancre.tagName==='TABLE', b0=ancre.getBoundingClientRect();
+  const droite=(tableau?b0.right:suiBordDroit(ancre))-h.left+(ancre===bloc&&tableau?8:24);
+  const hauts=tableau?[b0.top-h.top, r.top-h.top-8]:[r.top-h.top-SUI_POSE_HAUT, r.top-h.top-8];
   for(let k=0;k<hauts.length;k++){
     const s=poser(droite, hauts[k]); if(!s.width) return;
     if(s.right<=h.right-2 && !couvre(s)){ cadrer(s); return; }
@@ -20067,7 +20088,7 @@ function renderSuiTest(){
   $('suiLiveScore').textContent=test.score;
   $('suiFeedback').textContent=''; $('suiFeedback').className='mp-feedback';
   $('suiActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuiAnswer()">Vérifier</button>';
-  $('suiPrompt').innerHTML=c.intro(suiFmt(v.u0), suiFmt(v.rAbs));
+  $('suiPrompt').innerHTML=c.intro(suiFmt(v.u0), suiFmt(v.rAbs), suiMomentHTML(c,0,v.j0));
   let h='';
   const vus={};
   if(q.part===1){
@@ -20076,12 +20097,12 @@ function renderSuiTest(){
     /* deux méthodes, toutes deux obligatoires : le tableau prolongé, puis le calcul */
     h+='<div class="sui-q">2. '+c.q2(v.m2)+'</div>';
     const prep=c.tps.type==='annee'?'jusqu’en ':(c.tps.type==='heure'?'jusqu’à ':'jusqu’au ');
-    h+='<div class="sui-q sui-meth">Méthode 1 : complète le tableau '+prep+suiMoment(c,v.n)+'. Tu peux sauter des lignes : seule la dernière est attendue.</div>'+suiTableauM1(q);
+    h+='<div class="sui-q sui-meth">Méthode 1 : complète le tableau '+prep+suiMoment(c,v.n,v.j0)+'. Tu peux sauter des lignes : seule la dernière est attendue.</div>'+suiTableauM1(q);
     h+='<div class="sui-q sui-meth">Méthode 2 : par le calcul.</div>';
-    h+=c.p2(v.m2).map(function(t){ return suiPhrase(t,vus); }).join('');
+    h+=c.p2(v.m2, suiMomentHTML(c,0,v.j0)).map(function(t){ return suiPhrase(t,vus); }).join('');
   } else {
     h+='<div class="sui-q">3. '+c.q3(suiFmt(v.T))+'</div>';
-    h+=c.p3(suiFmt(v.T), suiFmt(v.u0)).map(function(t){ return suiPhrase(t,vus); }).join('');
+    h+=c.p3(suiFmt(v.T), suiFmt(v.u0), suiMomentHTML(c,0,v.j0), v.j0).map(function(t){ return suiPhrase(t,vus); }).join('');
   }
   if(q.part===3) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);   /* la question 2 l'a dans sa méthode 1 */
   $('suiHost').innerHTML=h+'<div id="suiPoses"></div>';   /* la couche des poses facultatives */
@@ -20103,7 +20124,7 @@ function suiPourquoi(q){
   if(q.part===1) return 'À chaque '+c.pas+', on '+pl+' '+suiFmt(v.rAbs)+' : '+suiFmt(v.u0)+' → '+suiFmt(v.t1)+' → '+suiFmt(v.t2)+' → '+suiFmt(v.t3)+'.';
   if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push(suiFmt(v.u0+n*v.r));
     return 'Méthode 1 : on '+pl+' '+suiFmt(v.rAbs)+' à chaque ligne, '+suiFmt(v.u0+(SUI_M1_ECRITES-1)*v.r)+' → '+lignes.join(' → ')+'. Méthode 2 : il y a '+v.n+' '+c.pass+' ; '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+' ; '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.'; }
-  return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk)+'.';
+  return 'L’écart vaut '+suiFmt(v.e)+' ; '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk,v.j0)+'.';
 }
 function checkSuiAnswer(live){
   if(test.locked) return;
@@ -20155,12 +20176,12 @@ function startSui(){
 function ctxSui(q){
   const v=suiVals(q), c=v.c, sg=c.sens>0?'+':'−';
   const ecrit=function(id){ const el=$(id); const s=el?String(el.value==null?'':el.value).trim():''; return s===''?'(vide)':s; };
-  let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs)).replace(/<[^>]+>/g,'')+' ';
+  let t='Contexte : '+c.intro(suiFmt(v.u0), suiFmt(v.rAbs), suiMomentHTML(c,0,v.j0)).replace(/<[^>]+>/g,'')+' ';
   t+='Une quantité qui change toujours de la même valeur à chaque '+c.pas+' : la valeur au bout de n pas est la valeur de départ '+sg+' n × '+suiFmt(v.rAbs)+'. ';
   if(q.part===1) t+='Question 1 : compléter le tableau des pas 0 à 3 (le pas 0 vaut '+suiFmt(v.u0)+', le pas 3 vaut '+suiFmt(v.t3)+', donnés). Réponses attendues, STRICTEMENT SECRÈTES : pas 1 = '+suiFmt(v.t1)+', pas 2 = '+suiFmt(v.t2)+'. ';
-  else if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n)+') = '+suiFmt(v.u0+n*v.r));
+  else if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n,v.j0)+') = '+suiFmt(v.u0+n*v.r));
     t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 et 1 écrits ; l’élève reprend au pas 2, au moins trois lignes à compléter), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
-  else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk)+' (case : '+v.fin+'). ';
+  else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk,v.j0)+' (case : '+v.fin+'). ';
   t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
   t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
   const ecrits=suiCases(q).map(function(x){ return x.id.slice(4)+' : '+ecrit(x.id); });
@@ -33961,6 +33982,36 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
     e.preventDefault();
     el.selection={ ranges:[[n.debut,n.fin]], direction:'forward' };
     el.executeCommand(['insert', '\\frac{'+n.latex+'}'+d.slice(9), { selectionMode:'placeholder' }]);
+  }, true);
+})();
+</script>
+<script id="retenue-redescend">
+/* LA RETENUE DU HAUT REDESCEND TOUTE SEULE — dans TOUTE soustraction posée
+   de la Première (demande de Turquet, novembre 2026 : « quand on met une
+   retenue en haut, afficher dans la case du bas +1 automatiquement »). Le
+   1.x des opérations posées le faisait déjà (asp-ret) ; les soustractions
+   construites par buildPoseSub (les poses facultatives des pourcentages, du
+   7.1) demandaient encore d'écrire deux fois la même retenue. Ici, une seule
+   porte en capture sur le document, rien à déclarer : la case du bas
+   (sub-retb, lecture seule) recopie la VALEUR écrite en haut (sub-ret de la
+   même colonne d'emprunt, data-ret), juste ou non — un miroir, pas une
+   correction —, et s'efface avec elle. Le focus qui y arriverait (l'avance
+   automatique d'un exercice, Tab) passe à la case suivante de la pose : on ne
+   parque pas l'élève devant une case que la page remplit. */
+(function(){
+  const chiffre=function(v){ return String(v==null?'':v).replace(/[^0-9]/g,'').slice(0,1); };
+  document.addEventListener('input', function(e){
+    const t=e.target; if(!t||!t.classList||!t.classList.contains('sub-ret')||t.hasAttribute('data-bas')) return;
+    const op=t.closest('.mp-op'); if(!op) return;
+    const bas=op.querySelector('input.sub-retb[data-ret="'+t.dataset.ret+'"]'); if(bas) bas.value=chiffre(t.value);
+  }, true);
+  document.addEventListener('focusin', function(e){
+    const t=e.target; if(!t||!t.classList||!t.classList.contains('sub-retb')||!t.readOnly) return;
+    const op=t.closest('.mp-op'); if(!op) return;
+    const rang=function(i){ return +(i.dataset.mtab||0); };
+    const suiv=[].slice.call(op.querySelectorAll('input')).filter(function(i){ return !i.readOnly && !i.disabled && rang(i)>rang(t); })
+      .sort(function(x,y){ return rang(x)-rang(y); })[0];
+    if(suiv) suiv.focus();
   }, true);
 })();
 </script>

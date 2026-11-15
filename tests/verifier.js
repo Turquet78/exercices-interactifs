@@ -4925,6 +4925,7 @@ function exercices(suite){
     serpentsHalloween(w, P);
     pythonInput(w, P);
     augmentationTableau(w, P);
+    retenueRedescend(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
     pythonTriangle(w, P);
@@ -36791,6 +36792,35 @@ function pythonInputSport(w, P){
    (copie juste, vide, fausse ; la case juste ne rougit pas pour sa voisine),
    le soutien (rouge sans verrou ni réponse, puis la reprise d'une pause qui
    remet les miroirs) et les branchements. */
+/* ---- La retenue du haut redescend toute seule, dans TOUTE soustraction
+   posée (buildPoseSub) — demande de Turquet, novembre 2026, pour tout le
+   niveau Première. Le script #retenue-redescend tient la règle pour toutes
+   les poses construites par buildPoseSub : on en construit une (42 − 17, un
+   emprunt aux unités), on écrit en haut, on relit en bas. ---- */
+function retenueRedescend(w, P){
+  if(!P.augmentationTableau){ ignorer('la retenue écrite en haut d’une soustraction posée redescend seule en « +1 »', 'demande faite pour la Première'); return; }
+  verifierEval(w, 'dans toute soustraction posée (buildPoseSub), la retenue écrite en haut redescend seule en « +1 » dans la colonne suivante : la case du bas recopie la valeur écrite (juste ou non), s’efface avec elle, ne se tape pas, et le focus qui y arrive passe à la case suivante', `(function(){
+    if(typeof buildPoseSub!=='function') return 'pas de buildPoseSub';
+    if(!document.getElementById('retenue-redescend')) return 'pas de script #retenue-redescend';
+    const vus=[]; const d=document.createElement('div'); d.innerHTML=buildPoseSub(42,17,'__ret_tmp'); document.body.appendChild(d);
+    const op=d.querySelector('.mp-op'), haut=op.querySelector('input.sub-ret'), bas=op.querySelector('input.sub-retb'), res=op.querySelector('input.mp-box');
+    if(!haut||!bas) vus.push('42 − 17 : pas de retenue en haut ('+!!haut+') ou en bas ('+!!bas+')');
+    else {
+      if(!bas.readOnly) vus.push('la case du bas se tape encore');
+      if(haut.dataset.ret!==bas.dataset.ret) vus.push('haut et bas ne sont pas appariés ('+haut.dataset.ret+' / '+bas.dataset.ret+')');
+      haut.value='1'; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='1') vus.push('le 1 écrit en haut ne redescend pas (bas : « '+bas.value+' »)');
+      haut.value='7'; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='7') vus.push('le miroir corrige au lieu de recopier (bas : « '+bas.value+' » pour 7)');
+      haut.value=''; haut.dispatchEvent(new Event('input',{bubbles:true}));
+      if(bas.value!=='') vus.push('la retenue effacée en haut reste en bas (« '+bas.value+' »)');
+      bas.focus();
+      if(document.activeElement===bas) vus.push('le focus reste parqué sur la case du bas');
+      else if(res && document.activeElement!==res) vus.push('le focus ne passe pas à la case suivante de la pose');
+    }
+    d.remove(); return vus.join(' | ');
+  })()`, v => v === '');
+}
 function augmentationTableau(w, P){
   const nom = '{augmentation-tableau} : tableau, valeur au bout de N pas, pas du seuil — un seul chiffre non nul partout';
   if(!P.augmentationTableau){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la fiche « augmentation tableau »'); return; }
@@ -36811,12 +36841,16 @@ function augmentationTableau(w, P){
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
   verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 40 à 90 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
-    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100];
+    const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
+      /* les contextes à dates ne commencent pas forcément le 1er (Turquet, novembre 2026) : j0 tiré, et la question 3 reste dans le mois */
+      qs.forEach(function(q){ const c=SUI_CTX[q.ci]; if(c.tps.type!=='date') return; j0s.add(q.j0||1); const v=suiVals(q);
+        if(!(q.j0>=1&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 1 à 20)");
+        if(v.fin>30) vus.push(c.nom+" : le "+v.fin+" "+c.tps.mois+" n’existe pas"); });
       /* le pas selon le rang de l'exemple (Turquet, novembre 2026) : 10 à 30, puis 40 à 90 */
       const r1=suiVals(qs[0]).rAbs; if(r1>30) vus.push("le premier exemple ajoute ou retire "+r1+" : attendu 10, 20 ou 30");
       if(qs[3]){ const r2=suiVals(qs[3]).rAbs; if(r2<40||r2>90) vus.push("le deuxième exemple ajoute ou retire "+r2+" : attendu de 40 à 90"); }
@@ -36830,6 +36864,13 @@ function augmentationTableau(w, P){
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
       });
     }
+    if(j0s.size<3) vus.push("les dates commencent toujours le "+[...j0s].join(", ")+" : le jour de départ n’est pas tiré");
+    { const q=suiBuildQuestions(6).find(function(x){ return SUI_CTX[x.ci].tps.type==='date'; });
+      if(q){ Object.assign(q,{j0:5, part:3}); const v=suiVals(q), c=SUI_CTX[q.ci];
+        if(c.intro("1","1",suiMomentHTML(c,0,v.j0)).indexOf("Le 5 "+c.tps.mois)<0) vus.push("l’énoncé n’écrit pas le jour tiré : "+c.intro("1","1",suiMomentHTML(c,0,v.j0)).slice(0,40));
+        if(c.p3("1","1",suiMomentHTML(c,0,v.j0),v.j0).join("").indexOf("le 5 + [k]")<0) vus.push("la phrase de la question 3 n’écrit pas « le 5 + [k] »");
+        if(suiMoment(c,v.kk,v.j0)!==(5+q.p)+" "+c.tps.mois||v.fin!==5+q.p) vus.push("le moment du seuil ne part pas du jour tiré : "+suiMoment(c,v.kk,v.j0)+", fin "+v.fin);
+        if(suiMomentHTML(c,0,1)!=="1<sup>er</sup> "+c.tps.mois) vus.push("le 1er du mois a perdu son « er »"); } }
     SUI_CTX.forEach(function(c){ if(!suiFamilles(c).length) vus.push(c.nom+" : aucune combinaison possible"); });
     if(SUI_CTX.length<4) vus.push("moins de quatre contextes");
     if(SUI_CTX.some(function(c){ return /€|euro|argent|salaire|banque|prix/i.test(c.intro(1,1)); })) vus.push("un contexte parle d’argent");
