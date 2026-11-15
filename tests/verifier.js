@@ -36660,18 +36660,18 @@ function pythonInputSport(w, P){
   })()`, v => v === '');
 
   /* ---- 2. le juge des trous, du nom et du type ---- */
-  verifierEval(w, 'le juge : les deux trous justes passent (espaces, guillemets simples sans apostrophe, virgule finale), les faux sont refusés chacun pour SA raison ; le nom « sport » seul est juste ; le type attendu est str, même pour une réponse « 12 »', `(function(){
+  verifierEval(w, 'le juge : les deux trous justes passent (espaces, guillemets simples sans apostrophe, virgule finale), les faux sont refusés chacun pour SA raison ; le nom « reponse » seul est juste (« réponse », avec l’accent, nommé) ; le type attendu est str, même pour une réponse « 12 »', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
     [[1,Q+"quel est ton sport favori ? "+Q],[1,Q+"quel est ton sport favori ?"+Q],[1,A+"quel est ton sport favori ? "+A],[1,Q+"Quel est ton sport favori ?"+Q],
-     [2,Q+"c"+A+"est formidable le sport"+Q],[2,Q+"c"+A+"est formidable le sport,"+Q],[2,Q+" c"+A+"est formidable le sport "+Q]].forEach(function(c){
+     [2,Q+"c"+A+"est formidable"+Q],[2,Q+"c"+A+"est formidable,"+Q],[2,Q+" c"+A+"est formidable "+Q]].forEach(function(c){
       const j=psfJugeTrou(c[0],c[1]); if(!j.ok) vus.push("refusé à tort, trou "+c[0]+" : "+c[1]+" — "+j.diag); });
     [[1,"quel est ton sport favori ?",/guillemets/],[1,"input("+Q+"quel est ton sport favori ?"+Q+")",/déjà écrits/],[1,Q+"quel âge as-tu ?"+Q,/doit être/],
-     [2,A+"c"+A+"est formidable le sport"+A,/apostrophe/],[2,Q+"c"+A+"est formidable le sport"+Q+", sport",/deux fois/],[2,"print("+Q+"c"+A+"est formidable le sport"+Q,/déjà écrit/],
+     [2,A+"c"+A+"est formidable"+A,/apostrophe/],[2,Q+"c"+A+"est formidable"+Q+", reponse",/deux fois/],[2,"print("+Q+"c"+A+"est formidable"+Q,/déjà écrit/],
      [2,Q+"bravo"+Q,/doit être/]].forEach(function(c){
       const j=psfJugeTrou(c[0],c[1]); if(j.ok) vus.push("accepté à tort, trou "+c[0]+" : "+c[1]); else if(!c[2].test(j.diag)) vus.push(c[1]+" : "+j.diag); });
     if(!psfJugeTrou(1,"  ").vide) vus.push("le trou vide n’est pas reconnu vide");
-    if(!psfJugeNom(" sport ").ok) vus.push("« sport » refusé");
-    [[Q+"sport"+Q,/SANS guillemets/],["Sport",/majuscules/],["input",/fonctions/],["favori",/GAUCHE/]].forEach(function(c){
+    if(!psfJugeNom(" reponse ").ok) vus.push("« reponse » refusé");
+    [[Q+"reponse"+Q,/SANS guillemets/],["Reponse",/majuscules/],["réponse",/accent/],["sport",/GAUCHE/],["input",/fonctions/],["favori",/GAUCHE/]].forEach(function(c){
       const j=psfJugeNom(c[0]); if(j.ok) vus.push("nom accepté à tort : "+c[0]); else if(!c[1].test(j.diag)) vus.push(c[0]+" : "+j.diag); });
     if(psfTypeAttendu({rep:"12"})!=="str"||psfTypeAttendu({rep:"tennis"})!=="str") vus.push("le type attendu n’est pas str");
     if(PSF_TYPES.map(function(t){ return t[1]; }).join("|")!=="str (texte)|int (nombre entier)|float (un nombre décimal)") vus.push("les trois réponses du c) : "+PSF_TYPES.join(" / "));
@@ -36687,11 +36687,11 @@ function pythonInputSport(w, P){
     if($("psf-nom")||$("psf-type")) vus.push("le b) est ouvert avant le a)");
     if(!$("psfValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
     $("psf-l1").value=Q+"quel est ton sport favori ? "+Q; $("psf-l1").dispatchEvent(new Event("input"));
-    $("psf-l2").value=Q+"c"+A+"est super le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    $("psf-l2").value=Q+"c"+A+"est super"+Q; $("psf-l2").dispatchEvent(new Event("input"));
     psfExecuter();
     if(!$("pynEntree")) vus.push("la console n’attend pas la réponse");
     else { $("pynEntree").value="handball"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
-    const att="quel est ton sport favori ? handball"+NL+"c"+A+"est super le sport handball";
+    const att="quel est ton sport favori ? handball"+NL+"c"+A+"est super handball";
     if($("psfConsoleA").textContent!==att) vus.push("console : "+JSON.stringify($("psfConsoleA").textContent));
     if($("psfValidate").disabled) vus.push("« Vérifier » fermé après l’exécution");
     $("psf-l1").value=$("psf-l1").value+" "; $("psf-l1").dispatchEvent(new Event("input"));
@@ -36700,7 +36700,7 @@ function pythonInputSport(w, P){
     checkPSF();
     if(!$("psf-l1").classList.contains("ok")||!$("psf-l2").classList.contains("bad")) vus.push("les trous ne sont pas peints : "+$("psf-l1").className+" / "+$("psf-l2").className);
     const cor=document.querySelector("#psfHost .psf-cor[data-pour=psf-l2]");
-    if(!cor||cor.textContent!==Q+"c"+A+"est formidable le sport"+Q) vus.push("le texte juste du trou 2 n’est pas écrit en vert");
+    if(!cor||cor.textContent!==Q+"c"+A+"est formidable"+Q) vus.push("le texte juste du trou 2 n’est pas écrit en vert");
     if(test.score!==1) vus.push("score après le a) : "+test.score);
     if(!$("psfSuite")) vus.push("pas de « Passer au b) »"); else psfVersB();
     if(!document.querySelector("#psfEtapeA .pyn-titre")) vus.push("l’énoncé du a) disparaît au b)");
@@ -36709,7 +36709,7 @@ function pythonInputSport(w, P){
     $("psf-type").value="str"; $("psf-type").dispatchEvent(new Event("change"));
     checkPSF();
     if($("psf-nom").classList.contains("bad")) vus.push("la case VIDE du nom rougit");
-    if(!$("psf-nom").classList.contains("sol")||$("psf-nom").value!=="sport") vus.push("la case vide du nom ne reçoit pas la réponse en vert");
+    if(!$("psf-nom").classList.contains("sol")||$("psf-nom").value!=="reponse") vus.push("la case vide du nom ne reçoit pas la réponse en vert");
     if(!$("psf-type").classList.contains("ok")) vus.push("le type juste n’est pas en bleu");
     if(test.score!==2) vus.push("score final "+test.score);
     const a=test.answers[test.answers.length-1];
@@ -36719,16 +36719,16 @@ function pythonInputSport(w, P){
   })()`, v => v === '');
 
   /* ---- 4. le soutien, puis la reprise ---- */
-  verifierEval(w, 'soutien : un trou faux rougit et dit OÙ est l’erreur, sans verrouiller ni écrire le texte juste ; corrigé, il compte ; le nom faux rougit sans montrer « sport » ; puis la reprise d’une pause rend l’écran du b) tel qu’il était', `(function(){
+  verifierEval(w, 'soutien : un trou faux rougit et dit OÙ est l’erreur, sans verrouiller ni écrire le texte juste ; corrigé, il compte ; le nom faux rougit sans montrer « reponse » ; puis la reprise d’une pause rend l’écran du b) tel qu’il était', `(function(){
     const vus=[], Q=String.fromCharCode(34), A=String.fromCharCode(39);
     currentMode="soutien"; startPSF();
-    $("psf-l1").value=Q+"quel est ton sport favori ?"+Q; $("psf-l2").value=A+"c"+A+"est formidable le sport"+A; psfModifie();
+    $("psf-l1").value=Q+"quel est ton sport favori ?"+Q; $("psf-l2").value=A+"c"+A+"est formidable"+A; psfModifie();
     psfExecuter(); if($("pynEntree")){ $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"})); }
     checkPSF();
     if(!$("psf-l2").classList.contains("bad")||test.locked||$("psf-l2").disabled) vus.push("le trou faux en soutien : verrouillé ou pas rouge");
     if(!/apostrophe/.test($("psfFeedback").textContent)) vus.push("le soutien ne dit pas où est l’erreur : "+$("psfFeedback").textContent);
     if(document.querySelector("#psfHost .psf-cor")) vus.push("le soutien écrit le texte juste");
-    $("psf-l2").value=Q+"c"+A+"est formidable le sport"+Q; $("psf-l2").dispatchEvent(new Event("input"));
+    $("psf-l2").value=Q+"c"+A+"est formidable"+Q; $("psf-l2").dispatchEvent(new Event("input"));
     psfExecuter(); $("pynEntree").value="judo"; $("pynEntree").dispatchEvent(new KeyboardEvent("keydown",{key:"Enter"}));
     checkPSF();
     if(test.score!==2||!$("psf-l2").classList.contains("ok")) vus.push("les trous corrigés ne comptent pas : "+test.score);
@@ -36736,7 +36736,7 @@ function pythonInputSport(w, P){
     $("psf-nom").value="favori"; $("psf-nom").dispatchEvent(new Event("input")); $("psf-type").value="int"; $("psf-type").dispatchEvent(new Event("change"));
     checkPSF();
     if(!$("psf-nom").classList.contains("bad")||!$("psf-type").classList.contains("bad")||test.locked) vus.push("le b) faux en soutien");
-    if(/« sport »|: sport\b/.test($("psfFeedback").textContent)||document.querySelector("#psfHost .psf-cor")) vus.push("le soutien donne le nom : "+$("psfFeedback").textContent);
+    if(/« reponse »|: reponse\b/.test($("psfFeedback").textContent)||document.querySelector("#psfHost .psf-cor")) vus.push("le soutien donne le nom : "+$("psfFeedback").textContent);
     const sauve=JSON.parse(JSON.stringify(test.questions));
     test.questions=sauve; test.locked=false;
     if(!afficherEcranDe("psf")) vus.push("afficherEcranDe ne connaît pas psf");

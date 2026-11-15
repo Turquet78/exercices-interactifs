@@ -6995,3 +6995,18 @@ console — ce que lisent les juges et les bancs — ne change pas d'un caractè
 Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
 retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
 (`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
+
+**Puis la variable est devenue `reponse`, et la phrase « c'est formidable »
+(15 novembre 2026, v683).** Demande de Turquet : « enlève le mot sport dans
+la phrase du print, mets reponse pour la variable de l'exercice ». Le
+programme juste est désormais `reponse = input("quel est ton sport favori ? ")`
+puis `print("c'est formidable", reponse)` — la question, elle, garde son
+sport. Tout passait déjà par `PSF_VAR` et `PSF_T` ; seuls trois textes
+écrivaient le nom en dur (la description du menu, le rappel de cours, le
+diagnostic « , sport) déjà écrit ») et lisent maintenant la constante ou le
+nouveau nom. Un diagnostic neuf : « réponse », avec l'accent que la langue
+réclame, est NOMMÉ (« sans accent, exactement comme à la ligne 1 ») au lieu
+de tomber dans le message général — et « sport », l'ancien nom, reçoit le
+message général (la variable à GAUCHE du =). Le contrôle a suivi : le texte
+« c'est formidable le sport » est maintenant FAUX (« doit être »), le nom
+juste « reponse ».
