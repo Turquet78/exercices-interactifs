@@ -368,7 +368,7 @@ faux rougit, garde sa pastille, ne coûte pas le point, ne compte pas dans
 relit le pas des deux premiers exemples. Ce qu'il ne voit pas : la place à
 l'écran (jsdom n'a pas de géométrie) — elle se regarde en ligne.
 
-## Puis la pose a trouvé sa place : à droite de tout l'écrit, dans le cadre (novembre 2026, v424)
+## Puis la pose a trouvé sa place : à droite de tout l'écrit, dans le cadre (novembre 2026, v426)
 
 **La demande** (Turquet, capture d'écran à l'appui) : « l'opération posée doit
 être plus à droite et un peu plus haut pour rester sur le quadrillage de
