@@ -3970,7 +3970,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=425;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=426;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19921,7 +19921,7 @@ function suiMiroirs(){
    boîte des cases vides — et se jugent comme la pose du 2.2.2 : seulement si
    l'élève y a écrit. La place : à droite de la case, à sa hauteur ; quand
    l'écran est trop étroit, sous le tableau ou la phrase. */
-const SUI_POSE_HAUT=26;
+const SUI_POSE_HAUT=34;
 /* Les termes de la pose d'une case : {a, b, neg} en chaînes d'entiers, ou null
    quand rien ne se pose (pas de nombre à lire). */
 function suiPoseSpec(q, id){
@@ -19959,17 +19959,61 @@ function suiPoseMontrer(id){
   $('suiPoseLab-'+id).textContent='Pose '+(spec.neg?'la soustraction':'l’addition')+' : '+suiFmt(+spec.a)+(spec.neg?' − ':' + ')+suiFmt(+spec.b);
   suiPosePlacer(step, el);
 }
-/* À droite de la case, à sa hauteur ; sinon (écran étroit) sous son tableau ou sa phrase. */
+/* LA PLACE (demande de Turquet, novembre 2026, capture à l'appui : « plus à
+   droite et un peu plus haut pour rester sur le quadrillage de l'exercice ;
+   les opérations posées ne doivent pas être sur les écritures ») : à droite
+   de TOUT ce qui est écrit sur la ligne de la case — le tableau entier, pas
+   la case ; la phrase jusqu'à son dernier mot —, un peu au-dessus de la case,
+   et SUR RIEN : si la pose y recouvrait une écriture (le tableau de la
+   méthode 1 au-dessus de la phrase du résultat, les phrases qui suivent
+   l'écart), on la descend au ras de sa ligne, et sinon SOUS tout le contenu
+   de la question. Jamais remontée au-dessus de sa ligne : la première version
+   remontait la pose pour la garder dans le cadre, et la posait sur le tableau.
+   C'est le cadre (#suiHost) qui grandit quand la pose en sort par le bas —
+   le quadrillage reste derrière elle ; il reprend sa taille à chaque rendu. */
+/* Les écritures du cadre : les rectangles des fragments de texte et des
+   cases (Range.getClientRects), pas les boîtes des éléments — un paragraphe
+   occupe toute la ligne même quand son texte est court. Hors poses. */
+function suiEcrits(host){
+  const out=[];
+  const marcher=function(n){
+    if(n.nodeType===3){ if(!String(n.textContent||'').trim()) return;
+      try{ const rg=document.createRange(); rg.selectNodeContents(n);
+        [].forEach.call(rg.getClientRects(), function(q){ if(q.width>0&&q.height>0) out.push(q); }); }catch(e){} return; }
+    if(n.nodeType!==1 || n.id==='suiPoses') return;
+    if(n.tagName==='MATH-FIELD'){ if(n.getClientRects().length) out.push(n.getBoundingClientRect()); return; }
+    [].forEach.call(n.childNodes, marcher);
+  };
+  marcher(host); return out;
+}
+function suiBordDroit(bloc){
+  try{
+    const rg=document.createRange(); rg.selectNodeContents(bloc);
+    const rects=[].filter.call(rg.getClientRects(), function(q){ return q.width>0 && q.height>0; });
+    if(rects.length) return rects.reduce(function(m,q){ return Math.max(m, q.right); }, 0);
+  }catch(e){}
+  return bloc.getBoundingClientRect().right;
+}
 function suiPosePlacer(step, el){
   const host=$('suiHost'); if(!host||!host.getBoundingClientRect) return;
+  const bloc=el.closest('table')||el.closest('.sui-phr')||el;
   const h=host.getBoundingClientRect(), r=el.getBoundingClientRect();
-  step.style.left=Math.round(r.right-h.left+14)+'px'; step.style.top=Math.round(r.top-h.top-SUI_POSE_HAUT)+'px';
-  const s=step.getBoundingClientRect();
-  if(s.width && s.right>h.right-2){
-    const bloc=el.closest('table')||el.closest('.sui-phr')||el, b=bloc.getBoundingClientRect();
-    step.style.left=Math.max(0, Math.round(r.left-h.left-40))+'px'; step.style.top=Math.round(b.bottom-h.top+8)+'px';
-    const s2=step.getBoundingClientRect(); if(s2.right>h.right-2) step.style.left=Math.max(0, Math.round(h.width-s2.width-2))+'px';
+  const ecrits=suiEcrits(host);
+  const couvre=function(s){ return ecrits.some(function(q){ return s.left<q.right-1 && q.left<s.right-1 && s.top<q.bottom-1 && q.top<s.bottom-1; }); };
+  const poser=function(left, top){ step.style.left=Math.max(0,Math.round(left))+'px'; step.style.top=Math.max(0,Math.round(top))+'px'; return step.getBoundingClientRect(); };
+  const cadrer=function(s){ const bas=Math.ceil(s.bottom-h.top+10); if(bas>host.clientHeight) host.style.minHeight=bas+'px'; };
+  const droite=suiBordDroit(bloc)-h.left+24;
+  /* à droite de la ligne : un peu au-dessus de la case, sinon au ras de la case */
+  const hauts=[r.top-h.top-SUI_POSE_HAUT, r.top-h.top-8];
+  for(let k=0;k<hauts.length;k++){
+    const s=poser(droite, hauts[k]); if(!s.width) return;
+    if(s.right<=h.right-2 && !couvre(s)){ cadrer(s); return; }
   }
+  /* sinon sous tout le contenu de la question, aligné sur la ligne */
+  const couche=$('suiPoses'), dernier=couche?couche.previousElementSibling:null;
+  const b=(dernier||host).getBoundingClientRect(), s0=step.getBoundingClientRect();
+  const s=poser(Math.min(r.left-h.left-40, h.width-s0.width-2), b.bottom-h.top+10);
+  cadrer(s);
 }
 /* Le juge de la pose : celui du 2.2.2, au mot près — seulement si l'élève y a
    écrit ; le résultat se corrige (vert sur une case vide, badge sur une case
@@ -20032,6 +20076,7 @@ function renderSuiTest(){
   }
   if(q.part===3) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);   /* la question 2 l'a dans sa méthode 1 */
   $('suiHost').innerHTML=h+'<div id="suiPoses"></div>';   /* la couche des poses facultatives */
+  $('suiHost').style.minHeight='';   /* le cadre reprend sa taille : une pose l'avait peut-être agrandi */
   const cases=suiCases(q).map(function(x){ return $(x.id); }).filter(Boolean);
   cases.forEach(function(el){
     el.addEventListener('input', function(){ suiMiroirs(); if(isSoutien()) checkSuiAnswer(true);
