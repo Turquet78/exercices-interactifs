@@ -3998,7 +3998,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=431;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=433;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9523,6 +9523,32 @@ function vocCalcTxt(c){
 }
 /* « Calcule la somme de 3 et de la moitié de 5. » → « On doit calculer la somme de 3 et de la moitié de 5. » */
 function vocBut(L){ return 'On doit calculer '+L.titre.replace(/^Calcule\s+/,''); }
+/* LES CALCULS INTERMÉDIAIRES SONT PERMIS DANS UNE CASE (demande de Turquet,
+   novembre 2026, sur une capture : « 2 + 3.5 = 5.5 » refusé au tiers de 6
+   plus la moitié de 7). Une case du 1.13 lit une CHAÎNE d'égalités : chaque
+   membre est évalué en rationnel exact (libreEval, le juge des rédactions)
+   et doit valoir le résultat — une égalité fausse en chemin rend la case
+   fausse —, et le DERNIER membre est le résultat écrit comme un nombre
+   (décimal ou fraction : vapLit). Une case sans « = » se juge comme avant.
+   Le LaTeX de MathLive est d'abord ramené au texte : \frac{a}{b} → (a)/(b),
+   \times et \cdot → ×, \div → ÷, {,} et la virgule → point décimal. */
+function vocTexteCalc(s){
+  let t=String(s==null?'':s).replace(/\\left|\\right/g,'').replace(/\\[dt]frac/g,'\\frac').replace(/\{,\}/g,'.');
+  for(let k=0;k<12 && /\\frac/.test(t);k++)
+    t=t.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)').replace(/\\frac(\d)(\d)/g,'($1)/($2)');
+  return t.replace(/\\times|\\cdot/g,'×').replace(/\\div/g,'÷').replace(/\{,\}/g,'.').replace(/,/g,'.')
+    .replace(/\\,|\\ |~/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
+}
+function vocVaut(s,N){
+  const brut=String(s==null?'':s).trim();
+  if(brut.indexOf('=')<0) return vapVaut(brut,N);
+  const ms=brut.split('=').map(m=>m.trim());
+  if(ms.some(m=>m==='')) return false;
+  if(!vapVaut(ms[ms.length-1],N)) return false;
+  return ms.every(function(m){ const v=libreEval(vocTexteCalc(m)); return !!v && v.p*VAP_D===N*v.q; });
+}
+function vocLive(id,N){ const el=$(id); if(!el||el.disabled) return; const v=vapVal(id);
+  el.classList.remove('ok','bad'); if(v!=='') el.classList.add(vocVaut(v,N)?'ok':'bad'); }
 function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
 function vocTexte(q){ const L=vocL(q); return L.t==='ch' ? L.nom+' signifie que l’on doit '+(L.faire?'faire':'calculer')+' '+L.ch.map(vocCalcTxt).join(' ; ') : L.titre; }
 /* la correction écrite, en HTML (écran) ou en texte (aide, compte rendu) */
@@ -9573,7 +9599,7 @@ function renderVoc(){
       +'</div>'
       +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
   } else {
-    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">'+(L.t==='di'?'Sans les étapes : écris directement le résultat.':'Une case par étape, comme sur la fiche.')+'</span>';
+    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">'+(L.t==='di'?'Sans les étapes : écris le résultat. Tu peux écrire tes calculs intermédiaires avant, avec des « = » (2 + 3,5 = 5,5).':'Une case par étape, comme sur la fiche.')+'</span>';
     /* Demande de Turquet, novembre 2026 : sur le quadrillage, la phrase
        « On doit calculer … » vient EN PREMIER, à la police et à la taille
        des étapes qui la suivent (.voc-lab) */
@@ -9589,7 +9615,7 @@ function checkVocAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx], L=vocL(q), soutien=isSoutien();
   if(live){
-    if(L.t==='ch') vapLive('vocR',L.r); else L.et.forEach((e,k)=>vapLive('vocE'+k,e.r));
+    if(L.t==='ch') vocLive('vocR',L.r); else L.et.forEach((e,k)=>vocLive('vocE'+k,e.r));
     return;
   }
   let ok=true, okC=true;
@@ -9600,10 +9626,10 @@ function checkVocAnswer(live){
       if(k===ch) b.classList.add(okC?'ok':'bad');
       else if(k===L.bon && !okC && !soutien) b.classList.add('sol'); });
     if(okC || !soutien) bt.forEach(b=>{ b.disabled=true; });
-    const okR=vapVaut(vapVal('vocR'),L.r); marqueSaufVide('vocR',okR,soutien);
+    const okR=vocVaut(vapVal('vocR'),L.r); marqueSaufVide('vocR',okR,soutien);
     ok=okC&&okR;
   } else {
-    L.et.forEach((e,k)=>{ const o=vapVaut(vapVal('vocE'+k),e.r); marqueSaufVide('vocE'+k,o,soutien); ok=ok&&o; });
+    L.et.forEach((e,k)=>{ const o=vocVaut(vapVal('vocE'+k),e.r); marqueSaufVide('vocE'+k,o,soutien); ok=ok&&o; });
   }
   if(!ok && soutien){ soutienAgain('vocFeedback','vocActions','checkVocAnswer','vocHost'); return; }
   test.locked=true;
@@ -32916,7 +32942,7 @@ function conseilCtxCourant(){
         : L.t==='di' ? 'Partie 3 (calcul sans les étapes). Consigne : '+L.titre+' Une seule case : le résultat. Les étapes ne sont pas affichées : l’élève les fait de tête (ou au brouillon), comme dans la partie 2. '
         : 'Partie 2 (calcul en plusieurs étapes). Consigne : '+L.titre+' Une case par étape : '+L.et.map(e=>e.txt).join(', puis ')+'. ')
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+vocCorrection(q,false)+' '
-      +'Un résultat s’accepte en décimal ou en fraction (0,25 ou 1/4). Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
+      +'Un résultat s’accepte en décimal ou en fraction (0,25 ou 1/4), et une case peut porter des calculs intermédiaires séparés par « = » (2 + 3,5 = 5,5) : chaque membre doit valoir le résultat, et le dernier est le résultat écrit comme un nombre. Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
       +'Vocabulaire enseigné : double, triple, quadruple = multiplier par 2, 3, 4 ; moitié, tiers, quart, dixième = diviser par 2, 3, 4, 10 ; inverse de a = 1/a (pas −a, qui est l’opposé) ; somme +, différence −, produit ×, quotient ÷. '
       +'Erreurs classiques : confondre le double et la moitié, l’inverse et l’opposé, le produit et la somme ; dans un calcul en étapes, ne pas commencer par l’expression la plus « intérieure » (le tiers de 12 avant son double).';
   } else if(k==='vap' && q){
