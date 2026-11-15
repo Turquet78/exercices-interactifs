@@ -1356,12 +1356,13 @@
   .py-entree-ok{font:inherit;margin-left:6px;padding:0 8px;border:1.5px solid #6c8ebf;border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;vertical-align:baseline}
   /* LA CONSOLE QUI ATTEND DIT COMMENT VALIDER (demande de Turquet, novembre
      2026) : à côté de la case où l'élève tape sa réponse à un input(), la
-     phrase « Appuyer sur la touche Entrée pour valider. ». Une seule règle,
+     phrase « Appuyer sur la touche Entrée pour valider. », en gras et en
+     bleu (demande du même jour). Une seule règle,
      sur la console qui porte la case (l'étiquette commune à py-entree,
      pyi-rep, pii-in) : tous les exercices Python, rien à déclarer. Un
      pseudo-élément, exprès : le textContent de la console — ce que lisent les
      juges et les bancs — ne change pas, et la phrase part avec la case. */
-  :has(> input[aria-label="ta réponse à la question du programme"])::after{content:"Appuyer sur la touche Entrée pour valider.";margin-left:10px;font-family:"Nunito",system-ui,sans-serif;font-size:.88rem;font-style:italic;font-weight:600;color:var(--ink-soft);white-space:normal;vertical-align:baseline}
+  :has(> input[aria-label="ta réponse à la question du programme"])::after{content:"Appuyer sur la touche Entrée pour valider.";margin-left:10px;font-family:"Nunito",system-ui,sans-serif;font-size:.92rem;font-weight:800;color:var(--blue);white-space:normal;vertical-align:baseline}
   /* la vérification retenue tant que la console attend Entrée (#console-attend-entree) */
   section.screen:has(input[aria-label="ta réponse à la question du programme"]) :is(button[onclick^="check"],button[id$="Validate"]){opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
   #attendEntreeMsg{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#FFF4D6;border:1.5px solid #E8B64A;color:#5a3b00;font-weight:700}
@@ -9394,7 +9395,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=684;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=685;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -89641,6 +89642,7 @@ POSE_DOIGT.svr={ hote:'svrGraph',
      décalait les minuteries du banc jsdom, et un contrôle des devoirs, plus
      loin, en rougissait ;
    · un clic ailleurs que dans la case, son bouton ⏎ ou un clavier à l'écran
+     — « ▶ Exécuter » et « ▶ Continuer » compris, dont le clic part quand même —
      montre, sous la case, « Tu dois appuyer sur Entrée ⏎ pour valider ta
      réponse », et rend le focus à la case.
    Une seule porte, sur le document, rien à déclarer : la case se reconnaît à
@@ -89657,7 +89659,7 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     return null;
   }
   function estVerifier(b){ return /^\s*(re)?vérifier\b/i.test(b.textContent||''); }
-  function dire(inp){
+  function dire(inp, sansFocus){
     let b=document.getElementById('attendEntreeMsg');
     if(!b){ b=document.createElement('div'); b.id='attendEntreeMsg'; b.setAttribute('role','alert'); }
     b.textContent=MSG;
@@ -89665,7 +89667,7 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     if(b.previousElementSibling!==c || !b.isConnected) c.insertAdjacentElement('afterend', b);
     b.classList.remove('montre'); void b.offsetWidth; b.classList.add('montre');
     clearTimeout(b._t); b._t=setTimeout(function(){ if(b.isConnected) b.remove(); }, 4000);
-    try{ inp.focus(); }catch(e){}
+    if(!sansFocus) try{ inp.focus(); }catch(e){}
   }
   document.addEventListener('click', function(e){
     const t=e.target; if(!t || !t.closest) return;
@@ -89675,8 +89677,11 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     /* le bouton ⏎ de la case (son voisin), les claviers à l'écran : ils servent la case */
     if(bouton && bouton.previousElementSibling===inp) return;
     if(t.closest('#paveNum, math-keyboard, .ML__keyboard, .pave, #attendEntreeMsg')) return;
-    /* relancer le programme est permis : ▶ Exécuter repose la question */
-    if(bouton && /^\s*▶/.test(bouton.textContent||'')) return;
+    /* « ▶ Exécuter », « ▶ Continuer »… : l'encadré orange s'affiche aussi
+       (demande de Turquet, novembre 2026), mais le clic part — relancer le
+       programme reste permis, il repose sa question ; le message, posé après
+       la console, survit au redessin de son contenu */
+    if(bouton && /^\s*▶/.test(bouton.textContent||'')){ dire(inp, true); return; }
     if(bouton && estVerifier(bouton)){ e.preventDefault(); e.stopImmediatePropagation(); }
     dire(inp);
   }, true);

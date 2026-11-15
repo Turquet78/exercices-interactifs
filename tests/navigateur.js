@@ -16350,6 +16350,15 @@ if(require.main === module) (async () => {
         return i ? getComputedStyle(i.parentNode, '::after').content : ''; });
       verifier('à côté de la case d\'un input en attente, la console écrit « Appuyer sur la touche Entrée pour valider. »',
         /Appuyer sur la touche Entrée pour valider\./.test(attPhrase), JSON.stringify(attPhrase));
+      /* …un clic sur « ▶ Exécuter » pendant l'attente montre AUSSI l'encadré
+         orange, et le programme relancé repose sa question (le clic part) */
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(250);
+      const attRun = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
+        return { msg: m && m.getClientRects().length ? m.textContent : '', attend: !!document.getElementById('piiConsCIn') }; });
+      verifier('un clic sur « ▶ Exécuter », la console en attente, affiche l\'encadré « appuie sur Entrée ⏎ » et relance le programme',
+        /Entrée ⏎/.test(attRun.msg) && attRun.attend, JSON.stringify(attRun));
+      await s.page.evaluate(() => document.getElementById('attendEntreeMsg') && document.getElementById('attendEntreeMsg').remove());
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
@@ -20650,6 +20659,81 @@ if(require.main === module) (async () => {
         try { poseDoigtMaj(); return document.querySelectorAll('.pose-doigt').length; } finally { window.matchMedia = mm; } });
       verifier('à la souris, aucune barre « Je place »', souris === 0, souris + ' barre(s) restée(s)');
       verifier('la barre « Je place » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
+    /* ---- 11 quindecies. La pose facultative du 7.1 reste dans le cadre ----
+       Demande de Turquet, novembre 2026, capture d'écran à l'appui : la pose
+       de l'opération montrée au clic d'une case « doit être plus à droite et
+       un peu plus haut pour rester sur le quadrillage de l'exercice ; les
+       opérations posées ne doivent pas être sur les écritures ». La première
+       version partait du bord de la CASE (elle couvrait la dernière colonne
+       du tableau) et descendait sous le cadre, sur les boutons. Seul un
+       navigateur sait où tombe la pose : on ouvre le 7.1, on donne le focus à
+       une case, et on MESURE — à droite du tableau entier, dans le cadre de
+       l'exercice (#suiHost, qui grandit s'il le faut), sans recouvrir une
+       écriture du tableau ou de la phrase ni un bouton ; en question 2, le
+       résultat de la phrase ; sur une tablette debout, où la droite manque,
+       sous le contenu, toujours dans le cadre et sur rien. */
+    titre('11 quindecies. LA POSE FACULTATIVE DU 7.1 RESTE DANS LE CADRE, À DROITE DU TABLEAU');
+    if(!P.augmentationTableau){
+      ignorer('la pose facultative du 7.1 se montre à droite du tableau, dans le cadre de l\'exercice, sans couvrir une écriture',
+        'ce niveau n\'a pas le 7.1 « augmentation régulière » (Première)');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.augmentationTableau.exercice);
+      await s.page.waitForTimeout(300);
+      await s.page.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0); if(b) b.click(); });
+      await s.page.waitForTimeout(900);
+      const mesurer = (id) => s.page.evaluate(id => {
+        const el = document.getElementById(id); if(!el) return { absent: true };
+        try { el.focus(); } catch(e){}
+        el.dispatchEvent(new Event('focusin', { bubbles: true }));
+        const step = document.getElementById('suiPoseStep-' + id);
+        if(!step || step.classList.contains('step-hidden')) return { cachee: true };
+        const R = x => { const b = x.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom, w: b.width, h: b.height }; };
+        const bloc = el.closest('table') || el.closest('.sui-phr') || el;
+        /* une ÉCRITURE : un fragment de texte (ses rectangles de ligne, pas
+           la boîte du paragraphe, qui prend toute la largeur) ou une case */
+        const ecrits = [];
+        const marcher = n => { if(n.nodeType === 3){ if(!(n.textContent || '').trim()) return; const rg = document.createRange(); rg.selectNodeContents(n);
+            [...rg.getClientRects()].forEach(q => { if(q.width > 0 && q.height > 0) ecrits.push({ l: q.left, t: q.top, r: q.right, b: q.bottom, quoi: 'texte « ' + (n.textContent || '').trim().slice(0, 24) + ' »' }); }); return; }
+          if(n.nodeType !== 1 || n.closest('#suiPoses')) return;
+          if(n.tagName === 'MATH-FIELD'){ if(n.getClientRects().length){ const q = R(n); q.quoi = 'case ' + (n.id || ''); ecrits.push(q); } return; }
+          [...n.childNodes].forEach(marcher); };
+        marcher(document.getElementById('suiHost'));
+        const rg = document.createRange(); rg.selectNodeContents(bloc);
+        const bordEcrit = [...rg.getClientRects()].filter(q => q.width > 0 && q.height > 0).reduce((m, q) => Math.max(m, q.right), 0);
+        const btn = [...document.querySelectorAll('#suiActions button')].filter(b => b.offsetParent).map(b => Object.assign(R(b), { quoi: 'bouton « ' + (b.textContent || '').trim() + ' »' }));
+        return { pose: R(step), host: R(document.getElementById('suiHost')), bloc: Object.assign(R(bloc), { r: bordEcrit || R(bloc).r }), ecrits, btn };
+      }, id);
+      const chevauche = (a, b) => a.l < b.r - 1 && b.l < a.r - 1 && a.t < b.b - 1 && b.t < a.b - 1;
+      const dansCadre = m => m.pose.l >= m.host.l - 1 && m.pose.r <= m.host.r + 1 && m.pose.t >= m.host.t - 1 && m.pose.b <= m.host.b + 1;
+      const surRien = m => !m.ecrits.some(e => chevauche(m.pose, e)) && !m.btn.some(e => chevauche(m.pose, e));
+      const dire = m => m.absent ? 'case absente' : m.cachee ? 'aucune pose montrée'
+        : 'pose x ' + Math.round(m.pose.l) + '→' + Math.round(m.pose.r) + ', y ' + Math.round(m.pose.t) + '→' + Math.round(m.pose.b)
+          + ' ; écrit jusqu\'à x ' + Math.round(m.bloc.r) + ' ; cadre x ' + Math.round(m.host.l) + '→' + Math.round(m.host.r) + ', y ' + Math.round(m.host.t) + '→' + Math.round(m.host.b)
+          + m.ecrits.concat(m.btn).filter(e => chevauche(m.pose, e)).slice(0, 3).map(e => ' ; COUVRE ' + e.quoi + ' (x ' + Math.round(e.l) + '→' + Math.round(e.r) + ', y ' + Math.round(e.t) + '→' + Math.round(e.b) + ')').join('');
+      let m = await mesurer('sui-t1');
+      verifier('question 1 : la pose de la ligne 1 se montre à DROITE du tableau entier (pas seulement de la case), dans le cadre de l\'exercice, sans couvrir une écriture ni un bouton',
+        !m.absent && !m.cachee && m.pose.l >= m.bloc.r + 8 && dansCadre(m) && surRien(m), dire(m));
+      await s.page.evaluate(() => { test.idx = 1; renderSuiTest(); const v = suiVals(test.questions[1]);
+        document.getElementById('sui-u0').value = String(v.u0); document.getElementById('sui-p').value = String(v.prod); });
+      await s.page.waitForTimeout(400);
+      m = await mesurer('sui-res');
+      verifier('question 2 : la pose du résultat de la phrase se montre dans le cadre, sans couvrir une écriture ni un bouton',
+        !m.absent && !m.cachee && dansCadre(m) && surRien(m), dire(m));
+      await s.page.evaluate(() => { test.idx = 2; renderSuiTest(); }); await s.page.waitForTimeout(400);
+      m = await mesurer('sui-e');
+      verifier('question 3 : la pose de l\'écart se montre dans le cadre, sans couvrir une écriture (les phrases qui suivent comprises) ni un bouton',
+        !m.absent && !m.cachee && dansCadre(m) && surRien(m), dire(m));
+      await s.page.setViewportSize({ width: 768, height: 1024 }); await s.page.waitForTimeout(600);
+      await s.page.evaluate(() => { test.idx = 1; renderSuiTest(); }); await s.page.waitForTimeout(400);
+      m = await mesurer('sui-m1-' + (await s.page.evaluate(() => suiVals(test.questions[1]).n)));
+      verifier('tablette debout, question 2 : la pose de la dernière ligne du tableau reste dans le cadre et ne couvre ni une écriture (les phrases qui suivent comprises) ni un bouton',
+        !m.absent && !m.cachee && dansCadre(m) && surRien(m), dire(m));
+      verifier('la pose facultative du 7.1 ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
     }
 
