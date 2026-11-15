@@ -7107,3 +7107,15 @@ c'est la règle commune, prolongée pour cet exercice seul —
 `#pnpConsole:has(> input[…])::after` écrit « ⏎ : Appuyer sur la touche Entrée
 pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
 et le contrôle universel la lit comme les autres.
+
+**Puis le bouton DÉSACTIVÉ : « ▶ Exécuter la ligne 1 » du 6.3.1 ne montrait pas l’encadré (v686).**
+Turquet, copie d'écran à l'appui : sur le 6.3.1, la console attend, et « ▶
+Exécuter la ligne 1 » ne dit rien. Le bouton (`pnpRun1`) se désactive dès qu'il
+lance le programme — et un bouton désactivé ne reçoit AUCUN `click` du
+navigateur : la porte de `#console-attend-entree`, en capture sur `click`,
+n'était jamais appelée. Mesuré dans Chromium : un bouton désactivé reçoit
+encore `pointerdown` et `pointerup`, jamais `mousedown` ni `click`. Une seconde
+porte, sur `pointerdown`, ne regarde que les boutons DÉSACTIVÉS (un bouton actif
+passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
+case — une fois le geste fini (sur `pointerup`) : dans l'action, le focus partait au `<body>` après la porte, alors qu'il restait en local. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
+vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.
