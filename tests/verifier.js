@@ -36342,7 +36342,7 @@ function pythonInputPasAPas(w, P){
     if(etat(1)!=="ligne sans cadre"||etat(2)!=="ligne absente") vus.push("au départ : ligne 1 "+etat(1)+", ligne 2 "+etat(2));
     const avant=function(a,b){ return !!(a&&b&&(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)); };
     const barre=document.getElementById("pnpRunBar"), cons0=document.getElementById("pnpConsole"), prog=document.querySelector("#pnpHost .pnp-prog");
-    if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!avant(barre,cons0)||!avant(cons0,prog)) vus.push("l’ordre n’est pas : bouton, console, programme");
+    if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!avant(barre,prog)||!avant(prog,cons0)) vus.push("l’ordre n’est pas : bouton, programme, console");
     if(document.querySelector("#pnpR1.pnp-courante")===null) vus.push("la ligne 1 n’est pas surlignée");
     pnpExecuter(1);
     const e=document.getElementById("pnpEntree");

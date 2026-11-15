@@ -7156,3 +7156,11 @@ trajet du banc principal le tient : la ligne 1 seule et sans cadre au départ,
 toujours sans cadre pendant que la console attend, le cadre après Entrée, la
 ligne 2 sous la ligne 1 après la vérification, son cadre après son exécution,
 et l'ordre du document bouton → console → programme.
+
+**Puis la console est passée JUSTE APRÈS LE PROGRAMME (v689).** Demande de
+Turquet : « met la fenêtre de ce qu'affiche le programme juste après le
+programme finalement ». L'ordre du 6.3.1 devient : le bouton « ▶ Exécuter la
+ligne n° … » en haut, le programme (lignes faites et ligne à exécuter, cadres à
+droite), puis « Ce que le programme affiche » et sa console. L'énoncé dit
+« ce qu'elle affiche s'écrit juste après le programme ». Le parcours du banc
+principal relit l'ordre bouton → programme → console dans le DOM.
