@@ -1416,7 +1416,7 @@
   /* {python-input-pas-a-pas} : chaque ligne du programme, et à côté d'elle, une
      flèche vers SON cadre à compléter (la fiche « input_new ») ; la ligne à
      exécuter est surlignée ; les cases écrivent à la taille de la phrase */
-  .pnp-prog{display:grid;grid-template-columns:max-content auto minmax(0,1fr);align-items:center;gap:14px 12px;margin:4px 0 8px}
+  .pnp-prog{display:grid;grid-template-columns:max-content auto minmax(0,1fr);align-items:center;gap:14px 12px;margin:4px 0 14px}
   .pnp-rangee{display:contents}
   .pnp-code{grid-column:1;justify-self:start;display:flex;align-items:center;gap:10px;padding:6px 12px;background:#fff;border:1.5px solid var(--line);border-radius:8px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;white-space:pre}
   .pnp-courante .pnp-code{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16);background:#EAF0FF}
@@ -52747,8 +52747,8 @@ function ctxPyn(q){
    surlignée. LE PROGRAMME SE MONTRE LIGNE PAR LIGNE : la ligne 1 seule au
    départ, la ligne 2 une fois le cadre 1 vérifié ; le cadre d'une ligne
    n'apparaît qu'une fois son exécution finie (l'input : la réponse validée).
-   Le bouton d'exécution est en haut (#pnpRunBar), la console juste dessous,
-   puis le programme (demandes de Turquet, novembre 2026).
+   Le bouton d'exécution est en haut (#pnpRunBar), puis le programme, puis
+   la console juste après lui (demandes de Turquet, novembre 2026).
    LE JUGE NE RANGE RIEN : la question, le texte et la variable se relisent
    dans la situation (q.s), la valeur dans la réponse que l'élève a tapée
    (q.rep). Les textes passent par pyTexteProche (la tolérance du thème :
@@ -52794,7 +52794,7 @@ function pnpJugeCase(q, k, v){
   return pyTexteProche(net, att, [S.question.trim()]);
 }
 function pnpEnonceHTML(q){
-  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton en haut : ce qu’elle affiche s’écrit juste en dessous ; puis complète le cadre qui apparaît à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
+  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton en haut : ce qu’elle affiche s’écrit juste après le programme ; puis complète le cadre qui apparaît à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
 }
 /* Les quatre propositions de chaque case (demande de Turquet, novembre
    2026) : la question, le texte du print, le nom de la variable, la réponse
@@ -52893,8 +52893,8 @@ function renderPNP(){
   pyAvant('pnp', test.idx===0?pynCoursHTML():'');
   /* le bouton, puis la fenêtre d'affichage SOUS le bouton, puis le programme */
   $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-run" id="pnpRunBar"></div>'
-    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre>'
-    +'<div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div></div>';
+    +'<div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div>'
+    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre></div>';
   /* la console de ce qui a déjà été exécuté */
   if(q.etape>=1 && q.etape<3) pnpConsoleFigee(pnpLigne1(q), [q.rep]);
   else if(q.etape>=3) pnpConsoleFigee(pnpProg(q), [q.rep]);
