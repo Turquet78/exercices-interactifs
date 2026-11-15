@@ -542,3 +542,9 @@ correction. Il sort du juge (19 cases par question au lieu de 20) : la
 ligne 3 est déjà jugée, et la compter deux fois punirait deux fois la même
 faute. La bulle de la division le lit toujours. Question 5 : le titre à
 1,15 rem (au lieu de 2), le dessin à 330 px au plus (au lieu de 620).
+
+**Puis le tableau de signes centré (v424).** Demande de Turquet : « dans la
+dernière question, il faudrait centrer le tableau comme c'est déjà le cas pour
+le dessin ». Le cadre `.itv-ligne` (560 px au plus) est posé directement dans
+la partie, pas dans la colonne flex centrée des fiches (`.itv-fiche`) : il
+restait collé à gauche. Une marge automatique (`.trd-tab-ligne`) le centre.
