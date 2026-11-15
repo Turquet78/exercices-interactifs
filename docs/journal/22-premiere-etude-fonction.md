@@ -549,7 +549,21 @@ le dessin ». Le cadre `.itv-ligne` (560 px au plus) est posé directement dans
 la partie, pas dans la colonne flex centrée des fiches (`.itv-fiche`) : il
 restait collé à gauche. Une marge automatique (`.trd-tab-ligne`) le centre.
 
-## 6.4 {tracer-droite-libre} — le 6.3, les calculs rédigés (v430 — le 7.1 puis le 7.2 avaient pris les v428 et v429 sur `main` pendant les contrôles)
+## {image-antecedents-libre} — la onzième question du 6.2, seule, six fois (6.4, novembre 2026, Première v429)
+
+**La demande** (Turquet) : « faire un autre exercice avec uniquement la
+question 11, donc sans aide mais plusieurs fois ». Ajouté EN DERNIER dans le
+thème 6 : il ne renumérote rien. Un identifiant à lui, sur le moteur du 6.2 —
+deux exercices peuvent partager un moteur, jamais leur identité : la note
+porte l'identifiant (`test.qId`), « Recommencer » le relit, le rappel et les
+questions à l'IA sont ceux du kind `ima`, et le profil déclare l'identifiant
+dans les rappels et dans `etiquetteCourbe`. Le tirage est celui du 6.2 au
+temps 'mix-nu' pour toutes les questions (`imaTirage(nb, planFixe)`) : une
+image et un ou deux antécédents (pile ou face) sur le même graphique, sans
+point rouge, sans chemin avant la vérification, sans l'écriture
+f( … ) = … — six questions, le réglage « Questions » d'un devoir les allonge.
+
+## 6.5 {tracer-droite-libre} — le 6.3, les calculs rédigés (v431 — le 7.1, le 7.2 puis le 6.4 {image-antecedents-libre} avaient pris les v428 à v430 sur `main` pendant les contrôles ; arrivé après lui dans le thème, l'exercice est devenu le 6.5)
 
 Demande de Turquet (novembre 2026) : « faire un exercice comme le 6.3 en
 première mais les élèves doivent écrire leur calcul dans la 1re question dans
@@ -615,4 +629,4 @@ coupe l'axe, puis de quel côté elle est.
 
 Plus de règles à choisir, plus de flèches de transposition, plus de bulles
 d'aide : la demande ne garde que les lignes (les ids des cases à bulle
-n'existent pas dans le 6.4, `trdGpOuvrir` ne s'ouvre jamais).
+n’existent pas dans le 6.5, `trdGpOuvrir` ne s'ouvre jamais).
