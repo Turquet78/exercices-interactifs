@@ -7055,7 +7055,20 @@ par `pythonConsoles: true` dans son profil (la Première et la Terminale n'ont
 pas de console Python) ; un niveau qui en déclare et n'en ouvre aucune n'a
 rien mesuré, et le dit.
 
-<<<<<<< HEAD
+**Puis la phrase est passée en gras et en bleu, et « ▶ Exécuter » montre l'encadré (v684).**
+Même jour, Turquet : « mets la phrase en gras et en bleu, et quand on appuie
+sur le bouton Exécuter ou Continuer, mettre le message de l'encadré orange qui
+s'affiche déjà sur Rappels de cours ou Poser une question à l'IA ». La règle
+`::after` prend `font-weight:800` et `var(--blue)`. Dans `#console-attend-entree`,
+les boutons qui commencent par « ▶ » étaient exemptés en silence (relancer le
+programme est permis) : ils appellent maintenant `dire(inp, true)` — l'encadré
+s'affiche, le clic part quand même (le programme relancé repose sa question),
+et le focus n'est pas volé au gestionnaire du bouton. Le message est posé après
+la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
+pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
+rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
+sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
+
 **Puis la variable est devenue `reponse`, et la phrase « c'est formidable »
 (15 novembre 2026, v685).** Demande de Turquet : « enlève le mot sport dans
 la phrase du print, mets reponse pour la variable de l'exercice ». Le
@@ -7070,18 +7083,3 @@ de tomber dans le message général — et « sport », l'ancien nom, reçoit le
 message général (la variable à GAUCHE du =). Le contrôle a suivi : le texte
 « c'est formidable le sport » est maintenant FAUX (« doit être »), le nom
 juste « reponse ».
-=======
-**Puis la phrase est passée en gras et en bleu, et « ▶ Exécuter » montre l'encadré (v684).**
-Même jour, Turquet : « mets la phrase en gras et en bleu, et quand on appuie
-sur le bouton Exécuter ou Continuer, mettre le message de l'encadré orange qui
-s'affiche déjà sur Rappels de cours ou Poser une question à l'IA ». La règle
-`::after` prend `font-weight:800` et `var(--blue)`. Dans `#console-attend-entree`,
-les boutons qui commencent par « ▶ » étaient exemptés en silence (relancer le
-programme est permis) : ils appellent maintenant `dire(inp, true)` — l'encadré
-s'affiche, le clic part quand même (le programme relancé repose sa question),
-et le focus n'est pas volé au gestionnaire du bouton. Le message est posé après
-la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
-pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
-rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
-sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
->>>>>>> origin/main
