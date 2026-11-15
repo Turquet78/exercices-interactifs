@@ -37722,9 +37722,9 @@ function pythonForPasAPas(w, P){
   const nom = '{python-for-pas-a-pas} : la boucle for … in range(…), pas à pas';
   if(!P.pythonForPasAPas){ ignorer(nom, 'ce niveau n\'a pas l\'exercice pas à pas'); return; }
   const D = P.pythonForPasAPas, ID = D.exercice, NB = D.nb, NUM = D.numero, F = D.fiche, J = JSON.stringify;
-  const present = evaluer(w, "typeof startPFP==='function' && typeof pfpBuildQuestions==='function' && typeof checkPFP==='function' && typeof pfpTourSuivant==='function'");
+  const present = evaluer(w, "typeof startPFP==='function' && typeof pfpBuildQuestions==='function' && typeof checkPFP==='function' && typeof pfpExecuter==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPFP / pfpBuildQuestions / checkPFP / pfpTourSuivant introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPFP / pfpBuildQuestions / checkPFP / pfpExecuter introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   verifierEval(w, 'il ouvre le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', devant {python-for-range} : le reste du 6.6 recule d’un cran, rien d’autre ne bouge', `(function(){
@@ -37739,18 +37739,41 @@ function pythonForPasAPas(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'l’écran : le dessin puis la définition de la fiche au premier écran seulement ; la ligne print surlignée ; une seule phrase, celle du tour n°1 ; la console vide ne porte aucun texte', `(function(){
+  verifierEval(w, 'l’écran : le dessin puis la définition de la fiche au premier écran seulement ; en haut « ▶ Exécuter l’étape 1 », la ligne print surlignée, la console vide, « Vérifier » grisé et aucune phrase tant que rien n’est exécuté ; le clic écrit la ligne du tour n°1 et ouvre SA phrase sous la console, trois listes aux mêmes choix (texte, variable, 0 à n − 1)', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPFP();
     const vus=[], av=document.getElementById("pfpAvant");
     if(!av.querySelector("img.pfr-img")||!av.querySelector(".pii-def")) vus.push("pas de dessin ou de définition");
     if(!document.querySelector("#pfpEtapeA .pfp-actif")) vus.push("la ligne print n’est pas surlignée");
-    if(document.querySelectorAll("#pfpHost .pfp-tour").length!==1||!document.getElementById("pfp-t0-0")) vus.push("les phrases du a) : "+document.querySelectorAll("#pfpHost .pfp-tour").length);
-    const ph=document.getElementById("pfpTour0").textContent.replace(/\\s+/g," ");
-    if(ph.indexOf('print("${F.texte}", ${F.variable}) affiche le texte ""')<0||!/et la valeur de la variable qui est/.test(ph)) vus.push("la phrase : "+ph);
+    const run=document.getElementById("pfpRun"), code=document.querySelector("#pfpEtapeA .py-code");
+    if(!run||run.disabled||!/Exécuter l’étape 1/.test(run.textContent)) vus.push("le bouton du haut : "+(run&&run.textContent));
+    else if(!(run.compareDocumentPosition(code)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le bouton n’est pas au-dessus du programme");
+    if(document.querySelectorAll("#pfpHost .pfp-tour").length!==0) vus.push("une phrase avant l’exécution");
+    if(!document.getElementById("pfpValidate")||!document.getElementById("pfpValidate").disabled) vus.push("« Vérifier » ouvert avant l’exécution");
     if(document.getElementById("pfpEtapeB")) vus.push("le b) est ouvert avant la fin du a)");
     const c=document.getElementById("pfpConsole");
     if(c.textContent!==""||getComputedStyle(c,"::before").content.replace(/["']/g,"").length>4) vus.push("la console vide écrit quelque chose");
+    checkPFP();
+    if(test.questions[0].oks.length||!/Exécuter/.test(document.getElementById("pfpFeedback").textContent)) vus.push("« Vérifier » avant l’exécution juge, ou ne dit pas d’exécuter");
+    pfpExecuter();
+    if(c.isConnected) vus.push("la console n’est pas redessinée");
+    const c2=document.getElementById("pfpConsole");
+    if(c2.textContent!==${J(F.sortie[0])}) vus.push("la console après l’étape 1 : "+JSON.stringify(c2.textContent));
+    if(document.querySelectorAll("#pfpHost .pfp-tour").length!==1||!document.getElementById("pfpTour0")) vus.push("les phrases du a) : "+document.querySelectorAll("#pfpHost .pfp-tour").length);
+    else {
+      const tr=document.getElementById("pfpTour0");
+      if(!(c2.compareDocumentPosition(tr)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("la phrase n’est pas sous la console");
+      const cl=tr.cloneNode(true); cl.querySelectorAll("select").forEach(function(s){ s.remove(); });
+      const ph=cl.textContent.replace(/\\s+/g," ");
+      if(ph.indexOf('Tour n°1')<0||ph.indexOf('print("${F.texte}", ${F.variable}) affiche le texte ""')<0||!/et la valeur de la variable qui est/.test(ph)) vus.push("la phrase : "+ph);
+      const att=${J([F.texte, F.variable].concat(Array.from({length: F.n}, (_, i) => String(i))))};
+      [0,1,2].forEach(function(j){ const s=document.getElementById("pfp-t0-"+j);
+        if(!s||s.tagName!=="SELECT") { vus.push("la case "+j+" n’est pas une liste"); return; }
+        const o=[...s.options].map(function(x){ return x.value; });
+        if(o[0]!==""||JSON.stringify(o.slice(1))!==JSON.stringify(att)) vus.push("les choix de la case "+j+" : "+JSON.stringify(o)); });
+    }
+    if(document.getElementById("pfpValidate").disabled) vus.push("« Vérifier » reste grisé après l’exécution");
+    if(!document.getElementById("pfpRun").disabled) vus.push("« ▶ » reste ouvert pendant le tour");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -37762,37 +37785,41 @@ function pythonForPasAPas(w, P){
       if(pfpVar(qs[0])!=="${F.variable}"||pfpTexte(qs[0])!=="${F.texte}"||qs[0].n!==${F.n}){ vus.push("la fiche n’ouvre pas la séance"); break; }
       const cs=qs.map(function(q){ return pfpVar(q)+"|"+pfpTexte(q)+"|"+q.n; });
       if(new Set(cs).size!==cs.length){ vus.push("deux fois la même question : "+cs.join(",")); break; }
-      qs.forEach(function(q){ vues[pfpVar(q)]=1; if(q.etape!=="a"||q.pas!==0||q.fait||q.rs.length||q.ok!==null) vus.push("question non vierge"); if(q.n<3||q.n>5) vus.push("n = "+q.n); });
+      qs.forEach(function(q){ vues[pfpVar(q)]=1; if(q.etape!=="a"||q.pas!==0||q.exec||q.fait||q.rs.length||q.ok!==null) vus.push("question non vierge"); if(q.n<3||q.n>5) vus.push("n = "+q.n); });
     }
     if(PFP_VARS.indexOf("x")>=0) vus.push("la variable x");
     if(Object.keys(vues).length!==PFP_VARS.length) vus.push("des variables ne sortent jamais : "+Object.keys(vues).join(","));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'le trajet juste : chaque tour vérifié écrit SA ligne dans la console et ouvre « Étape suivante » ; le dernier ouvre le b) sous le a) ; la copie juste vaut toutes ses cases', `(function(){
+  verifierEval(w, 'le trajet juste : « ▶ Exécuter l’étape N » ajoute la ligne du tour dans la console, qui grandit ; le tour vérifié rend le bouton du haut, devenu « étape N + 1 », qui remplace la phrase par celle du tour suivant ; le dernier ouvre le b) sous le a) ; la copie juste vaut toutes ses cases', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPFP();
     const vus=[], sortie=${J(F.sortie)}, n=${F.n};
     if(test.maxScore!==test.questions.reduce(function(s,q){ return s+3*q.n+2; },0)) vus.push("barème "+test.maxScore);
     for(let t=0;t<n&&!vus.length;t++){
+      const run=document.getElementById("pfpRun");
+      if(!run||run.disabled||run.textContent.indexOf("étape "+(t+1))<0){ vus.push("le bouton au tour "+(t+1)+" : "+(run&&run.textContent)); break; }
+      pfpExecuter();
+      if(document.getElementById("pfpConsole").textContent!==sortie.slice(0,t+1).join("\\n")) vus.push("la console au tour "+(t+1)+" : "+JSON.stringify(document.getElementById("pfpConsole").textContent));
+      if(document.querySelectorAll("#pfpHost .pfp-tour").length!==1||!document.getElementById("pfpTour"+t)) vus.push("la phrase du tour "+(t+1)+" ne remplace pas la précédente");
       if(!document.getElementById("pfpValidate")) vus.push("pas de « Vérifier » au tour "+(t+1));
-      document.getElementById("pfp-t"+t+"-0").value=t%2?'"${F.texte}"':"${F.texte}";
+      document.getElementById("pfp-t"+t+"-0").value="${F.texte}";
       document.getElementById("pfp-t"+t+"-1").value="${F.variable}";
       document.getElementById("pfp-t"+t+"-2").value=String(t);
       checkPFP();
-      [0,1,2].forEach(function(j){ const e=document.getElementById("pfp-t"+t+"-"+j); if(!e.classList.contains("ok")) vus.push("tour "+(t+1)+", case "+j+" : "+e.className); });
-      if(document.getElementById("pfpConsole").textContent!==sortie.slice(0,t+1).join("\\n")) vus.push("la console au tour "+(t+1)+" : "+JSON.stringify(document.getElementById("pfpConsole").textContent));
+      if(t<n-1) [0,1,2].forEach(function(j){ const e=document.getElementById("pfp-t"+t+"-"+j); if(!e.classList.contains("ok")||!e.disabled) vus.push("tour "+(t+1)+", case "+j+" : "+e.className); });
       if(test.score!==3*(t+1)) vus.push("score "+test.score);
       if(t<n-1){
-        if(!document.getElementById("pfpNext")||document.getElementById("pfpValidate")) vus.push("pas d’« Étape suivante » au tour "+(t+1));
-        pfpTourSuivant();
-        if(!document.getElementById("pfp-t"+(t+1)+"-0")||document.getElementById("pfp-t"+(t+1)+"-0").value!=="") vus.push("le tour suivant ne s’ouvre pas");
-        if(!document.getElementById("pfp-t"+t+"-0").disabled) vus.push("le tour vérifié reste ouvert");
+        const r2=document.getElementById("pfpRun");
+        if(!r2||r2.disabled||r2.textContent.indexOf("étape "+(t+2))<0||document.getElementById("pfpValidate")) vus.push("pas de « ▶ Exécuter l’étape "+(t+2)+" » au tour "+(t+1)+" : "+(r2&&r2.textContent));
+        if(document.getElementById("pfpFeedback").textContent.indexOf("étape "+(t+2))<0) vus.push("le message ne dit pas de passer à l’étape "+(t+2));
       }
     }
     if(vus.length) return vus.slice(0,4).join(" | ");
     if(!document.getElementById("pfpEtapeB")||!document.getElementById("pfpEtapeB").contains(document.getElementById("pfp-de"))) vus.push("le b) ne s’ouvre pas");
-    if(document.querySelector("#pfpEtapeA .pfp-actif")) vus.push("la ligne reste surlignée au b)");
+    if(document.getElementById("pfpConsole").textContent!==sortie.join("\\n")) vus.push("la console au b)");
+    if(document.querySelector("#pfpEtapeA .pfp-actif")||document.getElementById("pfpRun")) vus.push("la ligne reste surlignée, ou le bouton du haut reste, au b)");
     const eb=document.querySelector("#pfpEtapeB .pii-titre");
     if(!eb||eb.textContent.indexOf("for ${F.variable} in range(${F.n}):")<0) vus.push("l’énoncé du b) : "+(eb&&eb.textContent));
     document.getElementById("pfp-de").value="${F.de}"; document.getElementById("pfp-a").value="${F.a}"; checkPFP();
@@ -37800,50 +37827,50 @@ function pythonForPasAPas(w, P){
     if(!ans||!ans.correct||ans.cases!==3*n+2||ans.justes!==3*n+2||test.score!==3*n+2) vus.push("la note : "+JSON.stringify(ans)+", score "+test.score);
     if(!document.getElementById("pfpNextQ")) vus.push("pas de « Question suivante »");
     nextPFP();
-    if(test.idx!==1||document.getElementById("pfpEtapeB")||document.getElementById("pfpConsole").textContent!==""||document.querySelectorAll("#pfpHost .pfp-tour").length!==1) vus.push("la question suivante ne s’ouvre pas sur le tour n°1");
+    if(test.idx!==1||document.getElementById("pfpEtapeB")||document.getElementById("pfpConsole").textContent!==""||document.querySelectorAll("#pfpHost .pfp-tour").length!==0||!/étape 1/.test(document.getElementById("pfpRun").textContent)) vus.push("la question suivante ne s’ouvre pas sur « ▶ Exécuter l’étape 1 »");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'faux, vide et soutien : trois cases vides ne se jugent pas ; une case vide ne rougit jamais ; le texte pris pour la variable, la variable entre guillemets et le tour compté depuis 1 se nomment ; en soutien rien n’est révélé', `(function(){
+  verifierEval(w, 'faux, vide et soutien : trois listes vides ne se jugent pas ; une liste vide ne rougit jamais ; le texte pris pour la variable, la variable prise pour le texte et le tour compté depuis 1 se nomment ; en soutien rien n’est révélé', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFP();
+    startPFP(); pfpExecuter();
     checkPFP();
-    if(test.questions[0].oks.length||document.querySelector("#pfpHost .bad, #pfpHost .sol")) vus.push("trois cases vides sont jugées");
+    if(test.questions[0].oks.length||document.querySelector("#pfpHost .bad, #pfpHost .sol")) vus.push("trois listes vides sont jugées");
     const c0=document.getElementById("pfp-t0-0"), c1=document.getElementById("pfp-t0-1"), c2=document.getElementById("pfp-t0-2");
     c0.value="${F.variable}"; c2.value="1"; checkPFP();
     if(!c0.classList.contains("bad")||!c2.classList.contains("bad")) vus.push("le faux : "+c0.className+" / "+c2.className);
-    if(c1.classList.contains("bad")||!c1.classList.contains("sol")||c1.value!=="${F.variable}") vus.push("la case vide : "+c1.className+" "+c1.value);
+    if(c1.classList.contains("bad")||!c1.classList.contains("sol")||c1.value!=="${F.variable}") vus.push("la liste vide : "+c1.className+" "+c1.value);
     const fb=document.getElementById("pfpFeedback").textContent;
     if(!/ENTRE GUILLEMETS/.test(fb)||!/commence à 0/.test(fb)) vus.push("les erreurs ne sont pas nommées : "+fb);
     if(document.getElementById("pfpConsole").textContent!==${J(F.sortie[0])}) vus.push("la console après un tour faux");
-    currentMode="soutien"; startPFP();
+    currentMode="soutien"; startPFP(); pfpExecuter();
     const s0=document.getElementById("pfp-t0-0"), s1=document.getElementById("pfp-t0-1"), s2=document.getElementById("pfp-t0-2");
-    s0.value="${F.texte}"; s1.value='"${F.texte}"'; s2.value="0"; checkPFP();
+    s0.value="${F.texte}"; s1.value="${F.texte}"; s2.value="0"; checkPFP();
     if(!s1.classList.contains("bad")||s1.disabled||test.questions[0].oks.length||document.querySelector("#pfpHost .mf-cor, #pfpHost .sol")) vus.push("soutien : le faux est verrouillé ou révélé");
-    if(!/SANS guillemets/.test(document.getElementById("pfpFeedback").textContent)) vus.push("la variable entre guillemets n’est pas nommée");
+    if(!/SANS guillemets/.test(document.getElementById("pfpFeedback").textContent)) vus.push("le texte pris pour la variable n’est pas nommé");
     if(!s0.classList.contains("ok")||!s2.classList.contains("ok")) vus.push("soutien : les cases justes ne sont pas bleues");
-    if(document.getElementById("pfpConsole").textContent!=="") vus.push("soutien : la console écrit un tour faux");
+    if(!document.getElementById("pfpRun").disabled) vus.push("soutien : « ▶ » s’ouvre sur un tour faux");
     s1.value="${F.variable}"; checkPFP();
-    if(!document.getElementById("pfpNext")||test.score!==3) vus.push("soutien : le tour corrigé");
+    if(!document.getElementById("pfpRun")||document.getElementById("pfpRun").disabled||test.score!==3) vus.push("soutien : le tour corrigé");
     if(!/STRICTEMENT SECRÈTES/.test(ctxPfp(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'la reprise : une question rendue de nouveau retrouve ses tours jugés, la console et la saisie du tour en cours ; un tour jugé ne se rejuge pas', `(function(){
+  verifierEval(w, 'la reprise : une question rendue de nouveau retrouve son tour jugé, la console et le choix du tour en cours ; un tour jugé ne se rejuge pas', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
-    startPFP();
-    document.getElementById("pfp-t0-0").value="${F.texte}"; document.getElementById("pfp-t0-1").value="k"; document.getElementById("pfp-t0-2").value="0"; checkPFP();
+    startPFP(); pfpExecuter();
+    document.getElementById("pfp-t0-0").value="${F.texte}"; document.getElementById("pfp-t0-1").value="${F.texte}"; document.getElementById("pfp-t0-2").value="0"; checkPFP();
     const sc=test.score; renderPFP();
-    if(test.score!==sc||document.getElementById("pfpValidate")||!document.getElementById("pfpNext")) vus.push("un tour jugé se rejuge");
+    if(test.score!==sc||document.getElementById("pfpValidate")||!document.getElementById("pfpRun")||document.getElementById("pfpRun").disabled||!test.locked) vus.push("un tour jugé se rejuge");
     if(!document.getElementById("pfp-t0-1").classList.contains("bad")||!document.getElementById("pfp-t0-0").classList.contains("ok")) vus.push("le verdict est perdu");
-    pfpTourSuivant();
-    const e=document.getElementById("pfp-t1-2"); e.value="1"; e.dispatchEvent(new Event("input",{bubbles:true}));
+    pfpExecuter();
+    const e=document.getElementById("pfp-t1-2"); e.value="1"; e.dispatchEvent(new Event("change",{bubbles:true}));
     renderPFP();
-    if(document.getElementById("pfp-t1-2").value!=="1") vus.push("la saisie est perdue");
-    if(document.getElementById("pfpConsole").textContent!==${J(F.sortie[0])}) vus.push("la console n’est pas rejouée");
+    if(document.getElementById("pfp-t1-2").value!=="1") vus.push("le choix est perdu");
+    if(document.getElementById("pfpConsole").textContent!==${J(F.sortie.slice(0, 2).join('\n'))}) vus.push("la console n’est pas rejouée");
     return vus.join(" | ");
   })()`, v => v === '');
 
@@ -58608,7 +58635,10 @@ function premiere(w){
      et une case vide ne rougit pas. */
   verifierEval(w, '{vocabulaire-calcul} : les lignes de la fiche, ses nombres, son ordre, et un juge qui exige le calcul ET le résultat', `(function(){
     const vus=[];
-    if(VOC_NB!==21) vus.push(VOC_NB+' lignes au lieu de 21');
+    if(VOC_NB!==24) vus.push(VOC_NB+' lignes au lieu de 24');
+    /* partie 3, sans les étapes : une seule case, le résultat */
+    const DI=[5.5,20.5,9.8];
+    DI.forEach(function(r,j){ const L=VOC_LIGNES[21+j]; if(!L||L.t!=='di'||L.et.length!==1||L.et[0].r!==Math.round(r*1000)) vus.push('calcul sans étapes '+(j+1)+' faux'); });
     const ATT=[24,36,48,6,4,3,1.2,2.5,0.25,0.5,0.25,0.2,0.1,8,12,4,3];
     ATT.forEach(function(a,i){ const L=VOC_LIGNES[i]; if(!L||L.t!=='ch'||L.r!==Math.round(a*1000)) vus.push('ligne '+(i+1)+' : attendu faux');
       else { const c=L.ch[L.bon]; const v=c[0]==='x'?c[1]*c[2]:c[0]==='+'?c[1]+c[2]:c[0]==='-'?c[1]-c[2]:c[0]==='f'?c[1]/c[2]:NaN;
@@ -58633,6 +58663,11 @@ function premiere(w){
     poser(17,null,null);
     const tete=document.querySelector('#vocHost').firstElementChild, lab=tete&&tete.querySelector('.voc-lab');
     if(!lab || lab.textContent!=='On doit calculer la somme de 3 et de la moitié de 5.') vus.push('la première ligne du calcul à étapes n\\'est pas « On doit calculer la somme de 3 et de la moitié de 5. » ('+(tete?tete.textContent:'rien')+')');
+    poser(23,null,null);
+    if(document.querySelectorAll('#vocHost math-field').length!==1) vus.push('le calcul sans étapes n\\'a pas UNE seule case');
+    const t3=document.querySelector('#vocHost').firstElementChild;
+    if(!t3 || t3.textContent!=='On doit calculer la différence entre 10 et l’inverse de 5.') vus.push('le calcul sans étapes ne commence pas par sa phrase ('+(t3?t3.textContent:'rien')+')');
+    const e3=document.getElementById('vocE0'); if(e3) e3.value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 1/5 = 9,8 refusé');
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
