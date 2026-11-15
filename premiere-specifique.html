@@ -3997,7 +3997,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=429;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=430;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4610,7 +4610,7 @@ const TESTS={
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
-  'augmentation-tableau-libre': { name:'Augmentation r\u00e9guli\u00e8re : r\u00e9diger ses r\u00e9ponses', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {augmentation-tableau}, mais un seul champ par question : \u00e9cris ta r\u00e9ponse avec la m\u00e9thode qui te convient \u2014 la suite des valeurs, des phrases avec tes calculs, ou directement le r\u00e9sultat \u2014 et l\u2019IA la lit.', start:()=>startSuil() },
+  'augmentation-tableau-libre': { name:'Augmentation r\u00e9guli\u00e8re : r\u00e9diger ses r\u00e9ponses', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {augmentation-tableau}, mais apr\u00e8s le tableau, un seul champ par question : \u00e9cris ta r\u00e9ponse avec la m\u00e9thode qui te convient \u2014 la suite des valeurs, des phrases avec tes calculs, ou directement le r\u00e9sultat \u2014 et l\u2019IA la lit.', start:()=>startSuil() },
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -5135,6 +5135,7 @@ function liveCheckCurrent(){
   else if(k==='dvd') checkDvdAnswer(true);
   else if(k==='tsc') checkTscAnswer(true);
   else if(k==='sui') checkSuiAnswer(true);
+  else if(k==='suil') checkSuil(true);
   else if(k==='tsf') checkTsfAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
@@ -20241,12 +20242,11 @@ function suilTableau(q, rempli){
 /* La question, en mots — l'écran, le contexte de l'aide et l'envoi au modèle la lisent tous. */
 function suilQuestion(q){
   const v=suiVals(q), c=v.c;
-  if(q.part===1) return 'Compléter le tableau : trouver les deux valeurs marquées « ? ».';
+  if(q.part===1) return 'Compléter le tableau.';
   if(q.part===2) return c.q2(v.m2);
   return c.q3(suiFmt(v.T));
 }
 const SUIL_AIDE={
-  1:'Écris les deux valeurs qui manquent, dans l’ordre : par exemple « 2027 : … ; 2028 : … », ou la suite « … ; … ; … », ou une phrase avec ton calcul.',
   2:'Écris ta réponse comme tu veux : la suite des valeurs, une par pas (« 300 ; 350 ; 400 ; … ») ; des phrases avec tes calculs (« il y a 6 années donc 6 × 20 = 120 », « je fais 500 − 120 = 380 ») ; ou directement le résultat.',
   3:'Écris ta réponse comme tu veux : la suite des valeurs jusqu’au seuil ; des phrases avec tes calculs (l’écart, puis combien de pas il faut pour le combler) ; ou directement le moment cherché.'
 };
@@ -20260,7 +20260,19 @@ function renderSuil(){
   $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Vérifier</button>';
   $('suilPrompt').innerHTML=c.intro(suiFmt(v.u0), suiFmt(v.rAbs));
   let h='<div class="sui-q">'+q.part+'. '+suilQuestion(q)+'</div>';
-  if(q.part===1) h+=suilTableau(q,false);
+  /* LA QUESTION 1 SE FAIT DANS LE TABLEAU (demande de Turquet, novembre
+     2026 : « dans la question 1, laisser l'élève remplir les cases du tableau
+     sans faire un champ de saisie ») : les deux cases du 7.1 (suiTableau,
+     sui-t1 et sui-t2), jugées par la page comme au 7.1 — pas de feuille, pas
+     de modèle. Les questions 2 et 3 gardent leur champ unique. */
+  if(q.part===1){
+    $('suilHost').innerHTML=h+suiTableau(q,false);
+    suilFeuille=null;
+    ['sui-t1','sui-t2'].forEach(function(id){ const el=$(id); if(el) el.addEventListener('input', function(){
+      if(isSoutien()) checkSuil(true); clearTimeout(test.suilSave); test.suilSave=setTimeout(autoSave,1000); }); });
+    setTimeout(function(){ try{ const el=$('sui-t1'); if(el && !el.disabled) el.focus(); }catch(e){} },70);
+    return;
+  }
   h+='<div class="pt-step"><div class="pt-lab">Ta réponse — avec la méthode qui te convient</div>'
     +'<div class="dexp2-sheet" id="suilSheet"></div>'
     +'<p class="dexp-hint">'+SUIL_AIDE[q.part]+' La barre d’espace écrit une espace (sur tablette, la touche <b>espace</b> et les lettres du <b>clavier B</b> sont sur le clavier à l’écran). <b>Entrée</b> ajoute une ligne&nbsp;; <b>retour arrière</b> sur une ligne vide la supprime.</p></div>';
@@ -20392,9 +20404,34 @@ function suilAttenduIA(q, juge){
     + LANGUE_SIMPLE;
   return att;
 }
-async function checkSuil(){
+/* La question 1 : les deux cases du tableau, le juge du 7.1 (une bonne
+   réponse par case, corrChoix ; en soutien, la couleur au fil de la frappe). */
+function checkSuilTableau(live){
+  const q=test.questions[test.idx], v=suiVals(q), fb=$('suilFeedback');
+  const cases=[{id:'sui-t1', bon:v.t1}, {id:'sui-t2', bon:v.t2}];
+  if(live){ if(isSoutien()) cases.forEach(function(x){ liveColorDec(x.id, x.bon, 1); }); return; }
+  const subs=cases.map(function(x){ const el=$(x.id), s=el?String(el.value==null?'':el.value).trim():'', fr=parseDecToFrac(s);
+    return {c:x, el:el, vide:s==='', ok:!!fr && fr.n===x.bon*fr.d}; });
+  const allOk=subs.every(function(s){ return s.ok; });
+  const pourquoi=suiPourquoi(q);
+  subs.forEach(function(s){ corrChoix(s.el, String(s.c.bon), s.ok); });
+  if(!allOk && isSoutien()){ soutienAgain('suilFeedback','suilActions','checkSuil','suilHost'); return; }
+  test.locked=true;
+  if(allOk){ test.score++; fb.textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); fb.className='mp-feedback good'; }
+  else { fb.textContent=msgAvecVides(subs, pourquoi); fb.className='mp-feedback bad'; }
+  $('suilLiveScore').textContent=test.score;
+  test.answers.push({...(ptsExo()||{}), correct:allOk, q:v.c.nom+' — question 1',
+    answer:'t1 = '+v.t1+' ; t2 = '+v.t2,
+    given:subs.map(function(s){ return s.c.id.slice(4)+' = '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; ')});
+  const last=test.idx===test.questions.length-1;
+  $('suilActions').innerHTML='<button class="btn btn-primary" type="button" id="suilNext" onclick="nextSuil()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('suilNext'); if(nb) nb.focus();
+}
+async function checkSuil(live){
   if(test.locked || test.suilBusy) return;
   const q=test.questions[test.idx], fb=$('suilFeedback');
+  if(q.part===1){ checkSuilTableau(live); return; }
+  if(live) return;   /* les questions rédigées ne se corrigent pas au fil de la frappe */
   const rep=(suilFeuille?suilFeuille.lire():'').trim();
   if(!rep){
     fb.textContent='Écris d’abord ta réponse : une suite de nombres, des phrases avec tes calculs, ou directement le résultat.'; fb.className='mp-feedback bad';
@@ -32610,8 +32647,8 @@ const RAP_FPB=`<b>Fréquences, puis probabilités, dans un tableau d’effectifs
 <b>Une intersection.</b> « Provenant de A ET présentant un défaut » : on compte \\(A\\cap D\\) dans toute la production, \\(\\dfrac{A\\cap D}{\\text{effectif total}}\\) — aucun « parmi », le dénominateur reste le total.<br>
 Piège classique : diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle — le dénominateur est l’effectif du groupe où l’on se place.`;
 /* 7.2 {augmentation-tableau-libre} : la même méthode, et la liberté d'écrire. */
-const RAP_SUIL=`<b>Les mêmes questions que {augmentation-tableau}, un seul champ par question</b><br>
-Tu écris ta réponse <b>avec la méthode qui te convient</b>, et l'IA la lit :<br>
+const RAP_SUIL=`<b>Les mêmes questions que {augmentation-tableau}</b><br>
+La question 1 se fait dans le <b>tableau</b>, comme dans {augmentation-tableau}. Aux questions 2 et 3, un seul champ : tu écris ta réponse <b>avec la méthode qui te convient</b>, et l'IA la lit :<br>
 · <b>la suite des valeurs</b>, pas après pas : « 300 ; 350 ; 400 ; … » — en ajoutant (ou en retirant) toujours le même nombre ;<br>
 · <b>des phrases avec tes calculs</b> : « il y a 6 années donc 6 × 20 = 120 », puis « je fais 500 − 120 = 380 » ;<br>
 · ou <b>directement le résultat</b>, si tu l'as calculé de tête.<br>
