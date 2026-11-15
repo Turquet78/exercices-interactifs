@@ -282,7 +282,7 @@ questions ; un devoir en prend au plus 20, à intervalles réguliers
 (`vocRang`). Contrôle : celui du 1.13 au banc principal exige les trois
 lignes, une seule case, la phrase en tête, et 9,8 accepté.
 
-**Une case du 1.13 accepte les calculs intermédiaires (v429).** Signalé par
+**Une case du 1.13 accepte les calculs intermédiaires (v431).** Signalé par
 Turquet sur une capture, novembre 2026 : « 2 + 3.5 = 5.5 » rougissait au
 tiers de 6 plus la moitié de 7 — « on doit pouvoir mettre des calculs
 intermédiaires ». Le juge (`vocVaut`) lit désormais une CHAÎNE d'égalités :
