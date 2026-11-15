@@ -435,6 +435,56 @@ section 9) mesure chaque case contre les nombres qui l'entourent — dans le
 tableau comme dans les phrases ; le contrôle « 11 quindecies » remesure la
 place de la pose, qui dépend de la hauteur des lignes.
 
+## Puis la pose d'une case de tableau s'est alignée sur le tableau (novembre 2026, v431)
+
+**La demande** (Turquet, capture à l'appui) : « mettre l'opération facultative
+sur la même ligne que le tableau et un peu plus à gauche, pour la question 1 ».
+La pose partait 34 px au-dessus de la case cliquée (la ligne 2) et dépassait
+sous le tableau de quatre lignes, le cadre grandissant d'autant.
+
+**Ce qui change** (`suiPosePlacer`) : pour une case de TABLEAU — la question ①
+comme la méthode 1 de la question ② —, la pose s'aligne sur le haut du tableau
+et le suit à 8 px (24 auparavant) : elle accompagne le tableau entier, pas la
+ligne cliquée. Si cette place recouvrait une écriture, le repli reste le même :
+au ras de la case, puis sous tout le contenu. Une case de phrase ne change pas.
+
+**Et la question ③** (« mettre l'opération posée à côté du tableau, en bas,
+alignée avec le tableau et pas trop près ») : l'écart n'a pas de tableau à
+lui, sa phrase est en haut de l'écran et le tableau « pour mémoire » en bas ;
+la pose s'ancre sur ce tableau — alignée sur son haut, 24 px après son bord
+droit, « pas trop près » — plutôt qu'à droite de la phrase. Une case de
+phrase sans tableau de rappel (le résultat de la question ②) garde sa règle.
+
+**Le contrôle** (« 11 quindecies ») mesure maintenant, sur la question ③, que
+la pose de l'écart a le haut du tableau « pour mémoire » à 2 px près et le
+suit de 16 à 40 px ; sur la question ① et
+sur le tableau de la méthode 1 de la question ② (« même chose pour les
+opérations du deuxième tableau »), que le haut de la pose est celui du tableau
+à 2 px près et que l'écart à sa droite ne dépasse pas 12 px — en question ②,
+sans couvrir les phrases de la méthode 2 qui suivent : le tableau prolongé a
+cinq ou six lignes, la pose tient dans sa hauteur.
+
+## Puis le jour de départ s'est tiré, et les miroirs ont perdu leur pointillé (novembre 2026, v431)
+
+**« Ne pas commencer un premier du mois forcément »** (Turquet). Le roman de
+Léa et la cuve commençaient toujours le 1er : le jour de départ (`q.j0`, 1 à
+20, `SUI_J0_MAX`) est tiré avec la question et rangé dedans — jamais à
+l'affichage, la règle des énoncés —, et tout ce qui écrit une date le lit :
+`suiMoment(c, n, j0)`, `suiMomentHTML` (qui ne garde « 1<sup>er</sup> » que
+pour le 1), l'énoncé (`intro(u0, r, m0)`), les phrases (`p2(m, m0)`,
+`p3(T, u0, m0, j0)` : « Donc ce sera le 5 + [k] = [fin] juin »), le tableau
+prolongé, le contexte envoyé au modèle. Vingt au plus : avec p ≤ 10, la
+question ③ reste dans le mois. Un brouillon d'avant lit 1. Le contrôle des
+300 séances voit passer trois jours de départ au moins, aucun seuil après le
+30, et relit sur une question épinglée au 5 l'énoncé, la phrase du seuil et
+le moment calculé.
+
+**« Ne pas mettre de pointillé en dessous »** (Turquet, capture à l'appui) :
+les miroirs (`.sui-mir`, les cases suivantes d'une donnée, qui recopient la
+première) étaient soulignés de pointillés pour dire qu'on n'y écrit pas ; le
+pointillé est parti, le miroir se lit comme un nombre écrit, en bleu, sur un
+fond nu. Les « … » du miroir vide restent.
+
 ## 7.2 {augmentation-tableau-libre} : le 7.1 rédigé, un seul champ par question
 
 Demande de Turquet, novembre 2026 : « en première créer un exercice comme le
