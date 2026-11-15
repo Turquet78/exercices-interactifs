@@ -549,7 +549,7 @@ le dessin ». Le cadre `.itv-ligne` (560 px au plus) est posé directement dans
 la partie, pas dans la colonne flex centrée des fiches (`.itv-fiche`) : il
 restait collé à gauche. Une marge automatique (`.trd-tab-ligne`) le centre.
 
-## {image-antecedents-libre} — la onzième question du 6.2, seule, six fois (6.4, novembre 2026, Première v428)
+## {image-antecedents-libre} — la onzième question du 6.2, seule, six fois (6.4, novembre 2026, Première v429)
 
 **La demande** (Turquet) : « faire un autre exercice avec uniquement la
 question 11, donc sans aide mais plusieurs fois ». Ajouté EN DERNIER dans le
