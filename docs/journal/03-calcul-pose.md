@@ -301,3 +301,19 @@ Les juges ne changent pas : une retenue du bas écrite se juge comme avant, et
 elle vaut ce que vaut celle du haut. Le contrôle (`retenueRedescend`, banc
 principal) construit 42 − 17, écrit 1 puis 7 puis rien en haut, relit le bas,
 et pose le focus sur la case du bas pour le voir repartir.
+
+**Une case du 1.13 accepte les calculs intermédiaires (v433).** Signalé par
+Turquet sur une capture, novembre 2026 : « 2 + 3.5 = 5.5 » rougissait au
+tiers de 6 plus la moitié de 7 — « on doit pouvoir mettre des calculs
+intermédiaires ». Le juge (`vocVaut`) lit désormais une CHAÎNE d'égalités :
+chaque membre est évalué en rationnel exact par `libreEval` (le juge
+arithmétique des rédactions, rien de nouveau à croire) et doit valoir le
+résultat ; le DERNIER membre est le résultat écrit comme un nombre (décimal
+ou fraction, `vapLit`). Une égalité fausse en chemin (« 2 + 3 = 5,5 ») rend
+la case fausse ; une expression sans résultat (« 2 + 3,5 ») aussi. Le LaTeX
+de MathLive est ramené au texte (`vocTexteCalc` : \frac → (a)/(b), \times,
+\div, {,}). Vaut pour toutes les cases du 1.13 ; la consigne de la partie 3
+le dit. Exécuté dans Chromium, au clavier : « 2+3.5=5.5 » et
+« 2×10+½=20,5 » se peignent en bleu et valent le point. Contrôle : celui du
+1.13 au banc principal (six chaînes, dont trois refusées, et la copie de la
+capture).
