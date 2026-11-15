@@ -17583,7 +17583,7 @@ if(require.main === module) (async () => {
                   inp._aideVue = true; res.n++;
                   const nx = inp.nextElementSibling, ap = nx && nx.tagName === 'BUTTON' ? nx : inp, a = ap.nextElementSibling;
                   const ok = a && a.classList.contains('py-entree-aide') && vis(a)
-                    && /Appuyer sur la touche Entrée pour valider\./.test(a.textContent || '')
+                    && /Appuyer sur la touche Entrée pour valider\./.test(getComputedStyle(a, '::after').content || '')
                     && Math.abs(a.getBoundingClientRect().top - inp.getBoundingClientRect().top) < inp.getBoundingClientRect().height + 4;
                   if(!ok) res.manque.push((inp.id || inp.className) + (a ? ' (voisin : ' + (a.className || a.tagName) + ')' : ' (aucun voisin)'));
                 }

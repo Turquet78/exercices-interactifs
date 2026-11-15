@@ -1356,6 +1356,7 @@
   .py-entree-ok{font:inherit;margin-left:6px;padding:0 8px;border:1.5px solid #6c8ebf;border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;vertical-align:baseline}
   /* la vérification retenue tant que la console attend Entrée (#console-attend-entree) */
   section.screen:has(input[aria-label="ta réponse à la question du programme"]) :is(button[onclick^="check"],button[id$="Validate"]){opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
+  .py-entree-aide::after{content:attr(data-aide)}
   .py-entree-aide{display:inline-block;margin-left:10px;font-family:Nunito,system-ui,sans-serif;font-size:.9em;font-style:italic;font-weight:600;color:#5a3b00;white-space:normal;vertical-align:baseline;user-select:none}
   #attendEntreeMsg{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#FFF4D6;border:1.5px solid #E8B64A;color:#5a3b00;font-weight:700}
   #attendEntreeMsg.montre{animation:attendEntreeSecoue .35s}
@@ -53845,7 +53846,10 @@ function checkPFP(live){
   if(parfait){ fb.textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !']); fb.className='mp-feedback good'; }
   else if(allOk){ fb.textContent='Le b) est juste !'; fb.className='mp-feedback good'; }
   else { fb.textContent=msgAvecVides(subs, pfpPourquoiB(q, subs)+' La bonne réponse est écrite en vert à côté.'); fb.className='mp-feedback bad'; }
-  test.answers.push({...(ptsExo()||{}), correct:parfait,
+  /* le compte de la question entière : l'écran ne montre plus que le
+     dernier tour, les verdicts des autres sont rangés dans q.oks */
+  const justes=q.oks.reduce(function(s,o){ return s+(o||[]).filter(Boolean).length; },0)+nOk, cases=3*q.n+2;
+  test.answers.push({...(ptsExo()||{}), pts:justes/cases, justes:justes, cases:cases, correct:parfait,
     q:pfpProg(q).replace(/\n\s*/g,' ⏎ ')+' ⏎ pas à pas : texte, variable, valeur à chaque tour ; '+pfpVar(q)+' varie de … à …',
     answer:pfpSortie(q).join(' | ')+' ; '+b[0]+' à '+b[1],
     given:q.rs.map(function(r){ return (r||[]).map(function(x){ return String(x||'').trim()||'?'; }).join(' / '); }).join(' | ')+' ; '+(q.r[0].trim()||'?')+' à '+(q.r[1].trim()||'?')});
@@ -89670,7 +89674,9 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     const ap=apresCase(inp), n=ap.nextElementSibling;
     if(n && n.classList.contains('py-entree-aide')) return;
     const a=document.createElement('span');
-    a.className='py-entree-aide'; a.textContent=AIDE;
+    /* écrite par la feuille de styles (::after) : visible à côté de la
+       case, mais hors du texte de la console, que d'autres lisent */
+    a.className='py-entree-aide'; a.setAttribute('data-aide', AIDE);
     ap.insertAdjacentElement('afterend', a);
   }
   function retirerAide(inp){

@@ -7033,6 +7033,16 @@ que la réponse non vide est envoyée (Entrée, ou le bouton ⏎). Pas
 d'observateur de mutations : le même script note déjà qu'un observateur sur
 tout le document décalait les minuteries du banc jsdom.
 
+La phrase est écrite par la FEUILLE DE STYLES (`::after{content:attr(data-aide)}`),
+pas dans le texte du `span` : posée en texte, elle entrait dans le
+`textContent` de la console, et les bancs du 6.7.1 et du 6.7.4, qui y lisent
+la question du programme, l'ont aussitôt vue (« Quel est ton âge ? Appuyer
+sur la touche Entrée… »). Le contrôle universel lit donc le `::after`.
+
+Et au 6.6.1, la note de la question ne se relit plus seulement à l'écran :
+n'y reste que le dernier tour, alors `justes` et `cases` se comptent sur les
+verdicts rangés (`q.oks`) plus le b) — 3 n + 2 cases.
+
 Contrôle universel (banc navigateur, section 9, rien à déclarer) : en
 entraînement, chaque « ▶ » visible de chaque exercice est cliqué ; toute case
 de réponse au programme qui s'ouvre doit porter la phrase, visible, sur sa
