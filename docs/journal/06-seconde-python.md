@@ -7078,5 +7078,5 @@ n'était jamais appelée. Mesuré dans Chromium : un bouton désactivé reçoit
 encore `pointerdown` et `pointerup`, jamais `mousedown` ni `click`. Une seconde
 porte, sur `pointerdown`, ne regarde que les boutons DÉSACTIVÉS (un bouton actif
 passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
-case. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
+case — une fois le geste fini (sur `pointerup`) : dans l'action, le focus partait au `<body>` après la porte, alors qu'il restait en local. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
 vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.

@@ -89694,6 +89694,12 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     const inp=caseEnAttente(ecranDe(bouton)); if(!inp) return;
     if(bouton.previousElementSibling===inp) return;
     dire(inp);
+    /* le navigateur peut retirer le focus APRÈS cette porte (le pointeur
+       relâché sur un nœud qui ne le prend pas) : on le rend à la case une
+       fois le geste fini — mesuré dans l'action, où il partait au <body> */
+    const rendre=function(){ try{ if(inp.isConnected) inp.focus(); }catch(err){} };
+    document.addEventListener('pointerup', function(){ setTimeout(rendre, 0); }, {once:true, capture:true});
+    setTimeout(rendre, 60);
   }, true);
 })();
 </script>
