@@ -536,7 +536,7 @@ feuille n'est pas rangé par la pause (ses lignes n'ont pas d'identifiant) — l
 reprise rouvre la question, champ vide.
 
 **Puis la question ① est revenue dans le tableau** (demande de Turquet,
-novembre 2026, v432 : « dans la question 1, laisser l'élève remplir les cases
+novembre 2026, v434 : « dans la question 1, laisser l'élève remplir les cases
 du tableau sans faire un champ de saisie »). Ses deux cases sont celles du 7.1
 (`suiTableau`, `sui-t1` et `sui-t2`) et son juge aussi (`checkSuilTableau` :
 une bonne réponse par case, `corrChoix`, le soutien qui colore au fil de la
