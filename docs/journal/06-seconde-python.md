@@ -6995,3 +6995,17 @@ console — ce que lisent les juges et les bancs — ne change pas d'un caractè
 Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
 retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
 (`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
+
+**Puis la phrase est passée en gras et en bleu, et « ▶ Exécuter » montre l'encadré (v683).**
+Même jour, Turquet : « mets la phrase en gras et en bleu, et quand on appuie
+sur le bouton Exécuter ou Continuer, mettre le message de l'encadré orange qui
+s'affiche déjà sur Rappels de cours ou Poser une question à l'IA ». La règle
+`::after` prend `font-weight:800` et `var(--blue)`. Dans `#console-attend-entree`,
+les boutons qui commencent par « ▶ » étaient exemptés en silence (relancer le
+programme est permis) : ils appellent maintenant `dire(inp, true)` — l'encadré
+s'affiche, le clic part quand même (le programme relancé repose sa question),
+et le focus n'est pas volé au gestionnaire du bouton. Le message est posé après
+la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
+pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
+rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
+sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
