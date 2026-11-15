@@ -16350,6 +16350,15 @@ if(require.main === module) (async () => {
         return i ? getComputedStyle(i.parentNode, '::after').content : ''; });
       verifier('à côté de la case d\'un input en attente, la console écrit « Appuyer sur la touche Entrée pour valider. »',
         /Appuyer sur la touche Entrée pour valider\./.test(attPhrase), JSON.stringify(attPhrase));
+      /* …un clic sur « ▶ Exécuter » pendant l'attente montre AUSSI l'encadré
+         orange, et le programme relancé repose sa question (le clic part) */
+      await s.page.click('#piiRunC');
+      await s.page.waitForTimeout(250);
+      const attRun = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
+        return { msg: m && m.getClientRects().length ? m.textContent : '', attend: !!document.getElementById('piiConsCIn') }; });
+      verifier('un clic sur « ▶ Exécuter », la console en attente, affiche l\'encadré « appuie sur Entrée ⏎ » et relance le programme',
+        /Entrée ⏎/.test(attRun.msg) && attRun.attend, JSON.stringify(attRun));
+      await s.page.evaluate(() => document.getElementById('attendEntreeMsg') && document.getElementById('attendEntreeMsg').remove());
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
