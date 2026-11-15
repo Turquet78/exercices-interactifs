@@ -89709,6 +89709,25 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     if(bouton && estVerifier(bouton)){ e.preventDefault(); e.stopImmediatePropagation(); }
     dire(inp);
   }, true);
+  /* UN BOUTON DÉSACTIVÉ ne reçoit AUCUN clic du navigateur : « ▶ Exécuter la
+     ligne 1 » du 6.3.1 (pnpRun1) se désactive pendant que le programme
+     attend, et l'encadré ne venait jamais (signalé par Turquet, novembre
+     2026). Chromium lui envoie pourtant pointerdown : c'est cette porte-ci
+     qui le dit, pour les seuls boutons désactivés — un bouton actif passe par
+     le clic, ci-dessus, et l'encadré ne s'affiche qu'une fois. */
+  document.addEventListener('pointerdown', function(e){
+    const t=e.target; if(!t || !t.closest) return;
+    const bouton=t.closest('button'); if(!bouton || !bouton.disabled) return;
+    const inp=caseEnAttente(ecranDe(bouton)); if(!inp) return;
+    if(bouton.previousElementSibling===inp) return;
+    dire(inp);
+    /* le navigateur peut retirer le focus APRÈS cette porte (le pointeur
+       relâché sur un nœud qui ne le prend pas) : on le rend à la case une
+       fois le geste fini — mesuré dans l'action, où il partait au <body> */
+    const rendre=function(){ try{ if(inp.isConnected) inp.focus(); }catch(err){} };
+    document.addEventListener('pointerup', function(){ setTimeout(rendre, 0); }, {once:true, capture:true});
+    setTimeout(rendre, 60);
+  }, true);
 })();
 </script>
 <style id="confirmer-vides-css">
