@@ -1825,17 +1825,17 @@ module.exports = {
        juge du 6.3.2, un cran plus loin : deux réponses inconnues de l'élève,
        un résultat rangé dans sa variable. « nb » est la seconde source du
        compte (la page a PIA_NB). */
-    pythonInputCalcul: { exercice: 'python-input-calcul', nb: 3, numero: '6.3.5' },
+    pythonInputCalcul: { exercice: 'python-input-calcul', nb: 3, numero: '6.3.6' },
     /* {python-input-somme} (6.3.6, demande de Turquet, octobre 2026) :
        l'exercice 7 du carnet — deux nombres décimaux avec float(input(…)),
        leur somme rangée dans somme, puis affichée. Le juge du 6.3.4 avec
        deux questions. « nb » est la seconde source du compte (PIS_NB). */
-    pythonInputSomme: { exercice: 'python-input-somme', nb: 3, numero: '6.3.7' },
+    pythonInputSomme: { exercice: 'python-input-somme', nb: 3, numero: '6.3.8' },
     /* {python-input-moyenne} (6.3.7 — 6.3.6 à sa fusion, avant que l'exercice 7 du carnet ne passe devant, demande de Turquet, octobre 2026) :
        l'exercice 8 du carnet — deux notes demandées avec float(input(…)),
        leur moyenne (note_1 + note_2) / 2, puis print("la moyenne est de :",
        moyenne). Le juge du 6.3.4 avec deux PAIRES de réponses décimales. */
-    pythonInputMoyenne: { exercice: 'python-input-moyenne', nb: 3, numero: '6.3.8' },
+    pythonInputMoyenne: { exercice: 'python-input-moyenne', nb: 3, numero: '6.3.9' },
     /* {python-triangle-etoiles} (6.4.5 — fusionnés avant lui : {python-chaine-len}, {python-chaine-tirets}, {python-remplacer-lettre} et {python-inverser-lettres}, demande de Turquet, octobre 2026) :
        l'exercice 23 du carnet — le programme le plus court possible qui
        affiche un triangle d'étoiles de taille 10 ou plus. Il suit
@@ -1858,7 +1858,7 @@ module.exports = {
        demandées avec float(input(…)), son aire et son périmètre rangés dans
        aire et perimetre, puis deux lignes affichées. Le juge du 6.3.7 avec
        deux résultats. « nb » est la seconde source du compte (PRC_NB). */
-    pythonInputRectangle: { exercice: 'python-input-rectangle', nb: 3, numero: '6.3.9' },
+    pythonInputRectangle: { exercice: 'python-input-rectangle', nb: 3, numero: '6.3.10' },
     /* {python-if-frais-port} (6.7.6, demande de Turquet, octobre 2026) :
        l'« Exercice 4 » du carnet — demander le montant d'une commande
        (float) dans montant, puis un if / else : 10 € de frais de port sous
@@ -1872,7 +1872,7 @@ module.exports = {
        avec une phrase. La fiche ne nomme aucune variable : le juge lit ce
        que le programme AFFICHE. « nb » est la seconde source du compte
        (la page a PKG_NB). */
-    pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.10' },
+    pythonInputPrix: { exercice: 'python-input-prix', nb: 3, numero: '6.3.11' },
     /* Les huit exercices qui complètent le sous-thème 6.3 « Input » (6.3.10 à
        6.3.17, demande de Turquet, octobre 2026 : « crée le 1 et 2 et 3 et 5 »).
        « nb » est la seconde source du compte de questions (la page a PZR_NB,
@@ -1909,8 +1909,8 @@ module.exports = {
        aussi le 4 dans le sous-thème input avec une fonction ») : demander x,
        calculer f(x), l'afficher, puis lire une image. « nb » est la seconde
        source du compte (la page a PFX_NB). */
-    pythonInputImage: { exercice: 'python-input-image', nb: 3, numero: '6.3.19' },
-    pythonInputComplements: { premier: 'python-input-concat', numero: '6.3.11', nb: 3,
+    pythonInputImage: { exercice: 'python-input-image', nb: 3, numero: '6.3.20' },
+    pythonInputComplements: { premier: 'python-input-concat', numero: '6.3.12', nb: 3,
       ids: ['python-input-concat', 'python-input-erreur-type', 'python-input-int-float', 'python-input-conversion', 'python-input-predire', 'python-input-ordre', 'python-input-arrondi', 'python-input-monnaie'] },
     /* {python-pile-face} (6.7.7, derrière les six autres du sous-thème, sous-thème « Condition if else », demande de
        Turquet, octobre 2026) : l'exercice 7 du carnet — jouons à pile ou face,
@@ -2063,10 +2063,10 @@ module.exports = {
        le programme de la fiche « input_new » exécuté ligne par ligne, un cadre
        à compléter à côté de chaque ligne (3 cases chacun). */
     pythonInputPasAPas: { exercice: 'python-input-pas-a-pas', nb: 3, cases: 6, numero: '6.3.1' },
-    pythonInputReponse: { exercice: 'python-input-reponse', nb: 3, numero: '6.3.2' },
+    pythonInputReponse: { exercice: 'python-input-reponse', nb: 3, numero: '6.3.3' },
     /* {python-input-sport} (6.3.20, demande de Turquet, novembre 2026) :
        compléter input et print, exécuter, puis le nom et le type de la variable. */
-    pythonInputSport: { exercice: 'python-input-sport', numero: '6.3.20' },
+    pythonInputSport: { exercice: 'python-input-sport', numero: '6.3.2' },
     /* Les SERPENTS D'HALLOWEEN du sous-thème « Input » (demande de Turquet,
        octobre 2026) : chaque exercice du sous-thème 6.3 pose, à côté du
        dessin de sa fiche, un serpent déguisé dessiné en SVG (HW_SERPENTS),
@@ -2259,7 +2259,7 @@ module.exports = {
        écrite à la main que la SECONDE réponse trahit), les portes a) → b) →
        c), la case vide, le soutien et CPython ; le navigateur TAPE la réponse
        dans la console, choisit le type, écrit la ligne et relit l'encre. */
-    pythonInputInt: { exercice: 'python-input-int', nb: 4, cases: 2, numero: '6.3.4',
+    pythonInputInt: { exercice: 'python-input-int', nb: 4, cases: 2, numero: '6.3.5',
                    fiche: { ligneA: 'age = int(input("Quel est ton âge ? "))',
                             lignesB: ['print(age)', 'print(type(age))'],
                             ligneC: 'print("j\'ai", age, "ans")',
@@ -2274,7 +2274,7 @@ module.exports = {
        nombre SANS rien), `cases` notées par question, `fiche` la première
        question épinglée, la réponse que le banc y tape, ce que Python en
        affiche, et un entier tapé qui devient 2.0. */
-    pythonInputFloat: { exercice: 'python-input-float', nb: 4, cases: 2, numero: '6.3.6',
+    pythonInputFloat: { exercice: 'python-input-float', nb: 4, cases: 2, numero: '6.3.7',
                    fiche: { ligneA: 'taille = float(input("Quelle est ta taille en mètres ? (ici : 1 m 65 = 1.65) "))',
                             lignesB: ['print(taille)', 'print(type(taille))'],
                             ligneC: 'print("je mesure", taille, "mètres")',

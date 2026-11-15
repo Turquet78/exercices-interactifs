@@ -562,3 +562,71 @@ temps 'mix-nu' pour toutes les questions (`imaTirage(nb, planFixe)`) : une
 image et un ou deux antécédents (pile ou face) sur le même graphique, sans
 point rouge, sans chemin avant la vérification, sans l'écriture
 f( … ) = … — six questions, le réglage « Questions » d'un devoir les allonge.
+
+## 6.5 {tracer-droite-libre} — le 6.3, les calculs rédigés (v434 — le 7.1, le 7.2, le 6.4 {image-antecedents-libre}, le 7.1 encore puis le 1.13 avaient pris les v428 à v433 sur `main` pendant les contrôles ; arrivé après lui dans le thème, l'exercice est devenu le 6.5)
+
+Demande de Turquet (novembre 2026) : « faire un exercice comme le 6.3 en
+première mais les élèves doivent écrire leur calcul dans la 1re question dans
+un champ de saisie par image ; quand on appuie sur Entrée, afficher le signe
+égal au début de la nouvelle ligne, aligné verticalement avec le premier
+signe = de la ligne du dessus. Pour la question 4, écrire la première ligne
+de calcul et en dessous afficher une case suivie de = et d'une autre case […]
+quand un élève appuie sur Entrée, afficher une autre ligne en dessous
+exactement comme celle d'avant. On acceptera toute équation équivalente pour
+chaque ligne. Dans la question 5, on ne tracera que la droite, sans les
+signes et les couleurs et sans le point vert. »
+
+**Le même moteur, une autre identité.** Kind `trd`, `test.qId =
+'tracer-droite-libre'` ; `trdLibre()` la lit. Tirage, repère, points, règle
+qui trace la droite, chemin animé et tableau de signes sont ceux du 6.3 ;
+seules les questions 1, 4 et 5 changent. « Recommencer » choisit le départ par
+l'identité (`restartCurrentTest`), le contexte du modèle aussi
+(`ctxTrdLibre`).
+
+**Les lignes vivent dans l'état de la question** (`test.trdE.lignes = {i1,
+i2, eq}`) : elles partent avec la pause et reviennent avec elle. Une case de
+TEXTE par ligne (`input.trd-lin`), dans la grille à trois colonnes du 6.3 —
+les « = » tombent dans la même colonne sans rien mesurer. Entrée dans la
+dernière ligne REMPLIE en ouvre une nouvelle (la grille se redessine, le
+curseur y va) ; Entrée dans une ligne vide passe à la case suivante de
+l'écran ; ⌫ dans la dernière ligne vide la retire. À l'équation, Entrée dans
+le membre de gauche passe au membre de droite. Le « - » tapé s'écrit « − »,
+le « * » « × » (la porte commune `caseCalculEcrire`, par `data-pave-plus`).
+
+**Entrée est prise sur la FENÊTRE, en capture.** La porte commune des cases
+vides (`#confirmer-vides`) écoute Entrée en capture sur le DOCUMENT : dans la
+dernière case visible de l'écran (la dernière ligne de la question 1, tant
+que la suite est fermée), elle aurait ouvert sa boîte au lieu d'ouvrir une
+ligne. La fenêtre passe avant le document : `stopImmediatePropagation` y
+garde Entrée pour les lignes. Éprouvé dans Chromium, la boîte ACTIVE (les
+bancs la coupent ; l'essai non) : Entrée ouvre la ligne, la boîte reste
+fermée.
+
+**Le juge, ligne par ligne** — `trdLin`, un petit lecteur d'expressions du
+premier degré (nombres à virgule, `x`, `+ − × ÷ * /`, parenthèses,
+multiplication implicite « 2x », « 3(x + 1) » ; x × x ou ÷ x : illisible,
+donc faux). Question 1 : une ligne est juste si sa valeur est f (x) ; le
+calcul est FINI quand sa dernière ligne écrite est juste et n'est qu'un
+nombre. Question 4 : une ligne « g = d » est juste si c'est une équation du
+premier degré de même solution unique (`trdLigneEquivalente`) ; le calcul est
+fini quand la dernière ligne est juste et s'écrit « x = nombre » ou « nombre
+= x ». Chaque bloc a donc une case de plus au juge, sa « fin » (`s.fin`) :
+pas une case de l'écran, jamais vide, juste si le calcul va au bout. Une
+ligne ajoutée et laissée vide n'est pas une réponse : `data-facultatif`
+(la boîte des cases vides ne la réclame pas) et le juge l'ignore.
+
+**La correction.** Une ligne juste en bleu, fausse en rouge ; une première
+ligne laissée vide reçoit le calcul type en vert ; un calcul qui ne va pas au
+bout reçoit sa dernière ligne en VERT, ajoutée sous les siennes (le résultat,
+ou « x = … »). En soutien, chaque ligne se colore à la frappe, et rien ne se
+fige : une ligne juste mais pas finale doit rester ouverte, sans quoi Entrée
+ne pourrait plus y ouvrir la suivante. Un calcul juste mais inachevé le dit :
+« Va jusqu'au bout : … — la dernière ligne doit être le résultat seul. »
+
+**La question 5 : la droite seule** (`trdNueSVG`) — ni rouge, ni bleu, ni
+signes, ni point vert, la droite à l'encre ; la consigne dit de lire où elle
+coupe l'axe, puis de quel côté elle est.
+
+Plus de règles à choisir, plus de flèches de transposition, plus de bulles
+d'aide : la demande ne garde que les lignes (les ids des cases à bulle
+n’existent pas dans le 6.5, `trdGpOuvrir` ne s'ouvre jamais).
