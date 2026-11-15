@@ -7068,3 +7068,15 @@ la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
 pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
 rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
 sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
+
+**Puis le bouton DÉSACTIVÉ : « ▶ Exécuter la ligne 1 » du 6.3.1 ne montrait pas l'encadré (v685).**
+Turquet, copie d'écran à l'appui : sur le 6.3.1, la console attend, et « ▶
+Exécuter la ligne 1 » ne dit rien. Le bouton (`pnpRun1`) se désactive dès qu'il
+lance le programme — et un bouton désactivé ne reçoit AUCUN `click` du
+navigateur : la porte de `#console-attend-entree`, en capture sur `click`,
+n'était jamais appelée. Mesuré dans Chromium : un bouton désactivé reçoit
+encore `pointerdown` et `pointerup`, jamais `mousedown` ni `click`. Une seconde
+porte, sur `pointerdown`, ne regarde que les boutons DÉSACTIVÉS (un bouton actif
+passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
+case. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
+vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.
