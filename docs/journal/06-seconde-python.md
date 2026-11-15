@@ -7120,14 +7120,29 @@ passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
 case — une fois le geste fini (sur `pointerup`) : dans l'action, le focus partait au `<body>` après la porte, alors qu'il restait en local. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
 vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.
 
-**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v687).**
+**Puis la variable est devenue `reponse`, et la phrase « c'est formidable »
+(15 novembre 2026, v687).** Demande de Turquet : « enlève le mot sport dans
+la phrase du print, mets reponse pour la variable de l'exercice ». Le
+programme juste est désormais `reponse = input("quel est ton sport favori ? ")`
+puis `print("c'est formidable", reponse)` — la question, elle, garde son
+sport. Tout passait déjà par `PSF_VAR` et `PSF_T` ; seuls trois textes
+écrivaient le nom en dur (la description du menu, le rappel de cours, le
+diagnostic « , sport) déjà écrit ») et lisent maintenant la constante ou le
+nouveau nom. Un diagnostic neuf : « réponse », avec l'accent que la langue
+réclame, est NOMMÉ (« sans accent, exactement comme à la ligne 1 ») au lieu
+de tomber dans le message général — et « sport », l'ancien nom, reçoit le
+message général (la variable à GAUCHE du =). Le contrôle a suivi : le texte
+« c'est formidable le sport » est maintenant FAUX (« doit être »), le nom
+juste « reponse ».
+
+**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v688).**
 Demande de Turquet : la retirer du cadre bleu de la console quand l'élève
 répond à l'input. Le 6.3.1 écrit désormais « ⏎ : Appuyer sur la touche Entrée
 pour valider. » — la phrase commune, précédée du symbole qu'elle explique ; le
 comportement (un clic ailleurs ne fait rien) ne change pas, seule la phrase
 disparaît.
 
-**Puis le 6.3.1 s'est montré LIGNE PAR LIGNE, la console sous le bouton (v687).**
+**Puis le 6.3.1 s'est montré LIGNE PAR LIGNE, la console sous le bouton (v688).**
 Demande de Turquet : « afficher le programme ligne par ligne avec le cadre à
 côté » — au départ la ligne 1 seule ; la ligne 2 n'apparaît, sous la ligne 1,
 qu'une fois le cadre 1 vérifié ; le cadre d'une ligne n'apparaît qu'une fois
