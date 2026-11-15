@@ -2498,7 +2498,7 @@ module.exports = {
        PFP_NB) et de la fiche — la première question (nombre, valeur=,
        range(4)), ce que la console affiche tour après tour, et les bornes. */
     pythonForPasAPas: { exercice: 'python-for-pas-a-pas', nb: 2, numero: '6.6.1',
-      fiche: { variable: 'nombre', texte: 'valeur=', n: 4, sortie: ['valeur= 0', 'valeur= 1', 'valeur= 2', 'valeur= 3'], de: '0', a: '3' } },
+      fiche: { variable: 'nombre', texte: 'la variable nombre vaut :', n: 4, sortie: ['la variable nombre vaut : 0', 'la variable nombre vaut : 1', 'la variable nombre vaut : 2', 'la variable nombre vaut : 3'], de: '0', a: '3' } },
     pythonForRange: { exercice: 'python-for-range', nb: 4, inversees: [false, false, true, true], numero: '6.6.2',
       fiche: { definition: '⚠ Définition d’une boucle for … in range (…) for nombre in range ( 5 ): se traduit par Pour nombre allant jusqu’à ( 5 ).',
                sortie: 'valeur= 0\nvaleur= 1\nvaleur= 2\nvaleur= 3\nvaleur= 4', de: '0', a: '4' } },

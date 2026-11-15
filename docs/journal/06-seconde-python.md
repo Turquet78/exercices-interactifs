@@ -7107,3 +7107,18 @@ c'est la règle commune, prolongée pour cet exercice seul —
 `#pnpConsole:has(> input[…])::after` écrit « ⏎ : Appuyer sur la touche Entrée
 pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
 et le contrôle universel la lit comme les autres.
+
+---
+
+## Puis le texte du 6.6.1 a nommé la variable (novembre 2026, v686)
+
+Demande de Turquet : « mettre "la variable nombre vaut : " au lieu de
+"valeur=" dans les listes ». Le texte des listes EST celui du print — le
+changer dans la liste seule y aurait retiré la bonne réponse. Le premier
+texte de `PFP_TEXTES` devient donc `la variable %v vaut :`, où `pfpTexte`
+écrit le nom tiré : la fiche affiche « la variable nombre vaut : 0 », une
+question à la variable k « la variable k vaut : 0 ». Pas d'espace final dans
+le texte : print en met déjà une entre ses deux arguments, la console aurait
+écrit deux espaces. Le rappel de cours et la première question proposée à
+l'IA suivent ; le profil du banc (fiche, sortie) aussi, et les programmes
+sont toujours comparés à un vrai CPython.
