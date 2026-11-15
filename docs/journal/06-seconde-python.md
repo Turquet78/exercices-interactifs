@@ -7069,7 +7069,58 @@ pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun
 rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
 sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
 
-## {python-boites-memoire} (6.2.24) : les boîtes de la mémoire, la valeur qui y entre (novembre 2026, v685)
+**Puis le 6.3.1 a montré ses deux cadres DÈS LE DÉPART (v682, novembre 2026).**
+Demande de Turquet sur la page en ligne : les cases des cadres se collaient
+d'une ligne à l'autre ; les cadres doivent être là, à côté de leur ligne, avant
+toute exécution ; le bouton « ▶ Exécuter la ligne … » passe AU-DESSUS du
+programme (`#pnpRunBar`) ; et la console qui attend rappelle, à côté de la
+réponse, que ⏎ veut dire « appuie sur la touche Entrée » — cliquer ailleurs ne
+fait rien (le bandeau général « Tu dois appuyer sur Entrée ⏎ » le disait déjà).
+Le cadre d'une ligne pas encore exécutée porte `.pnp-ferme`, ses cases
+`disabled` et grisées : on lit tout le travail d'avance, on n'écrit qu'après
+l'exécution. L'interligne du cadre monte à 2,9 et chaque case prend 3 px de
+marge verticale. Le trajet du banc principal le tient : deux cadres fermés au
+départ, le bouton avant le programme (ordre du document), le rappel de la
+touche Entrée dans la console, le cadre 2 fermé jusqu'à la ligne 2.
+
+**Puis chaque case du 6.3.1 est devenue une LISTE de quatre propositions (v683).**
+Demande de Turquet : « dans les cases, le choix entre 4 propositions » — la
+question (`comment tu t'appelles ?`), le texte du print (`tu es`), le nom de la
+variable (`nom`), et la réponse que l'élève a tapée. Les six cases sont des
+`<select class="pnp-in">` à option vide « choisis… » ; l'ordre des propositions
+est tiré à la génération (`q.o`, rangé dans la question — jamais à
+l'affichage), la réponse de l'élève n'y entre qu'une fois la ligne 1 exécutée,
+et une réponse qui coïncide avec une autre proposition (un élève qui répond
+« nom ») ne se montre qu'une fois. Le juge n'a pas changé : une proposition
+choisie est une chaîne comme une autre. Piège rencontré : une règle générale
+donnait aux `select` toute la largeur du cadre, la phrase se cassait en
+morceaux — `#pnpHost select.pnp-in{display:inline-block;width:auto}` la
+remet dans le fil du texte. Le banc principal vérifie les quatre propositions
+de la première case.
+
+**Et les deux rappels de la touche Entrée se sont croisés à la fusion (v685).**
+La phrase commune des consoles (« Appuyer sur la touche Entrée pour valider. »,
+le `::after` posé par une autre branche le même jour, tenu par un contrôle
+universel) s'ajoutait, sur le 6.3.1, au rappel propre de l'exercice : l'élève
+lisait deux fois la même consigne. Le rappel du 6.3.1 n'est plus un `<span>` :
+c'est la règle commune, prolongée pour cet exercice seul —
+`#pnpConsole:has(> input[…])::after` écrit « ⏎ : Appuyer sur la touche Entrée
+pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
+et le contrôle universel la lit comme les autres.
+
+**Puis le bouton DÉSACTIVÉ : « ▶ Exécuter la ligne 1 » du 6.3.1 ne montrait pas l’encadré (v686).**
+Turquet, copie d'écran à l'appui : sur le 6.3.1, la console attend, et « ▶
+Exécuter la ligne 1 » ne dit rien. Le bouton (`pnpRun1`) se désactive dès qu'il
+lance le programme — et un bouton désactivé ne reçoit AUCUN `click` du
+navigateur : la porte de `#console-attend-entree`, en capture sur `click`,
+n'était jamais appelée. Mesuré dans Chromium : un bouton désactivé reçoit
+encore `pointerdown` et `pointerup`, jamais `mousedown` ni `click`. Une seconde
+porte, sur `pointerdown`, ne regarde que les boutons DÉSACTIVÉS (un bouton actif
+passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
+case — une fois le geste fini (sur `pointerup`) : dans l'action, le focus partait au `<body>` après la porte, alors qu'il restait en local. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
+vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.
+
+## {python-boites-memoire} (6.2.24) : les boîtes de la mémoire, la valeur qui y entre (novembre 2026, v687)
 
 Demande de Turquet : « fais un programme comme le 6.2.1 ; on affichera à côté
 du programme 3 boîtes représentant les variables a, b et c, et quand on
