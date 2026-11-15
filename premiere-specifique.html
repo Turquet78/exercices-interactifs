@@ -3998,7 +3998,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=431;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=432;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -20358,7 +20358,7 @@ function suilEgalites(texte){
 /* Ce que la question attend, et les nombres qui s'expliquent par la situation. */
 function suilAttendu(q){
   const v=suiVals(q), c=v.c, t=c.tps;
-  const moment=function(n){ return t.type==='annee'?t.t0+n:(t.type==='heure'?t.t0+n:1+n); };
+  const moment=function(n){ return t.type==='annee'?t.t0+n:(t.type==='heure'?t.t0+n:v.j0+n); };   /* le jour de départ tiré (q.j0, v431) */
   const bons=q.part===1?[v.t1,v.t2]:(q.part===2?[v.res]:[v.fin]);
   /* les étiquettes : elles peuvent suivre la réponse (« 380 arbres en 2032 ») */
   const etiq=q.part===1?[moment(0),moment(1),moment(2),moment(3),0,1,2,3]
