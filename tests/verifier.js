@@ -36338,7 +36338,7 @@ function pythonInputPasAPas(w, P){
     startPNP();
     const q=test.questions[0];
     if(!document.getElementById("pnpRun1")) vus.push("pas de bouton « Exécuter la ligne 1 »");
-    const ferme=function(n){ const r=document.getElementById("pnpR"+n), c=document.getElementById("pnpCadre"+n); if(!c) return "absent"; const ins=[].slice.call(c.querySelectorAll("input")); return (r.classList.contains("pnp-ferme")&&ins.length===3&&ins.every(function(i){ return i.disabled; }))?"fermé":"ouvert"; };
+    const ferme=function(n){ const r=document.getElementById("pnpR"+n), c=document.getElementById("pnpCadre"+n); if(!c) return "absent"; const ins=[].slice.call(c.querySelectorAll("select")); return (r.classList.contains("pnp-ferme")&&ins.length===3&&ins.every(function(i){ return i.disabled; }))?"fermé":"ouvert"; };
     if(ferme(1)!=="fermé"||ferme(2)!=="fermé") vus.push("au départ : cadre 1 "+ferme(1)+", cadre 2 "+ferme(2));
     const barre=document.getElementById("pnpRunBar"), prog=document.querySelector("#pnpHost .pnp-prog");
     if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!(barre.compareDocumentPosition(prog)&Node.DOCUMENT_POSITION_FOLLOWING)) vus.push("le bouton d’exécution n’est pas au-dessus du programme");
@@ -36359,7 +36359,7 @@ function pythonInputPasAPas(w, P){
     document.getElementById("pnp-c2").value="Ben";
     checkPNP();
     if(q.etape!==2||test.score!==3) vus.push("après le cadre 1 : étape "+q.etape+", score "+test.score);
-    if(document.querySelectorAll("#pnpCadre1 input.ok").length!==3) vus.push("les trois cases justes ne sont pas bleues");
+    if(document.querySelectorAll("#pnpCadre1 select.ok").length!==3) vus.push("les trois cases justes ne sont pas bleues");
     if(!document.getElementById("pnpRun2")) vus.push("pas de bouton « Exécuter la ligne 2 »");
     if(ferme(2)!=="fermé") vus.push("cadre 2 ouvert avant l’exécution de la ligne 2");
     if(!document.getElementById("pnpRunBar").contains(document.getElementById("pnpRun2"))) vus.push("« Exécuter la ligne 2 » n’est pas au-dessus du programme");
