@@ -7068,3 +7068,21 @@ la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
 pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
 rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
 sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
+
+## La correction verte ne se copie pas (novembre 2026, v685)
+
+**Demande de Turquet** : en entraînement, l'élève copiait le programme modèle
+écrit en vert (« Un programme qui convient », ou la case vide qui reçoit le
+modèle) et le recollait quand il recommençait l'exercice. **Un seul bloc, en
+fin de fichier, rien à déclarer** : `#correction-non-copiable-css` rend
+insélectionnables les `.sol` et `.mf-cor` (hors cases de saisie) de tout écran
+à code Python (`:has(.py-code,.py-console,.pyp-edit)`), et
+`#correction-non-copiable` annule, en capture sur le document, tout
+`copy`/`cut`/`dragstart` dont la sélection touche une correction — y compris
+une case `.sol` où la page a écrit le modèle, que la CSS ne ferme pas. Un
+message le dit à l'élève. **Le contrôle** (banc navigateur, section 9) relit,
+après la vérification d'une copie vide, chaque correction visible de chaque
+exercice `python-…` : elle refuse la sélection et la copie ; **le bord
+opposé** — l'énoncé du même écran se copie toujours — est tenu à côté. Ce
+qu'aucun banc ne voit : une capture d'écran ou une photo de la correction
+reste possible, et l'élève peut toujours la retaper.

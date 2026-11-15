@@ -16737,6 +16737,7 @@ if(require.main === module) (async () => {
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
       const svgSelectionnables = []; let nSvgVus = 0;
+      const corPyCopiables = [], enoncePyBloque = []; let nCorPy = 0;
       const casesEntreeMuettes = []; let nCasesEntree = 0;
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
@@ -17534,6 +17535,41 @@ if(require.main === module) (async () => {
               if(rouges.length)
                 videsRouges.push((await s.page.evaluate(i => TEST_NUM[i], id))
                   + ' — ' + rouges.slice(0, 3).join(', '));
+              /* LA CORRECTION VERTE D'UN EXERCICE PYTHON NE SE COPIE PAS
+                 (Turquet, novembre 2026 : copiée en entraînement, elle se
+                 recollait à l'exercice recommencé). Après la vérification,
+                 qui écrit les corrections : chaque .sol / .mf-cor visible
+                 d'un exercice python-… refuse la sélection (CSS) et la copie
+                 (l'événement « copy » est annulé) ; le bord opposé — le texte
+                 de l'énoncé se copie toujours — est relu sur le même écran. */
+              if(/^python-/.test(id)){
+                const cp = await s.page.evaluate(() => {
+                  const on = document.querySelector('section.screen.on'); if(!on) return null;
+                  const copie = el => { const sel = getSelection(); sel.removeAllRanges();
+                    if(/^(INPUT|TEXTAREA)$/.test(el.tagName)){ el.focus(); el.select(); }
+                    else { const r = document.createRange(); r.selectNodeContents(el); sel.addRange(r); }
+                    const ev = new ClipboardEvent('copy', { bubbles: true, cancelable: true, clipboardData: new DataTransfer() });
+                    (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ? el : document).dispatchEvent(ev);
+                    sel.removeAllRanges(); if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+                    return ev.defaultPrevented; };
+                  const cors = [...on.querySelectorAll('.sol,.mf-cor')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.height && (e.value || e.textContent || '').trim(); });
+                  const fautes = [];
+                  cors.forEach(e => {
+                    const dit = (e.id || e.className.split(' ').join('.')) ;
+                    if(!/^(INPUT|TEXTAREA)$/.test(e.tagName) && getComputedStyle(e).userSelect !== 'none') fautes.push(dit + ' se sélectionne');
+                    else if(!copie(e)) fautes.push(dit + ' se copie');
+                  });
+                  const en = on.querySelector('.enonce');
+                  const enonceBloque = en && (en.textContent || '').trim() ? copie(en) : false;
+                  return { n: cors.length, fautes, enonceBloque };
+                });
+                if(cp){
+                  nCorPy += cp.n;
+                  const numCp = await s.page.evaluate(i => TEST_NUM[i], id);
+                  if(cp.fautes.length) corPyCopiables.push(numCp + ' — ' + cp.fautes.slice(0, 3).join(', '));
+                  if(cp.enonceBloque) enoncePyBloque.push(numCp);
+                }
+              }
               /* UN COEFFICIENT k u⃗ S'ÉCRIT SUR LA LIGNE DE SON TEXTE (.kv-co,
                  Seconde, octobre 2026 : « v⃗ = 3u⃗ » du 8.3.5, le 3 et le u⃗
                  descendus sous le v⃗ — la flèche du u⃗ comptait dans le
@@ -17853,6 +17889,16 @@ if(require.main === module) (async () => {
       verifier('aucune figure SVG d\'un exercice ne se sélectionne comme du texte (user-select : none)',
         nSvgVus > 0 && svgSelectionnables.length === 0,
         svgSelectionnables.length ? svgSelectionnables.slice(0, 4).join(' | ') : (nSvgVus ? nSvgVus + ' figure(s) relues' : 'aucune figure visible : rien mesuré'));
+      /* La correction verte d'un exercice Python ne se sélectionne ni ne se
+         copie — le texte de l'énoncé, si. Un niveau à thème Python qui n'a
+         relu aucune correction n'a rien mesuré, et le dit. */
+      if(P.pythonConsoles){
+        verifier('la correction verte d\'un exercice Python ne se sélectionne ni ne se copie',
+          nCorPy > 0 && corPyCopiables.length === 0,
+          corPyCopiables.length ? corPyCopiables.length + ' exercice(s) : ' + corPyCopiables.slice(0, 4).join(' | ') : (nCorPy ? nCorPy + ' correction(s) relues' : 'aucune correction Python affichée : rien mesuré'));
+        verifier('…et le texte de l\'énoncé d\'un exercice Python se copie toujours',
+          enoncePyBloque.length === 0, 'copie refusée sur : ' + enoncePyBloque.slice(0, 6).join(', '));
+      }
       /* « Appuyer sur la touche Entrée pour valider. » à côté de toute case
          d'un input() ouverte par « ▶ ». Seuls les niveaux à consoles Python
          (pythonConsoles dans leur profil) ; un niveau qui en déclare et n'en
