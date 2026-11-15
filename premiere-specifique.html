@@ -3997,7 +3997,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=429;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=430;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4594,6 +4594,8 @@ const TESTS={
   'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Six courbes, en trois paliers : d’abord la partie au-dessus de l’axe en ROUGE avec le signe +, en dessous en BLEU avec le signe −, un point vert sur chaque racine — place les signes ; puis sans les signes — écris aussi les racines et les zéros ; enfin la courbe nue — tout le tableau. À chaque fois, résous f (x) = 0.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
+  /* 6.4 : la onzième question du 6.2, seule, six fois (demande de Turquet, novembre 2026) */
+  'image-antecedents-libre': { name:'Image et ant\u00e9c\u00e9dents, sans rep\u00e8re', icon:'\ud83c\udfaf', desc:'Six fois la derni\u00e8re question du pr\u00e9c\u00e9dent\u00a0: lis l\u2019image d\u2019un nombre et le ou les ant\u00e9c\u00e9dents d\u2019un autre sur le m\u00eame graphique \u2014 sans point rouge sur les axes, sans chemin trac\u00e9, rien ne te guide. Le chemin se d\u00e9voile \u00e0 la v\u00e9rification.', start:()=>startImaLibre() },
   /* 6.3 : le sujet papier « Exercice 3 » — les images, les deux points (rouges tant qu'ils sont mal placés), la règle, la droite tracée d'un clic sur chaque point, l'antécédent lu par le chemin animé du 6.2 puis calculé, le tableau de signes (demande de Turquet, novembre 2026) */
   'tracer-droite': { name:'Tracer la droite d\u2019une fonction affine', icon:'\ud83d\udcc8', desc:'Pour f(x) = ax + b\u00a0: calcule deux images, place les deux points sur le rep\u00e8re \u2014 un point mal plac\u00e9 devient rouge et le suivant attend \u2014, compl\u00e8te la r\u00e8gle \u2014 \u00ab\u00a0une droite\u00a0\u00bb trace la droite et ouvre la suite \u2014, lis l\u2019ant\u00e9c\u00e9dent d\u2019un nombre par le chemin anim\u00e9, calcule-le en r\u00e9solvant l\u2019\u00e9quation, r\u00e8gle par r\u00e8gle, puis compl\u00e8te le tableau de signes.', start:()=>startTrd() },
   'relier-fractions': { name:'Relier d\u00e9cimaux, pourcentages et fractions', icon:'\ud83d\udd17', desc:'Relie chaque nombre d\u00e9cimal \u2014 puis chaque pourcentage \u2014 \u00e0 la fraction qui lui est \u00e9gale\u00a0: les quarts et le dixi\u00e8me, puis les cinqui\u00e8mes, puis tout ensemble, puis les pourcentages. Pour finir, cinq calculs comme \u00ab\u00a020\u00a0% de 15\u00a0\u00bb en passant par la fraction.', start:()=>startRlf() },
@@ -4683,7 +4685,7 @@ const THEMES=[
      mot « image », sans tableau de valeurs. Un thème neuf, ajouté EN DERNIER,
      et le second exercice ajouté EN DERNIER dans le thème : rien ne se
      renumérote. */
-  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation','tracer-droite'] },
+  { num:6, nom:'\u00c9tude de fonction', ids:['tableau-signes-courbe','lire-image-animation','tracer-droite','image-antecedents-libre'] },
   /* Demande de Turquet, novembre 2026 : « en première faire un exercice comme
      le pdf joint » (la fiche « Exercice augmentation tableau »). Un thème
      neuf, ajouté EN DERNIER : il ne renumérote rien. */
@@ -4849,7 +4851,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') startIma(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') startTrd(); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -31424,12 +31426,15 @@ function imaCibles(pts){
    parmi les cibles de la courbe, en préférant DEUX antécédents (demande de
    Turquet : « deux antécédents régulièrement ») — un ou trois seulement quand
    la courbe n'en offre pas deux. */
-function imaTirage(nb){
+/* planFixe (facultatif) : le même temps pour toutes les questions — le 6.4
+   ne joue que la onzième du 6.2 ('mix-nu') */
+function imaTirage(nb, planFixe){
   const xs=[-3,-2,-1,1,2,3];
   for(let i=xs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=xs[i]; xs[i]=xs[j]; xs[j]=t; }
-  const rangImg=function(i){ let r=0; for(let k=0;k<i;k++){ if(imaVeutImg(imaPlan(k))) r++; } return r; };
+  const planDe=function(i){ return planFixe || imaPlan(i); };
+  const rangImg=function(i){ let r=0; for(let k=0;k<i;k++){ if(imaVeutImg(planDe(k))) r++; } return r; };
   return distinctes(nb, function(_, i){
-    const plan=imaPlan(i), vImg=imaVeutImg(plan), vAnt=imaVeutAnt(plan), anim=/anim$/.test(plan);
+    const plan=planDe(i), vImg=imaVeutImg(plan), vAnt=imaVeutAnt(plan), anim=/anim$/.test(plan);
     /* « qui signifie que : f( … ) = … » ne se demande que sur les deux premières
        questions d'images et les deux premières d'antécédents — les animées —,
        plus jamais ensuite ; la dernière question n'a pas de points rouges
@@ -31559,6 +31564,26 @@ function startIma(){
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'ima', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
   test.qId='lire-image-animation';
+  recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  show('ima'); renderIma();
+}
+/* ===== 6.4 {image-antecedents-libre} : la onzième question du 6.2, seule, six fois =====
+   Demande de Turquet (novembre 2026) : « faire un autre exercice avec
+   uniquement la question 11, donc sans aide mais plusieurs fois ». Même écran,
+   même dessin, même juge que le 6.2, mais un identifiant à lui — deux
+   exercices peuvent partager un moteur, jamais leur identité (les notes
+   portent l'identifiant). Chaque question : l'image d'un nombre et un ou deux
+   antécédents d'un autre sur le même graphique, sans point rouge sur les axes,
+   sans chemin avant la vérification, sans l'écriture f( … ) = … ; le tirage
+   est celui du 6.2 au temps 'mix-nu' (imaTirage avec planFixe). */
+const IMA_NB_LIBRE=6;
+function startImaLibre(){
+  if(!currentEleve){ accueil(); return; }
+  const qs=imaTirage(dmNbQuestions(IMA_NB_LIBRE), 'mix-nu');
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'ima', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
+  test.qId='image-antecedents-libre';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('ima'); renderIma();
 }
