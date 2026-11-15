@@ -7068,3 +7068,51 @@ la console, qui survit au redessin de son contenu. Un bouton ▶ DÉSACTIVÉ
 pendant l’attente (« ▶ Exécuter la ligne 1 », `pnpRun1`) ne reçoit aucun clic du navigateur :
 rien ne s'y affiche, et c'est voulu. Contrôle : banc navigateur, 6.3.5, « un clic
 sur “▶ Exécuter”, la console en attente, affiche l'encadré… ».
+
+## {python-boites-memoire} (6.2.24) : les boîtes de la mémoire, la valeur qui y entre (novembre 2026, v685)
+
+Demande de Turquet : « fais un programme comme le 6.2.1 ; on affichera à côté
+du programme 3 boîtes représentant les variables a, b et c, et quand on
+exécute la ligne 1, pour a = 10 on voit un nombre 10 apparaître à l'écran et
+se déplacer dans la boîte a […] et pour c = b on voit une copie du nombre de
+la boîte b qui va dans la boîte c. Il n'y aura plus de tableau avec des cases
+mémoire à compléter et le bouton bleu sera “Exécuter la ligne n° …” ».
+Deux arbitrages demandés, deux réponses : un NOUVEL exercice en fin de 6.2
+(rien n'est renuméroté, le 6.2.1 garde son tableau), et « prédire puis voir ».
+
+**L'ÉLÈVE RÉPOND PAR UN CLIC, « EXÉCUTER » JUGE.** Avant chaque ligne il
+clique la boîte qui va recevoir la valeur (`pbmChoisir`, liseré ambre) ; le
+bouton bleu « ▶ Exécuter la ligne n° k » juge ce choix, puis l'animation montre
+la vérité. Sans boîte choisie, rien n'est jugé ni peint : la page le
+redemande. Une ligne = un point (`pbmCases`, `maxScore`).
+
+**LE VERDICT S'ÉCRIT AU BOUT DE LA LIGNE DU PROGRAMME, PAS SUR LA BOÎTE** :
+les boîtes servent à toutes les lignes et ne peuvent garder la couleur d'une
+seule. `.pbm-choix` (une `.pts-case`, bleue ou rouge : c'est ce que compte
+`ptsEcran()`), et `.pbm-cor` en vert à côté quand c'était faux. En SOUTIEN,
+une boîte fausse rougit, rien ne s'exécute, l'élève rechoisit — on n'exécute
+pas une ligne qu'on s'est trompé à lire, la règle du 6.2.1.
+
+**L'ANIMATION N'EST QU'UNE IMAGE.** Au clic, l'état change d'un coup (verdict,
+étape, mémoire relue par `papEtat` — donc `pyRun`) et l'écran final est rendu ;
+le jeton (`.pbm-jeton`, `Element.animate`, 1,3 s) vole PAR-DESSUS, et la valeur
+de la boîte d'arrivée reste cachée le temps du vol. Il naît sur le nombre écrit
+dans la ligne (le dernier `span` de `pyColorie`), ou — pour une copie — sur la
+boîte source, qui garde sa valeur (jeton vert). Sans `animate` (jsdom), ou sous
+« moins d'animations », rien ne vole et l'écran est juste : pause, rejeu et
+bancs ne voient jamais un état intermédiaire.
+
+**LES BOÎTES SONT DANS L'ORDRE TIRÉ** (`q.ordre`), sauf la fiche (a, b, c) :
+sinon « la boîte vide suivante » serait toujours la bonne. Les jeux de lettres
+sont ceux du 6.2.1 (`PAP_JEUX`), sans celui qui contient x.
+
+**Le moteur est celui du 6.2.1, l'identité ne l'est pas** : partagés
+`PAP_FICHE`, `papGen`, `papValeurs`, `papQuestion`, `papEtat`, `papAns`,
+`papCopie`, `papProgHTML` ; propres l'identifiant, l'écran `scr-pbm`, le juge,
+le rappel `RAP_PBM` (il ne déroule pas la fiche : il donnerait la réponse),
+`QIA_SUGG.pbm`, `ctxPbm`. Déclarations : `soutienEnDirect.sans` (le clic ne
+juge pas), le kind dans la table du rappel de `tests/profils.js`.
+
+**Ce qu'aucun banc ne voit** : le vol lui-même — sa trajectoire et son
+atterrissage ne se lisent que sur une capture (faite à la main : 1100 px et
+390 px de large).

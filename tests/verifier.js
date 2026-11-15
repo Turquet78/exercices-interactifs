@@ -4911,6 +4911,7 @@ function exercices(suite){
     pythonRemplacerLettre(w, P);
     pythonPasAPas(w, P);
     pythonValeurCase(w, P);
+    pythonBoitesMemoire(w, P);
     pythonPhrasesMemoire(w, P);
     pythonPasAPasChaine(w, P);
     pythonEchangerParLettres(w, P);
@@ -5114,7 +5115,7 @@ function mineursFonctionsPython(w, P){
       const lig=function(q){ return q.lignes.map(function(l){ return l.nom+' = '+l.expr; }); };
       const tires={'python-pas-a-pas':papBuildQuestions, 'python-valeur-case':pvmBuildQuestions, 'python-pas-a-pas-calcul':ppcBuildQuestions,
         'python-pas-a-pas-chaine':ppdBuildQuestions, 'python-echange-variables':pevBuildQuestions, 'python-pas-a-pas-multiplication':ppmBuildQuestions,
-        'python-phrases-memoire':pphBuildQuestions};
+        'python-phrases-memoire':pphBuildQuestions, 'python-boites-memoire':pbmBuildQuestions};
       const lus={
         'python-echange-par-lettres':function(){ const r=[]; for(let t=0;t<300;t++) pelBuildQuestions().forEach(function(q){ r.push(['a = '+q.a,'b = '+q.b]); }); return r; },
         'python-x-plus-pas-a-pas':function(){ return PWX_SITS.map(function(S){ return S.l; }); },
@@ -41534,7 +41535,10 @@ function pythonVariablesComplements(w, P){
     const ids1=Object.keys(KS).filter(function(k){ return KS[k][1]===1; }).map(function(k){ return KS[k][0]; });
     const ids2=Object.keys(KS).filter(function(k){ return KS[k][1]===2; }).map(function(k){ return KS[k][0]; });
     if(s1.ids.slice(-ids1.length).join(",")!==ids1.join(",")||s1.ids[s1.ids.length-ids1.length-1]!=="python-chaines") vus.push("6.1 : "+s1.ids.join(","));
-    if(s2.ids.slice(-ids2.length).join(",")!==ids2.join(",")||s2.ids[s2.ids.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
+    /* les exercices ajoutés APRÈS le bloc (au bout du 6.2) sont déclarés : le bloc reste d'un seul tenant, et rien d'autre ne le suit */
+    const apres2=${JSON.stringify(C.apres2||[])}, ids2b=s2.ids.slice(0, s2.ids.length-apres2.length);
+    if(s2.ids.slice(s2.ids.length-apres2.length).join(",")!==apres2.join(",")) vus.push("6.2 se termine autrement que par "+apres2.join(",")+" : "+s2.ids.join(","));
+    if(ids2b.slice(-ids2.length).join(",")!==ids2.join(",")||ids2b[ids2b.length-ids2.length-1]!=="python-programme-calcul") vus.push("6.2 : "+s2.ids.join(","));
     ids1.forEach(function(id, i){ if(TEST_NUM[id]!=="6.1."+(15+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
     ids2.forEach(function(id, i){ if(TEST_NUM[id]!=="6.2."+(10+i)) vus.push(id+" numéroté "+TEST_NUM[id]); });
     if(TEST_NUM["python-chaines"]!=="6.1.14"||TEST_NUM["python-programme-calcul"]!=="6.2.9"||TEST_NUM["python-input-reponse"]!=="6.3.2"||TEST_NUM["python-chaine-len"]!=="6.4.1"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("les autres ont bougé");
@@ -59419,6 +59423,107 @@ function pythonPhrasesMemoire(w, P){
     e0.value=pphAttendu(q, cs[0]); checkPPH();
     if(test.score!==cs.length||!test.pphVerdict) vus.push("soutien : corrigee, la question ne passe pas (score "+test.score+")");
     return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+}
+
+/* {python-boites-memoire} (Seconde, 6.2.24, novembre 2026) : le programme du
+   6.2.1 à côté de BOÎTES ; l'élève clique la boîte qui va recevoir la valeur,
+   « Exécuter la ligne n° k » juge puis anime. L'animation n'est qu'une image
+   (jsdom n'a pas Element.animate) : tout ce qui suit se lit dans l'état et
+   dans l'écran rendu. Journal 06, « {python-boites-memoire} ». */
+function pythonBoitesMemoire(w, P){
+  const nom = '{python-boites-memoire} : les boîtes de la mémoire';
+  if(!P.pythonBoitesMemoire){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des boîtes de la mémoire'); return; }
+  const D = P.pythonBoitesMemoire, ID = D.exercice, NB = D.nb;
+  const present = evaluer(w, "typeof startPBM==='function' && typeof pbmBuildQuestions==='function' && typeof pbmExecuter==='function' && typeof pbmChoisir==='function'");
+  if(!present.ok || !present.valeur){ verifier(nom, false, 'startPBM / pbmBuildQuestions / pbmExecuter introuvables alors que tests/profils.js déclare l\'exercice'); return; }
+
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche a = 10 ; b = 2 ; c = b en tête avec ses boîtes a, b, c ; ensuite une boîte par variable, dans un ordre tiré, jamais de boîte x', `(function(){
+    const vus=[], ordres={};
+    for(let s=0;s<300&&vus.length<4;s++){
+      const qs=pbmBuildQuestions();
+      if(qs.length!==${NB}){ vus.push("seance de "+qs.length); break; }
+      if(papProg(qs[0]).split(String.fromCharCode(10)).join(" ; ")!=="a = 10 ; b = 2 ; c = b") vus.push("la premiere question n est pas la fiche : "+papProg(qs[0]));
+      if(pbmBoites(qs[0]).join(",")!=="a,b,c") vus.push("les boites de la fiche : "+pbmBoites(qs[0]).join(","));
+      qs.forEach(function(q, i){
+        const noms=q.lignes.map(function(l){ return l.nom; }), b=pbmBoites(q);
+        if(b.slice().sort().join(",")!==noms.slice().sort().join(",")) vus.push("les boites ne sont pas les variables : "+b.join(",")+" / "+noms.join(","));
+        if(noms.indexOf("x")>=0) vus.push("une boite x");
+        if(i>0) ordres[b.join(",")===noms.join(",")?"programme":"melange"]=1;
+      });
+    }
+    if(!ordres.melange) vus.push("les boites ne sont jamais melangees : la boite vide suivante est toujours la bonne");
+    return vus.slice(0,4).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'le parcours en entraînement : sans boîte choisie rien n est jugé ; une boîte fausse se peint en rouge au bout de la ligne, la bonne en vert à côté, et le nombre entre quand même dans la BONNE boîte ; la copie c = b laisse 2 dans b ; la fin compte une case par ligne', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const vus=[], q=test.questions[0];
+    const exec=document.getElementById("pbmExec");
+    if(!exec||!/Exécuter la ligne n°[^0-9]*1/.test(exec.textContent)) vus.push("le bouton bleu : "+(exec?exec.textContent:"absent"));
+    pbmExecuter();
+    if(test.pbmVerdicts.length||document.querySelector("#pbmHost .ok,#pbmHost .bad,#pbmHost .sol")) vus.push("une ligne jugee sans boite choisie");
+    if(!/bad/.test(document.getElementById("pbmFeedback").className)) vus.push("aucun message sans boite choisie");
+    pbmChoisir("b"); pbmExecuter();
+    const c0=document.getElementById("pbm-choix-0"), cor=document.querySelector("#pbmHost .pbm-cor");
+    if(!c0||!c0.classList.contains("bad")||!c0.classList.contains("pts-case")) vus.push("la ligne 1 fausse : "+(c0?c0.className:"absente"));
+    if(!cor||cor.textContent.indexOf("a")<0) vus.push("la bonne boite n est pas ecrite en vert");
+    if(document.getElementById("pbm-val-a").textContent!=="10"||document.getElementById("pbm-val-b").textContent!=="") vus.push("apres la ligne 1 : a="+document.getElementById("pbm-val-a").textContent+" b="+document.getElementById("pbm-val-b").textContent);
+    if(test.score!==0) vus.push("score "+test.score+" apres une ligne fausse");
+    if(!/n°[^0-9]*2/.test((document.getElementById("pbmExec")||{}).textContent||"")) vus.push("le bouton ne passe pas a la ligne 2");
+    pbmChoisir("b"); pbmExecuter(); pbmChoisir("c"); pbmExecuter();
+    const v=["a","b","c"].map(function(n){ return document.getElementById("pbm-val-"+n).textContent; }).join(",");
+    if(v!=="10,2,2") vus.push("la memoire a la fin : "+v);
+    if(!test.locked||!document.getElementById("pbmNext")||document.getElementById("pbmExec")) vus.push("la fin de la question n est pas la");
+    const a=test.answers[0]||{};
+    if(test.answers.length!==1||a.cases!==3||a.justes!==2||a.correct!==false) vus.push("la reponse enregistree : "+JSON.stringify(a));
+    if(test.score!==2) vus.push("score "+test.score);
+    if(document.querySelectorAll("#pbmHost .pbm-boite:not([disabled])").length) vus.push("les boites restent cliquables a la fin");
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'en soutien, une boîte fausse rougit et RIEN ne s exécute ; la bonne exécute la ligne', `(function(){
+    currentMode="soutien"; currentTestId="${ID}"; startPBM();
+    const vus=[];
+    pbmChoisir("c"); pbmExecuter();
+    if(test.pbmVerdicts.length||test.score) vus.push("la ligne fausse a ete executee");
+    if(!document.getElementById("pbm-boite-c").classList.contains("bad")) vus.push("la boite fausse ne rougit pas");
+    if(document.getElementById("pbm-val-a").textContent!=="") vus.push("le nombre est entre quand meme");
+    pbmChoisir("a");
+    if(document.getElementById("pbm-boite-c").classList.contains("bad")) vus.push("le rouge reste apres un autre choix");
+    pbmExecuter();
+    if(!test.pbmVerdicts[0]||!test.pbmVerdicts[0].ok||test.score!==1) vus.push("la bonne boite n execute pas la ligne");
+    currentMode="train";
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'la reprise après une pause : les verdicts, la boîte choisie, l étape et la mémoire reviennent', `(function(){
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const vus=[];
+    pbmChoisir("a"); pbmExecuter(); pbmChoisir("c"); pbmExecuter(); pbmChoisir("c");
+    const snap=JSON.parse(JSON.stringify(snapshotTest())), note=test.score;
+    Object.keys(test).forEach(function(k){ delete test[k]; });
+    Object.assign(test, snap, {locked:false, startTime:Date.now()});
+    if(!afficherEcranDe(test.kind)) vus.push("afficherEcranDe ne connait pas le kind");
+    const c0=document.getElementById("pbm-choix-0"), c1=document.getElementById("pbm-choix-1");
+    if(!c0||!c0.classList.contains("ok")||!c1||!c1.classList.contains("bad")) vus.push("les verdicts ne reviennent pas");
+    if(!/n°[^0-9]*3/.test((document.getElementById("pbmExec")||{}).textContent||"")) vus.push("l etape ne revient pas");
+    if(!document.getElementById("pbm-boite-c").classList.contains("pbm-choisie")) vus.push("la boite choisie ne revient pas");
+    if(document.getElementById("pbm-val-b").textContent!=="2") vus.push("la memoire ne revient pas");
+    if(test.score!==note) vus.push("la note a bouge");
+    return vus.join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'les branchements : numéroté 6.2.24, rappel de cours propre (il ne déroule pas la fiche), questions à l IA, contexte', `(function(){
+    const vus=[];
+    if(TEST_NUM["${ID}"]!=="6.2.24") vus.push("numero "+TEST_NUM["${ID}"]);
+    if(!RAPPELS.pbm||RAPPELS.pbm===RAPPELS.pap) vus.push("rappel");
+    if(/a = 10.*b = 2.*c = b/.test(String(RAPPELS.pbm).replace(/<[^>]+>/g,""))) vus.push("le rappel deroule la fiche");
+    if(!QIA_SUGG.pbm||QIA_SUGG.pbm.length<3) vus.push("questions a l IA");
+    currentMode="train"; currentTestId="${ID}"; startPBM();
+    const c=ctxPbm(test.questions[0]);
+    if(!c||!/SECRÈTE/.test(c.contexte)) vus.push("contexte sans clause de secret");
+    return vus.join(" | ");
   })()`, v => v === '');
 }
 
