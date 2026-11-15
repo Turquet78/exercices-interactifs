@@ -89927,7 +89927,7 @@ function choisirReprise(mode){
 /* La CORRECTION verte d'un exercice Python ne se sélectionne pas (décision
    de Turquet, novembre 2026) : copiée en entraînement, elle se recollait
    telle quelle à l'exercice suivant. Une règle CSS, rien à déclarer. */
-section.screen:has(.py-code,.py-console,.pyp-edit) :is(.sol,.mf-cor):not(input,textarea),
+section.screen:has(.py-code,.py-console,.pyp-edit) :is(.sol,.mf-cor):not(input,textarea,select),
 section.screen:has(.py-code,.py-console,.pyp-edit) :is(.sol,.mf-cor) *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 </style>
 <script id="correction-non-copiable">

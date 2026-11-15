@@ -17552,7 +17552,12 @@ if(require.main === module) (async () => {
                     (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ? el : document).dispatchEvent(ev);
                     sel.removeAllRanges(); if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
                     return ev.defaultPrevented; };
-                  const cors = [...on.querySelectorAll('.sol,.mf-cor')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.height && (e.value || e.textContent || '').trim(); });
+                  /* une liste déroulante ne se sélectionne pas comme du texte, ni
+                     une case DÉSACTIVÉE : seules comptent les corrections qu'un
+                     glisser de souris ou un Ctrl+C atteint */
+                  const cors = [...on.querySelectorAll('.sol,.mf-cor')].filter(e => { const r = e.getBoundingClientRect();
+                    if(e.tagName === 'SELECT' || e.closest('select') || ((e.tagName === 'INPUT' || e.tagName === 'TEXTAREA') && e.disabled)) return false;
+                    return r.width && r.height && (e.value || e.textContent || '').trim(); });
                   const fautes = [];
                   cors.forEach(e => {
                     const dit = (e.id || e.className.split(' ').join('.')) ;
