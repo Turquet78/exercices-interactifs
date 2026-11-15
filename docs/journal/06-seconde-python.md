@@ -6992,3 +6992,18 @@ l'exécution. L'interligne du cadre monte à 2,9 et chaque case prend 3 px de
 marge verticale. Le trajet du banc principal le tient : deux cadres fermés au
 départ, le bouton avant le programme (ordre du document), le rappel de la
 touche Entrée dans la console, le cadre 2 fermé jusqu'à la ligne 2.
+
+**Puis chaque case du 6.3.1 est devenue une LISTE de quatre propositions (v683).**
+Demande de Turquet : « dans les cases, le choix entre 4 propositions » — la
+question (`comment tu t'appelles ?`), le texte du print (`tu es`), le nom de la
+variable (`nom`), et la réponse que l'élève a tapée. Les six cases sont des
+`<select class="pnp-in">` à option vide « choisis… » ; l'ordre des propositions
+est tiré à la génération (`q.o`, rangé dans la question — jamais à
+l'affichage), la réponse de l'élève n'y entre qu'une fois la ligne 1 exécutée,
+et une réponse qui coïncide avec une autre proposition (un élève qui répond
+« nom ») ne se montre qu'une fois. Le juge n'a pas changé : une proposition
+choisie est une chaîne comme une autre. Piège rencontré : une règle générale
+donnait aux `select` toute la largeur du cadre, la phrase se cassait en
+morceaux — `#pnpHost select.pnp-in{display:inline-block;width:auto}` la
+remet dans le fil du texte. Le banc principal vérifie les quatre propositions
+de la première case.

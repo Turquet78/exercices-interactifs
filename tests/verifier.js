@@ -36332,7 +36332,7 @@ function pythonInputPasAPas(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'le trajet en entraînement : les deux cadres sont là dès le départ, leurs cases fermées, le bouton d’exécution AU-DESSUS du programme ; ligne 1 exécutée → la console rappelle que ⏎ est la touche Entrée → réponse à Entrée → cases du cadre 1 seules ouvertes ; vérifié → bouton « Exécuter la ligne 2 », cadre 2 fermé ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
+  verifierEval(w, 'le trajet en entraînement : chaque case est une liste de quatre propositions (la question, le texte, la variable, la réponse tapée) ; les deux cadres sont là dès le départ, leurs cases fermées, le bouton d’exécution AU-DESSUS du programme ; ligne 1 exécutée → la console rappelle que ⏎ est la touche Entrée → réponse à Entrée → cases du cadre 1 seules ouvertes ; vérifié → bouton « Exécuter la ligne 2 », cadre 2 fermé ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPNP();
@@ -36351,6 +36351,8 @@ function pythonInputPasAPas(w, P){
     e.value="Ben"; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
     if(q.rep!=="Ben"||q.etape!==1) vus.push("réponse "+q.rep+", étape "+q.etape);
     if(ferme(1)!=="ouvert") vus.push("le cadre 1 ne s’ouvre pas");
+    const c0=document.getElementById("pnp-c0"), props=c0?[].slice.call(c0.options).map(function(o){ return o.value; }).filter(Boolean).sort():[];
+    if(!c0||c0.tagName!=="SELECT"||JSON.stringify(props)!==JSON.stringify(["Ben","comment tu t'appelles ?","nom","tu es"])) vus.push("les propositions de la case : "+(c0?c0.tagName:"")+" "+JSON.stringify(props));
     if(ferme(2)!=="fermé"||document.getElementById("pnpRun2")) vus.push("la ligne 2 est déjà proposée");
     document.getElementById("pnp-c0").value="comment tu t'appelles ?";
     document.getElementById("pnp-c1").value="nom";
@@ -36367,7 +36369,7 @@ function pythonInputPasAPas(w, P){
     if(cons.indexOf("tu es Ben")<0||cons.indexOf("comment tu t")!==0) vus.push("console : "+cons);
     if(ferme(2)!=="ouvert") vus.push("le cadre 2 ne s’ouvre pas");
     document.getElementById("pnp-c3").value="tu es";
-    document.getElementById("pnp-c4").value="prenom";
+    document.getElementById("pnp-c4").value="Ben";
     document.getElementById("pnp-c5").value="";
     checkPNP();
     const c4=document.getElementById("pnp-c4"), c5=document.getElementById("pnp-c5");
@@ -36388,7 +36390,7 @@ function pythonInputPasAPas(w, P){
     if(q.etape!==1) vus.push("un cadre vide fait avancer");
     document.getElementById("pnp-c0").value="comment tu t'appelles ?";
     document.getElementById("pnp-c1").value="nom";
-    document.getElementById("pnp-c2").value="16";
+    document.getElementById("pnp-c2").value="nom";
     checkPNP();
     if(!document.getElementById("pnp-c2").classList.contains("bad")) vus.push("la valeur fausse ne rougit pas");
     if(q.etape!==1||test.locked||test.score!==0) vus.push("soutien : étape "+q.etape+", verrou "+test.locked+", score "+test.score);

@@ -1391,7 +1391,8 @@
   .pnp-run{display:flex;justify-content:flex-start;margin:0 0 12px}
   .pnp-rappel{font-family:Nunito,system-ui,sans-serif;font-size:.86rem;color:var(--ink-soft);margin-left:10px;white-space:normal}
   .pnp-rappel b{color:var(--ink)}
-  .pnp-in{font:inherit;line-height:1.5;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;margin:3px 0;outline:none;vertical-align:baseline}
+  .pnp-in{font:inherit;line-height:1.5;min-width:7ch;cursor:pointer;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;margin:3px 0;outline:none;vertical-align:baseline}
+  #pnpHost select.pnp-in{display:inline-block;width:auto;max-width:100%;padding:0 4px 0 8px;text-align:left}
   .pnp-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .pnp-in:disabled{opacity:1}
   .pnp-in.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
@@ -9387,7 +9388,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=682;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=683;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -52697,7 +52698,7 @@ function pnpBuildQuestions(){
   const n=Math.max(1, Math.min(PNP_SITUATIONS.length, dmNbQuestions(PNP_NB)));
   const autres=ensShuffle(PNP_SITUATIONS.map(function(S,i){ return i; }).slice(1));
   const ordre=[0].concat(autres);
-  return distinctes(n, function(_, i){ return {s:ordre[i%ordre.length], etape:0, rep:'', v:['','','','','',''], ok:[null,null,null,null,null,null]}; }, function(q){ return 'pnp'+q.s; });
+  return distinctes(n, function(_, i){ return {s:ordre[i%ordre.length], o:ensShuffle([0,1,2,3]), etape:0, rep:'', v:['','','','','',''], ok:[null,null,null,null,null,null]}; }, function(q){ return 'pnp'+q.s; });
 }
 function pnpS(q){ return PNP_SITUATIONS[q.s]; }
 function pnpCases(q){ return [0,1,2,3,4,5]; }
@@ -52720,15 +52721,27 @@ function pnpJugeCase(q, k, v){
   return pyTexteProche(net, att, [S.question.trim()]);
 }
 function pnpEnonceHTML(q){
-  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton au-dessus du programme, puis complète le cadre à côté d’elle pour expliquer ce qu’elle a fait.';
+  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton au-dessus du programme, puis complète le cadre à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
 }
-function pnpCaseHTML(k, large){
-  return '<input class="pnp-in" id="pnp-c'+k+'" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:'+large+'ch" aria-label="case '+(k+1)+' du cadre '+(k<3?1:2)+'">';
+/* Les quatre propositions de chaque case (demande de Turquet, novembre
+   2026) : la question, le texte du print, le nom de la variable, la réponse
+   que l'élève a tapée. Leur ordre est tiré à la génération (q.o) ; la
+   réponse n'existe qu'après l'exécution de la ligne 1. Une réponse qui
+   coïncide avec une autre proposition ne se montre qu'une fois. */
+function pnpPropositions(q){
+  const S=pnpS(q), tout=[S.question.trim(), S.texte, S.nom, q.rep];
+  const vus={}, res=[];
+  (q.o||[0,1,2,3]).forEach(function(i){ const v=tout[i]; if(v==null||v===''||vus[v]) return; vus[v]=1; res.push(v); });
+  return res;
+}
+function pnpCaseHTML(q, k){
+  return '<select class="pnp-in" id="pnp-c'+k+'" aria-label="case '+(k+1)+' du cadre '+(k<3?1:2)+'"><option value="">choisis…</option>'
+    +pnpPropositions(q).map(function(v){ return '<option value="'+esc(v)+'">'+esc(v)+'</option>'; }).join('')+'</select>';
 }
 function pnpCadreHTML(q, n){
   const corps=n===1
-    ? 'Ici le programme affiche la question « '+pnpCaseHTML(0,22)+' » et met la réponse de l’élève dans la variable '+pnpCaseHTML(1,8)+', ici la valeur de cette variable est le texte '+pnpCaseHTML(2,12)+'.'
-    : 'Ici le programme affiche le texte « '+pnpCaseHTML(3,16)+' » et le texte qui est dans la variable '+pnpCaseHTML(4,8)+', ici le texte dans cette variable est '+pnpCaseHTML(5,12)+'.';
+    ? 'Ici le programme affiche la question « '+pnpCaseHTML(q,0)+' » et met la réponse de l’élève dans la variable '+pnpCaseHTML(q,1)+', ici la valeur de cette variable est le texte '+pnpCaseHTML(q,2)+'.'
+    : 'Ici le programme affiche le texte « '+pnpCaseHTML(q,3)+' » et le texte qui est dans la variable '+pnpCaseHTML(q,4)+', ici le texte dans cette variable est '+pnpCaseHTML(q,5)+'.';
   return '<span class="pnp-fleche" aria-hidden="true">⟵</span><div class="pnp-cadre" id="pnpCadre'+n+'">'+corps+'</div>';
 }
 function pnpRangeeHTML(q, n){
@@ -52812,7 +52825,7 @@ function renderPNP(){
     const cadreFait=(k<3)?q.etape>=2:q.etape>=4, ouvert=(k<3)?q.etape>=1:q.etape>=3;
     if(!ouvert){ inp.disabled=true; inp.value=''; continue; }
     if(cadreFait){ inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); }
-    else inp.addEventListener('input', function(){ if(test.locked) return; q.v[k]=inp.value; inp.classList.remove('bad'); pnpSauver(); });
+    else inp.addEventListener('change', function(){ if(test.locked) return; q.v[k]=inp.value; inp.classList.remove('bad'); pnpSauver(); });
   }
   pnpBoutons(q);
 }
@@ -52901,7 +52914,7 @@ function nextPNP(){ if(test.idx<test.questions.length-1){ test.idx++; renderPNP(
 function ctxPnp(q){
   const S=pnpS(q);
   let c='Exercice sur la fonction input de Python, exécuté ligne par ligne. Le programme est : ligne 1 '+pnpLigne1(q)+' ; ligne 2 '+pnpLigne2(q)+'. ';
-  c+='L’élève exécute la ligne 1 (la console affiche la question « '+S.question.trim()+' » et attend sa réponse'+(q.rep?(' — il a répondu « '+q.rep+' »'):'')+'), puis complète un cadre : « Ici le programme affiche la question « … » et met la réponse de l’élève dans la variable …, ici la valeur de cette variable est le texte … ». ';
+  c+='L’élève exécute la ligne 1 (la console affiche la question « '+S.question.trim()+' » et attend sa réponse'+(q.rep?(' — il a répondu « '+q.rep+' »'):'')+'), puis complète un cadre en choisissant chaque case dans une liste de quatre propositions (la question, le texte du print, le nom de la variable, sa propre réponse) : « Ici le programme affiche la question « … » et met la réponse de l’élève dans la variable …, ici la valeur de cette variable est le texte … ». ';
   c+='Puis il exécute la ligne 2 et complète un second cadre : « Ici le programme affiche le texte « … » et le texte qui est dans la variable …, ici le texte dans cette variable est … ». ';
   c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter) : '+[0,1,2,3,4,5].map(function(k){ return pnpAttendu(q,k); }).join(' ; ')+'. ';
   c+='Étape en cours : '+['exécuter la ligne 1','compléter le cadre 1','exécuter la ligne 2','compléter le cadre 2','terminée'][q.etape]+'. ';
