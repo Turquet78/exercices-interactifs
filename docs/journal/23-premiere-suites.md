@@ -410,3 +410,53 @@ du cadre (cases comprises) ni aucun bouton ; le résultat de la question ②,
 départ et produit écrits, de même ; sur une tablette debout, la dernière ligne
 de la méthode 1, qui n'a plus de place à droite, reste dans le cadre et ne
 couvre ni le tableau ni les phrases de la méthode 2 qui suivent.
+
+## 7.2 {augmentation-tableau-libre} : le 7.1 rédigé, un seul champ par question
+
+Demande de Turquet, novembre 2026 : « en première créer un exercice comme le
+7.1, mais il n'y aura qu'un champ de saisie pour les réponses. On acceptera
+toutes les méthodes possibles pour les réponses, avec une suite de nombres
+(300 ; 350 ; 400…), avec des phrases comme “il y a 6 années donc 6 × 20 = 120”,
+“je fais 500 − 120 = 380” ; on acceptera aussi le résultat brut donné
+directement. C'est l'IA qui analysera les réponses. »
+
+**Rien de neuf dans le tirage** : `suiBuildQuestions`, `SUI_CTX`, `suiVals`
+sont lus, jamais recopiés — les mêmes contextes, les mêmes trois questions
+(le tableau, la valeur au bout de N pas, le pas du seuil), les mêmes nombres à
+un seul chiffre non nul. Kind `suil`, écran `scr-suil`. La question ① montre
+le tableau, ses lignes 1 et 2 marquées « ? » ; la ③ garde le tableau rempli
+pour mémoire. Le champ unique est la feuille de RÉDACTION du 2.5.6
+(`mlFeuille` en mode « redaction », `salEspaces`) : la barre d'espace écrit
+une espace, les lettres sont sur le clavier B des tablettes, Entrée ajoute une
+ligne.
+
+**L'IA lit, mais la page juge l'arithmétique** (la règle du journal 08 : un
+verdict arithmétique ne se confie pas à un modèle). `suilJuge`, à trois
+positions comme `eslJuge` :
+* il REFUSE sur un fait prouvable — une égalité « a op b = c » fausse (nommée,
+  sans la bonne valeur), ou la bonne réponse absente d'une copie qui écrit des
+  nombres (en ① : les deux valeurs) ;
+* il ACCEPTE quand tout est positivement vérifié — la bonne réponse écrite, et
+  c'est le dernier nombre de la copie hors étiquettes (« 400 arbres en 2031 »,
+  « il faudra 10 ans donc en 2036 ») ; chaque égalité vraie ; chaque nombre
+  explicable par la situation (une valeur de la suite u0 + j·r, un multiple du
+  pas, un compte jusqu'à 60, une année) ;
+* il S'ABSTIENT sinon, et le modèle juge seul : « 300 ; 350 ; 400 » sur un pas
+  de 20 (350 n'est pas une valeur de la suite), l'enchaînement
+  « 5 × 20 = 100 + 300 = 400 » (le résultat repris dans le calcul suivant —
+  faux à la lettre, la page ne tranche pas), un calcul collé à une unité
+  (« 8 h + 8 = 16 h »), un nombre écrit en lettres.
+Quand il sait, son verdict prime, comme au 2.5.6 : le modèle ne rédige que les
+acceptations sur lesquelles il est d'accord, la phrase du juge s'affiche sur
+un refus, et en panne du service le juge répond seul.
+
+La copie arrive de `toPlain` sans les espaces entre les mots et avec « * »
+pour « × » : `suilNorm` relit « x » entre deux nombres comme « × », et recoud
+les espaces de milliers (« 1 000 »). En entraînement, une réponse fausse
+reçoit le corrigé des deux méthodes (`suilCorrection`) ; en soutien, on
+revérifie (pas de correction au fil de la frappe : `soutienEnDirect.sans`).
+Un point par question, la note par `finishTest` sous `test.qId`.
+
+**Le prix** : comme toutes les rédigées de la Première, le texte de la
+feuille n'est pas rangé par la pause (ses lignes n'ont pas d'identifiant) — la
+reprise rouvre la question, champ vide.
