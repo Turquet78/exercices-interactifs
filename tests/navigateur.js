@@ -16359,6 +16359,20 @@ if(require.main === module) (async () => {
       verifier('un clic sur « ▶ Exécuter », la console en attente, affiche l\'encadré « appuie sur Entrée ⏎ » et relance le programme',
         /Entrée ⏎/.test(attRun.msg) && attRun.attend, JSON.stringify(attRun));
       await s.page.evaluate(() => document.getElementById('attendEntreeMsg') && document.getElementById('attendEntreeMsg').remove());
+      /* …et un bouton « ▶ » DÉSACTIVÉ pendant l'attente — « ▶ Exécuter la
+         ligne 1 » du 6.3.1 (pnpRun1) — ne reçoit aucun clic du navigateur :
+         c'est pointerdown qui doit montrer l'encadré (signalé par Turquet,
+         novembre 2026). Le vrai pointeur, au centre du bouton désactivé. */
+      const bb = await s.page.evaluate(() => { const b = document.getElementById('piiRunC'); b.disabled = true;
+        const r = b.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+      await s.page.mouse.click(bb.x, bb.y);
+      await s.page.waitForTimeout(200);
+      const attDis = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
+        document.getElementById('piiRunC').disabled = false;
+        return { msg: m && m.getClientRects().length ? m.textContent : '', focus: document.activeElement && document.activeElement.id }; });
+      verifier('un « ▶ » DÉSACTIVÉ pendant l\'attente (« ▶ Exécuter la ligne 1 » du 6.3.1), cliqué au pointeur, affiche aussi l\'encadré et rend le curseur à la case',
+        /Entrée ⏎/.test(attDis.msg) && attDis.focus === 'piiConsCIn', JSON.stringify(attDis));
+      await s.page.evaluate(() => document.getElementById('attendEntreeMsg') && document.getElementById('attendEntreeMsg').remove());
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
