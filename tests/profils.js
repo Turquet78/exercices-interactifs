@@ -1534,6 +1534,7 @@ module.exports = {
       'priorite-fractions': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire',
       'python-tableau-valeurs': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
+      'python-boites-memoire': 'programme Python mené par étapes : la réponse est une boîte CLIQUÉE avant « ▶ Exécuter la ligne », que le banc ne sait pas choisir — la reprise a son contrôle jsdom dédié',
       'python-valeur-case': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas-calcul': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas-chaine': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
