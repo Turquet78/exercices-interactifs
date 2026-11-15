@@ -16722,6 +16722,7 @@ if(require.main === module) (async () => {
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
       const svgSelectionnables = []; let nSvgVus = 0;
+      const casesEntreeMuettes = []; let nCasesEntree = 0;
       for(const id of ids){
         for(const mode of ['train', 'soutien']){
           /* La rangée GÉNÉRIQUE survit aux redessins d'un écran PARTAGÉ : le
@@ -17560,6 +17561,38 @@ if(require.main === module) (async () => {
                 if(co.dits.length) coeffsDecales.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + co.dits[0]); }
             }
           }
+          /* « APPUYER SUR LA TOUCHE ENTRÉE POUR VALIDER. » À CÔTÉ DE CHAQUE
+             CASE D'UN input() (demande de Turquet, novembre 2026) : en
+             entraînement, chaque « ▶ » visible est cliqué ; toute case de
+             réponse au programme qui s'ouvre doit porter la phrase juste
+             après elle (ou après son bouton ⏎), visible, sur sa ligne. Rien
+             à déclarer : la case se reconnaît à son étiquette. */
+          if(mode === 'train'){
+            const ent = await s.page.evaluate(async () => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const CASE = 'input[aria-label="ta réponse à la question du programme"]';
+              const vis = e => !!(e && e.isConnected && e.getClientRects().length);
+              const res = { n: 0, manque: [] };
+              const boutons = [...on.querySelectorAll('button')].filter(b => vis(b) && !b.disabled && /^\s*▶/.test(b.textContent || ''));
+              for(const b of boutons){
+                if(!b.isConnected || b.disabled) continue;
+                try { b.click(); } catch(e){ continue; }
+                await new Promise(r => setTimeout(r, 120));
+                for(const inp of on.querySelectorAll(CASE)){
+                  if(!vis(inp) || inp._aideVue) continue;
+                  inp._aideVue = true; res.n++;
+                  const nx = inp.nextElementSibling, ap = nx && nx.tagName === 'BUTTON' ? nx : inp, a = ap.nextElementSibling;
+                  const ok = a && a.classList.contains('py-entree-aide') && vis(a)
+                    && /Appuyer sur la touche Entrée pour valider\./.test(a.textContent || '')
+                    && Math.abs(a.getBoundingClientRect().top - inp.getBoundingClientRect().top) < inp.getBoundingClientRect().height + 4;
+                  if(!ok) res.manque.push((inp.id || inp.className) + (a ? ' (voisin : ' + (a.className || a.tagName) + ')' : ' (aucun voisin)'));
+                }
+              }
+              return res;
+            });
+            if(ent){ nCasesEntree += ent.n;
+              if(ent.manque.length) casesEntreeMuettes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + ent.manque[0]); }
+          }
         }
       }
       /* les deux bords : aucune case ne coupe son contenu, ET le filet a eu
@@ -17807,6 +17840,13 @@ if(require.main === module) (async () => {
       verifier('aucune figure SVG d\'un exercice ne se sélectionne comme du texte (user-select : none)',
         nSvgVus > 0 && svgSelectionnables.length === 0,
         svgSelectionnables.length ? svgSelectionnables.slice(0, 4).join(' | ') : (nSvgVus ? nSvgVus + ' figure(s) relues' : 'aucune figure visible : rien mesuré'));
+      /* « Appuyer sur la touche Entrée pour valider. » à côté de toute case
+         d'un input() ouverte par « ▶ ». Seuls les niveaux à consoles Python
+         (pythonConsoles dans leur profil) ; un niveau qui en déclare et n'en
+         ouvre aucune n'a rien mesuré, et le dit. */
+      if(P.pythonConsoles) verifier('à côté de chaque case d\'un input() en attente, la page écrit « Appuyer sur la touche Entrée pour valider. »',
+        nCasesEntree > 0 && casesEntreeMuettes.length === 0,
+        casesEntreeMuettes.length ? casesEntreeMuettes.slice(0, 4).join(' | ') : (nCasesEntree ? nCasesEntree + ' case(s) relues' : 'aucune case d\'input() ouverte : rien mesuré'));
       /* Les exercices ANTÉRIEURS à la règle sont déclarés dans
          « xItalique.dispenses » (tests/profils.js), NOMMÉS : la dette est
          écrite, elle ne s'agrandit pas — tout exercice non déclaré doit

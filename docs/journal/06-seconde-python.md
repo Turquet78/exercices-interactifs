@@ -6978,3 +6978,64 @@ Banc jsdom : `pythonForPasAPas` (après `pythonForRange`) — la place et la
 numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
 un vrai CPython.
+
+---
+
+## Puis le 6.6.1 s'est exécuté au BOUTON, et ses cases sont devenues des listes (novembre 2026, v682)
+
+Demande de Turquet : « demander à l'élève d'appuyer sur exécution de l'étape 1
+du for ; le résultat du programme s'affiche en dessous ; en dessous, compléter
+le tour 1 ; quand il a fini, mettre le bouton du haut sur l'étape 2 […] le tour
+1 devient le tour 2 présenté exactement de la même façon, en dessous de la
+fenêtre d'affichage qui s'est agrandie ; pour les cases, proposer comme option
+"valeur", nombre, 0, 1, 2, 3 ».
+
+- **Le bouton du haut** : `#pfpRun`, « ▶ Exécuter l'étape N », au-dessus du
+  programme dans le cadre du a). Avant le premier clic, la console est vide,
+  aucune phrase, « Vérifier » grisé (et s'il est forcé, il dit d'exécuter
+  d'abord). Le clic écrit la ligne du tour dans la console ; la phrase du tour
+  s'ouvre SOUS la console. Le tour vérifié rend le bouton, devenu « étape
+  N + 1 » ; son clic ajoute la ligne suivante (la console grandit) et
+  REMPLACE la phrase par celle du tour suivant — une seule phrase à l'écran.
+  Le dernier tour vérifié ouvre le b), comme avant.
+- **Le nouvel état** : `q.exec` (le tour en cours a-t-il été exécuté ?),
+  rangé dans la question pour la pause ; un brouillon ancien sans `exec` le
+  déduit de `fait` et des choix déjà faits.
+- **`pfpExecuter`** remplace `pfpTourSuivant` — même raison de nom : rien
+  qui commence par `next…`, sans quoi la reprise d'une pause prendrait le
+  bouton pour la « suite » de la question (voir plus haut).
+- **Les listes** (`pfpListeHTML`) : les trois cases d'un tour offrent les
+  MÊMES choix — le texte du print tel que la console l'écrit (`valeur=` pour
+  la fiche), le nom de la variable, puis 0 à n − 1. Les juges n'ont pas
+  changé ; le message « SANS guillemets » nomme désormais le texte choisi dans
+  la liste de la variable.
+- Banc jsdom `pythonForPasAPas` réécrit sur ce déroulé : le bouton au-dessus
+  du programme, la console vide et « Vérifier » grisé avant l'exécution, les
+  choix des trois listes, la console qui grandit tour par tour et la phrase
+  remplacée, le message qui nomme l'étape suivante, le soutien (« ▶ » fermé
+  sur un tour faux), la reprise.
+
+---
+
+## « Appuyer sur la touche Entrée pour valider. » à côté de chaque case d'un input() (novembre 2026, v682)
+
+Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
+input qui s'exécute, écrire à côté du symbole entré "Appuyer sur la touche
+Entrée pour valider." ».
+
+Les 22 consoles de la Seconde qui ouvrent une case de réponse lui donnent la
+même étiquette (`aria-label="ta réponse à la question du programme"`) et le
+focus dès qu'elle paraît. La phrase se pose donc à UNE porte, dans le script
+`#console-attend-entree` : sur `focusin` d'une telle case, un
+`span.py-entree-aide` s'écrit juste après elle — ou après son bouton ⏎ quand
+elle en a un. Elle part avec la console quand le programme la réécrit, et dès
+que la réponse non vide est envoyée (Entrée, ou le bouton ⏎). Pas
+d'observateur de mutations : le même script note déjà qu'un observateur sur
+tout le document décalait les minuteries du banc jsdom.
+
+Contrôle universel (banc navigateur, section 9, rien à déclarer) : en
+entraînement, chaque « ▶ » visible de chaque exercice est cliqué ; toute case
+de réponse au programme qui s'ouvre doit porter la phrase, visible, sur sa
+ligne. Le niveau le déclare par `pythonConsoles: true` dans son profil (la
+Première et la Terminale n'ont pas de console Python) ; un niveau qui en
+déclare et n'en ouvre aucune n'a rien mesuré, et le dit.
