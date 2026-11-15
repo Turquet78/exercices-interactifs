@@ -6979,6 +6979,23 @@ numérotation, l'écran, le tirage, le trajet juste tour par tour jusqu'au b),
 le faux, le vide et le soutien, la reprise, et les 56 programmes comparés à
 un vrai CPython.
 
+**La console qui attend une réponse dit comment la valider (novembre 2026, v682).**
+Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
+input qui s'exécute, écrire à côté du symbole entré “Appuyer sur la touche
+Entrée pour valider.” ». Toutes les consoles de la Seconde qui posent la
+question d'un `input()` — les trois familles `pyi-rep` (dix-huit exercices),
+`py-entree` (`pzLancer` et ses voisins) et `pii-in` — portent la même étiquette,
+`aria-label="ta réponse à la question du programme"`, déjà lue par
+`#console-attend-entree`. Une seule règle CSS s'y accroche :
+`:has(> input[aria-label=…])::after`, posée sur la console qui contient la
+case. La phrase s'écrit donc à la suite de la case (et de son bouton ⏎ quand il
+y en a un), en Nunito italique grise, et disparaît avec la case dès que la
+réponse part sur Entrée. Un pseudo-élément, exprès : le `textContent` de la
+console — ce que lisent les juges et les bancs — ne change pas d'un caractère.
+Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
+retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
+(`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
+
 **Puis le 6.3.1 a montré ses deux cadres DÈS LE DÉPART (v682, novembre 2026).**
 Demande de Turquet sur la page en ligne : les cases des cadres se collaient
 d'une ligne à l'autre ; les cadres doivent être là, à côté de leur ligne, avant
@@ -7007,3 +7024,11 @@ donnait aux `select` toute la largeur du cadre, la phrase se cassait en
 morceaux — `#pnpHost select.pnp-in{display:inline-block;width:auto}` la
 remet dans le fil du texte. Le banc principal vérifie les quatre propositions
 de la première case.
+
+**Et les deux rappels de la touche Entrée se sont croisés à la fusion (v683).**
+La phrase commune des consoles (« Appuyer sur la touche Entrée pour valider. »,
+le `::after` posé par une autre branche le même jour) s'ajoutait, sur le 6.3.1,
+au rappel propre de l'exercice — l'élève lisait deux fois la même consigne.
+Le 6.3.1 garde le sien, plus complet (il dit aussi que cliquer ailleurs ne fait
+rien) : `:has(> #pnpRappelEntree)::after{content:none}`, plus spécifique que la
+règle commune, qui vaut toujours partout ailleurs.

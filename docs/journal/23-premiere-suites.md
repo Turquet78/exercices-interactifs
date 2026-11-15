@@ -281,3 +281,89 @@ moins. 1 414 combinaisons sur les six contextes.
 
 **Le contrôle** (`tests/verifier.js`, bloc des 300 séances) relit le pas dans
 la liste « 10 à 100 de dix en dix », écrite en dur dans le banc.
+
+## Puis : la pose facultative à côté de la case, et le pas selon le rang de l'exemple (novembre 2026, v422)
+
+**Les demandes** (Turquet, le lendemain, en cinq messages) : « mettre l'addition
+ou la soustraction posée, comme dans l'exercice 2.3 par exemple, en mode
+facultatif, mais qui doit apparaître à côté de la case du tableau qui doit être
+remplie quand on clique dessus ; l'opération posée disparaît quand on clique sur
+une autre case » ; « quand il y a une addition ou une soustraction à la fin de
+la question 2, poser aussi l'opération à côté de la case réponse » ; « dans la
+question 3 pour trouver l'écart, poser la soustraction de manière facultative
+aussi à côté de la case » ; « dans le premier exemple je veux que l'addition ou
+la soustraction soit 10, 20 ou 30 » ; « pour le deuxième exercice on mettra une
+addition ou une soustraction avec des multiples de 10 entre 40 et 90 ».
+
+**Le moteur est celui des pourcentages.** `poseOpEleveMAJ` (le 2.2.2, le 2.3.2,
+les 2.2.11 et suivants) sait déjà poser une addition ou une soustraction qui
+suit les nombres de l'élève, dans le cadre « ✦ Facultatif » (`pt-opt`), et la
+cacher quand rien ne se pose (une soustraction qui descendrait sous zéro). Il
+lit ses deux termes dans des cases par leur identifiant : la pose du 7.1 lui
+tend deux `<input type="hidden">` par case, remplis au moment de montrer. Ce qui
+est à l'exercice, c'est le CHOIX DES TERMES (`suiPoseSpec`) et la PLACE
+(`suiPosePlacer`).
+
+**Les termes suivent les nombres de l'élève.** Pour une case du tableau — les
+lignes 1 et 2 de la question ①, les lignes 2 à N de la méthode 1 — le premier
+terme est la ligne remplie la plus proche AU-DESSUS : la valeur que l'élève y a
+écrite, juste ou non (c'est une aide pour SON calcul, pas une révélation), ou
+celle que la page a écrite (les lignes 0 et 1) ; le second, autant de pas que
+de lignes franchies — une ligne sautée donne 2 × 20 = 40, trois lignes
+sautées 80 : la pose reste disponible à qui saute, c'est le calcul qu'il fait
+de tête. Pour le résultat de la question ② (`sui-res`), les termes sont le
+départ et le produit que l'élève a écrits dans les phrases ; tant qu'il manque
+l'un des deux, pas de pose. Pour l'écart de la question ③ (`sui-e`), les deux
+nombres de l'énoncé, le plus grand moins le plus petit — une soustraction
+dans les deux sens de variation. Un terme à virgule ne se pose pas (seuls les
+entiers se lisent).
+
+**Une pose par case, une seule visible.** Chaque case a son élément
+(`suiPoseStep-<id>`), créé au premier focus et gardé : ce que l'élève y a écrit
+survit quand il passe à une autre case et revient — à moins que les termes
+n'aient changé (il a corrigé la ligne du dessus), auquel cas le moteur
+reconstruit. Montrer une pose cache les autres. Deux portes en capture sur le
+document la cachent quand le focus ou un clic va ailleurs — sauf dans la pose
+elle-même, sur le clavier à l'écran, sur le pavé ou sur un bouton : « Vérifier »
+doit pouvoir juger ce qu'on y a écrit, et la pose jugée reste visible après la
+correction (les portes se taisent quand la question est verrouillée). La case
+cliquée remontre la sienne : la porte du document passe en capture, l'écouteur
+de la case passe après.
+
+**Hors note, jugée comme au 2.2.2.** Les cases de la pose portent `.hors-note`
+— `ptsEcran` ne les compte pas, la boîte des cases vides ne les réclame pas, la
+flèche → les atteint comme des cases ordinaires (elles sont dans la couche
+`#suiPoses`, en fin d'écran). À la vérification, une pose non entamée n'est pas
+jugée ; une pose entamée se corrige au mot près du 2.2.2 : résultat bleu ou
+rouge avec sa pastille, la bonne valeur en vert sur une case vide ou en badge
+sous une case fausse, une retenue jugée seulement si elle est écrite. Le point
+de la question ne dépend jamais de la pose.
+
+**La place.** La couche est absolue dans `#suiHost` (`position:relative`) : la
+pose se pose à droite de la case, à sa hauteur, 26 px au-dessus pour que
+l'opération encadre la ligne ; si elle sortait du cadre à droite (tablette,
+téléphone), elle descend sous le tableau ou la phrase de la case, alignée à
+gauche. Elle couvre ce qui se trouve dessous — un clic dessous la cache, et
+rend la place.
+
+**Le pas selon le rang.** `SUI_PAS_RANGS` : le premier exemple de la séance
+ajoute ou retire 10, 20 ou 30, le deuxième un multiple de 10 de 40 à 90, les
+suivants puisent dans toute la liste. La séance choisit à chaque rang un
+contexte qui sait tenir la plage (la piscine et la chaîne, qui ne descendent pas
+à 30, n'ouvrent jamais la séance), sans remise tant qu'il reste des contextes ;
+`suiTirer` reçoit la plage et filtre les familles. 300 séances : le premier
+exemple à 30 au plus, le deuxième entre 40 et 90, six contextes distincts sur
+dix-huit questions.
+
+**Le contrôle** (`tests/verifier.js`, bloc « 4 bis ») : au focus de la ligne 1
+de la question ①, la pose paraît, avec les termes u0 et r, le signe du sens,
+des cases de résultat `.hors-note`, dans le cadre facultatif ; la ligne 2 lit
+la valeur que l'élève a écrite à la ligne 1 ; la ligne 1 effacée, la pose de la
+ligne 2 part de la ligne 0 avec deux pas ; le focus ailleurs cache tout ; en
+question ②, la dernière ligne de la méthode 1 pose la ligne 1 avec N − 1 pas,
+le résultat ne se pose qu'une fois départ et produit écrits ; en question ③,
+l'écart pose le plus grand moins le plus petit ; une pose entamée d'un chiffre
+faux rougit, garde sa pastille, ne coûte pas le point, ne compte pas dans
+`ptsEcran`, et reste visible après la correction. Le bloc des 300 séances
+relit le pas des deux premiers exemples. Ce qu'il ne voit pas : la place à
+l'écran (jsdom n'a pas de géométrie) — elle se regarde en ligne.

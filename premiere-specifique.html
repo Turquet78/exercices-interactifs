@@ -1607,6 +1607,12 @@ i.pb-P{margin-right:.14em}
   .trd-gp[data-bexp-cote="bas"]::after{top:-12.5px;left:calc(var(--bexp-fx) - 7px);border-bottom-color:var(--surface)}
   .trd-signes-regle{display:inline-flex;gap:14px;flex-wrap:wrap}
   .trd-mot{white-space:nowrap}
+  /* le numérateur de la ligne 4 recopie la ligne 3 : on n'y écrit pas */
+  .lv-in.trd-mir{border-style:dashed;background:transparent;cursor:default}
+  /* question 5 : le titre et le dessin plus petits (demande de Turquet) */
+  .itq-ineg.trd-signe-titre{font-size:1.15rem;padding:5px 12px;max-width:380px;margin:0 auto 8px}
+  .lv-graph.tsg-graph.trd-signes-dessin{max-width:330px}
+  .lv-graph.tsg-graph.trd-signes-dessin .lv-svg{max-width:310px}
   /* les flèches de la transposition (la fiche papier) : pointillées, sans prise */
   .trd-fl{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
   .trd-fl path{fill:none;stroke:var(--ink-soft);stroke-width:1.4;stroke-dasharray:3 3}
@@ -1624,6 +1630,10 @@ i.pb-P{margin-right:.14em}
   #scr-sui .sui-q:first-child{margin-top:0}
   #scr-sui .sui-q-rappel{font-weight:700;color:var(--ink-soft);font-size:.98rem;margin-top:22px}
   #scr-sui .sui-meth{font-weight:700;color:var(--blue-dark);font-size:1.02rem;margin-top:18px}
+  /* la pose facultative à côté de la case cliquée : posée au-dessus du reste, jamais dans le flux */
+  #suiHost{position:relative}
+  #suiHost .sui-pose{position:absolute;z-index:6;width:max-content;max-width:calc(100% - 4px);margin:0;padding:22px 14px 12px;background:#fafbff;box-shadow:0 8px 22px rgba(20,30,80,.16)}
+  #suiHost .sui-pose .pt-lab{font-size:.92rem;margin:0 0 4px}
   /* la méthode 1 de la question 2 : trois colonnes, plus étroites */
   .sui-tab.sui-m1 th,.sui-tab.sui-m1 td{min-width:110px;padding:3px 14px}
   .sui-tab.sui-m1 math-field.pm-mf{min-width:88px}
@@ -3960,7 +3970,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=421;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=423;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19746,10 +19756,17 @@ function suiFamilles(c){
 }
 /* Une question : le contexte, le tirage, et la partie (1 : le tableau,
    2 : la valeur au bout de N pas, 3 : le pas du seuil). */
-function suiTirer(ci, part){
-  const f=pick(suiFamilles(SUI_CTX[ci]));
+function suiTirer(ci, part, bornes){
+  const fam=suiFamilles(SUI_CTX[ci]).filter(function(f){ return !bornes || (f.r>=bornes[0] && f.r<=bornes[1]); });
+  const f=pick(fam.length?fam:suiFamilles(SUI_CTX[ci]));
   return {ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
 }
+/* Le pas selon le RANG de l'exemple dans la séance (demande de Turquet,
+   novembre 2026) : le premier exemple ajoute ou retire 10, 20 ou 30 ; le
+   deuxième, un multiple de 10 de 40 à 90 ; les suivants, tout le pas. On
+   commence facile. Un contexte qui ne sait pas tenir la plage de son rang (la
+   piscine ou la chaîne ne descendent pas à 30) prend un autre rang. */
+const SUI_PAS_RANGS=[[10,30],[40,90]];
 /* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
 function suiMoment(c, n){
   const t=c.tps;
@@ -19793,11 +19810,17 @@ function suiCases(q){
    les contextes sans remise tant qu'il y en a ; le tirage d'un contexte est
    distinct de ceux déjà tirés (distincte : cleQuestion ignore ci). */
 function suiBuildQuestions(nQ){
-  const ordre=ensShuffle(SUI_CTX.map(function(_,i){ return i; }));
+  const tous=SUI_CTX.map(function(_,i){ return i; });
+  let reste=ensShuffle(tous);
   const nCtx=Math.ceil(nQ/3), qs=[], tires=[];
   for(let i=0;i<nCtx;i++){
-    const ci=ordre[i%ordre.length];
-    const t=distincte(tires, function(){ return suiTirer(ci,1); });
+    if(!reste.length) reste=ensShuffle(tous);   /* sans remise tant qu'il y en a */
+    /* au rang i, un contexte qui sait tenir la plage de pas de ce rang */
+    const b=SUI_PAS_RANGS[i]||null;
+    let k=b?reste.findIndex(function(ci){ return suiFamilles(SUI_CTX[ci]).some(function(f){ return f.r>=b[0] && f.r<=b[1]; }); }):0;
+    if(k<0) k=0;
+    const ci=reste.splice(k,1)[0];
+    const t=distincte(tires, function(){ return suiTirer(ci,1,b); });
     tires.push(t);
     [1,2,3].forEach(function(part){ qs.push(Object.assign({}, t, {part:part})); });
   }
@@ -19867,6 +19890,113 @@ function suiMiroirs(){
     m.textContent=v===''?'…':v; m.classList.toggle('sui-vide', v==='');
   });
 }
+/* LA POSE FACULTATIVE À CÔTÉ DE LA CASE (demande de Turquet, novembre 2026) :
+   « mettre l'addition ou la soustraction posée, comme dans le 2.3, en mode
+   facultatif, mais qui doit apparaître à côté de la case du tableau qui doit
+   être remplie quand on clique dessus ; l'opération posée disparaît quand on
+   clique sur une autre case » — puis le résultat de la question ② et l'écart
+   de la question ③. Le moteur est celui des pourcentages (poseOpEleveMAJ :
+   buildPoseAdd, buildPoseSub, le cadre « ✦ Facultatif ») ; ce qui est à
+   l'exercice, c'est le CHOIX DES TERMES et la PLACE.
+   Les termes suivent les nombres de l'ÉLÈVE : pour une case du tableau, la
+   ligne remplie la plus proche au-dessus (sa valeur à lui, ou celle que la
+   page a écrite) et autant de pas que de lignes sautées — 2 × 20 = 40 quand
+   une ligne manque ; pour le résultat de la question ②, la valeur de départ
+   et le produit qu'il a écrits dans les phrases ; pour l'écart de la
+   question ③, les deux nombres de l'énoncé, le plus grand moins le plus petit.
+   Une pose par case (sa saisie survit quand on passe à une autre case et
+   qu'on revient) ; une seule visible à la fois ; cachée dès que le focus ou
+   un clic va ailleurs — sauf dans la pose elle-même, sur le clavier à l'écran
+   ou sur un bouton (« Vérifier » doit pouvoir juger ce qu'on y a écrit).
+   Hors note : ses cases portent .hors-note — ni comptées, ni réclamées par la
+   boîte des cases vides — et se jugent comme la pose du 2.2.2 : seulement si
+   l'élève y a écrit. La place : à droite de la case, à sa hauteur ; quand
+   l'écran est trop étroit, sous le tableau ou la phrase. */
+const SUI_POSE_HAUT=26;
+/* Les termes de la pose d'une case : {a, b, neg} en chaînes d'entiers, ou null
+   quand rien ne se pose (pas de nombre à lire). */
+function suiPoseSpec(q, id){
+  const v=suiVals(q), c=v.c, neg=c.sens<0;
+  const lireId=function(i){ const el=$(i); const fr=el?parseDecToFrac(String(el.value==null?'':el.value).trim()):null; return (fr&&fr.d===1&&fr.n>=0)?String(fr.n):null; };
+  const tableau=function(n, ligne){   /* ligne(k) : ce qui est écrit à la ligne k, ou null */
+    for(let k=n-1;k>=0;k--){ const a=ligne(k); if(a!=null) return {a:a, b:String((n-k)*v.rAbs), neg:neg}; }
+    return null;
+  };
+  if(id==='sui-t1'||id==='sui-t2'){ const n=id==='sui-t1'?1:2;
+    return tableau(n, function(k){ return k===0?String(v.u0):lireId('sui-t'+k); }); }
+  const m=/^sui-m1-(\d+)$/.exec(id);
+  if(m) return tableau(+m[1], function(k){ return k<SUI_M1_ECRITES?String(v.u0+k*v.r):lireId('sui-m1-'+k); });
+  if(id==='sui-res'){ const a=lireId('sui-u0'), b=lireId('sui-p'); return (a!=null&&b!=null)?{a:a,b:b,neg:neg}:null; }
+  if(id==='sui-e'){ const hi=Math.max(v.u0,v.T), lo=Math.min(v.u0,v.T); return {a:String(hi), b:String(lo), neg:true}; }
+  return null;
+}
+/* Les cases qui ont une pose : celles du tableau, le résultat de ②, l'écart de ③. */
+function suiPoseIds(q){ return suiCases(q).map(function(x){ return x.id; }).filter(function(id){ return /^sui-(t\d|m1-\d+|res|e)$/.test(id); }); }
+function suiPoseCacher(){ document.querySelectorAll('#suiPoses .sui-pose').forEach(function(p){ p.classList.add('step-hidden'); }); }
+function suiPoseMontrer(id){
+  if(!test||test.kind!=='sui'||test.locked) return;
+  const q=test.questions[test.idx], el=$(id), couche=$('suiPoses');
+  if(!q||!el||!couche) return;
+  suiPoseCacher();
+  const spec=suiPoseSpec(q,id); if(!spec) return;
+  const sid='suiPoseStep-'+id;
+  if(!$(sid)) couche.insertAdjacentHTML('beforeend',
+    '<div class="pt-step pt-opt sui-pose step-hidden" id="'+sid+'" data-pour="'+id+'"><div class="pt-lab" id="suiPoseLab-'+id+'"></div>'
+    +'<div class="mp-op" id="suiPoseOp-'+id+'"></div><input type="hidden" id="suiPoseA-'+id+'"><input type="hidden" id="suiPoseB-'+id+'"></div>');
+  $('suiPoseA-'+id).value=spec.a; $('suiPoseB-'+id).value=spec.b;
+  poseOpEleveMAJ({step:sid, host:'suiPoseOp-'+id, aId:'suiPoseA-'+id, bId:'suiPoseB-'+id, neg:spec.neg});
+  const step=$(sid); if(step.classList.contains('step-hidden')) return;   /* rien de posable (une soustraction qui descendrait sous zéro) */
+  step.querySelectorAll('input.mp-box, input.mp-carry').forEach(function(i){ i.classList.add('hors-note'); });
+  $('suiPoseLab-'+id).textContent='Pose '+(spec.neg?'la soustraction':'l’addition')+' : '+suiFmt(+spec.a)+(spec.neg?' − ':' + ')+suiFmt(+spec.b);
+  suiPosePlacer(step, el);
+}
+/* À droite de la case, à sa hauteur ; sinon (écran étroit) sous son tableau ou sa phrase. */
+function suiPosePlacer(step, el){
+  const host=$('suiHost'); if(!host||!host.getBoundingClientRect) return;
+  const h=host.getBoundingClientRect(), r=el.getBoundingClientRect();
+  step.style.left=Math.round(r.right-h.left+14)+'px'; step.style.top=Math.round(r.top-h.top-SUI_POSE_HAUT)+'px';
+  const s=step.getBoundingClientRect();
+  if(s.width && s.right>h.right-2){
+    const bloc=el.closest('table')||el.closest('.sui-phr')||el, b=bloc.getBoundingClientRect();
+    step.style.left=Math.max(0, Math.round(r.left-h.left-40))+'px'; step.style.top=Math.round(b.bottom-h.top+8)+'px';
+    const s2=step.getBoundingClientRect(); if(s2.right>h.right-2) step.style.left=Math.max(0, Math.round(h.width-s2.width-2))+'px';
+  }
+}
+/* Le juge de la pose : celui du 2.2.2, au mot près — seulement si l'élève y a
+   écrit ; le résultat se corrige (vert sur une case vide, badge sur une case
+   fausse), une retenue ne se juge que si elle est écrite. Hors note. */
+function suiPoseJuger(){
+  const soutien=isSoutien();
+  document.querySelectorAll('#suiPoses .mp-op').forEach(function(host){
+    const boxes=[].slice.call(host.querySelectorAll('.mp-box')), carries=[].slice.call(host.querySelectorAll('.mp-carry'));
+    if(!boxes.concat(carries).some(function(el){ return el.value.trim()!==''; })) return;
+    const tag=function(cl,ok){ const t=document.createElement('span'); t.className='mp-tag '+(ok?'ok':'bad'); t.textContent=ok?'✓':'✗'; cl.appendChild(t); };
+    const fix=function(cl,exp){ const f=document.createElement('span'); f.className='mp-fix'; f.textContent=exp; cl.appendChild(f); };
+    boxes.forEach(function(el){
+      const exp=el.dataset.exp, vv=el.value.trim(), ok=(vv!==''&&vv===exp), cl=el.parentElement;
+      cl.querySelectorAll('.mp-tag,.mp-fix').forEach(function(n){ n.remove(); });
+      el.classList.remove('ok','bad','sol'); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; tag(cl,ok);
+      if(!ok && currentMode==='train'){ if(vv===''){ el.value=exp; el.classList.remove('bad'); el.classList.add('sol'); } else fix(cl,exp); }
+    });
+    carries.forEach(function(el){
+      const exp=el.dataset.exp, vv=el.value.trim(), cl=el.parentElement;
+      cl.querySelectorAll('.mp-tag,.mp-fix').forEach(function(n){ n.remove(); });
+      el.classList.remove('ok','bad'); el.disabled=!soutien;
+      if(vv==='') return;
+      const ok=(vv===exp); el.classList.add(ok?'ok':'bad'); el.disabled=ok||!soutien; tag(cl,ok);
+      if(!ok && currentMode==='train') fix(cl,exp);
+    });
+  });
+}
+/* Deux portes sur le document, posées une fois : le focus ou un clic hors de
+   la pose la cache (la case cliquée remontre la sienne, son écouteur passe
+   après) ; après la correction, ce qui est montré reste montré. */
+(function(){
+  const dehors=function(t){ return !(t&&t.closest&&(t.closest('.sui-pose')||t.closest('.ML__keyboard')||t.closest('#paveNum')||t.closest('button'))); };
+  document.addEventListener('focusin', function(e){ if(!test||test.kind!=='sui'||test.locked) return; if(dehors(e.target)) suiPoseCacher(); }, true);
+  document.addEventListener('pointerdown', function(e){ if(!test||test.kind!=='sui'||test.locked) return; const t=e.target;
+    if(t&&t.closest&&t.closest('#suiHost math-field')) return; if(dehors(t)) suiPoseCacher(); }, true);
+})();
 function renderSuiTest(){
   const q=test.questions[test.idx]; test.locked=false;
   const v=suiVals(q), c=v.c;
@@ -19892,12 +20022,15 @@ function renderSuiTest(){
     h+=c.p3(suiFmt(v.T), suiFmt(v.u0)).map(function(t){ return suiPhrase(t,vus); }).join('');
   }
   if(q.part===3) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suiTableau(q,true);   /* la question 2 l'a dans sa méthode 1 */
-  $('suiHost').innerHTML=h;
+  $('suiHost').innerHTML=h+'<div id="suiPoses"></div>';   /* la couche des poses facultatives */
   const cases=suiCases(q).map(function(x){ return $(x.id); }).filter(Boolean);
   cases.forEach(function(el){
     el.addEventListener('input', function(){ suiMiroirs(); if(isSoutien()) checkSuiAnswer(true);
       clearTimeout(test.suiSave); test.suiSave=setTimeout(autoSave,1000); });
   });
+  suiPoseIds(q).forEach(function(id){ const el=$(id); if(!el) return;
+    const montrer=function(){ suiPoseMontrer(id); };
+    el.addEventListener('focus', montrer); el.addEventListener('focusin', montrer); });
   suiMiroirs();
   setTimeout(function(){ try{ if(cases[0] && !cases[0].disabled) cases[0].focus(); }catch(e){} },70);
 }
@@ -19915,6 +20048,7 @@ function checkSuiAnswer(live){
   if(live){   /* soutien : on ne juge que les cases déjà remplies */
     if(!isSoutien()) return;
     cases.forEach(function(x){ liveColorDec(x.id, x.bon, 1); });
+    document.querySelectorAll('#suiPoses input.mp-box, #suiPoses input.mp-carry').forEach(liveColorExp);
     return;
   }
   const subs=cases.map(function(x){ const el=$(x.id), s=el?String(el.value==null?'':el.value).trim():'', fr=parseDecToFrac(s);
@@ -19925,6 +20059,7 @@ function checkSuiAnswer(live){
   subs.forEach(function(s){ corrChoix(s.el, String(s.c.bon), s.ok); });
   const comptees=subs.filter(function(s){ return !(s.c.opt && s.vide); });   /* les lignes sautées ne « manquent » pas */
   suiMiroirs();   /* les miroirs suivent la correction écrite en vert */
+  suiPoseJuger();   /* la pose facultative, si l'élève y a écrit — hors note */
   if(!allOk && isSoutien()){ soutienAgain('suiFeedback','suiActions','checkSuiAnswer','suiHost'); return; }
   test.locked=true;
   if(allOk) test.score++; $('suiLiveScore').textContent=test.score;   /* un point par question parfaite */
@@ -31707,15 +31842,15 @@ function renderTrd(){
     +'<span class="trd-g">'+ax+'</span><span class="trd-eg">=</span><span class="trd-dr">'+K+' '+trdIn('trd-e1','le terme transposé, avec son signe')+'</span><span class="trd-d"></span>'
     +'<span class="trd-g"><span class="trd-cercle trd-cercle-a">'+trdNb(q.a)+'</span><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e2','le second membre calculé')+'</span>'
     +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
-    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac">'+trdIn('trd-e3','le numérateur')+'<span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
+    +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac"><input id="trd-e3" class="lv-in trd-mir hors-note" readonly tabindex="-1" aria-label="le numérateur : le résultat de la ligne 3, recopié"><span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
     +'</div>';
   h+='</div>';
   /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
     +'<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>'
-    +'<div class="itq-ineg">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
-    +'<div class="lv-graph tsg-graph" id="trdSignes">'+trdSignesSVG(q)+'</div>'
+    +'<div class="itq-ineg trd-signe-titre">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+trdSignesSVG(q)+'</div>'
     +'<div class="itv-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
     +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
@@ -31728,9 +31863,10 @@ function renderTrd(){
   trdGpFermer();
   $('trdHost').querySelectorAll('input').forEach(function(el){
     if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
-    el.addEventListener('input', function(){ trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
+    el.addEventListener('input', function(){ if(el.id==='trd-e2') trdMiroir(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); trdEntree(el); } });
   });
+  trdMiroir();
   $('trdHost').querySelectorAll('select').forEach(function(el){
     el.addEventListener('change', function(){ if(el.id && !el.classList.contains('hors-note')) st.sels[el.id]=el.value; trdAvancer(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
   });
@@ -31738,9 +31874,22 @@ function renderTrd(){
   $('trdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="submitTrd()">Vérifier</button>';
   trdDessiner(false);
 }
+/* LE NUMÉRATEUR DE LA LIGNE 4 RECOPIE LE RÉSULTAT DE LA LIGNE 3 (demande de
+   Turquet, novembre 2026 : « quand l'élève a mis le résultat dans la case de
+   la 3e ligne, qui est une somme, afficher son résultat dans le numérateur de
+   la 4e ligne »). Le numérateur n'est plus une case à écrire : il est en
+   lecture seule, hors de la note (.hors-note — la ligne 3 est déjà jugée,
+   la compter deux fois punirait deux fois la même faute), et il prend la
+   valeur et la couleur de la ligne 3, à la frappe comme à la correction. */
+function trdMiroir(){
+  const s=$('trd-e2'), m=$('trd-e3'); if(!s||!m) return;
+  m.value=s.value;
+  m.classList.remove('ok','bad','sol');
+  ['ok','bad','sol'].forEach(function(c){ if(s.classList.contains(c)) m.classList.add(c); });
+}
 /* Entrée passe à la case suivante ; dans la dernière, elle vérifie */
 function trdEntree(el){
-  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && e.getClientRects().length && !e.classList.contains('hors-note'); });
+  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && !e.readOnly && e.getClientRects().length && !e.classList.contains('hors-note'); });
   const i=l.indexOf(el);
   if(i>=0 && i<l.length-1){ try{ l[i+1].focus(); }catch(e){} }
   else submitTrd();
@@ -31874,7 +32023,7 @@ function trdCases(q){
     {id:'trd-regle', val:'droite', liste:true},
     {id:'trd-ag', val:xk},
     {id:'trd-r1', val:'oppose', liste:true}, {id:'trd-e1', val:-q.b, terme:true}, {id:'trd-r2', val:'signe', liste:true}, {id:'trd-e2', val:q.k-q.b},
-    {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e3', val:q.k-q.b}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
+    {id:'trd-r3', val:'divise', liste:true}, {id:'trd-e4', val:q.a}, {id:'trd-r4', val:'signe', liste:true}, {id:'trd-e5', val:xk},
     {id:'trd-rac', val:trdRacine(q), nb:true},
     {id:'trd-s0', val:q.a<0?'+':'-', liste:true}, {id:'trd-s1', val:q.a<0?'-':'+', liste:true}
   ];
@@ -31900,6 +32049,7 @@ function trdLive(){
   if(test.kind!=='trd' || !isSoutien() || test.locked) return;
   const q=test.questions[test.idx]; if(!q) return;
   trdCheck(q).subs.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide){ s.el.classList.add(s.ok?'ok':'bad'); s.el.classList.remove('trd-manque'); } });
+  trdMiroir();
 }
 function trdPourquoi(q){
   const xk=trdXk(q), K=trdNb(q.k), y1=trdF(q,q.x1), y2=trdF(q,q.x2);
@@ -31928,6 +32078,7 @@ function submitTrd(){
   const parfait=res.allOk && fini;
   if(isSoutien() && !(res.allOk && fini)){
     res.subs.forEach(function(s){ corrChoix(s.el, s.aff, s.ok); });
+    trdMiroir();
     /* les cases qui manquent (et qu'on voit) s'entourent de rouge — demande de
        Turquet ; la classe n'est pas « bad » : rien n'y est faux */
     let manque=0;
@@ -31945,6 +32096,7 @@ function submitTrd(){
   trdDessiner(false);
   if(!fini){ $('trdRegleL').hidden=false; $('trdSuite').hidden=false; }
   res.subs.forEach(function(s){ if(s.el) s.el.classList.remove('trd-manque'); corrChoix(s.el, s.aff, s.ok); });
+  trdMiroir();
   requestAnimationFrame(trdFleches);
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
   if(parfait){ $('trdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('trdFeedback').className='mp-feedback good'; }
