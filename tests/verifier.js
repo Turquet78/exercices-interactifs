@@ -36802,13 +36802,16 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 40 à 90 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100];
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
       if(qs.length!==${A.nb}*3){ vus.push("séance de "+qs.length+" questions"); continue; }
       const cis=[]; qs.forEach(function(q,i){ if(q.part!==(i%3)+1) vus.push("partie "+q.part+" en position "+i); if(q.part===1) cis.push(q.ci); });
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
+      /* le pas selon le rang de l'exemple (Turquet, novembre 2026) : 10 à 30, puis 40 à 90 */
+      const r1=suiVals(qs[0]).rAbs; if(r1>30) vus.push("le premier exemple ajoute ou retire "+r1+" : attendu 10, 20 ou 30");
+      if(qs[3]){ const r2=suiVals(qs[3]).rAbs; if(r2<40||r2>90) vus.push("le deuxième exemple ajoute ou retire "+r2+" : attendu de 40 à 90"); }
       qs.forEach(function(q){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
@@ -36921,6 +36924,63 @@ function augmentationTableau(w, P){
     restoreBoxes(boxes);
     if(!$("sui-n")||$("sui-n").value!==String(v.n)) vus.push("n perdu à la reprise");
     if([].some.call(document.querySelectorAll('#suiHost .sui-mir[data-de="sui-n"]'),function(m){ return m.textContent!==String(v.n); })) vus.push("les miroirs ne sont pas remis à la reprise");
+    return vus.join(" | ");
+  })()`, v => v === '');
+  /* ---- 4 bis. la pose facultative à côté de la case ---- */
+  verifierEval(w, 'la pose facultative : au focus d’une case du tableau, l’opération posée apparaît — termes : la ligne remplie au-dessus (celle de l’élève) et autant de pas que de lignes sautées —, hors note ; une seule à la fois, cachée quand le focus va ailleurs ; le résultat de la question 2 pose départ ± produit écrits par l’élève (rien sans eux) ; l’écart de la question 3 pose la soustraction ; une pose entamée se juge sans compter dans la note', `(function(){
+    const vus=[]; currentMode="train"; window.confirmerCasesVides=false; startSui(); test.idx=0; renderSuiTest();
+    const q1=test.questions[0], v1=suiVals(q1), neg=v1.c.sens<0;
+    const pose=function(id){ return $("suiPoseStep-"+id); };
+    const vis=function(id){ const p=pose(id); return !!p && !p.classList.contains("step-hidden"); };
+    const focus=function(id){ $(id).dispatchEvent(new Event("focusin",{bubbles:true})); };
+    const termes=function(id){ return $("suiPoseA-"+id).value+" ± "+$("suiPoseB-"+id).value; };
+    focus("sui-t1");
+    if(!vis("sui-t1")) vus.push("question 1 : pas de pose au focus de la ligne 1");
+    else {
+      if(termes("sui-t1")!==v1.u0+" ± "+v1.rAbs) vus.push("ligne 1 : termes "+termes("sui-t1")+" au lieu de "+v1.u0+" ± "+v1.rAbs);
+      const signe=pose("sui-t1").querySelector(".mp-sign"); if(!signe||signe.textContent!==(neg?"\u2212":"+")) vus.push("ligne 1 : signe « "+(signe&&signe.textContent)+" » pour un sens "+v1.c.sens);
+      if(!pose("sui-t1").querySelectorAll("input.mp-box").length) vus.push("ligne 1 : aucune case de résultat dans la pose");
+      if([].some.call(pose("sui-t1").querySelectorAll("input.mp-box,input.mp-carry"),function(i){ return !i.classList.contains("hors-note"); })) vus.push("une case de la pose compte dans la note (pas .hors-note)");
+      if(!/^Pose l/.test($("suiPoseLab-sui-t1").textContent)||$("suiPoseLab-sui-t1").textContent.indexOf(suiFmt(v1.rAbs))<0) vus.push("étiquette : "+$("suiPoseLab-sui-t1").textContent);
+      if(!pose("sui-t1").classList.contains("pt-opt")) vus.push("la pose n’est pas dans le cadre « Facultatif »");
+    }
+    /* la ligne 2 lit la ligne 1 telle que l'ÉLÈVE l'a écrite */
+    $("sui-t1").value=String(v1.t1+10); $("sui-t1").dispatchEvent(new Event("input"));
+    focus("sui-t2");
+    if(vis("sui-t1")) vus.push("deux poses visibles à la fois");
+    if(!vis("sui-t2")) vus.push("pas de pose à la ligne 2");
+    else if(termes("sui-t2")!==(v1.t1+10)+" ± "+v1.rAbs) vus.push("ligne 2 : termes "+termes("sui-t2")+" au lieu de "+(v1.t1+10)+" ± "+v1.rAbs+" (la valeur de l’élève)");
+    /* ligne 1 sautée : la pose de la ligne 2 part de la ligne 0, avec deux pas */
+    $("sui-t1").value=""; $("sui-t1").dispatchEvent(new Event("input"));
+    focus("sui-t2");
+    if(!vis("sui-t2")||termes("sui-t2")!==v1.u0+" ± "+(2*v1.rAbs)) vus.push("ligne 1 sautée : la pose de la ligne 2 devrait être "+v1.u0+" ± "+(2*v1.rAbs)+", elle est "+(vis("sui-t2")?termes("sui-t2"):"cachée"));
+    /* le focus ailleurs cache tout */
+    document.body.dispatchEvent(new Event("focusin",{bubbles:true}));
+    if(vis("sui-t2")||vis("sui-t1")) vus.push("le focus ailleurs ne cache pas la pose");
+    /* question 2 : le tableau prolongé, puis le résultat des phrases */
+    test.idx=1; renderSuiTest(); const q2=test.questions[1], v2=suiVals(q2);
+    const der="sui-m1-"+v2.n; focus(der);
+    if(!vis(der)||termes(der)!==(v2.u0+(SUI_M1_ECRITES-1)*v2.r)+" ± "+((v2.n-SUI_M1_ECRITES+1)*v2.rAbs)) vus.push("méthode 1, dernière ligne, lignes sautées : pose "+(vis(der)?termes(der):"cachée")+" au lieu de "+(v2.u0+(SUI_M1_ECRITES-1)*v2.r)+" ± "+((v2.n-SUI_M1_ECRITES+1)*v2.rAbs));
+    focus("sui-res"); if(vis("sui-res")) vus.push("question 2 : une pose du résultat sans départ ni produit écrits");
+    if(vis(der)) vus.push("le focus sur une autre case ne cache pas la pose du tableau");
+    $("sui-u0").value=String(v2.u0); $("sui-u0").dispatchEvent(new Event("input")); $("sui-p").value=String(v2.prod); $("sui-p").dispatchEvent(new Event("input"));
+    focus("sui-res");
+    if(!vis("sui-res")||termes("sui-res")!==v2.u0+" ± "+v2.prod) vus.push("question 2 : la pose du résultat devrait être "+v2.u0+" ± "+v2.prod+", elle est "+(vis("sui-res")?termes("sui-res"):"cachée"));
+    /* question 3 : l'écart, le plus grand moins le plus petit ; une pose entamée se juge, hors note */
+    test.idx=2; renderSuiTest(); const q3=test.questions[2], v3=suiVals(q3), hi=Math.max(v3.u0,v3.T), lo=Math.min(v3.u0,v3.T);
+    focus("sui-e");
+    if(!vis("sui-e")||termes("sui-e")!==hi+" ± "+lo) vus.push("question 3 : la pose de l’écart devrait être "+hi+" − "+lo+", elle est "+(vis("sui-e")?termes("sui-e"):"cachée"));
+    else {
+      const sg3=pose("sui-e").querySelector(".mp-sign"); if(!sg3||sg3.textContent!=="\u2212") vus.push("question 3 : la pose n’est pas une soustraction");
+      const b0=pose("sui-e").querySelector("input.mp-box"); b0.value=String((parseInt(b0.dataset.exp,10)+1)%10); b0.dispatchEvent(new Event("input"));
+      suiCases(q3).forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+      const avant=test.score; checkSuiAnswer();
+      if(test.score!==avant+1) vus.push("une pose fausse a coûté le point de la question");
+      if(!b0.classList.contains("bad")) vus.push("la case fausse de la pose ne rougit pas");
+      if(!pose("sui-e").querySelector(".mp-box + .mp-tag, .mp-tag")) vus.push("la pose jugée n’a pas de pastille");
+      const pts=ptsEcran(); if(!pts||pts.cases!==4) vus.push("ptsEcran compte "+(pts?pts.cases:"rien")+" cases au lieu des 4 de la question : la pose compte");
+      if(!vis("sui-e")) vus.push("après la correction, la pose jugée a disparu");
+    }
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 5. les branchements ---- */

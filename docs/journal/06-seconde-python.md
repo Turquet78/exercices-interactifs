@@ -7014,38 +7014,43 @@ fenêtre d'affichage qui s'est agrandie ; pour les cases, proposer comme option
   choix des trois listes, la console qui grandit tour par tour et la phrase
   remplacée, le message qui nomme l'étape suivante, le soutien (« ▶ » fermé
   sur un tour faux), la reprise.
+- **La note de la question** ne se relit plus seulement à l'écran : il n'y
+  reste que le dernier tour, alors `justes` et `cases` se comptent sur les
+  verdicts rangés (`q.oks`) plus le b) — 3 n + 2 cases. Le banc l'a vu à la
+  première exécution (« cases : 5 »).
+
+**La console qui attend une réponse dit comment la valider (novembre 2026, v682).**
+Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
+input qui s'exécute, écrire à côté du symbole entré “Appuyer sur la touche
+Entrée pour valider.” ». Toutes les consoles de la Seconde qui posent la
+question d'un `input()` — les trois familles `pyi-rep` (dix-huit exercices),
+`py-entree` (`pzLancer` et ses voisins) et `pii-in` — portent la même étiquette,
+`aria-label="ta réponse à la question du programme"`, déjà lue par
+`#console-attend-entree`. Une seule règle CSS s'y accroche :
+`:has(> input[aria-label=…])::after`, posée sur la console qui contient la
+case. La phrase s'écrit donc à la suite de la case (et de son bouton ⏎ quand il
+y en a un), en Nunito italique grise, et disparaît avec la case dès que la
+réponse part sur Entrée. Un pseudo-élément, exprès : le `textContent` de la
+console — ce que lisent les juges et les bancs — ne change pas d'un caractère.
+Contrôle : banc navigateur, à côté de « la console qui ATTEND une réponse
+retient “Vérifier” » (6.3.5) ; vu dans Chromium sur le `python-input-calcul`
+(`pyi-rep`) et le `python-input-monnaie` (`py-entree`).
 
 ---
 
-## « Appuyer sur la touche Entrée pour valider. » à côté de chaque case d'un input() (novembre 2026, v682)
+## Le contrôle « Entrée » est devenu UNIVERSEL (novembre 2026, v683)
 
-Demande de Turquet : « dans tous les exercices sur Python, quand il y a un
-input qui s'exécute, écrire à côté du symbole entré "Appuyer sur la touche
-Entrée pour valider." ».
+La même demande a été faite à deux sessions le même jour. L'une a fusionné
+la règle CSS ci-dessus (v682) pendant que l'autre posait la phrase par un
+script au focus (`span.py-entree-aide`) : la seconde a retiré son script à la
+fusion de `main` — une règle CSS sans JavaScript, hors du `textContent` que
+lisent les juges, vaut mieux — et n'a gardé que son CONTRÔLE, qui va partout.
 
-Les 22 consoles de la Seconde qui ouvrent une case de réponse lui donnent la
-même étiquette (`aria-label="ta réponse à la question du programme"`) et le
-focus dès qu'elle paraît. La phrase se pose donc à UNE porte, dans le script
-`#console-attend-entree` : sur `focusin` d'une telle case, un
-`span.py-entree-aide` s'écrit juste après elle — ou après son bouton ⏎ quand
-elle en a un. Elle part avec la console quand le programme la réécrit, et dès
-que la réponse non vide est envoyée (Entrée, ou le bouton ⏎). Pas
-d'observateur de mutations : le même script note déjà qu'un observateur sur
-tout le document décalait les minuteries du banc jsdom.
-
-La phrase est écrite par la FEUILLE DE STYLES (`::after{content:attr(data-aide)}`),
-pas dans le texte du `span` : posée en texte, elle entrait dans le
-`textContent` de la console, et les bancs du 6.7.1 et du 6.7.4, qui y lisent
-la question du programme, l'ont aussitôt vue (« Quel est ton âge ? Appuyer
-sur la touche Entrée… »). Le contrôle universel lit donc le `::after`.
-
-Et au 6.6.1, la note de la question ne se relit plus seulement à l'écran :
-n'y reste que le dernier tour, alors `justes` et `cases` se comptent sur les
-verdicts rangés (`q.oks`) plus le b) — 3 n + 2 cases.
-
-Contrôle universel (banc navigateur, section 9, rien à déclarer) : en
-entraînement, chaque « ▶ » visible de chaque exercice est cliqué ; toute case
-de réponse au programme qui s'ouvre doit porter la phrase, visible, sur sa
-ligne. Le niveau le déclare par `pythonConsoles: true` dans son profil (la
-Première et la Terminale n'ont pas de console Python) ; un niveau qui en
-déclare et n'en ouvre aucune n'a rien mesuré, et le dit.
+Banc navigateur, section 9, rien à déclarer : en entraînement, chaque « ▶ »
+visible de chaque exercice est cliqué ; toute case de réponse au programme
+qui s'ouvre doit avoir pour parent un élément dont le `::after` écrit
+« Appuyer sur la touche Entrée pour valider. ». Le contrôle du 6.3.5, lui,
+reste à sa place : il éprouve le geste sur un exercice. Le niveau le déclare
+par `pythonConsoles: true` dans son profil (la Première et la Terminale n'ont
+pas de console Python) ; un niveau qui en déclare et n'en ouvre aucune n'a
+rien mesuré, et le dit.

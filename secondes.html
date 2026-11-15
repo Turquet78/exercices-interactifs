@@ -1354,10 +1354,16 @@
   .py-entree{font:inherit;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:6px;padding:0 6px;margin:0 0 0 2px;width:14ch;max-width:60%;outline:none;vertical-align:baseline}
   .py-entree:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
   .py-entree-ok{font:inherit;margin-left:6px;padding:0 8px;border:1.5px solid #6c8ebf;border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;vertical-align:baseline}
+  /* LA CONSOLE QUI ATTEND DIT COMMENT VALIDER (demande de Turquet, novembre
+     2026) : à côté de la case où l'élève tape sa réponse à un input(), la
+     phrase « Appuyer sur la touche Entrée pour valider. ». Une seule règle,
+     sur la console qui porte la case (l'étiquette commune à py-entree,
+     pyi-rep, pii-in) : tous les exercices Python, rien à déclarer. Un
+     pseudo-élément, exprès : le textContent de la console — ce que lisent les
+     juges et les bancs — ne change pas, et la phrase part avec la case. */
+  :has(> input[aria-label="ta réponse à la question du programme"])::after{content:"Appuyer sur la touche Entrée pour valider.";margin-left:10px;font-family:"Nunito",system-ui,sans-serif;font-size:.88rem;font-style:italic;font-weight:600;color:var(--ink-soft);white-space:normal;vertical-align:baseline}
   /* la vérification retenue tant que la console attend Entrée (#console-attend-entree) */
   section.screen:has(input[aria-label="ta réponse à la question du programme"]) :is(button[onclick^="check"],button[id$="Validate"]){opacity:.45;cursor:not-allowed;filter:grayscale(.4)}
-  .py-entree-aide::after{content:attr(data-aide)}
-  .py-entree-aide{display:inline-block;margin-left:10px;font-family:Nunito,system-ui,sans-serif;font-size:.9em;font-style:italic;font-weight:600;color:#5a3b00;white-space:normal;vertical-align:baseline;user-select:none}
   #attendEntreeMsg{margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#FFF4D6;border:1.5px solid #E8B64A;color:#5a3b00;font-weight:700}
   #attendEntreeMsg.montre{animation:attendEntreeSecoue .35s}
   @keyframes attendEntreeSecoue{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -9388,7 +9394,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=682;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=683;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -89658,44 +89664,6 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     clearTimeout(b._t); b._t=setTimeout(function(){ if(b.isConnected) b.remove(); }, 4000);
     try{ inp.focus(); }catch(e){}
   }
-  /* « Appuyer sur la touche Entrée pour valider. » écrit À CÔTÉ de la case
-     (demande de Turquet, novembre 2026) : toutes les consoles donnent le
-     focus à leur case dès qu'elle paraît — la phrase se pose à ce moment-là,
-     après la case, ou après son bouton ⏎ quand elle en a un. Elle part avec
-     la console quand le programme la réécrit, et dès que la réponse est
-     envoyée (Entrée, ou le bouton). Aucun observateur de mutations : voir
-     plus haut. */
-  const AIDE='Appuyer sur la touche Entrée pour valider.';
-  function apresCase(inp){
-    const n=inp.nextElementSibling;
-    return (n && n.tagName==='BUTTON') ? n : inp;
-  }
-  function poserAide(inp){
-    const ap=apresCase(inp), n=ap.nextElementSibling;
-    if(n && n.classList.contains('py-entree-aide')) return;
-    const a=document.createElement('span');
-    /* écrite par la feuille de styles (::after) : visible à côté de la
-       case, mais hors du texte de la console, que d'autres lisent */
-    a.className='py-entree-aide'; a.setAttribute('data-aide', AIDE);
-    ap.insertAdjacentElement('afterend', a);
-  }
-  function retirerAide(inp){
-    const n=apresCase(inp).nextElementSibling;
-    if(n && n.classList.contains('py-entree-aide')) n.remove();
-  }
-  document.addEventListener('focusin', function(e){
-    const t=e.target;
-    if(t && t.matches && t.matches(CASE) && !t.disabled && !t.readOnly) poserAide(t);
-  }, true);
-  document.addEventListener('keydown', function(e){
-    const t=e.target;
-    if(e.key==='Enter' && t && t.matches && t.matches(CASE) && (t.value||'').trim()) retirerAide(t);
-  }, true);
-  document.addEventListener('click', function(e){
-    const t=e.target; if(!t || !t.closest) return;
-    const b=t.closest('button'), p=b && b.previousElementSibling;
-    if(p && p.matches && p.matches(CASE) && (p.value||'').trim()) retirerAide(p);
-  }, true);
   document.addEventListener('click', function(e){
     const t=e.target; if(!t || !t.closest) return;
     const inp=caseEnAttente(ecranDe(t)); if(!inp) return;

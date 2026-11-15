@@ -16344,6 +16344,12 @@ if(require.main === module) (async () => {
       await s.page.waitForTimeout(250);
       const att0 = await s.page.evaluate(() => ({ attend: !!document.getElementById('piiConsCIn'),
         grise: +getComputedStyle(document.getElementById('piiValidate')).opacity < 0.6 }));
+      /* …et, à côté de la case, la phrase « Appuyer sur la touche Entrée pour
+         valider. » (la règle ::after de la console qui porte la case) */
+      const attPhrase = await s.page.evaluate(() => { const i = document.getElementById('piiConsCIn');
+        return i ? getComputedStyle(i.parentNode, '::after').content : ''; });
+      verifier('à côté de la case d\'un input en attente, la console écrit « Appuyer sur la touche Entrée pour valider. »',
+        /Appuyer sur la touche Entrée pour valider\./.test(attPhrase), JSON.stringify(attPhrase));
       await s.page.click('#piiValidate');
       await s.page.waitForTimeout(250);
       const att1 = await s.page.evaluate(() => { const m = document.getElementById('attendEntreeMsg');
@@ -17564,9 +17570,9 @@ if(require.main === module) (async () => {
           /* « APPUYER SUR LA TOUCHE ENTRÉE POUR VALIDER. » À CÔTÉ DE CHAQUE
              CASE D'UN input() (demande de Turquet, novembre 2026) : en
              entraînement, chaque « ▶ » visible est cliqué ; toute case de
-             réponse au programme qui s'ouvre doit porter la phrase juste
-             après elle (ou après son bouton ⏎), visible, sur sa ligne. Rien
-             à déclarer : la case se reconnaît à son étiquette. */
+             réponse au programme qui s'ouvre doit avoir un parent dont le
+             ::after écrit la phrase (la règle CSS :has(> input[…])::after).
+             Rien à déclarer : la case se reconnaît à son étiquette. */
           if(mode === 'train'){
             const ent = await s.page.evaluate(async () => {
               const on = document.querySelector('section.screen.on'); if(!on) return null;
@@ -17581,11 +17587,9 @@ if(require.main === module) (async () => {
                 for(const inp of on.querySelectorAll(CASE)){
                   if(!vis(inp) || inp._aideVue) continue;
                   inp._aideVue = true; res.n++;
-                  const nx = inp.nextElementSibling, ap = nx && nx.tagName === 'BUTTON' ? nx : inp, a = ap.nextElementSibling;
-                  const ok = a && a.classList.contains('py-entree-aide') && vis(a)
-                    && /Appuyer sur la touche Entrée pour valider\./.test(getComputedStyle(a, '::after').content || '')
-                    && Math.abs(a.getBoundingClientRect().top - inp.getBoundingClientRect().top) < inp.getBoundingClientRect().height + 4;
-                  if(!ok) res.manque.push((inp.id || inp.className) + (a ? ' (voisin : ' + (a.className || a.tagName) + ')' : ' (aucun voisin)'));
+                  const p = inp.parentElement, apres = p ? getComputedStyle(p, '::after').content || '' : '';
+                  const ok = /Appuyer sur la touche Entrée pour valider\./.test(apres);
+                  if(!ok) res.manque.push((inp.id || inp.className) + ' dans ' + (p ? (p.id || p.className || p.tagName) : '?') + ' : ::after ' + apres.slice(0, 40));
                 }
               }
               return res;
