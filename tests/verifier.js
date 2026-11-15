@@ -58548,7 +58548,10 @@ function premiere(w){
      et une case vide ne rougit pas. */
   verifierEval(w, '{vocabulaire-calcul} : les lignes de la fiche, ses nombres, son ordre, et un juge qui exige le calcul ET le résultat', `(function(){
     const vus=[];
-    if(VOC_NB!==21) vus.push(VOC_NB+' lignes au lieu de 21');
+    if(VOC_NB!==24) vus.push(VOC_NB+' lignes au lieu de 24');
+    /* partie 3, sans les étapes : une seule case, le résultat */
+    const DI=[5.5,20.5,9.8];
+    DI.forEach(function(r,j){ const L=VOC_LIGNES[21+j]; if(!L||L.t!=='di'||L.et.length!==1||L.et[0].r!==Math.round(r*1000)) vus.push('calcul sans étapes '+(j+1)+' faux'); });
     const ATT=[24,36,48,6,4,3,1.2,2.5,0.25,0.5,0.25,0.2,0.1,8,12,4,3];
     ATT.forEach(function(a,i){ const L=VOC_LIGNES[i]; if(!L||L.t!=='ch'||L.r!==Math.round(a*1000)) vus.push('ligne '+(i+1)+' : attendu faux');
       else { const c=L.ch[L.bon]; const v=c[0]==='x'?c[1]*c[2]:c[0]==='+'?c[1]+c[2]:c[0]==='-'?c[1]-c[2]:c[0]==='f'?c[1]/c[2]:NaN;
@@ -58573,6 +58576,11 @@ function premiere(w){
     poser(17,null,null);
     const tete=document.querySelector('#vocHost').firstElementChild, lab=tete&&tete.querySelector('.voc-lab');
     if(!lab || lab.textContent!=='On doit calculer la somme de 3 et de la moitié de 5.') vus.push('la première ligne du calcul à étapes n\\'est pas « On doit calculer la somme de 3 et de la moitié de 5. » ('+(tete?tete.textContent:'rien')+')');
+    poser(23,null,null);
+    if(document.querySelectorAll('#vocHost math-field').length!==1) vus.push('le calcul sans étapes n\\'a pas UNE seule case');
+    const t3=document.querySelector('#vocHost').firstElementChild;
+    if(!t3 || t3.textContent!=='On doit calculer la différence entre 10 et l’inverse de 5.') vus.push('le calcul sans étapes ne commence pas par sa phrase ('+(t3?t3.textContent:'rien')+')');
+    const e3=document.getElementById('vocE0'); if(e3) e3.value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 1/5 = 9,8 refusé');
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 

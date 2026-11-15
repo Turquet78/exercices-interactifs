@@ -269,3 +269,15 @@ du calcul ». La phrase (`vocBut`, tirée de la consigne) est la première ligne
 de `#vocHost`, en `.voc-lab` comme les étapes — mesuré dans Chromium : les
 trois lignes à 21,6 px, Nunito. Contrôle : celui du 1.13 au banc principal
 exige cette première ligne sur la somme de 3 et de la moitié de 5.
+
+**Le 1.13 finit par trois calculs SANS LES ÉTAPES (v422).** Demande de
+Turquet, novembre 2026 : « à la fin rajouter les questions suivantes sans
+afficher les étapes : le tiers de 6 plus la moitié de 7, la somme du double
+de 10 et de l'inverse de 2, la différence entre 10 et l'inverse de 5 ». Une
+partie 3 (`t:'di'`) : la phrase « On doit calculer … », puis une seule case
+« Le résultat est : » — 5,5 ; 20,5 ; 9,8 (décimal ou fraction). Le moteur est
+celui des étapes, avec une étape : même juge, même correction (« Le tiers de
+6 plus la moitié de 7 : 2 + 3,5 = 5,5 »), même pause. La séance passe à 24
+questions ; un devoir en prend au plus 20, à intervalles réguliers
+(`vocRang`). Contrôle : celui du 1.13 au banc principal exige les trois
+lignes, une seule case, la phrase en tête, et 9,8 accepté.
