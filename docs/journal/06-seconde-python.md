@@ -7107,3 +7107,10 @@ c'est la règle commune, prolongée pour cet exercice seul —
 `#pnpConsole:has(> input[…])::after` écrit « ⏎ : Appuyer sur la touche Entrée
 pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
 et le contrôle universel la lit comme les autres.
+
+**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v686).**
+Demande de Turquet : la retirer du cadre bleu de la console quand l'élève
+répond à l'input. Le 6.3.1 écrit désormais « ⏎ : Appuyer sur la touche Entrée
+pour valider. » — la phrase commune, précédée du symbole qu'elle explique ; le
+comportement (un clic ailleurs ne fait rien) ne change pas, seule la phrase
+disparaît.

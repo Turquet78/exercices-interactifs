@@ -1398,8 +1398,8 @@
   .pnp-ferme .pnp-cadre{color:var(--ink-soft);border-color:#c9d1e0;background:#fafbfd}
   .pnp-ferme .pnp-in{background:#f3f5f9;border-color:#dde3ee;cursor:not-allowed}
   .pnp-run{display:flex;justify-content:flex-start;margin:0 0 12px}
-  /* le 6.3.1 prolonge la phrase commune des consoles : ⏎ veut dire Entrée, et cliquer ailleurs ne fait rien (demande de Turquet) */
-  #pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider. Cliquer ailleurs sur l’écran ne fait rien."}
+  /* le 6.3.1 prolonge la phrase commune des consoles : ⏎ veut dire Entrée (demande de Turquet) */
+  #pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider."}
   .pnp-in{font:inherit;line-height:1.5;min-width:7ch;cursor:pointer;max-width:100%;text-align:center;color:var(--ink);background:#fff;border:2px solid #BBD0F7;border-radius:8px;padding:0 6px;margin:3px 0;outline:none;vertical-align:baseline}
   #pnpHost select.pnp-in{display:inline-block;width:auto;max-width:100%;padding:0 4px 0 8px;text-align:left}
   .pnp-in:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16)}
@@ -9401,7 +9401,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=685;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=686;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
