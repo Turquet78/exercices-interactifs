@@ -36803,7 +36803,9 @@ function retenueRedescend(w, P){
     if(typeof buildPoseSub!=='function') return 'pas de buildPoseSub';
     if(!document.getElementById('retenue-redescend')) return 'pas de script #retenue-redescend';
     const vus=[]; const d=document.createElement('div'); d.innerHTML=buildPoseSub(42,17,'__ret_tmp'); document.body.appendChild(d);
-    const op=d.querySelector('.mp-op'), haut=op.querySelector('input.sub-ret'), bas=op.querySelector('input.sub-retb'), res=op.querySelector('input.mp-box');
+    const op=d.querySelector('.mp-op'), haut=op.querySelector('input.sub-ret'), bas=op.querySelector('input.sub-retb');
+    /* la case suivante dans l'ORDRE DE SAISIE (data-mtab), pas dans l'ordre du document : les unités, écrites à droite, viennent avant les dizaines */
+    const res=bas?[].slice.call(op.querySelectorAll('input')).filter(function(i){ return !i.readOnly && +i.dataset.mtab>+bas.dataset.mtab; }).sort(function(a,b){ return a.dataset.mtab-b.dataset.mtab; })[0]:null;
     if(!haut||!bas) vus.push('42 − 17 : pas de retenue en haut ('+!!haut+') ou en bas ('+!!bas+')');
     else {
       if(!bas.readOnly) vus.push('la case du bas se tape encore');
