@@ -36347,7 +36347,7 @@ function pythonInputPasAPas(w, P){
     const e=document.getElementById("pnpEntree");
     if(!e) return "la console n’attend pas de réponse";
     const css=[].map.call(document.querySelectorAll("style"),function(st){ return st.textContent; }).join("");
-    if(!/#pnpConsole:has\(> input\[aria-label="ta réponse à la question du programme"\]\)::after\{content:"⏎ : Appuyer sur la touche Entrée pour valider\. Cliquer ailleurs sur l’écran ne fait rien\."\}/.test(css)||e.parentElement!==document.getElementById("pnpConsole")) vus.push("la console ne rappelle pas que ⏎ est la touche Entrée");
+    if(css.indexOf('#pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider. Cliquer ailleurs sur l’écran ne fait rien."}')<0||e.parentElement!==document.getElementById("pnpConsole")) vus.push("la console ne rappelle pas que ⏎ est la touche Entrée");
     e.value="Ben"; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
     if(q.rep!=="Ben"||q.etape!==1) vus.push("réponse "+q.rep+", étape "+q.etape);
     if(ferme(1)!=="ouvert") vus.push("le cadre 1 ne s’ouvre pas");
