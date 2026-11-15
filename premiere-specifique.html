@@ -1626,10 +1626,16 @@ i.pb-P{margin-right:.14em}
      téléphone, une rangée séparerait « il y a » de sa case). La case a la
      taille de la phrase, le « = » aussi ; le miroir (.sui-mir) recopie la
      case dont il dépend, souligné de pointillés pour dire qu'on n'y écrit pas. */
-  #scr-sui .sui-q{font-family:"Nunito";font-weight:800;font-size:1.12rem;color:var(--ink);margin:14px 0 6px;text-align:left}
+  /* LES QUESTIONS SE VOIENT, LES RÉPONSES S'EFFACENT (demande de Turquet,
+     novembre 2026) : la question et ses consignes de méthode en grand et en
+     gras ; les phrases-réponses plus petites, sans gras, et leurs cases à la
+     même taille qu'elles — la règle « une case a la taille des nombres qui
+     l'entourent » vaut toujours, c'est l'entourage qui a rétréci. Le tableau
+     garde sa taille : ses cases suivent ses nombres. */
+  #scr-sui .sui-q{font-family:"Nunito";font-weight:800;font-size:1.42rem;color:var(--ink);margin:16px 0 8px;text-align:left}
   #scr-sui .sui-q:first-child{margin-top:0}
   #scr-sui .sui-q-rappel{font-weight:700;color:var(--ink-soft);font-size:.98rem;margin-top:22px}
-  #scr-sui .sui-meth{font-weight:700;color:var(--blue-dark);font-size:1.02rem;margin-top:18px}
+  #scr-sui .sui-meth{font-weight:800;color:var(--blue-dark);font-size:1.18rem;margin-top:18px}
   /* la pose facultative à côté de la case cliquée : posée au-dessus du reste, jamais dans le flux */
   #suiHost{position:relative}
   #suiHost .sui-pose{position:absolute;z-index:6;width:max-content;max-width:calc(100% - 4px);margin:0;padding:22px 14px 12px;background:#fafbff;box-shadow:0 8px 22px rgba(20,30,80,.16)}
@@ -1642,14 +1648,15 @@ i.pb-P{margin-right:.14em}
   .sui-tab th,.sui-tab td{border:1.5px solid var(--ink);padding:4px 16px;text-align:left;min-width:150px}
   .sui-tab.sui-rappel{font-size:calc(1.1rem * var(--tab-nb,1));margin-left:0}
   .sui-tab.sui-rappel th,.sui-tab.sui-rappel td{padding:2px 12px;min-width:120px}
-  .sui-phr{font-family:"Fredoka";font-weight:600;font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink);line-height:2.4;margin:2px 0;text-align:left}
+  .sui-phr{font-family:"Fredoka";font-weight:400;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);line-height:2.5;margin:2px 0;text-align:left}
   .sui-phr .f-grp{display:inline-flex;gap:8px;vertical-align:middle}
-  #suiHost .f-eq{font-size:calc(1.35rem * var(--tab-nb,1))}
+  #suiHost .f-eq{font-size:calc(1.05rem * var(--tab-nb,1));font-weight:400}
   #suiHost math-field.pm-mf{min-width:88px;max-width:150px;font-size:calc(1.35rem * var(--tab-nb,1));line-height:1.15;vertical-align:middle}
+  #suiHost .sui-phr math-field.pm-mf{font-size:calc(1.05rem * var(--tab-nb,1));min-width:72px;max-width:130px}
   .sui-mir{display:inline-block;min-width:64px;padding:0 10px;text-align:center;border-bottom:2px dashed var(--ink-soft);color:var(--blue-dark);line-height:1.3;vertical-align:baseline}
   .sui-mir.sui-vide{color:var(--ink-soft)}
   #suiHost .mf-cor{font-size:calc(1.1rem * var(--tab-nb,1))}
-  @media(max-width:520px){ .sui-phr,#suiHost math-field.pm-mf,#suiHost .f-eq,.sui-tab{font-size:calc(1.15rem * var(--tab-nb,1))} .sui-tab th,.sui-tab td{min-width:100px;padding:4px 10px} }
+  @media(max-width:520px){ #suiHost .sui-tab math-field.pm-mf,.sui-tab{font-size:calc(1.15rem * var(--tab-nb,1))} .sui-phr,#suiHost .sui-phr math-field.pm-mf,#suiHost .f-eq{font-size:calc(.95rem * var(--tab-nb,1))} #scr-sui .sui-q{font-size:1.25rem} .sui-tab th,.sui-tab td{min-width:100px;padding:4px 10px} }
   /* ---- Développer avec la distributivité (7.9, thème Calcul littéral) ----
      La fiche « Développer » : le facteur entouré en ROUGE (pointillés), le
      premier terme en BLEU NUIT (pointillés), le second en VERT (trait plein),
@@ -3970,7 +3977,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=426;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=427;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
