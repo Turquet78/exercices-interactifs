@@ -58676,6 +58676,13 @@ function premiere(w){
     const t3=document.querySelector('#vocHost').firstElementChild;
     if(!t3 || t3.textContent!=='On doit calculer la différence entre 10 et l’inverse de 5.') vus.push('le calcul sans étapes ne commence pas par sa phrase ('+(t3?t3.textContent:'rien')+')');
     const e3=document.getElementById('vocE0'); if(e3) e3.value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 1/5 = 9,8 refusé');
+    /* les calculs intermédiaires sont permis (demande de Turquet, novembre 2026) :
+       chaque membre vaut le résultat, le dernier est le nombre */
+    [['2+3.5=5.5',5500,true],['\\\\frac{6}{3}+\\\\frac{7}{2}=2+3{,}5=5{,}5',5500,true],['10-\\\\frac{1}{5}=9{,}8',9800,true],
+     ['2+3.5=5',5500,false],['2+3=5.5',5500,false],['2+3.5',5500,false]].forEach(function(c){
+      if(vocVaut(c[0],c[1])!==c[2]) vus.push('« '+c[0]+' » '+(c[2]?'refusé':'accepté')); });
+    poser(21,null,null); const e4=document.getElementById('vocE0'); if(e4) e4.value='2+3.5=5.5'; checkVocAnswer();
+    if(test.score!==1) vus.push('« 2 + 3.5 = 5.5 » au tiers de 6 plus la moitié de 7 ne vaut pas le point');
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
