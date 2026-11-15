@@ -529,3 +529,16 @@ rougit (`bad` : un choix FAUX, pas une case vide) et le message dit que la
 suite attend la bonne réponse. Le tracé par deux clics (l'étape `tracer`)
 n'est plus atteint ; son code reste, inoffensif. La description du menu, le
 contexte du modèle et les consignes le disent.
+
+**Puis le numérateur qui recopie la ligne 3, et une question 5 plus petite
+(v422).** Demande de Turquet : « dans la question 4, quand l'élève a mis le
+résultat dans la case de la 3e ligne, qui est une somme, afficher son
+résultat dans le numérateur de la 4e ligne ; dans la question 5, écrire en
+plus petit « le signe de f(x) se lit sur le dessin » et faire un dessin plus
+petit ». Le numérateur (`trd-e3`) n'est plus une case à écrire : lecture
+seule, pointillés, `.hors-note`, et `trdMiroir` lui donne la valeur ET la
+couleur de la ligne 3 — à la frappe, au jugement du soutien, à la
+correction. Il sort du juge (19 cases par question au lieu de 20) : la
+ligne 3 est déjà jugée, et la compter deux fois punirait deux fois la même
+faute. La bulle de la division le lit toujours. Question 5 : le titre à
+1,15 rem (au lieu de 2), le dessin à 330 px au plus (au lieu de 620).
