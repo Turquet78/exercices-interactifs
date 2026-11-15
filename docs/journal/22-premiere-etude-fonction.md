@@ -531,7 +531,7 @@ n'est plus atteint ; son code reste, inoffensif. La description du menu, le
 contexte du modèle et les consignes le disent.
 
 **Puis le numérateur qui recopie la ligne 3, et une question 5 plus petite
-(v422).** Demande de Turquet : « dans la question 4, quand l'élève a mis le
+(v423 — le 7.1 avait pris la v422 sur `main` pendant les contrôles).** Demande de Turquet : « dans la question 4, quand l'élève a mis le
 résultat dans la case de la 3e ligne, qui est une somme, afficher son
 résultat dans le numérateur de la 4e ligne ; dans la question 5, écrire en
 plus petit « le signe de f(x) se lit sur le dessin » et faire un dessin plus
