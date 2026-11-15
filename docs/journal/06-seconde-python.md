@@ -7108,14 +7108,26 @@ c'est la règle commune, prolongée pour cet exercice seul —
 pour valider. Cliquer ailleurs sur l’écran ne fait rien. ». Une seule phrase,
 et le contrôle universel la lit comme les autres.
 
-**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v686).**
+**Puis le bouton DÉSACTIVÉ : « ▶ Exécuter la ligne 1 » du 6.3.1 ne montrait pas l’encadré (v686).**
+Turquet, copie d'écran à l'appui : sur le 6.3.1, la console attend, et « ▶
+Exécuter la ligne 1 » ne dit rien. Le bouton (`pnpRun1`) se désactive dès qu'il
+lance le programme — et un bouton désactivé ne reçoit AUCUN `click` du
+navigateur : la porte de `#console-attend-entree`, en capture sur `click`,
+n'était jamais appelée. Mesuré dans Chromium : un bouton désactivé reçoit
+encore `pointerdown` et `pointerup`, jamais `mousedown` ni `click`. Une seconde
+porte, sur `pointerdown`, ne regarde que les boutons DÉSACTIVÉS (un bouton actif
+passe par le clic : l'encadré ne s'affiche qu'une fois), et rend le focus à la
+case — une fois le geste fini (sur `pointerup`) : dans l'action, le focus partait au `<body>` après la porte, alors qu'il restait en local. Contrôle : banc navigateur, 6.3.5, un « ▶ » désactivé exprès, cliqué au
+vrai pointeur. Vu dans Chromium sur le 6.3.1 lui-même.
+
+**Puis la phrase « Cliquer ailleurs sur l’écran ne fait rien » est partie (v687).**
 Demande de Turquet : la retirer du cadre bleu de la console quand l'élève
 répond à l'input. Le 6.3.1 écrit désormais « ⏎ : Appuyer sur la touche Entrée
 pour valider. » — la phrase commune, précédée du symbole qu'elle explique ; le
 comportement (un clic ailleurs ne fait rien) ne change pas, seule la phrase
 disparaît.
 
-**Puis le 6.3.1 s'est montré LIGNE PAR LIGNE, la console sous le bouton (v686).**
+**Puis le 6.3.1 s'est montré LIGNE PAR LIGNE, la console sous le bouton (v687).**
 Demande de Turquet : « afficher le programme ligne par ligne avec le cadre à
 côté » — au départ la ligne 1 seule ; la ligne 2 n'apparaît, sous la ligne 1,
 qu'une fois le cadre 1 vérifié ; le cadre d'une ligne n'apparaît qu'une fois
