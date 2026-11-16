@@ -20816,6 +20816,42 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ---- 11 sexdecies. Au 6.3 et au 6.5, les questions 3 à 5 attendent la droite ----
+       Demande de Turquet, novembre 2026 : « ne pas afficher la question 5 tant
+       que la droite de la question 2 n'est pas tracée ». Au 6.5, la question 4
+       (trdLibreEquationHTML) fermait son cadre elle-même, et le « </div> »
+       commun qui suivait fermait #trdSuite AVANT la question 5 : elle se
+       montrait dès le départ. Seul un navigateur dit ce qui est visible : on
+       ouvre chacun des deux exercices, on relève les titres visibles, on pose
+       la droite, on relève encore. */
+    titre('11 sexdecies. AU 6.3 ET AU 6.5, LES QUESTIONS 3 À 5 ATTENDENT LA DROITE');
+    {
+      const ids = ['tracer-droite', 'tracer-droite-libre'];
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      const presents = await s.page.evaluate(ids => ids.filter(i => typeof TESTS !== 'undefined' && TESTS[i]), ids);
+      if(!presents.length){
+        ignorer('au 6.3 et au 6.5, les questions 3 à 5 restent cachées tant que la droite n\'est pas tracée',
+          'ce niveau n\'a pas les exercices de la droite d\'une fonction affine (Première)');
+      } else {
+        await connecter(s.page);
+        for(const id of presents){
+          await s.page.evaluate(id => openTest(id), id);
+          await s.page.waitForTimeout(300);
+          await s.page.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0); if(b) b.click(); });
+          await s.page.waitForTimeout(900);
+          const vus = () => s.page.evaluate(() => [...document.querySelectorAll('#trdHost .trd-titre')]
+            .filter(e => e.getClientRects().length).map(e => e.textContent.trim().charAt(0)).join(''));
+          const avant = await vus();
+          verifier(id + ' : avant la droite, seules les questions 1 et 2 se montrent', avant === '12', 'questions visibles : ' + avant);
+          await s.page.evaluate(() => { const st = trdEtat(); st.etape = 'fin'; trdDessiner(false); });
+          const apres = await vus();
+          verifier(id + ' : la droite tracée, les questions 3, 4 et 5 s\'ouvrent', apres === '12345', 'questions visibles : ' + apres);
+          await s.page.evaluate(() => { clearTimeout(test.qTimer); test.locked = true; });
+        }
+        verifier('l\'ouverture des questions du 6.3 et du 6.5 ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

@@ -679,3 +679,17 @@ un nombre seul (`trdLigneFinale`). « x = 4/(−2) = −3 » reste rouge.
 Éprouvé dans Chromium, la case MathLive tapée au clavier (« / » empile la
 fraction, → en sort, « =−2 ») : les deux cases `ok`, aucune ligne verte
 ajoutée, la fin du calcul comptée juste.
+
+**Puis la question 5 a attendu la droite, au 6.5 comme au 6.3 (v440).**
+Demande de Turquet : « pour les exercices 6.5 et 6.3, ne pas afficher la
+question 5 tant que la droite de la question 2 n'est pas tracée ». Le 6.3
+le faisait déjà : ses questions 3, 4 et 5 vivent dans `#trdSuite`, fermé
+jusqu'à l'étape « fin ». Le 6.5 montrait sa question 5 dès le départ, et ce
+n'était pas une décision : sa question 4 (`trdLibreEquationHTML`) ferme
+elle-même son cadre, et le `</div>` commun qui suivait, écrit pour la
+question 4 du 6.3, fermait alors `#trdSuite` AVANT la question 5. Chaque
+branche ferme maintenant son propre cadre, et la question 5 reste dans
+`#trdSuite`. Contrôle : banc navigateur, « 11 sexdecies » — pour chacun des
+deux exercices, les titres visibles avant la droite (1 et 2), puis après
+(1 à 5). Avant le correctif, l'essai dans Chromium relevait « 1 2 5 » au
+départ du 6.5.

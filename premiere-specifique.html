@@ -32491,9 +32491,12 @@ function renderTrd(){
     +'<span class="trd-d"><b>Règle 2</b> : quand on transpose une multiplication, '+trdSel('trd-r3','règle 2 : quand on transpose une multiplication')+' donc on garde le même '+trdSel('trd-r4','donc on garde le même')+'</span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr"><span class="trd-frac"><input id="trd-e3" class="lv-in trd-mir hors-note" readonly tabindex="-1" aria-label="le numérateur : le résultat de la ligne 3, recopié"><span class="trd-bar"></span>'+trdIn('trd-e4','le dénominateur')+'</span></span><span class="trd-d"></span>'
     +'<span class="trd-g"><i>x</i></span><span class="trd-eg">=</span><span class="trd-dr">'+trdIn('trd-e5','la valeur de x')+'</span><span class="trd-d"></span>'
-    +'</div>';
-  h+='</div>';
-  /* ⑤ le tableau de signes, comme au palier 1 du 6.1 */
+    +'</div></div>';
+  /* ⑤ le tableau de signes, comme au palier 1 du 6.1 — DANS #trdSuite, fermé
+     tant que la droite n'est pas tracée. Le cadre du ④ se ferme dans sa
+     branche : la question 4 du 6.5 (trdLibreEquationHTML) ferme le sien elle-même,
+     et un « </div> » commun fermait #trdSuite avant le ⑤ (le 5 du 6.5 se
+     montrait dès le départ). */
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'
     +(libre ? '<p class="trd-consigne">La droite est redessinée : lis où elle coupe l’axe des abscisses — la racine, où <i>f</i> (<i>x</i>) = 0 —, puis si elle est au-dessus de l’axe (+) ou en dessous (−) de chaque côté.</p>'
             : '<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>')
