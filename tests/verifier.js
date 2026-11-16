@@ -36860,7 +36860,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 5, 6 ou 7 et la question 3 par 8 ou 9, 8 à 10, ou 10, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36877,8 +36877,8 @@ function augmentationTableau(w, P){
       qs.forEach(function(q,i){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0 && !(i>=3 && i<6 && v.rAbs===110)) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
-        if(v.n<7||v.n>12) vus.push("N="+v.n+" : la question 2 doit multiplier par 7 à 12 (Turquet, novembre 2026)");
-        if(v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : le seuil de la question 3 doit être au moins deux fois plus loin");
+        { const PERMIS={5:[8,9],6:[8,9,10],7:[10]}; if(!PERMIS[v.n]) vus.push("N="+v.n+" : la question 2 doit multiplier par 5, 6 ou 7 (Turquet, novembre 2026)");
+          else if(PERMIS[v.n].indexOf(v.kk)<0) vus.push("N="+v.n+", p="+v.kk+" : attendu "+PERMIS[v.n].join(" ou ")+" à la question 3"); }
         if(SUI_CTX[q.ci].tps.type==='heure'&&v.fin>23) vus.push(SUI_CTX[q.ci].nom+" : "+v.fin+" h n’existe pas");
         if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");

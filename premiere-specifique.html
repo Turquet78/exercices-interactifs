@@ -4013,7 +4013,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=441;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=442;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -19965,34 +19965,31 @@ function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace
    Les valeurs du tableau en découlent : des dizaines ou des centaines rondes,
    des additions qui se font de tête. */
 const SUI_PAS=[10,20,30,40,50,60,70,80,90,100];
-/* LA QUESTION ② MULTIPLIE PAR 7 À 12 (demande de Turquet, novembre 2026 :
-   « il faut mettre entre 7 fois et 12 fois le nombre ») : N, le nombre de
-   pas de la question ②, va de SUI_N_MIN à SUI_N_MAX. Avant, N valait 4 ou 5
-   pour que la question ③ reste dans la table de 10 ; la règle « le seuil au
-   moins deux fois plus loin » (p ≥ 2N) est gardée, donc p va maintenant de
-   14 à 24 + SUI_P_ECART — borné par le contexte : l'heure finit au plus à
-   23 h, la date au plus le 30 (jour de départ compris, SUI_J0_MIN). */
-const SUI_N_MIN=7, SUI_N_MAX=12, SUI_P_ECART=2;
+/* LE NOMBRE DE FOIS DES QUESTIONS ② ET ③ (demande de Turquet, novembre
+   2026, qui remplace « entre 7 et 12 fois » et « le seuil au moins deux fois
+   plus loin ») : la question ② multiplie par 5, 6 ou 7 (N), et la question ③
+   en découle (p) — 5 → 8 ou 9 ; 6 → 8, 9 ou 10 ; 7 → 10. La question ③
+   revient dans la table de 10. p reste borné par le contexte (suiPMax) :
+   l'heure finit au plus à 23 h, la date au plus le 30. */
+const SUI_N_P={5:[8,9], 6:[8,9,10], 7:[10]};
 function suiPMax(c){
   if(c.tps.type==='heure') return 23-c.tps.t0;
   if(c.tps.type==='date') return 30-SUI_J0_MIN;
-  return 2*SUI_N_MAX+SUI_P_ECART;
+  return 10;
 }
 /* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
-   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N de SUI_N_MIN à
-   SUI_N_MAX (7 à 12), le seuil de la question ③ AU MOINS DEUX FOIS plus loin
-   que la question ② (p ≥ 2N, demande de Turquet, novembre 2026) et au plus
-   2N + SUI_P_ECART, dans les limites du contexte (suiPMax), et une quantité
-   qui diminue ne tombe jamais à zéro. */
+   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N et p selon
+   SUI_N_P, dans les limites du contexte (suiPMax), et une quantité qui
+   diminue ne tombe jamais à zéro. */
 function suiFamilles(c, pas){
   const out=[];
   c.u0.forEach(function(u0){
     (pas||SUI_PAS).forEach(function(r){
       if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
-      for(let N=SUI_N_MIN;N<=SUI_N_MAX;N++) for(let p=2*N;p<=Math.min(2*N+SUI_P_ECART, suiPMax(c));p++){
-        if(u0+c.sens*p*r<=0) continue;
+      Object.keys(SUI_N_P).forEach(function(cle){ const N=+cle; SUI_N_P[cle].forEach(function(p){ if(p>suiPMax(c)) return;
+        if(u0+c.sens*p*r<=0) return;
         out.push({u0:u0, r:r, N:N, p:p});
-      }
+      }); });
     });
   });
   return out;

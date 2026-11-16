@@ -577,3 +577,16 @@ deux exercices (`suiBuildQuestions`) :
 Le banc principal a suivi (300 séances : N de 7 à 12, p ≥ 2N, jamais le 1er,
 ni 24 h ni 31 juin) ; mesuré dans Chromium sur 4 000 questions : N de 7 à 12,
 départ du 2 au 16, aucune heure ni date impossible, aucune valeur nulle.
+
+**Puis le nombre de fois des questions 2 et 3, fixé couple par couple
+(v442 — le 6.5 puis le 1.14 avaient pris les v440 et v441 sur `main` pendant les contrôles).** Demande de Turquet, qui remplace la règle de la v438 (« entre 7 et
+12 fois », et le seuil au moins deux fois plus loin) : « pour la question 2,
+le nombre de fois est 5 ou 6 ou 7 ; si c'est 5 à la question 2, faire 8 ou 9
+fois pour la question 3 ; si c'est 6, faire 8 ou 9 ou 10 ; si c'est 7, faire
+10 ». Une seule table le porte, `SUI_N_P = {5:[8,9], 6:[8,9,10], 7:[10]}`,
+que `suiFamilles` parcourt ; `suiPMax` borne toujours p par le contexte
+(heure au plus 23 h, date au plus le 30). La question 3 revient dans la
+table de 10. Le jour de départ reste de 2 à 20. Le banc principal lit la
+même table (300 séances). Mesuré dans Chromium sur 4 000 questions : les six
+couples (5→8, 5→9, 6→8, 6→9, 6→10, 7→10) sortent chacun environ une fois sur
+six, tous les contextes en tirent, aucune heure, date ou valeur impossible.
