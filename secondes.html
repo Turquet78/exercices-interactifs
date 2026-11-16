@@ -1424,10 +1424,10 @@
   .pnp-prog{display:grid;grid-template-columns:max-content auto minmax(0,1fr);align-items:center;gap:14px 12px;margin:4px 0 14px}
   .pnp-rangee{display:contents}
   .pnp-code{grid-column:1;justify-self:start;display:flex;align-items:center;gap:10px;padding:6px 12px;background:#fff;border:1.5px solid var(--line);border-radius:8px;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;white-space:pre}
-  .pnp-courante .pnp-code{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,80,200,.16);background:#EAF0FF}
   .pnp-fleche{grid-column:2;color:#1F4E79;font-size:1.4rem;line-height:1}
   .pnp-cadre{grid-column:3;min-width:0;padding:12px 14px;background:#fff;border:1.5px solid var(--ink);border-radius:4px;line-height:2.9;text-align:left}
   .pnp-run{display:flex;justify-content:flex-start;margin:0 0 10px}
+  .pnp-label-cadres{margin-top:18px}
   #pnpHost .py-console{margin-bottom:16px}
   /* le 6.3.1 prolonge la phrase commune des consoles : ⏎ veut dire Entrée (demande de Turquet) */
   #pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider."}
@@ -9487,7 +9487,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=696;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=698;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10529,7 +10529,7 @@ const TESTS={
   'python-for-pas-a-pas': { name:'La boucle for \u2026 in range(\u2026), pas \u00e0 pas', icon:'\ud83d\udc63', desc:'Le programme s\u2019ex\u00e9cute pas \u00e0 pas\u00a0: \u00e0 chaque tour de la boucle, compl\u00e8te ce qu\u2019affiche le print \u2014 le texte, le nom de la variable et sa valeur\u00a0; puis explique de quelle valeur \u00e0 quelle valeur varie la variable.', start:()=>startPFP() },
   'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle ; puis, l\u2019inverse : pr\u00e9vois d\u2019abord, et ex\u00e9cute pour v\u00e9rifier.', start:()=>startPFR() },
   'python-chaine-len': { name:'len(chaine) et chaine[i]', icon:'\ud83d\udd24', desc:'Ex\u00e9cute le programme pour comprendre les instructions len(chaine) et chaine[i], puis explique ce qu\u2019elles repr\u00e9sentent.', start:()=>startPCL() },
-  'python-input-pas-a-pas': { name:'Exécuter un programme avec input ligne par ligne', icon:'\u23ef\ufe0f', desc:'Exécute le programme une ligne à la fois\u00a0: la ligne 1 pose une question et range ta réponse dans une variable, la ligne 2 l\u2019affiche. Après chaque ligne, complète le cadre qui explique ce qu\u2019elle a fait.', start:()=>startPNP() },
+  'python-input-pas-a-pas': { name:'Exécuter un programme avec input, puis l\u2019expliquer', icon:'\u23ef\ufe0f', desc:'Exécute le programme\u00a0: la ligne 1 pose une question et range ta réponse dans une variable, la ligne 2 l\u2019affiche. Puis complète le cadre à côté de chaque ligne pour expliquer ce qu\u2019elle a fait.', start:()=>startPNP() },
   'python-input-reponse': { name:'Demander une r\u00e9ponse avec input', icon:'\u2753', desc:'Le programme pose une question et ATTEND ta r\u00e9ponse\u00a0: ex\u00e9cute-le et r\u00e9ponds avec la touche Entr\u00e9e, regarde le type de ce que input a rang\u00e9 dans la variable, puis compl\u00e8te le programme pour qu\u2019il affiche ta r\u00e9ponse dans une phrase.', start:()=>startPYN() },
   'python-print': { name:'\u00c9cris ton premier print', icon:'\u2328\ufe0f', desc:'Le cours explique print et le texte entre guillemets. Puis \u00e0 toi\u00a0: \u00e9cris un programme qui affiche \u00ab\u00a0je suis en seconde\u00a0\u00bb, ex\u00e9cute-le autant de fois que tu veux, et fais-le v\u00e9rifier. En soutien, la page te dit ce qui ne va pas dans ton programme.', start:()=>startPYP() },
   'simplifier-barres': { name:'Simplifier une fraction en coloriant deux barres', icon:'\ud83c\udfa8', desc:'On donne une fraction \u00e0 simplifier. M\u00e9thode\u00a01 : colorie-la sur la premi\u00e8re barre, puis retrouve la M\u00caME longueur sur la seconde, partag\u00e9e en moins de parts. M\u00e9thode\u00a02 : divise le num\u00e9rateur ET le d\u00e9nominateur par le m\u00eame nombre. Le m\u00eame geste qu\u2019\u00e0 la fin de {simplifier-fractions}, mais seul et vu de deux fa\u00e7ons.', start:()=>startSmp() },
@@ -14254,7 +14254,7 @@ const HW_SERPENTS={
   'python-input-ordre':    { v:'epouvantail', img:'dessins/secondes/python-input-ordre-halloween.webp', bulle:['Les lignes','dans l’ordre,','gare au corbeau !'], alt:'un serpent épouvantail, chapeau de paille, à côté d’un corbeau ; il dit : « Les lignes dans l’ordre, gare au corbeau ! »' },
   'python-input-arrondi':  { v:'chaudron', large:true, img:'dessins/secondes/python-input-arrondi-halloween.webp', bulle:['3.4499999…','Arrondis','ma potion !'], alt:'un serpent devant un chaudron de potion verte qui bouillonne ; il dit : « 3.4499999… Arrondis ma potion ! »' },
   'python-input-monnaie':  { v:'chauvesouris', large:true, img:'dessins/secondes/python-input-monnaie-halloween.webp', bulle:['Rends-moi','la monnaie, ou','je m’envole !'], alt:'un serpent aux ailes de chauve-souris ; il dit : « Rends-moi la monnaie, ou je m’envole ! »' },
-  'python-input-sport':    { v:'footcitrouille', img:'dessins/secondes/python-input-sport-halloween.webp', bulle:['Ton sport','favori ? Moi,','la citrouille !'], alt:'un serpent au bandeau de sport orange, à côté d’une citrouille ronde comme un ballon ; il dit : « Ton sport favori ? Moi, la citrouille ! »' },
+  'python-input-sport':    { v:'footcitrouille', img:'dessins/secondes/python-input-sport-halloween-2.webp', large:true, bulle:['Ton sport','favori ? Moi,','la citrouille !'], alt:'un serpent au bandeau de sport orange, l’air décidé, prêt à tirer dans une citrouille d’Halloween ronde comme un ballon ; il dit : « Ton sport favori ? Moi, la citrouille ! »' },
   'python-input-image':    { v:'hibou', large:true, img:'dessins/secondes/python-input-image-halloween-2.webp', bulle:['Hou hou…','f(2) vaut','combien ?'], alt:'un serpent sous la lune, à côté d’un hibou perché sur une branche ; il dit : « Hou hou… f(2) vaut combien ? »' },
   /* Sous-thèmes 6.1 et 6.2 « variables » (demande de Turquet, octobre 2026 : « fais des dessins de serpent en rapport avec chaque exercice, et un autre pour Halloween ») : un déguisement par exercice, assorti à l'accessoire de son exercice. */
   'python-affichage': { v:'sorciereaffichage', img:'dessins/secondes/python-affichage-halloween.webp', bulle:['Mon grimoire','affiche quoi ?','Devine !'], alt:'un serpent déguisé en sorcière, chaudron vert bouillonnant, dit : « Mon grimoire affiche quoi ? Devine ! »' },
@@ -52791,29 +52791,34 @@ function ctxPyn(q){
   return {nombre:'', contexte:c};
 }
 
-/* ---------- Exercice : input, le programme exécuté LIGNE PAR LIGNE ----------
+/* ---------- Exercice : input, exécuter le programme, puis l'expliquer ----------
    {python-input-pas-a-pas} (Seconde, 6.3.1, demande de Turquet, novembre
    2026 : « faire un exercice comme le 6.3.1 sans les questions b et c et le
-   placer en premier dans le thème input ; le programme doit s'exécuter pas à
-   pas »). La fiche « input_new » : deux lignes,
+   placer en premier dans le thème input »). La fiche « input_new » : deux
+   lignes,
        nom = input("comment tu t'appelles ? ")
        print("tu es", nom)
-   et, à côté de chaque ligne, une flèche vers un CADRE à compléter :
-     1. « Ici le programme affiche la question « … » et met la réponse de
-        l'élève dans la variable … ; ici la valeur de cette variable est le
-        texte … »
-     2. « Ici le programme affiche le texte « … » et le texte qui est dans la
-        variable … ; ici le texte dans cette variable est … »
-   LE DÉROULÉ EST CELUI D'UN PAS À PAS : « Exécuter la ligne 1 » pose la
-   question dans la console (la console qui attend du 6.3.2, la touche
-   Entrée) ; la réponse rangée, les cases du cadre 1 s'ouvrent. Vérifié, il
-   laisse la place au bouton « Exécuter la ligne 2 » ; la console affiche la
-   phrase, et les cases du cadre 2 s'ouvrent. La ligne à exécuter est
-   surlignée. LE PROGRAMME SE MONTRE LIGNE PAR LIGNE : la ligne 1 seule au
-   départ, la ligne 2 une fois le cadre 1 vérifié ; le cadre d'une ligne
-   n'apparaît qu'une fois son exécution finie (l'input : la réponse validée).
-   Le bouton d'exécution est en haut (#pnpRunBar), puis le programme, puis
-   la console juste après lui (demandes de Turquet, novembre 2026).
+   LE DÉROULÉ (demande de Turquet, 16 novembre 2026 : « exécuter le programme
+   qui s'affiche sans les cadres sur le côté avec le bouton exécuter en
+   dessous du programme et la fenêtre d'affichage en dessous du bouton
+   exécuter ; une fois que c'est exécuté, afficher à nouveau le programme avec
+   les cadres sur le côté pour les deux lignes et demander à l'élève de
+   compléter les cases ») :
+     1. le programme, SANS cadre ; dessous, « ▶ Exécuter » (#pnpRunBar) ;
+        dessous, la console : l'input y attend la réponse, validée par Entrée,
+        puis le print écrit sa phrase ;
+     2. le programme exécuté, le bouton disparaît et le programme s'affiche
+        UNE SECONDE FOIS sous la console (#pnpProgCadres), une flèche vers un
+        CADRE à côté de chacune des deux lignes :
+          « Ici le programme affiche la question « … » et met la réponse de
+            l'élève dans la variable … ; ici la valeur de cette variable est
+            le texte … »
+          « Ici le programme affiche le texte « … » et le texte qui est dans
+            la variable … ; ici le texte dans cette variable est … »
+        Les six cases se vérifient ENSEMBLE.
+   (Avant, novembre 2026 : un pas à pas, « Exécuter la ligne 1 » puis
+   « Exécuter la ligne 2 », chaque cadre vérifié à son tour. Un brouillon de
+   ce temps-là se reprend : pnpMigrer — une case déjà jugée reste jugée.)
    LE JUGE NE RANGE RIEN : la question, le texte et la variable se relisent
    dans la situation (q.s), la valeur dans la réponse que l'élève a tapée
    (q.rep). Les textes passent par pyTexteProche (la tolérance du thème :
@@ -52836,7 +52841,13 @@ function pnpBuildQuestions(){
   const n=Math.max(1, Math.min(PNP_SITUATIONS.length, dmNbQuestions(PNP_NB)));
   const autres=ensShuffle(PNP_SITUATIONS.map(function(S,i){ return i; }).slice(1));
   const ordre=[0].concat(autres);
-  return distinctes(n, function(_, i){ return {s:ordre[i%ordre.length], o:ensShuffle([0,1,2,3]), etape:0, rep:'', v:['','','','','',''], ok:[null,null,null,null,null,null]}; }, function(q){ return 'pnp'+q.s; });
+  return distinctes(n, function(_, i){ return {s:ordre[i%ordre.length], o:ensShuffle([0,1,2,3]), f:2, etape:0, rep:'', v:['','','','','',''], ok:[null,null,null,null,null,null]}; }, function(q){ return 'pnp'+q.s; });
+}
+/* Les étapes : 0 exécuter, 1 compléter les cadres, 2 terminée. Un brouillon
+   du pas à pas (sans f) : 0 → 0 ; 1, 2, 3 → 1 ; 4 → 2. */
+function pnpMigrer(q){
+  if(q.f===2) return;
+  q.etape=q.etape>=4?2:(q.etape>=1?1:0); q.f=2;
 }
 function pnpS(q){ return PNP_SITUATIONS[q.s]; }
 function pnpCases(q){ return [0,1,2,3,4,5]; }
@@ -52859,13 +52870,13 @@ function pnpJugeCase(q, k, v){
   return pyTexteProche(net, att, [S.question.trim()]);
 }
 function pnpEnonceHTML(q){
-  return 'Le programme ci-dessous s’exécute <b>ligne par ligne</b>. Exécute une ligne avec le bouton en haut : ce qu’elle affiche s’écrit juste après le programme ; puis complète le cadre qui apparaît à côté d’elle pour expliquer ce qu’elle a fait : dans chaque case, <b>choisis</b> la bonne proposition.';
+  return 'Exécute le programme avec le bouton <b>▶ Exécuter</b> : ce qu’il affiche s’écrit dans la fenêtre en dessous. Le programme s’affiche ensuite une seconde fois, avec un cadre à côté de chaque ligne : complète les cadres pour expliquer ce que fait chaque ligne — dans chaque case, <b>choisis</b> la bonne proposition.';
 }
 /* Les quatre propositions de chaque case (demande de Turquet, novembre
    2026) : la question, le texte du print, le nom de la variable, la réponse
    que l'élève a tapée. Leur ordre est tiré à la génération (q.o) ; la
-   réponse n'existe qu'après l'exécution de la ligne 1. Une réponse qui
-   coïncide avec une autre proposition ne se montre qu'une fois. */
+   réponse n'existe qu'après l'exécution. Une réponse qui coïncide avec une
+   autre proposition ne se montre qu'une fois. */
 function pnpPropositions(q){
   const S=pnpS(q), tout=[S.question.trim(), S.texte, S.nom, q.rep];
   const vus={}, res=[];
@@ -52882,25 +52893,19 @@ function pnpCadreHTML(q, n){
     : 'Ici le programme affiche le texte « '+pnpCaseHTML(q,3)+' » et le texte qui est dans la variable '+pnpCaseHTML(q,4)+', ici le texte dans cette variable est '+pnpCaseHTML(q,5)+'.';
   return '<span class="pnp-fleche" aria-hidden="true">⟵</span><div class="pnp-cadre" id="pnpCadre'+n+'">'+corps+'</div>';
 }
-/* Le programme se montre LIGNE PAR LIGNE (demande de Turquet, novembre
-   2026) : la ligne 2 n'apparaît qu'une fois le cadre 1 vérifié ; le cadre
-   d'une ligne n'apparaît qu'une fois son exécution FINIE — pour l'input,
-   la réponse validée par Entrée. */
-function pnpLigneVisible(q, n){ return n===1 || q.etape>=2; }
-function pnpCadreVisible(q, n){ return n===1 ? q.etape>=1 : q.etape>=3; }
-function pnpRangeeHTML(q, n){
-  if(!pnpLigneVisible(q, n)) return '';
-  const e=q.etape, courante=(n===1&&e===0)||(n===2&&e===2);
-  return '<div class="pnp-rangee'+(courante?' pnp-courante':'')+'" id="pnpR'+n+'">'
+/* Une ligne du programme ; avec son cadre dans la seconde copie seulement
+   (ids pnpR1, pnpR2), sans cadre dans la première (pnpL1, pnpL2). */
+function pnpRangeeHTML(q, n, avecCadre){
+  return '<div class="pnp-rangee" id="'+(avecCadre?'pnpR':'pnpL')+n+'">'
     +'<div class="pnp-code"><span class="pyx-num">'+n+'</span><span class="pyx-l1">'+pyColorie(n===1?pnpLigne1(q):pnpLigne2(q))+'</span></div>'
-    +(pnpCadreVisible(q, n)?pnpCadreHTML(q, n):'')+'</div>';
+    +(avecCadre?pnpCadreHTML(q, n):'')+'</div>';
 }
 function pnpActions(html){ $('pnpActions').innerHTML=conseilInlineBtn()+html; }
 let _pnpSaveTimer=null;
 function pnpSauver(){ clearTimeout(_pnpSaveTimer); _pnpSaveTimer=setTimeout(autoSave,1000); }
 
 /* La console qui attend la réponse — le dialogue de pynLancer, avec SES
-   identifiants (un écran du 6.3.2 resté dans la page en garde d'autres). */
+   identifiants (un écran du 6.3.3 resté dans la page en garde d'autres). */
 function pnpLancer(src, fin){
   const c=$('pnpConsole'); if(!c) return;
   const entrees=[];
@@ -52934,8 +52939,6 @@ function pnpConsoleFigee(src, entrees){
   try{ c.textContent=pyRun(src, entrees).out.replace(/\n$/,''); c.classList.add('py-exec'); }
   catch(e){ c.textContent=(e.sortie||'')+(e.attente?'':'Erreur : '+e.message); c.classList.add('py-exec'); }
 }
-
-/* ---- Cycle de vie ---- */
 async function startPNP(){
   if(!currentEleve){ accueil(); return; }
   const qs=pnpBuildQuestions();
@@ -52948,7 +52951,7 @@ async function startPNP(){
   show('pnp'); renderPNP();
 }
 function renderPNP(){
-  const q=test.questions[test.idx]; test.locked=q.etape>=4;
+  const q=test.questions[test.idx]; pnpMigrer(q); test.locked=q.etape>=2;
   $('pnpIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('pnpInstr').innerHTML=pnpEnonceHTML(q);
   $('modeTagPNP').innerHTML=modeTagHTML();
@@ -52956,19 +52959,20 @@ function renderPNP(){
   $('pnpFeedback').textContent=''; $('pnpFeedback').className='mp-feedback';
   $('pnpFig').innerHTML=test.idx===0?pynEtiquetteHTML()+hwSerpentHTML('python-input-pas-a-pas'):'';
   pyAvant('pnp', test.idx===0?pynCoursHTML():'');
-  /* le bouton, puis la fenêtre d'affichage SOUS le bouton, puis le programme */
-  $('pnpHost').innerHTML='<div class="py-cell"><div class="pnp-run" id="pnpRunBar"></div>'
-    +'<div class="pnp-prog">'+pnpRangeeHTML(q,1)+pnpRangeeHTML(q,2)+'</div>'
-    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre></div>';
-  /* la console de ce qui a déjà été exécuté */
-  if(q.etape>=1 && q.etape<3) pnpConsoleFigee(pnpLigne1(q), [q.rep]);
-  else if(q.etape>=3) pnpConsoleFigee(pnpProg(q), [q.rep]);
-  /* les cases : saisies remises, verdicts reposés */
+  /* le programme sans cadre, le bouton DESSOUS, la fenêtre d'affichage sous
+     le bouton ; une fois exécuté, le programme à nouveau, avec ses cadres */
+  $('pnpHost').innerHTML='<div class="py-cell">'
+    +'<div class="pnp-prog pnp-seul" id="pnpProgSeul">'+pnpRangeeHTML(q,1,false)+pnpRangeeHTML(q,2,false)+'</div>'
+    +'<div class="pnp-run" id="pnpRunBar"></div>'
+    +'<p class="py-label">Ce que le programme affiche</p><pre class="py-console" id="pnpConsole"></pre>'
+    +(q.etape>=1?'<p class="py-label pnp-label-cadres">Le programme, ligne par ligne : complète les cadres</p><div class="pnp-prog" id="pnpProgCadres">'+pnpRangeeHTML(q,1,true)+pnpRangeeHTML(q,2,true)+'</div>':'')
+    +'</div>';
+  if(q.etape>=1) pnpConsoleFigee(pnpProg(q), [q.rep]);
+  /* les cases : saisies remises, verdicts reposés — une case jugée a son ok */
   for(let k=0;k<6;k++){
     const inp=$('pnp-c'+k); if(!inp) continue;
     inp.value=q.v[k]||'';
-    const cadreFait=(k<3)?q.etape>=2:q.etape>=4;
-    if(cadreFait){ inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); }
+    if(q.ok[k]!==null && q.ok[k]!==undefined){ inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); }
     else inp.addEventListener('change', function(){ if(test.locked) return; q.v[k]=inp.value; inp.classList.remove('bad'); pnpSauver(); });
   }
   pnpBoutons(q);
@@ -52984,47 +52988,40 @@ function pnpPeindre(q, k, inp, ok){
   inp.insertAdjacentHTML('afterend','<span class="mf-cor pnp-cor">'+esc(pnpAttendu(q, k))+'</span>');
 }
 function pnpBoutons(q){
-  const e=q.etape;
-  const bar=$('pnpRunBar');
-  if(bar) bar.innerHTML=(e===0||e===2)?'<button class="btn btn-primary" id="pnpRun'+(e===0?1:2)+'" type="button" onclick="pnpExecuter('+(e===0?1:2)+')">▶ Exécuter la ligne '+(e===0?1:2)+'</button>':'';
-  if(e===0||e===2) pnpActions('');
+  const e=q.etape, bar=$('pnpRunBar');
+  if(bar) bar.innerHTML=e===0?'<button class="btn btn-primary" id="pnpRun" type="button" onclick="pnpExecuter()">▶ Exécuter</button>':'';
+  if(e===0) pnpActions('');
   else if(e===1) pnpActions('<button class="btn btn-primary" id="pnpValidate" type="button" onclick="checkPNP()">Vérifier</button>');
-  else if(e===3) pnpActions('<button class="btn btn-primary" id="pnpValidate" type="button" onclick="checkPNP()">Vérifier</button>');
   else pnpActions('<button class="btn btn-primary" id="pnpNext" type="button" onclick="nextPNP()">'+(test.idx===test.questions.length-1?'Voir mes résultats':'Question suivante')+'</button>');
 }
-function pnpExecuter(n){
+function pnpExecuter(){
   if(test.locked) return;
   const q=test.questions[test.idx];
-  if(n===1 && q.etape===0){
-    const b=$('pnpRun1'); if(b) b.disabled=true;
-    pnpLancer(pnpLigne1(q), function(r, entrees){
-      q.rep=entrees[0]||''; q.etape=1; pnpSauver();
-      renderPNP();
-      const fb=$('pnpFeedback');
-      fb.textContent='La ligne 1 est exécutée. Complète maintenant le cadre à côté d’elle, puis vérifie.'; fb.className='mp-feedback';
-      const c=$('pnp-c0'); if(c) setTimeout(function(){ try{ c.focus(); }catch(e){} },40);
-    });
-  } else if(n===2 && q.etape===2){
-    q.etape=3; pnpSauver();
+  if(!q || q.etape!==0) return;
+  const b=$('pnpRun'); if(b) b.disabled=true;
+  pnpLancer(pnpProg(q), function(r, entrees){
+    q.rep=entrees[0]||''; q.etape=1; pnpSauver();
     renderPNP();
     const fb=$('pnpFeedback');
-    fb.textContent='La ligne 2 est exécutée. Complète maintenant le cadre à côté d’elle, comme le premier, puis vérifie.'; fb.className='mp-feedback';
-    const c=$('pnp-c3'); if(c) setTimeout(function(){ try{ c.focus(); }catch(e){} },40);
-  }
+    fb.textContent='Le programme est exécuté. Il s’affiche à nouveau en dessous, avec un cadre à côté de chaque ligne : complète les cadres, puis vérifie.'; fb.className='mp-feedback';
+    const pc=$('pnpProgCadres'); if(pc&&pc.scrollIntoView) try{ pc.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
+    const c=$('pnp-c0'); if(c) setTimeout(function(){ try{ c.focus({preventScroll:true}); }catch(e){} },40);
+  });
 }
 function checkPNP(live){
   if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
   if(test.locked) return;
   const q=test.questions[test.idx], fb=$('pnpFeedback'); if(!q) return;
-  if(q.etape!==1 && q.etape!==3) return;
-  const ks=q.etape===1?[0,1,2]:[3,4,5];
+  if(q.etape!==1) return;
+  const ks=[0,1,2,3,4,5].filter(function(k){ return q.ok[k]===null || q.ok[k]===undefined; });
+  if(!ks.length) return;
   const juges=ks.map(function(k){ const inp=$('pnp-c'+k); q.v[k]=inp?inp.value:''; return pnpJugeCase(q, k, q.v[k]); });
   const vides=juges.filter(function(j){ return j===null; }).length;
-  if(vides===3){ fb.textContent='Complète d’abord le cadre, puis vérifie.'; fb.className='mp-feedback bad'; const c=$('pnp-c'+ks[0]); if(c) c.focus(); return; }
+  if(vides===ks.length){ fb.textContent='Complète d’abord les cadres, puis vérifie.'; fb.className='mp-feedback bad'; const c=$('pnp-c'+ks[0]); if(c) c.focus(); return; }
   const tousOk=juges.every(function(j){ return j===true; });
   if(!tousOk && isSoutien()){
     ks.forEach(function(k,i){ const inp=$('pnp-c'+k); inp.classList.remove('ok','bad'); if(juges[i]===true) inp.classList.add('ok'); else if(juges[i]===false) inp.classList.add('bad'); });
-    fb.textContent=vides?'Presque ! Complète les cases vides et corrige celles en rouge, puis revérifie.':'Presque ! Corrige les cases en rouge — relis la ligne '+(q.etape===1?1:2)+' et la console —, puis revérifie.';
+    fb.textContent=vides?'Presque ! Complète les cases vides et corrige celles en rouge, puis revérifie.':'Presque ! Corrige les cases en rouge — relis le programme et ce qu’il a affiché —, puis revérifie.';
     fb.className='mp-feedback bad';
     pnpActions('<button class="btn btn-primary" id="pnpValidate" type="button" onclick="checkPNP()">Revérifier</button>');
     const bad=document.querySelector('#pnpHost .pnp-in.bad'); if(bad) setTimeout(function(){ bad.focus(); },40);
@@ -53033,35 +53030,26 @@ function checkPNP(live){
   let pts=0;
   ks.forEach(function(k,i){ q.ok[k]=juges[i]===true; if(q.ok[k]) pts++; const inp=$('pnp-c'+k); inp.disabled=true; pnpPeindre(q, k, inp, q.ok[k]); });
   test.score+=pts; $('pnpLiveScore').textContent=test.score;
-  const bravo=tousOk?pick(['Bravo !','Parfait !','Exact !'])+' ':'';
-  if(q.etape===1){
-    q.etape=2; pnpSauver();
-    fb.textContent=bravo+(tousOk?'':'Les bonnes réponses sont écrites en vert. ')+'La ligne 2 apparaît : exécute-la avec le bouton en haut.';
-    fb.className='mp-feedback'+(tousOk?' good':' bad');
-    renderPNPGarderFeedback(fb.textContent, fb.className);
-    const rb=$('pnpRun2'); if(rb) rb.focus();
-    return;
-  }
-  q.etape=4; test.locked=true;
-  fb.textContent=bravo+(tousOk?'Tu as expliqué les deux lignes du programme.':'Les bonnes réponses sont écrites en vert à côté des tiennes.');
-  fb.className='mp-feedback'+(tousOk?' good':' bad');
-  const S=pnpS(q);
-  test.answers.push({...(ptsExo()||{}), correct:q.ok.every(Boolean), q:pnpProg(q)+' ⏎ '+q.rep,
+  const toutJuste=q.ok.every(Boolean);
+  const bravo=toutJuste?pick(['Bravo !','Parfait !','Exact !'])+' ':'';
+  q.etape=2; test.locked=true;
+  fb.textContent=bravo+(toutJuste?'Tu as expliqué les deux lignes du programme.':'Les bonnes réponses sont écrites en vert.');
+  fb.className='mp-feedback'+(toutJuste?' good':' bad');
+  test.answers.push({...(ptsExo()||{}), correct:toutJuste, q:pnpProg(q)+' ⏎ '+q.rep,
     answer:[0,1,2,3,4,5].map(function(k){ return pnpAttendu(q,k); }).join(' ; '),
     given:q.v.map(function(v){ return pnpNet(v)||'?'; }).join(' ; ')});
   pnpBoutons(q);
   const nb=$('pnpNext'); if(nb) nb.focus();
   autoSave();
 }
-function renderPNPGarderFeedback(t, c){ renderPNP(); const fb=$('pnpFeedback'); fb.textContent=t; fb.className=c; }
 function nextPNP(){ if(test.idx<test.questions.length-1){ test.idx++; renderPNP(); autoSave(); } else finishTest(); }
 function ctxPnp(q){
   const S=pnpS(q);
-  let c='Exercice sur la fonction input de Python, exécuté ligne par ligne. Le programme est : ligne 1 '+pnpLigne1(q)+' ; ligne 2 '+pnpLigne2(q)+'. ';
-  c+='L’élève exécute la ligne 1 (la console affiche la question « '+S.question.trim()+' » et attend sa réponse'+(q.rep?(' — il a répondu « '+q.rep+' »'):'')+'), puis complète un cadre en choisissant chaque case dans une liste de quatre propositions (la question, le texte du print, le nom de la variable, sa propre réponse) : « Ici le programme affiche la question « … » et met la réponse de l’élève dans la variable …, ici la valeur de cette variable est le texte … ». ';
-  c+='Puis il exécute la ligne 2 et complète un second cadre : « Ici le programme affiche le texte « … » et le texte qui est dans la variable …, ici le texte dans cette variable est … ». ';
+  let c='Exercice sur la fonction input de Python. Le programme est : ligne 1 '+pnpLigne1(q)+' ; ligne 2 '+pnpLigne2(q)+'. ';
+  c+='L’élève exécute d’abord le programme entier (la console affiche la question « '+S.question.trim()+' » et attend sa réponse'+(q.rep?(' — il a répondu « '+q.rep+' »'):'')+', puis affiche la phrase du print). ';
+  c+='Le programme s’affiche ensuite une seconde fois avec un cadre à côté de chaque ligne ; l’élève complète les deux cadres en choisissant chaque case dans une liste de quatre propositions (la question, le texte du print, le nom de la variable, sa propre réponse) : « Ici le programme affiche la question « … » et met la réponse de l’élève dans la variable …, ici la valeur de cette variable est le texte … » ; « Ici le programme affiche le texte « … » et le texte qui est dans la variable …, ici le texte dans cette variable est … ». ';
   c+='Réponses attendues (STRICTEMENT SECRÈTES, ne jamais les écrire ni les dicter) : '+[0,1,2,3,4,5].map(function(k){ return pnpAttendu(q,k); }).join(' ; ')+'. ';
-  c+='Étape en cours : '+['exécuter la ligne 1','compléter le cadre 1','exécuter la ligne 2','compléter le cadre 2','terminée'][q.etape]+'. ';
+  c+='Étape en cours : '+['exécuter le programme','compléter les deux cadres','terminée'][q.etape===undefined?0:Math.min(2,q.etape)]+'. ';
   c+='Règles à rappeler sans donner la réponse : input affiche la question entre guillemets et range la réponse tapée dans la variable écrite à gauche du signe = ; print("texte", variable) affiche le texte entre guillemets puis le contenu de la variable.';
   return {nombre:'', contexte:c};
 }
@@ -53194,7 +53182,7 @@ function renderPSF(){
   $('modeTagPSF').innerHTML=modeTagHTML();
   $('psfLiveScore').textContent=test.score;
   $('psfFeedback').textContent=''; $('psfFeedback').className='mp-feedback';
-  $('psfFig').innerHTML='<img class="psf-img" src="dessins/secondes/python-input-sport.webp" alt="un serpent au bandeau de sport, à côté d’un ballon de football" width="241" height="271">'+hwSerpentHTML('python-input-sport');
+  $('psfFig').innerHTML='<img class="psf-img" src="dessins/secondes/python-input-sport-2.webp" alt="un serpent souriant au bandeau de sport bleu, enroulé à côté d’un ballon de football" width="340" height="385">'+hwSerpentHTML('python-input-sport');
   pyAvant('psf', psfCoursHTML());
   const k=q.etape==='a'?0:1;
   let h='<div class="py-cell">'
@@ -90316,8 +90304,8 @@ POSE_DOIGT.svr={ hote:'svrGraph',
     if(bouton && estVerifier(bouton)){ e.preventDefault(); e.stopImmediatePropagation(); }
     dire(inp);
   }, true);
-  /* UN BOUTON DÉSACTIVÉ ne reçoit AUCUN clic du navigateur : « ▶ Exécuter la
-     ligne 1 » du 6.3.1 (pnpRun1) se désactive pendant que le programme
+  /* UN BOUTON DÉSACTIVÉ ne reçoit AUCUN clic du navigateur : « ▶ Exécuter »
+     du 6.3.1 (pnpRun) se désactive pendant que le programme
      attend, et l'encadré ne venait jamais (signalé par Turquet, novembre
      2026). Chromium lui envoie pourtant pointerdown : c'est cette porte-ci
      qui le dit, pour les seuls boutons désactivés — un bouton actif passe par

@@ -2014,6 +2014,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #vocHost .pt-row{margin:12px 0;gap:12px}
 .voc-phrase{text-align:center;font-size:calc(1.35rem * var(--tab-nb,1));margin:4px 0 10px;color:var(--ink)}
 .voc-lab{font-size:calc(1.35rem * var(--tab-nb,1));color:var(--ink)}
+.voc-dec{font-size:.8em;color:var(--ink-soft)}
 #vocHost .voc-but{text-align:center;margin:6px 0 14px}
 .voc-choix{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:6px auto 4px}
 .voc-ch{min-width:96px;min-height:64px;padding:4px 14px;font-family:"Fredoka";font-weight:600;font-size:calc(1.6rem * var(--tab-nb,1));
@@ -4008,7 +4009,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=437;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=439;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9551,14 +9552,33 @@ function vocTexteCalc(s){
   return t.replace(/\\times|\\cdot/g,'×').replace(/\\div/g,'÷').replace(/\{,\}/g,'.').replace(/,/g,'.')
     .replace(/\\,|\\ |~/g,'').replace(/[{}]/g,'').replace(/\s+/g,'');
 }
+/* UN RÉSULTAT QUI N'EST PAS ENTIER S'ÉCRIT EN NOMBRE DÉCIMAL (décision de
+   Turquet, novembre 2026) : 2,5 et non 5/2 pour la moitié de 5. La case le
+   dit (« (en nombre décimal) »), le juge refuse la fraction en DERNIER
+   membre et le message le dit ; dans les calculs intermédiaires, la
+   fraction reste permise (5/2 = 2,5). Un résultat entier, lui, n'est pas
+   concerné. */
+function vocDecimalExige(N){ return N%VAP_D!==0; }
+function vocEstDecimal(m){ return !!parseDecToFrac(String(m==null?'':m).replace(/\{,\}/g,',')); }
+function vocMembres(s){ const brut=String(s==null?'':s).trim(); return brut.indexOf('=')<0 ? [brut] : brut.split('=').map(m=>m.trim()); }
+/* la valeur est juste, mais le résultat est écrit en fraction */
+function vocEnFraction(s,N){ const ms=vocMembres(s), der=ms[ms.length-1];
+  return vocDecimalExige(N) && der!=='' && vapVaut(der,N) && !vocEstDecimal(der); }
 function vocVaut(s,N){
-  const brut=String(s==null?'':s).trim();
-  if(brut.indexOf('=')<0) return vapVaut(brut,N);
-  const ms=brut.split('=').map(m=>m.trim());
+  const ms=vocMembres(s);
   if(ms.some(m=>m==='')) return false;
-  if(!vapVaut(ms[ms.length-1],N)) return false;
+  const der=ms[ms.length-1];
+  if(!vapVaut(der,N)) return false;
+  if(vocDecimalExige(N) && !vocEstDecimal(der)) return false;
+  if(ms.length===1) return true;
   return ms.every(function(m){ const v=libreEval(vocTexteCalc(m)); return !!v && v.p*VAP_D===N*v.q; });
 }
+/* « Le résultat est : » → « Le résultat est (en nombre décimal) : » quand il n'est pas entier */
+function vocLabDec(lab,N){ return vocDecimalExige(N) ? String(lab).replace(/\s*:\s*$/,' <span class="voc-dec">(en nombre décimal)</span> :') : lab; }
+/* le message quand une case porte la bonne valeur écrite en fraction */
+function vocMsgFraction(q){ const L=vocL(q), cs=L.t==='ch' ? [['vocR',L.r]] : L.et.map((e,k)=>['vocE'+k,e.r]);
+  const f=cs.find(c=>vocEnFraction(vapVal(c[0]),c[1]));
+  return f ? 'Le résultat s’écrit en nombre décimal : '+vapStr(f[1])+', pas en fraction. ' : ''; }
 function vocLive(id,N){ const el=$(id); if(!el||el.disabled) return; const v=vapVal(id);
   el.classList.remove('ok','bad'); if(v!=='') el.classList.add(vocVaut(v,N)?'ok':'bad'); }
 function vocIds(q){ const L=vocL(q); return L.t==='ch' ? ['vocR'] : L.et.map((_,k)=>'vocE'+k); }
@@ -9609,14 +9629,14 @@ function renderVoc(){
       +'<div class="voc-choix" data-pts-choix="1" role="group" aria-label="les calculs proposés">'
       +L.ch.map((c,k)=>'<button type="button" class="voc-ch'+(ch===k?' voc-sel':'')+'" aria-pressed="'+(ch===k)+'" onclick="vocChoisir('+k+')">'+vocCalcHTML(c)+'</button>').join('')
       +'</div>'
-      +'<div class="pt-row"><span class="voc-lab">Le résultat est :</span>'+R('vocR')+'</div>';
+      +'<div class="pt-row"><span class="voc-lab">'+vocLabDec('Le résultat est :',L.r)+'</span>'+R('vocR')+'</div>';
   } else {
     $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">'+(L.t==='di'?'Sans les étapes : écris le résultat. Tu peux écrire tes calculs intermédiaires avant, avec des « = » (2 + 3,5 = 5,5).':'Une case par étape, comme sur la fiche.')+'</span>';
     /* Demande de Turquet, novembre 2026 : sur le quadrillage, la phrase
        « On doit calculer … » vient EN PREMIER, à la police et à la taille
        des étapes qui la suivent (.voc-lab) */
     h='<div class="voc-but"><span class="voc-lab">'+vocBut(L)+'</span></div>'
-      +L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+e.lab+'</span>'+R('vocE'+k)+'</div>').join('');
+      +L.et.map((e,k)=>'<div class="pt-row"><span class="voc-lab">'+vocLabDec(e.lab,e.r)+'</span>'+R('vocE'+k)+'</div>').join('');
   }
   $('vocHost').innerHTML=h;
   const order=vocIds(q).map(id=>$(id)).filter(Boolean);
@@ -9643,13 +9663,14 @@ function checkVocAnswer(live){
   } else {
     L.et.forEach((e,k)=>{ const o=vocVaut(vapVal('vocE'+k),e.r); marqueSaufVide('vocE'+k,o,soutien); ok=ok&&o; });
   }
-  if(!ok && soutien){ soutienAgain('vocFeedback','vocActions','checkVocAnswer','vocHost'); return; }
+  if(!ok && soutien){ soutienAgain('vocFeedback','vocActions','checkVocAnswer','vocHost');
+    const mf=vocMsgFraction(q); if(mf) $('vocFeedback').textContent=mf+$('vocFeedback').textContent; return; }
   test.locked=true;
   if(ok){ test.score++; $('vocLiveScore').textContent=test.score;
     $('vocFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('vocFeedback').className='mp-feedback good';
   } else {
     if(L.t==='ch') corTrainDec('vocR',vapStr(L.r,false)); else L.et.forEach((e,k)=>corTrainDec('vocE'+k,vapStr(e.r,false)));
-    $('vocFeedback').innerHTML=(L.t==='ch' && vocChoixDe()==null ? 'Choisis d’abord le calcul. ' : '')+'Réponse : '+vocCorrection(q,true); $('vocFeedback').className='mp-feedback bad';
+    $('vocFeedback').innerHTML=(L.t==='ch' && vocChoixDe()==null ? 'Choisis d’abord le calcul. ' : '')+vocMsgFraction(q)+'Réponse : '+vocCorrection(q,true); $('vocFeedback').className='mp-feedback bad';
   }
   const lus=vocIds(q).map(vapVal), ch=L.t==='ch'?vocChoixDe():null;
   const vide=lus.every(s=>s==='') && ch==null;
@@ -19817,19 +19838,31 @@ function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace
    Les valeurs du tableau en découlent : des dizaines ou des centaines rondes,
    des additions qui se font de tête. */
 const SUI_PAS=[10,20,30,40,50,60,70,80,90,100];
-/* Le pas le plus lointain : la question ③ reste dans la table de 10. */
-const SUI_P_MAX=10;
+/* LA QUESTION ② MULTIPLIE PAR 7 À 12 (demande de Turquet, novembre 2026 :
+   « il faut mettre entre 7 fois et 12 fois le nombre ») : N, le nombre de
+   pas de la question ②, va de SUI_N_MIN à SUI_N_MAX. Avant, N valait 4 ou 5
+   pour que la question ③ reste dans la table de 10 ; la règle « le seuil au
+   moins deux fois plus loin » (p ≥ 2N) est gardée, donc p va maintenant de
+   14 à 24 + SUI_P_ECART — borné par le contexte : l'heure finit au plus à
+   23 h, la date au plus le 30 (jour de départ compris, SUI_J0_MIN). */
+const SUI_N_MIN=7, SUI_N_MAX=12, SUI_P_ECART=2;
+function suiPMax(c){
+  if(c.tps.type==='heure') return 23-c.tps.t0;
+  if(c.tps.type==='date') return 30-SUI_J0_MIN;
+  return 2*SUI_N_MAX+SUI_P_ECART;
+}
 /* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
-   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N au-delà du tableau (≥ 4), le
-   seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
-   (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
-   vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
+   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N de SUI_N_MIN à
+   SUI_N_MAX (7 à 12), le seuil de la question ③ AU MOINS DEUX FOIS plus loin
+   que la question ② (p ≥ 2N, demande de Turquet, novembre 2026) et au plus
+   2N + SUI_P_ECART, dans les limites du contexte (suiPMax), et une quantité
+   qui diminue ne tombe jamais à zéro. */
 function suiFamilles(c, pas){
   const out=[];
   c.u0.forEach(function(u0){
     (pas||SUI_PAS).forEach(function(r){
       if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
-      for(let N=4;2*N<=SUI_P_MAX;N++) for(let p=2*N;p<=SUI_P_MAX;p++){
+      for(let N=SUI_N_MIN;N<=SUI_N_MAX;N++) for(let p=2*N;p<=Math.min(2*N+SUI_P_ECART, suiPMax(c));p++){
         if(u0+c.sens*p*r<=0) continue;
         out.push({u0:u0, r:r, N:N, p:p});
       }
@@ -19843,7 +19876,9 @@ function suiTirer(ci, part, bornes){
   const fam=bornes ? suiFamilles(SUI_CTX[ci], bornes) : [];
   const f=pick(fam.length?fam:suiFamilles(SUI_CTX[ci]));
   const q={ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
-  if(SUI_CTX[ci].tps.type==='date') q.j0=1+Math.floor(Math.random()*SUI_J0_MAX);
+  /* le jour de départ : jamais le 1er (Turquet, novembre 2026), et la date
+     de la question ③ reste dans le mois */
+  if(SUI_CTX[ci].tps.type==='date'){ const jMax=Math.max(SUI_J0_MIN, Math.min(SUI_J0_MAX, 30-f.p)); q.j0=SUI_J0_MIN+Math.floor(Math.random()*(jMax-SUI_J0_MIN+1)); }
   return q;
 }
 /* Le pas selon le RANG de l'exemple dans la séance (demande de Turquet,
@@ -19869,6 +19904,9 @@ function suiMoment(c, n, j0){
    (demande de Turquet, novembre 2026). Au plus 20 : avec p ≤ 10, la question
    ③ reste dans le mois. Un brouillon d'avant (sans j0) lit 1. */
 const SUI_J0_MAX=20;
+/* Puis « que ça ne commence pas le 1er du mois » (Turquet, novembre 2026) :
+   le jour de départ va de 2 à SUI_J0_MAX. */
+const SUI_J0_MIN=2;
 /* Tout ce que la question attend, recalculé du tirage. */
 function suiVals(q){
   /* un brouillon de pause d'avant la v416 range (a, b, k) : u0 = a·10^k, r = b·10^k */
@@ -32697,14 +32735,29 @@ function trdLin(s, avecX){
   return (r && i===t.length) ? r : null;
 }
 function trdNombreSeul(s){ return /^-?(\d+(\.\d+)?|\.\d+)$/.test(trdLinTexte(s, false)); }
+/* UNE LIGNE PEUT ÊTRE UNE CHAÎNE D'ÉGALITÉS (demande de Turquet, novembre
+   2026) : « x = 4/(−2) = −2 », le calcul fini dans la même case. Les deux
+   cases sont lues comme une seule chaîne coupée à chaque « = » ; chaque
+   maillon voisin est soit deux nombres égaux, soit une équation du premier
+   degré de solution xk, et un maillon au moins porte x. */
+function trdMaillons(g, d){ return (String(g)+'='+String(d)).split('='); }
 function trdLigneEquivalente(g, d, xk){
-  const G=trdLin(g, true), D=trdLin(d, true); if(!G || !D) return false;
-  const p=G.a-D.a, c=D.b-G.b;
-  return Math.abs(p)>1e-12 && Math.abs(c/p-xk)<1e-9;
+  const P=trdMaillons(g, d).map(function(m){ return trdLin(m, true); });
+  if(P.some(function(m){ return !m; })) return false;
+  let avecX=false;
+  for(let k=0;k<P.length-1;k++){
+    const G=P[k], D=P[k+1];
+    if(Math.abs(G.a)<1e-12 && Math.abs(D.a)<1e-12){ if(Math.abs(G.b-D.b)>1e-9) return false; continue; }
+    const p=G.a-D.a, c=D.b-G.b;
+    if(!(Math.abs(p)>1e-12 && Math.abs(c/p-xk)<1e-9)) return false;
+    avecX=true;
+  }
+  return avecX;
 }
 function trdLigneFinale(g, d){
+  const M=trdMaillons(g, d), a=M[0], z=M[M.length-1];
   const x=function(s){ return trdLinTexte(s, true)==='x'; };
-  return (x(g) && trdNombreSeul(d)) || (x(d) && trdNombreSeul(g));
+  return (x(a) && trdNombreSeul(z)) || (x(z) && trdNombreSeul(a));
 }
 /* le calcul type, pour une première ligne laissée vide */
 function trdModeleImage(q, x){ return trdNb(q.a)+' × '+trdPar(x)+(q.b<0?' − '+Math.abs(q.b):' + '+q.b); }
@@ -33311,7 +33364,7 @@ function conseilCtxCourant(){
         : L.t==='di' ? 'Partie 3 (calcul sans les étapes). Consigne : '+L.titre+' Une seule case : le résultat. Les étapes ne sont pas affichées : l’élève les fait de tête (ou au brouillon), comme dans la partie 2. '
         : 'Partie 2 (calcul en plusieurs étapes). Consigne : '+L.titre+' Une case par étape : '+L.et.map(e=>e.txt).join(', puis ')+'. ')
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+vocCorrection(q,false)+' '
-      +'Un résultat s’accepte en décimal ou en fraction (0,25 ou 1/4), et une case peut porter des calculs intermédiaires séparés par « = » (2 + 3,5 = 5,5) : chaque membre doit valoir le résultat, et le dernier est le résultat écrit comme un nombre. Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
+      +'Un résultat qui n’est pas entier s’écrit en NOMBRE DÉCIMAL (0,25, et non 1/4 : la fraction est refusée en dernier membre, la case l’annonce), et une case peut porter des calculs intermédiaires séparés par « = » (2 + 3,5 = 5,5) : chaque membre doit valoir le résultat, et le dernier est le résultat écrit comme un nombre. Écritures décimales à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/10 = 0,1 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 3/5 = 0,6 ; 4/5 = 0,8 (l’élève a un bouton qui les affiche). '
       +'Vocabulaire enseigné : double, triple, quadruple = multiplier par 2, 3, 4 ; moitié, tiers, quart, dixième = diviser par 2, 3, 4, 10 ; inverse de a = 1/a (pas −a, qui est l’opposé) ; somme +, différence −, produit ×, quotient ÷. '
       +'Erreurs classiques : confondre le double et la moitié, l’inverse et l’opposé, le produit et la somme ; dans un calcul en étapes, ne pas commencer par l’expression la plus « intérieure » (le tiers de 12 avant son double).';
   } else if(k==='vap' && q){

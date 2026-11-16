@@ -557,3 +557,23 @@ du pas, les valeurs de la suite). Les textes qui promettaient « un seul
 chiffre non nul » à l'élève (rappel, description, contexte de l'IA) disent
 maintenant « des nombres ronds ». Le contrôle du tirage (banc principal)
 exige un pas de la liste au deuxième exemple, et que 110 sorte en 300 séances.
+
+**Puis la question 2 multiplie par 7 à 12, et ne part plus le 1er du mois
+(v438).** Demande de Turquet, pour le 7.1 et le 7.2 : « pour la deuxième
+question, je veux que ça ne commence pas le 1er du mois, et je veux qu'il
+faille mettre entre 7 fois et 12 fois le nombre ». Le tirage est commun aux
+deux exercices (`suiBuildQuestions`) :
+- **N, le nombre de pas de la question 2, va de 7 à 12** (`SUI_N_MIN`,
+  `SUI_N_MAX`) au lieu de 4 ou 5 — le tableau de la méthode 1 s'allonge
+  d'autant (au plus treize lignes, dont deux écrites).
+- **La règle « le seuil de la question 3 au moins deux fois plus loin »
+  (p ≥ 2N) est gardée** : p va donc de 14 à 2N + 2 (`SUI_P_ECART`) — la
+  question 3 sort de la table de 10, c'est la conséquence nommée (l'élève
+  divise par exemple 1 440 par 60). p est borné par le contexte
+  (`suiPMax`) : l'heure finit au plus à 23 h (l'imprimante et la piscine ne
+  tirent donc que N = 7), la date au plus le 30.
+- **Le jour de départ va de 2 à 20** (`SUI_J0_MIN`), et au plus 30 − p, pour
+  que la date de la question 3 reste dans le mois.
+Le banc principal a suivi (300 séances : N de 7 à 12, p ≥ 2N, jamais le 1er,
+ni 24 h ni 31 juin) ; mesuré dans Chromium sur 4 000 questions : N de 7 à 12,
+départ du 2 au 16, aucune heure ni date impossible, aucune valeur nulle.
