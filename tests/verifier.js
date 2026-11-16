@@ -15792,6 +15792,105 @@ function coordonneesVecteurs(w, P){
     if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 3 et que je perds 2')<0) vus.push('8.4.10 : la bulle ne paraît pas au résultat du premier vecteur');
     currentMode='train'; el('vqs-1-ry').focus(); el('vqs-1-rx').focus();
     if(el('vcdGp')) vus.push('8.4.10 : la bulle « gagne / perds » paraît hors du soutien');
+    /* ===== 8.4.11 : le point d'une somme de vecteurs, construit puis calculé (la « fiche rappel sur les vecteurs ») ===== */
+    const d11=D.somme;
+    if(TEST_NUM[d11.exercice]!==d11.numero) vus.push(d11.exercice+' porte le numéro '+TEST_NUM[d11.exercice]+' au lieu de '+d11.numero);
+    if(TABLES_SANS.indexOf(d11.exercice)<0) vus.push('8.4.11 : le bouton des tables est proposé');
+    if(RAPPELS.vsm!==RAP_VSM || !QIA_SUGG.vsm) vus.push('vsm n\\'a pas son rappel ou ses questions à l\\'IA');
+    [['3',3],['(−1)',-1],['4 - 1',3],['-1+2+2',3],['−2 + (−1) + 2',-1],['3+(-2)',1],['x',null],['1+',null],['2+',null]].forEach(function(c){
+      if(vsmLitCalc(c[0])!==c[1]) vus.push('8.4.11 : vsmLitCalc(« '+c[0]+' ») rend '+vsmLitCalc(c[0])); });
+    if(JSON.stringify(vsmM(vsmFiche(0)))!=='[3,-1]' || JSON.stringify(vsmM(vsmFiche(1)))!=='[-3,2]') vus.push('8.4.11 : les points de la fiche '+JSON.stringify(vsmM(vsmFiche(0)))+' '+JSON.stringify(vsmM(vsmFiche(1))));
+    /* le tirage : les deux exercices de la fiche d'abord, puis des figures lisibles */
+    const lis11=function(p){ return p.every(function(c){ return c!==0&&c!==-1&&Math.abs(c)<=5; }); };
+    const det11=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
+    for(let n=0;n<200;n++){
+      const qs=vsmBuildQuestions();
+      if(qs.length!==d11.nb){ vus.push('8.4.11 : '+qs.length+' questions'); break; }
+      if(JSON.stringify(qs[0])!==JSON.stringify(vsmFiche(0)) || JSON.stringify(qs[1])!==JSON.stringify(vsmFiche(1))){ vus.push('8.4.11 : les deux premières questions ne sont pas la fiche'); break; }
+      if(new Set(qs.map(vsmCle)).size!==qs.length){ vus.push('8.4.11 : deux questions identiques'); break; }
+      const q=qs[2], T=q.P.concat([vsmM(q)]), u=vsmVec(q,0), v=vsmVec(q,1);
+      if(Object.keys(q).sort().join(',')!=='P,a,am,b,cp,m,n' || q.m || q.cp[0] || q.n!=='M' || q.am!==1 || vsmCases(q).length!==46){ vus.push('8.4.11 : range '+JSON.stringify(q)); break; }
+      if(!T.every(lis11)){ vus.push('8.4.11 : un point illisible '+JSON.stringify(T)); break; }
+      let mauvais=!(q.P[3][0]<0||q.P[3][1]<0) || q.a[0]!==q.b[0] || q.a[1]===q.b[1] || !u[0]||!u[1]||!v[0]||!v[1];
+      for(let a=0;a<5;a++) for(let b=a+1;b<5;b++) if(!vecLoin(T[a],T[b])) mauvais=true;
+      for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) for(let c=b+1;c<4;c++) if(det11(T[a],T[b],T[c])===0) mauvais=true;
+      if(!vcdDans(svrPlus(q.P[3],u)) || !vcdDans(svrPlus(q.P[3],v))) mauvais=true;
+      if(mauvais){ vus.push('8.4.11 : une figure hors des règles '+JSON.stringify(q)); break; }
+    }
+    const verifier11=function(){ const av=test.score; checkVsm(); clearTimeout(test.fbTimer); return test.score-av; };
+    const ids11=function(){ return vsmCases(test.questions[test.idx]); };
+    const cl11=function(){ return ids11().map(function(i){ return classe(el(i)); }).join(','); };
+    const tous11=function(c){ return ids11().map(function(){ return c; }).join(','); };
+    currentTestId=d11.exercice; TESTS[d11.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vsm' || test.questions.length!==d11.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vsmCases(q).length; },0)) vus.push('8.4.11 : kind '+test.kind+', barème '+test.maxScore);
+    if(dmPoidsQuestion('vsm',test.questions[0])!==46 || dmPoidsQuestion('vsm',test.questions[1])!==36) vus.push('8.4.11 : dmPoidsQuestion ne compte pas 46 puis 36 réponses');
+    if(!el('vsmInstr').classList.contains('enonce') || el('vsmInstr').textContent.indexOf('A(3 ; 4), B(1 ; 2), C(3 ; 1) et D(−1 ; −2)')<0 || el('vsmInstr').textContent.replace(/\\s+/g,'').indexOf('PlaceMtelqueDM=BC+BA')<0) vus.push('8.4.11 : l\\'énoncé : '+el('vsmInstr').textContent.slice(0,200));
+    if(document.querySelectorAll('#vsmCalc .vcd-in').length!==44 || document.querySelectorAll('#vsmCalc .vcd-tete').length!==2 || document.querySelectorAll('#vsmCalc .vcm-eqv').length!==2 || el('vsmCalc').textContent.indexOf('Autre méthode')<0) vus.push('8.4.11 : le calcul de la fiche n\\'a pas ses 44 cases, ses deux « Fin − Début », ses deux « ⇔ » et l\\'autre méthode');
+    if(document.querySelectorAll('#vsmGraph .vec-t').length!==169 || document.querySelectorAll('#vsmPts .svr-pt.n').length!==4 || document.querySelectorAll('#vsmFl line.vsm-k').length!==2 || document.querySelectorAll('#vsmPrises .svc-prise').length!==2) vus.push('8.4.11 : le repère n\\'a pas ses quatre points, ses deux vecteurs noirs et leurs prises');
+    if(el('vsm-px-a').getAttribute('aria-label').indexOf('ajouté')<0 || el('vsmCalc').textContent.replace(/\\s+/g,'').indexOf('x+')<0) vus.push('8.4.11 : l\\'étape « x + … » de la fiche manque');
+    /* la copie vide : tout en sol, rien de rouge ; la construction et M en vert */
+    if(verifier11()!==0 || cl11()!==tous11('sol')) vus.push('8.4.11 : la copie vide : '+cl11());
+    if(document.querySelector('#vsmBody .bad, #vsmCalc .bad, #vsmGraph .svr-pt.eb, #vsmGraph .svc-eb')) vus.push('8.4.11 : la copie vide rougit');
+    if(document.querySelectorAll('#vsmCorr .svr-pt.s').length!==1 || document.querySelectorAll('#vsmCorr line.svc-s').length!==3) vus.push('8.4.11 : la correction ne dessine pas la construction et M');
+    if(el('vsm-u-rx').value!=='2' || el('vsm-u-ry').value!=='−1' || el('vsm-v-rx').value!=='2' || el('vsm-sx-r').value!=='4' || el('vsm-px-a').value!=='1' || el('vsm-x').value!=='3' || el('vsm-y').value!=='−1' || el('vsm-am-mx').value!=='3') vus.push('8.4.11 : les valeurs de la correction');
+    if(el('vsmFeedback').textContent.indexOf('Il te manquait 46 cases')<0) vus.push('8.4.11 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
+    /* les gestes : un clic ne pose rien tant qu'on glisse ; les copies bout à bout depuis D, puis M */
+    test.questions[test.idx]=vsmFiche(0); renderVsm();
+    const q11=test.questions[test.idx];
+    if(test.vsmOutil!=='ch') vus.push('8.4.11 : le premier geste n\\'est pas le glisser');
+    vsmPose(3,-1); if(q11.m) vus.push('8.4.11 : un clic pose M pendant le glisser');
+    vsmDeplacer(0,[6,6]); if(!q11.cp[0] || q11.cp[0][0]+2>6 || q11.cp[0][1]-1<-6 || q11.cp[0][1]>6) vus.push('8.4.11 : la copie sort du repère '+JSON.stringify(q11.cp[0]));
+    vsmDeplacer(0,[1,2]); if(q11.cp[0]!==null || document.querySelector('#vsmFl .svc-copie')) vus.push('8.4.11 : la copie ramenée sur l\\'original ne s\\'efface pas');
+    vsmDeplacer(1,[-1,-2]); vsmDeplacer(0,[1,0]);
+    if(!vsmChaine(q11) || test.vsmOutil!=='M' || !el('vsm-ch').classList.contains('fait') || document.querySelectorAll('#vsmFl .svc-copie').length!==2) vus.push('8.4.11 : BA puis BC bout à bout depuis D ne fait pas la construction');
+    vsmVif(q11,{x:vcdX(1)+3,y:vcdY(1)-2});
+    if(((document.querySelector('#vsmVif .svr-pt')||{}).textContent||'')!=='M') vus.push('8.4.11 : aucune croix M ne suit la souris');
+    vsmPose(2,2);
+    if(!document.querySelector('#vsmPts .svr-pt.eb') || !document.querySelector('#vsmFl line.svc-eb') || el('vsm-M').classList.contains('fait')) vus.push('8.4.11 : M faux n\\'est pas rouge, ou DM ne se trace pas en rouge');
+    vsmPose(2,2); if(q11.m!==null) vus.push('8.4.11 : le reclic ne retire pas M');
+    vsmPose(3,-1);
+    if(!el('vsm-M').classList.contains('fait') || document.querySelector('#vsmPts .svr-pt.eb') || !document.querySelector('#vsmFl line.svc-e:not(.svc-copie)')) vus.push('8.4.11 : M juste n\\'est pas bleu, ou DM ne se trace pas');
+    const ecrire11=function(o){ Object.keys(o).forEach(function(id){ el(id).value=o[id]; }); };
+    const JUSTE11={'vsm-u-xf':'3','vsm-u-xd':'1','vsm-u-yf':'1','vsm-u-yd':'2','vsm-u-rx':'2','vsm-u-ry':'−1','vsm-v-xf':'3','vsm-v-xd':'1','vsm-v-yf':'4','vsm-v-yd':'2','vsm-v-rx':'2','vsm-v-ry':'2',
+      'vsm-dm-xd':'(−1)','vsm-dm-yd':'-2','vsm-e-ux':'2','vsm-e-uy':'-1','vsm-e-vx':'2','vsm-e-vy':'2',
+      'vsm-sx-d':'-1','vsm-sx-u':'2','vsm-sx-v':'2','vsm-sx-r':'4','vsm-sy-d':'-2','vsm-sy-u':'-1','vsm-sy-v':'2','vsm-sy-r':'1',
+      'vsm-px-a':'1','vsm-px-r':'4','vsm-py-a':'+2','vsm-py-r':'1','vsm-x':'4-1','vsm-y':'1 − 2','vsm-mx':'3','vsm-my':'-1',
+      'vsm-am-mx':'-1+2+2','vsm-am-my':'−2 + (−1) + 2','vsm-am-dx':'-1','vsm-am-dy':'-2','vsm-am-ux':'2','vsm-am-uy':'-1','vsm-am-vx':'2','vsm-am-vy':'2','vsm-am-x':'3','vsm-am-y':'-1'};
+    ecrire11(JUSTE11);
+    let av11=verifier11();
+    if(av11!==46 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.11 : la copie juste vaut '+av11+' : '+cl11());
+    /* la reprise : la question revient du JSON, les copies et M compris */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(q11)); renderVsm();
+    if(!vsmChaine(test.questions[test.idx]) || !el('vsm-M').classList.contains('fait') || el('vsm-M').classList.contains('ok') || el('vsm-u-xf').value!=='' || test.vsmOutil!=='M') vus.push('8.4.11 : le rendu après JSON');
+    /* les pièges : une copie qui ne part pas de D, fin et début échangés, le signe, x isolé en retranchant, l'étape mal faite */
+    test.questions[test.idx]=vsmFiche(0); renderVsm();
+    const q11b=test.questions[test.idx];
+    vsmDeplacer(0,[0,-2]); vsmDeplacer(1,[2,-3]); vsmPose(3,-1);
+    test.vsmOutil='M'; vsmPose(3,-1);
+    ecrire11(Object.assign({}, JUSTE11, {'vsm-u-xf':'1','vsm-u-xd':'3','vsm-u-rx':'-2','vsm-v-ry':'-2','vsm-px-a':'-1','vsm-x':'5'}));
+    av11=verifier11();
+    const l11=cl11().split(',');
+    if(av11!==39 || l11[0]!=='bad' || l11[1]!=='ok' || l11[2]!=='bad' || l11[3]!=='bad' || l11[6]!=='bad' || l11[13]!=='bad' || l11[28]!=='bad' || l11[32]!=='bad') vus.push('8.4.11 : les pièges : '+av11+' '+l11.join(','));
+    const fb11=el('vsmFeedback').textContent;
+    ['La construction part de D','on écrit fin − début','attention au signe','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb11.indexOf(m)<0) vus.push('8.4.11 : le message ne dit pas « '+m+' » : '+fb11.slice(0,300)); });
+    if(document.querySelectorAll('#vsmCorr line.svc-s').length!==2) vus.push('8.4.11 : la construction manquée ne se dessine pas en vert');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('BC (2 ; −1), BA (2 ; 2), M(3 ; −1)')<0) vus.push('8.4.11 : le contexte du modèle');
+    /* l'exercice 2 de la fiche : N, sans l'autre méthode */
+    nextVsm();
+    if(el('vsmInstr').textContent.replace(/\\s+/g,'').indexOf('PlaceNtelqueDN=CA+CB')<0 || el('vsm-am-x') || document.querySelectorAll('#vsmCalc .vcd-in').length!==34 || el('vsm-M').textContent.indexOf('Placer N')<0) vus.push('8.4.11 : l\\'exercice 2 de la fiche');
+    /* le soutien : le juste se fige, le faux rougit, rien ne se révèle */
+    currentMode='soutien'; test.questions[test.idx]=vsmFiche(0); renderVsm();
+    vsmDeplacer(0,[-1,-2]); vsmDeplacer(1,[1,-3]); vsmPose(3,-1);
+    ecrire11({'vsm-u-xf':'3','vsm-u-xd':'5'});
+    checkVsm(); clearTimeout(test.fbTimer);
+    const ls11=cl11();
+    if(test.locked || ls11!=='ok,ok,ok,bad,'+Array(42).fill('rien').join(',') || !el('vsm-M').disabled || !el('vsm-ch').disabled || document.querySelector('#scr-vsm .sol') || document.querySelector('#vsmPrises .svc-prise')) vus.push('8.4.11 : le soutien : '+ls11);
+    /* la bulle « gagne / perds » du 8.4.4, à côté du résultat de BC */
+    test.questions[test.idx]=vsmFiche(0); renderVsm();
+    el('vsm-u-xf').value='3'; el('vsm-u-xd').value='1'; el('vsm-u-ry').focus(); el('vsm-u-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 3 et que je perds 1')<0) vus.push('8.4.11 : la bulle ne paraît pas au résultat de BC');
+    currentMode='train'; el('vsm-u-ry').focus(); el('vsm-u-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.11 : la bulle « gagne / perds » paraît hors du soutien');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
