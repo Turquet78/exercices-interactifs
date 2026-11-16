@@ -36279,15 +36279,17 @@ function serpentsHalloween(w, P){
 }
 
 /* {python-input-pas-a-pas} (Seconde, 6.3.1) : le programme de la fiche
-   « input_new » — nom = input(...), puis print("tu es", nom) — exécuté LIGNE
-   PAR LIGNE ; à côté de chaque ligne exécutée s'ouvre un cadre à compléter
-   (demande de Turquet, novembre 2026). Le contrôle tient la place au menu, le
-   tirage, puis le trajet : la ligne 2 et son cadre fermés tant que le cadre 1
-   n'est pas vérifié, le cadre 2 fermé tant que la ligne 2 n'est pas exécutée,
-   le juge (tolérance des textes, guillemets ignorés, variable exacte), la
-   case vide qui ne rougit pas, et le soutien qui ne verrouille rien. */
+   « input_new » — nom = input(...), puis print("tu es", nom) — exécuté
+   d'abord sans cadre, puis affiché une seconde fois avec un cadre à
+   compléter à côté de chaque ligne (demandes de Turquet, novembre 2026). Le
+   contrôle tient la place au menu, le tirage, puis le trajet : aucun cadre
+   avant la réponse validée, le programme, le bouton puis la console, le
+   programme à nouveau avec ses deux cadres sous la console, le juge
+   (tolérance des textes, guillemets ignorés, variable exacte), la case vide
+   qui ne rougit pas, le soutien qui ne verrouille rien, et la reprise d'un
+   brouillon du pas à pas d'avant. */
 function pythonInputPasAPas(w, P){
-  const nom = '{python-input-pas-a-pas} : input, le programme exécuté ligne par ligne';
+  const nom = '{python-input-pas-a-pas} : input, le programme exécuté puis expliqué ligne par ligne';
   if(!P.pythonInputPasAPas){ ignorer(nom, 'ce niveau n\'a pas l\'exercice'); return; }
   const C = P.pythonInputPasAPas, ID = C.exercice, NB = C.nb, NUM = C.numero;
   const present = evaluer(w, "typeof startPNP==='function' && typeof pnpJugeCase==='function' && typeof pnpBuildQuestions==='function'");
@@ -36334,76 +36336,88 @@ function pythonInputPasAPas(w, P){
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'le trajet en entraînement : chaque case est une liste de quatre propositions (la question, le texte, la variable, la réponse tapée) ; le programme se montre ligne par ligne — la ligne 1 seule et sans cadre au départ —, le bouton d’exécution en haut, la console juste dessous, puis le programme ; ligne 1 exécutée → la console rappelle que ⏎ est la touche Entrée, toujours pas de cadre → réponse à Entrée → le cadre 1 apparaît ; vérifié → la ligne 2 apparaît, sans cadre, et le bouton « Exécuter la ligne 2 » ; exécutée → la console écrit la phrase et le cadre 2 s’ouvre ; une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
+  verifierEval(w, 'le trajet en entraînement : le programme s’affiche d’abord SANS cadre, le bouton « ▶ Exécuter » dessous, la fenêtre d’affichage sous le bouton ; exécuté → la console rappelle que ⏎ est la touche Entrée, toujours aucun cadre → réponse à Entrée → la console écrit la question et la phrase, le bouton disparaît, et le programme s’affiche une SECONDE fois sous la console avec un cadre à côté de chaque ligne ; chaque case est une liste de quatre propositions ; les six cases se vérifient ensemble — une case fausse rougit avec sa correction, une case vide reçoit la sienne en vert sans rougir', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPNP();
     const q=test.questions[0];
-    if(!document.getElementById("pnpRun1")) vus.push("pas de bouton « Exécuter la ligne 1 »");
-    const etat=function(n){ const r=document.getElementById("pnpR"+n), c=document.getElementById("pnpCadre"+n); if(!r) return "ligne absente"; if(!c) return "ligne sans cadre"; const ins=[].slice.call(c.querySelectorAll("select")); return (ins.length===3&&ins.every(function(i){ return !i.disabled; }))?"cadre ouvert":"cadre fermé"; };
-    if(etat(1)!=="ligne sans cadre"||etat(2)!=="ligne absente") vus.push("au départ : ligne 1 "+etat(1)+", ligne 2 "+etat(2));
     const avant=function(a,b){ return !!(a&&b&&(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING)); };
-    const barre=document.getElementById("pnpRunBar"), cons0=document.getElementById("pnpConsole"), prog=document.querySelector("#pnpHost .pnp-prog");
-    if(!barre||!barre.contains(document.getElementById("pnpRun1"))||!avant(barre,prog)||!avant(prog,cons0)) vus.push("l’ordre n’est pas : bouton, programme, console");
-    if(document.querySelector("#pnpR1.pnp-courante")===null) vus.push("la ligne 1 n’est pas surlignée");
-    pnpExecuter(1);
+    const seul=document.getElementById("pnpProgSeul"), barre=document.getElementById("pnpRunBar"), cons0=document.getElementById("pnpConsole"), run=document.getElementById("pnpRun");
+    if(!run||!barre||!barre.contains(run)) vus.push("pas de bouton « ▶ Exécuter » dans sa barre");
+    if(!seul||!document.getElementById("pnpL1")||!document.getElementById("pnpL2")) vus.push("le programme (deux lignes) n’est pas affiché au départ");
+    if(document.querySelector("#pnpHost .pnp-cadre")||document.getElementById("pnpProgCadres")) vus.push("un cadre est là avant l’exécution");
+    if(!avant(seul,barre)||!avant(barre,cons0)) vus.push("l’ordre n’est pas : programme, bouton, console");
+    pnpExecuter();
     const e=document.getElementById("pnpEntree");
     if(!e) return "la console n’attend pas de réponse";
-    if(etat(1)!=="ligne sans cadre") vus.push("le cadre 1 apparaît avant la réponse validée : "+etat(1));
+    if(document.querySelector("#pnpHost .pnp-cadre")) vus.push("un cadre apparaît avant la réponse validée");
     const css=[].map.call(document.querySelectorAll("style"),function(st){ return st.textContent; }).join("");
     if(css.indexOf('#pnpConsole:has(> input[aria-label="ta réponse à la question du programme"])::after{content:"⏎ : Appuyer sur la touche Entrée pour valider."}')<0||e.parentElement!==document.getElementById("pnpConsole")) vus.push("la console ne rappelle pas que ⏎ est la touche Entrée");
     e.value="Ben"; e.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
     if(q.rep!=="Ben"||q.etape!==1) vus.push("réponse "+q.rep+", étape "+q.etape);
-    if(etat(1)!=="cadre ouvert") vus.push("le cadre 1 n’apparaît pas ouvert : "+etat(1));
+    const cons=document.getElementById("pnpConsole").textContent;
+    if(cons.indexOf("tu es Ben")<0||cons.indexOf("comment tu t")!==0) vus.push("console : "+cons);
+    if(document.getElementById("pnpRun")) vus.push("le bouton « ▶ Exécuter » reste après l’exécution");
+    const pc=document.getElementById("pnpProgCadres");
+    if(!pc||!avant(document.getElementById("pnpConsole"),pc)) vus.push("le programme avec ses cadres n’est pas affiché sous la console");
+    if(!document.getElementById("pnpProgSeul")) vus.push("le programme sans cadre a disparu");
+    const c1=document.getElementById("pnpCadre1"), c2=document.getElementById("pnpCadre2");
+    if(!c1||!c2||!document.getElementById("pnpR1").contains(c1)||!document.getElementById("pnpR2").contains(c2)) vus.push("il manque un cadre à côté d’une ligne");
+    const ouv=[].slice.call(document.querySelectorAll("#pnpProgCadres select")).filter(function(i){ return !i.disabled; }).length;
+    if(ouv!==6) vus.push(ouv+" cases ouvertes au lieu de 6");
     const c0=document.getElementById("pnp-c0"), props=c0?[].slice.call(c0.options).map(function(o){ return o.value; }).filter(Boolean).sort():[];
     if(!c0||c0.tagName!=="SELECT"||JSON.stringify(props)!==JSON.stringify(["Ben","comment tu t'appelles ?","nom","tu es"])) vus.push("les propositions de la case : "+(c0?c0.tagName:"")+" "+JSON.stringify(props));
-    if(etat(2)!=="ligne absente"||document.getElementById("pnpRun2")) vus.push("la ligne 2 est déjà là avant la vérification du cadre 1");
     document.getElementById("pnp-c0").value="comment tu t'appelles ?";
     document.getElementById("pnp-c1").value="nom";
     document.getElementById("pnp-c2").value="Ben";
-    checkPNP();
-    if(q.etape!==2||test.score!==3) vus.push("après le cadre 1 : étape "+q.etape+", score "+test.score);
-    if(document.querySelectorAll("#pnpCadre1 select.ok").length!==3) vus.push("les trois cases justes ne sont pas bleues");
-    if(!document.getElementById("pnpRun2")) vus.push("pas de bouton « Exécuter la ligne 2 »");
-    if(etat(2)!=="ligne sans cadre") vus.push("après le cadre 1, la ligne 2 : "+etat(2));
-    if(!avant(document.getElementById("pnpR1"),document.getElementById("pnpR2"))) vus.push("la ligne 2 n’est pas sous la ligne 1");
-    if(!document.getElementById("pnpRunBar").contains(document.getElementById("pnpRun2"))) vus.push("« Exécuter la ligne 2 » n’est pas en haut");
-    if(!/ligne 2/.test(document.getElementById("pnpFeedback").textContent)) vus.push("le retour ne demande pas d’exécuter la ligne 2");
-    pnpExecuter(2);
-    const cons=document.getElementById("pnpConsole").textContent;
-    if(cons.indexOf("tu es Ben")<0||cons.indexOf("comment tu t")!==0) vus.push("console : "+cons);
-    if(etat(2)!=="cadre ouvert") vus.push("le cadre 2 n’apparaît pas : "+etat(2));
     document.getElementById("pnp-c3").value="tu es";
     document.getElementById("pnp-c4").value="Ben";
     document.getElementById("pnp-c5").value="";
     checkPNP();
+    if(document.querySelectorAll("#pnpProgCadres select.ok").length!==4) vus.push("les quatre cases justes ne sont pas bleues");
     const c4=document.getElementById("pnp-c4"), c5=document.getElementById("pnp-c5");
     if(!c4.classList.contains("bad")||!(c4.nextElementSibling&&c4.nextElementSibling.classList.contains("mf-cor"))) vus.push("la case fausse ne rougit pas avec sa correction");
     if(c5.classList.contains("bad")||!c5.classList.contains("sol")||c5.value!=="Ben") vus.push("la case vide : "+c5.className+" « "+c5.value+" »");
-    if(test.score!==4||!test.locked||!document.getElementById("pnpNext")) vus.push("fin : score "+test.score+", verrou "+test.locked);
+    if(test.score!==4||!test.locked||q.etape!==2||!document.getElementById("pnpNext")) vus.push("fin : score "+test.score+", verrou "+test.locked+", étape "+q.etape);
     if(test.answers.length!==1) vus.push(test.answers.length+" réponses rangées");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
-  verifierEval(w, 'en soutien, une case fausse rougit sans rien verrouiller ni écrire la réponse ; corrigée, la ligne 2 s’ouvre ; un cadre vide ne rougit rien', `(function(){
+  verifierEval(w, 'en soutien, une case fausse rougit sans rien verrouiller ni écrire la réponse ; corrigée, la question se termine ; des cadres vides ne rougissent rien', `(function(){
     const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="soutien"; currentDM=null; currentTestId="${ID}";
     startPNP();
     const q=test.questions[0]; q.rep="15"; q.etape=1; renderPNP();
     checkPNP();
     if(document.querySelector("#pnpHost .bad")) vus.push("un cadre vide rougit");
-    if(q.etape!==1) vus.push("un cadre vide fait avancer");
-    document.getElementById("pnp-c0").value="comment tu t'appelles ?";
-    document.getElementById("pnp-c1").value="nom";
-    document.getElementById("pnp-c2").value="nom";
+    if(q.etape!==1) vus.push("des cadres vides font avancer");
+    const mettre=function(v){ v.forEach(function(x,k){ document.getElementById("pnp-c"+k).value=x; }); };
+    mettre(["comment tu t'appelles ?","nom","nom","tu es","nom","15"]);
     checkPNP();
     if(!document.getElementById("pnp-c2").classList.contains("bad")) vus.push("la valeur fausse ne rougit pas");
     if(q.etape!==1||test.locked||test.score!==0) vus.push("soutien : étape "+q.etape+", verrou "+test.locked+", score "+test.score);
     if(document.querySelector("#pnpHost .mf-cor")) vus.push("la correction est écrite en soutien");
     document.getElementById("pnp-c2").value="15";
     checkPNP();
-    if(q.etape!==2||!document.getElementById("pnpRun2")) vus.push("corrigé, la ligne 2 ne s’ouvre pas");
+    if(q.etape!==2||test.score!==6||!document.getElementById("pnpNext")) vus.push("corrigé, la question ne se termine pas : étape "+q.etape+", score "+test.score);
     currentMode="train";
+    return vus.slice(0,5).join(" | ");
+  })()`, v => v === '');
+
+  verifierEval(w, 'un brouillon du pas à pas d’avant (cadre 1 vérifié, ligne 2 à exécuter) se reprend : le programme s’affiche avec ses cadres, le cadre 1 reste jugé, le cadre 2 s’ouvre', `(function(){
+    const vus=[];
+    currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
+    startPNP();
+    const q=test.questions[0]; delete q.f; q.rep="Ben"; q.etape=2; q.v=["comment tu t'appelles ?","nom","Ben","","",""]; q.ok=[true,true,true,null,null,null]; test.score=3;
+    renderPNP();
+    if(q.etape!==1||q.f!==2) vus.push("étape "+q.etape+", format "+q.f);
+    if(!document.getElementById("pnpProgCadres")||document.getElementById("pnpRun")) vus.push("le programme avec ses cadres n’est pas affiché");
+    const d=[0,1,2].filter(function(k){ const i=document.getElementById("pnp-c"+k); return i&&i.disabled&&i.classList.contains("ok"); }).length;
+    const o=[3,4,5].filter(function(k){ const i=document.getElementById("pnp-c"+k); return i&&!i.disabled; }).length;
+    if(d!==3||o!==3) vus.push(d+" cases du cadre 1 jugées, "+o+" du cadre 2 ouvertes");
+    document.getElementById("pnp-c3").value="tu es"; document.getElementById("pnp-c4").value="nom"; document.getElementById("pnp-c5").value="Ben";
+    checkPNP();
+    if(test.score!==6||q.etape!==2) vus.push("fin : score "+test.score+", étape "+q.etape);
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 }
@@ -36846,7 +36860,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36855,7 +36869,7 @@ function augmentationTableau(w, P){
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       /* les contextes à dates ne commencent pas forcément le 1er (Turquet, novembre 2026) : j0 tiré, et la question 3 reste dans le mois */
       qs.forEach(function(q){ const c=SUI_CTX[q.ci]; if(c.tps.type!=='date') return; j0s.add(q.j0||1); const v=suiVals(q);
-        if(!(q.j0>=1&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 1 à 20)");
+        if(!(q.j0>=2&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 2 à 20 : jamais le 1er du mois, Turquet, novembre 2026)");
         if(v.fin>30) vus.push(c.nom+" : le "+v.fin+" "+c.tps.mois+" n’existe pas"); });
       /* le pas selon le rang de l'exemple (Turquet, novembre 2026) : 10 à 30, puis 60, 70, 80, 90 ou 110 (v436) */
       const r1=suiVals(qs[0]).rAbs; if(r1>30) vus.push("le premier exemple ajoute ou retire "+r1+" : attendu 10, 20 ou 30");
@@ -36863,8 +36877,9 @@ function augmentationTableau(w, P){
       qs.forEach(function(q,i){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0 && !(i>=3 && i<6 && v.rAbs===110)) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
-        if(v.kk>10) vus.push("p="+v.kk+" : la question 3 sort de la table de 10");
-        if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
+        if(v.n<7||v.n>12) vus.push("N="+v.n+" : la question 2 doit multiplier par 7 à 12 (Turquet, novembre 2026)");
+        if(v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : le seuil de la question 3 doit être au moins deux fois plus loin");
+        if(SUI_CTX[q.ci].tps.type==='heure'&&v.fin>23) vus.push(SUI_CTX[q.ci].nom+" : "+v.fin+" h n’existe pas");
         if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");

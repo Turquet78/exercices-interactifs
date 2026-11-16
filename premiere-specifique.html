@@ -19838,19 +19838,31 @@ function suiFmt(n){ const s=String(Math.abs(n)); return (n<0?'−':'')+s.replace
    Les valeurs du tableau en découlent : des dizaines ou des centaines rondes,
    des additions qui se font de tête. */
 const SUI_PAS=[10,20,30,40,50,60,70,80,90,100];
-/* Le pas le plus lointain : la question ③ reste dans la table de 10. */
-const SUI_P_MAX=10;
+/* LA QUESTION ② MULTIPLIE PAR 7 À 12 (demande de Turquet, novembre 2026 :
+   « il faut mettre entre 7 fois et 12 fois le nombre ») : N, le nombre de
+   pas de la question ②, va de SUI_N_MIN à SUI_N_MAX. Avant, N valait 4 ou 5
+   pour que la question ③ reste dans la table de 10 ; la règle « le seuil au
+   moins deux fois plus loin » (p ≥ 2N) est gardée, donc p va maintenant de
+   14 à 24 + SUI_P_ECART — borné par le contexte : l'heure finit au plus à
+   23 h, la date au plus le 30 (jour de départ compris, SUI_J0_MIN). */
+const SUI_N_MIN=7, SUI_N_MAX=12, SUI_P_ECART=2;
+function suiPMax(c){
+  if(c.tps.type==='heure') return 23-c.tps.t0;
+  if(c.tps.type==='date') return 30-SUI_J0_MIN;
+  return 2*SUI_N_MAX+SUI_P_ECART;
+}
 /* Toutes les combinaisons (u0, r, N, p) d'un contexte : u0 parmi ses valeurs
-   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N au-delà du tableau (≥ 4), le
-   seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
-   (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
-   vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
+   rondes, r dans SUI_PAS entre ses bornes (rMin, rMax), N de SUI_N_MIN à
+   SUI_N_MAX (7 à 12), le seuil de la question ③ AU MOINS DEUX FOIS plus loin
+   que la question ② (p ≥ 2N, demande de Turquet, novembre 2026) et au plus
+   2N + SUI_P_ECART, dans les limites du contexte (suiPMax), et une quantité
+   qui diminue ne tombe jamais à zéro. */
 function suiFamilles(c, pas){
   const out=[];
   c.u0.forEach(function(u0){
     (pas||SUI_PAS).forEach(function(r){
       if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
-      for(let N=4;2*N<=SUI_P_MAX;N++) for(let p=2*N;p<=SUI_P_MAX;p++){
+      for(let N=SUI_N_MIN;N<=SUI_N_MAX;N++) for(let p=2*N;p<=Math.min(2*N+SUI_P_ECART, suiPMax(c));p++){
         if(u0+c.sens*p*r<=0) continue;
         out.push({u0:u0, r:r, N:N, p:p});
       }
@@ -19864,7 +19876,9 @@ function suiTirer(ci, part, bornes){
   const fam=bornes ? suiFamilles(SUI_CTX[ci], bornes) : [];
   const f=pick(fam.length?fam:suiFamilles(SUI_CTX[ci]));
   const q={ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
-  if(SUI_CTX[ci].tps.type==='date') q.j0=1+Math.floor(Math.random()*SUI_J0_MAX);
+  /* le jour de départ : jamais le 1er (Turquet, novembre 2026), et la date
+     de la question ③ reste dans le mois */
+  if(SUI_CTX[ci].tps.type==='date'){ const jMax=Math.max(SUI_J0_MIN, Math.min(SUI_J0_MAX, 30-f.p)); q.j0=SUI_J0_MIN+Math.floor(Math.random()*(jMax-SUI_J0_MIN+1)); }
   return q;
 }
 /* Le pas selon le RANG de l'exemple dans la séance (demande de Turquet,
@@ -19890,6 +19904,9 @@ function suiMoment(c, n, j0){
    (demande de Turquet, novembre 2026). Au plus 20 : avec p ≤ 10, la question
    ③ reste dans le mois. Un brouillon d'avant (sans j0) lit 1. */
 const SUI_J0_MAX=20;
+/* Puis « que ça ne commence pas le 1er du mois » (Turquet, novembre 2026) :
+   le jour de départ va de 2 à SUI_J0_MAX. */
+const SUI_J0_MIN=2;
 /* Tout ce que la question attend, recalculé du tirage. */
 function suiVals(q){
   /* un brouillon de pause d'avant la v416 range (a, b, k) : u0 = a·10^k, r = b·10^k */
