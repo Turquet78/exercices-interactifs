@@ -43497,11 +43497,13 @@ function pythonForNom(w, P){
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
     ["pfn-prog","pfnRun","pfnConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const pouces=document.querySelectorAll("#pfnEtape details.pyd-pouce");
-    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
     else {
-      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
-      const t=net(pouces[0].querySelector("p").textContent);
-      if(t!=="Pour compter de 1 à 8 utiliser l’instruction :for k in range (1,9): ...") vus.push("le coup de pouce : "+JSON.stringify(t));
+      if(pouces[0].open||pouces[1].open) vus.push("coup de pouce déplié d’emblée");
+      const t1=net(pouces[0].querySelector("p").textContent), t2=net(pouces[1].querySelector("p").textContent);
+      if(t1!=="Pour compter de 1 à 8 utiliser l’instruction :for k in range (1,9): ...") vus.push("le coup de pouce 1 : "+JSON.stringify(t1));
+      if(t2!=='Pour compter de 1 à 8 utiliser l’instruction :for k in range (1,9): print (".......")') vus.push("le coup de pouce 2 : "+JSON.stringify(t2));
+      if(net(pouces[0].querySelector("summary").textContent)!=="coup de pouce 1"||net(pouces[1].querySelector("summary").textContent)!=="coup de pouce 2") vus.push("les titres des coups de pouce");
     }
     const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pfn||"";
     if(net(rap.textContent)!=="Afficher 8 fois son nom et prénom Pour compter de 1 à 8 utiliser l’instruction : for k in range (1,9): ...") vus.push("le rappel : "+JSON.stringify(rap.textContent));
