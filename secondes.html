@@ -72230,7 +72230,7 @@ function ctxVqs(q){
    q.P (A, B, C, D), q.a et q.b (les deux vecteurs en paires d'indices), q.n
    (la lettre du point : M ou N), puis ce que l'élève a fait : q.cp
    (le début de chaque copie déplacée), q.m. Les cases se rangent d'elles-
-   mêmes (captureBoxes). Les deux premières questions SONT la fiche. */
+   mêmes (captureBoxes). */
 const VSM_NB=3;
 const VSM_L=['A','B','C','D'];
 const VSM_C6=['xf','xd','yf','yd','rx','ry'];
@@ -72289,12 +72289,14 @@ function vsmAttendu(q){
    carreaux, jamais trois alignés ; D avec une coordonnée négative au moins
    (l'étape « x + … » de la fiche) ; les deux vecteurs partent du même point,
    comme sur la fiche (BC⃗ + BA⃗, CA⃗ + CB⃗), en biais ; M lisible, loin des
-   quatre points, et chaque copie posée sur D reste dans le repère. Les deux
-   premières questions sont les deux exercices de la fiche ; ensuite, la forme
-   de l'exercice 1 (le point M) alterne avec celle de l'exercice 2 (le
-   point N). */
+   quatre points, et chaque copie posée sur D reste dans le repère. Toutes les
+   questions sont TIRÉES, jamais celles de la fiche (Turquet, v703 : « fais
+   des exercices différents de ma feuille pdf avec tes points ») — les
+   coordonnées ne valent jamais −1, et D(−1 ; −2) de la fiche ne peut donc
+   pas revenir. La forme de l'exercice 1 (le point M) alterne avec celle de
+   l'exercice 2 (le point N). vsmFiche reste : c'est l'exemple du rappel, et
+   la figure connue que le banc rejoue. */
 function vsmGen(i){
-  if(i<2) return vsmFiche(i);
   const V=[-5,-4,-3,-2,1,2,3,4,5], lis=function(p){ return V.indexOf(p[0])>=0&&V.indexOf(p[1])>=0; };
   const det=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
   for(let essai=0;essai<8000;essai++){

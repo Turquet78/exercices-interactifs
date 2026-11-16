@@ -15800,28 +15800,35 @@ function coordonneesVecteurs(w, P){
     [['3',3],['(−1)',-1],['4 - 1',3],['-1+2+2',3],['−2 + (−1) + 2',-1],['3+(-2)',1],['x',null],['1+',null],['2+',null]].forEach(function(c){
       if(vsmLitCalc(c[0])!==c[1]) vus.push('8.4.11 : vsmLitCalc(« '+c[0]+' ») rend '+vsmLitCalc(c[0])); });
     if(JSON.stringify(vsmM(vsmFiche(0)))!=='[3,-1]' || JSON.stringify(vsmM(vsmFiche(1)))!=='[-3,2]') vus.push('8.4.11 : les points de la fiche '+JSON.stringify(vsmM(vsmFiche(0)))+' '+JSON.stringify(vsmM(vsmFiche(1))));
-    /* le tirage : les deux exercices de la fiche d'abord, puis des figures lisibles */
+    /* le tirage : des figures lisibles, jamais celles de la fiche (v703) */
     const lis11=function(p){ return p.every(function(c){ return c!==0&&c!==-1&&Math.abs(c)<=5; }); };
     const det11=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
     for(let n=0;n<200;n++){
       const qs=vsmBuildQuestions();
       if(qs.length!==d11.nb){ vus.push('8.4.11 : '+qs.length+' questions'); break; }
-      if(JSON.stringify(qs[0])!==JSON.stringify(vsmFiche(0)) || JSON.stringify(qs[1])!==JSON.stringify(vsmFiche(1))){ vus.push('8.4.11 : les deux premières questions ne sont pas la fiche'); break; }
+      if(qs.some(function(q){ return JSON.stringify(q.P)===JSON.stringify(vsmFiche(0).P); })){ vus.push('8.4.11 : une question reprend les points de la fiche'); break; }
       if(new Set(qs.map(vsmCle)).size!==qs.length){ vus.push('8.4.11 : deux questions identiques'); break; }
-      const q=qs[2], T=q.P.concat([vsmM(q)]), u=vsmVec(q,0), v=vsmVec(q,1);
-      if(Object.keys(q).sort().join(',')!=='P,a,b,cp,m,n' || q.m || q.cp[0] || q.n!=='M' || vsmCases(q).length!==36){ vus.push('8.4.11 : range '+JSON.stringify(q)); break; }
-      if(!T.every(lis11)){ vus.push('8.4.11 : un point illisible '+JSON.stringify(T)); break; }
+      let faute11=false;
+      qs.forEach(function(q,k){ if(faute11) return;
+      const T=q.P.concat([vsmM(q)]), u=vsmVec(q,0), v=vsmVec(q,1);
+      if(Object.keys(q).sort().join(',')!=='P,a,b,cp,m,n' || q.m || q.cp[0] || q.n!==(k%2?'N':'M') || vsmCases(q).length!==36){ vus.push('8.4.11 : range '+JSON.stringify(q)); faute11=true; return; }
+      if(!T.every(lis11)){ vus.push('8.4.11 : un point illisible '+JSON.stringify(T)); faute11=true; return; }
       let mauvais=!(q.P[3][0]<0||q.P[3][1]<0) || q.a[0]!==q.b[0] || q.a[1]===q.b[1] || !u[0]||!u[1]||!v[0]||!v[1];
       for(let a=0;a<5;a++) for(let b=a+1;b<5;b++) if(!vecLoin(T[a],T[b])) mauvais=true;
       for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) for(let c=b+1;c<4;c++) if(det11(T[a],T[b],T[c])===0) mauvais=true;
       if(!vcdDans(svrPlus(q.P[3],u)) || !vcdDans(svrPlus(q.P[3],v))) mauvais=true;
-      if(mauvais){ vus.push('8.4.11 : une figure hors des règles '+JSON.stringify(q)); break; }
+      if(mauvais){ vus.push('8.4.11 : une figure hors des règles '+JSON.stringify(q)); faute11=true; return; }
+      });
+      if(faute11) break;
     }
     const verifier11=function(){ const av=test.score; checkVsm(); clearTimeout(test.fbTimer); return test.score-av; };
     const ids11=function(){ return vsmCases(test.questions[test.idx]); };
     const cl11=function(){ return ids11().map(function(i){ return classe(el(i)); }).join(','); };
     const tous11=function(c){ return ids11().map(function(){ return c; }).join(','); };
     currentTestId=d11.exercice; TESTS[d11.exercice].start(); clearTimeout(test.fbTimer);
+    if(el('vsmInstr').textContent.indexOf('D(−1 ; −2)')>=0) vus.push('8.4.11 : la séance commence par la fiche');
+    /* la suite rejoue la figure connue de la fiche : la première question, puis la seconde */
+    test.questions[0]=vsmFiche(0); test.questions[1]=vsmFiche(1); renderVsm();
     if(test.kind!=='vsm' || test.questions.length!==d11.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vsmCases(q).length; },0)) vus.push('8.4.11 : kind '+test.kind+', barème '+test.maxScore);
     if(dmPoidsQuestion('vsm',test.questions[0])!==36 || dmPoidsQuestion('vsm',test.questions[1])!==36) vus.push('8.4.11 : dmPoidsQuestion ne compte pas 36 réponses à chaque exercice');
     if(!el('vsmInstr').classList.contains('enonce') || el('vsmInstr').textContent.indexOf('A(3 ; 4), B(1 ; 2), C(3 ; 1) et D(−1 ; −2)')<0 || el('vsmInstr').textContent.replace(/\\s+/g,'').indexOf('PlaceMtelqueDM=BC+BA')<0) vus.push('8.4.11 : l\\'énoncé : '+el('vsmInstr').textContent.slice(0,200));
