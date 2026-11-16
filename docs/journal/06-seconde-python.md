@@ -7335,3 +7335,17 @@ Déclarations : `soutienEnDirect.sans`, `tablesAide.sans`, `pythonAvant.sans`,
 `pauseReprise.horsAtteinte`, `apres2`, et `pythonBoitesMemoire.suite` qui mène
 chaque fiche jusqu'au bout dans jsdom. Ce qu'aucun banc ne voit : le vol, la
 bulle et la chute de l'ancienne valeur — capturés à la main.
+
+**Puis l'élève a prédit la VALEUR, plus la boîte (novembre 2026, v699).**
+Demande de Turquet, au vu des 6.2.25 et 6.2.26 : « fais prédire la valeur au
+lieu de la boîte ». `PB_KINDS[K].predit` : 'boite' au 6.2.24 (inchangé),
+'valeur' au calcul et à l'échange. La boîte qui reçoit est désignée (liseré
+ambre, `.pbm-cible`) et n'est plus un bouton ; l'élève écrit la valeur dans
+`#pbc-rep` / `#pbe-rep`, Entrée ou « ▶ Exécuter la ligne » la juge (`papNet`,
+comparée à `papAns`), et l'animation montre la vérité. La puce au bout de la
+ligne porte la valeur écrite (bleue ou rouge), la bonne valeur en vert à côté.
+Vide : redemandée, jamais peinte. Soutien : la case fausse rougit, la ligne ne
+s'exécute pas, et le message renvoie au bon geste (« fais le calcul avec ce que
+contiennent les boîtes AVANT cette ligne », « va lire ce que contient la boîte
+b »). Le contrôle jsdom de la suite écrit les valeurs, et éprouve la case vide,
+la valeur fausse en entraînement et en soutien.

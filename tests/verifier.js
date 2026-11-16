@@ -36872,7 +36872,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 5, 6 ou 7 et la question 3 par 8 ou 9, 8 à 10, ou 10, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36889,8 +36889,8 @@ function augmentationTableau(w, P){
       qs.forEach(function(q,i){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0 && !(i>=3 && i<6 && v.rAbs===110)) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
-        if(v.n<7||v.n>12) vus.push("N="+v.n+" : la question 2 doit multiplier par 7 à 12 (Turquet, novembre 2026)");
-        if(v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : le seuil de la question 3 doit être au moins deux fois plus loin");
+        { const PERMIS={5:[8,9],6:[8,9,10],7:[10]}; if(!PERMIS[v.n]) vus.push("N="+v.n+" : la question 2 doit multiplier par 5, 6 ou 7 (Turquet, novembre 2026)");
+          else if(PERMIS[v.n].indexOf(v.kk)<0) vus.push("N="+v.n+", p="+v.kk+" : attendu "+PERMIS[v.n].join(" ou ")+" à la question 3"); }
         if(SUI_CTX[q.ci].tps.type==='heure'&&v.fin>23) vus.push(SUI_CTX[q.ci].nom+" : "+v.fin+" h n’existe pas");
         if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
@@ -58770,6 +58770,44 @@ function premiere(w){
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
+  /* {vocabulaire-calcul-2} (1.14) : le 1.13 sans calcul à choisir, nombres
+     TIRÉS (demande de Turquet, novembre 2026) — toute donnée, toute étape et
+     tout résultat est un entier de 1 à 30 ou un décimal de 0 à 5 dont la
+     partie décimale est ,1 ,2 ,25 ,4 ou ,5 ; 12 phrases, 4 calculs en étapes,
+     4 sans étapes ; aucune séance ne pose deux fois la même question ; la
+     note part sous son identité ; « Recommencer » le relance, pas le 1.13. */
+  verifierEval(w, '{vocabulaire-calcul-2} : des nombres dans les bornes demandées, partout, et ni choix de calcul ni doublon', `(function(){
+    const vus=[];
+    if(typeof genVoc2!=='function') return 'genVoc2() n\\'existe pas';
+    if(VOC2_NB!==20) vus.push(VOC2_NB+' questions au lieu de 20');
+    [1000,30000,100,200,250,400,500,4500,5000,1200,2250].forEach(m=>{ if(!voc2Ok(m)) vus.push(m/1000+' refusé'); });
+    [0,31000,300,750,5250,5500,1600,150].forEach(m=>{ if(voc2Ok(m)) vus.push(m/1000+' accepté'); });
+    let hors=0;
+    for(let r=0;r<200;r++){ const qs=distinctes(20,function(_,i){ return genVoc2(i,20); });
+      if(new Set(qs.map(q=>JSON.stringify(q))).size!==20) vus.push('une séance pose deux fois la même question');
+      qs.forEach(function(q,i){ const L=vocL(q), nb=[q.x,q.y,q.a,q.b].filter(v=>v!=null);
+        if(!L || !nb.every(voc2Ok) || !L.et.every(e=>voc2Ok(e.r))) hors++;
+        const p=i<12?1:(i<16?2:3); if(L && L.p!==p) vus.push('question '+(i+1)+' en partie '+L.p);
+        if(L && p===2 && L.et.length<2) vus.push('un calcul en étapes sans étape');
+        if(q.g==='G3' && VOC2_RECIPROQUES[q.u]===q.v) vus.push('« '+L.titre+' » rend sa donnée'); }); }
+    if(hors) vus.push(hors+' questions hors des bornes');
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVoc2();
+    if(test.qId!=='vocabulaire-calcul-2') vus.push('identité perdue');
+    test.questions[0]={g:'moitie',p:1,x:5000}; test.idx=0; renderVoc();
+    if(document.querySelector('#vocHost .voc-ch')) vus.push('des calculs à choisir en partie 1');
+    const t=document.querySelector('#vocHost').firstElementChild;
+    if(!t || t.textContent!=='On doit calculer la moitié de 5.') vus.push('la première ligne n\\'est pas « On doit calculer la moitié de 5. » ('+(t?t.textContent:'rien')+')');
+    const e=document.getElementById('vocE0'); if(e) e.value='2,5'; checkVocAnswer(); if(test.score!==1) vus.push('la moitié de 5 = 2,5 refusé');
+    test.questions[0]={g:'G4',p:2,a:10000,u:'inverse',x:5000}; test.idx=0; test.locked=false; test.score=0; renderVoc();
+    if(!/^Calcule la différence entre 10 et l’inverse de 5\\./.test(document.getElementById('vocPrompt').textContent)) vus.push('G4 mal écrit : '+document.getElementById('vocPrompt').textContent);
+    document.getElementById('vocE0').value='0,2'; document.getElementById('vocE1').value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 0,2 = 9,8 en étapes refusé');
+    test.questions=[]; restartCurrentTest();
+    if(test.qId!=='vocabulaire-calcul-2' || test.questions[0].g==null) vus.push('« Recommencer » ne relance pas le 1.14');
+    startVoc(); if(test.qId!=='vocabulaire-calcul') vus.push('le 1.13 garde l’identité du 1.14');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+
   /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
      même dénominateur dans une somme (demande de Turquet, novembre 2026) — le
      niveau 6 posait 315 + 9/100 + 5/10 + 9/100. L'ordre des termes, lui, peut
@@ -59646,8 +59684,14 @@ function pythonBoitesMemoire(w, P){
       if(TEST_NUM[${J(E.exercice)}]!==${J(E.num)}) vus.push("numero "+TEST_NUM[${J(E.exercice)}]);
       if(!document.getElementById(K+"Exec")) vus.push("pas de bouton "+K+"Exec");
       const q=test.questions[0];
+      /* l'élève ÉCRIT la valeur (novembre 2026) : la boîte est désignée, aucune n'est cliquable */
+      if(document.querySelector("#"+K+"Host button.pbm-boite")) vus.push("une boite se clique encore : la boite est donnee, on predit la valeur");
+      if(!document.querySelector("#"+K+"Host .pbm-boite.pbm-cible")) vus.push("la boite qui recoit la valeur n est pas designee");
+      pbmExecuter();
+      if(test.pbmVerdicts.length||document.querySelector("#"+K+"Host .ok,#"+K+"Host .bad")) vus.push("une reponse vide a ete jugee ou peinte");
       q.lignes.forEach(function(l, k){
-        pbmChoisir(l.nom); pbmExecuter();
+        const r=document.getElementById(K+"-rep"); if(!r){ vus.push("ligne "+(k+1)+" : pas de case pour la valeur"); return; }
+        r.value=" "+papAns(q, k).val+" "; pbmExecuter();
         const fb=document.getElementById(K+"Feedback").textContent, avant=pbmMemoire(q, k);
         if(avant[l.nom]!==undefined && fb.indexOf("ancienne valeur de "+l.nom+" ("+pyRep(avant[l.nom])+") est effacée")<0) vus.push("ligne "+(k+1)+" : l ancienne valeur effacee n est pas dite : "+fb);
         if(pbType(l.expr)==="calcul" && fb.indexOf("calcule")<0) vus.push("ligne "+(k+1)+" : le calcul n est pas dit : "+fb);
@@ -59656,6 +59700,21 @@ function pythonBoitesMemoire(w, P){
       if(fin!==${J(E.fin)}) vus.push("la memoire a la fin : "+fin);
       if(test.score!==q.lignes.length||!test.answers[0]||test.answers[0].cases!==q.lignes.length) vus.push("score "+test.score+" / reponse "+JSON.stringify(test.answers[0]));
       if(document.querySelector("#pbmHost #"+K+"-boite-a")) vus.push("une boite de "+K+" dans l ecran du 6.2.24");
+      /* une valeur FAUSSE : en entrainement, la puce rouge et la bonne valeur en vert, et le programme continue ;
+         en soutien, rien ne s execute et la case rougit */
+      TESTS[${J(E.exercice)}].start();
+      const q2=test.questions[0], faux=String(Number(papAns(q2, 0).val)+1);
+      document.getElementById(K+"-rep").value=faux; pbmExecuter();
+      const c0=document.getElementById(K+"-choix-0"), cor=document.querySelector("#"+K+"Host .pbm-cor");
+      if(!c0||!c0.classList.contains("bad")||c0.textContent.indexOf(faux)<0) vus.push("la valeur fausse : "+(c0?c0.className+" "+c0.textContent:"absente"));
+      if(!cor||cor.textContent.indexOf(papAns(q2, 0).val)<0) vus.push("la bonne valeur n est pas ecrite en vert");
+      if(test.score!==0||!document.getElementById(K+"-rep")) vus.push("apres une valeur fausse : score "+test.score+", ligne suivante "+!!document.getElementById(K+"-rep"));
+      currentMode="soutien"; TESTS[${J(E.exercice)}].start();
+      document.getElementById(K+"-rep").value=faux; pbmExecuter();
+      if(test.pbmVerdicts.length||!document.getElementById(K+"-rep").classList.contains("bad")) vus.push("soutien : la valeur fausse a ete executee, ou la case ne rougit pas");
+      document.getElementById(K+"-rep").value=papAns(test.questions[0], 0).val; pbmExecuter();
+      if(!test.pbmVerdicts[0]||!test.pbmVerdicts[0].ok) vus.push("soutien : la bonne valeur n execute pas la ligne");
+      currentMode="train";
       if(!RAPPELS[K]||RAPPELS[K]===RAPPELS.pbm) vus.push("rappel");
       if(!QIA_SUGG[K]||QIA_SUGG[K].length<3) vus.push("questions a l IA");
       if(!afficherEcranDe(K)) vus.push("afficherEcranDe ne connait pas "+K);

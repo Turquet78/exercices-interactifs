@@ -1192,6 +1192,9 @@
   .pbm-choix.sol,.pbm-cor{color:var(--green);background:var(--green-soft);border-color:var(--green)}
   .pbm-jeton{position:absolute;z-index:5;pointer-events:none;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.5rem;font-weight:700;color:var(--ink);background:#FFF3C4;border:2px solid #E8A317;border-radius:999px;padding:2px 12px;box-shadow:0 4px 10px rgba(0,0,0,.18);will-change:transform}
   .pb-avec-calc .pbm-boites{padding-top:64px}
+  .pbm-boite.pbm-cible .pbm-dedans{border-color:#E8A317;box-shadow:0 0 0 4px rgba(232,163,23,.35)}
+  div.pbm-boite{cursor:default}
+  .pb-question .pb-rep{margin-left:4px;vertical-align:baseline}
   .pb-calc{position:absolute;z-index:4;pointer-events:none;white-space:nowrap;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-size:1.35rem;font-weight:700;color:var(--ink);background:#fff;border:2px solid #6c8ebf;border-radius:12px;padding:4px 12px;box-shadow:0 3px 8px rgba(0,0,0,.12)}
   .pb-place{display:inline-block;min-width:1ch}
   .pb-res{color:var(--blue)}
@@ -7934,7 +7937,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <div class="py-avant" id="pbcAvant"></div>
-      <p class="mp-instr enonce">Ex&eacute;cute le programme <b>ligne par ligne</b>. Avant chaque ligne, clique la <b>bo&icirc;te</b> qui va recevoir la valeur, puis appuie sur &laquo;&nbsp;Ex&eacute;cuter la ligne&nbsp;&raquo; : pour une ligne comme <code>a = a + 3</code>, tu verras le calcul se faire avec ce que contient la bo&icirc;te, puis le r&eacute;sultat entrer dans sa bo&icirc;te.</p>
+      <p class="mp-instr enonce">Ex&eacute;cute le programme <b>ligne par ligne</b>. &Agrave; chaque ligne, la bo&icirc;te qui re&ccedil;oit la valeur est entour&eacute;e : &eacute;cris la <b>valeur</b> qu&rsquo;elle va recevoir, puis appuie sur &laquo;&nbsp;Ex&eacute;cuter la ligne&nbsp;&raquo;. Pour une ligne comme <code>a = a + 3</code>, le calcul se fait avec ce que contient la bo&icirc;te <b>avant</b> la ligne.</p>
       <div class="mp-stage"><div style="width:100%" id="pbcHost"></div></div>
       <div class="mp-feedback" id="pbcFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -7951,7 +7954,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
     <div class="card">
       <div class="py-avant" id="pbeAvant"></div>
-      <p class="mp-instr enonce">Ce programme <b>&eacute;change</b> le contenu de deux bo&icirc;tes. Ex&eacute;cute-le <b>ligne par ligne</b> : avant chaque ligne, clique la <b>bo&icirc;te</b> qui va recevoir la valeur, puis appuie sur &laquo;&nbsp;Ex&eacute;cuter la ligne&nbsp;&raquo;. Regarde bien ce que devient l&rsquo;ancienne valeur d&rsquo;une bo&icirc;te.</p>
+      <p class="mp-instr enonce">Ce programme <b>&eacute;change</b> le contenu de deux bo&icirc;tes. Ex&eacute;cute-le <b>ligne par ligne</b> : &agrave; chaque ligne, la bo&icirc;te qui re&ccedil;oit la valeur est entour&eacute;e ; &eacute;cris la <b>valeur</b> qu&rsquo;elle va recevoir, puis appuie sur &laquo;&nbsp;Ex&eacute;cuter la ligne&nbsp;&raquo;. Regarde bien ce que devient l&rsquo;ancienne valeur d&rsquo;une bo&icirc;te.</p>
       <div class="mp-stage"><div style="width:100%" id="pbeHost"></div></div>
       <div class="mp-feedback" id="pbeFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -10439,8 +10442,8 @@ const TESTS={
   'python-type-resultat': { name:'Le type du résultat : int ou float ?', icon:'🔢', desc:'Sans exécuter, dis ce qu’affichent 7 / 2, 6 / 2 ou 7 // 2 — et le type de chaque résultat : int, float ou str. La division / donne toujours un float.', start:()=>startPWY() },
   'python-texte-nombre': { name:'Un texte et un nombre dans le même print', icon:'⚠️', desc:'Ce programme colle un texte et un nombre avec + : il s’arrête sur une erreur TypeError. Exécute-le, puis corrige-le avec des virgules ou str(…).', start:()=>startPWS() },
   'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
-  'python-boites-calcul': { name:'Les bo\u00eetes de la m\u00e9moire : une ligne qui calcule', icon:'\u2795', desc:'a = 5, puis a = a + 3\u00a0: avant chaque ligne, clique la bo\u00eete qui re\u00e7oit la valeur, puis ex\u00e9cute la ligne. Le calcul se fait avec ce que contient la bo\u00eete, et le r\u00e9sultat remplace l\u2019ancienne valeur.', start:()=>startPBC() },
-  'python-boites-echange': { name:'Les bo\u00eetes de la m\u00e9moire : \u00e9changer deux variables', icon:'\ud83d\udd04', desc:'a = 3, b = 7, c = a, a = b, b = c\u00a0: avant chaque ligne, clique la bo\u00eete qui re\u00e7oit la valeur, puis ex\u00e9cute la ligne, et regarde la troisi\u00e8me bo\u00eete garder la valeur que l\u2019on va effacer.', start:()=>startPBE() },
+  'python-boites-calcul': { name:'Les bo\u00eetes de la m\u00e9moire : une ligne qui calcule', icon:'\u2795', desc:'a = 5, puis a = a + 3\u00a0: \u00e0 chaque ligne, \u00e9cris la valeur que re\u00e7oit la bo\u00eete, puis ex\u00e9cute la ligne. Le calcul se fait avec ce que contient la bo\u00eete, et le r\u00e9sultat remplace l\u2019ancienne valeur.', start:()=>startPBC() },
+  'python-boites-echange': { name:'Les bo\u00eetes de la m\u00e9moire : \u00e9changer deux variables', icon:'\ud83d\udd04', desc:'a = 3, b = 7, c = a, a = b, b = c\u00a0: \u00e0 chaque ligne, \u00e9cris la valeur que re\u00e7oit la bo\u00eete, puis ex\u00e9cute la ligne, et regarde la troisi\u00e8me bo\u00eete garder la valeur que l\u2019on va effacer.', start:()=>startPBE() },
   'python-boites-memoire': { name:'Les bo\u00eetes de la m\u00e9moire : la valeur qui y entre', icon:'\ud83d\udce6', desc:'Le programme a = 10, b = 2, c = b, et une bo\u00eete par variable. Avant chaque ligne, clique la bo\u00eete qui va recevoir la valeur, puis ex\u00e9cute la ligne\u00a0: le nombre appara\u00eet et entre dans sa bo\u00eete \u2014 et pour c = b, c\u2019est une COPIE du contenu de b qui part dans c.', start:()=>startPBM() },
   'python-valeur-case': { name:'La valeur de la case m\u00e9moire, ligne par ligne', icon:'\ud83d\uddc3\ufe0f', desc:'Le m\u00eame programme pas \u00e0 pas, mais plus simple\u00a0: la case m\u00e9moire que la ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau, et tu n\u2019\u00e9cris que LA VALEUR qu\u2019elle contient ensuite. Ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier \u00e0 la fin que toutes les cases m\u00e9moire ont la bonne valeur.', start:()=>startPVM() },
   'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme \u00ab\u00a0c = a+b\u00a0\u00bb CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
@@ -57861,10 +57864,18 @@ const PBM_DUREE=1300;    /* ms : apparition (≈ 25 %), puis le vol jusqu'à la 
    l'atterrissage (.pb-efface, barrée, elle tombe et s'éteint) : c'est toute la
    leçon de l'échange — a = b efface le 3 de a, que c a gardé. */
 const PB_KINDS={
-  pbm:{ id:'python-boites-memoire', build:function(){ return pbmBuildQuestions(); } },
-  pbc:{ id:'python-boites-calcul',  build:function(){ return pbcBuildQuestions(); } },
-  pbe:{ id:'python-boites-echange', build:function(){ return pbeBuildQuestions(); } }
+  pbm:{ id:'python-boites-memoire', predit:'boite',  build:function(){ return pbmBuildQuestions(); } },
+  pbc:{ id:'python-boites-calcul',  predit:'valeur', build:function(){ return pbcBuildQuestions(); } },
+  pbe:{ id:'python-boites-echange', predit:'valeur', build:function(){ return pbeBuildQuestions(); } }
 };
+/* CE QUE L'ÉLÈVE PRÉDIT (demande de Turquet, novembre 2026 : « fais prédire
+   la valeur au lieu de la boîte », pour le calcul et l'échange) : au 6.2.24
+   il clique la BOÎTE qui reçoit la valeur ; aux 6.2.25 et 6.2.26, la boîte
+   est donnée (liseré ambre, .pbm-cible) et il ÉCRIT la valeur qu'elle va
+   recevoir — 8 pour a = a + 3 quand a contient 5, 7 pour a = b quand b
+   contient 7. C'est là que se trompe l'élève : un calcul fait avec la
+   mauvaise valeur, une copie lue dans la mauvaise boîte. */
+function pbValeur(){ return (PB_KINDS[test.kind]||{}).predit==='valeur'; }
 function pbK(){ return PB_KINDS[test.kind] ? test.kind : 'pbm'; }
 /* les jeux sans x : la lettre x s'écrit en italique ailleurs dans la page, et
    une boîte « x » se lirait comme l'inconnue ou le signe × */
@@ -57944,7 +57955,7 @@ function pbStart(K){
   Object.assign(test,{kind:K, questions:qs, idx:0, score:0,
     maxScore:qs.reduce(function(n,q){ return n+q.lignes.length; },0),
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false,
-    pbmEtape:0, pbmChoix:[], pbmVerdicts:[], pbmBoite:''});
+    pbmEtape:0, pbmChoix:[], pbmVerdicts:[], pbmBoite:'', pbmSaisie:''});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show(K); pbRendre();
 }
@@ -57965,15 +57976,16 @@ function pbProgHTML(K, q, k, fini){
   const box=document.createElement('div'); box.innerHTML=h;
   [].forEach.call(box.querySelectorAll('.pyx-ligne'), function(div, i){
     const v=(test.pbmVerdicts||[])[i]; if(!v) return;
-    const c=(test.pbmChoix||[])[i]||'', a=q.lignes[i].nom;
+    const c=(test.pbmChoix||[])[i]||'', a=(PB_KINDS[K].predit==='valeur') ? papAns(q, i).val : q.lignes[i].nom;
+    const quoi=(PB_KINDS[K].predit==='valeur') ? 'la valeur ' : 'la boîte ';
     const s=document.createElement('span');
     s.className='pbm-choix pts-case '+(v.ok?'ok':'bad');
     s.id=K+'-choix-'+i; s.textContent='→ '+c;
-    s.setAttribute('aria-label', 'ta réponse à la ligne '+(i+1)+' : la boîte '+c+(v.ok?', juste':', fausse'));
+    s.setAttribute('aria-label', 'ta réponse à la ligne '+(i+1)+' : '+quoi+c+(v.ok?', juste':', fausse'));
     div.appendChild(s);
     if(!v.ok){
       const r=document.createElement('span'); r.className='pbm-cor'; r.textContent='→ '+a;
-      r.setAttribute('aria-label', 'la bonne boîte : '+a);
+      r.setAttribute('aria-label', (quoi==='la valeur '?'la bonne valeur : ':'la bonne boîte : ')+a);
       div.appendChild(r);
     }
   });
@@ -57982,6 +57994,16 @@ function pbProgHTML(K, q, k, fini){
   return box.innerHTML;
 }
 function pbBoitesHTML(K, q, mem, fini){
+  if(PB_KINDS[K].predit==='valeur'){
+    const cible=fini ? '' : q.lignes[Math.min(pbmFaites(q), q.lignes.length-1)].nom;
+    return '<div class="pbm-boites" role="group" aria-label="les boîtes de la mémoire">'+pbmBoites(q).map(function(n){
+      const v=(mem[n]===undefined)?'':pyRep(mem[n]);
+      return '<div class="pbm-boite'+(n===cible?' pbm-cible':'')+'" id="'+K+'-boite-'+esc(n)+'" data-nom="'+esc(n)+'"'
+        +' role="img" aria-label="la boîte '+esc(n)+(v===''?', vide':', elle contient '+esc(v))+(n===cible?', c’est elle qui reçoit la valeur':'')+'">'
+        +'<span class="pbm-dedans"><span class="pbm-val" id="'+K+'-val-'+esc(n)+'">'+esc(v)+'</span></span>'
+        +'<span class="pbm-nom">'+esc(n)+'</span></div>';
+    }).join('')+'</div>';
+  }
   return '<div class="pbm-boites" role="group" aria-label="les boîtes de la mémoire">'+pbmBoites(q).map(function(n){
     const v=(mem[n]===undefined)?'':pyRep(mem[n]);
     const choisie=(!fini && test.pbmBoite===n);
@@ -58013,8 +58035,18 @@ function pbRender(){
     +'<div class="pap-col"><p class="py-label">La mémoire de l’ordinateur</p>'+pbBoitesHTML(K, q, mem, fini)+'</div>'
     +'</div>'
     +(fini ? '<p class="pap-ligne">Le programme est arrivé au bout : chaque boîte garde la dernière valeur qu’on y a rangée.</p>'
-           : '<p class="pap-ligne"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — clique la <b>boîte</b> qui va recevoir la valeur, puis exécute la ligne.</p>')
+           : (PB_KINDS[K].predit==='valeur'
+              ? '<p class="pap-ligne pb-question"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — quelle valeur la boîte <b>'+esc(l.nom)+'</b> va-t-elle recevoir&nbsp;? '
+                +'<input class="pap-val pb-rep" id="'+K+'-rep" type="text" inputmode="numeric" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="la valeur que reçoit la boîte '+esc(l.nom)+' à la ligne '+(k+1)+'"></p>'
+              : '<p class="pap-ligne"><b>ligne '+(k+1)+'</b>&nbsp;: <code>'+esc(l.nom+' = '+l.expr)+'</code> — clique la <b>boîte</b> qui va recevoir la valeur, puis exécute la ligne.</p>'))
     +'</div></div>';
+  const rep=$(K+'-rep');
+  if(rep){
+    rep.value=test.pbmSaisie||'';
+    rep.addEventListener('input', function(){ test.pbmSaisie=rep.value; rep.classList.remove('ok','bad');
+      const f=$(K+'Feedback'); if(f && f.classList.contains('bad')){ f.textContent=''; f.className='mp-feedback'; } });
+    rep.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); pbmExecuter(); } });
+  }
   pbBoutons(K, q, fini);
 }
 /* Le rendu passe TOUJOURS par renderPBM / renderPBC / renderPBE : ce sont eux
@@ -58034,7 +58066,7 @@ function pbBoutons(K, q, fini){
     +'<button class="btn btn-primary" id="'+K+'Exec" onclick="pbmExecuter()">▶ Exécuter la ligne n°&nbsp;'+(k+1)+'</button>';
 }
 function pbmChoisir(n){
-  if(test.locked || !PB_KINDS[test.kind]) return;
+  if(test.locked || !PB_KINDS[test.kind] || pbValeur()) return;
   const K=test.kind, q=test.questions[test.idx];
   if(pbmBoites(q).indexOf(n)<0) return;
   test.pbmBoite=n;
@@ -58067,37 +58099,48 @@ function pbmExecuter(){
   if(test.locked || !PB_KINDS[test.kind]) return;
   const K=test.kind, q=test.questions[test.idx], k=pbmFaites(q), fb=$(K+'Feedback');
   if(k>=q.lignes.length) return;
-  const l=q.lignes[k], a=l.nom, choix=test.pbmBoite||'';
+  const l=q.lignes[k], a=l.nom, val0=papAns(q, k).val, parValeur=pbValeur();
+  const choix=parValeur ? papNet(($(K+'-rep')||{}).value) : (test.pbmBoite||'');
   if(!choix){
-    fb.textContent='Clique d’abord la boîte qui va recevoir la valeur de la ligne '+(k+1)+'.';
+    /* une réponse vide n'est ni jugée ni peinte : elle est redemandée */
+    fb.textContent=parValeur ? 'Écris d’abord la valeur que la boîte '+a+' va recevoir à la ligne '+(k+1)+'.'
+                             : 'Clique d’abord la boîte qui va recevoir la valeur de la ligne '+(k+1)+'.';
     fb.className='mp-feedback bad';
+    const r=$(K+'-rep'); if(r) try{ r.focus(); }catch(e){}
     return;
   }
-  const ok=(choix===a);
+  const ok=parValeur ? (choix===val0) : (choix===a);
   if(!ok && isSoutien()){
-    const b=$(K+'-boite-'+choix); if(b) b.classList.add('bad');
-    fb.textContent='Ce n’est pas la boîte '+choix+'. Le nom de la boîte qui reçoit la valeur est écrit à GAUCHE du signe égal : choisis une autre boîte.';
+    if(parValeur){
+      const r=$(K+'-rep'); if(r){ r.classList.add('bad'); setTimeout(function(){ try{ r.focus(); }catch(e){} }, 40); }
+      fb.textContent='Ce n’est pas '+choix+'. '+(pbType(l.expr)==='calcul'
+        ? 'Fais le calcul avec ce que contiennent les boîtes AVANT cette ligne.'
+        : 'Va lire ce que contient la boîte '+l.expr+' en ce moment.');
+    } else {
+      const b=$(K+'-boite-'+choix); if(b) b.classList.add('bad');
+      fb.textContent='Ce n’est pas la boîte '+choix+'. Le nom de la boîte qui reçoit la valeur est écrit à GAUCHE du signe égal : choisis une autre boîte.';
+    }
     fb.className='mp-feedback bad';
     return;
   }
   const avant=pbmMemoire(q, k), old=(avant[a]===undefined)?'':pyRep(avant[a]);
-  test.pbmChoix[k]=choix; test.pbmVerdicts[k]={ok:ok}; test.pbmBoite='';
+  test.pbmChoix[k]=choix; test.pbmVerdicts[k]={ok:ok}; test.pbmBoite=''; test.pbmSaisie='';
   if(ok){ test.score++; }
   const der=(k===q.lignes.length-1);
   const val=papAns(q, k).val;
   pbRendre();
   $(K+'LiveScore').textContent=test.score;
-  fb.textContent=(ok ? 'Juste ! ' : 'Ce n’était pas la boîte '+choix+' : ')+pbExplique(q, k)
+  fb.textContent=(ok ? 'Juste ! ' : (parValeur ? 'Ce n’était pas '+choix+' : ' : 'Ce n’était pas la boîte '+choix+' : '))+pbExplique(q, k)
     +(der ? ' Le programme est arrivé au bout.' : '');
   fb.className='mp-feedback '+(ok?'good':'bad');
   if(der){
     test.answers.push({...(ptsExo()||{}), correct:q.lignes.every(function(x, i){ return test.pbmVerdicts[i]&&test.pbmVerdicts[i].ok; }),
       q:papProg(q).replace(/\n+/g,' ⏎ '),
-      answer:q.lignes.map(function(x){ return x.nom; }).join(' | '),
+      answer:q.lignes.map(function(x, i){ return parValeur ? x.nom+'='+papAns(q, i).val : x.nom; }).join(' | '),
       given:q.lignes.map(function(x, i){ return test.pbmChoix[i]||'?'; }).join(' | ')});
   }
   pbAnimer(K, q, k, val, old, avant);
-  const b=$(K+'Exec')||$(K+'Next'); if(b) try{ b.focus({preventScroll:true}); }catch(e){}
+  const b=$(K+'-rep')||$(K+'Exec')||$(K+'Next'); if(b) try{ b.focus({preventScroll:true}); }catch(e){}
   autoSave();
 }
 /* LES JETONS QUI VOLENT. Un nombre naît sur la ligne ; une copie quitte sa
@@ -58219,7 +58262,7 @@ function pbNext(){
   if(pbmVol){ pbmVol(); pbmVol=null; }
   const K=pbK();
   if(test.idx<test.questions.length-1){
-    test.idx++; test.pbmEtape=0; test.pbmChoix=[]; test.pbmVerdicts=[]; test.pbmBoite='';
+    test.idx++; test.pbmEtape=0; test.pbmChoix=[]; test.pbmVerdicts=[]; test.pbmBoite=''; test.pbmSaisie='';
     const f=$(K+'Feedback'); if(f){ f.textContent=''; f.className='mp-feedback'; }
     pbRendre(); autoSave();
   } else finishTest();
@@ -58237,8 +58280,14 @@ function ctxPbm(q){
     const m=pbmMemoire(q, k);
     c+='Ce que contiennent les boîtes avant cette ligne : '+Object.keys(m).map(function(n){ return n+' contient '+pyRep(m[n]); }).join(', ')+'. ';
   }
-  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : la boîte '+q.lignes[k].nom+'. ';
-  c+='Boîte que l’élève a choisie pour l’instant : '+(test.pbmBoite||'aucune')+'. ';
+  if(pbValeur()){
+    c+='Ici la boîte qui reçoit la valeur est donnée ('+q.lignes[k].nom+') : l’élève doit ÉCRIRE la valeur qu’elle va recevoir. ';
+    c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : '+papAns(q, k).val+'. ';
+    const r=$(K+'-rep'); c+='Ce que l’élève a écrit pour l’instant : '+((r&&r.value)||'rien')+'. ';
+  } else {
+    c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même si l’élève insiste) : la boîte '+q.lignes[k].nom+'. ';
+    c+='Boîte que l’élève a choisie pour l’instant : '+(test.pbmBoite||'aucune')+'. ';
+  }
   c+='Règles à rappeler sans donner la réponse : une variable est une boîte de la mémoire qui porte un nom et garde une valeur ; le nom de la boîte qu’une ligne remplit est écrit À GAUCHE du signe égal ; à droite, un nombre est rangé tel quel, un NOM de boîte veut dire « recopie ce que cette boîte contient », et un calcul se fait avec ce que contiennent les boîtes AVANT la ligne ; ranger une valeur dans une boîte efface l’ancienne.';
   return {nombre:'', contexte:c};
 }
