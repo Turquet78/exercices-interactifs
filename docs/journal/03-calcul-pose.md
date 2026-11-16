@@ -331,3 +331,31 @@ entraînement). Dans les calculs intermédiaires la fraction reste permise
 Chromium : 5/2 rougit avec son message, 2,5 vaut le point. Contrôle : celui du
 1.13 au banc principal (1/2 refusé et son message, 0,5 et « 1/2 = 0,5 »
 acceptés, la mention présente sur un résultat non entier, absente sur 24).
+
+**Le 1.14 {vocabulaire-calcul-2} : le 1.13 sans calcul à choisir, avec des nombres tirés (v441).**
+Demande de Turquet, novembre 2026 : « un exercice comme le 1.13 mais sans
+cases à sélectionner au début ; les résultats finaux et intermédiaires ne
+seront que des nombres entiers compris entre 1 et 30, ou décimaux avec
+uniquement 1, 2, 4, 5 ou 25 derrière la virgule et compris entre 0 et 5 ».
+Lu ainsi : un nombre permis est un entier de 1 à 30, ou un décimal de 0 à 5
+dont la partie décimale est ,1 ,2 ,25 ,4 ou ,5 (`voc2Ok`, en millièmes) — et
+la règle vaut pour les DONNÉES aussi, pas seulement pour les étapes et le
+résultat. Même moteur que le 1.13 (kind `voc`, écran `scr-voctest`, même
+juge — calculs intermédiaires permis, décimal exigé —, même fenêtre des
+écritures décimales), pas même identité : `test.qId`, que `startVoc()` remet
+à `'vocabulaire-calcul'`, et « Recommencer » route par lui. Une question
+tirée range ses données (`q.g` la forme, `q.p` la partie, les nombres) et
+`vocL(q)` en refait la ligne par `voc2Ligne` : la reprise d'une pause relit
+la question, jamais le tirage. Vingt questions (`VOC2_PLAN`) : douze phrases
+(double, triple, quadruple, moitié, tiers, quart, dixième, inverse, somme,
+produit, différence, quotient) avec la ligne « On doit calculer … » puis le
+résultat ; quatre calculs en étapes sur les formes de la fiche (somme de a et
+de U(x), somme de U(x) et de V(y), U du V(x), différence entre a et U(x)) ;
+les mêmes quatre sans étapes. Le tirage refait jusqu'à tomber dans les bornes
+et écarte 1 comme donnée (« le triple de 1 »). Grammaire de la fiche : « la
+somme de 3 ET DE la moitié de 5 », « la somme DU double de 4 », mais « la
+différence entre 10 ET l'inverse de 5 » — le premier essai écrivait « la
+différence entre 23 et du quart de 4 », vu en relisant vingt tirages. Banc :
+« {vocabulaire-calcul-2} : des nombres dans les bornes demandées… » (200
+séances, chaque nombre de chaque question ; les bords de `voc2Ok` des deux
+côtés ; ni choix de calcul, ni doublon ; identité et « Recommencer »).
