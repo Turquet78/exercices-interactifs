@@ -5116,7 +5116,7 @@ function mineursFonctionsPython(w, P){
       const lig=function(q){ return q.lignes.map(function(l){ return l.nom+' = '+l.expr; }); };
       const tires={'python-pas-a-pas':papBuildQuestions, 'python-valeur-case':pvmBuildQuestions, 'python-pas-a-pas-calcul':ppcBuildQuestions,
         'python-pas-a-pas-chaine':ppdBuildQuestions, 'python-echange-variables':pevBuildQuestions, 'python-pas-a-pas-multiplication':ppmBuildQuestions,
-        'python-phrases-memoire':pphBuildQuestions, 'python-boites-memoire':pbmBuildQuestions};
+        'python-phrases-memoire':pphBuildQuestions, 'python-boites-memoire':pbmBuildQuestions, 'python-boites-calcul':pbcBuildQuestions, 'python-boites-echange':pbeBuildQuestions};
       const lus={
         'python-echange-par-lettres':function(){ const r=[]; for(let t=0;t<300;t++) pelBuildQuestions().forEach(function(q){ r.push(['a = '+q.a,'b = '+q.b]); }); return r; },
         'python-x-plus-pas-a-pas':function(){ return PWX_SITS.map(function(S){ return S.l; }); },
@@ -59587,6 +59587,48 @@ function pythonBoitesMemoire(w, P){
     if(!c||!/SECRÈTE/.test(c.contexte)) vus.push("contexte sans clause de secret");
     return vus.join(" | ");
   })()`, v => v === '');
+  /* ---- le même moteur, deux exercices de plus : 6.2.25 (une ligne qui
+     calcule) et 6.2.26 (l'échange par une troisième boîte) ---- */
+  (D.suite||[]).forEach(function(E){
+    const K = E.kind, J = JSON.stringify;
+    verifierEval(w, '{' + E.exercice + '} (' + E.num + ') : le tirage — la fiche en tête, une boîte par variable, l échange échange vraiment ; puis la fiche menée ligne par ligne, mémoire finale ' + E.fin + ', l ancienne valeur nommée effacée, ses propres identifiants', `(function(){
+      const vus=[], K=${J(K)}, NL=String.fromCharCode(10);
+      for(let s=0;s<300&&vus.length<4;s++){
+        const qs=PB_KINDS[K].build();
+        if(qs.length!==3){ vus.push("seance de "+qs.length); break; }
+        if(papProg(qs[0]).split(NL).join(" ; ")!==${J(E.fiche)}) vus.push("la fiche : "+papProg(qs[0]));
+        qs.forEach(function(q, i){
+          const noms=q.lignes.map(function(l){ return l.nom; }), b=pbmBoites(q);
+          if(b.slice().sort().join(",")!==noms.filter(function(n,k){ return noms.indexOf(n)===k; }).sort().join(",")) vus.push("les boites : "+b.join(",")+" / "+noms.join(","));
+          if(noms.indexOf("x")>=0) vus.push("une boite x");
+          if(K==="pbc" && !q.lignes.some(function(l){ return pbType(l.expr)==="calcul" && pbNoms(l.expr).indexOf(l.nom)>=0; })) vus.push("aucune ligne ne calcule une boite avec elle-meme : "+papProg(q));
+          if(K==="pbe"){
+            const e=papEtat(q, q.lignes.length-1), v0=q.lignes[0].expr, v1=q.lignes[1].expr;
+            if(pyRep(e[q.lignes[0].nom])!==v1 || pyRep(e[q.lignes[1].nom])!==v0) vus.push("l echange n echange pas : "+papProg(q));
+          }
+        });
+      }
+      currentMode="train"; currentTestId=${J(E.exercice)}; TESTS[${J(E.exercice)}].start();
+      if(test.kind!==K) vus.push("le kind est "+test.kind);
+      if(TEST_NUM[${J(E.exercice)}]!==${J(E.num)}) vus.push("numero "+TEST_NUM[${J(E.exercice)}]);
+      if(!document.getElementById(K+"Exec")) vus.push("pas de bouton "+K+"Exec");
+      const q=test.questions[0];
+      q.lignes.forEach(function(l, k){
+        pbmChoisir(l.nom); pbmExecuter();
+        const fb=document.getElementById(K+"Feedback").textContent, avant=pbmMemoire(q, k);
+        if(avant[l.nom]!==undefined && fb.indexOf("ancienne valeur de "+l.nom+" ("+pyRep(avant[l.nom])+") est effacée")<0) vus.push("ligne "+(k+1)+" : l ancienne valeur effacee n est pas dite : "+fb);
+        if(pbType(l.expr)==="calcul" && fb.indexOf("calcule")<0) vus.push("ligne "+(k+1)+" : le calcul n est pas dit : "+fb);
+      });
+      const fin=pbmBoites(q).map(function(n){ const e=document.getElementById(K+"-val-"+n); return n+"="+(e?e.textContent:"?"); }).sort().join(",");
+      if(fin!==${J(E.fin)}) vus.push("la memoire a la fin : "+fin);
+      if(test.score!==q.lignes.length||!test.answers[0]||test.answers[0].cases!==q.lignes.length) vus.push("score "+test.score+" / reponse "+JSON.stringify(test.answers[0]));
+      if(document.querySelector("#pbmHost #"+K+"-boite-a")) vus.push("une boite de "+K+" dans l ecran du 6.2.24");
+      if(!RAPPELS[K]||RAPPELS[K]===RAPPELS.pbm) vus.push("rappel");
+      if(!QIA_SUGG[K]||QIA_SUGG[K].length<3) vus.push("questions a l IA");
+      if(!afficherEcranDe(K)) vus.push("afficherEcranDe ne connait pas "+K);
+      return vus.slice(0,5).join(" | ");
+    })()`, v => v === '');
+  });
 }
 
 /* {python-valeur-case} (Seconde) : le MÊME pas à pas que le 5.14, moins une
