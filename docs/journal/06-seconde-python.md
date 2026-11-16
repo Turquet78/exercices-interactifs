@@ -7235,6 +7235,23 @@ calculent depuis `THEMES`. Les bancs, eux, les épinglent — une quarantaine de
 deuxième place (celui du pas-à-pas et le sien) le cherchent maintenant en
 troisième, derrière le sport favori.
 
+**Puis les deux serpents du sport ont été REFAITS comme les autres (16 novembre
+2026, v697).** Demande de Turquet : « donne-moi les fichiers nécessaires pour
+que le dessin du serpent soit refait comme les autres sur ChatGPT ». Les deux
+dessins du 6.3.2 étaient encore ceux de Claude (SVG converti), raides à côté
+des serpents générés. Claude a remis un dossier : les deux dessins actuels en
+croquis, quatre références de style déjà générées (`python-input-concat-2`,
+`python-input-monnaie-2`, `python-input-concat-halloween`,
+`python-input-image-halloween-2`) et les trois messages de la recette qui a
+marché (un message de départ, un message court par image, aucun texte dans
+l'image). Turquet a rapporté deux images de 1254 et 1024 px ; Claude a vidé le
+blanc RELIÉ AU BORD (le blanc enfermé — yeux, ballon — reste dessin), recadré,
+réduit à 340 et 360 px de large (30 et 32 Ko), et leur a donné un nom NEUF
+(`python-input-sport-2.webp`, `python-input-sport-halloween-2.webp`, contre le
+cache de GitHub Pages) ; les anciens sont retirés (le banc des orphelins le
+tient), les attributs `width`/`height` suivent les vraies dimensions, et l'alt
+du serpent d'Halloween dit sa nouvelle pose (prêt à tirer dans la citrouille).
+
 **Puis la console est passée JUSTE APRÈS LE PROGRAMME (v692).** Demande de
 Turquet : « met la fenêtre de ce qu'affiche le programme juste après le
 programme finalement ». L'ordre du 6.3.1 devient : le bouton « ▶ Exécuter la
