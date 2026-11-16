@@ -15891,6 +15891,82 @@ function coordonneesVecteurs(w, P){
     if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 3 et que je perds 1')<0) vus.push('8.4.11 : la bulle ne paraît pas au résultat de BC');
     currentMode='train'; el('vsm-u-ry').focus(); el('vsm-u-rx').focus();
     if(el('vcdGp')) vus.push('8.4.11 : la bulle « gagne / perds » paraît hors du soutien');
+    /* ===== 8.4.12 : le 8.4.11 sans rien de posé — A, B, C, D placés et les deux vecteurs tracés aux gestes du 8.4.4 ===== */
+    const d12=D.sommePlacer;
+    if(TEST_NUM[d12.exercice]!==d12.numero) vus.push(d12.exercice+' porte le numéro '+TEST_NUM[d12.exercice]+' au lieu de '+d12.numero);
+    if(TABLES_SANS.indexOf(d12.exercice)<0) vus.push('8.4.12 : le bouton des tables est proposé');
+    if(RAPPELS_ID[d12.exercice]!==RAP_VSP || RAP_VSP.indexOf('La figure')<0 || !QIA_SUGG_ID[d12.exercice]) vus.push('8.4.12 n’a pas son rappel ou ses questions à l’IA');
+    for(let n=0;n<200;n++){
+      const qs=vsmBuildQuestions(true);
+      if(qs.length!==d12.nb || JSON.stringify(qs[0])!==JSON.stringify(vsmFiche(0,true)) || JSON.stringify(qs[1])!==JSON.stringify(vsmFiche(1,true))){ vus.push('8.4.12 : la séance ne commence pas par la fiche'); break; }
+      const q=qs[2];
+      if(Object.keys(q).sort().join(',')!=='P,a,am,b,cp,m,n,pl,t,tr' || q.pl.some(Boolean) || q.t.some(Boolean) || vsmCases(q).length!==52){ vus.push('8.4.12 : range '+JSON.stringify(q)); break; }
+    }
+    currentMode='train'; currentTestId=d12.exercice; TESTS[d12.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vsm' || !test.questions[0].tr || test.maxScore!==test.questions.reduce(function(s,q){ return s+vsmCases(q).length; },0)) vus.push('8.4.12 : kind '+test.kind+', barème '+test.maxScore);
+    if(dmPoidsQuestion('vsm',test.questions[0])!==52 || dmPoidsQuestion('vsm',test.questions[1])!==42) vus.push('8.4.12 : dmPoidsQuestion ne compte pas 52 puis 42 réponses');
+    if(el('vsmInstr').textContent.indexOf('Place les points A(3 ; 4), B(1 ; 2), C(3 ; 1) et D(−1 ; −2), puis trace les vecteurs')<0) vus.push('8.4.12 : l’énoncé : '+el('vsmInstr').textContent.slice(0,200));
+    if(document.querySelectorAll('#vsmPts .svr-pt').length || document.querySelectorAll('#vsmFl line').length || document.querySelectorAll('#vsmPrises .svc-prise').length) vus.push('8.4.12 : le repère n’est pas vide');
+    if(['p0','p1','p2','p3','t0','t1','ch','M'].some(function(o){ return !el('vsm-'+o); }) || el('vsm-p0').textContent.indexOf('A(3 ; 4)')<0 || el('vsm-t0').textContent.replace(/\\s+/g,'').indexOf('TracerBC')<0) vus.push('8.4.12 : les boutons de l’étape 1)');
+    if(!el('vsm-t0').disabled || !el('vsm-ch').disabled || !el('vsm-M').disabled || el('vsm-p0').disabled || test.vsmOutil!=='p0') vus.push('8.4.12 : le vecteur, le glisser ou le point s’ouvrent avant la figure');
+    /* la copie vide : tout en sol, rien de rouge ; la figure, la construction et M en vert */
+    if(verifier11()!==0 || cl11()!==tous11('sol')) vus.push('8.4.12 : la copie vide : '+cl11());
+    if(document.querySelector('#vsmBody .bad, #vsmCalc .bad, #vsmGraph .svr-pt.eb, #vsmGraph .svc-eb')) vus.push('8.4.12 : la copie vide rougit');
+    if(document.querySelectorAll('#vsmCorr .svr-pt.s').length!==5 || document.querySelectorAll('#vsmCorr line.svc-s').length!==5) vus.push('8.4.12 : la correction ne dessine pas les quatre points, les deux vecteurs, la construction et M');
+    if(el('vsmFeedback').textContent.indexOf('Il te manquait 52 cases')<0) vus.push('8.4.12 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
+    /* les gestes du 8.4.4 */
+    test.questions[test.idx]=vsmFiche(0,true); renderVsm();
+    const q12=test.questions[test.idx];
+    vsmVif(q12,{x:vcdX(1)+3,y:vcdY(1)-2});
+    if(((document.querySelector('#vsmVif .svr-pt')||{}).textContent||'')!=='A') vus.push('8.4.12 : aucune croix A ne suit la souris');
+    vsmPose(4,3);
+    if(!document.querySelector('#vsmPts .svr-pt.eb') || test.vsmOutil!=='p0' || el('vsm-p0').classList.contains('fait')) vus.push('8.4.12 : A faux n’est pas rouge, ou le geste passe au suivant');
+    vsmPose(4,3); if(q12.pl[0]!==null) vus.push('8.4.12 : le reclic ne retire pas A');
+    vsmPose(3,4);
+    if(test.vsmOutil!=='p1' || !el('vsm-p0').classList.contains('fait') || document.querySelectorAll('#vsmPts .svr-pt.n').length!==1) vus.push('8.4.12 : A juste ne passe pas à B');
+    vsmPose(1,2); vsmPose(3,1); vsmPose(-1,-2);
+    if(test.vsmOutil!=='t0' || el('vsm-t0').disabled || !el('vsm-ch').disabled) vus.push('8.4.12 : la figure posée n’ouvre pas « Tracer BC » ('+test.vsmOutil+')');
+    vsmPose(3,1); vsmVif(q12,{x:vcdX(1),y:vcdY(2)});
+    if(!document.querySelector('#vsmVif line') || !el('vsmn-9-7').classList.contains('sel')) vus.push('8.4.12 : le vecteur ne suit pas la souris depuis son début');
+    vsmPose(1,2);
+    if(!document.querySelector('#vsmFl line.svc-eb') || test.vsmOutil!=='t0') vus.push('8.4.12 : BC tracé à l’envers n’est pas rouge');
+    vsmPose(1,2); vsmPose(3,1);
+    if(test.vsmOutil!=='t1' || document.querySelectorAll('#vsmFl line.vsm-k').length!==1 || document.querySelector('#vsmFl .svc-eb')) vus.push('8.4.12 : BC juste n’est pas noir, ou le geste ne passe pas à BA');
+    /* reprendre B défait BC */
+    vsmOutil('p1'); vsmPose(1,2);
+    if(q12.t[0]!==null || !el('vsm-t0').disabled || !el('vsm-t1').disabled) vus.push('8.4.12 : B retiré ne défait pas BC');
+    vsmPose(1,2);
+    if(test.vsmOutil!=='t0') vus.push('8.4.12 : B replacé ne rend pas « Tracer BC » ('+test.vsmOutil+')');
+    vsmPose(1,2); vsmPose(3,1); vsmPose(1,2); vsmPose(3,4);
+    if(test.vsmOutil!=='ch' || el('vsm-ch').disabled || document.querySelectorAll('#vsmPrises .svc-prise').length!==2 || !vsmFigure(q12)) vus.push('8.4.12 : la figure entière n’ouvre pas le glisser');
+    vsmDeplacer(1,[-1,-2]); vsmDeplacer(0,[1,0]); vsmPose(3,-1);
+    if(!vsmChaine(q12) || !el('vsm-M').classList.contains('fait')) vus.push('8.4.12 : la construction et M après la figure');
+    ecrire11(JUSTE11);
+    let av12=verifier11();
+    if(av12!==52 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.12 : la copie juste vaut '+av12+' : '+cl11());
+    /* la reprise : la figure revient du JSON */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(q12)); renderVsm();
+    if(!vsmFigure(test.questions[test.idx]) || document.querySelectorAll('#vsmPts .svr-pt.n').length!==4 || !document.querySelector('#vsmPts .svr-pt.e') || document.querySelectorAll('#vsmFl line.vsm-k').length!==2 || !el('vsm-M').classList.contains('fait')) vus.push('8.4.12 : le rendu après JSON');
+    /* les pièges : A aux coordonnées échangées, BC à l'envers */
+    test.questions[test.idx]=vsmFiche(0,true); renderVsm();
+    vsmPose(4,3); vsmOutil('p1'); vsmPose(1,2); vsmPose(3,1); vsmPose(-1,-2); vsmPose(3,1); vsmPose(1,2);
+    av12=verifier11();
+    const l12=cl11().split(',');
+    if(av12!==3 || l12.slice(0,8).join(',')!=='bad,ok,ok,ok,bad,sol,sol,sol') vus.push('8.4.12 : les pièges : '+av12+' '+l12.slice(0,8).join(','));
+    const fb12=el('vsmFeedback').textContent;
+    ['l’abscisse se lit d’abord','tracé à l’envers'].forEach(function(m){ if(fb12.indexOf(m)<0) vus.push('8.4.12 : le message ne dit pas « '+m+' » : '+fb12.slice(0,300)); });
+    if(document.querySelectorAll('#vsmCorr .svr-pt.s').length!==2 || document.querySelectorAll('#vsmCorr line.svc-s').length!==5) vus.push('8.4.12 : la correction verte des pièges');
+    if(conseilCtxCourant().indexOf('placer les points')<0 || conseilCtxCourant().indexOf('A en (4 ; 3) (faux)')<0) vus.push('8.4.12 : le contexte du modèle');
+    /* le soutien : A juste se fige, B faux rougit, rien ne se révèle */
+    currentMode='soutien'; test.questions[test.idx]=vsmFiche(0,true); renderVsm();
+    vsmPose(3,4); vsmPose(2,1);
+    checkVsm(); clearTimeout(test.fbTimer);
+    const ls12=cl11();
+    if(test.locked || ls12!=='ok,bad,'+Array(50).fill('rien').join(',') || !el('vsm-p0').disabled || test.vsmOutil!=='p1' || document.querySelector('#scr-vsm .sol')) vus.push('8.4.12 : le soutien : '+ls12.slice(0,60)+' '+test.vsmOutil);
+    /* au doigt : la barre « Je place » a les quatre points, départ et arrivée des deux vecteurs, puis M */
+    const pd12=POSE_DOIGT.vsm.items(vsmFiche(0,true));
+    if(pd12.length!==9 || pd12.map(function(x){ return x.cle; }).join(',')!=='p0,p1,p2,p3,0d,0f,1d,1f,m' || !pd12[4].off || !pd12[8].off || POSE_DOIGT.vsm.items(vsmFiche(0)).length!==1) vus.push('8.4.12 : la barre au doigt '+JSON.stringify(pd12.map(function(x){ return [x.cle,x.off]; })));
+    currentMode='train';
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }

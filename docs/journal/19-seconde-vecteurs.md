@@ -6696,3 +6696,54 @@ l'exercice 2 (N, 34 cases) ; le soutien ; la bulle. Éprouvé par sabotage
 Fait à la souris dans un vrai Chromium (les deux copies glissées, M posé,
 46 sur 46).
 
+
+## {coordonnees-vecteur-somme-placer} — la figure à poser, puis le point d'une somme de vecteurs (8.4.12, Seconde v703)
+
+**La demande** (Turquet, novembre 2026) : « en seconde fait le même exercice
+que le 8.4.11 mais sans placer les points et sans tracer les vecteurs, tu
+demanderas à l'élève de tracer les points et les vecteurs comme dans
+l'exercice 8.4.4 ».
+
+**Le même moteur, une autre identité.** Le 8.4.12 tourne sur le kind « vsm »
+du 8.4.11 : la question porte `q.tr = 1` (rangée, donc rendue par la
+reprise), et `startVsm(true)` la tire. La note part sous `currentTestId`, le
+rappel par `RAPPELS_ID` (`RAP_VSP` : celui du 8.4.11, précédé d'un « ⓪ La
+figure »), les questions à l'IA par `QIA_SUGG_ID`. Sans `q.tr`, rien ne
+change pour le 8.4.11 (même clés rangées, mêmes 46 réponses — le banc le
+tient toujours).
+
+**L'étape 1) reprend les gestes du 8.4.4** : six boutons `pts-case`
+— « A(3 ; 4) », « B(1 ; 2) », « C(3 ; 1) », « D(−1 ; −2) », « Tracer BC⃗ »,
+« Tracer BA⃗ ». La croix et la lettre du point à poser suivent la souris ; un
+point faux est rouge dès sa pose, le reclic le retire, le geste ne passe au
+suivant que sur un point juste (`vsmSuivant`, la règle de `vcdSuivant`) ; le
+vecteur suit la souris depuis son début (le nœud du début marqué `sel`),
+rouge s'il est faux, et ne s'ouvre qu'avec ses deux points justes
+(`vsmOuvert`) ; reprendre un point défait le vecteur qui n'en part plus
+(`vsmDefaire`). Juste, un point ou un vecteur prend l'encre NOIRE de la figure
+du 8.4.11 (et son nom) : la suite de l'exercice se fait sur la même figure
+qu'au 8.4.11, les copies bleues glissées par-dessus. **Le glisser et
+« Placer M » ne s'ouvrent qu'avec la figure entière juste** (`vsmFigure`) :
+les prises n'existent pas avant, et `vsmDeplacer` refuse.
+
+**Six réponses de plus, jugées en tête** (`vsm-p0` … `vsm-p3`, `vsm-t0`,
+`vsm-t1`) : 52 réponses, 42 sans l'autre méthode. Les messages sont ceux du
+8.4.4 : coordonnées échangées, signes, vecteur tracé à l'envers. La
+correction dessine en vert, à leur place, les points et les vecteurs
+manqués. On range en plus `q.pl` (les quatre points posés) et `q.t` (les deux
+vecteurs, `{d, f}`).
+
+**Au doigt**, la barre « Je place » (`POSE_DOIGT.vsm`) a les quatre points,
+départ et arrivée des deux vecteurs (clés « 0d », « 0f », « 1d », « 1f »,
+fermées tant que leurs points ne sont pas justes), puis le point cherché
+(fermé tant que la figure n'est pas juste).
+
+**Le banc principal** (`coordonneesVecteurs`, « sommePlacer ») : la place
+8.4.12, les tables absentes, le rappel et les questions ; deux cents séances
+(la fiche d'abord, ce qui est rangé, 52 réponses) ; l'écran vide et ses six
+boutons, les gestes fermés avant la figure ; la copie vide (52 `sol`, rien
+de rouge, cinq croix et cinq flèches vertes) ; les gestes (la croix A,
+A faux rouge, le reclic, B, C, D, BC⃗ à l'envers rouge, le vecteur élastique,
+B repris qui défait BC⃗, la figure qui ouvre le glisser) ; la copie juste
+52 sur 52 ; la reprise après JSON ; les pièges nommés ; le contexte du
+modèle ; le soutien ; la barre au doigt.
