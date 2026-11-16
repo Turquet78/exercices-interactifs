@@ -7364,7 +7364,7 @@ contiennent les boîtes AVANT cette ligne », « va lire ce que contient la boî
 b »). Le contrôle jsdom de la suite écrit les valeurs, et éprouve la case vide,
 la valeur fausse en entraînement et en soutien.
 
-**Puis le 6.2.24 a pris un calcul et un échange (16 novembre 2026, v700).**
+**Puis le 6.2.24 a pris un calcul et un échange (16 novembre 2026, v701).**
 Demande de Turquet : « dans le 6.24, mets un exemple avec a = a + 3 et
 b = a + b dans le deuxième programme, et un échange de variables dans le
 troisième ». Les deux visages tirés du 6.2.1 (« lointaine », « chaîne »)
@@ -7377,3 +7377,8 @@ animer un calcul et une copie. Les boîtes se mélangent sur les noms DISTINCTS
 (une variable affectée deux fois n'a qu'une boîte). Le contrôle du tirage
 relit les deux programmes et exige que l'échange échange vraiment ; il compare
 désormais les boîtes aux variables dédoublonnées.
+
+Le numéro s'est heurté à une autre fusion : la PR 1068 (les zéros des 8.4.6
+et 8.4.8), fusionnée quelques minutes avant, portait elle aussi la Seconde en
+700. Le 6.2.24 passe en 701, pour qu'on sache d'un coup d'œil laquelle est
+ouverte.
