@@ -59634,8 +59634,14 @@ function pythonBoitesMemoire(w, P){
       if(TEST_NUM[${J(E.exercice)}]!==${J(E.num)}) vus.push("numero "+TEST_NUM[${J(E.exercice)}]);
       if(!document.getElementById(K+"Exec")) vus.push("pas de bouton "+K+"Exec");
       const q=test.questions[0];
+      /* l'élève ÉCRIT la valeur (novembre 2026) : la boîte est désignée, aucune n'est cliquable */
+      if(document.querySelector("#"+K+"Host button.pbm-boite")) vus.push("une boite se clique encore : la boite est donnee, on predit la valeur");
+      if(!document.querySelector("#"+K+"Host .pbm-boite.pbm-cible")) vus.push("la boite qui recoit la valeur n est pas designee");
+      pbmExecuter();
+      if(test.pbmVerdicts.length||document.querySelector("#"+K+"Host .ok,#"+K+"Host .bad")) vus.push("une reponse vide a ete jugee ou peinte");
       q.lignes.forEach(function(l, k){
-        pbmChoisir(l.nom); pbmExecuter();
+        const r=document.getElementById(K+"-rep"); if(!r){ vus.push("ligne "+(k+1)+" : pas de case pour la valeur"); return; }
+        r.value=" "+papAns(q, k).val+" "; pbmExecuter();
         const fb=document.getElementById(K+"Feedback").textContent, avant=pbmMemoire(q, k);
         if(avant[l.nom]!==undefined && fb.indexOf("ancienne valeur de "+l.nom+" ("+pyRep(avant[l.nom])+") est effacée")<0) vus.push("ligne "+(k+1)+" : l ancienne valeur effacee n est pas dite : "+fb);
         if(pbType(l.expr)==="calcul" && fb.indexOf("calcule")<0) vus.push("ligne "+(k+1)+" : le calcul n est pas dit : "+fb);
@@ -59644,6 +59650,21 @@ function pythonBoitesMemoire(w, P){
       if(fin!==${J(E.fin)}) vus.push("la memoire a la fin : "+fin);
       if(test.score!==q.lignes.length||!test.answers[0]||test.answers[0].cases!==q.lignes.length) vus.push("score "+test.score+" / reponse "+JSON.stringify(test.answers[0]));
       if(document.querySelector("#pbmHost #"+K+"-boite-a")) vus.push("une boite de "+K+" dans l ecran du 6.2.24");
+      /* une valeur FAUSSE : en entrainement, la puce rouge et la bonne valeur en vert, et le programme continue ;
+         en soutien, rien ne s execute et la case rougit */
+      TESTS[${J(E.exercice)}].start();
+      const q2=test.questions[0], faux=String(Number(papAns(q2, 0).val)+1);
+      document.getElementById(K+"-rep").value=faux; pbmExecuter();
+      const c0=document.getElementById(K+"-choix-0"), cor=document.querySelector("#"+K+"Host .pbm-cor");
+      if(!c0||!c0.classList.contains("bad")||c0.textContent.indexOf(faux)<0) vus.push("la valeur fausse : "+(c0?c0.className+" "+c0.textContent:"absente"));
+      if(!cor||cor.textContent.indexOf(papAns(q2, 0).val)<0) vus.push("la bonne valeur n est pas ecrite en vert");
+      if(test.score!==0||!document.getElementById(K+"-rep")) vus.push("apres une valeur fausse : score "+test.score+", ligne suivante "+!!document.getElementById(K+"-rep"));
+      currentMode="soutien"; TESTS[${J(E.exercice)}].start();
+      document.getElementById(K+"-rep").value=faux; pbmExecuter();
+      if(test.pbmVerdicts.length||!document.getElementById(K+"-rep").classList.contains("bad")) vus.push("soutien : la valeur fausse a ete executee, ou la case ne rougit pas");
+      document.getElementById(K+"-rep").value=papAns(test.questions[0], 0).val; pbmExecuter();
+      if(!test.pbmVerdicts[0]||!test.pbmVerdicts[0].ok) vus.push("soutien : la bonne valeur n execute pas la ligne");
+      currentMode="train";
       if(!RAPPELS[K]||RAPPELS[K]===RAPPELS.pbm) vus.push("rappel");
       if(!QIA_SUGG[K]||QIA_SUGG[K].length<3) vus.push("questions a l IA");
       if(!afficherEcranDe(K)) vus.push("afficherEcranDe ne connait pas "+K);

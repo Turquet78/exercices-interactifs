@@ -1535,8 +1535,8 @@ module.exports = {
       'python-tableau-valeurs': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-boites-memoire': 'programme Python mené par étapes : la réponse est une boîte CLIQUÉE avant « ▶ Exécuter la ligne », que le banc ne sait pas choisir — la reprise a son contrôle jsdom dédié',
-      'python-boites-calcul': 'même moteur que {python-boites-memoire} : la boîte se clique avant « ▶ Exécuter la ligne » — la reprise a son contrôle jsdom dédié',
-      'python-boites-echange': 'même moteur que {python-boites-memoire} : la boîte se clique avant « ▶ Exécuter la ligne » — la reprise a son contrôle jsdom dédié',
+      'python-boites-calcul': 'même moteur que {python-boites-memoire} : la valeur s\'écrit avant « ▶ Exécuter la ligne », que le banc ne presse pas — la reprise a son contrôle jsdom dédié',
+      'python-boites-echange': 'même moteur que {python-boites-memoire} : la valeur s\'écrit avant « ▶ Exécuter la ligne », que le banc ne presse pas — la reprise a son contrôle jsdom dédié',
       'python-valeur-case': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas-calcul': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
       'python-pas-a-pas-chaine': 'programme Python mené par étapes (exécution, cases ligne par ligne, saisie dans la console) : le banc ne sait pas le mener jusqu\'à la correction',
@@ -1728,7 +1728,7 @@ module.exports = {
        définition à donner d'avance : l'écrire serait donner la réponse. */
     pythonAvant: { sans: {
       'python-boites-memoire': '6.2.24 : comme le 6.2.1, son rappel (une variable est une boîte, son nom à gauche du signe égal) dirait quelle boîte choisir ; il reste derrière le bouton 📘',
-      'python-boites-calcul': '6.2.25 : même raison que le 6.2.24 — le rappel dit quelle boîte reçoit le résultat ; il reste derrière le bouton 📘',
+      'python-boites-calcul': '6.2.25 : le rappel calcule n + 6 avec la valeur de la boîte — la démarche même que l\'élève doit faire ; il reste derrière le bouton 📘',
       'python-boites-echange': '6.2.26 : même raison que le 6.2.24 — le rappel déroule l’échange par une troisième boîte ; il reste derrière le bouton 📘',
       'python-for-oui-non': 'la fiche n\u2019a ni définition ni coup de pouce (demande de Turquet, octobre 2026 : « dans la définition ne rien rajouter de plus ») : son rappel ne porte que le programme de la fiche',
       'python-chaine-len': 'l\u2019élève découvre en exécutant ce que représentent len(chaine) et chaine[i] : leur définition est la réponse attendue',
