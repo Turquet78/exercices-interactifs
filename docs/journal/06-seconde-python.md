@@ -7262,3 +7262,23 @@ le texte : print en met déjà une entre ses deux arguments, la console aurait
 écrit deux espaces. Le rappel de cours et la première question proposée à
 l'IA suivent ; le profil du banc (fiche, sortie) aussi, et les programmes
 sont toujours comparés à un vrai CPython.
+
+**Puis le 6.3.1 n'est plus un pas à pas : on EXÉCUTE, puis on EXPLIQUE
+(v696).** Demande de Turquet, le 16 novembre : « en fait exécuter le
+programme qui s'affiche sans les cadres sur le côté avec le bouton exécuter
+en dessous du programme et la fenêtre d'affichage en dessous du bouton
+exécuter. une fois que c'est exécuté afficher à nouveau le programme avec les
+cadres sur le côté pour les deux lignes et demander à l'élève de compléter
+les cases ». L'écran est donc : les deux lignes, sans cadre (`#pnpProgSeul`) ;
+« ▶ Exécuter » (`#pnpRun`) ; la console, où l'input attend la réponse (Entrée)
+et où le print écrit sa phrase. La réponse validée, le bouton disparaît et le
+programme se réaffiche SOUS la console (`#pnpProgCadres`), un cadre à côté de
+chaque ligne ; les six cases se vérifient d'un seul « Vérifier ». Les étapes
+tombent à trois (0 exécuter, 1 compléter, 2 terminée), et la question porte
+`f:2`. Un brouillon du pas à pas d'avant (sans `f`) passe par `pnpMigrer` :
+ses étapes 1 à 3 deviennent 1, la 4 devient 2, et une case déjà jugée reste
+jugée — `checkPNP` ne juge que les cases sans verdict (`q.ok[k]===null`). Le
+banc principal relit l'ordre programme → bouton → console → programme avec
+ses cadres, l'absence de tout cadre avant la réponse validée, et la reprise
+d'un brouillon d'avant. Ce qu'aucun banc ne voit : l'écart à l'œil entre la
+console et la seconde copie du programme (`.pnp-label-cadres`, 18 px).

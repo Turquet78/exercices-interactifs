@@ -16359,8 +16359,8 @@ if(require.main === module) (async () => {
       verifier('un clic sur « ▶ Exécuter », la console en attente, affiche l\'encadré « appuie sur Entrée ⏎ » et relance le programme',
         /Entrée ⏎/.test(attRun.msg) && attRun.attend, JSON.stringify(attRun));
       await s.page.evaluate(() => document.getElementById('attendEntreeMsg') && document.getElementById('attendEntreeMsg').remove());
-      /* …et un bouton « ▶ » DÉSACTIVÉ pendant l'attente — « ▶ Exécuter la
-         ligne 1 » du 6.3.1 (pnpRun1) — ne reçoit aucun clic du navigateur :
+      /* …et un bouton « ▶ » DÉSACTIVÉ pendant l'attente — « ▶ Exécuter »
+         du 6.3.1 (pnpRun) — ne reçoit aucun clic du navigateur :
          c'est pointerdown qui doit montrer l'encadré (signalé par Turquet,
          novembre 2026). Le vrai pointeur, au centre du bouton désactivé. */
       const bb = await s.page.evaluate(() => { const b = document.getElementById('piiRunC'); b.disabled = true;
