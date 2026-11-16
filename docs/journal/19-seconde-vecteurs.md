@@ -6622,7 +6622,7 @@ plus bas) tombe à moins de 18 px d'une autre flèche libre, ou pas au moins
 recours. Mesuré dans Chromium : la figure fautive (épinglée) et 20 000 figures
 tirées, aucune ambiguë ; 24 000 noms, aucun hors du dessin.
 
-## {coordonnees-vecteur-somme} — le point d'une somme de vecteurs, construit puis calculé (8.4.11, Seconde v700)
+## {coordonnees-vecteur-somme} — le point d'une somme de vecteurs, construit puis calculé (8.4.11, Seconde v701 — la v700 prise sur main pendant les bancs, par la PR 1068)
 
 **La demande** (Turquet, novembre 2026) : « en seconde fais un exercice comme
 le pdf, en utilisant la même façon de faire pour chaque question que des
