@@ -6378,6 +6378,19 @@ après JSON, la vérification (calque vide, celle du 8.4.6 posée) ; le soutien
 Vu dans un vrai Chromium à 1 280 et 390 px : la souris promenée, les
 flèches grise et noire suivent.
 
+**Puis les zéros (Seconde v700 — la v699 prise sur main pendant les bancs, par la PR 1065 ; 8.4.8 puis 8.4.6).** La demande (Turquet, novembre 2026) :
+« dans chaque question il y ait au moins une fois un zéro soit en abscisse
+soit en ordonnée, et sur les 4 premières questions au moins un zéro en
+abscisse et un zéro en ordonnée ». Au 8.4.8 d'abord, le droit n'est plus
+tiré une fois sur trois : chaque question en a un, et `tvxGenC(dv, zero)`
+reçoit sa sorte — 'x' (0 ; l), 'y' (l ; 0). `tvxZeros(n)` les distribue :
+au hasard, puis une 'x' et une 'y' posées à deux places distinctes des
+min(4, n) premières (une séance de devoir peut monter à 20). Puis, le même
+jour : « fais la même chose pour le 8.4.6 » — son tirage passe par la même
+porte (`tvxBuildQuestions`, branche `co`), le 8.4.6 et le 8.4.8 ont les
+mêmes zéros. Banc principal (`tracerCoordonneesDecompose`, « 1 bis ») :
+150 séances de 1, 2, 3, 4, 6 et 20 questions, et la séance tirée.
+
 ## {coordonnees-vecteur-demontrer-parallelogramme} — démontrer que ABCD est un parallélogramme, le schéma, deux vecteurs égaux tracés (8.4.9, Seconde v673 — le 8.4.7, le 8.4.8 et les v669 à v672 pris sur main pendant le travail, par le quatrième point, ses reprises et le tracé décomposé)
 
 **La demande** (Turquet, novembre 2026) : « en seconde créer un exercice comme
