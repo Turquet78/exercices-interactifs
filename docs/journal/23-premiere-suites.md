@@ -544,3 +544,16 @@ frappe par `liveColorDec` — `suil` a donc quitté `soutienEnDirect.sans` et
 entre dans `liveCheckCurrent`). Ni feuille ni modèle pour cette question ; les
 questions ② et ③ gardent leur champ unique, lu par le juge et l'IA. Les cases
 ont un identifiant : la pause les range, contrairement à la feuille.
+
+**Puis le deuxième exemple a ajouté ou retiré 60, 70, 80, 90 ou 110** (demande
+de Turquet, novembre 2026, v436 : « pour le deuxième exercice dans le 7.1 et
+7.2, mettre une addition ou soustraction parmi les nombres 60 ; 70 ; 80 ; 90 ;
+110 »). `SUI_PAS_RANGS` porte désormais la LISTE des pas de chaque rang —
+`[10, 20, 30]` puis `[60, 70, 80, 90, 110]` — et `suiFamilles(c, pas)` tire
+dans cette liste ; 110 reste hors de `SUI_PAS` : c'est la seule exception à
+« un seul chiffre non nul », et elle n'existe qu'au deuxième exemple. Le 7.2
+tire par la même fonction, son juge lit 110 comme un autre pas (les multiples
+du pas, les valeurs de la suite). Les textes qui promettaient « un seul
+chiffre non nul » à l'élève (rappel, description, contexte de l'IA) disent
+maintenant « des nombres ronds ». Le contrôle du tirage (banc principal)
+exige un pas de la liste au deuxième exemple, et que 110 sorte en 300 séances.
