@@ -6696,3 +6696,14 @@ l'exercice 2 (N, 34 cases) ; le soutien ; la bulle. Éprouvé par sabotage
 Fait à la souris dans un vrai Chromium (les deux copies glissées, M posé,
 46 sur 46).
 
+
+**Puis l'autre méthode est RETIRÉE (Seconde v703).** La demande (Turquet,
+novembre 2026) : « enlève la méthode 2 sur l'exercice 1 ». L'exercice 1 de la
+fiche se fait désormais comme l'exercice 2 : la construction, « fin − début »,
+le système, et « Donc M(… ; …) » — 36 réponses à chaque question, jamais
+plus. Le drapeau `q.am`, les cases `vsm-am-*`, leurs messages, leur ligne du
+contexte envoyé au modèle et le ④ du rappel sont partis avec elle : un code
+qu'aucune question ne tire plus serait une branche morte qu'on croit vivante.
+Le banc tient le bord retiré : la fiche n'a que 34 cases de calcul, aucun
+« Autre méthode » ni `vsm-am-x` à l'écran, `dmPoidsQuestion` compte 36 à
+chaque exercice.
