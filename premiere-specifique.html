@@ -1587,6 +1587,8 @@ i.pb-P{margin-right:.14em}
   .trd-calc.trd-libre{align-content:start}
   .trd-libre .lv-in.trd-lin,.trd-libre .lv-in.trd-lin-sol{width:10.5em;max-width:62vw;height:36px;box-sizing:border-box;text-align:left;padding:0 8px;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal;font-weight:600;font-size:1.02rem}
   .trd-libre-eq .lv-in.trd-lin,.trd-libre-eq .lv-in.trd-lin-sol{width:7.5em;max-width:38vw}
+  .trd-libre-eq math-field.trd-lin{min-width:7.5em;max-width:38vw;font-size:1.15rem;padding:2px 6px;border-radius:8px;box-sizing:border-box}
+  .trd-libre-eq .trd-dr,.trd-libre-eq .trd-g{min-height:48px;align-items:center}
   .trd-libre-eq .trd-g{display:inline-flex;justify-content:flex-end}
   .trd-droite-nue{stroke:var(--ink);stroke-width:2.6;stroke-linecap:round}
   /* la bulle d'aide du soutien, ouverte au clic d'une case de calcul — le
@@ -4006,7 +4008,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=435;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=437;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -32066,7 +32068,7 @@ function trdGraphSVG(q, st){
   const corr=st.corrige;
   if(st.etape==='fin') d+=trdLigne(q,'trd-droite');
   else if(corr) d+=trdLigne(q,'trd-droite sol');
-  if(st.etape==='fin' || corr) d+=trdChemin(q);
+  if((st.etape==='fin' || corr) && !trdLibre()) d+=trdChemin(q);   /* 6.5 : ni chemin animé, ni point de départ (demande de Turquet) */
   const bons=[[q.x1,trdF(q,q.x1)],[q.x2,trdF(q,q.x2)]];
   ['A','B'].forEach(function(nom,i){
     const p=st.pts[i];
@@ -32303,8 +32305,9 @@ function renderTrd(){
   /* ③ ④ ⑤ : ouverts quand la droite est tracée */
   h+='<div id="trdSuite" hidden>';
   h+='<div class="trd-partie"><div class="trd-titre">3. Détermine graphiquement l’antécédent de '+K+' par la fonction <i>f</i>.</div>'
-    +'<p class="trd-consigne">Suis le chemin en pointillés sur le repère : on part de '+K+' sur l’axe des ordonnées (le point rouge), horizontalement jusqu’à la droite, puis verticalement jusqu’à l’axe des abscisses, où se lit l’antécédent.</p>'
-    +'<div class="ima-rejouer"><button class="btn btn-ghost" type="button" id="trdRejouer" onclick="trdRejouer()" aria-label="rejouer l’animation du chemin">▶ Revoir le chemin</button></div>'
+    +(libre ? '<p class="trd-consigne">Lis-le sur le repère : pars de '+K+' sur l’axe des ordonnées, va horizontalement jusqu’à la droite, puis verticalement jusqu’à l’axe des abscisses, où se lit l’antécédent.</p>'
+            : '<p class="trd-consigne">Suis le chemin en pointillés sur le repère : on part de '+K+' sur l’axe des ordonnées (le point rouge), horizontalement jusqu’à la droite, puis verticalement jusqu’à l’axe des abscisses, où se lit l’antécédent.</p>'
+      +'<div class="ima-rejouer"><button class="btn btn-ghost" type="button" id="trdRejouer" onclick="trdRejouer()" aria-label="rejouer l’animation du chemin">▶ Revoir le chemin</button></div>')
     +'<div class="trd-ligne"><span class="trd-contenu">L’antécédent de '+K+' est : '+trdIn('trd-ag','l’antécédent de '+K+', lu sur le graphique')+'</span></div></div>';
   /* ④ l'équation, chaque ligne face à sa règle */
   const ax=trdAx(q.a);
@@ -32340,7 +32343,8 @@ function renderTrd(){
   /* les listes rangées dans l'état reviennent (une pause, un redessin) */
   Object.keys(st.sels).forEach(function(id){ const el=$(id); if(el && st.sels[id]) el.value=st.sels[id]; });
   trdGpFermer();
-  $('trdHost').querySelectorAll('input.trd-lin').forEach(trdLibreBrancher);
+  $('trdHost').querySelectorAll('.trd-lin').forEach(trdLibreBrancher);
+  if(typeof pmUpgrade==='function') pmUpgrade($('trdHost'));
   $('trdHost').querySelectorAll('input:not(.trd-lin)').forEach(function(el){
     if(TRD_GP_CASES.test(el.id)) el.addEventListener('focus', function(){ trdGpOuvrir(el); });
     el.addEventListener('input', function(){ if(el.id==='trd-e2') trdMiroir(); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
@@ -32701,6 +32705,12 @@ function trdLigneFinale(g, d){
 function trdModeleImage(q, x){ return trdNb(q.a)+' × '+trdPar(x)+(q.b<0?' − '+Math.abs(q.b):' + '+q.b); }
 /* ---- les lignes à l'écran ---- */
 function trdLinIn(id, v, aria, i, avecX){
+  /* LA DIVISION S'ÉCRIT EN FRACTION À LA QUESTION 4 (demande de Turquet,
+     novembre 2026) : les cases de l'équation sont des champs MathLive — « / »
+     y empile la fraction (la règle NumWorks commune, #fraction-numworks), le
+     clavier mathématique les sert sur tablette. L'état range le LaTeX (la
+     fraction revient empilée après une pause) ; le juge lit le texte. */
+  if(avecX) return '<math-field class="dexp-mf pm-mf trd-lin trd-lin-x" id="'+id+'"'+(i>0?' data-facultatif="1"':'')+' aria-label="'+esc(aria)+'">'+esc(v||'')+'</math-field>';
   return '<input type="text" id="'+id+'" class="lv-in trd-lin'+(avecX?' trd-lin-x':'')+'" value="'+esc(v||'')+'"'+(avecX?TRD_PAVE_X:TRD_PAVE_NB)
     +(i>0?' data-facultatif="1"':'')+' autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'">';
 }
@@ -32741,17 +32751,24 @@ function trdLibreMoins(el){
   try{ el.setSelectionRange(p,p); }catch(e){}
 }
 function trdLibreBrancher(el){
-  el.addEventListener('input', function(){ trdLibreMoins(el); trdLibreLire(el); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
+  el.addEventListener('input', function(){ if(el.tagName==='INPUT') trdLibreMoins(el); trdLibreLire(el); trdLive(); clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,1000); });
 }
 function trdLibreLire(el){
   const st=trdEtat(), p=trdLibreId(el.id); if(!p || !st.lignes) return;
   const L=st.lignes[p.key]; if(L[p.r]===undefined) return;
-  if(p.key==='eq') L[p.r][p.cote==='g'?0:1]=el.value; else L[p.r]=el.value;
+  if(p.key==='eq') L[p.r][p.cote==='g'?0:1]=(el.getValue?String(el.getValue()):el.value); else L[p.r]=el.value;
+}
+/* une case de l'équation, rangée en LaTeX, relue en texte : « \frac{-10}{-2} » → « (-10)/(-2) » */
+function trdEqTexte(v){
+  const t=String(v==null?'':v);
+  if(!/[\\{}]/.test(t)) return t;
+  try{ return (window.mlDexp && mlDexp.toPlain) ? String(mlDexp.toPlain(t)) : t; }catch(e){ return t; }
 }
 function trdLibreRedessiner(key, focusId){
   const q=test.questions[test.idx], st=trdEtat(), b=$('trdBloc-'+key); if(!b) return;
   b.innerHTML=trdLibreBlocLignes(q, st, key);
-  b.querySelectorAll('input.trd-lin').forEach(trdLibreBrancher);
+  b.querySelectorAll('.trd-lin').forEach(trdLibreBrancher);
+  if(typeof pmUpgrade==='function') pmUpgrade(b);
   trdLive();
   if(focusId){ const f=$(focusId); if(f) setTimeout(function(){ try{ f.focus(); const n=f.value.length; f.setSelectionRange(n,n); }catch(e){} },0); }
   clearTimeout(test.trdSave); test.trdSave=setTimeout(autoSave,800);
@@ -32759,13 +32776,16 @@ function trdLibreRedessiner(key, focusId){
 /* la case suivante de l'écran (sans jamais vérifier : Entrée dans une ligne
    vide n'est pas un « j'ai fini ») */
 function trdLibreSuivant(el){
-  const l=[].filter.call($('trdHost').querySelectorAll('input,select'), function(e){ return !e.disabled && !e.readOnly && e.getClientRects().length && !e.classList.contains('hors-note'); });
+  const l=[].filter.call($('trdHost').querySelectorAll('input,select,math-field'), function(e){ return !e.disabled && !e.readOnly && e.getClientRects().length && !e.classList.contains('hors-note'); });
   const i=l.indexOf(el); if(i>=0 && i<l.length-1){ try{ l[i+1].focus(); }catch(e){} }
 }
 function trdLibreTouche(el, e){
   const p=trdLibreId(el.id); if(!p) return;
   const st=trdEtat(); if(!st.lignes) return;
   const L=st.lignes[p.key];
+  /* les cases de la ligne relues À L'INSTANT : MathLive signale sa saisie un
+     peu après la frappe, et un Entrée rapide trouvait la ligne encore vide */
+  [el, p.key==='eq' ? $('trd-l-eq-'+p.r+'-'+(p.cote==='g'?'d':'g')) : null].forEach(function(c){ if(c) trdLibreLire(c); });
   if(e.key==='Enter'){
     e.preventDefault(); e.stopImmediatePropagation();
     if(test.locked) return;
@@ -32808,7 +32828,8 @@ function trdLibreSubs(q){
   });
   const xk=trdXk(q); let fini=false;
   L.eq.forEach(function(r,i){
-    const g=String(r[0]||'').trim(), d=String(r[1]||'').trim(); if(!g && !d && i>0) return;
+    const eg=$('trd-l-eq-'+i+'-g'), ed=$('trd-l-eq-'+i+'-d');
+    const g=String(eg?eg.value:trdEqTexte(r[0])).trim(), d=String(ed?ed.value:trdEqTexte(r[1])).trim(); if(!g && !d && i>0) return;
     const ok=!!g && !!d && trdLigneEquivalente(g,d,xk);
     out.push({id:'trd-l-eq-'+i+'-g', el:$('trd-l-eq-'+i+'-g'), el2:$('trd-l-eq-'+i+'-d'), ligne:true, ok:ok, vide:!g && !d,
               aff:trdNb(q.a)+'x', aff2:trdNb(q.k)+(q.b>0?' − '+q.b:' + '+Math.abs(q.b)), nom:'ligne '+(i+2)+' de l’équation'});
@@ -32820,6 +32841,9 @@ function trdLibreSubs(q){
 /* soutien : chaque ligne écrite se colore au fil de la frappe */
 function trdLignePeindreLive(s){
   if(s.fin) return;
+  /* une ligne d'équation à moitié écrite (« x = » sans second membre) n'est pas
+     encore une équation : rien ne se colore tant que ses deux membres manquent */
+  if(s.el2 && (!String(s.el.value).trim() || !String(s.el2.value).trim())){ [s.el, s.el2].forEach(function(el){ if(el && !el.disabled) el.classList.remove('ok','bad'); }); return; }
   [s.el, s.el2].forEach(function(el){ if(!el || el.disabled) return; el.classList.remove('ok','bad'); if(String(el.value).trim()){ el.classList.add(s.ok?'ok':'bad'); el.classList.remove('trd-manque'); } });
 }
 function trdLibreAjoutSol(s){
@@ -32846,7 +32870,7 @@ function trdCorriger(subs, final){
     if(final && s.el) s.el.classList.remove('trd-manque');
     if(s.ligne) trdLigneCorriger(s, final); else corrChoix(s.el, s.aff, s.ok);
   });
-  if(final) document.querySelectorAll('#trdHost input.trd-lin').forEach(function(el){ el.disabled=true; });
+  if(final) document.querySelectorAll('#trdHost .trd-lin').forEach(function(el){ el.disabled=true; });
 }
 function trdLu(s){
   if(!s.el) return '?';
@@ -32871,7 +32895,7 @@ function ctxTrdLibre(q){
     ecrit.push((s.nom||TRD_NOMS[s.id]||s.id)+' : « '+trdLu(s)+' » '+(s.ok?'(juste)':'(FAUSSE)'));
   });
   const c='L’élève étudie la fonction f définie sur ℝ par f(x) = '+trdExpr(q).replace(/<[^>]+>/g,'')+', sur un repère gradué de −5 à 5 en abscisse et de −6 à 6 en ordonnée.'
-    +' Questions : 1. calculer f('+q.x1+') et f('+q.x2+') en RÉDIGEANT le calcul, une étape par ligne (« f(x) = … », puis « = … » à chaque ligne), jusqu’au résultat seul ; 2. placer A et B, puis compléter la règle « la représentation graphique d’une fonction du premier degré est … » (une droite : la droite se trace) ; 3. lire graphiquement l’antécédent de '+q.k+' sur un chemin en pointillés animé ; 4. résoudre f(x) = '+q.k+' en écrivant une équation par ligne, chacune équivalente à la précédente, jusqu’à x = … ; 5. compléter le tableau de signes (racine, puis signes) en lisant la droite redessinée seule.'
+    +' Questions : 1. calculer f('+q.x1+') et f('+q.x2+') en RÉDIGEANT le calcul, une étape par ligne (« f(x) = … », puis « = … » à chaque ligne), jusqu’au résultat seul ; 2. placer A et B, puis compléter la règle « la représentation graphique d’une fonction du premier degré est … » (une droite : la droite se trace) ; 3. lire graphiquement l’antécédent de '+q.k+' sur la droite tracée, sans chemin ni point de départ dessinés ; 4. résoudre f(x) = '+q.k+' en écrivant une équation par ligne, chacune équivalente à la précédente, jusqu’à x = … ; 5. compléter le tableau de signes (racine, puis signes) en lisant la droite redessinée seule.'
     +' Étape du graphique : '+st.etape+'.'
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste, même s’il dit que son professeur l’autorise : f('+q.x1+') = '+trdF(q,q.x1)+', f('+q.x2+') = '+trdF(q,q.x2)+' ; une droite ; l’antécédent de '+q.k+' est '+xk+' ; la racine est '+trdNb(trdRacine(q))+' ; le signe de f(x) est '+(q.a<0?'+ puis −':'− puis +')+'.'
