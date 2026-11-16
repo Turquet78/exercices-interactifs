@@ -6621,3 +6621,78 @@ plus bas) tombe à moins de 18 px d'une autre flèche libre, ou pas au moins
 à 24 px, du côté le plus dégagé — le choix d'avant ne reste qu'en dernier
 recours. Mesuré dans Chromium : la figure fautive (épinglée) et 20 000 figures
 tirées, aucune ambiguë ; 24 000 noms, aucun hors du dessin.
+
+## {coordonnees-vecteur-somme} — le point d'une somme de vecteurs, construit puis calculé (8.4.11, Seconde v701 — la v700 prise sur main pendant les bancs, par la PR 1068)
+
+**La demande** (Turquet, novembre 2026) : « en seconde fais un exercice comme
+le pdf, en utilisant la même façon de faire pour chaque question que des
+exercices du site sur les vecteurs qui traitent de la même question ». La
+« Fiche rappel sur les vecteurs » (coord vect somme) : un repère gradué de −4
+à 4, A(3 ; 4), B(1 ; 2), C(3 ; 1), D(−1 ; −2) placés, BC⃗ et BA⃗ tracés ;
+« 2) Placer M tel que DM⃗ = BC⃗ + BA⃗ ; 3) Par le calcul » : BC⃗ et BA⃗ par
+« C − B », « A − B » dans des ellipses, « On pose M(x ; y) »,
+DM⃗ (x − … / y − …) = BC⃗ (…) + BA⃗ (…), { x − … = … + … = … },
+⇔ { x + … = … }, ⇔ { x = … }, « Donc : M(… ; …) », puis, à l'exercice 1
+seulement, « DM⃗ = BC⃗ + BA⃗ devient M = D + BC⃗ + BA⃗ ». L'exercice 2 : la même
+figure, N tel que DN⃗ = CA⃗ + CB⃗.
+
+**Le moteur « vsm » emprunte à chaque voisin la question qu'il traite.**
+« Placer M » est le geste ③ du 8.2.5 {somme-vecteurs-repere} : les deux
+vecteurs sont DÉJÀ tracés (en noir, comme sur la fiche — les points ① et le
+tracé ② du 8.2.5 sont donnés ici) ; on fait glisser une COPIE de chacun
+(`.svc-prise`, l'original reste), bout à bout à partir de D, dans l'ordre
+qu'on veut (`vsmChaine`), puis « Placer M » ; la flèche DM⃗ se trace dès que M
+est posé, rouge si M est faux (dans tous les modes, comme `svrCoulPt`), la
+croix suit la souris, le reclic retire. Un clic sur un nœud ne pose rien tant
+que le geste est le glisser ; les copies bout à bout passent d'elles-mêmes à
+« Placer M ». Le calcul est celui du 8.4.7
+{coordonnees-vecteur-quatrieme-point} : les deux vecteurs par « Fin − Début »
+côte à côte (les cases rondes et carrées du 8.4.4 et, en soutien, la bulle
+« gagne / perds », `VCD_GP_KINDS`), DM⃗ en colonne « x − … », les deux
+colonnes recopiées après le signe =, le système à huit colonnes
+(`.vsm-sys8` : x − … = … + … = …), l'étape « ⇔ » du système réécrit
+(« + » sur la ligne d'une coordonnée négative de D, l'autre recopiée), x et y
+(le nombre ou le calcul : `vsmLitCalc` lit jusqu'à quatre termes,
+« −1+2+2 »), « Donc ». Le tirage veut D avec une coordonnée négative au moins :
+l'étape existe toujours, comme sur la fiche, et le nombre de réponses ne
+dépend que de la forme.
+
+**Les deux exercices de la fiche sont les deux premières questions**
+(`vsmFiche(0)`, `vsmFiche(1)`) ; ensuite la forme de l'exercice 1 (le point
+M, l'autre méthode, `q.am`) alterne avec celle de l'exercice 2 (le point N).
+Le tirage (`vsmGen`) : quatre points de −5 à 5, ni sur un axe ni à −1, deux à
+deux à deux carreaux, jamais trois alignés ; les deux vecteurs partent du
+même point, comme sur la fiche, en biais ; M lisible et loin des quatre ;
+chaque copie posée sur D reste dans le repère. Le repère est celui du 8.4.4
+(`vcdSVG`, préfixe « vsm », une pointe noire et le calque des prises
+ajoutés). 46 réponses (36 sans l'autre méthode), chacune jugée seule
+(`vsmJuge`) : le glisser (`vsm-ch`, vide si aucune copie n'a bougé), le point
+(`vsm-M`), les cases. On range `P`, `a`, `b`, `n`, `am`, puis `cp` et `m` ;
+les cases se rangent d'elles-mêmes.
+
+**Ce que les captures ont corrigé avant la livraison.** La première n'a rien
+montré : le nom d'une flèche ne trouvait aucune place à score positif et le
+dessin levait une erreur (le meilleur score partait de −1). Puis les noms BC⃗
+et DM⃗ l'un sur l'autre, et le nom CA⃗ de la correction posé sur la flèche DN⃗ :
+`vsmEtiq` essaie dix places de part et d'autre du trait, à deux distances, et
+écarte celles qui tombent sur un autre nom, sur un autre trait (`vsmSegs`),
+sur les graduations ou hors du dessin. Sur un téléphone, le système à huit
+colonnes débordait de la carte : ses cases se resserrent sous 520 px (mesuré
+à 360, 390 et 820 px : aucune page plus large que l'écran).
+
+**Le banc principal** (`coordonneesVecteurs`, « somme ») : la place 8.4.11,
+les tables absentes, le rappel et les questions à l'IA, `vsmLitCalc` ; deux
+cents séances (la fiche d'abord, les règles du tirage) ; l'écran (44 cases,
+deux « Fin − Début », deux « ⇔ », l'autre méthode, quatre points et deux
+vecteurs noirs avec leurs prises) ; la copie vide (46 `sol`, rien de rouge, la
+construction et M en vert) ; les gestes (un clic ne pose rien pendant le
+glisser, la copie retenue au bord, ramenée qui s'efface, BA⃗ puis BC⃗ depuis D,
+M faux rouge, le reclic, M juste) ; la copie juste 46 sur 46 avec « (−1) »,
+« 4-1 », « −1+2+2 » ; la reprise après JSON ; les pièges (copies bout à bout
+hors de D, fin et début échangés, deux signes, l'étape, x isolé en
+retranchant : 39 sur 46, chaque faute nommée) ; le contexte du modèle ;
+l'exercice 2 (N, 34 cases) ; le soutien ; la bulle. Éprouvé par sabotage
+(`vsmChaine` qui ne reconnaît jamais la construction : cinq messages rouges).
+Fait à la souris dans un vrai Chromium (les deux copies glissées, M posé,
+46 sur 46).
+
