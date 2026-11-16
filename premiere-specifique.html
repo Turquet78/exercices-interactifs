@@ -4009,7 +4009,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=440;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=441;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4578,6 +4578,7 @@ const TESTS={
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
   'vocabulaire-calcul': { name:'Vocabulaire du calcul', icon:'\ud83d\udde3\ufe0f', desc:'Le double, le tiers, le quart, l\u2019inverse, la somme, le produit, la diff\u00e9rence, le quotient\u00a0: choisis le bon calcul, puis \u00e9cris le r\u00e9sultat \u2014 et enfin des calculs en deux ou trois \u00e9tapes (le double du tiers de 12). Les nombres de la fiche, dans son ordre.', start:()=>startVoc() },
+  'vocabulaire-calcul-2': { name:'Vocabulaire du calcul (nombres tir\u00e9s)', icon:'\ud83d\udcac', desc:'Comme le vocabulaire du calcul, sans calcul \u00e0 choisir\u00a0: le double, la moiti\u00e9, l\u2019inverse, la somme, le quotient\u2026 de nombres tir\u00e9s au hasard, puis des calculs en \u00e9tapes et sans \u00e9tapes. Entiers de 1 \u00e0 30, ou d\u00e9cimaux jusqu\u2019\u00e0 5 (0,1\u00a0; 0,2\u00a0; 0,25\u00a0; 0,4\u00a0; 0,5).', start:()=>startVoc2() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
   'tableau-probabilites': { name:'Tableau et probabilités', icon:'\ud83c\udfb2', desc:'Un tableau à double entrée qui représente une classe, une entreprise, un club… : complète d’abord les évènements contraires, puis le tableau à partir de quatre nombres, et lis-y sept probabilités demandées en phrases — « dans la classe », « parmi… », « sachant que… » : traduis-les avec des lettres, la page en écrit le nom P(…) ou P<sub>…</sub>(…), puis calcule-les avec les lettres et les effectifs du tableau.', start:()=>startPB() },
@@ -4648,7 +4649,7 @@ const THEMES=[
      pas un titre. Les références écrites ailleurs suivent d'elles-mêmes :
      elles s'écrivent {identifiant} et sont résolues à l'affichage par
      numeros(). */
-  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee','vocabulaire-calcul'] },
+  { num:1, nom:'Calcul mental', ids:['addition-soustraction','tables-multiplication','tables-multiplication-2','calcul-mental','multiplication-posee','fractions-decimales','mult-decimaux','mult-dec-un','somme-fractions','ecriture-decimale-somme','ecriture-decimale-fractions','valeur-approchee','vocabulaire-calcul','vocabulaire-calcul-2'] },
   /* Un thème peut être découpé en sous-thèmes. Ses exercices sont alors numérotés
      sur trois niveaux — 2.2.1 = thème 2, sous-thème 2, premier exercice. Un thème
      sans sous-thème garde la numérotation à deux niveaux (1.4). */
@@ -4864,7 +4865,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') startVoc(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -9515,7 +9516,7 @@ const VOC_LIGNES=[
 const VOC_NB=VOC_LIGNES.length;
 function vocRang(i,n){ return Math.min(VOC_NB-1, Math.floor(i*VOC_NB/Math.max(1,n))); }
 function genVoc(i,n){ return {n:vocRang(i,n)}; }
-const vocL=q=>VOC_LIGNES[q.n];
+const vocL=q=>q.g!=null ? voc2Ligne(q) : VOC_LIGNES[q.n];   /* 1.14 : une question tirée refait sa ligne */
 const vocSigne=n=>n<0?'−'+(-n):String(n);
 /* un calcul de la fiche : en HTML (étiquette, fraction empilée) et en texte */
 function vocCalcHTML(c){
@@ -9592,7 +9593,7 @@ function vocCorrection(q,html){
 async function startVoc(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
-  test.kind='voc';
+  test.kind='voc'; test.qId='vocabulaire-calcul';
   const n=dmNbQuestions(VOC_NB);
   test.questions=distinctes(dmNbQuestions(VOC_NB),function(_,i){ return genVoc(i,n); });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
@@ -9614,7 +9615,7 @@ function vocChoisir(k){
 }
 function renderVoc(){
   const q=test.questions[test.idx], L=vocL(q); test.locked=false;
-  const partie=L.t==='ch'?1:(L.t==='en'?2:3);
+  const partie=L.p||(L.t==='ch'?1:(L.t==='en'?2:3));
   $('vocIdx').textContent=`Partie ${partie} · Question ${test.idx+1} / ${test.questions.length}`;
   $('modeTagVoc').innerHTML=modeTagHTML();
   $('vocLiveScore').textContent=test.score;
@@ -9631,7 +9632,7 @@ function renderVoc(){
       +'</div>'
       +'<div class="pt-row"><span class="voc-lab">'+vocLabDec('Le résultat est :',L.r)+'</span>'+R('vocR')+'</div>';
   } else {
-    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">'+(L.t==='di'?'Sans les étapes : écris le résultat. Tu peux écrire tes calculs intermédiaires avant, avec des « = » (2 + 3,5 = 5,5).':'Une case par étape, comme sur la fiche.')+'</span>';
+    $('vocPrompt').innerHTML=L.titre+'<br><span style="font-size:.92em">'+(L.p===1?'Écris le résultat. Tu peux écrire le calcul avant, avec un « = » (7 × 2 = 14).':L.t==='di'?'Sans les étapes : écris le résultat. Tu peux écrire tes calculs intermédiaires avant, avec des « = » (2 + 3,5 = 5,5).':'Une case par étape, comme sur la fiche.')+'</span>';
     /* Demande de Turquet, novembre 2026 : sur le quadrillage, la phrase
        « On doit calculer … » vient EN PREMIER, à la police et à la taille
        des étapes qui la suivent (.voc-lab) */
@@ -9688,9 +9689,131 @@ async function finishVoc(){
   const total=test.questions.length,score=test.score,{note,pct}=noteFin(score,total);
   const durationSec=Math.round((Date.now()-test.startTime)/1000);
   const misses=test.answers.filter(a=>!a.correct).map(a=>({q:a.q,donne:a.given,bon:a.answer}));
-  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:'vocabulaire-calcul',note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
+  try{ if(await enregistrerResultat({eleve_id:currentEleve.id,score,total,percent:pct,duration_sec:durationSec,details:{test:(test.qId||'vocabulaire-calcul'),note,mode:currentMode,misses,...(currentDM?{dm:currentDM}:{})}})) await clearRecovery(); }
   catch(e){ toast('Résultat non enregistré (connexion)','err'); }
   showResults({score,note,total,percent:pct,durationSec});
+}
+
+/* ============ 1.14 {vocabulaire-calcul-2} : le vocabulaire du calcul, nombres tirés ============
+   Demande de Turquet, novembre 2026 : « un exercice comme le 1.13 mais sans
+   cases à sélectionner au début ; les résultats finaux et intermédiaires ne
+   seront que des nombres entiers compris entre 1 et 30, ou décimaux avec
+   uniquement 1, 2, 4, 5 ou 25 derrière la virgule et compris entre 0 et 5 ».
+   Même moteur que le 1.13 (kind 'voc', même écran, même juge, même fenêtre
+   des écritures décimales), pas même identité : test.qId. Les questions ne
+   sont plus des rangs de la fiche mais des DONNÉES tirées (q.g, la forme ;
+   les nombres en millièmes) : vocL(q) en refait la ligne, de façon
+   déterministe — la reprise d'une pause relit la question, jamais le tirage.
+     Partie 1 — douze phrases, SANS CHOIX DE CALCUL : « Calcule le double de
+       7. », la phrase « On doit calculer … » puis le résultat.
+     Partie 2 — quatre calculs en étapes (une case par étape), les formes
+       de la fiche : somme de a et de U(x), somme de U(x) et de V(y),
+       U du V(x), différence entre a et U(x).
+     Partie 3 — les mêmes quatre formes, sans les étapes.
+   TOUT nombre — donnée, étape, résultat — est dans VOC2_OK : entier de 1 à
+   30, ou décimal de 0 à 5 dont la partie décimale est ,1 ,2 ,4 ,5 ou ,25. */
+function voc2Ok(m){ return Number.isInteger(m) && m>0 && ((m%VAP_D===0 && m<=30*VAP_D) || (m<=5*VAP_D && [100,200,250,400,500].indexOf(m%VAP_D)>=0)); }
+const VOC2_VALEURS=(function(){ const v=[]; for(let m=1;m<=30*VAP_D;m++) if(voc2Ok(m)) v.push(m); return v; })();
+const VOC2_ENTIERS=VOC2_VALEURS.filter(m=>m%VAP_D===0), VOC2_DECIMAUX=VOC2_VALEURS.filter(m=>m%VAP_D!==0);
+/* les opérations à un nombre : nom, valeur (null si pas exacte en millièmes), calcul écrit */
+const VOC2_U={
+  double:   {nom:'le double',    f:x=>x*2, c:X=>['x',X,2]},
+  triple:   {nom:'le triple',    f:x=>x*3, c:X=>['x',X,3]},
+  quadruple:{nom:'le quadruple', f:x=>x*4, c:X=>['x',X,4]},
+  moitie:   {nom:'la moitié',    f:x=>x%2?null:x/2,   c:X=>['f',X,2]},
+  tiers:    {nom:'le tiers',     f:x=>x%3?null:x/3,   c:X=>['f',X,3]},
+  quart:    {nom:'le quart',     f:x=>x%4?null:x/4,   c:X=>['f',X,4]},
+  dixieme:  {nom:'le dixième',   f:x=>x%10?null:x/10, c:X=>['f',X,10]},
+  inverse:  {nom:'l’inverse',    f:x=>(VAP_D*VAP_D)%x?null:(VAP_D*VAP_D)/x, c:X=>['f',1,X]}
+};
+const VOC2_UK=Object.keys(VOC2_U);
+const VOC2_RECIPROQUES={double:'moitie',moitie:'double',triple:'tiers',tiers:'triple',quadruple:'quart',quart:'quadruple',inverse:'inverse'};
+const VOC2_B={
+  somme:     {f:(a,b)=>a+b, np:(A,B)=>'la somme de '+A+' et '+B,       c:(A,B)=>A+' + '+B},
+  produit:   {f:(a,b)=>(a*b)%VAP_D?null:a*b/VAP_D, np:(A,B)=>'le produit de '+A+' et '+B, c:(A,B)=>A+' × '+B},
+  difference:{f:(a,b)=>a-b, np:(A,B)=>'la différence entre '+A+' et '+B, c:(A,B)=>A+' − '+B},
+  quotient:  {f:(a,b)=>(a*VAP_D)%b?null:a*VAP_D/b, np:(A,B)=>'le quotient de '+A+' par '+B, c:(A,B)=>['f',A,B]}
+};
+/* l'ordre de la séance : douze phrases, puis quatre formes en étapes, puis les mêmes sans étapes */
+const VOC2_PLAN=VOC2_UK.concat(Object.keys(VOC2_B)).map(k=>({p:1,k:k}))
+  .concat(['G1','G2','G3','G4'].map(k=>({p:2,k:k}))).concat(['G1','G2','G3','G4'].map(k=>({p:3,k:k})));
+const VOC2_NB=VOC2_PLAN.length;
+const voc2S=m=>vapStr(m,false);
+/* « de » + groupe nominal : « du double de 4 », « de la moitié de 6 », « de l’inverse de 5 » */
+function voc2De(np,b){ const B=s=>b?'<b>'+s+'</b>':s; return /^le /.test(np) ? 'du '+B(np.slice(3)) : 'de '+B(np); }
+function voc2Np(u,x){ return VOC2_U[u].nom+' de '+voc2S(x); }
+function voc2Tire(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function voc2Nb(pd){ return voc2Tire(Math.random()<(pd==null?0.35:pd) ? VOC2_DECIMAUX : VOC2_ENTIERS); }
+/* un U(x) exact et dans les bornes, x pris dans les bornes (1 écarté : il ne dit rien) */
+function voc2Unaire(u,pd){
+  for(let t=0;t<400;t++){ const x=voc2Nb(pd), r=VOC2_U[u].f(x);
+    if(x===VAP_D) continue;   /* « le triple de 1 », « l’inverse de 1 » : rien à calculer */
+    if(r!=null && voc2Ok(r)) return {x:x,r:r}; }
+  return null;
+}
+function genVoc2(i,n){
+  const P=VOC2_PLAN[Math.min(VOC2_NB-1, Math.floor(i*VOC2_NB/Math.max(1,n)))];
+  for(let t=0;t<2000;t++){
+    const q={g:P.k,p:P.p};
+    if(P.p===1 && VOC2_U[P.k]){ const z=voc2Unaire(P.k); if(!z) continue; q.x=z.x; }
+    else if(P.p===1){ q.a=voc2Nb(0.3); q.b=voc2Nb(0.3); if(P.k==='quotient' && q.b===VAP_D) continue; if(P.k==='produit' && (q.a===VAP_D||q.b===VAP_D)) continue; }
+    else if(P.k==='G1'||P.k==='G4'){ q.u=voc2Tire(VOC2_UK); const z=voc2Unaire(q.u); if(!z) continue; q.x=z.x; q.a=voc2Nb(0.3); }
+    else if(P.k==='G2'){ q.u=voc2Tire(VOC2_UK); q.v=voc2Tire(VOC2_UK); if(q.u===q.v) continue;
+      const z=voc2Unaire(q.u), w=voc2Unaire(q.v); if(!z||!w) continue; q.x=z.x; q.y=w.x; }
+    else { q.u=voc2Tire(VOC2_UK); q.v=voc2Tire(VOC2_UK); if(VOC2_RECIPROQUES[q.u]===q.v) continue;   /* « le quart du quadruple de x » rend x */
+      const w=voc2Unaire(q.v); if(!w) continue; q.x=w.x; }
+    const L=voc2Ligne(q); if(L && L.et.every(e=>voc2Ok(e.r))) return q;
+  }
+  return {g:'double',p:1,x:7*VAP_D};   /* jamais atteint : le tirage trouve toujours */
+}
+/* la ligne d'une question tirée, au format des lignes de la fiche (t:'di' ou 'en') */
+function voc2Ligne(q){
+  const S=voc2S, U=VOC2_U, et=[];
+  if(q.p===1){
+    let np, r, c;
+    if(U[q.g]){ np=voc2Np(q.g,q.x); r=U[q.g].f(q.x); c=U[q.g].c(S(q.x)); }
+    else { const B=VOC2_B[q.g]; np=B.np(S(q.a),S(q.b)); r=B.f(q.a,q.b); c=B.c(S(q.a),S(q.b)); }
+    if(r==null) return null;
+    return {t:'di',p:1,titre:'Calcule '+np+'.',et:[{lab:'Le résultat est :',txt:np,r:r,calc:c}]};
+  }
+  let titre, fin;
+  if(q.g==='G1'||q.g==='G4'){
+    const np=voc2Np(q.u,q.x), r1=U[q.u].f(q.x), som=q.g==='G1';
+    if(r1==null) return null;
+    const r=som?q.a+r1:q.a-r1, deb=som?'la somme de '+S(q.a)+' et ':'la différence entre '+S(q.a)+' et ';
+    et.push({lab:'On commence par <b>'+np+'</b> :',txt:np,r:r1,calc:U[q.u].c(S(q.x))});
+    /* « la somme de 3 ET DE la moitié de 5 », mais « la différence entre 10 ET l’inverse de 5 » (la fiche) */
+    titre=deb+(som?voc2De(np,false):np);
+    fin={lab:'puis '+deb+(som?voc2De(np,true):'<b>'+np+'</b>')+' :',txt:titre,r:r,calc:S(q.a)+(som?' + ':' − ')+S(r1)};
+  } else if(q.g==='G2'){
+    const n1=voc2Np(q.u,q.x), n2=voc2Np(q.v,q.y), r1=U[q.u].f(q.x), r2=U[q.v].f(q.y);
+    if(r1==null||r2==null) return null;
+    et.push({lab:'On commence par <b>'+n1+'</b> :',txt:n1,r:r1,calc:U[q.u].c(S(q.x))});
+    et.push({lab:'puis <b>'+n2+'</b> :',txt:n2,r:r2,calc:U[q.v].c(S(q.y))});
+    titre='la somme '+voc2De(n1,false)+' et '+voc2De(n2,false);
+    fin={lab:'puis la somme '+voc2De(n1,true)+' et '+voc2De(n2,true)+' :',txt:titre,r:r1+r2,calc:S(r1)+' + '+S(r2)};
+  } else {
+    const n2=voc2Np(q.v,q.x), r1=U[q.v].f(q.x); if(r1==null) return null;
+    const r=U[q.u].f(r1); if(r==null) return null;
+    et.push({lab:'On commence par <b>'+n2+'</b> :',txt:n2,r:r1,calc:U[q.v].c(S(q.x))});
+    titre=U[q.u].nom+' '+voc2De(n2,false);
+    fin={lab:'puis '+U[q.u].nom+' '+voc2De(n2,true)+' :',txt:titre,r:r,calc:U[q.u].c(S(r1))};
+  }
+  titre='Calcule '+titre+'.';
+  if(q.p===3) return {t:'di',p:3,titre:titre,et:[{lab:'Le résultat est :',txt:fin.txt,r:fin.r,calc:fin.calc}]};
+  et.push(fin);
+  return {t:'en',p:2,titre:titre,et:et};
+}
+async function startVoc2(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  test.kind='voc'; test.qId='vocabulaire-calcul-2';
+  const n=dmNbQuestions(VOC2_NB);
+  test.questions=distinctes(dmNbQuestions(VOC2_NB),function(_,i){ return genVoc2(i,n); });
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.vocChoix=null;
+  test.maxScore=test.questions.length;
+  show('voctest'); renderVoc();
 }
 
 /* ============ 4.7 {relier-fractions} : relier décimaux, pourcentages et fractions ============
@@ -33364,6 +33487,7 @@ function conseilCtxCourant(){
     const L=vocL(q), ch=L.t==='ch'?vocChoixDe():null;
     att=(L.t==='ch'
         ? 'Partie 1 (vocabulaire). Phrase affichée : « '+vocTexte(q)+'. Le résultat est : … ». L’élève CHOISIT d’abord le bon calcul parmi ceux proposés, puis écrit le résultat dans une case. Calcul actuellement choisi : '+(ch==null?'aucun':vocCalcTxt(L.ch[ch]))+'. '
+        : L.p===1 ? 'Partie 1 (vocabulaire). Consigne : '+L.titre+' Une seule case : le résultat (l’élève peut écrire le calcul avant, avec un « = »). '
         : L.t==='di' ? 'Partie 3 (calcul sans les étapes). Consigne : '+L.titre+' Une seule case : le résultat. Les étapes ne sont pas affichées : l’élève les fait de tête (ou au brouillon), comme dans la partie 2. '
         : 'Partie 2 (calcul en plusieurs étapes). Consigne : '+L.titre+' Une case par étape : '+L.et.map(e=>e.txt).join(', puis ')+'. ')
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+vocCorrection(q,false)+' '
@@ -33692,6 +33816,7 @@ const QIA_MODELES={
   },
   voc:function(){   /* une autre ligne de la même partie de la fiche */
     const act=(test && test.questions && test.questions[test.idx])||null, t=act?vocL(act).t:'ch';
+    if(act && act.g!=null){ const P=VOC2_PLAN.findIndex(x=>x.k===act.g && x.p===act.p); return vocCorrection(genVoc2(Math.max(0,P),VOC2_NB),false); }   /* 1.14 : la même forme, d'autres nombres */
     const rangs=VOC_LIGNES.map((L,i)=>i).filter(i=>VOC_LIGNES[i].t===t && (!act || i!==act.n));
     return vocCorrection({n:pick(rangs)},false);
   },

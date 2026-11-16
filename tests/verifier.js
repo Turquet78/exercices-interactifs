@@ -58758,6 +58758,44 @@ function premiere(w){
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
+  /* {vocabulaire-calcul-2} (1.14) : le 1.13 sans calcul à choisir, nombres
+     TIRÉS (demande de Turquet, novembre 2026) — toute donnée, toute étape et
+     tout résultat est un entier de 1 à 30 ou un décimal de 0 à 5 dont la
+     partie décimale est ,1 ,2 ,25 ,4 ou ,5 ; 12 phrases, 4 calculs en étapes,
+     4 sans étapes ; aucune séance ne pose deux fois la même question ; la
+     note part sous son identité ; « Recommencer » le relance, pas le 1.13. */
+  verifierEval(w, '{vocabulaire-calcul-2} : des nombres dans les bornes demandées, partout, et ni choix de calcul ni doublon', `(function(){
+    const vus=[];
+    if(typeof genVoc2!=='function') return 'genVoc2() n\\'existe pas';
+    if(VOC2_NB!==20) vus.push(VOC2_NB+' questions au lieu de 20');
+    [1000,30000,100,200,250,400,500,4500,5000,1200,2250].forEach(m=>{ if(!voc2Ok(m)) vus.push(m/1000+' refusé'); });
+    [0,31000,300,750,5250,5500,1600,150].forEach(m=>{ if(voc2Ok(m)) vus.push(m/1000+' accepté'); });
+    let hors=0;
+    for(let r=0;r<200;r++){ const qs=distinctes(20,function(_,i){ return genVoc2(i,20); });
+      if(new Set(qs.map(q=>JSON.stringify(q))).size!==20) vus.push('une séance pose deux fois la même question');
+      qs.forEach(function(q,i){ const L=vocL(q), nb=[q.x,q.y,q.a,q.b].filter(v=>v!=null);
+        if(!L || !nb.every(voc2Ok) || !L.et.every(e=>voc2Ok(e.r))) hors++;
+        const p=i<12?1:(i<16?2:3); if(L && L.p!==p) vus.push('question '+(i+1)+' en partie '+L.p);
+        if(L && p===2 && L.et.length<2) vus.push('un calcul en étapes sans étape');
+        if(q.g==='G3' && VOC2_RECIPROQUES[q.u]===q.v) vus.push('« '+L.titre+' » rend sa donnée'); }); }
+    if(hors) vus.push(hors+' questions hors des bornes');
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVoc2();
+    if(test.qId!=='vocabulaire-calcul-2') vus.push('identité perdue');
+    test.questions[0]={g:'moitie',p:1,x:5000}; test.idx=0; renderVoc();
+    if(document.querySelector('#vocHost .voc-ch')) vus.push('des calculs à choisir en partie 1');
+    const t=document.querySelector('#vocHost').firstElementChild;
+    if(!t || t.textContent!=='On doit calculer la moitié de 5.') vus.push('la première ligne n\\'est pas « On doit calculer la moitié de 5. » ('+(t?t.textContent:'rien')+')');
+    const e=document.getElementById('vocE0'); if(e) e.value='2,5'; checkVocAnswer(); if(test.score!==1) vus.push('la moitié de 5 = 2,5 refusé');
+    test.questions[0]={g:'G4',p:2,a:10000,u:'inverse',x:5000}; test.idx=0; test.locked=false; test.score=0; renderVoc();
+    if(!/^Calcule la différence entre 10 et l’inverse de 5\\./.test(document.getElementById('vocPrompt').textContent)) vus.push('G4 mal écrit : '+document.getElementById('vocPrompt').textContent);
+    document.getElementById('vocE0').value='0,2'; document.getElementById('vocE1').value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 0,2 = 9,8 en étapes refusé');
+    test.questions=[]; restartCurrentTest();
+    if(test.qId!=='vocabulaire-calcul-2' || test.questions[0].g==null) vus.push('« Recommencer » ne relance pas le 1.14');
+    startVoc(); if(test.qId!=='vocabulaire-calcul') vus.push('le 1.13 garde l’identité du 1.14');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+
   /* {ecriture-decimale-fractions} (1.11) : jamais deux fractions décimales de
      même dénominateur dans une somme (demande de Turquet, novembre 2026) — le
      niveau 6 posait 315 + 9/100 + 5/10 + 9/100. L'ordre des termes, lui, peut
