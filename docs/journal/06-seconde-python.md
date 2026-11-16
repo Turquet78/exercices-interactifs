@@ -7247,3 +7247,18 @@ principal relit l'ordre bouton → programme → console dans le DOM.
 quelques minutes avant celle de la console, portait elle aussi la Seconde en
 692 : les deux pages en ligne auraient affiché le même numéro. Celle de la
 console passe en 693, pour qu'on sache d'un coup d'œil laquelle est ouverte.
+
+---
+
+## Puis le texte du 6.6.1 a nommé la variable (novembre 2026, v695)
+
+Demande de Turquet : « mettre "la variable nombre vaut : " au lieu de
+"valeur=" dans les listes ». Le texte des listes EST celui du print — le
+changer dans la liste seule y aurait retiré la bonne réponse. Le premier
+texte de `PFP_TEXTES` devient donc `la variable %v vaut :`, où `pfpTexte`
+écrit le nom tiré : la fiche affiche « la variable nombre vaut : 0 », une
+question à la variable k « la variable k vaut : 0 ». Pas d'espace final dans
+le texte : print en met déjà une entre ses deux arguments, la console aurait
+écrit deux espaces. Le rappel de cours et la première question proposée à
+l'IA suivent ; le profil du banc (fiche, sortie) aussi, et les programmes
+sont toujours comparés à un vrai CPython.

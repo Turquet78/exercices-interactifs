@@ -4623,7 +4623,7 @@ const TESTS={
   'frequences-probabilites-direct': { name:'Fréquences et probabilités : la fiche, fractions seules', icon:'\ud83e\uddee', desc:'La fiche du {frequences-probabilites} avec d’autres énoncés (contrôle technique, aéroport, jouets, vigneron, photos, chocolaterie), et sur chaque ligne seulement la fraction à écrire avec les effectifs du tableau : ni fraction en lettres, ni nom à composer. Partie A en probabilités, partie B en fréquences.', start:()=>startFPB2() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
-  'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres \u00e0 un seul chiffre non nul : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
+  'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres ronds : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
   'augmentation-tableau-libre': { name:'Augmentation r\u00e9guli\u00e8re : r\u00e9diger ses r\u00e9ponses', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {augmentation-tableau}, mais apr\u00e8s le tableau, un seul champ par question : \u00e9cris ta r\u00e9ponse avec la m\u00e9thode qui te convient \u2014 la suite des valeurs, des phrases avec tes calculs, ou directement le r\u00e9sultat \u2014 et l\u2019IA la lit.', start:()=>startSuil() },
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
@@ -19824,10 +19824,10 @@ const SUI_P_MAX=10;
    seuil de la question ③ AU MOINS DEUX FOIS plus loin que la question ②
    (p ≥ 2N, demande de Turquet, novembre 2026) et au plus SUI_P_MAX — donc N
    vaut 4 ou 5 —, et une quantité qui diminue ne tombe jamais à zéro. */
-function suiFamilles(c){
+function suiFamilles(c, pas){
   const out=[];
   c.u0.forEach(function(u0){
-    SUI_PAS.forEach(function(r){
+    (pas||SUI_PAS).forEach(function(r){
       if((c.rMin && r<c.rMin) || (c.rMax && r>c.rMax)) return;
       for(let N=4;2*N<=SUI_P_MAX;N++) for(let p=2*N;p<=SUI_P_MAX;p++){
         if(u0+c.sens*p*r<=0) continue;
@@ -19840,7 +19840,7 @@ function suiFamilles(c){
 /* Une question : le contexte, le tirage, et la partie (1 : le tableau,
    2 : la valeur au bout de N pas, 3 : le pas du seuil). */
 function suiTirer(ci, part, bornes){
-  const fam=suiFamilles(SUI_CTX[ci]).filter(function(f){ return !bornes || (f.r>=bornes[0] && f.r<=bornes[1]); });
+  const fam=bornes ? suiFamilles(SUI_CTX[ci], bornes) : [];
   const f=pick(fam.length?fam:suiFamilles(SUI_CTX[ci]));
   const q={ci:ci, u0:f.u0, r:f.r, N:f.N, p:f.p, part:part||1};
   if(SUI_CTX[ci].tps.type==='date') q.j0=1+Math.floor(Math.random()*SUI_J0_MAX);
@@ -19850,8 +19850,13 @@ function suiTirer(ci, part, bornes){
    novembre 2026) : le premier exemple ajoute ou retire 10, 20 ou 30 ; le
    deuxième, un multiple de 10 de 40 à 90 ; les suivants, tout le pas. On
    commence facile. Un contexte qui ne sait pas tenir la plage de son rang (la
-   piscine ou la chaîne ne descendent pas à 30) prend un autre rang. */
-const SUI_PAS_RANGS=[[10,30],[40,90]];
+   piscine ou la chaîne ne descendent pas à 30) prend un autre rang.
+   Puis (demande de Turquet, novembre 2026, v436) : « pour le deuxième
+   exercice dans le 7.1 et 7.2, mettre une addition ou soustraction parmi les
+   nombres 60 ; 70 ; 80 ; 90 ; 110 ». Chaque rang porte donc la LISTE de ses
+   pas, et 110 — hors de SUI_PAS, la seule exception à « un seul chiffre non
+   nul » — n'existe qu'au deuxième exemple. Le 7.2 tire par la même fonction. */
+const SUI_PAS_RANGS=[[10,20,30],[60,70,80,90,110]];
 /* L'étiquette d'un pas : 2031, 13 h, 6 juin. */
 function suiMoment(c, n, j0){
   const t=c.tps;
@@ -19907,7 +19912,7 @@ function suiBuildQuestions(nQ){
     if(!reste.length) reste=ensShuffle(tous);   /* sans remise tant qu'il y en a */
     /* au rang i, un contexte qui sait tenir la plage de pas de ce rang */
     const b=SUI_PAS_RANGS[i]||null;
-    let k=b?reste.findIndex(function(ci){ return suiFamilles(SUI_CTX[ci]).some(function(f){ return f.r>=b[0] && f.r<=b[1]; }); }):0;
+    let k=b?reste.findIndex(function(ci){ return suiFamilles(SUI_CTX[ci], b).length>0; }):0;
     if(k<0) k=0;
     const ci=reste.splice(k,1)[0];
     const t=distincte(tires, function(){ return suiTirer(ci,1,b); });
@@ -20243,7 +20248,7 @@ function ctxSui(q){
   else if(q.part===2){ const lignes=[]; for(let n=SUI_M1_ECRITES;n<=v.n;n++) lignes.push('pas '+n+' ('+suiMoment(c,n,v.j0)+') = '+suiFmt(v.u0+n*v.r));
     t+='Question 2 : '+c.q2(v.m2)+' Deux méthodes, toutes deux obligatoires. Méthode 1 : le tableau de la question 1 (pas 0 et 1 écrits ; l’élève reprend au pas 2, au moins trois lignes à compléter), prolongé ligne à ligne jusqu’au pas '+v.n+' ; l’élève peut sauter des lignes, seule la dernière est attendue. Réponses attendues, STRICTEMENT SECRÈTES : '+lignes.join(', ')+'. Méthode 2, phrases à compléter : le nombre de '+c.pass+' (n), de combien on change à chaque '+c.pas+' (r), le produit n × r, la valeur de départ, puis le résultat. Réponses attendues, STRICTEMENT SECRÈTES : n = '+v.n+', r = '+suiFmt(v.rAbs)+', n × r = '+suiFmt(v.prod)+', départ = '+suiFmt(v.u0)+', résultat = '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'. '; }
   else t+='Question 3 : '+c.q3(suiFmt(v.T))+' Phrases à compléter : l’écart entre le seuil et la valeur de départ (e), de combien on change à chaque '+c.pas+' (r), le nombre de '+c.pass+' k tel que e = r × k, puis le moment cherché. Réponses attendues, STRICTEMENT SECRÈTES : e = '+suiFmt(v.e)+', r = '+suiFmt(v.rAbs)+', k = '+v.kk+', moment = '+suiMoment(c,v.kk,v.j0)+' (case : '+v.fin+'). ';
-  t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Tous les nombres n’ont qu’un seul chiffre différent de zéro : les calculs se font de tête. ';
+  t+='Méthode enseignée : on compte d’abord le nombre de pas, on multiplie par la valeur d’un pas, puis on ajoute (ou on retire) à la valeur de départ ; pour un seuil, on calcule l’écart, puis on cherche par combien multiplier la valeur d’un pas pour obtenir cet écart. Les nombres sont ronds : les calculs se font de tête. ';
   t+='Dans une question, une donnée déjà écrite se recopie d’elle-même dans les cases suivantes qui en parlent : l’élève ne l’écrit qu’une fois. ';
   const ecrits=suiCases(q).map(function(x){ return x.id.slice(4)+' : '+ecrit(x.id); });
   if(typeof document!=='undefined' && $('suiHost')) t+='Ce que l’élève a écrit : '+ecrits.join(' ; ')+'.';
@@ -33018,7 +33023,7 @@ const RAP_SUI=`<b>Une quantité qui change toujours de la même valeur</b><br>
 <b>① Le tableau.</b> À chaque pas (une année, une heure, un jour), on <b>ajoute</b> — ou on <b>retire</b> — toujours le <b>même nombre</b> : la ligne suivante, c'est la ligne d'avant + ce nombre. La dernière ligne est donnée : elle sert à se vérifier.<br>
 <b>② La valeur au bout de plusieurs pas — deux méthodes.</b> <b>Méthode 1, le tableau :</b> on prolonge le tableau ligne à ligne, en ajoutant (ou retirant) toujours le même nombre, jusqu'au moment demandé ; on peut sauter des lignes si on sait compter de tête. <b>Méthode 2, le calcul :</b> on compte d'abord <b>le nombre de pas</b> (entre 2026 et 2031, il y a 5 années). On multiplie ce nombre par la valeur d'un pas : c'est de combien on a changé en tout. Puis on l'<b>ajoute</b> à la valeur de départ (ou on le <b>retire</b>, si la quantité diminue). Les deux méthodes donnent le même résultat : c'est une vérification.<br>
 <b>③ Atteindre un seuil.</b> On calcule <b>l'écart</b> entre le seuil et la valeur de départ. Puis on cherche <b>par combien multiplier</b> la valeur d'un pas pour obtenir cet écart : c'est le nombre de pas qu'il faut. On l'ajoute au moment de départ.<br>
-Tous les nombres n'ont qu'un seul chiffre différent de zéro : <b>tout se calcule de tête</b>. Et une donnée déjà écrite dans une question se recopie d'elle-même dans les cases suivantes qui en parlent.`;
+Les nombres sont ronds (des dizaines, comme 60 ou 110, et des centaines) : <b>tout se calcule de tête</b>. Et une donnée déjà écrite dans une question se recopie d'elle-même dans les cases suivantes qui en parlent.`;
 const RAP_RPD=`<b>Réduire un produit avec x</b><br>
 <b>① Le signe d'abord : la règle des signes.</b> Deux signes <b>pareils</b> donnent <b>+</b> ; deux signes <b>contraires</b> donnent <b>−</b>. Comme pour multiplier deux nombres relatifs.<br>
 <b>② Puis les coefficients se multiplient</b>, sans leurs signes : dans (−3<i>x</i>) × (−5<i>x</i>), on calcule 3 × 5 = 15.<br>

@@ -1447,6 +1447,10 @@
   #pfpRun:disabled{opacity:.45;cursor:default;filter:grayscale(.4)}
   .pfp-consigne{margin:8px 0 2px;font-weight:700;color:var(--blue)}
   select.pfr-in.pfp-sel{width:auto;min-width:5ch;font:inherit;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace}
+  /* la liste du texte prend la largeur du texte ; celles du nom et de la
+     valeur, courtes, ne s'élargissent pas à sa mesure (v686) */
+  select.pfr-in.pfp-sel.pfp-sel-court{width:12ch}
+  .pfp-nw{white-space:nowrap;display:inline-flex;align-items:baseline}
   #psfHost .mf-cor.pyn-cor,#pynHost .mf-cor.pyn-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600}
   .pyp-cours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 10px}
   .pyp-regle{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 12px;font-size:.98rem;line-height:1.45;color:var(--ink);text-align:left}
@@ -9444,7 +9448,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=693;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=695;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -12233,7 +12237,7 @@ const QIA_SUGG={
   pyc:["Comment afficher la valeur d’une variable ?","Quelle est la différence entre note et \"note\" dans un print ?","Pourquoi, dans un programme, écrire juste le nom de la variable n’affiche rien ?","Que veut dire l’erreur « n’existe pas » ?"],
   pnv:["Pourquoi l’espace est-il interdit dans un nom de variable ?","Est-ce que je peux mettre un chiffre dans un nom de variable ?","Pourquoi « print » ne peut-il pas être un nom de variable ?","Comment écrire un nom qui contient deux mots ?"],
   pyi:["À quoi sert input ?","Où va la réponse que l’utilisateur tape ?","Pourquoi le nom de la variable s’écrit-il sans guillemets dans le print ?","Pourquoi faut-il écrire input avant le print ?"],
-  pfp:["Que fait la ligne print(\"valeur=\", nombre) ?","Quelle est la différence entre le texte et la variable dans un print ?","Pourquoi la variable vaut-elle 0 au premier tour ?","Combien de tours la boucle fait-elle ?"],
+  pfp:["Que fait la ligne print(\"la variable nombre vaut :\", nombre) ?","Quelle est la différence entre le texte et la variable dans un print ?","Pourquoi la variable vaut-elle 0 au premier tour ?","Combien de tours la boucle fait-elle ?"],
   pfr:["Que fait for nombre in range(5): ?","Pourquoi la variable commence-t-elle à 0 ?","Pourquoi la dernière valeur n’est-elle pas 5 ?","Combien de fois le print est-il exécuté ?"],
   pcl:["Que représente len(chaine) ?","Pourquoi chaine[0] est-il le premier caractère ?","Pourquoi le dernier caractère est-il chaine[len(chaine)-1] ?","Que se passe-t-il si l’indice est trop grand ?"],
   pnp:["Que fait exactement la ligne avec input ?","Où va la réponse que je tape ?","Que fait print(\"tu es\", nom) ?","Pourquoi le nom de la variable s’écrit-il sans guillemets ?"],
@@ -13305,7 +13309,7 @@ const RAP_PFP=`<b>Définition d’une boucle for … in range (…)</b><br>
 <code class="inline">for nombre in range (5):</code><br>
 se traduit par<br>
 <code class="inline">Pour nombre allant jusqu’à (5)</code>.<br>
-<code class="inline">print("valeur=", nombre)</code> affiche le texte écrit entre guillemets, puis la valeur de la variable <code class="inline">nombre</code>.`;
+<code class="inline">print("la variable nombre vaut :", nombre)</code> affiche le texte écrit entre guillemets, puis la valeur de la variable <code class="inline">nombre</code>.`;
 const RAP_PYP=`<b>Écrire un print</b><br>
 <b>① <code class="inline">print(…)</code> affiche ce qu’il y a entre ses parenthèses</b> : le mot print tout en minuscules, une parenthèse ouvrante, ce qu’on veut afficher, une parenthèse fermante.<br>
 <b>② Un texte s’écrit entre guillemets</b> : <code class="inline">print("bonjour")</code> affiche <code class="inline">bonjour</code> — le texte tel quel, SANS les guillemets. Sans eux, Python croit que bonjour est le nom d’une variable, et signale une erreur.<br>
@@ -53757,7 +53761,10 @@ function ctxPfr(q){
    acceptés ; le nom de la variable se juge EXACT — Python distingue les
    majuscules. */
 const PFP_VARS=['nombre','k','i','compteur','valeur','n','j'];
-const PFP_TEXTES=['valeur=','tour','nombre =','résultat :'];
+/* Le premier texte nomme la variable (demande de Turquet, novembre 2026 :
+   « mettre "la variable nombre vaut : " au lieu de "valeur=" ») : %v est
+   remplacé par le nom tiré, la fiche dit donc « la variable nombre vaut : ». */
+const PFP_TEXTES=['la variable %v vaut :','tour','nombre =','résultat :'];
 const PFP_NB=2;
 function pfpBuildQuestions(){
   const n=Math.min(dmNbQuestions(PFP_NB), DM_NBQ_MAX);
@@ -53767,7 +53774,7 @@ function pfpBuildQuestions(){
   }, function(q){ return q.iv+'|'+q.it+'|'+q.n; });
 }
 function pfpVar(q){ return PFP_VARS[q.iv]||PFP_VARS[0]; }
-function pfpTexte(q){ return PFP_TEXTES[q.it]||PFP_TEXTES[0]; }
+function pfpTexte(q){ return (PFP_TEXTES[q.it]||PFP_TEXTES[0]).replace('%v', pfpVar(q)); }
 function pfpPrint(q){ return 'print("'+pfpTexte(q)+'", '+pfpVar(q)+')'; }
 function pfpProg(q){ return 'for '+pfpVar(q)+' in range('+q.n+'):\n    '+pfpPrint(q); }
 function pfpCases(q){ return new Array(3*q.n+2).fill(0); }
@@ -53785,8 +53792,8 @@ function pfpValOk(q, t, v){ return pfrLu(v)===pfpValeur(q, t); }
    2026) : les mêmes choix dans les trois — le texte du print, le nom de la
    variable, puis chaque valeur que range peut donner. */
 function pfpChoix(q){ const c=[pfpTexte(q), pfpVar(q)]; for(let v=0;v<q.n;v++) c.push(String(v)); return c; }
-function pfpListeHTML(q, id, aria){
-  return '<select class="pfr-in pfp-sel" id="'+id+'" aria-label="'+esc(aria)+'"><option value="">…</option>'
+function pfpListeHTML(q, id, aria, cls){
+  return '<select class="pfr-in pfp-sel'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(aria)+'"><option value="">…</option>'
     +pfpChoix(q).map(function(c){ return '<option value="'+esc(c)+'">'+esc(c)+'</option>'; }).join('')+'</select>';
 }
 function pfpCaseHTML(id, cls, aria, mode){
@@ -53800,9 +53807,9 @@ function pfpCodeHTML(q, actif){
 function pfpPhraseTour(q, t){
   const p='pfp-t'+t+'-';
   return '<p class="py-phrase pii-rep-l pfr-rep pfp-tour" id="pfpTour'+t+'"><span class="pfp-num">Tour n°'+(t+1)+' :</span>'
-    +pfrCode(pfpPrint(q))+' affiche le texte "'+pfpListeHTML(q, p+'0','le texte affiché au tour '+(t+1))+'"<span class="pfp-br"></span>'
-    +'et la valeur de la variable '+pfpListeHTML(q, p+'1','le nom de la variable au tour '+(t+1))
-    +' qui est '+pfpListeHTML(q, p+'2','la valeur de la variable au tour '+(t+1))+'.</p>';
+    +pfrCode(pfpPrint(q))+' affiche le texte <span class="pfp-nw">"'+pfpListeHTML(q, p+'0','le texte affiché au tour '+(t+1),'pfp-sel-txt')+'"</span><span class="pfp-br"></span>'
+    +'et la valeur de la variable '+pfpListeHTML(q, p+'1','le nom de la variable au tour '+(t+1),'pfp-sel-court')
+    +' qui est '+pfpListeHTML(q, p+'2','la valeur de la variable au tour '+(t+1),'pfp-sel-court')+'.</p>';
 }
 function pfpEtapeHTML(e, titre, corps){
   return '<div class="pii-etape" id="pfpEtape'+e.toUpperCase()+'"><p class="pii-titre">✏️ '+titre+'</p>'+corps+'</div>';
