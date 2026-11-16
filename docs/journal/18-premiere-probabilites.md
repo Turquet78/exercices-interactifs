@@ -886,7 +886,7 @@ question vide et, au 3.10, une case fausse ; aucun débordement, aucune
 erreur JavaScript.
 
 
-**Puis la partie B a écrit son P, comme la partie A (v441).** Demande de
+**Puis la partie B a écrit son P, comme la partie A (v441, publiée en v442 : la 1.14 avait pris le même numéro le même jour).** Demande de
 Turquet (novembre 2026) : « dans la partie B, présenter le calcul par
 "fréquence = P…(…) = …/… = …/…" comme dans la partie A, sauf que l'on rajoute
 "fréquence =" devant la ligne ». Les trois lignes de la partie B (fréquence
