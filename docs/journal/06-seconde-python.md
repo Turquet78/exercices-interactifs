@@ -7223,9 +7223,34 @@ opposé** — l'énoncé du même écran se copie toujours — est tenu à côt�
 qu'aucun banc ne voit : une capture d'écran ou une photo de la correction
 reste possible, et l'élève peut toujours la retaper.
 
+**Puis le sport favori est venu juste après le 6.3.1 (15 novembre 2026,
+v691).** Demande de Turquet : « déplace-le juste après le 6.3.1 ». Il était
+le dernier du sous-thème Input (6.3.20) ; il est désormais le 6.3.2, juste
+derrière {python-input-pas-a-pas}, et tous les exercices qui suivaient
+passent d'un cran ({python-input-reponse} devient le 6.3.3, {python-input-image}
+le 6.3.20). Rien de la page ne cite ces numéros hors des commentaires : ils se
+calculent depuis `THEMES`. Les bancs, eux, les épinglent — une quarantaine de
+« 6.3.N » de `tests/verifier.js` et `tests/profils.js` ont avancé d'un cran
+(N ≥ 2), et les deux contrôles qui exigeaient `python-input-reponse` en
+deuxième place (celui du pas-à-pas et le sien) le cherchent maintenant en
+troisième, derrière le sport favori.
+
+**Puis la console est passée JUSTE APRÈS LE PROGRAMME (v692).** Demande de
+Turquet : « met la fenêtre de ce qu'affiche le programme juste après le
+programme finalement ». L'ordre du 6.3.1 devient : le bouton « ▶ Exécuter la
+ligne n° … » en haut, le programme (lignes faites et ligne à exécuter, cadres à
+droite), puis « Ce que le programme affiche » et sa console. L'énoncé dit
+« ce qu'elle affiche s'écrit juste après le programme ». Le parcours du banc
+principal relit l'ordre bouton → programme → console dans le DOM.
+
+**Et le numéro s'est heurté à une autre fusion (v693).** La PR 1049, fusionnée
+quelques minutes avant celle de la console, portait elle aussi la Seconde en
+692 : les deux pages en ligne auraient affiché le même numéro. Celle de la
+console passe en 693, pour qu'on sache d'un coup d'œil laquelle est ouverte.
+
 ---
 
-## Puis le texte du 6.6.1 a nommé la variable (novembre 2026, v691)
+## Puis le texte du 6.6.1 a nommé la variable (novembre 2026, v695)
 
 Demande de Turquet : « mettre "la variable nombre vaut : " au lieu de
 "valeur=" dans les listes ». Le texte des listes EST celui du print — le
