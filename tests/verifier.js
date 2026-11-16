@@ -36846,7 +36846,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, le seuil de la question 3 au moins deux fois plus loin que la question 2 et dans la table de 10, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l'heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36855,7 +36855,7 @@ function augmentationTableau(w, P){
       if(new Set(cis).size!==cis.length) vus.push("deux fois le même contexte : "+cis.join(","));
       /* les contextes à dates ne commencent pas forcément le 1er (Turquet, novembre 2026) : j0 tiré, et la question 3 reste dans le mois */
       qs.forEach(function(q){ const c=SUI_CTX[q.ci]; if(c.tps.type!=='date') return; j0s.add(q.j0||1); const v=suiVals(q);
-        if(!(q.j0>=1&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 1 à 20)");
+        if(!(q.j0>=2&&q.j0<=20)) vus.push(c.nom+" : jour de départ "+q.j0+" (attendu de 2 à 20 : jamais le 1er du mois, Turquet, novembre 2026)");
         if(v.fin>30) vus.push(c.nom+" : le "+v.fin+" "+c.tps.mois+" n’existe pas"); });
       /* le pas selon le rang de l'exemple (Turquet, novembre 2026) : 10 à 30, puis 60, 70, 80, 90 ou 110 (v436) */
       const r1=suiVals(qs[0]).rAbs; if(r1>30) vus.push("le premier exemple ajoute ou retire "+r1+" : attendu 10, 20 ou 30");
@@ -36863,8 +36863,9 @@ function augmentationTableau(w, P){
       qs.forEach(function(q,i){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0 && !(i>=3 && i<6 && v.rAbs===110)) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
-        if(v.kk>10) vus.push("p="+v.kk+" : la question 3 sort de la table de 10");
-        if(v.n<4||v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : attendus hors du tableau, et le seuil au moins deux fois plus loin");
+        if(v.n<7||v.n>12) vus.push("N="+v.n+" : la question 2 doit multiplier par 7 à 12 (Turquet, novembre 2026)");
+        if(v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : le seuil de la question 3 doit être au moins deux fois plus loin");
+        if(SUI_CTX[q.ci].tps.type==='heure'&&v.fin>23) vus.push(SUI_CTX[q.ci].nom+" : "+v.fin+" h n’existe pas");
         if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
         if(v.e!==q.p*v.rAbs||v.res!==v.u0+q.N*v.r) vus.push("écart ou résultat incohérents");
