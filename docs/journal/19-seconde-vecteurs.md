@@ -6696,3 +6696,26 @@ l'exercice 2 (N, 34 cases) ; le soutien ; la bulle. Éprouvé par sabotage
 Fait à la souris dans un vrai Chromium (les deux copies glissées, M posé,
 46 sur 46).
 
+
+**Puis l'autre méthode est RETIRÉE (Seconde v703).** La demande (Turquet,
+novembre 2026) : « enlève la méthode 2 sur l'exercice 1 ». L'exercice 1 de la
+fiche se fait désormais comme l'exercice 2 : la construction, « fin − début »,
+le système, et « Donc M(… ; …) » — 36 réponses à chaque question, jamais
+plus. Le drapeau `q.am`, les cases `vsm-am-*`, leurs messages, leur ligne du
+contexte envoyé au modèle et le ④ du rappel sont partis avec elle : un code
+qu'aucune question ne tire plus serait une branche morte qu'on croit vivante.
+Le banc tient le bord retiré : la fiche n'a que 34 cases de calcul, aucun
+« Autre méthode » ni `vsm-am-x` à l'écran, `dmPoidsQuestion` compte 36 à
+chaque exercice.
+
+**Et la fiche n'est plus tirée : toutes les questions ont leurs propres
+points (même v703).** La demande (Turquet) : « fais des exercices différents de
+ma feuille pdf avec tes points ». Les deux premières questions ne sont plus
+A(3 ; 4), B(1 ; 2), C(3 ; 1), D(−1 ; −2) : `vsmGen` tire chaque question, M
+puis N en alternance. Le tirage n'utilise jamais −1, si bien que le D de la
+fiche ne peut pas revenir par hasard. `vsmFiche` reste comme exemple du
+rappel, et comme figure connue que le banc rejoue pour ses gestes et ses
+pièges. Le banc vérifie les 200 séances, toutes les questions, et l'écran
+d'ouverture : aucun ne porte les points de la fiche. Sabotage : en remettant
+`if(i<2) return vsmFiche(i)`, le banc rougit deux fois (« une question reprend
+les points de la fiche », « la séance commence par la fiche »).
