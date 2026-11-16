@@ -16226,6 +16226,16 @@ function tracerCoordonneesDecompose(w, P){
     test.questions.forEach(function(q){
       if(Object.keys(q).sort().join(',')!=='co,d1,d2,d3,dv,f1,f2,f3,vs' || q.dv!==1) vus.push('la question range : '+JSON.stringify(q)); });
     if(tvxBuildQuestions(false,false,true).some(function(q){ return 'dv' in q; })) vus.push('le 8.4.6 range dv : ses questions ont changé');
+    /* 1 bis. les zéros (demande de Turquet, novembre 2026) : chaque question a un vecteur à
+       coordonnée nulle ; dans les quatre premières, au moins une abscisse nulle et une ordonnée nulle */
+    [1,2,3,4,6,20].forEach(function(n){ for(let k=0;k<150;k++){
+      const z=tvxZeros(n), qs=z.map(function(c){ return tvxGenC(1,c); });
+      const a0=function(q){ return q.vs.some(function(v){ return v[2]===0; }); }, o0=function(q){ return q.vs.some(function(v){ return v[3]===0; }); };
+      if(qs.some(function(q){ return !a0(q)&&!o0(q); })) { vus.push('une question sans coordonnée nulle ('+n+' questions)'); return; }
+      const t=qs.slice(0,4);
+      if(n>=2 && (!t.some(a0) || !t.some(o0))) { vus.push('les quatre premières questions n\'ont pas une abscisse nulle ET une ordonnée nulle ('+n+' questions)'); return; }
+    } });
+    test.questions.forEach(function(q){ if(!q.vs.some(function(v){ return v[2]===0||v[3]===0; })) vus.push('une question tirée sans coordonnée nulle : '+JSON.stringify(q.vs)); });
 
     /* 2. l'écran : vide au départ, l'énoncé annonce la grise et la noire */
     test.questions[0]=fixe(); test.idx=0; renderTvx();
