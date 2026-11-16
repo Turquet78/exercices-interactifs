@@ -6378,7 +6378,7 @@ après JSON, la vérification (calque vide, celle du 8.4.6 posée) ; le soutien
 Vu dans un vrai Chromium à 1 280 et 390 px : la souris promenée, les
 flèches grise et noire suivent.
 
-**Puis les zéros (Seconde v699, 8.4.8 puis 8.4.6).** La demande (Turquet, novembre 2026) :
+**Puis les zéros (Seconde v700 — la v699 prise sur main pendant les bancs, par la PR 1065 ; 8.4.8 puis 8.4.6).** La demande (Turquet, novembre 2026) :
 « dans chaque question il y ait au moins une fois un zéro soit en abscisse
 soit en ordonnée, et sur les 4 premières questions au moins un zéro en
 abscisse et un zéro en ordonnée ». Au 8.4.8 d'abord, le droit n'est plus
