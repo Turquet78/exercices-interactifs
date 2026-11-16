@@ -57958,7 +57958,7 @@ function pbStart(K){
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false,
     pbmEtape:0, pbmChoix:[], pbmVerdicts:[], pbmBoite:''});
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
-  show(K); pbRender();
+  show(K); pbRendre();
 }
 async function startPBM(){ pbStart('pbm'); }
 async function startPBC(){ pbStart('pbc'); }
@@ -58029,6 +58029,10 @@ function pbRender(){
     +'</div></div>';
   pbBoutons(K, q, fini);
 }
+/* Le rendu passe TOUJOURS par renderPBM / renderPBC / renderPBE : ce sont eux
+   que la fin de fichier enveloppe (jetons, boutons d'aide, dessin et serpent
+   d'Halloween — dessinsVariables). Appeler pbRender() en direct les sautait. */
+function pbRendre(){ const f=window['render'+pbK().toUpperCase()]; if(typeof f==='function') f(); else pbRender(); }
 function renderPBM(){ pbRender(); }
 function renderPBC(){ pbRender(); }
 function renderPBE(){ pbRender(); }
@@ -58093,7 +58097,7 @@ function pbmExecuter(){
   if(ok){ test.score++; }
   const der=(k===q.lignes.length-1);
   const val=papAns(q, k).val;
-  pbRender();
+  pbRendre();
   $(K+'LiveScore').textContent=test.score;
   fb.textContent=(ok ? 'Juste ! ' : 'Ce n’était pas la boîte '+choix+' : ')+pbExplique(q, k)
     +(der ? ' Le programme est arrivé au bout.' : '');
@@ -58229,7 +58233,7 @@ function pbNext(){
   if(test.idx<test.questions.length-1){
     test.idx++; test.pbmEtape=0; test.pbmChoix=[]; test.pbmVerdicts=[]; test.pbmBoite='';
     const f=$(K+'Feedback'); if(f){ f.textContent=''; f.className='mp-feedback'; }
-    pbRender(); autoSave();
+    pbRendre(); autoSave();
   } else finishTest();
 }
 function nextPBM(){ pbNext(); }
