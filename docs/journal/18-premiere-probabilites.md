@@ -885,3 +885,23 @@ Vérifié dans Chromium (1280 et 390 px), sur les deux fiches : copie juste
 question vide et, au 3.10, une case fausse ; aucun débordement, aucune
 erreur JavaScript.
 
+
+**Puis la partie B a écrit son P, comme la partie A (v441).** Demande de
+Turquet (novembre 2026) : « dans la partie B, présenter le calcul par
+"fréquence = P…(…) = …/… = …/…" comme dans la partie A, sauf que l'on rajoute
+"fréquence =" devant la ligne ». Les trois lignes de la partie B (fréquence
+globale, d'une intersection, conditionnelle) reprennent le nom à composer de
+la partie A — l'indice de P (« tout », ou la condition pour « parmi ») et
+l'évènement —, précédé du mot « fréquence » et d'un « = » groupé avec le P
+(`fEq`). Le juge n'a pas changé : `fpbAttNom` range désormais l'indice
+attendu de la condition (`q.ev[1]`, « 0 » pour le total), et la partie B s'en
+sert. Les explications (`pourquoi`) nomment le P attendu, le contexte envoyé
+au modèle ne dit plus « sans la lettre P ». Le 3.11 (fractions seules) ne
+change pas : `fpbSeul()` passe avant.
+Sur un téléphone (≤ 560 px), la ligne, plus longue de tout le P, débordait
+de 49 px : elle passe à la suivante ENTRE deux groupes « = case »
+(`.fpb-sol-b`, `flex-wrap`), « fréquence = P_A(D) » en haut, les deux
+fractions dessous — jamais un « = » séparé de sa case.
+Vérifié dans Chromium (1280 et 390 px) : copie juste 8 / 8, l'indice de la
+conditionnelle mis à « tout » rougit cette seule question (7 / 8), aucune
+largeur de page dépassée.
