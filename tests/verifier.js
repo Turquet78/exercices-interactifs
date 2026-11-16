@@ -16235,7 +16235,9 @@ function tracerCoordonneesDecompose(w, P){
       const t=qs.slice(0,4);
       if(n>=2 && (!t.some(a0) || !t.some(o0))) { vus.push('les quatre premières questions n\'ont pas une abscisse nulle ET une ordonnée nulle ('+n+' questions)'); return; }
     } });
-    test.questions.forEach(function(q){ if(!q.vs.some(function(v){ return v[2]===0||v[3]===0; })) vus.push('une question tirée sans coordonnée nulle : '+JSON.stringify(q.vs)); });
+    [test.questions, tvxBuildQuestions(false,false,true)].forEach(function(qs,k){ qs.forEach(function(q){ if(!q.vs.some(function(v){ return v[2]===0||v[3]===0; })) vus.push((k?'8.4.6':'8.4.8')+' : une question tirée sans coordonnée nulle : '+JSON.stringify(q.vs)); }); });
+    for(let k=0;k<150;k++){ const t=tvxBuildQuestions(false,false,true).slice(0,4);
+      if(!t.some(function(q){ return q.vs.some(function(v){ return v[2]===0; }); }) || !t.some(function(q){ return q.vs.some(function(v){ return v[3]===0; }); })) { vus.push('8.4.6 : les premières questions n\'ont pas une abscisse nulle ET une ordonnée nulle'); break; } }
 
     /* 2. l'écran : vide au départ, l'énoncé annonce la grise et la noire */
     test.questions[0]=fixe(); test.idx=0; renderTvx();

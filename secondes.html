@@ -68288,14 +68288,14 @@ function tvxGenK(_,i){
 }
 /* 8.4.6 : trois chemins de 3 carreaux au moins (au plus 4 par direction),
    deux à deux ni égaux ni opposés ni parallèles, chacun sa paire de signes ;
-   deux en biais au moins, et une fois sur trois un droit — une coordonnée
+   deux en biais au moins, et un droit à chaque question (novembre 2026) — une coordonnée
    nulle, comme les droits du 8.4.1. Une fois sur deux, deux biais ont les
    MÊMES nombres de carreaux, seuls les signes les distinguent (le piège du
    8.4.2). */
-/* 8.4.8 (dv, demande de Turquet, novembre 2026) : chaque question a son
-   droit, et `zero` dit lequel — 'x' une abscisse nulle (0 ; l), 'y' une
+/* 8.4.6 et 8.4.8 (demande de Turquet, novembre 2026) : chaque question a
+   son droit, et `zero` dit lequel — 'x' une abscisse nulle (0 ; l), 'y' une
    ordonnée nulle (l ; 0) ; tvxBuildQuestions place les deux sortes dans les
-   quatre premières questions. Le 8.4.6 (zero absent) ne change pas. */
+   quatre premières questions. Sans `zero`, le droit d'une fois sur trois. */
 function tvxGenC(dv,zero){
   const para=function(a,b){ return a[0]*b[1]-a[1]*b[0]===0; };
   const sg=function(w){ return Math.sign(w[0])+','+Math.sign(w[1]); };
@@ -68314,7 +68314,7 @@ function tvxGenC(dv,zero){
   }
   return tvxQuestion([[0,0,3,-2],[0,0,-1,4],zero==='x'?[0,0,0,-4]:[0,0,-4,0]],0,null,1,dv);
 }
-/* Les sortes de zéro du 8.4.8, une par question : dans les quatre premières
+/* Les sortes de zéro des 8.4.6 et 8.4.8, une par question : dans les quatre premières
    (ou toutes, s'il y en a moins), au moins une 'x' et une 'y', mêlées. */
 function tvxZeros(n){
   const t=[]; for(let i=0;i<n;i++) t.push(Math.random()<0.5?'x':'y');
@@ -68328,8 +68328,7 @@ function tvxCoTxt(q,k){ const w=tvxVec(q,k); return '('+String(w[0]).replace('-'
 /* Deux questions du 8.3.1 sont la même si u⃗ et les coefficients le sont, où que u⃗ soit posé. */
 function tvxCleK(q){ return JSON.stringify([q.vs[0][2], q.vs[0][3], q.ks.map(String).sort()]); }
 function tvxBuildQuestions(op,ks,co,dv){
-  if(co&&dv){ const n=dmNbQuestions(TVX_NB), z=tvxZeros(n); return distinctes(n, function(_,i){ return tvxGenC(dv,z[i]); }); }
-  if(co) return distinctes(dmNbQuestions(TVX_NB), function(){ return tvxGenC(dv); });
+  if(co){ const n=dmNbQuestions(TVX_NB), z=tvxZeros(n); return distinctes(n, function(_,i){ return tvxGenC(dv,z[i]); }); }
   if(ks) return distinctes(dmNbQuestions(TVX_NB), tvxGenK, tvxCleK);
   return distinctes(dmNbQuestions(TVX_NB), function(){ return tvxGen(op); }); }
 /* Trois réponses par question — la convention de nommage que lit
