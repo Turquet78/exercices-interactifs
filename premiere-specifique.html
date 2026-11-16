@@ -1908,6 +1908,10 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   .pbf-sol,.pbf-sol .f-grp{gap:3px}
   #pbHost .pbf-q .pb-sel.pb-mots{width:auto}
   .pbf-sol{margin:0 auto}
+  /* partie B du 3.10 (v441) : « fréquence = P…(…) » ne tient pas sur un
+     téléphone avec ses deux fractions ; la ligne passe à la suivante ENTRE
+     deux groupes « = case » (f-grp), jamais entre un « = » et sa case */
+  .pbf-sol.fpb-sol-b{flex-wrap:wrap;justify-content:center;row-gap:6px}
 }
 /* LA CASE DE L'INDICE DE P EST PLUS ÉTROITE ET PLUS PETITE que les autres
    (demande de Turquet, octobre 2026, v294) : c'est un indice, il s'écrit en
@@ -4009,7 +4013,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=440;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=441;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25625,7 +25629,10 @@ PBX.auto={
      de la machine A et présentant un défaut »), puis une fréquence
      conditionnelle (« des pièces provenant de la machine A parmi les pièces
      sans défaut »). La ligne : fréquence = lettres / lettres = effectifs /
-     effectifs. Aucun P.
+     effectifs — puis, depuis la v441 (demande de Turquet), la ligne de la
+     partie A précédée de « fréquence = » : fréquence = P…(…) = lettres /
+     lettres = effectifs / effectifs, l'indice de P et l'évènement à
+     composer (« tout » sans condition, la condition pour « parmi »).
    Huit questions ; une question est juste quand toutes ses cases le sont ;
    toute fraction égale à l'attendue est juste (pbFracJuger). Chaque sorte
    de question range dans PBX ses attendus (att), sa méthode (pourquoi), son
@@ -25806,10 +25813,10 @@ function fpbTxt(q){
   return '';
 }
 /* La ligne d'une réponse : nom = lettres / lettres = effectifs / effectifs. */
-function fpbLigneFrac(q, i, nom){
+function fpbLigneFrac(q, i, nom, cls){
   const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
   const s=(b,l)=>pbSel(q,b+'-'+i,opts,lab+l,'pb-lettres');
-  return '<div class="pbf-sol">'+nom
+  return '<div class="pbf-sol'+(cls ? ' '+cls : '')+'">'+nom
     +fEq('<span class="f-frac-input"><span class="pb-l">'+s('pb-s6','numérateur en lettres')+'</span>'
          +'<span class="f-fbar"></span><span class="pb-l">'+s('pb-s7','dénominateur en lettres')+'</span></span>')
     +fEq('<span class="f-frac-input">'+pbMf('pb-n1-'+i, lab+'numérateur, un effectif du tableau')
@@ -25834,15 +25841,18 @@ function fpbLigne(q, i){
       : (q.t==='fpbsimple' || q.t==='fpbinter' || q.t==='fpbsach') ? mot('probabilité') : mot('fréquence');
     return fpbLigneSeule(q, i, nom);
   }
-  if(q.t==='fpbinter' || q.t==='fpbsimple'){
-    /* comme au 3.4 : l'élève choisit l'indice de P (« tout ») et l'évènement */
+  /* comme au 3.4 : l'élève choisit l'indice de P (la condition, ou « tout »)
+     et l'évènement */
+  const composer=()=>{
     const opts=PB_EVTS.map(e=>({ v:e, t:pbTxt(e) })), optsInd=['0','A','nA','B','nB'].map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
-    const nom='<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,lab+'indice de P, la condition ou tout','pb-lettres')+'</span>'
+    return '<span class="pb-nom"><i class="pb-P">P</i><span class="pb-ind">'+pbSel(q,'pb-px-'+i,optsInd,lab+'indice de P, la condition ou tout','pb-lettres')+'</span>'
       +'<span class="pb-par">(</span>'+pbSel(q,'pb-py-'+i,opts,lab+'l’évènement dont on veut la probabilité','pb-lettres')+' <span class="pb-par">)</span></span>';
-    return fpbLigneFrac(q, i, nom);
-  }
+  };
+  if(q.t==='fpbinter' || q.t==='fpbsimple') return fpbLigneFrac(q, i, composer());
   if(q.t==='fpbsach' || q.t==='fpbnom') return fpbLigneFrac(q, i, pbNomHTML(y,x));
-  return fpbLigneFrac(q, i, '<span class="fpb-mot">fréquence</span>');
+  /* partie B (v441, demande de Turquet) : la ligne de la partie A, précédée
+     de « fréquence = » — fréquence = P…(…) = lettres / lettres = effectifs / effectifs */
+  return fpbLigneFrac(q, i, mot('fréquence')+fEq(composer()), 'fpb-sol-b');
 }
 /* Les cases d'une ligne et ce qu'on y attend : la fraction en lettres
    (l'intersection A d'abord, pbInter), puis celle des effectifs. */
@@ -25851,9 +25861,10 @@ function fpbAttLigne(q){
   /* au 3.11, la fraction des effectifs est la seule case de la ligne */
   return fpbSeul() ? eff : Object.assign({ 'pb-s6':s, 'pb-s7':x }, eff);
 }
-/* Le nom à composer (indice « tout », évènement) des questions en mots sans
-   condition — au 3.10 seulement. */
-function fpbAttNom(q){ return fpbSeul() ? fpbAttLigne(q) : Object.assign({ 'pb-px':'0', 'pb-py':q.ev[0] }, fpbAttLigne(q)); }
+/* Le nom à composer (indice : la condition, ou « tout » ; évènement) des
+   questions en mots sans nom écrit — partie A sans condition, et toute la
+   partie B depuis la v441 — au 3.10 seulement. */
+function fpbAttNom(q){ return fpbSeul() ? fpbAttLigne(q) : Object.assign({ 'pb-px':(q.ev[1]==='T' ? '0' : q.ev[1]), 'pb-py':q.ev[0] }, fpbAttLigne(q)); }
 /* Un exemple de case trouvée de tête : la première ligne où il n'en manque
    qu'une — « 2 000 − 1 400 = 600 ». */
 function fpbExemple(q){
@@ -25880,16 +25891,16 @@ PBX.fpbtab={
   ctx(q){ return fpbCtxCommun(q)+'L’élève complète les quatre cases qui manquent (le total et quatre cases sont donnés). '; }
 };
 PBX.fpbfreq={
-  att:fpbAttLigne, render(){ renderFPBFiche(); },
+  att:fpbAttNom, render(){ renderFPBFiche(); },
   pourquoi(q){ const y=q.ev[0];
-    return 'La fréquence GLOBALE se calcule sur toute la production : on compte '+pbHTML(y)+' parmi tout, '+fpbNombre(pbEff(q,y))+' sur '+fpbNombre(pbEff(q,'T'))+'.'; },
+    return 'La fréquence GLOBALE se calcule sur toute la production : c’est '+pbNomPetit(y,'T')+', P sans indice (« tout ») ; on compte '+pbHTML(y)+' parmi tout, '+fpbNombre(pbEff(q,y))+' sur '+fpbNombre(pbEff(q,'T'))+'.'; },
   label(q){ return 'Fréquence globale de '+pbTxt(q.ev[0]); },
   ctx(q){ return fpbCtxCommun(q)+'Fréquence globale de '+pbTxt(q.ev[0])+' : effectif de '+pbTxt(q.ev[0])+' sur l’effectif total. '; }
 };
 PBX.fpbcond={
-  att:fpbAttLigne, render(){ renderFPBFiche(); },
+  att:fpbAttNom, render(){ renderFPBFiche(); },
   pourquoi(q){ const C=pbCtx(q), y=q.ev[0], x=q.ev[1], s=pbInter(y,x);
-    return '« Parmi les '+esc(C.pl+' '+fpbMot(C,x,'p'))+' » : une fréquence CONDITIONNELLE se calcule parmi '+pbHTML(x)+' seulement ('+fpbNombre(pbEff(q,x))+'). On y compte ceux qui sont aussi '+pbHTML(y)
+    return '« Parmi les '+esc(C.pl+' '+fpbMot(C,x,'p'))+' » : une fréquence CONDITIONNELLE se calcule parmi '+pbHTML(x)+' seulement, la condition en indice — '+pbNomPetit(y,x)+' ('+fpbNombre(pbEff(q,x))+'). On y compte ceux qui sont aussi '+pbHTML(y)
       +', c’est-à-dire '+pbHTML(s)+' : '+fpbNombre(pbEff(q,s))+' sur '+fpbNombre(pbEff(q,x))+' — le dénominateur est '+pbHTML(x)+', pas le total.'; },
   label(q){ return 'Fréquence conditionnelle de '+pbTxt(q.ev[0])+' parmi '+pbTxt(q.ev[1]); },
   ctx(q){ return fpbCtxCommun(q)+'Fréquence conditionnelle de '+pbTxt(q.ev[0])+' parmi '+pbTxt(q.ev[1])+' : effectif de '+pbTxt(pbInter(q.ev[0],q.ev[1]))+' sur l’effectif de '+pbTxt(q.ev[1])+'. '; }
@@ -25912,9 +25923,9 @@ PBX.fpbinter={
   ctx(q){ return fpbCtxCommun(q)+'La question est posée en mots (« … et … ») : c’est '+pbNomTxt(q.ev[0],'T')+', sans condition. '; }
 };
 PBX.fpbfint={
-  att:fpbAttLigne, render(){ renderFPBFiche(); },
+  att:fpbAttNom, render(){ renderFPBFiche(); },
   pourquoi(q){ const y=q.ev[0];
-    return '« Et » : c’est l’intersection '+pbHTML(y)+', comptée dans TOUTE la production — '+fpbNombre(pbEff(q,y))+' sur '+fpbNombre(pbEff(q,'T'))+'. Le dénominateur est le total : aucun « parmi » ne restreint.'; },
+    return '« Et » : c’est l’intersection '+pbHTML(y)+', '+pbNomPetit(y,'T')+' sans indice, comptée dans TOUTE la production — '+fpbNombre(pbEff(q,y))+' sur '+fpbNombre(pbEff(q,'T'))+'. Le dénominateur est le total : aucun « parmi » ne restreint.'; },
   label(q){ return 'Fréquence de '+pbTxt(q.ev[0]); },
   ctx(q){ return fpbCtxCommun(q)+'Fréquence de l’intersection '+pbTxt(q.ev[0])+' (« … et … ») : effectif de '+pbTxt(q.ev[0])+' sur l’effectif total. '; }
 };
@@ -25969,7 +25980,7 @@ function fpbCtxTexte(){
     +'Cases données : '+qs[0].k.map(i=>pbValeurs(qs[0].n)[i]).join(', ')+' ; les quatre autres sont à trouver, de tête (des centaines). '
     +'Partie A, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
     +qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
-    +'Partie B, en FRÉQUENCES (sans la lettre P) : '+qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie B, en FRÉQUENCES — la ligne s’écrit « fréquence = P…(…) = … », l’élève compose le nom de P comme en partie A (pas d’indice sans « parmi », la condition en indice pour « parmi ») : '+qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +(fpbSeul()
       ? 'Chaque réponse est SEULEMENT la fraction des EFFECTIFS du tableau, sans formule avant (une fraction égale, simplifiée ou non, est acceptée). '
       : 'Chaque réponse s’écrit sur une ligne : fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). ')
