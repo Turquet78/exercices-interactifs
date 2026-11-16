@@ -47208,11 +47208,14 @@ function pfnDessinHTML(){
 function pfnEnonceHTML(q){
   return '<b>Faire un programme</b> dans la cellule ci-dessous pour qu’il affiche <b>'+pfnFois(q)+' fois</b> votre Nom et prénom.';
 }
-/* Le coup de pouce, replié, sans phrase ajoutée. */
+/* Les deux coups de pouce, repliés, sans phrase ajoutée. Le second redit le
+   premier, et les pointillés de la ligne décalée y deviennent print(".......")
+   (demande de Turquet, novembre 2026). */
 function pfnPoucesHTML(q){
-  const N=pfnFois(q);
+  const N=pfnFois(q), debut='Pour compter de 1 à '+N+' utiliser l’instruction&nbsp;:<br><code>for k in range (1,'+(N+1)+'):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;';
   return pyPoucesHTML([
-    ['coup de pouce', 'Pour compter de 1 à '+N+' utiliser l’instruction&nbsp;:<br><code>for k in range (1,'+(N+1)+'):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;...</code>']
+    ['coup de pouce 1', debut+'...</code>'],
+    ['coup de pouce 2', debut+'print (".......")</code>']
   ]);
 }
 
