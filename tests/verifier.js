@@ -16325,6 +16325,18 @@ function tracerCoordonneesDecompose(w, P){
     test.questions.forEach(function(q){
       if(Object.keys(q).sort().join(',')!=='co,d1,d2,d3,dv,f1,f2,f3,vs' || q.dv!==1) vus.push('la question range : '+JSON.stringify(q)); });
     if(tvxBuildQuestions(false,false,true).some(function(q){ return 'dv' in q; })) vus.push('le 8.4.6 range dv : ses questions ont changé');
+    /* 1 bis. les zéros (demande de Turquet, novembre 2026) : chaque question a un vecteur à
+       coordonnée nulle ; dans les quatre premières, au moins une abscisse nulle et une ordonnée nulle */
+    [1,2,3,4,6,20].forEach(function(n){ for(let k=0;k<150;k++){
+      const z=tvxZeros(n), qs=z.map(function(c){ return tvxGenC(1,c); });
+      const a0=function(q){ return q.vs.some(function(v){ return v[2]===0; }); }, o0=function(q){ return q.vs.some(function(v){ return v[3]===0; }); };
+      if(qs.some(function(q){ return !a0(q)&&!o0(q); })) { vus.push('une question sans coordonnée nulle ('+n+' questions)'); return; }
+      const t=qs.slice(0,4);
+      if(n>=2 && (!t.some(a0) || !t.some(o0))) { vus.push('les quatre premières questions n\\'ont pas une abscisse nulle ET une ordonnée nulle ('+n+' questions)'); return; }
+    } });
+    [test.questions, tvxBuildQuestions(false,false,true)].forEach(function(qs,k){ qs.forEach(function(q){ if(!q.vs.some(function(v){ return v[2]===0||v[3]===0; })) vus.push((k?'8.4.6':'8.4.8')+' : une question tirée sans coordonnée nulle : '+JSON.stringify(q.vs)); }); });
+    for(let k=0;k<150;k++){ const t=tvxBuildQuestions(false,false,true).slice(0,4);
+      if(!t.some(function(q){ return q.vs.some(function(v){ return v[2]===0; }); }) || !t.some(function(q){ return q.vs.some(function(v){ return v[3]===0; }); })) { vus.push('8.4.6 : les premières questions n\\'ont pas une abscisse nulle ET une ordonnée nulle'); break; } }
 
     /* 2. l'écran : vide au départ, l'énoncé annonce la grise et la noire */
     test.questions[0]=fixe(); test.idx=0; renderTvx();
@@ -36959,7 +36971,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 5, 6 ou 7 et la question 3 par 8 ou 9, 8 à 10, ou 10, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
@@ -36976,8 +36988,8 @@ function augmentationTableau(w, P){
       qs.forEach(function(q,i){ const v=suiVals(q);
         if(PAS.indexOf(v.rAbs)<0 && !(i>=3 && i<6 && v.rAbs===110)) vus.push(SUI_CTX[q.ci].nom+" : un pas de "+v.rAbs+", qui n’est pas un multiple de 10 entre 10 et 100");
         if(v.u0%100||SUI_CTX[q.ci].u0.indexOf(v.u0)<0) vus.push(SUI_CTX[q.ci].nom+" : départ "+v.u0+", hors des valeurs rondes du contexte");
-        if(v.n<7||v.n>12) vus.push("N="+v.n+" : la question 2 doit multiplier par 7 à 12 (Turquet, novembre 2026)");
-        if(v.kk<2*v.n) vus.push("N="+v.n+", p="+v.kk+" : le seuil de la question 3 doit être au moins deux fois plus loin");
+        { const PERMIS={5:[8,9],6:[8,9,10],7:[10]}; if(!PERMIS[v.n]) vus.push("N="+v.n+" : la question 2 doit multiplier par 5, 6 ou 7 (Turquet, novembre 2026)");
+          else if(PERMIS[v.n].indexOf(v.kk)<0) vus.push("N="+v.n+", p="+v.kk+" : attendu "+PERMIS[v.n].join(" ou ")+" à la question 3"); }
         if(SUI_CTX[q.ci].tps.type==='heure'&&v.fin>23) vus.push(SUI_CTX[q.ci].nom+" : "+v.fin+" h n’existe pas");
         if(q.part===2&&suiCases(q).filter(function(c){ return /^sui-m1-/.test(c.id); }).length<3) vus.push("N="+v.n+" : moins de trois lignes à compléter dans la méthode 1");
         if(v.T<=0||v.res<=0) vus.push("valeur nulle ou négative");
@@ -58854,6 +58866,44 @@ function premiere(w){
       if(vocVaut(c[0],c[1])!==c[2]) vus.push('« '+c[0]+' » '+(c[2]?'refusé':'accepté')); });
     poser(21,null,null); const e4=document.getElementById('vocE0'); if(e4) e4.value='2+3.5=5.5'; checkVocAnswer();
     if(test.score!==1) vus.push('« 2 + 3.5 = 5.5 » au tiers de 6 plus la moitié de 7 ne vaut pas le point');
+    return vus.length ? vus.join(' ; ') : true;
+  })()`);
+
+  /* {vocabulaire-calcul-2} (1.14) : le 1.13 sans calcul à choisir, nombres
+     TIRÉS (demande de Turquet, novembre 2026) — toute donnée, toute étape et
+     tout résultat est un entier de 1 à 30 ou un décimal de 0 à 5 dont la
+     partie décimale est ,1 ,2 ,25 ,4 ou ,5 ; 12 phrases, 4 calculs en étapes,
+     4 sans étapes ; aucune séance ne pose deux fois la même question ; la
+     note part sous son identité ; « Recommencer » le relance, pas le 1.13. */
+  verifierEval(w, '{vocabulaire-calcul-2} : des nombres dans les bornes demandées, partout, et ni choix de calcul ni doublon', `(function(){
+    const vus=[];
+    if(typeof genVoc2!=='function') return 'genVoc2() n\\'existe pas';
+    if(VOC2_NB!==20) vus.push(VOC2_NB+' questions au lieu de 20');
+    [1000,30000,100,200,250,400,500,4500,5000,1200,2250].forEach(m=>{ if(!voc2Ok(m)) vus.push(m/1000+' refusé'); });
+    [0,31000,300,750,5250,5500,1600,150].forEach(m=>{ if(voc2Ok(m)) vus.push(m/1000+' accepté'); });
+    let hors=0;
+    for(let r=0;r<200;r++){ const qs=distinctes(20,function(_,i){ return genVoc2(i,20); });
+      if(new Set(qs.map(q=>JSON.stringify(q))).size!==20) vus.push('une séance pose deux fois la même question');
+      qs.forEach(function(q,i){ const L=vocL(q), nb=[q.x,q.y,q.a,q.b].filter(v=>v!=null);
+        if(!L || !nb.every(voc2Ok) || !L.et.every(e=>voc2Ok(e.r))) hors++;
+        const p=i<12?1:(i<16?2:3); if(L && L.p!==p) vus.push('question '+(i+1)+' en partie '+L.p);
+        if(L && p===2 && L.et.length<2) vus.push('un calcul en étapes sans étape');
+        if(q.g==='G3' && VOC2_RECIPROQUES[q.u]===q.v) vus.push('« '+L.titre+' » rend sa donnée'); }); }
+    if(hors) vus.push(hors+' questions hors des bornes');
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    startVoc2();
+    if(test.qId!=='vocabulaire-calcul-2') vus.push('identité perdue');
+    test.questions[0]={g:'moitie',p:1,x:5000}; test.idx=0; renderVoc();
+    if(document.querySelector('#vocHost .voc-ch')) vus.push('des calculs à choisir en partie 1');
+    const t=document.querySelector('#vocHost').firstElementChild;
+    if(!t || t.textContent!=='On doit calculer la moitié de 5.') vus.push('la première ligne n\\'est pas « On doit calculer la moitié de 5. » ('+(t?t.textContent:'rien')+')');
+    const e=document.getElementById('vocE0'); if(e) e.value='2,5'; checkVocAnswer(); if(test.score!==1) vus.push('la moitié de 5 = 2,5 refusé');
+    test.questions[0]={g:'G4',p:2,a:10000,u:'inverse',x:5000}; test.idx=0; test.locked=false; test.score=0; renderVoc();
+    if(!/^Calcule la différence entre 10 et l’inverse de 5\\./.test(document.getElementById('vocPrompt').textContent)) vus.push('G4 mal écrit : '+document.getElementById('vocPrompt').textContent);
+    document.getElementById('vocE0').value='0,2'; document.getElementById('vocE1').value='9,8'; checkVocAnswer(); if(test.score!==1) vus.push('10 − 0,2 = 9,8 en étapes refusé');
+    test.questions=[]; restartCurrentTest();
+    if(test.qId!=='vocabulaire-calcul-2' || test.questions[0].g==null) vus.push('« Recommencer » ne relance pas le 1.14');
+    startVoc(); if(test.qId!=='vocabulaire-calcul') vus.push('le 1.13 garde l’identité du 1.14');
     return vus.length ? vus.join(' ; ') : true;
   })()`);
 
