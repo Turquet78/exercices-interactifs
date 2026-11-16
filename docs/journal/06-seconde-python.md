@@ -5406,7 +5406,7 @@ en un clic, b) juste à côté d'un c) faux, et le soutien dans les deux sens.
 
 ---
 
-## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range, BONUS)
+## {python-for-images} — les images de f de dixième en dixième (6.6.10, Boucle for in range ; BONUS jusqu'à la version 703)
 
 **L'exercice 10 du carnet sur la boucle.** {python-for-images} (Seconde,
 6.6.10, APP_VERSION 448 — de 437 à 447, toutes prises sur `main` pendant ses bancs —, demande de Turquet, octobre 2026 : « en seconde dans
@@ -5470,6 +5470,13 @@ mot qui la nomme, l'écran tenu aux consignes, les copies juste, fausse et
 vide, le soutien qui ne révèle rien, et les modèles comparés à un vrai
 CPython. La visite universelle (section 9) l'ouvre dans les deux modes.
 
+**Puis « Bonus » a quitté le titre** (Turquet, novembre 2026 : « en seconde pour
+les exercices 6.6.11 et 6.6.13 supprimer le mot bonus du titre » ; APP_VERSION
+703 — 701 et 702 pris sur `main` pendant les bancs). Comme au 6.7.4 : le titre et la description perdent « Bonus », et
+rien d'autre — l'exercice n'a jamais porté le drapeau `bonus` d'un devoir, seul
+le mot change. Le banc, qui exigeait « Bonus » dans le titre, exige maintenant
+qu'il n'y soit plus (titre ni description). Le numéro est aujourd'hui 6.6.11.
+
 ## {python-for-table} — la table de 3, puis la table de 7 (6.6.11, Boucle for in range)
 
 **L'exercice 8 du carnet.** {python-for-table} (Seconde, 6.6.11, demande de
@@ -5518,7 +5525,7 @@ navigateur : la visite universelle (section 9) l'ouvre dans les deux modes.
 
 ---
 
-## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.12, Boucle for in range, BONUS)
+## {python-tables-multiplication} — afficher les tables de 2 à 9 (6.6.12, Boucle for in range ; BONUS jusqu'à la version 703)
 
 **L'exercice 12 du carnet.** {python-tables-multiplication} (Seconde, 6.6.12,
 APP_VERSION 455 — 6.6.6 à 6.6.11 et les versions 437 à 449 pris sur `main`
@@ -5592,6 +5599,13 @@ CPython. Pas de section propre au banc navigateur : la visite universelle
 (section 9) l'ouvre dans les deux modes.
 
 ---
+
+**Puis « Bonus » a quitté le titre** (Turquet, novembre 2026 : « en seconde pour
+les exercices 6.6.11 et 6.6.13 supprimer le mot bonus du titre » ; APP_VERSION
+703 — 701 et 702 pris sur `main` pendant les bancs). Comme au 6.7.4 : le titre et la description perdent « Bonus », et
+rien d'autre — l'exercice n'a jamais porté le drapeau `bonus` d'un devoir, seul
+le mot change. Le banc, qui exigeait « Bonus » dans le titre, exige maintenant
+qu'il n'y soit plus (titre ni description). Le numéro est aujourd'hui 6.6.13.
 
 ## {python-samoussa} — le prix des samoussas (6.7.1, Condition if else)
 

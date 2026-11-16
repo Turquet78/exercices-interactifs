@@ -6860,7 +6860,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : AFFICHER LES TABLES DE 2 À 9 (PYTHON, BOUCLE FOR IN RANGE — BONUS) -->
+  <!-- TEST : AFFICHER LES TABLES DE 2 À 9 (PYTHON, BOUCLE FOR IN RANGE) -->
   <section class="screen" id="scr-pmt">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPMT"></span><span class="q-idx" id="pmtIdx">Question 1 / 1</span></span>
@@ -6975,7 +6975,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : LES IMAGES DE f, DE DIXIÈME EN DIXIÈME (PYTHON, BOUCLE FOR IN RANGE — BONUS) -->
+  <!-- TEST : LES IMAGES DE f, DE DIXIÈME EN DIXIÈME (PYTHON, BOUCLE FOR IN RANGE) -->
   <section class="screen" id="scr-pfi">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPFI"></span><span class="q-idx" id="pfiIdx">Question 1 / 3</span></span>
@@ -9521,7 +9521,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=702;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=703;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10550,7 +10550,7 @@ const TESTS={
   'python-for-depart-fin': { name:'for \u2026 in range ( d\u00e9part , fin )', icon:'\ud83d\udd01', desc:'La boucle for nombre in range ( d\u00e9part , fin ) fait varier nombre des entiers de d\u00e9part \u00e0 fin - 1. Compl\u00e8te le programme pour qu\u2019il affiche les entiers demand\u00e9s, puis ex\u00e9cute-le.', start:()=>startPFD() },
   'python-for-multiples': { name:'Les multiples avec une boucle for', icon:'\ud83d\udd01', desc:'a) Ex\u00e9cute le programme\u00a0; b) explique ce qu\u2019il fait\u00a0; c) fais un programme qui affiche tous les multiples de 5 de 0 \u00e0 50.', start:()=>startPFQ() },
   'python-trois-des': { name:'Bonus\u00a0: les r\u00e9sultats de trois d\u00e9s', icon:'\ud83c\udfb2', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche tous les r\u00e9sultats possibles de trois d\u00e9s \u00e0 six faces, puis compl\u00e8te-le pour qu\u2019il compte les fois o\u00f9 le total vaut 9, puis celles o\u00f9 il est au-dessus de 12.', start:()=>startPTDS() },
-  'python-for-images': { name:'Bonus\u00a0: les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
+  'python-for-images': { name:'Les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
   'python-if-cinema': { name:'Le prix d\u2019une place de cin\u00e9ma', icon:'\ud83c\udfac', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur et qui affiche le prix de sa place de cin\u00e9ma \u2014 un prix pour les mineurs, un autre pour les majeurs \u2014 avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCI() },
   'python-if-location': { name:'Je loue une voiture', icon:'\ud83d\ude97', desc:'\u00c9cris un programme qui demande le nombre de kilom\u00e8tres parcourus et calcule le prix de la location avec if et else, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPLO() },
   'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur avec int(input(\u2026)), puis affiche \u00ab\u00a0Tu es mineur.\u00a0\u00bb s\u2019il est plus petit que 18, \u00ab\u00a0Tu es majeur.\u00a0\u00bb sinon, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
@@ -10559,7 +10559,7 @@ const TESTS={
   'python-if-plus-grand': { name:'Le plus grand des deux nombres', icon:'\ud83d\udc0d', desc:'\u00c9cris un programme qui demande deux nombres d\u00e9cimaux et affiche le plus grand des deux, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPXY() },
   'python-if-plus-grand-trois': { name:'Bonus\u00a0: le plus grand de trois nombres', icon:'\ud83d\udd00', desc:'Bonus\u00a0: \u00e9cris un programme qui demande 3 nombres d\u00e9cimaux et qui affiche le plus grand des trois, avec if \u2026 else. Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPGT() },
   'python-remplacer-lettre': { name:'Remplacer la premi\u00e8re lettre par "*"', icon:'\u2b50', desc:'Fais un programme qui remplace la premi\u00e8re lettre d\u2019une cha\u00eene par "*" : "gaston" devient "*aston". On reconstruit la cha\u00eene lettre par lettre, avec une boucle for.', start:()=>startPRL() },
-  'python-tables-multiplication': { name:'Bonus\u00a0: afficher les tables de 2 \u00e0 9', icon:'\u2716\ufe0f', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche toutes les tables de multiplication, de la table de 2 jusqu\u2019\u00e0 la table de 9, avec une double boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPMT() },
+  'python-tables-multiplication': { name:'Afficher les tables de 2 \u00e0 9', icon:'\u2716\ufe0f', desc:'\u00c9cris un programme qui affiche toutes les tables de multiplication, de la table de 2 jusqu\u2019\u00e0 la table de 9, avec une double boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPMT() },
   'python-for-couples': { name:'Bonus\u00a0: tous les couples d\u2019entiers (a\u00a0; b)', icon:'\ud83d\udd01', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche tous les couples d\u2019entiers (a\u00a0; b) avec a et b entre 0 et 2 \u2014 une boucle for dans une autre boucle for. Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFC() },
   'python-for-pas-a-pas': { name:'La boucle for \u2026 in range(\u2026), pas \u00e0 pas', icon:'\ud83d\udc63', desc:'Le programme s\u2019ex\u00e9cute pas \u00e0 pas\u00a0: \u00e0 chaque tour de la boucle, compl\u00e8te ce qu\u2019affiche le print \u2014 le texte, le nom de la variable et sa valeur\u00a0; puis explique de quelle valeur \u00e0 quelle valeur varie la variable.', start:()=>startPFP() },
   'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle ; puis, l\u2019inverse : pr\u00e9vois d\u2019abord, et ex\u00e9cute pour v\u00e9rifier.', start:()=>startPFR() },

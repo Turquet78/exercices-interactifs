@@ -42589,7 +42589,8 @@ function pythonIfLocation(w, P){
    photo de l'élève penché sur son clavier, puis « Soit la fonction f(x) =
    x² − 6x + 3 ; faire un programme qui affiche les images pour x = 0 puis
    0,1 … jusqu'à 1 ». Le contrôle tient la place au menu (il ferme le 6.6,
-   rien d'autre ne bouge, « Bonus » dans le titre), la fiche épinglée et le
+   rien d'autre ne bouge, plus de « Bonus » dans le titre — retiré en
+   novembre 2026, demande de Turquet), la fiche épinglée et le
    tirage, le juge — qui ne lit que les NOMBRES affichés — sur des copies
    justes et fausses, chacune avec le mot qui la nomme, l'écran tenu aux
    consignes du sous-thème Input (le dessin seul en tête, l'énoncé en gras
@@ -42608,7 +42609,7 @@ function pythonForImages(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', sans « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
@@ -42618,7 +42619,7 @@ function pythonForImages(w, P){
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.11"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
-    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -43750,10 +43751,11 @@ function pythonForTable(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-tables-multiplication} (Seconde, 6.6.12, BONUS) : l'exercice 12 du
+/* {python-tables-multiplication} (Seconde, 6.6.13 — « Bonus » retiré du titre en
+   novembre 2026, demande de Turquet) : l'exercice 12 du
    carnet — le bandeau « JUST CODE IT. », afficher les tables de 2 à 9, et
    le coup de pouce de la double boucle. Le contrôle tient la place au menu
-   (il ferme le 6.6, « Bonus » dans son nom), la séance (la fiche seule), le
+   (il ferme le 6.6, plus de « Bonus » dans son nom), la séance (la fiche seule), le
    juge — qui ne lit que ce que le programme AFFICHE — sur des copies justes
    et fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes
    du sous-thème Input (le dessin seul en tête, l'énoncé en gras dans son
@@ -43772,7 +43774,7 @@ function pythonForTables(w, P){
   }
 
   /* ---- 1. la place au menu, et la séance ---- */
-  verifierEval(w, 'il est dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-table}, « Bonus » dans son nom, et rien d’autre ne bouge ; la séance est la fiche seule', `(function(){
+  verifierEval(w, 'il est dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-table}, sans « Bonus » dans son nom, et rien d’autre ne bouge ; la séance est la fiche seule', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
@@ -43783,7 +43785,7 @@ function pythonForTables(w, P){
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10"||TEST_NUM["python-for-images"]!=="6.6.11") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.11"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
-    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(!RAPPELS.pmt) vus.push("pas de rappel");
     const qs=pmtBuildQuestions();
     if(qs.length!==1||qs[0].prog!=="") vus.push("la séance : "+JSON.stringify(qs));
