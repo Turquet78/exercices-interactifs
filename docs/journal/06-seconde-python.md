@@ -7250,7 +7250,7 @@ réduit à 340 et 360 px de large (30 et 32 Ko), et leur a donné un nom NEUF
 (`python-input-sport-2.webp`, `python-input-sport-halloween-2.webp`, contre le
 cache de GitHub Pages) ; les anciens sont retirés (le banc des orphelins le
 tient), les attributs `width`/`height` suivent les vraies dimensions, et l'alt
-du serpent d'Halloween dit sa nouvelle pose (prêt à tirer dans la citrouille).
+du serpent d'Halloween dit sa nouvelle pose (prêt à tirer dans la citrouille). Le nouveau serpent d'Halloween est EN LARGEUR (360 × 307) : dans le demi-cadre d'un serpent debout il tombait à 140 px ; il prend `large:true`, comme la lanterne, le chaudron et la chauve-souris, et s'affiche à 280 px sous sa bulle.
 
 **Puis la console est passée JUSTE APRÈS LE PROGRAMME (v692).** Demande de
 Turquet : « met la fenêtre de ce qu'affiche le programme juste après le
