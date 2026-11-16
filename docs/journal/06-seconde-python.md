@@ -4968,7 +4968,7 @@ définition en 6.6.1, {python-for-nom} en 6.6.2 — les notes portent
 l'identifiant et ne bougent pas. Son contrôle épingle désormais 6.6.2 et exige
 la définition devant lui. Version 431 (la 430 a été prise sur `main` pendant les bancs).
 
-**Puis un second coup de pouce** (6.6.4, version 701, demande de Turquet,
+**Puis un second coup de pouce** (6.6.4, version 702, demande de Turquet,
 novembre 2026 : « mettre un second coup de pouce avec la même chose que le
 premier coup de pouce, mais à la place des pointillés on écrit
 print (".......") »). Les deux sont repliés, titrés « coup de pouce 1 » et
