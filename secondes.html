@@ -9521,7 +9521,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=703;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=704;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10422,6 +10422,7 @@ const TESTS={
   'coordonnees-vecteur-demontrer-parallelogramme': { name:'D\u00e9montrer qu\u2019un quadrilat\u00e8re est un parall\u00e9logramme par les coordonn\u00e9es', icon:'\u25b1', desc:'Place A, B, C et D sur le sch\u00e9ma dans l\u2019ordre, choisis deux vecteurs \u00e9gaux (chacun se trace dans le rep\u00e8re), calcule leurs coordonn\u00e9es\u00a0: fin \u2212 d\u00e9but, puis conclus.', start:()=>startVpg() },
   'coordonnees-vecteur-quatrieme-point-choisi': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme\u00a0: le sch\u00e9ma, les vecteurs au choix', icon:'\u25b1', desc:'Place A, B, C et M sur le sch\u00e9ma dans l\u2019ordre, choisis deux vecteurs \u00e9gaux dont le second finit sur M (chacun se trace sur le sch\u00e9ma), puis calcule M (fin \u2212 d\u00e9but, le syst\u00e8me) et place-le pour v\u00e9rifier.', start:()=>startVqs() },
   'coordonnees-vecteur-somme': { name:'Placer puis calculer le point d\u2019une somme de vecteurs', icon:'\u2795', desc:'A, B, C, D et deux vecteurs sont trac\u00e9s\u00a0: fais glisser les vecteurs bout \u00e0 bout \u00e0 partir de D pour placer M, puis calcule ses coordonn\u00e9es (fin \u2212 d\u00e9but, puis le syst\u00e8me).', start:()=>startVsm() },
+  'coordonnees-vecteur-somme-placer': { name:'Placer la figure, puis le point d\u2019une somme de vecteurs', icon:'\u2795', desc:'Comme le point d\u2019une somme de vecteurs, mais rien n\u2019est pos\u00e9\u00a0: place A, B, C, D et trace les deux vecteurs, puis fais-les glisser bout \u00e0 bout \u00e0 partir de D pour placer M, et calcule ses coordonn\u00e9es.', start:()=>startVsm(true) },
   'coordonnees-vecteur-tracer': { name:'Tracer un vecteur par ses coordonn\u00e9es', icon:'\u270f\ufe0f', desc:'Les coordonn\u00e9es de trois vecteurs u, v et w sont donn\u00e9es en colonne\u00a0: trace chacun sur le quadrillage. Le nombre du haut dit le d\u00e9placement horizontal, celui du bas le vertical\u00a0; un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e.', start:()=>startTvx(false,false,true) },
   'coordonnees-vecteur-tracer-decompose': { name:'Tracer un vecteur par ses coordonn\u00e9es, d\u00e9composition \u00e0 l\u2019appui', icon:'\u270f\ufe0f', desc:'Comme le trac\u00e9 par les coordonn\u00e9es\u00a0: trace u, v et w sur le quadrillage. Pendant que tu traces, la fl\u00e8che grise montre ton d\u00e9placement horizontal et la noire ton d\u00e9placement vertical, avec leurs nombres\u00a0: compare-les aux coordonn\u00e9es.', start:()=>startTvx(false,false,true,true) },
   'vecteurs-colineaires-figure': { name:'Colin\u00e9aires ou non\u00a0?', icon:'\u2194\ufe0f', desc:'Une figure de vecteurs AB, CD, EF\u2026\u00a0: pour chaque paire, dis s\u2019ils sont colin\u00e9aires et, si oui, \u00e9cris le r\u00e9el k tel que AB = k GH.', start:()=>startKco() },
@@ -10700,7 +10701,7 @@ const THEMES=[
          puis la fiche « vecteur coord parallélogramme » (8.4.5) ;
          puis la fiche « parallélogramme 2 » : le quatrième point M (8.4.7) ;
          puis la fiche « parallélogramme » : démontrer que ABCD en est un (8.4.9) */
-      { num:4, nom:'Coordonnées de vecteurs', ids:['coordonnees-vecteur-lire','coordonnees-vecteur-associer','coordonnees-vecteur-compter','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-tracer','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer-decompose','coordonnees-vecteur-demontrer-parallelogramme','coordonnees-vecteur-quatrieme-point-choisi','coordonnees-vecteur-somme'] }
+      { num:4, nom:'Coordonnées de vecteurs', ids:['coordonnees-vecteur-lire','coordonnees-vecteur-associer','coordonnees-vecteur-compter','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-tracer','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer-decompose','coordonnees-vecteur-demontrer-parallelogramme','coordonnees-vecteur-quatrieme-point-choisi','coordonnees-vecteur-somme','coordonnees-vecteur-somme-placer'] }
   ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -12480,6 +12481,7 @@ const QIA_SUGG={
    la Terminale applique déjà pour ses deux exercices en « cm ». */
 /* Les questions propres à un exercice, indexées par IDENTIFIANT. */
 const QIA_SUGG_ID={
+  'coordonnees-vecteur-somme-placer':["Comment placer le point D(\u22121\u00a0; \u22122)\u00a0?","Par quel point commence le vecteur BC\u00a0?","Comment construire D + BC + BA avec les copies\u00a0?","Pourquoi x \u2212 (\u22121) devient-il x + 1\u00a0?","Comment trouver x quand x + 1 = 2\u00a0?"],
   'coordonnees-vecteur-tracer-decompose':["Que montrent la fl\u00e8che grise et la fl\u00e8che noire\u00a0?","Comment savoir si mon nombre gris est le bon\u00a0?","Que faire quand une coordonn\u00e9e vaut 0\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
   'coordonnees-vecteur-tracer':["Que veut dire le nombre du haut\u00a0?","Comment savoir si je vais vers la gauche ou vers la droite\u00a0?","Que faire quand une coordonn\u00e9e vaut 0\u00a0?","Est-ce que je peux commencer ma fl\u00e8che n\u2019importe o\u00f9\u00a0?","Comment d\u00e9placer le d\u00e9part de ma fl\u00e8che\u00a0?"],
   'demontrer-chasles-inserer':["Comment savoir quel point ins\u00e9rer\u00a0?","Pourquoi CD = CA + AD est-il vrai\u00a0?","Dans quel vecteur faut-il ins\u00e9rer un point\u00a0?","Que faire apr\u00e8s avoir ins\u00e9r\u00e9 un point\u00a0?"],
@@ -14079,6 +14081,8 @@ const RAP_VSM=`<b>Le point d'une somme de vecteurs, construit puis calculé</b><
 <b>① Construire</b> : pour placer M tel que <span class="vgt-vec">DM</span> = <span class="vgt-vec">BC</span> + <span class="vgt-vec">BA</span>, on part de D, on fait le chemin <span class="vgt-vec">BC</span>, puis le chemin <span class="vgt-vec">BA</span> : les vecteurs bout à bout, un début va sur une fin. M est au bout.<br>
 <b>② Fin − début</b> : B(1 ; 2), C(3 ; 1) : <span class="vgt-vec">BC</span> <span class="vco-col"><span>3 − 1</span><span>1 − 2</span></span> donc <span class="vgt-vec">BC</span> <span class="vco-col"><span>2</span><span>−1</span></span> ; de même <span class="vgt-vec">BA</span> <span class="vco-col"><span>2</span><span>2</span></span>.<br>
 <b>③ Le système</b> : avec D(−1 ; −2) et M(<i>x</i> ; <i>y</i>), <span class="vgt-vec">DM</span> <span class="vco-col"><span><i>x</i> − (−1)</span><span><i>y</i> − (−2)</span></span> ; on additionne les coordonnées : <i>x</i> − (−1) = 2 + 2 = 4 et <i>y</i> − (−2) = −1 + 2 = 1. Soustraire un nombre négatif, c'est ajouter son opposé : <i>x</i> + 1 = 4, donc <i>x</i> = 4 − 1 = 3 ; <i>y</i> + 2 = 1, donc <i>y</i> = 1 − 2 = −1 : M(3 ; −1).`;
+/* 8.4.12 {coordonnees-vecteur-somme-placer} : le rappel du 8.4.11, précédé de la figure à poser (le 8.4.4) */
+const RAP_VSP=RAP_VSM.replace('construit puis calculé</b><br>','construit puis calculé</b><br>\n<b>⓪ La figure</b> : un point A(3 ; 4) se place à l\'abscisse 3 (sur l\'axe horizontal) et à l\'ordonnée 4 (sur l\'axe vertical) ; un nombre négatif se lit à gauche de O, ou en dessous. Le vecteur <span class="vgt-vec">BC</span> part de B et arrive en C : on clique B, puis C.<br>');
 /* 8.4.10 {coordonnees-vecteur-quatrieme-point-choisi} */
 const RAP_VQS=`<b>Le quatrième point d'un parallélogramme, les vecteurs au choix</b><br>
 <b>① Le schéma</b> : on place les lettres dans l'ordre en faisant le tour — A, B, C, M. Deux lettres qui se suivent sont les deux bouts d'un même côté ; [AB] et [MC] se font face, [BC] et [AM] aussi.<br>
@@ -14223,7 +14227,7 @@ const RAP_SPG=`<b>La règle du parallélogramme</b><br>
 const RAPPELS={ pbm:RAP_PBM, pbc:RAP_PBC, pbe:RAP_PBE, vco:RAP_VCO, vca:RAP_VCA, vcs:RAP_VCS, vcd:RAP_VCD, vcp:RAP_VCP, vcm:RAP_VCM, vpg:RAP_VPG, vqs:RAP_VQS, vsm:RAP_VSM, dcr:RAP_DCR, dco:RAP_DCO, kss:RAP_KSS, kpl:RAP_KPL, kph:RAP_KPH, kmi:RAP_KMI, kvi:RAP_KVI, kco:RAP_KCO, spg:RAP_SPG, stv:RAP_STV, dch:RAP_DCH, lsd:RAP_LSD, tan:RAP_TAN, vmi:RAP_VMI, chi:RAP_CHI, vfh:RAP_VFH, vcr:RAP_VCR, vej:RAP_VEJ, tpv:RAP_TPV, dpa:RAP_DPA, veg:RAP_VEG, vep:RAP_VEP, svc:RAP_SVC, cps:RAP_CPS, tcp:RAP_TCP, tvx:RAP_TVX, svr:RAP_SVR, cvp:RAP_CVP, chs:RAP_CHS, vef:RAP_VEF, ctv:RAP_CTV, csp:RAP_CSP, chl:RAP_CHL, cha:RAP_CHA, pgc:RAP_PGC, pwy:RAP_PWY, pws:RAP_PWS, pwe:RAP_PWE, pwx:RAP_PWX, pwa:RAP_PWA, pwp:RAP_PWP, pwd:RAP_PWD, pwr:RAP_PWR, pwv:RAP_PWV, pwm:RAP_PWM, pwc:RAP_PWC, pwo:RAP_PWO, pwn:RAP_PWN, pwg:RAP_PWG, pwf:RAP_PWF, pwt:RAP_PWT, pcv:RAP_PCV, syn:RAP_SYN, tvg:RAP_TVG, ecs:RAP_ECS, pct:RAP_PCT, aug:RAP_AUG, dim:RAP_DIM,
   cm:RAP_CM, mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM,
   pctq:RAP_PCTQ, augq:RAP_AUGQ, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, psyn:RAP_PSYN, bs:RAP_BS, lc:RAP_LC, tc:RAP_TC, hs:RAP_HS, hsc:RAP_HSC, ens:RAP_ENS, def:RAP_DEF, pge:RAP_PGE, lv:RAP_LV, ls:RAP_LS, lsv:RAP_LSV, gsv:RAP_LSV, vtq:RAP_TVD, mmx:RAP_MMX, mmt:RAP_MMT, tve:RAP_TVE, tvf:RAP_TVF, tvd:RAP_TVD, img:RAP_IMG, pim:RAP_PIM, trl:RAP_TRL, ant:RAP_ANT, adr:RAP_ADR, iqd:RAP_IQD, ing:RAP_ING, eqg:RAP_EQG, ifg:RAP_IFG, eig:RAP_EIG, tsg:RAP_TSG, cfx:RAP_CFX, itv:RAP_ITV, itq:RAP_ITQ, app:RAP_APP, sf:RAP_SF, plc:RAP_PLC, smp:RAP_SMP, mlt:RAP_MLT, mll:RAP_MLT, ord:RAP_PLC, rel:RAP_REL, asx:RAP_ASX, vgt:RAP_VGT, cit:RAP_CIT, cvl:RAP_CVL, rgp:RAP_RGP, red:RAP_RED, mrl:RAP_MRL, srl:RAP_SRL, rpd:RAP_RPD, dvl:RAP_DVL, dvo:RAP_DVO, dvd:RAP_DVD, dvn:RAP_DVN, dvr:RAP_DVR, vfl:RAP_VFL, dvm:RAP_DVM, dvs:RAP_DVS, vec:RAP_VEC, vtr:RAP_VTR, tdp:RAP_TDP, tdl:RAP_TDL, tdc:RAP_TDC, rvf:RAP_RVF, py:RAP_PY, pty:RAP_PTY, pyc:RAP_PYC, pvn:RAP_PVN, pnv:RAP_PNV, pyp:RAP_PYP, pyi:RAP_PYI, pyn:RAP_PYN, pnp:RAP_PNP, psf:RAP_PSF, pyx:RAP_PYX, pyd:RAP_PYD, pyv:RAP_PYV, ptv:RAP_PTV, pop:RAP_POP, pdc:RAP_PDC, pch:RAP_PCH, pcl:RAP_PCL, pfr:RAP_PFR, pfp:RAP_PFP, pii:RAP_PII, pia:RAP_PIA, pis:RAP_PIS, pmy:RAP_PMY, ptr:RAP_PTR, pfo:RAP_PFO, prc:RAP_PRC, pcf:RAP_PCF, pkg:RAP_PKG, pcz:RAP_PCZ, pte:RAP_PTE, pfl:RAP_PFL, pqc:RAP_PQC, ppr:RAP_PPR, pod:RAP_POD, prd:RAP_PRD, pmo:RAP_PMO, pfx:RAP_PFX, pfn:RAP_PFN, pfk:RAP_PFK, pof:RAP_POF, pxy:RAP_PXY, pmt:RAP_PMT, ptm:RAP_PTM, pgt:RAP_PGT, phm:RAP_PHM, pvo:RAP_PVO, pdu:RAP_PDU, pfe:RAP_PFE, pbl:RAP_PBL, pmn:RAP_PMN, pfv:RAP_PFV, ptds:RAP_PTDS, pfd:RAP_PFD, pfc:RAP_PFC, pfq:RAP_PFQ, pfi:RAP_PFI, plo:RAP_PLO, pci:RAP_PCI, pce:RAP_PCE, psm:RAP_PSM, prl:RAP_PRL, ptt:RAP_PTT, pap:RAP_PAP, pvm:RAP_PVM, ppc:RAP_PPC, ppd:RAP_PPD, ppm:RAP_PPM, pev:RAP_PEV, pel:RAP_PEL, pph:RAP_PPH };
-const RAPPELS_ID={ 'coordonnees-vecteur-tracer-decompose':RAP_TVK, 'coordonnees-vecteur-tracer':RAP_TVC, 'construire-multiple-vecteur':RAP_KVX, 'tracer-vecteurs-opposes':RAP_TVO, 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
+const RAPPELS_ID={ 'coordonnees-vecteur-somme-placer':RAP_VSP, 'coordonnees-vecteur-tracer-decompose':RAP_TVK, 'coordonnees-vecteur-tracer':RAP_TVC, 'construire-multiple-vecteur':RAP_KVX, 'tracer-vecteurs-opposes':RAP_TVO, 'python-input-float':RAP_PIF, 'python-for-moyenne-notes':RAP_PFM, 'pourcentage-boite':RAP_PCTB, 'pourcentage-chaine':RAP_PCTC, 'pourcentage-schema':RAP_PCS, 'pourcentage-schema-cadres':RAP_PCC, 'pourcentage-schema-vide':RAP_PSV, 'pourcentage-phrases':RAP_PCP, 'synthese-evolutions':RAP_EVB, 'evolutions-successives':RAP_EVS, 'synthese-pourcentages-redigee':RAP_SPR, 'pourcentages-problemes':RAP_PPB, 'pourcentages-problemes-sans-aide':RAP_PPS, 'schema-evolution':RAP_SEV, 'evolutions-successives-coef':RAP_EVC, 'evolutions-successives-phrases':RAP_EVP, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC,
   'construire-max-min':RAP_CFM, 'diviser-fractions':RAP_DIV, 'diviser-fractions-libre':RAP_DIV, 'ensembles-nombres-2':RAP_ENS2, 'appartient-intervalle-2':RAP_APP2, 'croiser-denominateurs':RAP_CRD, 'simplifier-fractions':RAP_SIMP, 'somme-fractions-libre':RAP_SIMP, 'priorite-fractions':RAP_PF,
   'somme-produit-fractions':RAP_PF, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'quotient-double-fractions':RAP_QDB, 'triple-somme-fractions':RAP_TSF };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -14512,7 +14516,7 @@ function basculerTables(){ tablesOuvertes() ? fermerTables() : ouvrirTables(); }
    que 3² = 9 et 4² = 16.
    Ceux qui n'y sont pas ne demandent aucune multiplication : écrire une
    définition, choisir un crochet, lire une courbe, comparer 1,07 et 1,1. */
-const TABLES_SANS=['coordonnees-vecteur-somme','python-boites-memoire','python-boites-calcul','python-boites-echange','python-input-pas-a-pas','coordonnees-vecteur-quatrieme-point-choisi','coordonnees-vecteur-demontrer-parallelogramme','coordonnees-vecteur-tracer-decompose','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-compter','coordonnees-vecteur-lire','coordonnees-vecteur-associer','vecteur-egal-figure','demontrer-chasles-inserer','demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-pas-a-pas','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-input-sport','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
+const TABLES_SANS=['coordonnees-vecteur-somme-placer','coordonnees-vecteur-somme','python-boites-memoire','python-boites-calcul','python-boites-echange','python-input-pas-a-pas','coordonnees-vecteur-quatrieme-point-choisi','coordonnees-vecteur-demontrer-parallelogramme','coordonnees-vecteur-tracer-decompose','coordonnees-vecteur-quatrieme-point','coordonnees-vecteur-tracer','coordonnees-vecteur-calculer','coordonnees-vecteur-parallelogramme','coordonnees-vecteur-compter','coordonnees-vecteur-lire','coordonnees-vecteur-associer','vecteur-egal-figure','demontrer-chasles-inserer','demontrer-egalite-reels','demontrer-colineaires','vecteurs-criteres','vecteurs-egaux-justifier','construire-multiple-vecteur','identifier-multiple-vecteur','identifier-multiple-non-entier','vecteurs-colineaires-figure','colineaires-sens-longueur','placer-point-colineaire','phrase-relation-colineaire','milieux-parallele-vecteurs','regle-parallelogramme','translations-successives','somme-trois-vecteurs','demontrer-chasles','lire-somme-dessin','translation-antecedent','milieu-vecteurs-egaux','demontrer-parallelogramme','chasles-inserer-point','vrai-faux-vecteurs','translation-pavage','somme-vecteurs-libre','tracer-vecteurs-egaux','tracer-vecteurs-opposes','point-somme-difference','point-somme-vecteurs','chasles-sans-figure','somme-vecteurs-repere','somme-vecteurs','relation-chasles','chasles-trois-vecteurs','chasles-simplifier','chasles-alignes','translation-quadrillage','egalite-vectorielle-point','vecteurs-egaux','vecteurs-egaux-tableau','python-for-images-entiers','python-if-plus-grand-trois','python-pile-face','python-if-location','python-if-cinema','python-if-plus-grand','python-if-else','python-for-couples','python-samoussa','python-tables-multiplication','python-for-table','python-for-images','python-for-multiples','python-for-moyenne-notes','python-trois-des','python-for-depart-fin','python-for-renommer','python-for-erreur','python-for-oui-non','python-for-range','python-for-pas-a-pas','python-for-nom','python-moyenne-notes','python-input-duree-secondes','python-input-evolution','python-programme-calcul','python-triangle-etoiles','python-inverser-lettres','python-remplacer-lettre','python-chaines','python-chaine-tirets','python-input-int','python-input-calcul','python-input-float','python-input-somme','python-input-moyenne','python-input-rectangle','python-if-frais-port','python-input-prix','python-input-concat','python-input-erreur-type','python-input-int-float','python-input-conversion','python-input-predire','python-input-ordre','python-input-arrondi','python-input-monnaie','python-input-image','python-input-sport','python-texte-nombre','python-egal-affectation','python-division-entiere','python-arrondir','python-choisir-programme','python-ordre-lignes','python-variable-inconnue','python-debogage','python-formule','python-traduire-algo','python-input-duree','definitions-ensembles','intervalles','intervalles-inegalite',
                    'appartient-intervalle','placer-intervalle','ordre-croissant','additionner-relatifs','nombres-relatifs','reduire-somme','associer-expressions','soustraire-relatifs','translation-grille','tableau-proportions','tableau-proportions-lettres','tableau-proportions-lettres-tirees','tableau-proportions-directes','tableau-proportions-parmi','tableau-proportions-trois-colonnes','tableau-proportions-trois-colonnes-directes','lecture-variations','tableau-variation','lecture-signes','image-nombre','placer-image','antecedent-nombre','antecedents-droite','inequation-droite','inequation-graphique','equation-graphique','lecture-deux-courbes','resolutions-graphiques','tableau-signes-graphique','signes-variations','signes-variations-grand','choisir-tableau-variation','solutions-graphique','ecrire-solutions','construire-fonction','construire-max-min','synthese-fonction','parallelogramme-point','python-affichage','python-types','python-afficher-variable','python-noms-variables','python-nom-variable','python-print','python-input','python-completer','python-deux-lignes','python-placer-variables','python-tableau-valeurs','python-operations','python-double-triple-carre','python-pas-a-pas','python-valeur-case','python-pas-a-pas-calcul','python-pas-a-pas-chaine','python-echange-variables','python-echange-par-lettres','python-phrases-memoire','python-input-reponse','python-chaine-len'];
 function tablesBtnHTML(){
   if(TABLES_SANS.indexOf(currentTestId)>=0) return '';
@@ -72230,14 +72234,31 @@ function ctxVqs(q){
    q.P (A, B, C, D), q.a et q.b (les deux vecteurs en paires d'indices), q.n
    (la lettre du point : M ou N), puis ce que l'élève a fait : q.cp
    (le début de chaque copie déplacée), q.m. Les cases se rangent d'elles-
-   mêmes (captureBoxes). */
+   mêmes (captureBoxes).
+
+   PUIS LE MÊME EXERCICE SANS RIEN DE POSÉ (8.4.12,
+   {coordonnees-vecteur-somme-placer}, demande de Turquet, novembre 2026 :
+   « fais le même exercice que le 8.4.11 mais sans placer les points et sans
+   tracer les vecteurs ; tu demanderas à l'élève de tracer les points et les
+   vecteurs comme dans l'exercice 8.4.4 ») : la question porte q.tr = 1. Le
+   repère est vide ; l'étape 1) a ses six gestes, ceux du 8.4.4 — « A(3 ; 4) »,
+   « B(1 ; 2) », « C(3 ; 1) », « D(−1 ; −2) », « Tracer BC⃗ », « Tracer BA⃗ » :
+   la croix et la lettre suivent la souris, un point faux est rouge dès sa
+   pose, le vecteur suit la souris depuis son début, rouge s'il est faux, et
+   ne s'ouvre qu'avec ses deux points justes ; reprendre un point défait le
+   vecteur qui n'en part plus. Juste, un point ou un vecteur prend l'encre
+   noire de la figure du 8.4.11. Le glisser et « Placer M » ne s'ouvrent
+   qu'avec la figure entière juste (vsmFigure). Six réponses de plus
+   (vsm-p0 … vsm-p3, vsm-t0, vsm-t1), jugées en tête. On range en plus q.pl
+   (les quatre points posés) et q.t (les deux vecteurs tracés, {d, f}). */
 const VSM_NB=3;
 const VSM_L=['A','B','C','D'];
 const VSM_C6=['xf','xd','yf','yd','rx','ry'];
-function vsmNeuve(P,a,b,n){ return {P:P, a:a, b:b, n:n, cp:[null,null], m:null}; }
-function vsmFiche(i){
+const VSM_TR=['p0','p1','p2','p3','t0','t1'];
+function vsmNeuve(P,a,b,n,tr){ const q={P:P, a:a, b:b, n:n, cp:[null,null], m:null}; if(tr){ q.tr=1; q.pl=[null,null,null,null]; q.t=[null,null]; } return q; }
+function vsmFiche(i,tr){
   const P=[[3,4],[1,2],[3,1],[-1,-2]];
-  return i%2 ? vsmNeuve(P,[2,0],[2,1],'N') : vsmNeuve(P,[1,2],[1,0],'M');
+  return i%2 ? vsmNeuve(P,[2,0],[2,1],'N',tr) : vsmNeuve(P,[1,2],[1,0],'M',tr);
 }
 function vsmW(q,k){ return k?q.b:q.a; }
 function vsmVec(q,k){ const w=vsmW(q,k), p=q.P[w[0]], r=q.P[w[1]]; return [r[0]-p[0], r[1]-p[1]]; }
@@ -72267,7 +72288,7 @@ function vsmCasesDe(q){
   return r;
 }
 /* les réponses d'une question — la convention que lit dmPoidsQuestion() */
-function vsmCases(q){ return ['vsm-ch','vsm-M'].concat(vsmCasesDe(q)); }
+function vsmCases(q){ return (q.tr?VSM_TR.map(function(o){ return 'vsm-'+o; }):[]).concat(['vsm-ch','vsm-M']).concat(vsmCasesDe(q)); }
 function vsmAttendu(q){
   const P=q.P, D=P[3], u=vsmVec(q,0), v=vsmVec(q,1), M=vsmM(q), r={};
   ['u','v'].forEach(function(c,k){
@@ -72296,7 +72317,7 @@ function vsmAttendu(q){
    pas revenir. La forme de l'exercice 1 (le point M) alterne avec celle de
    l'exercice 2 (le point N). vsmFiche reste : c'est l'exemple du rappel, et
    la figure connue que le banc rejoue. */
-function vsmGen(i){
+function vsmGen(i,tr){
   const V=[-5,-4,-3,-2,1,2,3,4,5], lis=function(p){ return V.indexOf(p[0])>=0&&V.indexOf(p[1])>=0; };
   const det=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
   for(let essai=0;essai<8000;essai++){
@@ -72308,19 +72329,80 @@ function vsmGen(i){
     if(!ok) continue;
     const s=rand(0,2), autres=[0,1,2].filter(function(k){ return k!==s; });
     if(Math.random()<.5) autres.reverse();
-    const q=vsmNeuve(P,[s,autres[0]],[s,autres[1]], i%2?'N':'M');
+    const q=vsmNeuve(P,[s,autres[0]],[s,autres[1]], i%2?'N':'M', tr);
     const u=vsmVec(q,0), v=vsmVec(q,1), M=vsmM(q);
     if(!u[0]||!u[1]||!v[0]||!v[1]) continue;
     if(!lis(M)||!P.every(function(p){ return vecLoin(p,M); })) continue;
     if(!vcdDans(svrPlus(P[3],u))||!vcdDans(svrPlus(P[3],v))) continue;
     return q;
   }
-  return vsmFiche(i);
+  return vsmFiche(i,tr);
 }
 function vsmCle(q){ return JSON.stringify([q.P,q.a,q.b]); }
-function vsmBuildQuestions(){ return distinctes(dmNbQuestions(VSM_NB), function(_, i){ return vsmGen(i); }, vsmCle); }
+function vsmBuildQuestions(tr){ return distinctes(dmNbQuestions(VSM_NB), function(_, i){ return vsmGen(i,tr); }, vsmCle); }
 function vsmFige(id){ return !!(test.vsmFige&&test.vsmFige[id]); }
 function vsmEtat(id){ return (test.vsmEtat&&test.vsmEtat[id])||''; }
+/* --- 8.4.12 : la figure à poser (q.tr) --- */
+function vsmOutils(q){ return (q&&q.tr?VSM_TR:[]).concat(['ch','M']); }
+function vsmTrace(q,k){ const t=q.t&&q.t[k]; return t&&t.d&&t.f?t:null; }
+/* un geste est juste : le point à sa place, le vecteur du bon point au bon
+   point (ils sont sur la figure : on trace celui-là), les copies bout à bout
+   depuis D, le point cherché */
+function vsmFait(q,o){
+  if(o==='M') return vsmMJuste(q);
+  if(o==='ch') return !!vsmChaine(q);
+  if(!q.tr) return true;
+  const k=+o[1];
+  if(o[0]==='p') return svrEgal(q.pl[k], q.P[k]);
+  const t=vsmTrace(q,k), w=vsmW(q,k);
+  return !!t&&svrEgal(t.d,q.P[w[0]])&&svrEgal(t.f,q.P[w[1]]);
+}
+/* la figure est posée : les quatre points et les deux vecteurs justes */
+function vsmFigure(q){ return !q.tr||VSM_TR.every(function(o){ return vsmFait(q,o); }); }
+/* un vecteur ne se trace qu'avec ses deux points justes ; le glisser et le
+   point cherché, qu'avec la figure entière */
+function vsmOuvert(q,o){
+  if(!q.tr||o[0]==='p') return true;
+  if(o[0]==='t'){ const w=vsmW(q,+o[1]); return vsmFait(q,'p'+w[0])&&vsmFait(q,'p'+w[1]); }
+  return vsmFigure(q);
+}
+/* le geste suivant : le premier qui reste à faire et qui est ouvert (la règle du 8.4.4) */
+function vsmSuivant(q, depuis){
+  const L=vsmOutils(q), libre=function(o){ return !vsmFait(q,o)&&vsmOuvert(q,o)&&!vsmFige('vsm-'+o); };
+  const i=L.indexOf(depuis);
+  if(i>=0&&libre(depuis)) return depuis;
+  if(i>=0) for(let j=i+1;j<L.length;j++) if(libre(L[j])) return L[j];
+  for(const o of L) if(libre(o)) return o;
+  return depuis||test.vsmOutil;
+}
+/* un point repris défait le vecteur qui n'en part plus */
+function vsmDefaire(q){
+  [0,1].forEach(function(k){
+    if(!q.t[k]||vsmOuvert(q,'t'+k)) return;
+    q.t[k]=null; if(test.vsmEtat) delete test.vsmEtat['vsm-t'+k];
+    const e=$('vsm-t'+k); if(e) e.classList.remove('ok','bad');
+  });
+}
+/* poser un point (le reclic le retire) ; tracer un vecteur : son début, puis
+   sa fin (recliquer le début seul le retire, un clic de plus recommence) */
+function vsmPoseFig(q,o,n){
+  const id='vsm-'+o;
+  if(!vsmOuvert(q,o)||vsmFige(id)) return false;
+  if(test.vsmEtat) delete test.vsmEtat[id];
+  const el=$(id); if(el) el.classList.remove('ok','bad');
+  const k=+o[1];
+  let fini=false;
+  if(o[0]==='t'){
+    const t=q.t[k];
+    if(t&&t.d&&!t.f){ if(svrEgal(t.d,n)) q.t[k]=null; else { t.f=n; fini=true; } }
+    else q.t[k]={d:n, f:null};
+  } else {
+    if(svrEgal(q.pl[k],n)) q.pl[k]=null; else { q.pl[k]=n; fini=true; }
+    vsmDefaire(q);
+  }
+  if(fini) test.vsmOutil=vsmSuivant(q,o);
+  return true;
+}
 /* x = … et la colonne de M : le nombre, ou le calcul qui le donne
    (« 3 + (−1) », « −1+2+(−2) ») — quatre termes au plus */
 function vsmLitCalc(s){
@@ -72398,7 +72480,9 @@ function vsmEtiq(q,a,b,nom,cls,ev){
 /* tous les traits de la figure du moment : les deux vecteurs, les copies glissées, D → M */
 function vsmSegs(q){
   const r=[], D=q.P[3];
-  [0,1].forEach(function(k){ const w=vsmW(q,k); r.push([q.P[w[0]],q.P[w[1]]]); if(q.cp[k]) r.push([q.cp[k], svrPlus(q.cp[k],vsmVec(q,k))]); });
+  [0,1].forEach(function(k){ const w=vsmW(q,k), t=q.tr?vsmTrace(q,k):null;
+    if(!q.tr) r.push([q.P[w[0]],q.P[w[1]]]); else if(t) r.push([t.d,t.f]);
+    if(q.cp[k]) r.push([q.cp[k], svrPlus(q.cp[k],vsmVec(q,k))]); });
   if(q.m&&!svrEgal(q.m,D)) r.push([D,q.m]);
   if(test.locked){ const M=vsmM(q), m1=svrPlus(D,vsmVec(q,0)); r.push([D,m1],[m1,M],[D,M]); }
   return r;
@@ -72411,15 +72495,28 @@ function vsmDessiner(q){
   const fl=$('vsmFl'), pts=$('vsmPts'), pr=$('vsmPrises'); if(!fl||!pts||!pr) return;
   const D=q.P[3], ev=[];
   let f='', prises='', p='';
-  for(let k=0;k<2;k++){ const w=vsmW(q,k); f+=vsmFleche(q,q.P[w[0]],q.P[w[1]],'vsm-k','vsmArrK',vsmNomVec(q,k),ev); }
+  document.querySelectorAll('#vsmGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
+  for(let k=0;k<2;k++){
+    const w=vsmW(q,k);
+    if(!q.tr){ f+=vsmFleche(q,q.P[w[0]],q.P[w[1]],'vsm-k','vsmArrK',vsmNomVec(q,k),ev); continue; }
+    /* 8.4.12 : le vecteur de l'élève — noir et nommé s'il est juste, rouge sinon */
+    const t=q.t[k];
+    if(t&&t.d&&!t.f){ const n=$('vsmn-'+(t.d[0]-VCD_X0)+'-'+(t.d[1]-VCD_Y0)); if(n){ n.classList.add('sel'); n.setAttribute('aria-pressed','true'); } }
+    if(!vsmTrace(q,k)) continue;
+    if(vsmFait(q,'t'+k)&&vsmEtat('vsm-t'+k)!=='bad') f+=vsmFleche(q,t.d,t.f,'vsm-k','vsmArrK',vsmNomVec(q,k),ev);
+    else f+=vcdFleche(t.d,t.f,'svc-eb','vsmArrB');
+  }
   const cc=vsmEtat('vsm-ch')==='bad'?['svc-eb','vsmArrB']:['svc-e','vsmArrE'];
-  const libre=!test.locked&&!vsmFige('vsm-ch');
+  const libre=!test.locked&&!vsmFige('vsm-ch')&&vsmOuvert(q,'ch');
   for(let k=0;k<2;k++){
     const s=vsmCopie(q,k), e=svrPlus(s,vsmVec(q,k));
     if(q.cp[k]) f+=vsmFleche(q,s,e,cc[0]+' svc-copie',cc[1],vsmNomVec(q,k),ev);
     if(libre) prises+=`<line class="svc-prise" data-k="${k}" x1="${vcdX(s[0])}" y1="${vcdY(s[1])}" x2="${vcdX(e[0])}" y2="${vcdY(e[1])}" tabindex="0" role="button" aria-label="déplacer une copie du vecteur ${vsmNomVec(q,k)} (flèches du clavier)"/>`;
   }
-  for(let k=0;k<4;k++) p+=vsmCroix(q,q.P[k],VSM_L[k],'n');
+  for(let k=0;k<4;k++){
+    if(!q.tr){ p+=vsmCroix(q,q.P[k],VSM_L[k],'n'); continue; }
+    if(q.pl[k]) p+=vsmCroix(q,q.pl[k],VSM_L[k],vsmFait(q,'p'+k)&&vsmEtat('vsm-p'+k)!=='bad'?'n':'eb');
+  }
   if(q.m){
     const juste=vsmMJuste(q)&&vsmEtat('vsm-M')!=='bad', c=juste?['svc-e','vsmArrE','e']:['svc-eb','vsmArrB','eb'];
     if(!svrEgal(q.m,D)) f+=vsmFleche(q,D,q.m,c[0],c[1],'D'+q.n,ev);
@@ -72431,29 +72528,41 @@ function vsmDessiner(q){
 /* la croix du point suit la souris, le geste « Placer M » choisi, M pas encore juste */
 function vsmVif(q, m){
   const g=$('vsmVif'); if(!g) return;
-  const croix=!test.locked&&!!m&&!!q&&test.vsmOutil==='M'&&!vsmFige('vsm-M')&&!vsmMJuste(q);
+  const o=test.vsmOutil||'', pt=o==='M'||(!!q&&!!q.tr&&o[0]==='p');
+  const croix=!test.locked&&!!m&&!!q&&pt&&!vsmFige('vsm-'+o)&&vsmOuvert(q,o)&&!vsmFait(q,o);
   const svg=document.querySelector('#vsmGraph .svr-svg'); if(svg) svg.classList.toggle('svr-croix', croix);
-  if(!croix){ g.innerHTML=''; return; }
-  const d=4;
-  g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
-    +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">${q.n}</text></g>`;
+  if(croix){
+    const d=4;
+    g.innerHTML=`<g class="svr-pt e svr-vif"><line x1="${m.x-d}" y1="${m.y-d}" x2="${m.x+d}" y2="${m.y+d}"/><line x1="${m.x-d}" y1="${m.y+d}" x2="${m.x+d}" y2="${m.y-d}"/>`
+      +`<text class="svr-lbl" x="${(m.x+6).toFixed(1)}" y="${(m.y-6).toFixed(1)}">${o==='M'?q.n:VSM_L[+o[1]]}</text></g>`;
+    return;
+  }
+  /* 8.4.12 : le vecteur suit la souris depuis son début posé */
+  const t=q&&q.tr&&o[0]==='t'?q.t[+o[1]]:null;
+  if(test.locked||!m||!t||!t.d||t.f){ g.innerHTML=''; return; }
+  const x1=vcdX(t.d[0]), y1=vcdY(t.d[1]), dx=m.x-x1, dy=m.y-y1, l=Math.hypot(dx,dy);
+  if(l<8){ g.innerHTML=''; return; }
+  g.innerHTML=`<line class="vsm-k svr-vif" x1="${x1}" y1="${y1}" x2="${(m.x-3*dx/l).toFixed(1)}" y2="${(m.y-3*dy/l).toFixed(1)}" marker-end="url(#vsmArrK)"/>`;
 }
 /* Les boutons des gestes : le geste choisi ; l'objectif ne verdit que juste. */
 function vsmMajOutils(q){
-  ['ch','M'].forEach(function(o){
+  vsmOutils(q).forEach(function(o){
     const el=$('vsm-'+o); if(!el) return;
+    const ouvert=vsmOuvert(q,o);
     el.classList.toggle('actif', !test.locked&&test.vsmOutil===o);
-    el.classList.toggle('fait', !test.locked&&(o==='M'?vsmMJuste(q):!!vsmChaine(q)));
+    el.classList.toggle('fait', !test.locked&&vsmFait(q,o));
     el.setAttribute('aria-pressed', test.vsmOutil===o?'true':'false');
-    el.disabled=!!test.locked||vsmFige('vsm-'+o);
+    el.disabled=!!test.locked||vsmFige('vsm-'+o)||!ouvert;
+    if(!ouvert) el.title=o[0]==='t'?'Place d’abord les deux points justes':'Place d’abord les quatre points et trace les deux vecteurs'; else el.removeAttribute('title');
   });
 }
 function vsmOutil(o){
-  if(test.locked||test.kind!=='vsm'||(o!=='ch'&&o!=='M')) return;
+  if(test.locked||test.kind!=='vsm') return;
   const q=test.questions[test.idx];
+  if(!q||vsmOutils(q).indexOf(o)<0||!vsmOuvert(q,o)) return;
   test.vsmOutil=o;
   vsmMajOutils(q); vsmVif(q, test.vsmSouris||null);
-  if(o==='M'&&typeof poseDoigtSuivre==='function') poseDoigtSuivre('vsm', 'm');
+  if(typeof poseDoigtSuivre==='function'&&o!=='ch') poseDoigtSuivre('vsm', o==='M'?'m':o[0]==='t'?(o[1]+(q.t[+o[1]]&&q.t[+o[1]].d&&!q.t[+o[1]].f?'f':'d')):o);
 }
 /* poser le point (le reclic au même nœud le retire) */
 function vsmPoseM(q,n){
@@ -72465,8 +72574,12 @@ function vsmPose(i,j){
   if(poseDoigt('vsm',i,j)) return;   /* au doigt : la barre « Je place » choisit (#pose-doigt) */
   if(test.locked||test.kind!=='vsm') return;
   const q=test.questions[test.idx]; if(!q||!vcdDans([i,j])) return;
-  if(test.vsmOutil!=='M'||vsmFige('vsm-M')) return;   /* le geste du glisser : un clic ne pose rien */
-  vsmPoseM(q,[i,j]);
+  const o=test.vsmOutil||'';
+  if(q.tr&&(o[0]==='p'||o[0]==='t')){ if(!vsmPoseFig(q,o,[i,j])) return; }   /* 8.4.12 : la figure */
+  else {
+    if(o!=='M'||vsmFige('vsm-M')||!vsmOuvert(q,'M')) return;   /* le geste du glisser : un clic ne pose rien */
+    vsmPoseM(q,[i,j]);
+  }
   vsmDessiner(q); vsmMajOutils(q);
   recoveryDirty=true;
   clearTimeout(test.vsmSave); test.vsmSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },1200);
@@ -72475,7 +72588,7 @@ function vsmPose(i,j){
    l'original, elle s'efface. Bout à bout depuis D, on passe à « Placer M ». */
 function vsmDeplacer(k, p){
   if(test.locked||test.kind!=='vsm'||vsmFige('vsm-ch')) return false;
-  const q=test.questions[test.idx]; if(!q) return false;
+  const q=test.questions[test.idx]; if(!q||!vsmOuvert(q,'ch')) return false;
   const c=vsmVec(q,k), av=vsmCopie(q,k), o=q.P[vsmW(q,k)[0]];
   const borne=function(x,cx,m0,m1){ return Math.max(Math.max(m0,m0-cx), Math.min(Math.min(m1,m1-cx), x)); };
   const np=[borne(p[0],c[0],VCD_X0,VCD_X1), borne(p[1],c[1],VCD_Y0,VCD_Y1)];
@@ -72602,6 +72715,8 @@ function vsmCalcHTML(q){
 function vsmJuge(q){
   const subs=[], a=vsmAttendu(q), ch=!!vsmChaine(q);
   const val=function(id){ const e=$(id); return e?String(e.value==null?'':e.value).trim():''; };
+  if(q.tr) VSM_TR.forEach(function(o){ const k=+o[1];
+    subs.push({id:'vsm-'+o, geste:o, ok:vsmFait(q,o), vide:o[0]==='p'?!q.pl[k]:!vsmTrace(q,k)}); });
   subs.push({id:'vsm-ch', geste:'ch', ok:ch, vide:!ch&&!q.cp[0]&&!q.cp[1]});
   subs.push({id:'vsm-M', geste:'M', ok:vsmMJuste(q), vide:!q.m});
   vsmCasesDe(q).forEach(function(id){
@@ -72617,6 +72732,22 @@ function vsmPourquoi(q,subs){
   const faux=function(id){ return !!S[id]&&!S[id].ok&&!S[id].vide; };
   const lu=function(id){ return S[id].lu; };
   const nu=vsmNomVec(q,0), nv=vsmNomVec(q,1);
+  /* 8.4.12 : les points et les vecteurs posés — les messages du 8.4.4 */
+  if(q.tr){
+    for(let k=0;k<4;k++){
+      if(!faux('vsm-p'+k)) continue;
+      const p=q.pl[k], Pk=q.P[k], L=VSM_L[k];
+      if(p[0]===Pk[1]&&p[1]===Pk[0]) m.push('Tu as placé '+L+svrCoord(p)+' : l’abscisse se lit d’abord, sur l’axe horizontal, puis l’ordonnée sur l’axe vertical.');
+      else if(Math.abs(p[0])===Math.abs(Pk[0])&&Math.abs(p[1])===Math.abs(Pk[1])) m.push(L+svrCoord(Pk)+' : attention aux signes — un nombre négatif se lit à gauche de O, ou en dessous.');
+      else m.push(L+svrCoord(Pk)+' : abscisse '+svrNb(Pk[0])+' sur l’axe horizontal, ordonnée '+svrNb(Pk[1])+' sur l’axe vertical.');
+    }
+    [0,1].forEach(function(k){
+      if(!faux('vsm-t'+k)) return;
+      const t=vsmTrace(q,k), w=vsmW(q,k), nom=vsmNomVec(q,k);
+      if(svrEgal(t.d,q.P[w[1]])&&svrEgal(t.f,q.P[w[0]])) m.push('Le vecteur '+nom+' est tracé à l’envers : il part de '+nom[0]+' et arrive en '+nom[1]+'.');
+      else m.push('Le vecteur '+nom+' va du point '+nom[0]+' au point '+nom[1]+'.');
+    });
+  }
   if(faux('vsm-ch')){
     if(!svrEgal(vsmCopie(q,0),D)&&!svrEgal(vsmCopie(q,1),D)) m.push('La construction part de D : fais glisser une copie d’un des deux vecteurs pour que son début soit sur D.');
     else m.push('Un début va sur une fin : le début de la seconde copie se pose sur la fin de la première.');
@@ -72665,6 +72796,7 @@ function vsmMarqueSoutien(q,subs){
     if(s.ok) test.vsmFige[s.id]=true;
   });
   if(vsmFige('vsm-ch')&&test.vsmOutil==='ch'&&!vsmFige('vsm-M')) test.vsmOutil='M';
+  if(q.tr) test.vsmOutil=vsmSuivant(q,test.vsmOutil);
   vsmDessiner(q); vsmMajOutils(q);
 }
 /* Soutien, au fil de la saisie (liveCheckCurrent) : la remplie juste en
@@ -72688,9 +72820,15 @@ function vsmFinal(q,subs){
   document.querySelectorAll('#vsmGraph .vec-t').forEach(function(el){ el.classList.add('off'); el.classList.remove('sel'); });
   vsmDessiner(q); vsmMajOutils(q);
   const D=q.P[3], M=vsmM(q), m1=svrPlus(D,vsmVec(q,0)), ev=[];
+  const S={}; subs.forEach(function(s){ S[s.id]=s; });
   let h='';
-  if(!subs[0].ok) h+=vsmFleche(q,D,m1,'svc-s svc-copie','vsmArrS',vsmNomVec(q,0),ev)+vsmFleche(q,m1,M,'svc-s svc-copie','vsmArrS',vsmNomVec(q,1),ev);
-  if(!subs[1].ok) h+=vsmFleche(q,D,M,'svc-s','vsmArrS','D'+q.n,ev)+vsmCroix(q,M,q.n,'s');
+  /* 8.4.12 : les points et les vecteurs manqués, à leur place, en vert */
+  if(q.tr){
+    [0,1].forEach(function(k){ if(!S['vsm-t'+k].ok){ const w=vsmW(q,k); h+=vsmFleche(q,q.P[w[0]],q.P[w[1]],'svc-s','vsmArrS',vsmNomVec(q,k),ev); } });
+    for(let k=0;k<4;k++) if(!S['vsm-p'+k].ok) h+=vsmCroix(q,q.P[k],VSM_L[k],'s');
+  }
+  if(!S['vsm-ch'].ok) h+=vsmFleche(q,D,m1,'svc-s svc-copie','vsmArrS',vsmNomVec(q,0),ev)+vsmFleche(q,m1,M,'svc-s svc-copie','vsmArrS',vsmNomVec(q,1),ev);
+  if(!S['vsm-M'].ok) h+=vsmFleche(q,D,M,'svc-s','vsmArrS','D'+q.n,ev)+vsmCroix(q,M,q.n,'s');
   const c=$('vsmCorr'); if(c) c.innerHTML=h;
 }
 function renderVsm(){
@@ -72700,16 +72838,25 @@ function renderVsm(){
   const pt=function(p){ return Array.isArray(p)&&p.length===2&&p.every(Number.isInteger)?p:null; };
   q.cp=[0,1].map(function(k){ return pt((q.cp||[])[k]); });
   q.m=pt(q.m);
-  test.vsmOutil=vsmChaine(q)?'M':'ch';
+  if(q.tr){   /* 8.4.12 : les points posés et les vecteurs tracés */
+    q.pl=[0,1,2,3].map(function(k){ return pt((q.pl||[])[k]); });
+    q.t=[0,1].map(function(k){ const t=(q.t||[])[k], d=t&&pt(t.d); return d?{d:d, f:pt(t.f)}:null; });
+  }
+  test.vsmOutil=q.tr?vsmSuivant(q,'p0'):(vsmChaine(q)?'M':'ch');
   const N=q.n, U=vsmVecHTML(q,0), V=vsmVecHTML(q,1), DN=vepVecHTML('D',N);
   $('vsmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('vsmModeTag').innerHTML=modeTagHTML();
   const pts=[0,1,2,3].map(function(k){ return VSM_L[k]+svrCoord(q.P[k]); });
-  $('vsmInstr').innerHTML='1) On a placé les points '+pts.slice(0,3).join(', ')+' et '+pts[3]+', et tracé les vecteurs '+U+' et '+V+'. '
+  $('vsmInstr').innerHTML=(q.tr?'1) Place les points '+pts.slice(0,3).join(', ')+' et '+pts[3]+', puis trace les vecteurs '+U+' et '+V+'. '
+      :'1) On a placé les points '+pts.slice(0,3).join(', ')+' et '+pts[3]+', et tracé les vecteurs '+U+' et '+V+'. ')
     +'2) Place '+N+' tel que '+DN+' = '+U+' + '+V+'. 3) Calcule les coordonnées de '+N+'.'
-    +'<span class="kv-sous">Pour la somme, fais glisser les vecteurs tracés : une copie part, l’original reste. Mets les copies bout à bout à partir de D (un début va sur une fin), puis place '+N+'. '
+    +'<span class="kv-sous">'+(q.tr?'Choisis le geste avec les boutons sous l’énoncé, puis clique les nœuds du repère : un point se pose d’un clic (un second clic au même endroit le retire) ; un vecteur se trace en cliquant son début, puis sa fin. ':'')
+    +'Pour la somme, fais glisser les vecteurs tracés : une copie part, l’original reste. Mets les copies bout à bout à partir de D (un début va sur une fin), puis place '+N+'. '
     +'Pour le calcul, écris les abscisses sur la ligne du haut et les ordonnées sur celle du bas.</span>';
-  $('vsmBody').innerHTML='<div class="svr-etapes"><div class="svr-et"><span class="svr-et-n">2)</span>'
+  const b_=function(o,txt){ return '<button type="button" class="svr-out pts-case" id="vsm-'+o+'" onclick="vsmOutil(\''+o+'\')"><span class="svr-rond" aria-hidden="true">●</span>'+txt+'</button>'; };
+  $('vsmBody').innerHTML='<div class="svr-etapes">'
+    +(q.tr?'<div class="svr-et"><span class="svr-et-n">1)</span>'+pts.map(function(t,k){ return b_('p'+k,t); }).join('')+b_('t0','Tracer '+U)+b_('t1','Tracer '+V)+'</div>':'')
+    +'<div class="svr-et"><span class="svr-et-n">2)</span>'
     +'<button type="button" class="svr-out pts-case" id="vsm-ch" onclick="vsmOutil(\'ch\')"><span class="svr-rond" aria-hidden="true">●</span>Fais glisser '+U+' et '+V+' bout à bout, à partir de D</button>'
     +'<button type="button" class="svr-out pts-case" id="vsm-M" onclick="vsmOutil(\'M\')"><span class="svr-rond" aria-hidden="true">●</span>Placer '+N+'</button>'
     +'</div></div>';
@@ -72736,7 +72883,7 @@ function checkVsm(){
   if(n<subs.length && isSoutien()){
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; }), rien=subs.every(function(s){ return s.vide; });
     vsmMarqueSoutien(q,subs);
-    $('vsmFeedback').textContent=rien?'Commence par faire glisser une copie d’un des deux vecteurs pour que son début soit sur D.'
+    $('vsmFeedback').textContent=rien?(q.tr?'Commence par placer le point A.':'Commence par faire glisser une copie d’un des deux vecteurs pour que son début soit sur D.')
       :(faux?'Ce n’est pas encore ça : reprends ce qui est en rouge, puis revérifie. ':'Ce qui est fait est juste. ')
       +(rien?'':'Il reste '+subs.filter(function(s){ return !s.ok; }).length+' réponse(s) à trouver.');
     $('vsmFeedback').className='mp-feedback bad';
@@ -72747,7 +72894,9 @@ function checkVsm(){
   const pourquoi=vsmPourquoi(q,subs);
   const v=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
   const nu=vsmNomVec(q,0), nv=vsmNomVec(q,1), N=q.n, c=vsmChaine(q);
-  const donne=(c?'copies bout à bout depuis D':'copies pas bout à bout depuis D')+' — '+N+(q.m?' placé en '+svrCoord(q.m):' non placé')
+  const fig=q.tr?[0,1,2,3].map(function(k){ return VSM_L[k]+(q.pl[k]?' placé en '+svrCoord(q.pl[k]):' non placé'); }).join(', ')
+    +', '+[0,1].map(function(k){ const t=vsmTrace(q,k); return vsmNomVec(q,k)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f):' non tracé'); }).join(', ')+' — ':'';
+  const donne=fig+(c?'copies bout à bout depuis D':'copies pas bout à bout depuis D')+' — '+N+(q.m?' placé en '+svrCoord(q.m):' non placé')
     +' — '+nu+' ('+v('vsm-u-xf')+' − '+v('vsm-u-xd')+' ; '+v('vsm-u-yf')+' − '+v('vsm-u-yd')+') = ('+v('vsm-u-rx')+' ; '+v('vsm-u-ry')+')'
     +' — '+nv+' ('+v('vsm-v-xf')+' − '+v('vsm-v-xd')+' ; '+v('vsm-v-yf')+' − '+v('vsm-v-yd')+') = ('+v('vsm-v-rx')+' ; '+v('vsm-v-ry')+')'
     +' — x − '+v('vsm-sx-d')+' = '+v('vsm-sx-u')+' + '+v('vsm-sx-v')+' = '+v('vsm-sx-r')+', y − '+v('vsm-sy-d')+' = '+v('vsm-sy-u')+' + '+v('vsm-sy-v')+' = '+v('vsm-sy-r')
@@ -72766,9 +72915,9 @@ function checkVsm(){
   const nb=$('vsmNext'); if(nb) setTimeout(function(){ try{ nb.focus(); }catch(e){} },40);
 }
 function nextVsm(){ if(test.idx<test.questions.length-1){ test.idx++; renderVsm(); autoSave(); } else finishTest(); }
-function startVsm(){
+function startVsm(tr){
   if(!currentEleve){ accueil(); return; }
-  const qs=vsmBuildQuestions();
+  const qs=vsmBuildQuestions(!!tr);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'vsm', questions:qs, idx:0, score:0,
@@ -72784,7 +72933,10 @@ function ctxVsm(q){
   const val=function(id){ const e=$(id); return (e&&String(e.value).trim())||'?'; };
   const c=vsmChaine(q);
   const ctx='Exercice de GÉOMÉTRIE dans un repère (tu ne vois pas le dessin ; description exacte). Repère gradué de −5 à 5 sur les deux axes, quadrillé. '
-   +'Énoncé : les points '+[0,1,2,3].map(function(k){ return VSM_L[k]+svrCoord(q.P[k]); }).join(', ')+' sont placés, les vecteurs '+nu+' et '+nv+' sont tracés. '
+   +(q.tr?'Énoncé : 1) placer les points '+[0,1,2,3].map(function(k){ return VSM_L[k]+svrCoord(q.P[k]); }).join(', ')+' et tracer les vecteurs '+nu+' et '+nv+' (l’élève clique les nœuds du repère : un point d’un clic, un vecteur en cliquant son début puis sa fin). '
+     +'Ce que l’élève a posé : '+[0,1,2,3].map(function(k){ return VSM_L[k]+(q.pl[k]?' en '+svrCoord(q.pl[k])+(vsmFait(q,'p'+k)?' (juste)':' (faux)'):' pas placé'); }).join(', ')
+     +', '+[0,1].map(function(k){ const t=vsmTrace(q,k); return (k?nv:nu)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f)+(vsmFait(q,'t'+k)?' (juste)':' (faux)'):' pas tracé'); }).join(', ')+'. '
+     :'Énoncé : les points '+[0,1,2,3].map(function(k){ return VSM_L[k]+svrCoord(q.P[k]); }).join(', ')+' sont placés, les vecteurs '+nu+' et '+nv+' sont tracés. ')
    +'2) Placer '+N+' tel que vecteur D'+N+' = vecteur '+nu+' + vecteur '+nv+' : l’élève fait glisser des copies des deux vecteurs pour les mettre bout à bout à partir de D (« un début va sur une fin »), puis place '+N+' au bout. '
    +'3) Par le calcul : coordonnées de '+nu+' et de '+nv+' par « fin − début » ; on pose '+N+'(x ; y) ; D'+N+' (x − xD ; y − yD) = '+nu+' + '+nv+' ; le système x − xD = (abscisse de '+nu+') + (abscisse de '+nv+') = … et de même pour y ; '
    +'puis le système réécrit (soustraire un nombre négatif, c’est ajouter son opposé : « x − (−1) » devient « x + 1 ») ; puis x = …, y = …, donc '+N+'(… ; …)'
@@ -90530,15 +90682,40 @@ POSE_DOIGT.vcm={ hote:'vcmGraph',
   },
   choisir:function(q){ vcmMajOutils(q); }
 };
-/* 8.4.11 {coordonnees-vecteur-somme} : le point (le glisser des copies n'est pas une pose) */
+/* 8.4.11 {coordonnees-vecteur-somme} : le point (le glisser des copies n'est pas une pose) ;
+   8.4.12 {coordonnees-vecteur-somme-placer} : d'abord les quatre points, puis
+   départ et arrivée des deux vecteurs (les cles « 0d », « 0f », « 1d », « 1f ») */
 POSE_DOIGT.vsm={ hote:'vsmGraph',
-  items:function(q){ return [{cle:'m', html:pdPoint(q.n), fait:!!q.m, off:vsmFige('vsm-M')}]; },
+  items:function(q){
+    let r=[];
+    if(q.tr){
+      for(let k=0;k<4;k++) r.push({cle:'p'+k, html:pdPoint(VSM_L[k]), fait:!!q.pl[k], off:vsmFige('vsm-p'+k)});
+      [0,1].forEach(function(k){ const t=q.t[k]||{};
+        r=r.concat(pdVecItems({d:t.d, f:t.f}, pdVec('<span class="vgt-vec">'+vsmNomVec(q,k)+'</span>'), 'd', 'f', vsmFige('vsm-t'+k)||!vsmOuvert(q,'t'+k), String(k))); });
+    }
+    return r.concat([{cle:'m', html:pdPoint(q.n), fait:!!q.m, off:vsmFige('vsm-M')||!vsmOuvert(q,'M')}]);
+  },
   poser:function(q,cle,n){
-    if(!vcdDans(n)||vsmFige('vsm-M')||svrEgal(q.m,n)) return;
-    vsmPoseM(q,n);
+    if(!vcdDans(n)) return;
+    if(cle==='m'){
+      if(vsmFige('vsm-M')||!vsmOuvert(q,'M')||svrEgal(q.m,n)) return;
+      vsmPoseM(q,n);
+    } else {
+      const o=cle[0]==='p'?cle:'t'+cle[0], id='vsm-'+o, k=+o[1];
+      if(vsmFige(id)||!vsmOuvert(q,o)) return;
+      if(o[0]==='p'){ q.pl[k]=n; vsmDefaire(q); }
+      else {
+        const t=q.t[k]||{d:null, f:null};
+        if(cle[1]==='d'){ if(pdEgal(n,t.f)) return; q.t[k]={d:n, f:t.f||null}; }
+        else { if(!t.d||pdEgal(n,t.d)) return; q.t[k]={d:t.d, f:n}; }
+      }
+      if(test.vsmEtat) delete test.vsmEtat[id];
+      const el=$(id); if(el) el.classList.remove('ok','bad');
+      test.vsmOutil=o;
+    }
     vsmDessiner(q); vsmMajOutils(q);
   },
-  choisir:function(q){ test.vsmOutil='M'; vsmMajOutils(q); }
+  choisir:function(q,cle){ test.vsmOutil=cle==='m'?'M':(cle[0]==='p'?cle:'t'+cle[0]); vsmMajOutils(q); }
 };
 /* 8.4.10 {coordonnees-vecteur-quatrieme-point-choisi} : le point M */
 POSE_DOIGT.vqs={ hote:'vqsGraph',

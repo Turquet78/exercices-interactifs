@@ -6719,3 +6719,57 @@ pièges. Le banc vérifie les 200 séances, toutes les questions, et l'écran
 d'ouverture : aucun ne porte les points de la fiche. Sabotage : en remettant
 `if(i<2) return vsmFiche(i)`, le banc rougit deux fois (« une question reprend
 les points de la fiche », « la séance commence par la fiche »).
+
+
+## {coordonnees-vecteur-somme-placer} — la figure à poser, puis le point d'une somme de vecteurs (8.4.12, Seconde v704 — la v703 prise sur main pendant les bancs, par le retrait de l'autre méthode du 8.4.11)
+
+**La demande** (Turquet, novembre 2026) : « en seconde fait le même exercice
+que le 8.4.11 mais sans placer les points et sans tracer les vecteurs, tu
+demanderas à l'élève de tracer les points et les vecteurs comme dans
+l'exercice 8.4.4 ».
+
+**Le même moteur, une autre identité.** Le 8.4.12 tourne sur le kind « vsm »
+du 8.4.11 : la question porte `q.tr = 1` (rangée, donc rendue par la
+reprise), et `startVsm(true)` la tire. La note part sous `currentTestId`, le
+rappel par `RAPPELS_ID` (`RAP_VSP` : celui du 8.4.11, précédé d'un « ⓪ La
+figure »), les questions à l'IA par `QIA_SUGG_ID`. Sans `q.tr`, rien ne
+change pour le 8.4.11 (mêmes clés rangées, mêmes 36 réponses — le banc le
+tient toujours). Comme le 8.4.11 depuis la v703, il tire ses propres points
+(jamais ceux de la fiche) et n'a pas l'autre méthode : les boutons portent
+les points tirés.
+
+**L'étape 1) reprend les gestes du 8.4.4** : six boutons `pts-case`
+— « A(… ; …) », « B(… ; …) », « C(… ; …) », « D(… ; …) » et « Tracer »
+pour chacun des deux vecteurs. La croix et la lettre du point à poser suivent la souris ; un
+point faux est rouge dès sa pose, le reclic le retire, le geste ne passe au
+suivant que sur un point juste (`vsmSuivant`, la règle de `vcdSuivant`) ; le
+vecteur suit la souris depuis son début (le nœud du début marqué `sel`),
+rouge s'il est faux, et ne s'ouvre qu'avec ses deux points justes
+(`vsmOuvert`) ; reprendre un point défait le vecteur qui n'en part plus
+(`vsmDefaire`). Juste, un point ou un vecteur prend l'encre NOIRE de la figure
+du 8.4.11 (et son nom) : la suite de l'exercice se fait sur la même figure
+qu'au 8.4.11, les copies bleues glissées par-dessus. **Le glisser et
+« Placer M » ne s'ouvrent qu'avec la figure entière juste** (`vsmFigure`) :
+les prises n'existent pas avant, et `vsmDeplacer` refuse.
+
+**Six réponses de plus, jugées en tête** (`vsm-p0` … `vsm-p3`, `vsm-t0`,
+`vsm-t1`) : 42 réponses à chaque question. Les messages sont ceux du
+8.4.4 : coordonnées échangées, signes, vecteur tracé à l'envers. La
+correction dessine en vert, à leur place, les points et les vecteurs
+manqués. On range en plus `q.pl` (les quatre points posés) et `q.t` (les deux
+vecteurs, `{d, f}`).
+
+**Au doigt**, la barre « Je place » (`POSE_DOIGT.vsm`) a les quatre points,
+départ et arrivée des deux vecteurs (clés « 0d », « 0f », « 1d », « 1f »,
+fermées tant que leurs points ne sont pas justes), puis le point cherché
+(fermé tant que la figure n'est pas juste).
+
+**Le banc principal** (`coordonneesVecteurs`, « sommePlacer ») : la place
+8.4.12, les tables absentes, le rappel et les questions ; deux cents séances
+(ce qui est rangé, 42 réponses, jamais la fiche) ; l'écran vide et ses six
+boutons, les gestes fermés avant la figure ; la copie vide (42 `sol`, rien
+de rouge, cinq croix et cinq flèches vertes) ; les gestes (la croix A,
+A faux rouge, le reclic, B, C, D, BC⃗ à l'envers rouge, le vecteur élastique,
+B repris qui défait BC⃗, la figure qui ouvre le glisser) ; la copie juste
+42 sur 42 ; la reprise après JSON ; les pièges nommés ; le contexte du
+modèle ; le soutien ; la barre au doigt.
