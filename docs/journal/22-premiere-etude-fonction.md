@@ -666,7 +666,7 @@ Deux pièges vus en l'exécutant :
   erreur » au milieu de la frappe. Une ligne d'équation ne se colore plus
   tant qu'un de ses membres est vide.
 
-**Puis une ligne de la question 4 a pu être une CHAÎNE d'égalités (v438).**
+**Puis une ligne de la question 4 a pu être une CHAÎNE d'égalités (v438, puis v439 : le 7.1 et le 7.2 avaient pris la v438 sur `main` pendant les contrôles).**
 Demande de Turquet : la ligne « x = 4/(−2) = −2 » — la division et son
 résultat écrits dans la même case de droite — était rouge, et la page
 ajoutait en vert « x = −2 » dessous. Le « = » tapé dans la case faisait de
