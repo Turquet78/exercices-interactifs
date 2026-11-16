@@ -7299,3 +7299,39 @@ banc principal relit l'ordre programme → bouton → console → programme avec
 ses cadres, l'absence de tout cadre avant la réponse validée, et la reprise
 d'un brouillon d'avant. Ce qu'aucun banc ne voit : l'écart à l'œil entre la
 console et la seconde copie du programme (`.pnp-label-cadres`, 18 px).
+
+## {python-boites-calcul} (6.2.25) et {python-boites-echange} (6.2.26) : le même moteur, un calcul et un échange (novembre 2026, v698)
+
+Demande de Turquet, le lendemain du 6.2.24 : « fais pareil avec un calcul,
+a = a + 3, et avec une permutation de variable ». Deux exercices, ajoutés au
+bout du 6.2 (rien n'est renuméroté), sur le moteur du 6.2.24 rendu commun :
+`PB_KINDS` (pbm, pbc, pbe), `pbStart`, `pbRender`, `pbmChoisir`,
+`pbmExecuter`, `pbAnimer`. Même geste : cliquer la boîte, « ▶ Exécuter la
+ligne n° k ». **Chaque kind préfixe ses identifiants** (`pbcHost`,
+`pbe-boite-a`…) : un écran caché garde son contenu, et deux boîtes « a » dans
+la page feraient trouver la mauvaise — un contrôle le vérifie.
+
+**Trois sortes de lignes, lues dans l'expression** (`pbType`) : un nombre naît
+sur la ligne ; un nom envoie une copie depuis sa boîte ; un CALCUL envoie une
+copie de chaque boîte nommée dans une bulle (`.pb-calc`, « 5 + 3 »), qui écrit
+« = 8 », puis le 8 vole dans la boîte. **Et l'ancienne valeur s'efface à
+l'atterrissage** (`.pb-efface`, barrée, elle tombe) : jusque-là la boîte montre
+son ANCIENNE valeur — a = a + 3 se lit avec le 5 encore là. La page le dit
+aussi en toutes lettres (`pbExplique`) : « L'ancienne valeur de a (3) est
+effacée — heureusement, la boîte c en garde une copie. »
+
+**Les tirages.** Calcul : la fiche a = 5 ; b = 2 ; a = a + 3 ; b = a + b, puis
+« meme » (p = p ± k ou p * 2, puis q = q + p) et « trois » (une troisième boîte
+reçoit p + q) ; toute valeur dans [0 ; 20] (`pbDansBornes`, la règle
+PAP_MAX du sous-thème). Échange : la fiche a = 3 ; b = 7 ; c = a ; a = b ;
+b = c, puis l'échange par la boîte de secours dans les deux sens. Le contrôle
+exige que l'échange échange VRAIMENT, sur 300 séances.
+
+**Les dessins** : ceux du 6.2.11 (n = n + 3, les billes du bocal) et du 6.2.5
+(le troisième verre) ; les serpents d'Halloween sont composés à partir d'eux,
+bulles effacées, sous un vol de chauves-souris — pas de nouveau dessin.
+
+Déclarations : `soutienEnDirect.sans`, `tablesAide.sans`, `pythonAvant.sans`,
+`pauseReprise.horsAtteinte`, `apres2`, et `pythonBoitesMemoire.suite` qui mène
+chaque fiche jusqu'au bout dans jsdom. Ce qu'aucun banc ne voit : le vol, la
+bulle et la chute de l'ancienne valeur — capturés à la main.
