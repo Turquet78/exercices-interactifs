@@ -579,7 +579,7 @@ ni 24 h ni 31 juin) ; mesuré dans Chromium sur 4 000 questions : N de 7 à 12,
 départ du 2 au 16, aucune heure ni date impossible, aucune valeur nulle.
 
 **Puis le nombre de fois des questions 2 et 3, fixé couple par couple
-(v441 — le 6.5 avait pris la v440 sur `main` pendant les contrôles).** Demande de Turquet, qui remplace la règle de la v438 (« entre 7 et
+(v442 — le 6.5 puis le 1.14 avaient pris les v440 et v441 sur `main` pendant les contrôles).** Demande de Turquet, qui remplace la règle de la v438 (« entre 7 et
 12 fois », et le seuil au moins deux fois plus loin) : « pour la question 2,
 le nombre de fois est 5 ou 6 ou 7 ; si c'est 5 à la question 2, faire 8 ou 9
 fois pour la question 3 ; si c'est 6, faire 8 ou 9 ou 10 ; si c'est 7, faire
