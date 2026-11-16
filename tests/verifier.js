@@ -15800,40 +15800,47 @@ function coordonneesVecteurs(w, P){
     [['3',3],['(−1)',-1],['4 - 1',3],['-1+2+2',3],['−2 + (−1) + 2',-1],['3+(-2)',1],['x',null],['1+',null],['2+',null]].forEach(function(c){
       if(vsmLitCalc(c[0])!==c[1]) vus.push('8.4.11 : vsmLitCalc(« '+c[0]+' ») rend '+vsmLitCalc(c[0])); });
     if(JSON.stringify(vsmM(vsmFiche(0)))!=='[3,-1]' || JSON.stringify(vsmM(vsmFiche(1)))!=='[-3,2]') vus.push('8.4.11 : les points de la fiche '+JSON.stringify(vsmM(vsmFiche(0)))+' '+JSON.stringify(vsmM(vsmFiche(1))));
-    /* le tirage : les deux exercices de la fiche d'abord, puis des figures lisibles */
+    /* le tirage : des figures lisibles, jamais celles de la fiche (v703) */
     const lis11=function(p){ return p.every(function(c){ return c!==0&&c!==-1&&Math.abs(c)<=5; }); };
     const det11=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
     for(let n=0;n<200;n++){
       const qs=vsmBuildQuestions();
       if(qs.length!==d11.nb){ vus.push('8.4.11 : '+qs.length+' questions'); break; }
-      if(JSON.stringify(qs[0])!==JSON.stringify(vsmFiche(0)) || JSON.stringify(qs[1])!==JSON.stringify(vsmFiche(1))){ vus.push('8.4.11 : les deux premières questions ne sont pas la fiche'); break; }
+      if(qs.some(function(q){ return JSON.stringify(q.P)===JSON.stringify(vsmFiche(0).P); })){ vus.push('8.4.11 : une question reprend les points de la fiche'); break; }
       if(new Set(qs.map(vsmCle)).size!==qs.length){ vus.push('8.4.11 : deux questions identiques'); break; }
-      const q=qs[2], T=q.P.concat([vsmM(q)]), u=vsmVec(q,0), v=vsmVec(q,1);
-      if(Object.keys(q).sort().join(',')!=='P,a,am,b,cp,m,n' || q.m || q.cp[0] || q.n!=='M' || q.am!==1 || vsmCases(q).length!==46){ vus.push('8.4.11 : range '+JSON.stringify(q)); break; }
-      if(!T.every(lis11)){ vus.push('8.4.11 : un point illisible '+JSON.stringify(T)); break; }
+      let faute11=false;
+      qs.forEach(function(q,k){ if(faute11) return;
+      const T=q.P.concat([vsmM(q)]), u=vsmVec(q,0), v=vsmVec(q,1);
+      if(Object.keys(q).sort().join(',')!=='P,a,b,cp,m,n' || q.m || q.cp[0] || q.n!==(k%2?'N':'M') || vsmCases(q).length!==36){ vus.push('8.4.11 : range '+JSON.stringify(q)); faute11=true; return; }
+      if(!T.every(lis11)){ vus.push('8.4.11 : un point illisible '+JSON.stringify(T)); faute11=true; return; }
       let mauvais=!(q.P[3][0]<0||q.P[3][1]<0) || q.a[0]!==q.b[0] || q.a[1]===q.b[1] || !u[0]||!u[1]||!v[0]||!v[1];
       for(let a=0;a<5;a++) for(let b=a+1;b<5;b++) if(!vecLoin(T[a],T[b])) mauvais=true;
       for(let a=0;a<4;a++) for(let b=a+1;b<4;b++) for(let c=b+1;c<4;c++) if(det11(T[a],T[b],T[c])===0) mauvais=true;
       if(!vcdDans(svrPlus(q.P[3],u)) || !vcdDans(svrPlus(q.P[3],v))) mauvais=true;
-      if(mauvais){ vus.push('8.4.11 : une figure hors des règles '+JSON.stringify(q)); break; }
+      if(mauvais){ vus.push('8.4.11 : une figure hors des règles '+JSON.stringify(q)); faute11=true; return; }
+      });
+      if(faute11) break;
     }
     const verifier11=function(){ const av=test.score; checkVsm(); clearTimeout(test.fbTimer); return test.score-av; };
     const ids11=function(){ return vsmCases(test.questions[test.idx]); };
     const cl11=function(){ return ids11().map(function(i){ return classe(el(i)); }).join(','); };
     const tous11=function(c){ return ids11().map(function(){ return c; }).join(','); };
     currentTestId=d11.exercice; TESTS[d11.exercice].start(); clearTimeout(test.fbTimer);
+    if(el('vsmInstr').textContent.indexOf('D(−1 ; −2)')>=0) vus.push('8.4.11 : la séance commence par la fiche');
+    /* la suite rejoue la figure connue de la fiche : la première question, puis la seconde */
+    test.questions[0]=vsmFiche(0); test.questions[1]=vsmFiche(1); renderVsm();
     if(test.kind!=='vsm' || test.questions.length!==d11.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vsmCases(q).length; },0)) vus.push('8.4.11 : kind '+test.kind+', barème '+test.maxScore);
-    if(dmPoidsQuestion('vsm',test.questions[0])!==46 || dmPoidsQuestion('vsm',test.questions[1])!==36) vus.push('8.4.11 : dmPoidsQuestion ne compte pas 46 puis 36 réponses');
+    if(dmPoidsQuestion('vsm',test.questions[0])!==36 || dmPoidsQuestion('vsm',test.questions[1])!==36) vus.push('8.4.11 : dmPoidsQuestion ne compte pas 36 réponses à chaque exercice');
     if(!el('vsmInstr').classList.contains('enonce') || el('vsmInstr').textContent.indexOf('A(3 ; 4), B(1 ; 2), C(3 ; 1) et D(−1 ; −2)')<0 || el('vsmInstr').textContent.replace(/\\s+/g,'').indexOf('PlaceMtelqueDM=BC+BA')<0) vus.push('8.4.11 : l\\'énoncé : '+el('vsmInstr').textContent.slice(0,200));
-    if(document.querySelectorAll('#vsmCalc .vcd-in').length!==44 || document.querySelectorAll('#vsmCalc .vcd-tete').length!==2 || document.querySelectorAll('#vsmCalc .vcm-eqv').length!==2 || el('vsmCalc').textContent.indexOf('Autre méthode')<0) vus.push('8.4.11 : le calcul de la fiche n\\'a pas ses 44 cases, ses deux « Fin − Début », ses deux « ⇔ » et l\\'autre méthode');
+    if(document.querySelectorAll('#vsmCalc .vcd-in').length!==34 || document.querySelectorAll('#vsmCalc .vcd-tete').length!==2 || document.querySelectorAll('#vsmCalc .vcm-eqv').length!==2 || el('vsmCalc').textContent.indexOf('Autre méthode')>=0 || el('vsm-am-x')) vus.push('8.4.11 : le calcul de la fiche n\\'a pas ses 34 cases, ses deux « Fin − Début », ses deux « ⇔ », ou garde l\\'autre méthode (retirée en v703)');
     if(document.querySelectorAll('#vsmGraph .vec-t').length!==169 || document.querySelectorAll('#vsmPts .svr-pt.n').length!==4 || document.querySelectorAll('#vsmFl line.vsm-k').length!==2 || document.querySelectorAll('#vsmPrises .svc-prise').length!==2) vus.push('8.4.11 : le repère n\\'a pas ses quatre points, ses deux vecteurs noirs et leurs prises');
     if(el('vsm-px-a').getAttribute('aria-label').indexOf('ajouté')<0 || el('vsmCalc').textContent.replace(/\\s+/g,'').indexOf('x+')<0) vus.push('8.4.11 : l\\'étape « x + … » de la fiche manque');
     /* la copie vide : tout en sol, rien de rouge ; la construction et M en vert */
     if(verifier11()!==0 || cl11()!==tous11('sol')) vus.push('8.4.11 : la copie vide : '+cl11());
     if(document.querySelector('#vsmBody .bad, #vsmCalc .bad, #vsmGraph .svr-pt.eb, #vsmGraph .svc-eb')) vus.push('8.4.11 : la copie vide rougit');
     if(document.querySelectorAll('#vsmCorr .svr-pt.s').length!==1 || document.querySelectorAll('#vsmCorr line.svc-s').length!==3) vus.push('8.4.11 : la correction ne dessine pas la construction et M');
-    if(el('vsm-u-rx').value!=='2' || el('vsm-u-ry').value!=='−1' || el('vsm-v-rx').value!=='2' || el('vsm-sx-r').value!=='4' || el('vsm-px-a').value!=='1' || el('vsm-x').value!=='3' || el('vsm-y').value!=='−1' || el('vsm-am-mx').value!=='3') vus.push('8.4.11 : les valeurs de la correction');
-    if(el('vsmFeedback').textContent.indexOf('Il te manquait 46 cases')<0) vus.push('8.4.11 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
+    if(el('vsm-u-rx').value!=='2' || el('vsm-u-ry').value!=='−1' || el('vsm-v-rx').value!=='2' || el('vsm-sx-r').value!=='4' || el('vsm-px-a').value!=='1' || el('vsm-x').value!=='3' || el('vsm-y').value!=='−1') vus.push('8.4.11 : les valeurs de la correction');
+    if(el('vsmFeedback').textContent.indexOf('Il te manquait 36 cases')<0) vus.push('8.4.11 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
     /* les gestes : un clic ne pose rien tant qu'on glisse ; les copies bout à bout depuis D, puis M */
     test.questions[test.idx]=vsmFiche(0); renderVsm();
     const q11=test.questions[test.idx];
@@ -15854,11 +15861,10 @@ function coordonneesVecteurs(w, P){
     const JUSTE11={'vsm-u-xf':'3','vsm-u-xd':'1','vsm-u-yf':'1','vsm-u-yd':'2','vsm-u-rx':'2','vsm-u-ry':'−1','vsm-v-xf':'3','vsm-v-xd':'1','vsm-v-yf':'4','vsm-v-yd':'2','vsm-v-rx':'2','vsm-v-ry':'2',
       'vsm-dm-xd':'(−1)','vsm-dm-yd':'-2','vsm-e-ux':'2','vsm-e-uy':'-1','vsm-e-vx':'2','vsm-e-vy':'2',
       'vsm-sx-d':'-1','vsm-sx-u':'2','vsm-sx-v':'2','vsm-sx-r':'4','vsm-sy-d':'-2','vsm-sy-u':'-1','vsm-sy-v':'2','vsm-sy-r':'1',
-      'vsm-px-a':'1','vsm-px-r':'4','vsm-py-a':'+2','vsm-py-r':'1','vsm-x':'4-1','vsm-y':'1 − 2','vsm-mx':'3','vsm-my':'-1',
-      'vsm-am-mx':'-1+2+2','vsm-am-my':'−2 + (−1) + 2','vsm-am-dx':'-1','vsm-am-dy':'-2','vsm-am-ux':'2','vsm-am-uy':'-1','vsm-am-vx':'2','vsm-am-vy':'2','vsm-am-x':'3','vsm-am-y':'-1'};
+      'vsm-px-a':'1','vsm-px-r':'4','vsm-py-a':'+2','vsm-py-r':'1','vsm-x':'4-1','vsm-y':'1 − 2','vsm-mx':'3','vsm-my':'-1'};
     ecrire11(JUSTE11);
     let av11=verifier11();
-    if(av11!==46 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.11 : la copie juste vaut '+av11+' : '+cl11());
+    if(av11!==36 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.11 : la copie juste vaut '+av11+' : '+cl11());
     /* la reprise : la question revient du JSON, les copies et M compris */
     test.questions[test.idx]=JSON.parse(JSON.stringify(q11)); renderVsm();
     if(!vsmChaine(test.questions[test.idx]) || !el('vsm-M').classList.contains('fait') || el('vsm-M').classList.contains('ok') || el('vsm-u-xf').value!=='' || test.vsmOutil!=='M') vus.push('8.4.11 : le rendu après JSON');
@@ -15870,7 +15876,7 @@ function coordonneesVecteurs(w, P){
     ecrire11(Object.assign({}, JUSTE11, {'vsm-u-xf':'1','vsm-u-xd':'3','vsm-u-rx':'-2','vsm-v-ry':'-2','vsm-px-a':'-1','vsm-x':'5'}));
     av11=verifier11();
     const l11=cl11().split(',');
-    if(av11!==39 || l11[0]!=='bad' || l11[1]!=='ok' || l11[2]!=='bad' || l11[3]!=='bad' || l11[6]!=='bad' || l11[13]!=='bad' || l11[28]!=='bad' || l11[32]!=='bad') vus.push('8.4.11 : les pièges : '+av11+' '+l11.join(','));
+    if(av11!==29 || l11[0]!=='bad' || l11[1]!=='ok' || l11[2]!=='bad' || l11[3]!=='bad' || l11[6]!=='bad' || l11[13]!=='bad' || l11[28]!=='bad' || l11[32]!=='bad') vus.push('8.4.11 : les pièges : '+av11+' '+l11.join(','));
     const fb11=el('vsmFeedback').textContent;
     ['La construction part de D','on écrit fin − début','attention au signe','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb11.indexOf(m)<0) vus.push('8.4.11 : le message ne dit pas « '+m+' » : '+fb11.slice(0,300)); });
     if(document.querySelectorAll('#vsmCorr line.svc-s').length!==2) vus.push('8.4.11 : la construction manquée ne se dessine pas en vert');
@@ -15884,7 +15890,7 @@ function coordonneesVecteurs(w, P){
     ecrire11({'vsm-u-xf':'3','vsm-u-xd':'5'});
     checkVsm(); clearTimeout(test.fbTimer);
     const ls11=cl11();
-    if(test.locked || ls11!=='ok,ok,ok,bad,'+Array(42).fill('rien').join(',') || !el('vsm-M').disabled || !el('vsm-ch').disabled || document.querySelector('#scr-vsm .sol') || document.querySelector('#vsmPrises .svc-prise')) vus.push('8.4.11 : le soutien : '+ls11);
+    if(test.locked || ls11!=='ok,ok,ok,bad,'+Array(32).fill('rien').join(',') || !el('vsm-M').disabled || !el('vsm-ch').disabled || document.querySelector('#scr-vsm .sol') || document.querySelector('#vsmPrises .svc-prise')) vus.push('8.4.11 : le soutien : '+ls11);
     /* la bulle « gagne / perds » du 8.4.4, à côté du résultat de BC */
     test.questions[test.idx]=vsmFiche(0); renderVsm();
     el('vsm-u-xf').value='3'; el('vsm-u-xd').value='1'; el('vsm-u-ry').focus(); el('vsm-u-rx').focus();
@@ -15898,14 +15904,14 @@ function coordonneesVecteurs(w, P){
     if(RAPPELS_ID[d12.exercice]!==RAP_VSP || RAP_VSP.indexOf('La figure')<0 || !QIA_SUGG_ID[d12.exercice]) vus.push('8.4.12 n’a pas son rappel ou ses questions à l’IA');
     for(let n=0;n<200;n++){
       const qs=vsmBuildQuestions(true);
-      if(qs.length!==d12.nb || JSON.stringify(qs[0])!==JSON.stringify(vsmFiche(0,true)) || JSON.stringify(qs[1])!==JSON.stringify(vsmFiche(1,true))){ vus.push('8.4.12 : la séance ne commence pas par la fiche'); break; }
-      const q=qs[2];
-      if(Object.keys(q).sort().join(',')!=='P,a,am,b,cp,m,n,pl,t,tr' || q.pl.some(Boolean) || q.t.some(Boolean) || vsmCases(q).length!==52){ vus.push('8.4.12 : range '+JSON.stringify(q)); break; }
+      if(qs.length!==d12.nb || qs.some(function(q){ return JSON.stringify(q.P)===JSON.stringify(vsmFiche(0).P); })){ vus.push('8.4.12 : une question reprend les points de la fiche'); break; }
+      if(qs.some(function(q){ return Object.keys(q).sort().join(',')!=='P,a,b,cp,m,n,pl,t,tr' || q.pl.some(Boolean) || q.t.some(Boolean) || vsmCases(q).length!==42; })){ vus.push('8.4.12 : range '+JSON.stringify(qs[0])); break; }
     }
     currentMode='train'; currentTestId=d12.exercice; TESTS[d12.exercice].start(); clearTimeout(test.fbTimer);
     if(test.kind!=='vsm' || !test.questions[0].tr || test.maxScore!==test.questions.reduce(function(s,q){ return s+vsmCases(q).length; },0)) vus.push('8.4.12 : kind '+test.kind+', barème '+test.maxScore);
-    if(dmPoidsQuestion('vsm',test.questions[0])!==52 || dmPoidsQuestion('vsm',test.questions[1])!==42) vus.push('8.4.12 : dmPoidsQuestion ne compte pas 52 puis 42 réponses');
-    if(el('vsmInstr').textContent.indexOf('Place les points A(3 ; 4), B(1 ; 2), C(3 ; 1) et D(−1 ; −2), puis trace les vecteurs')<0) vus.push('8.4.12 : l’énoncé : '+el('vsmInstr').textContent.slice(0,200));
+    if(dmPoidsQuestion('vsm',test.questions[0])!==42 || dmPoidsQuestion('vsm',test.questions[1])!==42) vus.push('8.4.12 : dmPoidsQuestion ne compte pas 42 réponses à chaque question');
+    if(el('vsmInstr').textContent.indexOf('D(−1 ; −2)')>=0 || el('vsmInstr').textContent.indexOf('1) Place les points A(')<0 || el('vsmInstr').textContent.indexOf(', puis trace les vecteurs')<0) vus.push('8.4.12 : l’énoncé : '+el('vsmInstr').textContent.slice(0,200));
+    test.questions[0]=vsmFiche(0,true); test.questions[1]=vsmFiche(1,true); renderVsm();
     if(document.querySelectorAll('#vsmPts .svr-pt').length || document.querySelectorAll('#vsmFl line').length || document.querySelectorAll('#vsmPrises .svc-prise').length) vus.push('8.4.12 : le repère n’est pas vide');
     if(['p0','p1','p2','p3','t0','t1','ch','M'].some(function(o){ return !el('vsm-'+o); }) || el('vsm-p0').textContent.indexOf('A(3 ; 4)')<0 || el('vsm-t0').textContent.replace(/\\s+/g,'').indexOf('TracerBC')<0) vus.push('8.4.12 : les boutons de l’étape 1)');
     if(!el('vsm-t0').disabled || !el('vsm-ch').disabled || !el('vsm-M').disabled || el('vsm-p0').disabled || test.vsmOutil!=='p0') vus.push('8.4.12 : le vecteur, le glisser ou le point s’ouvrent avant la figure');
@@ -15913,7 +15919,7 @@ function coordonneesVecteurs(w, P){
     if(verifier11()!==0 || cl11()!==tous11('sol')) vus.push('8.4.12 : la copie vide : '+cl11());
     if(document.querySelector('#vsmBody .bad, #vsmCalc .bad, #vsmGraph .svr-pt.eb, #vsmGraph .svc-eb')) vus.push('8.4.12 : la copie vide rougit');
     if(document.querySelectorAll('#vsmCorr .svr-pt.s').length!==5 || document.querySelectorAll('#vsmCorr line.svc-s').length!==5) vus.push('8.4.12 : la correction ne dessine pas les quatre points, les deux vecteurs, la construction et M');
-    if(el('vsmFeedback').textContent.indexOf('Il te manquait 52 cases')<0) vus.push('8.4.12 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
+    if(el('vsmFeedback').textContent.indexOf('Il te manquait 42 cases')<0) vus.push('8.4.12 : le message de la copie vide : '+el('vsmFeedback').textContent.slice(0,80));
     /* les gestes du 8.4.4 */
     test.questions[test.idx]=vsmFiche(0,true); renderVsm();
     const q12=test.questions[test.idx];
@@ -15943,7 +15949,7 @@ function coordonneesVecteurs(w, P){
     if(!vsmChaine(q12) || !el('vsm-M').classList.contains('fait')) vus.push('8.4.12 : la construction et M après la figure');
     ecrire11(JUSTE11);
     let av12=verifier11();
-    if(av12!==52 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.12 : la copie juste vaut '+av12+' : '+cl11());
+    if(av12!==42 || cl11()!==tous11('ok') || document.querySelector('#vsmCorr line')) vus.push('8.4.12 : la copie juste vaut '+av12+' : '+cl11());
     /* la reprise : la figure revient du JSON */
     test.questions[test.idx]=JSON.parse(JSON.stringify(q12)); renderVsm();
     if(!vsmFigure(test.questions[test.idx]) || document.querySelectorAll('#vsmPts .svr-pt.n').length!==4 || !document.querySelector('#vsmPts .svr-pt.e') || document.querySelectorAll('#vsmFl line.vsm-k').length!==2 || !el('vsm-M').classList.contains('fait')) vus.push('8.4.12 : le rendu après JSON');
@@ -15962,7 +15968,7 @@ function coordonneesVecteurs(w, P){
     vsmPose(3,4); vsmPose(2,1);
     checkVsm(); clearTimeout(test.fbTimer);
     const ls12=cl11();
-    if(test.locked || ls12!=='ok,bad,'+Array(50).fill('rien').join(',') || !el('vsm-p0').disabled || test.vsmOutil!=='p1' || document.querySelector('#scr-vsm .sol')) vus.push('8.4.12 : le soutien : '+ls12.slice(0,60)+' '+test.vsmOutil);
+    if(test.locked || ls12!=='ok,bad,'+Array(40).fill('rien').join(',') || !el('vsm-p0').disabled || test.vsmOutil!=='p1' || document.querySelector('#scr-vsm .sol')) vus.push('8.4.12 : le soutien : '+ls12.slice(0,60)+' '+test.vsmOutil);
     /* au doigt : la barre « Je place » a les quatre points, départ et arrivée des deux vecteurs, puis M */
     const pd12=POSE_DOIGT.vsm.items(vsmFiche(0,true));
     if(pd12.length!==9 || pd12.map(function(x){ return x.cle; }).join(',')!=='p0,p1,p2,p3,0d,0f,1d,1f,m' || !pd12[4].off || !pd12[8].off || POSE_DOIGT.vsm.items(vsmFiche(0)).length!==1) vus.push('8.4.12 : la barre au doigt '+JSON.stringify(pd12.map(function(x){ return [x.cle,x.off]; })));
@@ -42665,7 +42671,8 @@ function pythonIfLocation(w, P){
    photo de l'élève penché sur son clavier, puis « Soit la fonction f(x) =
    x² − 6x + 3 ; faire un programme qui affiche les images pour x = 0 puis
    0,1 … jusqu'à 1 ». Le contrôle tient la place au menu (il ferme le 6.6,
-   rien d'autre ne bouge, « Bonus » dans le titre), la fiche épinglée et le
+   rien d'autre ne bouge, plus de « Bonus » dans le titre — retiré en
+   novembre 2026, demande de Turquet), la fiche épinglée et le
    tirage, le juge — qui ne lit que les NOMBRES affichés — sur des copies
    justes et fausses, chacune avec le mot qui la nomme, l'écran tenu aux
    consignes du sous-thème Input (le dessin seul en tête, l'énoncé en gras
@@ -42684,7 +42691,7 @@ function pythonForImages(w, P){
   }
 
   /* ---- 1. la place au menu ---- */
-  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
+  verifierEval(w, 'il suit {python-for-moyenne-notes} dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', sans « Bonus » dans le titre, et rien d’autre ne bouge', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
@@ -42694,7 +42701,7 @@ function pythonForImages(w, P){
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-input-prix"]!=="6.3.11"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
-    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(th&&th.ids.indexOf("${ID}")<0) vus.push("absent de la liste plate du thème");
     return vus.join(" | ");
   })()`, v => v === '');
@@ -43826,10 +43833,11 @@ function pythonForTable(w, P){
   verifier(nomPy + ' (' + liste.length + ' exécutions)', ecarts.length === 0, ecarts.slice(0, 3).join(' | '));
 }
 
-/* {python-tables-multiplication} (Seconde, 6.6.12, BONUS) : l'exercice 12 du
+/* {python-tables-multiplication} (Seconde, 6.6.13 — « Bonus » retiré du titre en
+   novembre 2026, demande de Turquet) : l'exercice 12 du
    carnet — le bandeau « JUST CODE IT. », afficher les tables de 2 à 9, et
    le coup de pouce de la double boucle. Le contrôle tient la place au menu
-   (il ferme le 6.6, « Bonus » dans son nom), la séance (la fiche seule), le
+   (il ferme le 6.6, plus de « Bonus » dans son nom), la séance (la fiche seule), le
    juge — qui ne lit que ce que le programme AFFICHE — sur des copies justes
    et fausses, chacune avec le mot qui la nomme, l'écran tenu aux consignes
    du sous-thème Input (le dessin seul en tête, l'énoncé en gras dans son
@@ -43848,7 +43856,7 @@ function pythonForTables(w, P){
   }
 
   /* ---- 1. la place au menu, et la séance ---- */
-  verifierEval(w, 'il est dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-table}, « Bonus » dans son nom, et rien d’autre ne bouge ; la séance est la fiche seule', `(function(){
+  verifierEval(w, 'il est dans le sous-thème 6.6 « Boucle for in range », numéroté ' + NUM + ', derrière {python-for-table}, sans « Bonus » dans son nom, et rien d’autre ne bouge ; la séance est la fiche seule', `(function(){
     const th=THEMES.find(function(t){ return t.num===6; }), vus=[];
     const st=th&&th.sous&&th.sous.find(function(s){ return s.num===6; });
     if(!st||st.nom!=="Boucle for in range") vus.push("pas de sous-thème 6.6 Boucle for in range");
@@ -43859,7 +43867,7 @@ function pythonForTables(w, P){
     if(TEST_NUM["python-for-range"]!=="6.6.2"||TEST_NUM["python-for-renommer"]!=="6.6.3"||TEST_NUM["python-for-nom"]!=="6.6.4"||TEST_NUM["python-for-oui-non"]!=="6.6.5"||TEST_NUM["python-for-erreur"]!=="6.6.6"||TEST_NUM["python-for-depart-fin"]!=="6.6.7"||TEST_NUM["python-for-multiples"]!=="6.6.8"||TEST_NUM["python-trois-des"]!=="6.6.9"||TEST_NUM["python-for-moyenne-notes"]!=="6.6.10"||TEST_NUM["python-for-images"]!=="6.6.11") vus.push("les exercices du 6.6 déjà en ligne ont bougé");
     if(TEST_NUM["python-moyenne-notes"]!=="6.5.4"||TEST_NUM["python-triangle-etoiles"]!=="6.4.5"||TEST_NUM["python-input-prix"]!=="6.3.11"||TEST_NUM["additionner-relatifs"]!=="7.1") vus.push("l’exercice ajouté a renuméroté les autres");
     if(!TESTS["${ID}"]||typeof TESTS["${ID}"].start!=="function") vus.push("pas d’entrée TESTS");
-    else if(!/^Bonus/.test(TESTS["${ID}"].name)) vus.push("« Bonus » n’est pas dans le titre : "+TESTS["${ID}"].name);
+    else if(/bonus/i.test(TESTS["${ID}"].name+" "+TESTS["${ID}"].desc)) vus.push("« Bonus » est resté dans le titre : "+TESTS["${ID}"].name);
     if(!RAPPELS.pmt) vus.push("pas de rappel");
     const qs=pmtBuildQuestions();
     if(qs.length!==1||qs[0].prog!=="") vus.push("la séance : "+JSON.stringify(qs));

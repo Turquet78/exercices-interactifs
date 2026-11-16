@@ -6697,7 +6697,31 @@ Fait à la souris dans un vrai Chromium (les deux copies glissées, M posé,
 46 sur 46).
 
 
-## {coordonnees-vecteur-somme-placer} — la figure à poser, puis le point d'une somme de vecteurs (8.4.12, Seconde v703)
+**Puis l'autre méthode est RETIRÉE (Seconde v703).** La demande (Turquet,
+novembre 2026) : « enlève la méthode 2 sur l'exercice 1 ». L'exercice 1 de la
+fiche se fait désormais comme l'exercice 2 : la construction, « fin − début »,
+le système, et « Donc M(… ; …) » — 36 réponses à chaque question, jamais
+plus. Le drapeau `q.am`, les cases `vsm-am-*`, leurs messages, leur ligne du
+contexte envoyé au modèle et le ④ du rappel sont partis avec elle : un code
+qu'aucune question ne tire plus serait une branche morte qu'on croit vivante.
+Le banc tient le bord retiré : la fiche n'a que 34 cases de calcul, aucun
+« Autre méthode » ni `vsm-am-x` à l'écran, `dmPoidsQuestion` compte 36 à
+chaque exercice.
+
+**Et la fiche n'est plus tirée : toutes les questions ont leurs propres
+points (même v703).** La demande (Turquet) : « fais des exercices différents de
+ma feuille pdf avec tes points ». Les deux premières questions ne sont plus
+A(3 ; 4), B(1 ; 2), C(3 ; 1), D(−1 ; −2) : `vsmGen` tire chaque question, M
+puis N en alternance. Le tirage n'utilise jamais −1, si bien que le D de la
+fiche ne peut pas revenir par hasard. `vsmFiche` reste comme exemple du
+rappel, et comme figure connue que le banc rejoue pour ses gestes et ses
+pièges. Le banc vérifie les 200 séances, toutes les questions, et l'écran
+d'ouverture : aucun ne porte les points de la fiche. Sabotage : en remettant
+`if(i<2) return vsmFiche(i)`, le banc rougit deux fois (« une question reprend
+les points de la fiche », « la séance commence par la fiche »).
+
+
+## {coordonnees-vecteur-somme-placer} — la figure à poser, puis le point d'une somme de vecteurs (8.4.12, Seconde v704 — la v703 prise sur main pendant les bancs, par le retrait de l'autre méthode du 8.4.11)
 
 **La demande** (Turquet, novembre 2026) : « en seconde fait le même exercice
 que le 8.4.11 mais sans placer les points et sans tracer les vecteurs, tu
@@ -6709,12 +6733,14 @@ du 8.4.11 : la question porte `q.tr = 1` (rangée, donc rendue par la
 reprise), et `startVsm(true)` la tire. La note part sous `currentTestId`, le
 rappel par `RAPPELS_ID` (`RAP_VSP` : celui du 8.4.11, précédé d'un « ⓪ La
 figure »), les questions à l'IA par `QIA_SUGG_ID`. Sans `q.tr`, rien ne
-change pour le 8.4.11 (même clés rangées, mêmes 46 réponses — le banc le
-tient toujours).
+change pour le 8.4.11 (mêmes clés rangées, mêmes 36 réponses — le banc le
+tient toujours). Comme le 8.4.11 depuis la v703, il tire ses propres points
+(jamais ceux de la fiche) et n'a pas l'autre méthode : les boutons portent
+les points tirés.
 
 **L'étape 1) reprend les gestes du 8.4.4** : six boutons `pts-case`
-— « A(3 ; 4) », « B(1 ; 2) », « C(3 ; 1) », « D(−1 ; −2) », « Tracer BC⃗ »,
-« Tracer BA⃗ ». La croix et la lettre du point à poser suivent la souris ; un
+— « A(… ; …) », « B(… ; …) », « C(… ; …) », « D(… ; …) » et « Tracer »
+pour chacun des deux vecteurs. La croix et la lettre du point à poser suivent la souris ; un
 point faux est rouge dès sa pose, le reclic le retire, le geste ne passe au
 suivant que sur un point juste (`vsmSuivant`, la règle de `vcdSuivant`) ; le
 vecteur suit la souris depuis son début (le nœud du début marqué `sel`),
@@ -6727,7 +6753,7 @@ qu'au 8.4.11, les copies bleues glissées par-dessus. **Le glisser et
 les prises n'existent pas avant, et `vsmDeplacer` refuse.
 
 **Six réponses de plus, jugées en tête** (`vsm-p0` … `vsm-p3`, `vsm-t0`,
-`vsm-t1`) : 52 réponses, 42 sans l'autre méthode. Les messages sont ceux du
+`vsm-t1`) : 42 réponses à chaque question. Les messages sont ceux du
 8.4.4 : coordonnées échangées, signes, vecteur tracé à l'envers. La
 correction dessine en vert, à leur place, les points et les vecteurs
 manqués. On range en plus `q.pl` (les quatre points posés) et `q.t` (les deux
@@ -6740,10 +6766,10 @@ fermées tant que leurs points ne sont pas justes), puis le point cherché
 
 **Le banc principal** (`coordonneesVecteurs`, « sommePlacer ») : la place
 8.4.12, les tables absentes, le rappel et les questions ; deux cents séances
-(la fiche d'abord, ce qui est rangé, 52 réponses) ; l'écran vide et ses six
-boutons, les gestes fermés avant la figure ; la copie vide (52 `sol`, rien
+(ce qui est rangé, 42 réponses, jamais la fiche) ; l'écran vide et ses six
+boutons, les gestes fermés avant la figure ; la copie vide (42 `sol`, rien
 de rouge, cinq croix et cinq flèches vertes) ; les gestes (la croix A,
 A faux rouge, le reclic, B, C, D, BC⃗ à l'envers rouge, le vecteur élastique,
 B repris qui défait BC⃗, la figure qui ouvre le glisser) ; la copie juste
-52 sur 52 ; la reprise après JSON ; les pièges nommés ; le contexte du
+42 sur 42 ; la reprise après JSON ; les pièges nommés ; le contexte du
 modèle ; le soutien ; la barre au doigt.

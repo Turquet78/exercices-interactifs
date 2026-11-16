@@ -6860,7 +6860,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : AFFICHER LES TABLES DE 2 À 9 (PYTHON, BOUCLE FOR IN RANGE — BONUS) -->
+  <!-- TEST : AFFICHER LES TABLES DE 2 À 9 (PYTHON, BOUCLE FOR IN RANGE) -->
   <section class="screen" id="scr-pmt">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPMT"></span><span class="q-idx" id="pmtIdx">Question 1 / 1</span></span>
@@ -6975,7 +6975,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
     </div>
   </section>
 
-  <!-- TEST : LES IMAGES DE f, DE DIXIÈME EN DIXIÈME (PYTHON, BOUCLE FOR IN RANGE — BONUS) -->
+  <!-- TEST : LES IMAGES DE f, DE DIXIÈME EN DIXIÈME (PYTHON, BOUCLE FOR IN RANGE) -->
   <section class="screen" id="scr-pfi">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPFI"></span><span class="q-idx" id="pfiIdx">Question 1 / 3</span></span>
@@ -9521,7 +9521,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=703;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=704;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10421,7 +10421,7 @@ const TESTS={
   'coordonnees-vecteur-quatrieme-point': { name:'Calculer le quatri\u00e8me point d\u2019un parall\u00e9logramme', icon:'\ud83d\udccd', desc:'A, B et C sont plac\u00e9s\u00a0: calcule les coordonn\u00e9es de M pour que ABCM soit un parall\u00e9logramme (deux vecteurs \u00e9gaux, BA = CM), puis place M pour v\u00e9rifier.', start:()=>startVcm() },
   'coordonnees-vecteur-demontrer-parallelogramme': { name:'D\u00e9montrer qu\u2019un quadrilat\u00e8re est un parall\u00e9logramme par les coordonn\u00e9es', icon:'\u25b1', desc:'Place A, B, C et D sur le sch\u00e9ma dans l\u2019ordre, choisis deux vecteurs \u00e9gaux (chacun se trace dans le rep\u00e8re), calcule leurs coordonn\u00e9es\u00a0: fin \u2212 d\u00e9but, puis conclus.', start:()=>startVpg() },
   'coordonnees-vecteur-quatrieme-point-choisi': { name:'Le quatri\u00e8me point d\u2019un parall\u00e9logramme\u00a0: le sch\u00e9ma, les vecteurs au choix', icon:'\u25b1', desc:'Place A, B, C et M sur le sch\u00e9ma dans l\u2019ordre, choisis deux vecteurs \u00e9gaux dont le second finit sur M (chacun se trace sur le sch\u00e9ma), puis calcule M (fin \u2212 d\u00e9but, le syst\u00e8me) et place-le pour v\u00e9rifier.', start:()=>startVqs() },
-  'coordonnees-vecteur-somme': { name:'Placer puis calculer le point d\u2019une somme de vecteurs', icon:'\u2795', desc:'A, B, C, D et deux vecteurs sont trac\u00e9s\u00a0: fais glisser les vecteurs bout \u00e0 bout \u00e0 partir de D pour placer M, puis calcule ses coordonn\u00e9es (fin \u2212 d\u00e9but, le syst\u00e8me, M = D + \u2026).', start:()=>startVsm() },
+  'coordonnees-vecteur-somme': { name:'Placer puis calculer le point d\u2019une somme de vecteurs', icon:'\u2795', desc:'A, B, C, D et deux vecteurs sont trac\u00e9s\u00a0: fais glisser les vecteurs bout \u00e0 bout \u00e0 partir de D pour placer M, puis calcule ses coordonn\u00e9es (fin \u2212 d\u00e9but, puis le syst\u00e8me).', start:()=>startVsm() },
   'coordonnees-vecteur-somme-placer': { name:'Placer la figure, puis le point d\u2019une somme de vecteurs', icon:'\u2795', desc:'Comme le point d\u2019une somme de vecteurs, mais rien n\u2019est pos\u00e9\u00a0: place A, B, C, D et trace les deux vecteurs, puis fais-les glisser bout \u00e0 bout \u00e0 partir de D pour placer M, et calcule ses coordonn\u00e9es.', start:()=>startVsm(true) },
   'coordonnees-vecteur-tracer': { name:'Tracer un vecteur par ses coordonn\u00e9es', icon:'\u270f\ufe0f', desc:'Les coordonn\u00e9es de trois vecteurs u, v et w sont donn\u00e9es en colonne\u00a0: trace chacun sur le quadrillage. Le nombre du haut dit le d\u00e9placement horizontal, celui du bas le vertical\u00a0; un clic pose le point de d\u00e9part, un second clic le point d\u2019arriv\u00e9e.', start:()=>startTvx(false,false,true) },
   'coordonnees-vecteur-tracer-decompose': { name:'Tracer un vecteur par ses coordonn\u00e9es, d\u00e9composition \u00e0 l\u2019appui', icon:'\u270f\ufe0f', desc:'Comme le trac\u00e9 par les coordonn\u00e9es\u00a0: trace u, v et w sur le quadrillage. Pendant que tu traces, la fl\u00e8che grise montre ton d\u00e9placement horizontal et la noire ton d\u00e9placement vertical, avec leurs nombres\u00a0: compare-les aux coordonn\u00e9es.', start:()=>startTvx(false,false,true,true) },
@@ -10551,7 +10551,7 @@ const TESTS={
   'python-for-depart-fin': { name:'for \u2026 in range ( d\u00e9part , fin )', icon:'\ud83d\udd01', desc:'La boucle for nombre in range ( d\u00e9part , fin ) fait varier nombre des entiers de d\u00e9part \u00e0 fin - 1. Compl\u00e8te le programme pour qu\u2019il affiche les entiers demand\u00e9s, puis ex\u00e9cute-le.', start:()=>startPFD() },
   'python-for-multiples': { name:'Les multiples avec une boucle for', icon:'\ud83d\udd01', desc:'a) Ex\u00e9cute le programme\u00a0; b) explique ce qu\u2019il fait\u00a0; c) fais un programme qui affiche tous les multiples de 5 de 0 \u00e0 50.', start:()=>startPFQ() },
   'python-trois-des': { name:'Bonus\u00a0: les r\u00e9sultats de trois d\u00e9s', icon:'\ud83c\udfb2', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche tous les r\u00e9sultats possibles de trois d\u00e9s \u00e0 six faces, puis compl\u00e8te-le pour qu\u2019il compte les fois o\u00f9 le total vaut 9, puis celles o\u00f9 il est au-dessus de 12.', start:()=>startPTDS() },
-  'python-for-images': { name:'Bonus\u00a0: les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
+  'python-for-images': { name:'Les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
   'python-if-cinema': { name:'Le prix d\u2019une place de cin\u00e9ma', icon:'\ud83c\udfac', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur et qui affiche le prix de sa place de cin\u00e9ma \u2014 un prix pour les mineurs, un autre pour les majeurs \u2014 avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCI() },
   'python-if-location': { name:'Je loue une voiture', icon:'\ud83d\ude97', desc:'\u00c9cris un programme qui demande le nombre de kilom\u00e8tres parcourus et calcule le prix de la location avec if et else, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPLO() },
   'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur avec int(input(\u2026)), puis affiche \u00ab\u00a0Tu es mineur.\u00a0\u00bb s\u2019il est plus petit que 18, \u00ab\u00a0Tu es majeur.\u00a0\u00bb sinon, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
@@ -10560,7 +10560,7 @@ const TESTS={
   'python-if-plus-grand': { name:'Le plus grand des deux nombres', icon:'\ud83d\udc0d', desc:'\u00c9cris un programme qui demande deux nombres d\u00e9cimaux et affiche le plus grand des deux, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPXY() },
   'python-if-plus-grand-trois': { name:'Bonus\u00a0: le plus grand de trois nombres', icon:'\ud83d\udd00', desc:'Bonus\u00a0: \u00e9cris un programme qui demande 3 nombres d\u00e9cimaux et qui affiche le plus grand des trois, avec if \u2026 else. Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPGT() },
   'python-remplacer-lettre': { name:'Remplacer la premi\u00e8re lettre par "*"', icon:'\u2b50', desc:'Fais un programme qui remplace la premi\u00e8re lettre d\u2019une cha\u00eene par "*" : "gaston" devient "*aston". On reconstruit la cha\u00eene lettre par lettre, avec une boucle for.', start:()=>startPRL() },
-  'python-tables-multiplication': { name:'Bonus\u00a0: afficher les tables de 2 \u00e0 9', icon:'\u2716\ufe0f', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche toutes les tables de multiplication, de la table de 2 jusqu\u2019\u00e0 la table de 9, avec une double boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPMT() },
+  'python-tables-multiplication': { name:'Afficher les tables de 2 \u00e0 9', icon:'\u2716\ufe0f', desc:'\u00c9cris un programme qui affiche toutes les tables de multiplication, de la table de 2 jusqu\u2019\u00e0 la table de 9, avec une double boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPMT() },
   'python-for-couples': { name:'Bonus\u00a0: tous les couples d\u2019entiers (a\u00a0; b)', icon:'\ud83d\udd01', desc:'Bonus\u00a0: \u00e9cris un programme qui affiche tous les couples d\u2019entiers (a\u00a0; b) avec a et b entre 0 et 2 \u2014 une boucle for dans une autre boucle for. Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFC() },
   'python-for-pas-a-pas': { name:'La boucle for \u2026 in range(\u2026), pas \u00e0 pas', icon:'\ud83d\udc63', desc:'Le programme s\u2019ex\u00e9cute pas \u00e0 pas\u00a0: \u00e0 chaque tour de la boucle, compl\u00e8te ce qu\u2019affiche le print \u2014 le texte, le nom de la variable et sa valeur\u00a0; puis explique de quelle valeur \u00e0 quelle valeur varie la variable.', start:()=>startPFP() },
   'python-for-range': { name:'La boucle for \u2026 in range(\u2026)', icon:'\ud83d\udd01', desc:'Ex\u00e9cute un programme qui r\u00e9p\u00e8te un print avec une boucle for \u2026 in range(\u2026), puis explique de quelle valeur \u00e0 quelle valeur varie la variable de la boucle ; puis, l\u2019inverse : pr\u00e9vois d\u2019abord, et ex\u00e9cute pour v\u00e9rifier.', start:()=>startPFR() },
@@ -14080,8 +14080,7 @@ const RAP_VPG=`<b>Démontrer qu'un quadrilatère est un parallélogramme</b><br>
 const RAP_VSM=`<b>Le point d'une somme de vecteurs, construit puis calculé</b><br>
 <b>① Construire</b> : pour placer M tel que <span class="vgt-vec">DM</span> = <span class="vgt-vec">BC</span> + <span class="vgt-vec">BA</span>, on part de D, on fait le chemin <span class="vgt-vec">BC</span>, puis le chemin <span class="vgt-vec">BA</span> : les vecteurs bout à bout, un début va sur une fin. M est au bout.<br>
 <b>② Fin − début</b> : B(1 ; 2), C(3 ; 1) : <span class="vgt-vec">BC</span> <span class="vco-col"><span>3 − 1</span><span>1 − 2</span></span> donc <span class="vgt-vec">BC</span> <span class="vco-col"><span>2</span><span>−1</span></span> ; de même <span class="vgt-vec">BA</span> <span class="vco-col"><span>2</span><span>2</span></span>.<br>
-<b>③ Le système</b> : avec D(−1 ; −2) et M(<i>x</i> ; <i>y</i>), <span class="vgt-vec">DM</span> <span class="vco-col"><span><i>x</i> − (−1)</span><span><i>y</i> − (−2)</span></span> ; on additionne les coordonnées : <i>x</i> − (−1) = 2 + 2 = 4 et <i>y</i> − (−2) = −1 + 2 = 1. Soustraire un nombre négatif, c'est ajouter son opposé : <i>x</i> + 1 = 4, donc <i>x</i> = 4 − 1 = 3 ; <i>y</i> + 2 = 1, donc <i>y</i> = 1 − 2 = −1 : M(3 ; −1).<br>
-<b>④ Autre méthode</b> : <span class="vgt-vec">DM</span> = <span class="vgt-vec">BC</span> + <span class="vgt-vec">BA</span> devient M = D + <span class="vgt-vec">BC</span> + <span class="vgt-vec">BA</span> : M(−1 + 2 + 2 ; −2 + (−1) + 2) = M(3 ; −1).`;
+<b>③ Le système</b> : avec D(−1 ; −2) et M(<i>x</i> ; <i>y</i>), <span class="vgt-vec">DM</span> <span class="vco-col"><span><i>x</i> − (−1)</span><span><i>y</i> − (−2)</span></span> ; on additionne les coordonnées : <i>x</i> − (−1) = 2 + 2 = 4 et <i>y</i> − (−2) = −1 + 2 = 1. Soustraire un nombre négatif, c'est ajouter son opposé : <i>x</i> + 1 = 4, donc <i>x</i> = 4 − 1 = 3 ; <i>y</i> + 2 = 1, donc <i>y</i> = 1 − 2 = −1 : M(3 ; −1).`;
 /* 8.4.12 {coordonnees-vecteur-somme-placer} : le rappel du 8.4.11, précédé de la figure à poser (le 8.4.4) */
 const RAP_VSP=RAP_VSM.replace('construit puis calculé</b><br>','construit puis calculé</b><br>\n<b>⓪ La figure</b> : un point A(3 ; 4) se place à l\'abscisse 3 (sur l\'axe horizontal) et à l\'ordonnée 4 (sur l\'axe vertical) ; un nombre négatif se lit à gauche de O, ou en dessous. Le vecteur <span class="vgt-vec">BC</span> part de B et arrive en C : on clique B, puis C.<br>');
 /* 8.4.10 {coordonnees-vecteur-quatrieme-point-choisi} */
@@ -72226,15 +72225,16 @@ function ctxVqs(q){
       le tirage veut D avec une coordonnée négative au moins, l'étape existe
       toujours, comme sur la fiche), puis x et y (le nombre ou le calcul qui
       le donne), puis M.
-   L'autre méthode (M = D + BC⃗ + BA⃗) ne vient qu'aux questions de la forme
-   de l'exercice 1 (q.am), comme sur la fiche.
+   L'autre méthode de la fiche (M = D + BC⃗ + BA⃗) a été RETIRÉE en v703, à la
+   demande de Turquet (« enlève la méthode 2 sur l'exercice 1 ») : l'exercice
+   1 se fait comme l'exercice 2, par le système seul.
 
    CHAQUE RÉPONSE JUGÉE SEULE (vsmJuge) : le glisser (vsm-ch), le point
-   (vsm-M), puis les cases — 36 réponses, 46 avec l'autre méthode. On range
+   (vsm-M), puis les cases — 36 réponses. On range
    q.P (A, B, C, D), q.a et q.b (les deux vecteurs en paires d'indices), q.n
-   (la lettre du point : M ou N), q.am, puis ce que l'élève a fait : q.cp
+   (la lettre du point : M ou N), puis ce que l'élève a fait : q.cp
    (le début de chaque copie déplacée), q.m. Les cases se rangent d'elles-
-   mêmes (captureBoxes). Les deux premières questions SONT la fiche.
+   mêmes (captureBoxes).
 
    PUIS LE MÊME EXERCICE SANS RIEN DE POSÉ (8.4.12,
    {coordonnees-vecteur-somme-placer}, demande de Turquet, novembre 2026 :
@@ -72255,10 +72255,10 @@ const VSM_NB=3;
 const VSM_L=['A','B','C','D'];
 const VSM_C6=['xf','xd','yf','yd','rx','ry'];
 const VSM_TR=['p0','p1','p2','p3','t0','t1'];
-function vsmNeuve(P,a,b,n,am,tr){ const q={P:P, a:a, b:b, n:n, am:am?1:0, cp:[null,null], m:null}; if(tr){ q.tr=1; q.pl=[null,null,null,null]; q.t=[null,null]; } return q; }
+function vsmNeuve(P,a,b,n,tr){ const q={P:P, a:a, b:b, n:n, cp:[null,null], m:null}; if(tr){ q.tr=1; q.pl=[null,null,null,null]; q.t=[null,null]; } return q; }
 function vsmFiche(i,tr){
   const P=[[3,4],[1,2],[3,1],[-1,-2]];
-  return i%2 ? vsmNeuve(P,[2,0],[2,1],'N',0,tr) : vsmNeuve(P,[1,2],[1,0],'M',1,tr);
+  return i%2 ? vsmNeuve(P,[2,0],[2,1],'N',tr) : vsmNeuve(P,[1,2],[1,0],'M',tr);
 }
 function vsmW(q,k){ return k?q.b:q.a; }
 function vsmVec(q,k){ const w=vsmW(q,k), p=q.P[w[0]], r=q.P[w[1]]; return [r[0]-p[0], r[1]-p[1]]; }
@@ -72285,7 +72285,6 @@ function vsmCasesDe(q){
   r=r.concat(['vsm-dm-xd','vsm-dm-yd','vsm-e-ux','vsm-e-uy','vsm-e-vx','vsm-e-vy',
     'vsm-sx-d','vsm-sx-u','vsm-sx-v','vsm-sx-r','vsm-sy-d','vsm-sy-u','vsm-sy-v','vsm-sy-r',
     'vsm-px-a','vsm-px-r','vsm-py-a','vsm-py-r','vsm-x','vsm-y','vsm-mx','vsm-my']);
-  if(q.am) r=r.concat(['vsm-am-mx','vsm-am-my','vsm-am-dx','vsm-am-dy','vsm-am-ux','vsm-am-uy','vsm-am-vx','vsm-am-vy','vsm-am-x','vsm-am-y']);
   return r;
 }
 /* les réponses d'une question — la convention que lit dmPoidsQuestion() */
@@ -72303,7 +72302,6 @@ function vsmAttendu(q){
     r['vsm-s'+L+'-d']=D[i]; r['vsm-s'+L+'-u']=u[i]; r['vsm-s'+L+'-v']=v[i]; r['vsm-s'+L+'-r']=u[i]+v[i];
     r['vsm-p'+L+'-a']=Math.abs(D[i]); r['vsm-p'+L+'-r']=u[i]+v[i];
     r['vsm-'+L]=M[i]; r['vsm-m'+L]=M[i];
-    r['vsm-am-m'+L]=M[i]; r['vsm-am-d'+L]=D[i]; r['vsm-am-u'+L]=u[i]; r['vsm-am-v'+L]=v[i]; r['vsm-am-'+L]=M[i];
   });
   return r;
 }
@@ -72312,12 +72310,14 @@ function vsmAttendu(q){
    carreaux, jamais trois alignés ; D avec une coordonnée négative au moins
    (l'étape « x + … » de la fiche) ; les deux vecteurs partent du même point,
    comme sur la fiche (BC⃗ + BA⃗, CA⃗ + CB⃗), en biais ; M lisible, loin des
-   quatre points, et chaque copie posée sur D reste dans le repère. Les deux
-   premières questions sont les deux exercices de la fiche ; ensuite, la forme
-   de l'exercice 1 (le point M, l'autre méthode) alterne avec celle de
-   l'exercice 2 (le point N). */
+   quatre points, et chaque copie posée sur D reste dans le repère. Toutes les
+   questions sont TIRÉES, jamais celles de la fiche (Turquet, v703 : « fais
+   des exercices différents de ma feuille pdf avec tes points ») — les
+   coordonnées ne valent jamais −1, et D(−1 ; −2) de la fiche ne peut donc
+   pas revenir. La forme de l'exercice 1 (le point M) alterne avec celle de
+   l'exercice 2 (le point N). vsmFiche reste : c'est l'exemple du rappel, et
+   la figure connue que le banc rejoue. */
 function vsmGen(i,tr){
-  if(i<2) return vsmFiche(i,tr);
   const V=[-5,-4,-3,-2,1,2,3,4,5], lis=function(p){ return V.indexOf(p[0])>=0&&V.indexOf(p[1])>=0; };
   const det=function(p,r,t){ return (r[0]-p[0])*(t[1]-p[1])-(r[1]-p[1])*(t[0]-p[0]); };
   for(let essai=0;essai<8000;essai++){
@@ -72329,7 +72329,7 @@ function vsmGen(i,tr){
     if(!ok) continue;
     const s=rand(0,2), autres=[0,1,2].filter(function(k){ return k!==s; });
     if(Math.random()<.5) autres.reverse();
-    const q=vsmNeuve(P,[s,autres[0]],[s,autres[1]], i%2?'N':'M', i%2?0:1, tr);
+    const q=vsmNeuve(P,[s,autres[0]],[s,autres[1]], i%2?'N':'M', tr);
     const u=vsmVec(q,0), v=vsmVec(q,1), M=vsmM(q);
     if(!u[0]||!u[1]||!v[0]||!v[1]) continue;
     if(!lis(M)||!P.every(function(p){ return vecLoin(p,M); })) continue;
@@ -72420,7 +72420,7 @@ function vsmLitCalc(s){
   }
   return tot;
 }
-const VSM_CALC=['vsm-x','vsm-y','vsm-am-mx','vsm-am-my'];
+const VSM_CALC=['vsm-x','vsm-y'];
 function vsmLit(id,s){ return VSM_CALC.indexOf(id)>=0?vsmLitCalc(s):vcdLit(s); }
 
 /* --- le dessin --- */
@@ -72709,16 +72709,6 @@ function vsmCalcHTML(q){
     +'<div class="vcm-equiv">'+sys1+sys2+sys3+'</div>'
     +'<div class="vcm-note">Soustraire un nombre négatif, c’est ajouter son opposé.</div>'
     +donc('vsm-mx','vsm-my');
-  if(q.am){
-    h+='<div class="vcd-titre">Autre méthode : '+DN+' = '+U+' + '+V+' devient '+N+' = D + '+U+' + '+V+'.</div>'
-      +'<div class="vsm-eg">'
-        +'<span class="vsm-terme"><span class="vcd-nom vsm-pt">'+N+'</span><span class="vco-par vcd-res">'+calc('vsm-am-mx','l’abscisse de '+N+', ou le calcul qui la donne')+calc('vsm-am-my','l’ordonnée de '+N+', ou le calcul qui la donne')+'</span></span>'
-        +'<span class="vsm-terme"><span class="vcm-l">=</span><span class="vcd-nom vsm-pt">D</span>'+vsmColHTML(vcdCase('vsm-am-dx','l’abscisse de D'), vcdCase('vsm-am-dy','l’ordonnée de D'))+'</span>'
-        +'<span class="vsm-terme"><span class="vcm-l">+</span><span class="vcd-nom">'+U+'</span>'+vsmColHTML(vcdCase('vsm-am-ux','la première coordonnée de '+vsmNomVec(q,0)), vcdCase('vsm-am-uy','la seconde coordonnée de '+vsmNomVec(q,0)))+'</span>'
-        +'<span class="vsm-terme"><span class="vcm-l">+</span><span class="vcd-nom">'+V+'</span>'+vsmColHTML(vcdCase('vsm-am-vx','la première coordonnée de '+vsmNomVec(q,1)), vcdCase('vsm-am-vy','la seconde coordonnée de '+vsmNomVec(q,1)))+'</span>'
-      +'</div>'
-      +donc('vsm-am-x','vsm-am-y');
-  }
   return h;
 }
 /* LE JUGE — chaque réponse seule : le glisser, le point, puis les cases. */
@@ -72791,8 +72781,6 @@ function vsmPourquoi(q,subs){
       +(lu('vsm-'+L)===r-D[i]?' : pour isoler '+I+', on AJOUTE '+vcdPar(D[i])+' des deux côtés.':'.'));
   });
   if(faux('vsm-mx')||faux('vsm-my')) m.push(N+' a pour coordonnées les valeurs de <i>x</i> et <i>y</i> trouvées : '+N+svrCoord(M)+'.');
-  if(['vsm-am-dx','vsm-am-dy','vsm-am-ux','vsm-am-uy','vsm-am-vx','vsm-am-vy'].some(faux)) m.push('Autre méthode : on écrit les coordonnées de D'+svrCoord(D)+', de '+nu+' et de '+nv+'.');
-  if(['vsm-am-mx','vsm-am-my','vsm-am-x','vsm-am-y'].some(faux)) m.push(N+' = D + '+nu+' + '+nv+' : '+svrNb(D[0])+' + '+vcdPar(u[0])+' + '+vcdPar(v[0])+' = '+svrNb(M[0])+' et '+svrNb(D[1])+' + '+vcdPar(u[1])+' + '+vcdPar(v[1])+' = '+svrNb(M[1])+'.');
   return m.join(' ');
 }
 /* Soutien : chaque réponse juste se fige en bleu, la fausse rougit et reste
@@ -72952,7 +72940,7 @@ function ctxVsm(q){
    +'2) Placer '+N+' tel que vecteur D'+N+' = vecteur '+nu+' + vecteur '+nv+' : l’élève fait glisser des copies des deux vecteurs pour les mettre bout à bout à partir de D (« un début va sur une fin »), puis place '+N+' au bout. '
    +'3) Par le calcul : coordonnées de '+nu+' et de '+nv+' par « fin − début » ; on pose '+N+'(x ; y) ; D'+N+' (x − xD ; y − yD) = '+nu+' + '+nv+' ; le système x − xD = (abscisse de '+nu+') + (abscisse de '+nv+') = … et de même pour y ; '
    +'puis le système réécrit (soustraire un nombre négatif, c’est ajouter son opposé : « x − (−1) » devient « x + 1 ») ; puis x = …, y = …, donc '+N+'(… ; …)'
-   +(q.am?' ; autre méthode : '+N+' = D + '+nu+' + '+nv+', on additionne les coordonnées de D, de '+nu+' et de '+nv:'')+'. '
+   +'. '
    +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : '+nu+' ('+svrNb(u[0])+' ; '+svrNb(u[1])+'), '+nv+' ('+svrNb(v[0])+' ; '+svrNb(v[1])+'), '+N+svrCoord(M)+'. '
    +'Ce que l’élève a fait : copies '+(c?'bout à bout depuis D':'pas (encore) bout à bout depuis D')+' ; point '+N+' '+(q.m?'placé en '+svrCoord(q.m)+(vsmMJuste(q)?' (juste)':' (faux)'):'pas encore placé')
    +' ; '+nu+' : '+val('vsm-u-xf')+' − '+val('vsm-u-xd')+' et '+val('vsm-u-yf')+' − '+val('vsm-u-yd')+', résultat ('+val('vsm-u-rx')+' ; '+val('vsm-u-ry')+')'

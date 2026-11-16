@@ -1144,8 +1144,8 @@ module.exports = {
          questions) */
       somme: { exercice: 'coordonnees-vecteur-somme', numero: '8.4.11', nb: 3 },
       /* le 8.4.11 sans rien de posé : l'élève place A, B, C, D et trace les
-         deux vecteurs aux gestes du 8.4.4 — six réponses de plus (42, ou 52
-         avec l'autre méthode : le barème se lit sur le tirage, trois questions) */
+         deux vecteurs aux gestes du 8.4.4 — six réponses de plus (42 à chaque
+         question, sur des points tirés comme le 8.4.11 ; trois questions) */
       sommePlacer: { exercice: 'coordonnees-vecteur-somme-placer', numero: '8.4.12', nb: 3 },
     },
     /* la suite du sous-thème 8.3, sans coordonnées (demande de Turquet,
@@ -1979,7 +1979,7 @@ module.exports = {
        table de 3, b) la table de 7, avec une boucle for. Le juge lit ce que
        le programme AFFICHE. Une seule question (la fiche), deux cases. */
     pythonForTable: { exercice: 'python-for-table', numero: '6.6.12' },
-    /* {python-tables-multiplication} (6.6.12, BONUS, derrière {python-for-table}, dans le sous-thème
+    /* {python-tables-multiplication} (6.6.13, « Bonus » retiré du titre en novembre 2026, derrière {python-for-table}, dans le sous-thème
        « Boucle for in range », demande de Turquet, octobre 2026) :
        l'exercice 12 du carnet — afficher les tables de 2 à 9 avec une double
        boucle for. Le juge lit ce que le programme AFFICHE. Une seule
@@ -2030,7 +2030,8 @@ module.exports = {
        présentée comme le sous-thème Input, coups de pouce mot pour mot. */
     pythonForMoyenneNotes: { exercice: 'python-for-moyenne-notes', nb: 3, numero: '6.6.10' },
     /* {python-for-images} (6.6.10, derrière {python-for-moyenne-notes}, sous-thème « Boucle for in range », demande
-       de Turquet, octobre 2026, BONUS) : l'exercice 10 du carnet — afficher
+       de Turquet, octobre 2026 ; « Bonus » retiré du titre en novembre 2026) :
+       l'exercice 10 du carnet — afficher
        les images de f(x) = x² − 6x + 3 pour x de 0 à 1, de dixième en
        dixième. Le juge lit ce que le programme AFFICHE. « nb » est la seconde
        source du compte (la page a PFI_NB). */
