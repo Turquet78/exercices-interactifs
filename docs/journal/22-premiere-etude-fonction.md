@@ -665,3 +665,17 @@ Deux pièges vus en l'exécutant :
   membre : pas une équation, donc fausse) et ouvrait « Comprendre mon
   erreur » au milieu de la frappe. Une ligne d'équation ne se colore plus
   tant qu'un de ses membres est vide.
+
+**Puis une ligne de la question 4 a pu être une CHAÎNE d'égalités (v438).**
+Demande de Turquet : la ligne « x = 4/(−2) = −2 » — la division et son
+résultat écrits dans la même case de droite — était rouge, et la page
+ajoutait en vert « x = −2 » dessous. Le « = » tapé dans la case faisait de
+son membre une expression illisible pour `trdLin`. Les deux cases d'une
+ligne se lisent désormais comme UNE chaîne coupée à chaque « = »
+(`trdMaillons`) : deux maillons voisins sont soit deux nombres égaux, soit
+une équation du premier degré de solution xk, et un maillon au moins porte
+x (`trdLigneEquivalente`) ; la ligne est finale si la chaîne va de « x » à
+un nombre seul (`trdLigneFinale`). « x = 4/(−2) = −3 » reste rouge.
+Éprouvé dans Chromium, la case MathLive tapée au clavier (« / » empile la
+fraction, → en sort, « =−2 ») : les deux cases `ok`, aucune ligne verte
+ajoutée, la fin du calcul comptée juste.

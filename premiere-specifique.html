@@ -32714,14 +32714,29 @@ function trdLin(s, avecX){
   return (r && i===t.length) ? r : null;
 }
 function trdNombreSeul(s){ return /^-?(\d+(\.\d+)?|\.\d+)$/.test(trdLinTexte(s, false)); }
+/* UNE LIGNE PEUT ÊTRE UNE CHAÎNE D'ÉGALITÉS (demande de Turquet, novembre
+   2026) : « x = 4/(−2) = −2 », le calcul fini dans la même case. Les deux
+   cases sont lues comme une seule chaîne coupée à chaque « = » ; chaque
+   maillon voisin est soit deux nombres égaux, soit une équation du premier
+   degré de solution xk, et un maillon au moins porte x. */
+function trdMaillons(g, d){ return (String(g)+'='+String(d)).split('='); }
 function trdLigneEquivalente(g, d, xk){
-  const G=trdLin(g, true), D=trdLin(d, true); if(!G || !D) return false;
-  const p=G.a-D.a, c=D.b-G.b;
-  return Math.abs(p)>1e-12 && Math.abs(c/p-xk)<1e-9;
+  const P=trdMaillons(g, d).map(function(m){ return trdLin(m, true); });
+  if(P.some(function(m){ return !m; })) return false;
+  let avecX=false;
+  for(let k=0;k<P.length-1;k++){
+    const G=P[k], D=P[k+1];
+    if(Math.abs(G.a)<1e-12 && Math.abs(D.a)<1e-12){ if(Math.abs(G.b-D.b)>1e-9) return false; continue; }
+    const p=G.a-D.a, c=D.b-G.b;
+    if(!(Math.abs(p)>1e-12 && Math.abs(c/p-xk)<1e-9)) return false;
+    avecX=true;
+  }
+  return avecX;
 }
 function trdLigneFinale(g, d){
+  const M=trdMaillons(g, d), a=M[0], z=M[M.length-1];
   const x=function(s){ return trdLinTexte(s, true)==='x'; };
-  return (x(g) && trdNombreSeul(d)) || (x(d) && trdNombreSeul(g));
+  return (x(a) && trdNombreSeul(z)) || (x(z) && trdNombreSeul(a));
 }
 /* le calcul type, pour une première ligne laissée vide */
 function trdModeleImage(q, x){ return trdNb(q.a)+' × '+trdPar(x)+(q.b<0?' − '+Math.abs(q.b):' + '+q.b); }
