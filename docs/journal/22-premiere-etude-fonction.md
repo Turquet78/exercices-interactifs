@@ -630,3 +630,38 @@ coupe l'axe, puis de quel côté elle est.
 Plus de règles à choisir, plus de flèches de transposition, plus de bulles
 d'aide : la demande ne garde que les lignes (les ids des cases à bulle
 n’existent pas dans le 6.5, `trdGpOuvrir` ne s'ouvre jamais).
+
+**Puis l'antécédent du 6.5 se lit sans chemin (v437, avec la fraction ci-dessous).** Demande de Turquet :
+« pour l'antécédent, ne plus mettre l'animation sur le dessin ni le point de
+départ ». Au 6.5 seulement (`trdLibre()`), `trdGraphSVG` ne pose plus
+`trdChemin` : ni pointillés animés, ni point rouge sur l'axe des ordonnées,
+ni graduation récrite ni mot « antécédent » — à la correction non plus. Le
+bouton « ▶ Revoir le chemin » disparaît, la consigne dit le chemin en mots
+(« pars de k sur l'axe des ordonnées, va horizontalement jusqu'à la droite,
+puis verticalement jusqu'à l'axe des abscisses ») et le contexte du modèle
+le dit aussi. Le 6.3 garde son chemin animé. Éprouvé dans Chromium : après
+« une droite », aucun `.ima-chemin` ni `.ima-pt-axe` au 6.5, le chemin et
+son point toujours là au 6.3.
+
+**Et la division de la question 4 s'écrit en fraction (v437).** Demande de
+Turquet : « dans la question 4, la division doit apparaître sous forme
+fractionnaire ». Les cases de l'équation du 6.5 sont devenues des champs
+MathLive (`pm-mf`) : « / » y empile la fraction selon la règle commune
+(#fraction-numworks : « 10/2 » donne 10 sur 2 ; « −10/ » laisse le signe
+devant la fraction), et le clavier mathématique les sert sur tablette. Le
+juge ne change pas : la case se relit en texte (`pmPlain` → `toPlain`,
+« \frac{10}{2} » → « (10)/(2) ») et `trdLin` lit les parenthèses. L'état
+range le LaTeX (`getValue()`), qui revient empilé au redessin et après une
+pause ; le juge lit la case quand elle est à l'écran, la valeur rangée
+sinon (`trdEqTexte`). Les cases du calcul des images (question 1) restent
+des cases de texte.
+
+Deux pièges vus en l'exécutant :
+- **MathLive signale sa saisie un peu APRÈS la frappe.** Un Entrée tapé
+  aussitôt trouvait la ligne rangée encore vide : il passait à la case
+  suivante au lieu d'ouvrir une ligne. `trdLibreTouche` relit les deux cases
+  de la ligne au moment même d'Entrée.
+- **En soutien, une ligne à moitié écrite rougissait** (« x = » sans second
+  membre : pas une équation, donc fausse) et ouvrait « Comprendre mon
+  erreur » au milieu de la frappe. Une ligne d'équation ne se colore plus
+  tant qu'un de ses membres est vide.
