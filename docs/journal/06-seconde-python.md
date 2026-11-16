@@ -7349,3 +7349,17 @@ s'exécute pas, et le message renvoie au bon geste (« fais le calcul avec ce qu
 contiennent les boîtes AVANT cette ligne », « va lire ce que contient la boîte
 b »). Le contrôle jsdom de la suite écrit les valeurs, et éprouve la case vide,
 la valeur fausse en entraînement et en soutien.
+
+**Puis le 6.2.24 a pris un calcul et un échange (16 novembre 2026, v700).**
+Demande de Turquet : « dans le 6.24, mets un exemple avec a = a + 3 et
+b = a + b dans le deuxième programme, et un échange de variables dans le
+troisième ». Les deux visages tirés du 6.2.1 (« lointaine », « chaîne »)
+cèdent la place à deux programmes écrits en lettres a, b, c, seuls leurs deux
+nombres de départ tirés (`pbmCalcul`, `pbmEchange`) : a = v ; b = w ;
+a = a + 3 ; b = a + b (toute valeur dans [0 ; 20], `pbDansBornes`), puis
+a = v ; b = w ; c = a ; a = b ; b = c. L'élève y clique toujours la BOÎTE qui
+reçoit — le geste du 6.2.24 ne change pas ; le moteur commun savait déjà
+animer un calcul et une copie. Les boîtes se mélangent sur les noms DISTINCTS
+(une variable affectée deux fois n'a qu'une boîte). Le contrôle du tirage
+relit les deux programmes et exige que l'échange échange vraiment ; il compare
+désormais les boîtes aux variables dédoublonnées.

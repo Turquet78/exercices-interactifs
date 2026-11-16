@@ -59559,15 +59559,21 @@ function pythonBoitesMemoire(w, P){
   const present = evaluer(w, "typeof startPBM==='function' && typeof pbmBuildQuestions==='function' && typeof pbmExecuter==='function' && typeof pbmChoisir==='function'");
   if(!present.ok || !present.valeur){ verifier(nom, false, 'startPBM / pbmBuildQuestions / pbmExecuter introuvables alors que tests/profils.js déclare l\'exercice'); return; }
 
-  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche a = 10 ; b = 2 ; c = b en tête avec ses boîtes a, b, c ; ensuite une boîte par variable, dans un ordre tiré, jamais de boîte x', `(function(){
+  verifierEval(w, 'le tirage : ' + NB + ' questions, la fiche a = 10 ; b = 2 ; c = b en tête avec ses boîtes a, b, c, puis le calcul a = a + 3 ; b = a + b, puis l échange c = a ; a = b ; b = c ; ensuite une boîte par variable, dans un ordre tiré, jamais de boîte x', `(function(){
     const vus=[], ordres={};
     for(let s=0;s<300&&vus.length<4;s++){
       const qs=pbmBuildQuestions();
       if(qs.length!==${NB}){ vus.push("seance de "+qs.length); break; }
       if(papProg(qs[0]).split(String.fromCharCode(10)).join(" ; ")!=="a = 10 ; b = 2 ; c = b") vus.push("la premiere question n est pas la fiche : "+papProg(qs[0]));
       if(pbmBoites(qs[0]).join(",")!=="a,b,c") vus.push("les boites de la fiche : "+pbmBoites(qs[0]).join(","));
+      /* le deuxième programme calcule (a = a + 3 ; b = a + b), le troisième échange a et b par c (novembre 2026) */
+      const P1=papProg(qs[1]).split(String.fromCharCode(10)), P2=papProg(qs[2]).split(String.fromCharCode(10));
+      if(P1.length!==4||!/^a = [0-9]+$/.test(P1[0])||!/^b = [0-9]+$/.test(P1[1])||P1[2]!=="a = a + 3"||P1[3]!=="b = a + b") vus.push("le deuxieme programme n est pas le calcul : "+P1.join(" ; "));
+      if(P2.length!==5||!/^a = [0-9]+$/.test(P2[0])||!/^b = [0-9]+$/.test(P2[1])||P2.slice(2).join(" ; ")!=="c = a ; a = b ; b = c") vus.push("le troisieme programme n est pas l echange : "+P2.join(" ; "));
+      else { const e=papEtat(qs[2], 4); if(pyRep(e.a)!==qs[2].lignes[1].expr||pyRep(e.b)!==qs[2].lignes[0].expr) vus.push("l echange n echange pas : "+P2.join(" ; ")); }
+      if(!pbDansBornes(qs[1].lignes)) vus.push("une valeur hors de [0 ; 20] : "+P1.join(" ; "));
       qs.forEach(function(q, i){
-        const noms=q.lignes.map(function(l){ return l.nom; }), b=pbmBoites(q);
+        const noms=q.lignes.map(function(l){ return l.nom; }).filter(function(n,k,t){ return t.indexOf(n)===k; }), b=pbmBoites(q);
         if(b.slice().sort().join(",")!==noms.slice().sort().join(",")) vus.push("les boites ne sont pas les variables : "+b.join(",")+" / "+noms.join(","));
         if(noms.indexOf("x")>=0) vus.push("une boite x");
         if(i>0) ordres[b.join(",")===noms.join(",")?"programme":"melange"]=1;

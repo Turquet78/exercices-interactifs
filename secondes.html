@@ -9490,7 +9490,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=699;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=700;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10444,7 +10444,7 @@ const TESTS={
   'python-pas-a-pas': { name:'Le programme pas \u00e0 pas : les cases m\u00e9moire', icon:'\ud83e\udde0', desc:'Un programme range des nombres dans des cases m\u00e9moire. Ex\u00e9cute-le LIGNE PAR LIGNE\u00a0: \u00e0 chaque ligne, dis quelle case re\u00e7oit la valeur et ce qu\u2019elle contient ensuite. Les cases d\u00e9j\u00e0 remplies gardent leur valeur \u2014 et quand une ligne dit «\u00a0c = b\u00a0», c\u2019est le CONTENU de b qui est recopi\u00e9.', start:()=>startPAP() },
   'python-boites-calcul': { name:'Les bo\u00eetes de la m\u00e9moire : une ligne qui calcule', icon:'\u2795', desc:'a = 5, puis a = a + 3\u00a0: \u00e0 chaque ligne, \u00e9cris la valeur que re\u00e7oit la bo\u00eete, puis ex\u00e9cute la ligne. Le calcul se fait avec ce que contient la bo\u00eete, et le r\u00e9sultat remplace l\u2019ancienne valeur.', start:()=>startPBC() },
   'python-boites-echange': { name:'Les bo\u00eetes de la m\u00e9moire : \u00e9changer deux variables', icon:'\ud83d\udd04', desc:'a = 3, b = 7, c = a, a = b, b = c\u00a0: \u00e0 chaque ligne, \u00e9cris la valeur que re\u00e7oit la bo\u00eete, puis ex\u00e9cute la ligne, et regarde la troisi\u00e8me bo\u00eete garder la valeur que l\u2019on va effacer.', start:()=>startPBE() },
-  'python-boites-memoire': { name:'Les bo\u00eetes de la m\u00e9moire : la valeur qui y entre', icon:'\ud83d\udce6', desc:'Le programme a = 10, b = 2, c = b, et une bo\u00eete par variable. Avant chaque ligne, clique la bo\u00eete qui va recevoir la valeur, puis ex\u00e9cute la ligne\u00a0: le nombre appara\u00eet et entre dans sa bo\u00eete \u2014 et pour c = b, c\u2019est une COPIE du contenu de b qui part dans c.', start:()=>startPBM() },
+  'python-boites-memoire': { name:'Les bo\u00eetes de la m\u00e9moire : la valeur qui y entre', icon:'\ud83d\udce6', desc:'Trois programmes \u2014 a = 10, b = 2, c = b ; puis un calcul, a = a + 3 et b = a + b ; puis un \u00e9change de deux variables \u2014, et une bo\u00eete par variable. Avant chaque ligne, clique la bo\u00eete qui va recevoir la valeur, puis ex\u00e9cute la ligne\u00a0: le nombre appara\u00eet et entre dans sa bo\u00eete \u2014 et pour c = b, c\u2019est une COPIE du contenu de b qui part dans c.', start:()=>startPBM() },
   'python-valeur-case': { name:'La valeur de la case m\u00e9moire, ligne par ligne', icon:'\ud83d\uddc3\ufe0f', desc:'Le m\u00eame programme pas \u00e0 pas, mais plus simple\u00a0: la case m\u00e9moire que la ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau, et tu n\u2019\u00e9cris que LA VALEUR qu\u2019elle contient ensuite. Ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier \u00e0 la fin que toutes les cases m\u00e9moire ont la bonne valeur.', start:()=>startPVM() },
   'python-pas-a-pas-calcul': { name:'Le programme pas \u00e0 pas\u00a0: quand une ligne CALCULE', icon:'\ud83e\uddee', desc:'La suite du pas \u00e0 pas\u00a0: certaines lignes rangent un nombre, d\u2019autres recopient une case \u2014 et maintenant, une ligne comme \u00ab\u00a0c = a+b\u00a0\u00bb CALCULE sa valeur avec ce que les cases contiennent. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPC() },
   'python-pas-a-pas-chaine': { name:'Le programme pas \u00e0 pas\u00a0: un calcul qui en lit un autre', icon:'\ud83d\udd17', desc:'La marche encore suivante\u00a0: une case d\u00e9j\u00e0 CALCUL\u00e9e peut \u00e0 son tour nourrir un autre calcul, comme dans \u00ab d = c+a \u00bb quand c vient elle-m\u00eame d\u2019un calcul. La case que chaque ligne remplit est d\u00e9j\u00e0 \u00e9crite dans le tableau\u00a0: \u00e0 toi d\u2019\u00e9crire ce qu\u2019elle contient ensuite, ligne apr\u00e8s ligne, jusqu\u2019\u00e0 v\u00e9rifier toute la m\u00e9moire \u00e0 la fin.', start:()=>startPPD() },
@@ -57846,7 +57846,8 @@ const PBM_NB=3;
 const PBM_DUREE=1300;    /* ms : apparition (≈ 25 %), puis le vol jusqu'à la boîte */
 /* LE MÊME MOTEUR SERT TROIS EXERCICES (novembre 2026 : « fais pareil avec un
    calcul, a = a + 3, et avec une permutation de variables ») :
-     pbm {python-boites-memoire}  6.2.24  a = 10 ; b = 2 ; c = b
+     pbm {python-boites-memoire}  6.2.24  a = 10 ; b = 2 ; c = b, puis un calcul
+                                          (a = a + 3 ; b = a + b) et un échange
      pbc {python-boites-calcul}   6.2.25  a = 5 ; b = 2 ; a = a + 3 ; b = a + b
      pbe {python-boites-echange}  6.2.26  a = 3 ; b = 7 ; c = a ; a = b ; b = c
    Chaque kind a son écran (scr-pbm, scr-pbc, scr-pbe) et ses identifiants
@@ -57880,11 +57881,34 @@ function pbK(){ return PB_KINDS[test.kind] ? test.kind : 'pbm'; }
 /* les jeux sans x : la lettre x s'écrit en italique ailleurs dans la page, et
    une boîte « x » se lirait comme l'inconnue ou le signe × */
 function pbJeux(){ return ensShuffle(PAP_JEUX.filter(function(j){ return j.indexOf('x')<0; }).slice()); }
+/* LES TROIS PROGRAMMES DE LA SÉANCE (demande de Turquet, 16 novembre 2026 :
+   « mets un exemple avec a = a + 3 et b = a + b dans le deuxième programme, et
+   un échange de variables dans le troisième ») : la fiche (a = 10 ; b = 2 ;
+   c = b), puis un CALCUL (a = v ; b = w ; a = a + 3 ; b = a + b), puis un
+   ÉCHANGE par une troisième boîte (a = v ; b = w ; c = a ; a = b ; b = c). Les
+   lignes sont écrites telles quelles, seuls les deux nombres de départ sont
+   tirés (distincts, toute valeur dans [0 ; 20] : pbDansBornes). L'élève y
+   choisit toujours la BOÎTE qui reçoit : a = a + 3 remplit a, b = c remplit b. */
+function pbmCalcul(){
+  for(;;){
+    const v=papValeurs(2);
+    const l=[{nom:'a',expr:String(v[0])},{nom:'b',expr:String(v[1])},{nom:'a',expr:'a + 3'},{nom:'b',expr:'a + b'}];
+    if(pbDansBornes(l)) return l;
+  }
+}
+function pbmEchange(){
+  const v=papValeurs(2);
+  return [{nom:'a',expr:String(v[0])},{nom:'b',expr:String(v[1])},{nom:'c',expr:'a'},{nom:'a',expr:'b'},{nom:'b',expr:'c'}];
+}
 function pbmBuildQuestions(){
   const qs=[{vis:PAP_FICHE.vis, lignes:PAP_FICHE.lignes.map(function(l){ return {nom:l.nom, expr:l.expr}; }), ordre:['a','b','c']}];
-  const jeux=pbJeux();
-  ensShuffle(['lointaine','chaine']).slice(0, PBM_NB-1).forEach(function(vis, i){
-    qs.push(papQuestion(vis, papGen(vis, jeux[i%jeux.length], papValeurs(vis==='lointaine'?3:2))));
+  qs.push(papQuestion('calcul', pbmCalcul()), papQuestion('echange', pbmEchange()));
+  /* une boîte par variable, dans un ordre tiré (papQuestion répète le nom
+     d'une variable affectée deux fois : pbmBoites dédoublonne, mais l'ordre
+     se tire ici sur les noms distincts) */
+  qs.slice(1).forEach(function(q){
+    const noms=q.lignes.map(function(l){ return l.nom; }).filter(function(n, i, t){ return t.indexOf(n)===i; });
+    q.ordre=ensShuffle(noms);
   });
   return qs;
 }
@@ -58273,7 +58297,7 @@ function nextPBE(){ pbNext(); }
 function ctxPbm(q){
   const k=Math.min(pbmFaites(q), q.lignes.length-1), K=pbK();
   let c='L’élève exécute un programme Python LIGNE PAR LIGNE. À côté du programme, chaque variable est dessinée comme une BOÎTE ; avant d’exécuter une ligne, l’élève clique la boîte qui va recevoir la valeur, puis une animation montre la valeur qui entre dans la bonne boîte (pour une ligne comme « c = b », c’est une COPIE du contenu de la boîte b qui va dans la boîte c, et b garde sa valeur ; pour un calcul comme « a = a + 3 », la page calcule avec ce que contient la boîte a, puis range le résultat dans a, dont l’ancienne valeur est effacée).';
-  if(K==='pbe') c+=' Le programme ÉCHANGE le contenu de deux boîtes à l’aide d’une troisième, qui garde une copie de la valeur que l’on va effacer.';
+  if(K==='pbe'||q.vis==='echange') c+=' Le programme ÉCHANGE le contenu de deux boîtes à l’aide d’une troisième, qui garde une copie de la valeur que l’on va effacer.';
   c+=' Le programme est :\n'+papProg(q)+'\n';
   c+='Il en est à la ligne '+(k+1)+' : « '+q.lignes[k].nom+' = '+q.lignes[k].expr+' ». ';
   if(k>0){
