@@ -58729,7 +58729,13 @@ function premiere(w){
     poser(0,0,'24'); checkVocAnswer(); if(test.score!==0) vus.push('un calcul faux vaut le point');
     if(!/\\bok\\b/.test(document.getElementById('vocR').className)) vus.push('le résultat juste ne se peint pas juste quand le calcul est faux');
     poser(0,1,'25'); checkVocAnswer(); if(test.score!==0) vus.push('un résultat faux vaut le point');
-    poser(9,1,'1/2'); checkVocAnswer(); if(test.score!==1) vus.push('l’inverse de 2 écrit 1/2 refusé');
+    /* un résultat qui n'est pas entier s'écrit en nombre décimal (décision de Turquet, novembre 2026) */
+    poser(9,1,'1/2'); checkVocAnswer(); if(test.score!==0) vus.push('l’inverse de 2 écrit 1/2 accepté (le décimal est exigé)');
+    if(!/nombre décimal : 0,5/.test(document.getElementById('vocFeedback').textContent)) vus.push('la fraction refusée ne dit pas « en nombre décimal : 0,5 »');
+    poser(9,1,'0,5'); checkVocAnswer(); if(test.score!==1) vus.push('l’inverse de 2 écrit 0,5 refusé');
+    poser(9,1,'\\\\frac{1}{2}=0{,}5'); checkVocAnswer(); if(test.score!==1) vus.push('« 1/2 = 0,5 » refusé (la fraction est permise en chemin)');
+    if(!/en nombre décimal/.test(document.querySelector('#vocHost .pt-row .voc-lab').textContent)) vus.push('la case d’un résultat non entier ne dit pas « en nombre décimal »');
+    poser(0,1,null); if(/en nombre décimal/.test(document.querySelector('#vocHost .pt-row .voc-lab').textContent)) vus.push('la case d’un résultat entier (24) dit « en nombre décimal »');
     poser(8,3,'0,25'); checkVocAnswer(); if(test.score!==1) vus.push('le quart de 1 écrit 0,25 refusé');
     poser(0,1,null); checkVocAnswer(); if(/\\bbad\\b/.test(document.getElementById('vocR').className)) vus.push('la case vide rougit');
     /* les calculs à étapes : « On doit calculer … » vient EN PREMIER sur le

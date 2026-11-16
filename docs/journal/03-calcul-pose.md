@@ -317,3 +317,17 @@ le dit. Exécuté dans Chromium, au clavier : « 2+3.5=5.5 » et
 « 2×10+½=20,5 » se peignent en bleu et valent le point. Contrôle : celui du
 1.13 au banc principal (six chaînes, dont trois refusées, et la copie de la
 capture).
+
+**Au 1.13, un résultat qui n'est pas entier s'écrit en NOMBRE DÉCIMAL (v439).**
+Demande de Turquet, novembre 2026 : « il faudrait préciser que le résultat est
+un nombre décimal quand c'est une fraction », puis, sur la question posée,
+« exiger le décimal ». Quand le résultat attendu n'est pas entier (2,5 ; 0,25 ;
+5,5…), la case l'annonce — « Le résultat est (en nombre décimal) : »
+(`vocLabDec`) — et le juge (`vocVaut`) refuse une fraction en DERNIER membre :
+5/2 pour la moitié de 5 rougit, et le message le dit, « Le résultat s'écrit en
+nombre décimal : 2,5, pas en fraction » (`vocMsgFraction`, en soutien comme en
+entraînement). Dans les calculs intermédiaires la fraction reste permise
+(« 1/2 = 0,5 » est juste). Un résultat entier n'est pas concerné. Exécuté dans
+Chromium : 5/2 rougit avec son message, 2,5 vaut le point. Contrôle : celui du
+1.13 au banc principal (1/2 refusé et son message, 0,5 et « 1/2 = 0,5 »
+acceptés, la mention présente sur un résultat non entier, absente sur 24).
