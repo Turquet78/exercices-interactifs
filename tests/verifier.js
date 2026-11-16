@@ -36846,7 +36846,7 @@ function augmentationTableau(w, P){
     return vus.join(" | ");
   })()`, v => v === '');
   /* ---- 2. le tirage ---- */
-  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l'heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
+  verifierEval(w, '300 séances : des contextes entiers (questions 1, 2, 3), différents, sans argent ni pourcentage, la question 2 multiplie par 7 à 12 et le seuil de la question 3 est au moins deux fois plus loin, l’heure avant 24 h, la date dans le mois et jamais le 1er au départ, le pas uniquement un multiple de 10 de 10 à 100 inclus — 10, 20 ou 30 au premier exemple, 60, 70, 80, 90 ou 110 au deuxième —, la valeur de départ un nombre rond du contexte, rien ne tombe à zéro', `(function(){
     const vus=[]; const PAS=[10,20,30,40,50,60,70,80,90,100], j0s=new Set(), r2s=new Set();
     for(let s=0;s<300&&vus.length<5;s++){
       const qs=suiBuildQuestions(${A.nb}*3);
