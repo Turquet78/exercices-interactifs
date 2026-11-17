@@ -20852,6 +20852,72 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
     }
+
+    /* ---- 11 septdecies. Au 6.5, l'équation de la question 4 en soutien ----
+       Signalé par Turquet (novembre 2026) sur tablette : pas de touche « x »
+       au clavier à l'écran ; la touche ⏎ de ce clavier (un « commit » MathLive,
+       pas une touche Entrée) passait à la case suivante sans ouvrir la ligne
+       du dessous ; et « x » à gauche rougissait pendant que l'élève tapait
+       encore le membre de droite. Ce dernier bord est la RÈGLE DE TOUT LE SITE
+       (gardeAutres, les trois fichiers) : rien ne rougit tant que la case en
+       cours d'écriture n'est pas validée. Le 6.5 en est le témoin : deux cases
+       jugées ensemble, l'une écrite, l'autre attendant. */
+    titre('11 septdecies. AU 6.5, L\'ÉQUATION : LA TOUCHE x, LA TOUCHE ⏎, ET RIEN NE ROUGIT AVANT LA VALIDATION');
+    {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      const present = await s.page.evaluate(() => typeof TESTS !== 'undefined' && !!TESTS['tracer-droite-libre']);
+      if(!present){
+        ignorer('au 6.5, une case de l\'équation ne rougit pas pendant qu\'on écrit l\'autre membre',
+          'ce niveau n\'a pas le 6.5 (Première)');
+      } else {
+        await connecter(s.page);
+        await s.page.evaluate(() => openTest('tracer-droite-libre'));
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf("currentMode='soutien'") >= 0); if(b) b.click(); });
+        await s.page.waitForTimeout(900);
+        await s.page.evaluate(() => { const st = trdEtat(); st.etape = 'fin'; trdDessiner(false); });
+        await s.page.waitForTimeout(300);
+        const toucheX = await s.page.evaluate(() => { try{ return kbVarsFor(currentTestId).some(k => k && k.latex === 'x'); }catch(e){ return false; } });
+        verifier('au 6.5, le clavier mathématique porte la touche « x »', toucheX, 'kbVarsFor(« ' + 'tracer-droite-libre' + ' ») ne donne pas de x');
+        const cls = id => s.page.evaluate(id => { const e = document.getElementById(id); return e ? ['ok','bad'].filter(c => e.classList.contains(c)).join(',') : 'absente'; }, id);
+        let pendant = null, apres = null, ligne2 = false, ligne3 = false, souci = '';
+        try{
+          /* le geste de la capture de Turquet : « x » à gauche, puis à droite
+             la chaîne « (k − b)/a = » pas encore finie — et la case « x »
+             rougissait. Finie (« = xk »), la chaîne dans UNE case est juste. */
+          const Q = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { num: String(q.k - q.b), den: String(q.a), xk: String(trdXk(q)) }; });
+          await s.page.click('#trd-l-eq-0-g'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('x', { delay: 60 });
+          await s.page.click('#trd-l-eq-0-d'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type(Q.num, { delay: 60 }); await s.page.keyboard.type('/', { delay: 60 });
+          await s.page.keyboard.type(Q.den, { delay: 60 }); await s.page.keyboard.press('ArrowRight');
+          await s.page.keyboard.type('=', { delay: 60 });
+          await s.page.waitForTimeout(400);
+          pendant = await cls('trd-l-eq-0-g');
+          await s.page.keyboard.type(Q.xk, { delay: 60 });
+          await s.page.keyboard.press('Enter');
+          await s.page.waitForTimeout(500);
+          ligne2 = await s.page.evaluate(() => !!document.getElementById('trd-l-eq-1-g'));
+          apres = (await cls('trd-l-eq-0-g')) + '/' + (await cls('trd-l-eq-0-d'));
+          /* la touche ⏎ du clavier à l'écran : un commit sur le champ qui a le focus */
+          await s.page.click('#trd-l-eq-1-g'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('x', { delay: 60 });
+          await s.page.click('#trd-l-eq-1-d'); await s.page.waitForTimeout(300);
+          await s.page.keyboard.type('2', { delay: 60 });
+          await s.page.evaluate(() => { const e = document.getElementById('trd-l-eq-1-d'); e.executeCommand('commit'); });
+          await s.page.waitForTimeout(500);
+          ligne3 = await s.page.evaluate(() => !!document.getElementById('trd-l-eq-2-g'));
+        }catch(e){ souci = e.message; }
+        verifier('au 6.5, en soutien, la case « x » ne rougit pas pendant que l\'élève écrit le membre de droite',
+          pendant === '', souci || 'classes de la case de gauche pendant la frappe à droite : « ' + pendant + ' »');
+        verifier('au 6.5, Entrée valide la ligne « x = (k − b)/a = x₀ » écrite d\'une traite : juste des deux côtés, et la ligne suivante s\'ouvre',
+          ligne2 && apres === 'ok/ok', souci || 'ligne suivante : ' + ligne2 + ', classes gauche/droite : « ' + apres + ' »');
+        verifier('au 6.5, la touche ⏎ du clavier à l\'écran (commit) ouvre la ligne suivante',
+          ligne3, souci || 'aucune ligne 3 après le commit');
+        verifier('l\'équation du 6.5 ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

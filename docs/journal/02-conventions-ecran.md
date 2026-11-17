@@ -876,3 +876,23 @@ clic rouvrir la boîte, et « Vérifier quand même » lever les liserés ; et l
 parcours témoin, où une copie juste et complète ne doit jamais l'ouvrir
 (« une copie juste et complète vérifiée en entraînement n'ouvre pas la
 boîte »).
+
+**Puis aucune AUTRE case ne rougit tant que la case qu'on écrit n'est pas
+validée.** Signalé par Turquet (novembre 2026) au 6.5 de la Première : « x »
+écrit à gauche de l'équation, « 6/−2 = − » à moitié tapé à droite — et la case
+« x », que l'élève ne touchait plus, rougissait. Le garde ne protégeait que la
+case qui porte le curseur ; or une correction en direct juge l'écran ENTIER, et
+une case LIÉE à celle qu'on écrit (l'autre membre d'une équation, le total
+d'une ligne) se jugeait sur une réponse pas finie. Demande : « applique cette
+règle de ne pas rougir une case tant qu'elle n'est pas validée sur tout le
+site ». Même mécanique que le garde, au même endroit des trois fichiers, sans
+liste (`gardeAutres`) : tant que l'élève ÉCRIT dans une case
+(`eleveEcritDans`), un observateur de l'écran retire le rouge NEUF qui se pose
+sur une autre case et le retient ; il le repose quand la case est validée —
+quittée, ou Entrée —, sauf si la correction l'a effacé ou rendu juste
+entre-temps. Un rouge déjà là avant la frappe reste : il parle d'une réponse
+validée. Le bleu n'est pas retenu — la demande porte sur le rouge. Après
+Entrée, la surveillance s'arrête (la validation peint) et la frappe suivante
+dans la même case la réarme, avant la correction (capture). Nos propres
+retraits ne passent jamais pour une correction : `takeRecords()` les jette dans
+le même tour. Témoin dans le banc navigateur, « 11 septdecies » (le 6.5).
