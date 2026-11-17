@@ -20877,10 +20877,8 @@ if(require.main === module) (async () => {
         await s.page.waitForTimeout(900);
         await s.page.evaluate(() => { const st = trdEtat(); st.etape = 'fin'; trdDessiner(false); });
         await s.page.waitForTimeout(300);
-        const toucheX = await s.page.evaluate(() => { try{ return kbVarsFor(currentTestId).some(k => k && k.latex === 'x'); }catch(e){ return false; } });
-        verifier('au 6.5, le clavier mathématique porte la touche « x »', toucheX, 'kbVarsFor(« ' + 'tracer-droite-libre' + ' ») ne donne pas de x');
         const cls = id => s.page.evaluate(id => { const e = document.getElementById(id); return e ? ['ok','bad'].filter(c => e.classList.contains(c)).join(',') : 'absente'; }, id);
-        let pendant = null, apres = null, ligne2 = false, ligne3 = false, souci = '';
+        let pendant = null, apres = null, ligne2 = false, ligne3 = false, toucheX = false, souci = '';
         try{
           /* le geste de la capture de Turquet : « x » à gauche, puis à droite
              la chaîne « (k − b)/a = » pas encore finie — et la case « x »
@@ -20888,6 +20886,9 @@ if(require.main === module) (async () => {
           const Q = await s.page.evaluate(() => { const q = test.questions[test.idx]; return { num: String(q.k - q.b), den: String(q.a), xk: String(trdXk(q)) }; });
           await s.page.click('#trd-l-eq-0-g'); await s.page.waitForTimeout(300);
           await s.page.keyboard.type('x', { delay: 60 });
+          /* le clavier RÉELLEMENT installé une fois la case ouverte (kbVarsFor vit
+             dans un script module : la page ne le voit pas) */
+          toucheX = await s.page.evaluate(() => { try{ return JSON.stringify(window.mathVirtualKeyboard.layouts).indexOf('"latex":"x"') >= 0; }catch(e){ return false; } });
           await s.page.click('#trd-l-eq-0-d'); await s.page.waitForTimeout(300);
           await s.page.keyboard.type(Q.num, { delay: 60 }); await s.page.keyboard.type('/', { delay: 60 });
           await s.page.keyboard.type(Q.den, { delay: 60 }); await s.page.keyboard.press('ArrowRight');
@@ -20908,6 +20909,7 @@ if(require.main === module) (async () => {
           await s.page.waitForTimeout(500);
           ligne3 = await s.page.evaluate(() => !!document.getElementById('trd-l-eq-2-g'));
         }catch(e){ souci = e.message; }
+        verifier('au 6.5, le clavier mathématique installé porte la touche « x »', toucheX, souci || 'aucune touche x dans mathVirtualKeyboard.layouts');
         verifier('au 6.5, en soutien, la case « x » ne rougit pas pendant que l\'élève écrit le membre de droite',
           pendant === '', souci || 'classes de la case de gauche pendant la frappe à droite : « ' + pendant + ' »');
         verifier('au 6.5, Entrée valide la ligne « x = (k − b)/a = x₀ » écrite d\'une traite : juste des deux côtés, et la ligne suivante s\'ouvre',
