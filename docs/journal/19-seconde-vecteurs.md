@@ -6342,6 +6342,29 @@ Banc principal : l'étape complète (x + … et y − … recopiée sur la fiche
 deux « ⇔ » dans une même rangée de trois systèmes, aucune étape sans
 coordonnée négative de C, la copie juste 21/21, la ligne recopiée dans les
 pièges. Joué dans Chromium, vu à 1 280 et 390 px.
+### Puis les étapes du calcul dans la case x = … (Seconde v705 — 8.4.7, et les 8.4.10, 8.4.11, 8.4.12)
+
+Turquet, novembre 2026 : « en seconde dans le 8.4.7, l'élève peut écrire
+x = 8 − 2 = 6 dans le champ de saisie, il peut donc écrire les étapes
+intermédiaires pour trouver x et y ; corriger dans les exercices de seconde du
+même type aussi ». Les cases x = … et y = … des quatre exercices qui isolent
+x et y dans un système (vcm, vqs, vsm — le 8.4.12 est le moteur vsm) lisent
+désormais une CHAÎNE D'ÉGALITÉS (`vecLitEtapes`) : « 8−2=6 »,
+« x = 1 + (−2) = −1 ». Le « x = » de tête se lit et s'oublie (la page
+l'écrit déjà) ; chaque membre est un nombre ou un calcul (`vecLitMembre` :
+`vcmLitCalc`, puis jusqu'à quatre termes avec `vsmLitCalc`) ; TOUS les
+membres doivent valoir la même chose. Une étape fausse rend la case fausse,
+même si le dernier nombre est le bon, et le message le dit
+(`vecEtapeFausse` : « Ton résultat x = −1 est juste, mais une étape est
+fausse : 1 − 2 = −1, pas −2. Chaque « = » relie deux nombres égaux. »).
+La case : `maxlength` 40, la touche « = » sur le pavé des tablettes
+(`data-pave-plus`), la largeur qui suit le texte (`field-sizing:content`,
+sinon la largeur suit le nombre de signes à la frappe), le x en ApfX.
+
+Banc principal (`quatriemePoint`) : les trois lecteurs sur dix écritures
+(justes, une étape fausse, un membre vide, « y = » dans la case x), la
+copie juste 21/21 aux étapes écrites, une étape fausse rouge et nommée.
+
 ## {coordonnees-vecteur-tracer-decompose} — tracer un vecteur par ses coordonnées, la décomposition pendant le tracé (8.4.8, Seconde v672 — la v671 prise sur main pendant les bancs, par la PR 991)
 
 **La demande** (Turquet, novembre 2026) : « faire un exercice comme le 8.4.6

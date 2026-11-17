@@ -3264,7 +3264,8 @@
   .vcm-deux{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:12px 40px;align-self:stretch}
   .vcm-colonne{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:12px}
   .vcm-colonne>.vcd-titre{align-self:stretch;text-align:left}
-  .vcd-in.vco-in.vcm-calc{width:6.2em}
+  .vcd-in.vco-in.vcm-calc{width:auto;min-width:6.2em;field-sizing:content;padding:0 .35em;max-width:100%;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}   /* « x = 8 − 2 = 6 » : la case grandit avec les étapes (field-sizing, sinon le filet de vecNormEtapes), le x en italique arrondi */
+  @supports not (field-sizing:content){ .vcd-in.vco-in.vcm-calc{width:6.2em} }
   .vcm-donc{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
   .vcm-mot{font-family:'Nunito',sans-serif;font-weight:700}
   .vcm-donc .vcd-c .mf-cor,.vcm-sys .vcd-c .mf-cor{position:static;transform:none;margin-left:.3em;align-self:center}
@@ -9521,7 +9522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=704;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=705;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -70786,7 +70787,57 @@ function vcmLitCalc(s){
   if(a===null||b===null) return null;
   return m[2]==='+'?a+b:a-b;
 }
-function vcmLit(id,s){ return (id==='vcm-x'||id==='vcm-y')?vcmLitCalc(s):vcdLit(s); }
+/* LES ÉTAPES DU CALCUL DANS LA CASE (demande de Turquet, novembre 2026 :
+   « l'élève peut écrire x = 8 − 2 = 6 dans le champ de saisie »). Les cases
+   x = … et y = … des 8.4.7, 8.4.10, 8.4.11 et 8.4.12 lisent une chaîne
+   d'égalités : « 8−2=6 », « x = 1+(−2) = −1 ». Le « x = » de tête se lit et
+   s'oublie (la page l'écrit déjà) ; chaque membre est un nombre ou le calcul
+   qui le donne (`lireMembre`) ; TOUS doivent valoir la même chose — une étape
+   fausse rend la case fausse, même si le dernier nombre est le bon
+   (`vecEtapeFausse` le nomme). Rend la valeur commune, ou null. */
+/* La case grandit avec ce qu'on y écrit : « field-sizing:content » (CSS) là
+   où le navigateur le connaît, sinon la largeur suit le nombre de signes. */
+document.addEventListener('input', function(e){
+  const el=e.target;
+  if(!el||!el.classList||!el.classList.contains('vcm-calc')) return;
+  if(window.CSS&&CSS.supports&&CSS.supports('field-sizing','content')) return;
+  el.style.width=el.value.length>6?'calc('+el.value.length+'ch + 1em)':'';
+}, true);
+function vecNormEtapes(s,lettre){
+  let t=String(s==null?'':s).replace(/[−–]/g,'-').replace(/\s+/g,'').replace(/\u{1D465}/gu,'x').replace(/\u{1D466}/gu,'y');
+  if(lettre&&t.length>2&&t[1]==='='&&t[0].toLowerCase()===lettre) t=t.slice(2);
+  return t;
+}
+function vecLitEtapes(s,lettre,lireMembre){
+  const t=vecNormEtapes(s,lettre);
+  if(t.indexOf('=')<0) return lireMembre(t);
+  let v=null;
+  const M=t.split('=');
+  for(let i=0;i<M.length;i++){
+    const n=M[i]?lireMembre(M[i]):null;
+    if(n===null||(v!==null&&n!==v)) return null;
+    v=n;
+  }
+  return v;
+}
+/* Une chaîne dont le DERNIER nombre est le bon mais qu'une étape casse :
+   la phrase qui le dit (« 8 − 2 = 5 est faux ») ; sinon ''. */
+function vecEtapeFausse(s,lettre,attendu,lireMembre){
+  const t=vecNormEtapes(s,lettre);
+  if(t.indexOf('=')<0) return '';
+  const M=t.split('=');
+  if(lireMembre(M[M.length-1])!==attendu) return '';
+  const L='<i>'+lettre+'</i>', ecrit=function(m){ return esc(m.replace(/-/g,'−').replace(/\+/g,' + ').replace(/(\d|\))−/g,'$1 − ')); };
+  for(let i=0;i<M.length-1;i++){
+    const a=M[i]?lireMembre(M[i]):null, b=M[i+1]?lireMembre(M[i+1]):null;
+    if(a===null) return 'Ton résultat '+L+' = '+svrNb(attendu)+' est juste, mais l’étape « '+ecrit(M[i]||'…')+' » ne se lit pas comme un calcul.';
+    if(a!==b) return 'Ton résultat '+L+' = '+svrNb(attendu)+' est juste, mais une étape est fausse : '+ecrit(M[i])+' = '+svrNb(a)+', pas '+ecrit(M[i+1])+'. Chaque « = » relie deux nombres égaux.';
+  }
+  return '';
+}
+/* un membre : le nombre, « 1 + (−2) », « 8−2 », ou jusqu'à quatre termes */
+function vecLitMembre(s){ const n=vcmLitCalc(s); return n!==null?n:vsmLitCalc(s); }
+function vcmLit(id,s){ return (id==='vcm-x'||id==='vcm-y')?vecLitEtapes(s,id.slice(-1),vecLitMembre):vcdLit(s); }
 /* La lettre d'un point se pose du côté opposé au centre des quatre sommets :
    jamais à l'intérieur du parallélogramme. */
 function vcmCroix(q,k,p,cls){
@@ -70913,7 +70964,7 @@ function vcmBrancher(){
 function vcmCalcHTML(q){
   const BA=vepVecHTML('B','A'), CM=vepVecHTML('C','M'), x='<i>x</i>', y='<i>y</i>';
   const id=function(c){ return 'vcm-ba-'+c; };
-  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( )" maxlength="12" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
+  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( ) =" maxlength="40" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
   const plus=vcmPlus(q), eq='<span class="vcm-eqv" aria-label="équivaut à">⇔</span>';
   const ligne=function(V,op,ida,aria1,idr,aria2){ return '<span class="vcm-l">'+V+' '+op+'</span>'+vcdCase(ida,aria1)+'<span class="vcm-l">=</span>'+vcdCase(idr,aria2); };
   const sys1='<div class="vcm-sys">'+ligne(x,'−','vcm-sx-d','ce qu’on retranche à x','vcm-sx-r','ce que vaut x moins ce nombre')
@@ -70986,6 +71037,7 @@ function vcmPourquoi(q,subs){
   });
   [['vcm-x',0],['vcm-y',1]].forEach(function(c){
     if(!faux(c[0])) return;
+    const ef=vecEtapeFausse($(c[0]).value,c[0].slice(-1),M[c[1]],vecLitMembre); if(ef){ m.push(ef); return; }
     const L=c[1]?'<i>y</i>':'<i>x</i>';
     m.push(L+' − '+vcdPar(C[c[1]])+' = '+svrNb(u[c[1]])+' donc '+L+' = '+svrNb(u[c[1]])+' + '+vcdPar(C[c[1]])+' = '+svrNb(M[c[1]])+(lu(c[0])===u[c[1]]-C[c[1]]?' : pour isoler '+L+', on AJOUTE '+vcdPar(C[c[1]])+' des deux côtés.':'.'));
   });
@@ -71732,7 +71784,7 @@ function vqsVal(id){ const e=$(id); return e?String(e.value==null?'':e.value).tr
 function vqsNomEleve(k){ return (vqsVal('vqs-v'+k+'a')||'?')+(vqsVal('vqs-v'+k+'b')||'?'); }
 function vqsFige(id){ return !!(test.vqsFige&&test.vqsFige[id]); }
 function vqsEtat(id){ return (test.vqsEtat&&test.vqsEtat[id])||''; }
-function vqsLit(id,s){ return (id==='vqs-x'||id==='vqs-y')?vcmLitCalc(s):vcdLit(s); }
+function vqsLit(id,s){ return (id==='vqs-x'||id==='vqs-y')?vecLitEtapes(s,id.slice(-1),vecLitMembre):vcdLit(s); }
 /* LE SCHÉMA : les huit tours A, B, C, M ; l'étiquetage attendu est celui de
    l'élève s'il est juste, sinon le plus proche du sien — à égalité, celui
    qui suit le sens de la figure (ABCM dans le sens des aiguilles d'une
@@ -71859,6 +71911,7 @@ function vqsPourquoi(q,subs){
   const paireFausse=!(VQS_PAIRES[n1]&&n2===VQS_PAIRES[n1]);
   [['vqs-x',0],['vqs-y',1]].forEach(function(c){
     if(!faux(c[0])) return;
+    const ef=vecEtapeFausse($(c[0]).value,c[0].slice(-1),M[c[1]],vecLitMembre); if(ef){ m.push(ef); return; }
     const L=c[1]?y:x, k=c[1];
     if(paireFausse&&u[k]+P[k]!==M[k]) m.push('Ton calcul suit tes vecteurs, mais ils ne sont pas égaux dans le parallélogramme ABCM. Avec '+V(E[0])+' = '+V(E[1])+' : '+L+' − '+vcdPar(q.P[vqsI(E[1][0])][k])+' = '+svrNb(vqsVec(q,E[0])[k])+', donc '+L+' = '+svrNb(M[k])+'.');
     else m.push(L+' − '+vcdPar(P[k])+' = '+svrNb(u[k])+' donc '+L+' = '+svrNb(u[k])+' + '+vcdPar(P[k])+' = '+svrNb(M[k])+(lu(c[0])===u[k]-P[k]?' : pour isoler '+L+', on AJOUTE '+vcdPar(P[k])+' des deux côtés.':'.'));
@@ -71878,7 +71931,7 @@ function vqsFigHTML(){
 function vqsCalcHTML(q){
   const V1='<span class="vqs-m1 vpg-vide">… …</span>', V2='<span class="vqs-m2 vpg-vide">… …</span>', x='<i>x</i>', y='<i>y</i>';
   const id=function(c){ return 'vqs-1-'+c; };
-  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( )" maxlength="12" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
+  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( ) =" maxlength="40" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
   const etape=vqsEtape(q), eq='<span class="vcm-eqv" aria-label="équivaut à">⇔</span>';
   const ligne=function(V,op,ida,aria1,idr,aria2){ return '<span class="vcm-l">'+V+' '+op+'</span>'+vcdCase(ida,aria1)+'<span class="vcm-l">=</span>'+vcdCase(idr,aria2); };
   const sys1='<div class="vcm-sys">'+ligne(x,'−','vqs-sx-d','ce qu’on retranche à x','vqs-sx-r','ce que vaut x moins ce nombre')
@@ -72421,7 +72474,7 @@ function vsmLitCalc(s){
   return tot;
 }
 const VSM_CALC=['vsm-x','vsm-y'];
-function vsmLit(id,s){ return VSM_CALC.indexOf(id)>=0?vsmLitCalc(s):vcdLit(s); }
+function vsmLit(id,s){ return VSM_CALC.indexOf(id)>=0?vecLitEtapes(s,id.slice(-1),vsmLitCalc):vcdLit(s); }
 
 /* --- le dessin --- */
 /* Le coin où poser la lettre d'un point : celui des quatre le plus loin, en
@@ -72668,7 +72721,7 @@ function vsmColHTML(a,b){ return '<span class="vco-par vcd-res">'+a+b+'</span>';
 function vsmCalcHTML(q){
   const U=vsmVecHTML(q,0), V=vsmVecHTML(q,1), N=q.n, DN=vepVecHTML('D',N), x='<i>x</i>', y='<i>y</i>';
   const eq='<span class="vcm-eqv" aria-label="équivaut à">⇔</span>', D=q.P[3];
-  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( )" maxlength="16" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
+  const calc=function(cid, aria){ return '<span class="vcd-c vcd-c-d"><input class="vco-in vcd-in vcm-calc" id="'+cid+'" type="text" inputmode="numeric" data-pave-plus="+ ( ) =" maxlength="40" autocomplete="off" spellcheck="false" aria-label="'+esc(aria)+'"></span>'; };
   const colonne=function(c,k){
     const nom=vsmNomVec(q,k), H=k?V:U, id=function(s){ return 'vsm-'+c+'-'+s; };
     return '<div class="vcm-colonne"><div class="vcd-titre">Les coordonnées de '+H+'.</div>'
@@ -72777,7 +72830,9 @@ function vsmPourquoi(q,subs){
     if(faux('vsm-p'+L+'-a')) m.push(neg?I+' − '+vcdPar(D[i])+' = '+I+' + '+svrNb(-D[i])+' : soustraire un nombre négatif, c’est ajouter son opposé.'
       :'La ligne de '+I+' ne change pas : on la recopie, '+I+' − '+svrNb(D[i])+' = '+svrNb(r)+'.');
     if(faux('vsm-p'+L+'-r')) m.push('Le second membre ne change pas : '+I+' '+(neg?'+':'−')+' '+svrNb(Math.abs(D[i]))+' = '+svrNb(r)+'.');
-    if(faux('vsm-'+L)) m.push(I+' − '+vcdPar(D[i])+' = '+svrNb(r)+' donc '+I+' = '+svrNb(r)+' + '+vcdPar(D[i])+' = '+svrNb(M[i])
+    const ef=faux('vsm-'+L)?vecEtapeFausse($('vsm-'+L).value,L,M[i],vsmLitCalc):'';
+    if(ef) m.push(ef);
+    else if(faux('vsm-'+L)) m.push(I+' − '+vcdPar(D[i])+' = '+svrNb(r)+' donc '+I+' = '+svrNb(r)+' + '+vcdPar(D[i])+' = '+svrNb(M[i])
       +(lu('vsm-'+L)===r-D[i]?' : pour isoler '+I+', on AJOUTE '+vcdPar(D[i])+' des deux côtés.':'.'));
   });
   if(faux('vsm-mx')||faux('vsm-my')) m.push(N+' a pour coordonnées les valeurs de <i>x</i> et <i>y</i> trouvées : '+N+svrCoord(M)+'.');

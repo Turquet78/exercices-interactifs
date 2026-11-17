@@ -15495,6 +15495,21 @@ function coordonneesVecteurs(w, P){
     const fb7=el('vcmFeedback').textContent;
     ['on écrit fin − début','attention au signe','CM part de C','c’est ajouter son opposé','on AJOUTE'].forEach(function(m){ if(fb7.indexOf(m)<0) vus.push('8.4.7 : le message ne dit pas « '+m+' » : '+fb7.slice(0,300)); });
     if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0 || conseilCtxCourant().indexOf('BA (1 ; −3), M(−1 ; −2)')<0) vus.push('8.4.7 : le contexte du modèle');
+    /* les étapes dans la case (v705) : « x = 8 − 2 = 6 » se lit, aux 8.4.7, 8.4.10, 8.4.11 et 8.4.12 ;
+       une étape fausse rend la case fausse, et se nomme */
+    [['x = 1 - 2 = -1',-1],['1-2=-1',-1],['x=1+(−2)=−1',-1],['𝑥 = −1',-1],['1-2=-2',null],['1-2=-2=-1',null],['=-1',null],['-1=',null],['y=-1',null],['x=',null]].forEach(function(c){
+      [['vcmLit','vcm-x'],['vqsLit','vqs-x'],['vsmLit','vsm-x']].forEach(function(f){
+        const r=({vcmLit:vcmLit,vqsLit:vqsLit,vsmLit:vsmLit})[f[0]](f[1],c[0]); if(r!==c[1]) vus.push(f[0]+'(« '+c[0]+' ») rend '+r); }); });
+    if(vcmLit('vcm-y','y = −3 + 1 = −2')!==-2 || vsmLit('vsm-y','y=-1+2+2=3')!==3 || vcmLit('vcm-ba-rx','1=1')!==null) vus.push('8.4.7 : les étapes de y, ou une case qui n\'est pas x = …');
+    test.questions[test.idx]=vcmFiche(); renderVcm(); vcmPose(-1,-2);
+    if(el('vcm-x').getAttribute('data-pave-plus').split(' ').indexOf('=')<0 || +el('vcm-x').getAttribute('maxlength')<20) vus.push('8.4.7 : la case x = … n\'offre pas « = » ou reste trop courte');
+    ecrire7(Object.assign({},JUSTE7,{'vcm-x':'x = 1 - 2 = -1','vcm-y':'−3 + 1 = −2'}));
+    av7=verifier7();
+    if(av7!==21) vus.push('8.4.7 : la copie juste aux étapes écrites vaut '+av7+' : '+cl7());
+    test.questions[test.idx]=vcmFiche(); renderVcm(); vcmPose(-1,-2);
+    ecrire7(Object.assign({},JUSTE7,{'vcm-x':'1-2=-2=-1'}));
+    av7=verifier7();
+    if(av7!==20 || !el('vcm-x').classList.contains('bad') || el('vcmFeedback').textContent.indexOf('une étape est fausse')<0) vus.push('8.4.7 : une étape fausse : '+av7+' '+el('vcmFeedback').textContent.slice(0,200));
     /* une question à deux lignes « + » ; puis une sans coordonnée négative de C : pas d'étape */
     const q27=vcmNeuve([[3,-1],[2,2],[-2,-3]]); test.questions[test.idx]=q27; renderVcm();
     if(!el('vcm-px-a') || !el('vcm-py-a') || document.querySelectorAll('#vcmCalc .vcd-in').length!==20) vus.push('8.4.7 : deux lignes « + » attendues');
