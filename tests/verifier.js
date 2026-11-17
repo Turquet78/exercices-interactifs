@@ -15500,9 +15500,9 @@ function coordonneesVecteurs(w, P){
     [['x = 1 - 2 = -1',-1],['1-2=-1',-1],['x=1+(−2)=−1',-1],['𝑥 = −1',-1],['1-2=-2',null],['1-2=-2=-1',null],['=-1',null],['-1=',null],['y=-1',null],['x=',null]].forEach(function(c){
       [['vcmLit','vcm-x'],['vqsLit','vqs-x'],['vsmLit','vsm-x']].forEach(function(f){
         const r=({vcmLit:vcmLit,vqsLit:vqsLit,vsmLit:vsmLit})[f[0]](f[1],c[0]); if(r!==c[1]) vus.push(f[0]+'(« '+c[0]+' ») rend '+r); }); });
-    if(vcmLit('vcm-y','y = −3 + 1 = −2')!==-2 || vsmLit('vsm-y','y=-1+2+2=3')!==3 || vcmLit('vcm-ba-rx','1=1')!==null) vus.push('8.4.7 : les étapes de y, ou une case qui n\'est pas x = …');
+    if(vcmLit('vcm-y','y = −3 + 1 = −2')!==-2 || vsmLit('vsm-y','y=-1+2+2=3')!==3 || vcmLit('vcm-ba-rx','1=1')!==null) vus.push('8.4.7 : les étapes de y, ou une case qui n’est pas x = …');
     test.questions[test.idx]=vcmFiche(); renderVcm(); vcmPose(-1,-2);
-    if(el('vcm-x').getAttribute('data-pave-plus').split(' ').indexOf('=')<0 || +el('vcm-x').getAttribute('maxlength')<20) vus.push('8.4.7 : la case x = … n\'offre pas « = » ou reste trop courte');
+    if(el('vcm-x').getAttribute('data-pave-plus').split(' ').indexOf('=')<0 || +el('vcm-x').getAttribute('maxlength')<20) vus.push('8.4.7 : la case x = … n’offre pas « = » ou reste trop courte');
     ecrire7(Object.assign({},JUSTE7,{'vcm-x':'x = 1 - 2 = -1','vcm-y':'−3 + 1 = −2'}));
     av7=verifier7();
     if(av7!==21) vus.push('8.4.7 : la copie juste aux étapes écrites vaut '+av7+' : '+cl7());
