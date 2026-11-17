@@ -693,3 +693,16 @@ branche ferme maintenant son propre cadre, et la question 5 reste dans
 deux exercices, les titres visibles avant la droite (1 et 2), puis après
 (1 à 5). Avant le correctif, l'essai dans Chromium relevait « 1 2 5 » au
 départ du 6.5.
+
+**Au 6.5, la question 4 sur tablette : la touche « x », et ⏎ qui ouvre la
+ligne.** Signalé par Turquet (novembre 2026). Le clavier mathématique n'avait
+pas de « x » (`kbVarsFor` ne donnait de lettres qu'au calcul littéral) : l'élève
+ne pouvait pas écrire « x = … » ; le 6.5 reçoit sa touche. Et la touche ⏎ de
+ce clavier n'est pas une touche Entrée : c'est un « commit » MathLive, qui lève
+« change » — et la porte commune des champs `pm-mf` (`pmNavSuiv`) passait à la
+case suivante, sans jamais ouvrir la ligne du dessous. Un écouteur de
+« change » sur la fenêtre, en capture, le prend avant elle : le « change »
+d'un champ qui garde le focus est un Entrée (`trdLibreTouche`), celui d'un
+champ qu'on quitte n'est rien. La case « x » qui rougissait pendant que l'élève
+écrivait le membre de droite est devenue une règle de tout le site (voir
+`02-conventions-ecran.md`, `gardeAutres`). Banc navigateur, « 11 septdecies ».

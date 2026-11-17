@@ -4470,7 +4470,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=492;
+const APP_VERSION=493;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -38988,13 +38988,76 @@ function gardeLeverRouge(el){
   el.classList.remove('bad');
 }
 document.addEventListener('input', function(e){ gardeLeverRouge(e.target); }, true);
+/* UNE CASE QUE L'ÉLÈVE ÉCRIT ENCORE NE FAIT ROUGIR AUCUNE AUTRE CASE
+   (Turquet, novembre 2026, au 6.5 de la Première : « x » à gauche, et
+   « 6/−2 = − » à moitié tapé à droite — la case « x », que l'élève n'avait
+   pas touchée, rougissait sous ses yeux). Le garde ci-dessus ne protège que la
+   case qui porte le curseur ; or une correction en direct juge l'écran ENTIER,
+   et une case LIÉE à celle qu'on écrit — l'autre membre d'une équation, le
+   total d'une ligne — se jugeait sur une réponse pas encore finie. La règle,
+   sur TOUT le site : rien ne rougit tant que la case en cours d'écriture n'est
+   pas VALIDÉE — quittée, ou Entrée. Même mécanique, même absence de liste :
+   tant que l'élève ÉCRIT dans une case (eleveEcritDans), un observateur sur
+   l'écran retire le rouge NEUF qui se pose sur une autre case et le retient ;
+   il le repose quand la case est validée, si la correction ne l'a pas effacé
+   ou rendu juste entre-temps. Un rouge DÉJÀ là avant la frappe (une case
+   validée fausse) reste : il parle d'une réponse validée. Le bleu n'est pas
+   retenu — la demande porte sur le rouge, qui seul ment sur une réponse en
+   cours. La VÉRIFICATION passe outre, comme pour le garde : un écran
+   verrouillé n'est plus surveillé, et un clic sur « Vérifier » quitte la
+   case, donc rend le rouge avant de peindre. */
+let gardeAutres=null, gardeAutresObs=null, gardeAutresSource=null;
+function gardeAutresRendre(){
+  if(gardeAutresObs){ gardeAutresObs.disconnect(); gardeAutresObs=null; }
+  const m=gardeAutres; gardeAutres=null; gardeAutresSource=null;
+  if(!m) return;
+  m.forEach(function(v, el){
+    if(!el.isConnected || !isSoutien() || test.locked || verdictDe(el) || el.classList.contains('sol')) return;
+    el.classList.add('bad');
+  });
+}
+function gardeAutresSurveiller(src){
+  gardeAutresRendre();
+  const ecran=src.closest && src.closest('.screen.on'); if(!ecran || typeof MutationObserver!=='function') return;
+  gardeAutresSource=src; gardeAutres=new Map();
+  const obs=new MutationObserver(function(recs){
+    if(obs!==gardeAutresObs) return;
+    if(!isSoutien() || test.locked){ gardeAutresRendre(); return; }
+    const ecrit=eleveEcritDans(src), vus=new Map();
+    recs.forEach(function(r){
+      const t=r.target;
+      if(t===src || !t.isConnected || !caseQuiSeColore(t) || vus.has(t)) return;
+      vus.set(t, ' '+(r.oldValue||'')+' ');
+    });
+    vus.forEach(function(avant, t){
+      if(verdictDe(t)==='bad' && ecrit && !t.classList.contains('sol')
+         && (gardeAutres.has(t) || avant.indexOf(' bad ')<0)){ t.classList.remove('bad'); gardeAutres.set(t, 1); }
+      else gardeAutres.delete(t);   /* jugée juste, ou effacée par la correction : la retenue se périme */
+    });
+    obs.takeRecords();              /* nos propres retraits ne sont pas des corrections */
+  });
+  gardeAutresObs=obs;
+  obs.observe(ecran,{attributes:true, attributeFilter:['class'], attributeOldValue:true, subtree:true});
+}
+document.addEventListener('focusin', function(e){
+  const el=e.target;
+  if(!isSoutien() || test.locked || !caseQuiSeColore(el)){ gardeAutresRendre(); return; }
+  gardeAutresSurveiller(el);
+}, true);
+document.addEventListener('focusout', function(e){ if(e.target===gardeAutresSource) gardeAutresRendre(); }, true);
+/* Entrée a validé la case (plus bas) : la surveillance s'arrête, et la PROCHAINE
+   frappe dans la même case la réarme — avant la correction (capture). */
+document.addEventListener('input', function(e){
+  const el=e.target;
+  if(!gardeAutresObs && isSoutien() && !test.locked && caseQuiSeColore(el) && el===document.activeElement) gardeAutresSurveiller(el);
+}, true);
 /* ENTRÉE VALIDE SANS QUITTER LA CASE — le calcul mental et les opérations
    posées le font depuis toujours. Un clic sur « Vérifier » donne le focus au
    bouton, donc le garde rend la main de lui-même ; la touche Entrée, elle, ne
    déplace rien. Sans cette ligne, la couleur de la vérification serait retirée
    au moment précis où l'élève la demande. */
 document.addEventListener('keydown', function(e){
-  if(e.key==='Enter') gardeRendreLaMain(gardeCase);
+  if(e.key==='Enter'){ gardeRendreLaMain(gardeCase); gardeAutresRendre(); }
 }, true);
 
 /* enregistrement différé du travail en cours (entraînement & soutien) : protège même en cas de fermeture/plantage */
