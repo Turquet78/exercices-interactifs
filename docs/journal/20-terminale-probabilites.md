@@ -1108,3 +1108,20 @@ son conteneur (`.pts-case` + `ok`/`bad`/`sol`) ; vide, il ne prend aucune
 couleur, et la correction en entraînement le peint `sol` avec la bonne carte
 en vert. Les encres suivent la règle : `.vae-opt.ok` bleu, `.bad` rouge,
 `.sol` vert.
+
+**Puis les cases sur les branches, et la variance sur une ligne** (demande de
+Turquet, novembre 2026 : « placer les cases de l'arbre qui représente une
+branche sur le centre de la branche et dans la direction de chaque branche ;
+mettre le calcul de la variance sur une même ligne au maximum »). L'arbre a
+quitté la grille du 6.1.2 pour celle du 6.1.5 (`aptGrilleHTML('vae', …)`,
+`aptTraits`, `aptEtiquettes`) : chaque case est posée au milieu de son trait,
+penchée comme lui, au-dessus d'une branche qui monte, au-dessous d'une
+branche qui descend ; la grille élargit ses colonnes de branches jusqu'à ce
+que la case tienne sur son trait. Au bout de chaque chemin, la lettre de la
+seconde couleur puis « P(JJ) = □ ». `apfTraits('vae')` (photo de l'énoncé
+d'un devoir) renvoie à `aptTraits('vae')`. V(X) s'écrit en UNE rangée
+(`.vae-ligne-v`) : intervalle de 4 px et police à 1,15 rem pour la rangée
+entière — texte et cases du même facteur, la case garde la taille des nombres
+qui l'entourent. Mesuré sur le pire tirage (10 objets, probabilités sur 100,
+E(X) = −2,8, toutes les cases remplies) : 944 px pour 986 disponibles à
+1280 px de large ; plus étroit, la rangée défile, elle ne se replie pas.
