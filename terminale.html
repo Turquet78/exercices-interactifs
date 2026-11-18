@@ -860,7 +860,18 @@
   .vae-ladder .sa2-row>*{flex-shrink:0}
   .vae-ladder{overflow-x:auto;max-width:100%}
   .vae-formule .sa2-t{font-size:.95em;white-space:nowrap}
-  .vae-rac{border-top:max(1.5px,.075em) solid currentColor;padding:0 2px}
+  .vae-racine{display:inline-flex;align-items:stretch;vertical-align:-.25em;margin:0 1px}
+  .vae-rad{width:.62em;height:auto;align-self:stretch;flex:none;overflow:visible}
+  .vae-rac{border-top:1.4px solid currentColor;margin-top:.04em;padding:.12em 3px 0 1px;line-height:1.15}
+  .vae-par{font-size:1.45em;font-weight:700;line-height:1;color:var(--ink);display:inline-block;transform:translateY(-.04em)}
+  .vae-ligne-v .vae-par{margin:0 1px}
+  .vae-ligne-v .vae-par-e{font-size:1.2em;font-weight:600}
+  .vae-carre{margin-left:-3px;align-self:center;transform:translateY(-.8em);font-size:1em}
+  math-field.dexp-mf.vae-mf{min-width:2.6em;font-size:1.15rem;padding:1px 4px;text-align:center}
+  .vae-tab math-field.dexp-mf.vae-mf{min-width:3em}
+  /* une case figée par la correction reste lisible : MathLive pâlit un champ désactivé */
+  math-field.dexp-mf.vae-mf[disabled]{opacity:1;color:var(--ink)}
+  math-field.dexp-mf.vae-mf[disabled]::part(content){opacity:1}
   .vae-qcm{display:flex;flex-direction:column;gap:6px;margin:4px 0 10px;padding:6px;border:2px solid transparent;border-radius:12px}
   .vae-opt{display:flex;align-items:flex-start;gap:10px;text-align:left;font:inherit;font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--line,#cbd5e1);border-radius:10px;padding:8px 12px;cursor:pointer}
   .vae-opt:hover{border-color:var(--blue)}
@@ -4613,7 +4624,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=499;
+const APP_VERSION=500;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30946,6 +30957,15 @@ function vaeCases(q){
 /* ---- le juge : un entier, un décimal ou une fraction, signés ; ≈ au centième ---- */
 function vaeLire(raw){
   let t=String(raw==null?'':raw).replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/,/g,'.').replace(/€$/,'');
+  /* UNE FRACTION ÉCRITE EN CHAMP MATHÉMATIQUE (novembre 2026) : toPlain la rend
+     « (4)/(25) », « -(1)/(5) » ou « (-1)/(5) » — les parenthèses ne portent ici
+     qu'un nombre ou un signe : on les retire toutes, puis « +- » ou « -- » se
+     lisent comme le ferait l'élève. */
+  if(/[()]/.test(t) && /^[0-9.+\-/()]+$/.test(t)){
+    const u=t.replace(/[()]/g,'').replace(/^--/,'').replace(/^\+-|^-\+/,'-').replace(/\/--/,'/').replace(/\/\+?-/,'/-');
+    const fr=/^([+-]?(?:\d+\.?\d*|\.\d+))(?:\/([+-]?(?:\d+\.?\d*|\.\d+)))?$/.exec(u);
+    if(fr){ const a=parseFloat(fr[1]); if(fr[2]===undefined) return a; const d=parseFloat(fr[2]); return d ? a/d : NaN; }
+  }
   while(/^\(.*\)$/.test(t)) t=t.slice(1,-1);
   const nb=/^[+-]?(\d+\.?\d*|\.\d+)$/;
   if(nb.test(t)) return parseFloat(t);
@@ -30954,6 +30974,45 @@ function vaeLire(raw){
     if(nb.test(a) && nb.test(b)){ const d=parseFloat(b); return d ? parseFloat(a)/d : NaN; } }
   if(/^-\(.*\)$/.test(t)){ const v=vaeLire(t.slice(2,-1)); return isNaN(v) ? NaN : -v; }
   return NaN;
+}
+function vaeVal(id){
+  const el=$(id); if(!el) return '';
+  return el.tagName==='MATH-FIELD' ? dexpCellValue(id) : String(el.value==null?'':el.value);
+}
+/* LES PRODUITS ET LES TERMES DANS L'ORDRE QU'ON VEUT (demande de Turquet,
+   novembre 2026) : dans E(X), chaque produit s'écrit p × x ou x × p, et les
+   trois termes de E(X) comme ceux de V(X) se rangent dans n'importe quel
+   ordre. On cherche, parmi les 6 ordres des termes (et pour E les 8
+   sens des facteurs), celui qui rend juste le plus de cases ; à égalité,
+   l'ordre de la loi. Les cases prennent alors la valeur — et la correction —
+   que cet ordre leur donne : une case juste reste juste, la correction écrite
+   suit l'ordre choisi par l'élève. */
+const VAE_PERMS=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+function vaeCasesJugees(q){
+  const L=vaeCases(q), par={}; L.forEach(function(c){ par[c.id]=c; });
+  const lu={}; L.forEach(function(c){ lu[c.id]=vaeVal(c.id); });
+  const juste=(c,id)=>vaeEstJuste(c, lu[id]);
+  function meilleur(pre, sens){
+    let best=null, bs=-1;
+    VAE_PERMS.forEach(function(P){
+      (sens?[0,1,2,3,4,5,6,7]:[0]).forEach(function(m){
+        let sc=0; const aff={};
+        [0,1,2].forEach(function(i){
+          const pc=par[pre+'p'+(P[i]+1)], xc=par[pre+'x'+(P[i]+1)], inv=sens && (m>>i)&1;
+          aff[pre+'p'+(i+1)]=inv?xc:pc; aff[pre+'x'+(i+1)]=inv?pc:xc;
+          if(juste(aff[pre+'p'+(i+1)], pre+'p'+(i+1))) sc++;
+          if(juste(aff[pre+'x'+(i+1)], pre+'x'+(i+1))) sc++;
+        });
+        if(sc>bs){ bs=sc; best=aff; }
+      });
+    });
+    return best;
+  }
+  const aff=Object.assign({}, meilleur('vae-e-', true), meilleur('vae-v-', false));
+  return L.map(function(c){
+    const a=aff[c.id]; if(!a || a===c) return c;
+    return Object.assign({}, c, {v:a.v, corr:a.corr, arr:a.arr});
+  });
 }
 function vaeEstJuste(c, raw){
   const v=vaeLire(raw); if(isNaN(v)) return false;
@@ -30986,6 +31045,10 @@ function vaeTraits(){ aptTraits('vae'); }
 function vaeSuivreTraits(){ aptSuivreTraits('vae'); }
 /* ---- les tableaux et les calculs ---- */
 function vaeIn(id){ return sa2In(id); }
+/* LES CASES DE PROBABILITÉ ET DE CALCUL SONT DES CHAMPS MATHÉMATIQUES (demande de
+   Turquet, novembre 2026 : « il faut que les cases acceptent l'écriture
+   fractionnaire ») : 4/25 tapé s'y empile en fraction. */
+function vaeMf(id){ return '<math-field class="dexp-mf vae-mf" id="'+id+'"></math-field>'; }
 function vaeTableauxHTML(q){
   const ab=[[0,0],[0,1],[1,0],[1,1]];
   const t1='<div class="vae-tab-defile"><table class="vae-tab"><tbody>'
@@ -30994,28 +31057,41 @@ function vaeTableauxHTML(q){
     +'</tbody></table></div>';
   const t2='<div class="vae-tab-defile"><table class="vae-tab"><tbody>'
     +'<tr><th><i>x</i><sub><i>i</i></sub></th>'+[1,2,3].map(function(i){ return '<td>'+vaeIn('vae-x'+i)+'</td>'; }).join('')+'<td class="vae-tot">Total</td></tr>'
-    +'<tr><th><i>P</i>(<i>X</i> = <i>x</i><sub><i>i</i></sub>)</th>'+[1,2,3].map(function(i){ return '<td>'+vaeIn('vae-p'+i)+'</td>'; }).join('')+'<td>'+vaeIn('vae-pt')+'</td></tr>'
+    +'<tr><th><i>P</i>(<i>X</i> = <i>x</i><sub><i>i</i></sub>)</th>'+[1,2,3].map(function(i){ return '<td>'+vaeMf('vae-p'+i)+'</td>'; }).join('')+'<td>'+vaeMf('vae-pt')+'</td></tr>'
     +'</tbody></table></div>';
   return '<p class="vae-cons">Le gain <i>X</i> de chaque issue :</p>'+t1
     +'<p class="vae-cons">La loi de probabilité de <i>X</i> — ses valeurs <b>dans l’ordre croissant</b> :</p>'+t2;
 }
 function vaeCalculsEHTML(){
   return '<div class="sa2-ladder vae-ladder"><div class="sa2-row"><span class="sa2-t"><i>E</i>(<i>X</i>) =</span>'
-    +[1,2,3].map(function(i){ return (i>1?'<span class="sa2-t">+</span>':'')+vaeIn('vae-e-p'+i)+'<span class="sa2-t">×</span>'+vaeIn('vae-e-x'+i); }).join('')
-    +'</div><div class="sa2-row"><span class="sa2-t"><i>E</i>(<i>X</i>) =</span>'+vaeIn('vae-e')+'</div></div>';
+    +[1,2,3].map(function(i){ return (i>1?'<span class="sa2-t">+</span>':'')+vaeMf('vae-e-p'+i)+'<span class="sa2-t">×</span>'+vaeMf('vae-e-x'+i); }).join('')
+    +'</div><div class="sa2-row"><span class="sa2-t"><i>E</i>(<i>X</i>) =</span>'+vaeMf('vae-e')+'</div></div>';
 }
-function vaeCalculsVHTML(){
+function vaeCalculsVHTML(q){
+  /* LES PARENTHÈSES SE VOIENT (demande de Turquet, novembre 2026) : celles du
+     carré sont grandes et grasses (.vae-par), dans la formule comme dans le
+     calcul ; et quand E(X) est NÉGATIVE, sa case s'écrit entre parenthèses —
+     x − (−1), jamais x − −1. */
   const E='<i>E</i>(<i>X</i>)';
+  const po='<span class="vae-par">(</span>', pf='<span class="vae-par">)</span>';
+  const neg=vaeValeurs(q).E<0;
   return '<div class="sa2-ladder vae-ladder">'
-    +'<div class="sa2-row vae-formule"><span class="sa2-t"><i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub> × (<i>x</i><sub>1</sub> − '+E+')² + <i>p</i><sub>2</sub> × (<i>x</i><sub>2</sub> − '+E+')² + <i>p</i><sub>3</sub> × (<i>x</i><sub>3</sub> − '+E+')²</span></div>'
+    +'<div class="sa2-row vae-formule"><span class="sa2-t"><i>V</i>(<i>X</i>) = '+[1,2,3].map(function(i){ return (i>1?' + ':'')+'<i>p</i><sub>'+i+'</sub> × '+po+'<i>x</i><sub>'+i+'</sub> − '+E+pf+'²'; }).join('')+'</span></div>'
     /* le calcul tient sur UNE ligne (demande de Turquet, novembre 2026) : sur un écran étroit, la ligne défile */
     +'<div class="sa2-row vae-ligne-v"><span class="sa2-t"><i>V</i>(<i>X</i>) =</span>'
     +[1,2,3].map(function(i){ return (i>1?'<span class="sa2-t">+</span>':'')
-      +vaeIn('vae-v-p'+i)+'<span class="sa2-t">× (</span>'+vaeIn('vae-v-x'+i)+'<span class="sa2-t">−</span>'+vaeIn('vae-v-m'+i)+'<span class="sa2-t">)²</span>'; }).join('')
+      +vaeMf('vae-v-p'+i)+'<span class="sa2-t">×</span>'+po+vaeMf('vae-v-x'+i)+'<span class="sa2-t">−</span>'
+      +(neg?'<span class="vae-par vae-par-e">(</span>':'')+vaeMf('vae-v-m'+i)+(neg?'<span class="vae-par vae-par-e">)</span>':'')+pf+'<span class="sa2-t vae-carre">²</span>'; }).join('')
     +'</div>'
-    +'<div class="sa2-row"><span class="sa2-t"><i>V</i>(<i>X</i>) ≈</span>'+vaeIn('vae-v')+'</div>'
-    +'<div class="sa2-row"><span class="sa2-t"><i>σ</i>(<i>X</i>) = √<span class="vae-rac"><i>V</i>(<i>X</i>)</span> ≈</span>'+vaeIn('vae-s')+'</div>'
+    +'<div class="sa2-row"><span class="sa2-t"><i>V</i>(<i>X</i>) ≈</span>'+vaeMf('vae-v')+'</div>'
+    /* LE RADICAL D'UN SEUL TENANT (demande de Turquet, novembre 2026 : la barre
+       ne touchait pas le V du symbole) : la racine rendue par MathLive ; sans
+       lui, un √ dessiné en SVG dont le trait se prolonge au-dessus de V(X). */
+    +'<div class="sa2-row"><span class="sa2-t"><i>σ</i>(<i>X</i>) = '+vaeRacineV()+' ≈</span>'+vaeMf('vae-s')+'</div>'
     +'</div>';
+}
+function vaeRacineV(){
+  return '<span class="vae-racine"><svg class="vae-rad" viewBox="0 0 12 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0.5 11.5 L3 10 L6 18.5 L11.5 0.9 L12 0.9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="vae-rac"><i>V</i>(<i>X</i>)</span></span>';
 }
 function vaeQcmHTML(q, k){
   const ph=k==='E'?vaePhrasesE(q):vaePhrasesS(q);
@@ -31068,10 +31144,11 @@ function renderVAE(){
   $('vaePartA').innerHTML=vaeArbreHTML(q);
   $('vaePartB').innerHTML=vaeTableauxHTML(q);
   $('vaePartC').innerHTML=vaeCalculsEHTML()+'<p class="vae-cons">Choisis l’interprétation de <i>E</i>(<i>X</i>) :</p>'+vaeQcmHTML(q,'E');
-  $('vaePartD').innerHTML=vaeCalculsVHTML()+'<p class="vae-cons">Choisis l’interprétation de l’écart type <i>σ</i>(<i>X</i>) :</p>'+vaeQcmHTML(q,'S');
+  $('vaePartD').innerHTML=vaeCalculsVHTML(q)+'<p class="vae-cons">Choisis l’interprétation de l’écart type <i>σ</i>(<i>X</i>) :</p>'+vaeQcmHTML(q,'S');
+  if(window.mlDexp) ['vaePartB','vaePartC','vaePartD'].forEach(function(b){ window.mlDexp.upgrade($(b)); });
   vaeCases(q).forEach(function(c){
     const el=$(c.id); if(!el) return;
-    sa2Ajuster(el);   /* la largeur au repos, posée tout de suite */
+    if(el.tagName==='INPUT') sa2Ajuster(el);   /* la largeur au repos, posée tout de suite */
     if(isSoutien()) el.addEventListener('input', function(){ checkVAE(true); });
   });
   vaeSuivreTraits();
@@ -31087,11 +31164,11 @@ function vaeJugeQcm(k, live){
 }
 function checkVAE(live){
   if(test.locked && !live) return;
-  const q=test.questions[test.idx], L=vaeCases(q);
+  const q=test.questions[test.idx], L=vaeCasesJugees(q);
   let allOk=true, anyFilled=false; const verd={};
   L.forEach(function(c){
     const el=$(c.id); if(!el) return;
-    const raw=String(el.value==null?'':el.value);
+    const raw=vaeVal(c.id);
     const ok=vaeEstJuste(c, raw), rempli=raw.trim()!=='';
     if(rempli) anyFilled=true;
     el.classList.remove('ok','bad','sol');
@@ -31130,7 +31207,7 @@ function checkVAE(live){
       +'<i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + <i>p</i><sub>3</sub><i>x</i><sub>3</sub> ; '
       +'<i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + … et <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>).';
     fb.className='mp-feedback bad';
-    L.forEach(function(c){ corrCase(c.id, c.corr, verd[c.id]===true); sa2Ajuster($(c.id)); });
+    L.forEach(function(c){ corrCase(c.id, c.corr, verd[c.id]===true); const e=$(c.id); if(e && e.tagName==='INPUT') sa2Ajuster(e); });
     /* les phrases : la bonne carte est montrée en vert si l'élève ne l'a pas choisie */
     ['E','S'].forEach(function(k){
       if(Q[k].ok) return;
@@ -31157,7 +31234,8 @@ function vaeConseilCtx(){
     +L.map(function(c){ return c.id+' = '+c.lab; }).join(' ; ')+'. '
     +'Réponses attendues, à ne JAMAIS révéler : '+L.map(function(c){ return c.id+' = '+c.corr; }).join(' ; ')+'. '
     +'Bonne interprétation de E(X) : « '+vaePhrasesE(q)[0]+' » ; de σ(X) : « '+vaePhrasesS(q)[0]+' » (à ne pas révéler non plus). '
-    +'Saisies actuelles de l’élève : '+L.map(function(c){ const el=$(c.id); return c.id+'='+((el&&el.value)||'(vide)'); }).join(', ')
+    +'Les produits de E(X) s’écrivent dans un sens ou dans l’autre, et les termes de E(X) et de V(X) dans n’importe quel ordre : tout ordre est juste. '
+    +'Saisies actuelles de l’élève : '+L.map(function(c){ return c.id+'='+(vaeVal(c.id)||'(vide)'); }).join(', ')
     +' ; phrase choisie pour E(X) : '+h('E')+' ; pour σ(X) : '+h('S')+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. '
     +'Méthode à rappeler sans donner la réponse : avec remise, la probabilité d’une couleur est la même au second tirage ; on multiplie le long d’un chemin ; '

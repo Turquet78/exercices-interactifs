@@ -1125,3 +1125,20 @@ entière — texte et cases du même facteur, la case garde la taille des nombre
 qui l'entourent. Mesuré sur le pire tirage (10 objets, probabilités sur 100,
 E(X) = −2,8, toutes les cases remplies) : 944 px pour 986 disponibles à
 1280 px de large ; plus étroit, la rangée défile, elle ne se replie pas.
+
+**Puis l'ordre libre, les fractions empilées, les parenthèses et le radical (v500).**
+Turquet a demandé cinq choses après avoir regardé une copie :
+- **les produits de E(X) dans un sens ou dans l'autre, et les termes de E(X) et de V(X) dans n'importe quel ordre**, parce qu'une copie « −7 × 4/25 » était rougie case par case ;
+- **les cases en écriture fractionnaire** ;
+- **la case de E(X) entre parenthèses dans V(X) quand E(X) est négative** ;
+- **des parenthèses plus visibles** ;
+- **un radical d'un seul tenant**.
+
+Ce qui a été fait, point par point :
+- **L'ordre libre.** `vaeCasesJugees(q)` essaie les 6 ordres des termes, et pour E(X) les 8 sens des facteurs. Il garde l'affectation qui rend juste le plus de cases ; à égalité, l'ordre de la loi l'emporte. Chaque case est ensuite jugée, et corrigée, avec la valeur que cette affectation lui donne : la correction écrite suit l'ordre choisi par l'élève.
+- **Les fractions.** Les probabilités de la loi et toutes les cases de E(X), V(X) et σ(X) sont des champs MathLive (`vaeMf`). Ils sont lus par `vaeVal` → `dexpCellValue`. `vaeLire` retire les parenthèses que `toPlain` pose autour d'un nombre (« (4)/(25) », « -(1)/(5) », « (-1)/(5) »). Les cases de l'arbre, des gains et des valeurs restent en texte : 4/25 y est accepté, mais pas empilé.
+- **Les cases figées.** MathLive pâlit un champ désactivé ; `math-field.vae-mf[disabled]` lui rend son opacité.
+- **Les parenthèses.** Celles du carré sont grandes et grasses (`.vae-par`), dans la formule comme dans le calcul. Quand E(X) < 0, la case de E(X) se met entre parenthèses.
+- **Le radical.** Un √ dessiné en SVG, étiré sur la hauteur, dont le trait rejoint la barre posée sur V(X). Le glyphe √ suivi d'une bordure laissait un jour entre les deux.
+
+Mesure : dans le pire tirage, la ligne de V(X) fait 945 px sur 986 à 1280 px de large. Exécuté : une copie aux termes permutés et aux facteurs inversés, sans autre erreur, est notée juste partout, sauf la case laissée vide exprès.
