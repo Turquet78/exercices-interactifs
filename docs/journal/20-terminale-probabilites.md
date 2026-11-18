@@ -1126,7 +1126,7 @@ qui l'entourent. Mesuré sur le pire tirage (10 objets, probabilités sur 100,
 E(X) = −2,8, toutes les cases remplies) : 944 px pour 986 disponibles à
 1280 px de large ; plus étroit, la rangée défile, elle ne se replie pas.
 
-**Puis l'ordre libre, les fractions empilées, les parenthèses et le radical (v500).**
+**Puis l'ordre libre, les fractions empilées, les parenthèses et le radical (v501).**
 Turquet a demandé cinq choses après avoir regardé une copie :
 - **les produits de E(X) dans un sens ou dans l'autre, et les termes de E(X) et de V(X) dans n'importe quel ordre**, parce qu'une copie « −7 × 4/25 » était rougie case par case ;
 - **les cases en écriture fractionnaire** ;
