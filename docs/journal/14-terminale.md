@@ -3478,7 +3478,7 @@ défilent dans leur cadre (comme au 5.2.5 et au 6.2.1), les longues phrases des
 lignes se replient (`#scr-sbe .sa2-ladder .sa2-t`, sous 600 px). Banc des notes
 et banc de la pause verts sur l'exercice.
 
-### Le 5.7.1 retouché : escalier aimanté, hérédité pas à pas, partie C comme le 5.1.2 (v500)
+### Le 5.7.1 retouché : escalier aimanté, hérédité pas à pas, partie C comme le 5.1.2 (v500, puis v501 après la fusion de main)
 
 Demandes de Turquet (novembre 2026), après la mise en ligne :
 
