@@ -2341,6 +2341,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-svg{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation}
 .esx-ar{stroke:#1e293b;stroke-width:1.8;stroke-linecap:round}
 .esx-cache{stroke-dasharray:6 5}
+.esx-dr.esx-cache,.esx-sg.esx-cache{stroke-dasharray:5 4}
 .esx-dr{stroke:#64748b;stroke-width:1.3}
 .esx-sg{stroke:#475569;stroke-width:2;stroke-linecap:round}
 .esx-rouge{stroke:#dc2626;stroke-width:3.4;stroke-linecap:round}
@@ -35931,8 +35932,43 @@ function esxClip(p,r,c){
     if(Math.abs(z[0])<1e-12) return; const t=z[1]/z[0]; if(z[0]<0) t0=Math.max(t0,t); else t1=Math.min(t1,t); });
   return [[p[0]+t0*dx,p[1]+t0*dy],[p[0]+t1*dx,p[1]+t1*dy]];
 }
-/* un segment est en pointillés quand toutes les faces qui le portent sont cachées */
-function esxSegCache(A,B){ const fs=ESX_FACES.filter(f=>esxSurFace(A,f)&&esxSurFace(B,f)); return fs.length>0 && fs.every(esxFaceCachee); }
+/* CE QUE LE CUBE CACHE (Turquet, novembre 2026 : « pour les droites, mettre
+   des pointillés pour les parties de droite cachées par le cube »). Le principe
+   du 7.1.7 (epoCache) : un point est caché quand, en allant vers l'œil, on
+   traverse l'intérieur du cube. La direction de l'œil est le noyau de la
+   projection (esxProj(V) = 0), orientée vers l'avant (A, caché, est derrière) :
+   V = (−½ ; 1 ; −50/170), l'œil en −V. Un point d'une face cachée l'est, un
+   point d'une face vue ne l'est pas : la règle vaut aussi pour les segments. */
+const ESX_OEIL=[ESX_FUITE[0]/ESX_S, -1, -ESX_FUITE[1]/ESX_S];
+function esxCache(P){
+  let t0=1e-7, t1=Infinity;
+  for(let k=0;k<3;k++){
+    const d=ESX_OEIL[k];
+    if(Math.abs(d)<1e-12){ if(P[k]<=1e-9 || P[k]>=1-1e-9) return false; continue; }
+    const ta=(0-P[k])/d, tb=(1-P[k])/d; t0=Math.max(t0,Math.min(ta,tb)); t1=Math.min(t1,Math.max(ta,tb));
+  }
+  return t1-t0>1e-6;
+}
+/* le paramètre d'une droite du dessin, coupée au bord du cadre (la projection
+   est linéaire : c'est aussi le paramètre de l'espace, A + t AB) */
+function esxClipT(p,r,c){
+  const dx=r[0]-p[0], dy=r[1]-p[1]; let t0=-1e6, t1=1e6;
+  [[-dx,p[0]-c.x0],[dx,c.x0+c.W-p[0]],[-dy,p[1]-c.y0],[dy,c.y0+c.H-p[1]]].forEach(function(z){
+    if(Math.abs(z[0])<1e-12) return; const t=z[1]/z[0]; if(z[0]<0) t0=Math.max(t0,t); else t1=Math.min(t1,t); });
+  return [t0,t1];
+}
+/* les morceaux vus et cachés de A + t AB, t de t0 à t1 : [ta, tb, caché] */
+function esxMorceaux(A,B,t0,t1){
+  const u=esxSub(B,A), N=200, pt=t=>esxAdd(A,esxMul(u,t)), o=[];
+  let debut=t0, prec=null;
+  for(let i=0;i<N;i++){
+    const ta=t0+(t1-t0)*i/N, tb=t0+(t1-t0)*(i+1)/N, c=esxCache(pt((ta+tb)/2));
+    if(prec===null) prec=c;
+    else if(c!==prec){ o.push([debut,ta,prec]); debut=ta; prec=c; }
+  }
+  o.push([debut,t1,prec]);
+  return o;
+}
 /* la section est-elle complète ? */
 function esxSectionFaite(q){ const ob=esxObjets(q); return esxCfg(q).morceaux.every(m=>ob.some(o=>o.t==='s'&&((esxEq(o.A,m.P)&&esxEq(o.B,m.Q))||(esxEq(o.A,m.Q)&&esxEq(o.B,m.P))))); }
 /* ---- le bilan : le point L, la droite 𝒟, chaque morceau ---- */
@@ -35958,6 +35994,13 @@ function esxSVG(q){
   const g=esxCfg(q), c=esxCadre(q), f=v=>v.toFixed(1), X=P=>esxProj(P);
   const ln=(a,b,cl,extra)=>'<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" class="'+cl+'"'+(extra||'')+'/>';
   const ob=esxObjets(q), traits=[]; let h='';
+  /* un trait de l'espace, ses morceaux cachés en pointillés */
+  const trait=function(A,B,t0,t1,cl){
+    const u=esxSub(B,A), P=t=>X(esxAdd(A,esxMul(u,t)));
+    traits.push([P(t0),P(t1)]);
+    return esxMorceaux(A,B,t0,t1).map(m=>ln(P(m[0]),P(m[1]),cl+(m[2]?' esx-cache':''))).join('');
+  };
+  const tDroite=(A,B)=>esxClipT(X(A),X(B),c);
   const corr=test.locked, nc=corr?esxNomsCorr(q):null, bil=corr?esxBilan(q):null;
   /* la section complète se remplit */
   if(esxSectionFaite(q)){
@@ -35972,7 +36015,7 @@ function esxSVG(q){
   /* la correction : ce qui manque, en vert */
   if(corr){
     const vus=bil.find(z=>z.cle==='L');
-    const dr=function(A,B){ const s=esxClip(X(A),X(B),c); traits.push(s); return ln(s[0],s[1],'esx-cor esx-cor-dr'); };
+    const dr=function(A,B){ const t=tDroite(A,B); return trait(A,B,t[0],t[1],'esx-cor esx-cor-dr'); };
     if(!vus.ok){
       const P=k=>ESX_CO[g.R[k]];
       if(!ob.some(o=>o.t==='d'&&esxSurDroite(g.I,o.A,o.B)&&esxSurDroite(g.J,o.A,o.B))) h+=dr(g.I,g.J);
@@ -35983,10 +36026,10 @@ function esxSVG(q){
   /* les droites et les segments de l'élève */
   ob.forEach(function(o){ if(o.t==='a') return;
     const hl=(esxSel&&esxSel.o===o.id)||(esxSurvol&&esxSurvol.o===o.id);
-    if(o.t==='d'){ const s=esxClip(X(o.A),X(o.B),c); traits.push(s); h+=ln(s[0],s[1],'esx-dr'+(hl?' esx-hl':'')); }
-    else { const a=X(o.A), b=X(o.B); traits.push([a,b]); h+=ln(a,b,(o.rouge?'esx-rouge':'esx-sg')+(esxSegCache(o.A,o.B)?' esx-cache':'')+(hl?' esx-hl':'')); }
+    if(o.t==='d'){ const t=tDroite(o.A,o.B); h+=trait(o.A,o.B,t[0],t[1],'esx-dr'+(hl?' esx-hl':'')); }
+    else h+=trait(o.A,o.B,0,1,(o.rouge?'esx-rouge':'esx-sg')+(hl?' esx-hl':''));
   });
-  if(corr) bil.forEach(function(z){ if(z.ok||!z.m) return; const a=X(z.m.P), b=X(z.m.Q); traits.push([a,b]); h+=ln(a,b,'esx-cor'+(esxSegCache(z.m.P,z.m.Q)?' esx-cache':'')); });
+  if(corr) bil.forEach(function(z){ if(z.ok||!z.m) return; h+=trait(z.m.P,z.m.Q,0,1,'esx-cor'); });
   /* les points, et leur nom à la place la plus dégagée */
   const ctr=X([0.5,0.5,0.5]), pts=esxPoints(q);
   if(corr) nc.liste.forEach(z=>{ if(!pts.some(p=>esxEq(p.P,z.P))) pts.push({n:z.n,P:z.P,k:'cor'}); });
