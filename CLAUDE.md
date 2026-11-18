@@ -207,6 +207,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Puis la VÉRIFICATION a levé la bulle — et c'est la partie Algorithmique qui l'a montré.**
 - **Puis la bulle a SUIVI la case que l'élève regarde — et le garde a rendu la main à la VÉRIFICATION.**
 - **Puis la bulle s'est DÉPLACÉE à la main.** Saisie hors de ses boutons, elle perd sa flèche et reste où l'élève l'a posée (`bexpDeplacee`), jusqu'à une autre case ; une poignée ⠿ dans son coin le signale.
+- **Puis la bulle a dit OÙ est la case.** `bexpContexte()` envoie le nom de la case (`aria-label`) et le texte de sa ligne, sans champs ni correction : sur une fiche à huit questions, le modèle expliquait une autre question.
 - **`numeros()` ne passe que par trois entonnoirs.**
 - **La flèche → passe à la case suivante en fin de saisie — dans TOUS les exercices.**
 - **En entraînement, « Vérifier » avec des cases vides demande confirmation — dans TOUS les exercices.** `#confirmer-vides` ; les bancs la coupent par `window.confirmerCasesVides=false`.

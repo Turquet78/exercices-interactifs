@@ -776,6 +776,30 @@ Le banc navigateur exige qu'elle se VOIE — un rectangle dans la bulle, aucun
 bouton recouvert, et c'est bien elle que rend `elementFromPoint` en son centre —
 et le glisser du contrôle précédent PART D'ELLE : le geste qu'elle promet.
 
+**Puis la bulle a dit OÙ est la case.** Signalé par Turquet (novembre 2026),
+capture à l'appui : au 3.10 de la Première, l'élève avait choisi « A » comme
+indice de P à la question 3 (P_A(A∩D), il fallait « tout »), et l'explication
+parlait de la question 2, « qui n'a aucun rapport ». Rien n'était faux dans le
+modèle : `bexpContexte()` lui envoyait le contexte de TOUTE la fiche (huit
+questions à l'écran ensemble) et une seule phrase, « l'élève vient d'écrire
+« A » dans une case fausse » — à lui de deviner laquelle. Il a cherché sur la
+fiche où un « A » pouvait être une erreur, a trouvé A2 (l'atelier B, où l'on
+attend Ā), et l'a expliquée. Le contexte nomme maintenant la case — son
+`aria-label`, le nom qu'elle porte déjà pour les lecteurs d'écran (« question
+A3 : indice de P, la condition ou tout ») — et le texte de sa ligne (`li` ou
+rangée de tableau), puis demande de n'expliquer que CETTE case. La ligne part
+SANS ses champs, ses listes (leurs options listeraient la réponse), ni ce que la
+page a écrit comme correction (`.sol`, `.mf-cor`) : décrire la ligne ne doit pas
+trahir la clause de secret. C'est dans le bloc commun de la bulle : les trois
+niveaux à la fois. Contrôle au banc principal (bulle, point 13) : sur une liste
+de deux questions, le contexte nomme la case et la ligne 3, jamais la ligne 2,
+ni la correction, ni la case voisine, ni les options. Exécuté dans Chromium sur
+le 3.10 : « Cette case est « question A3 : indice de P, la condition ou tout »,
+sur la ligne de l'écran qui dit : « 3. Calcule la probabilité que le pot
+provienne de la ferme A et ne présente pas de défaut. P( )== » ». Ce qu'aucun
+banc ne voit : la réponse du modèle elle-même — une case sans `aria-label` ni
+ligne ne gagne rien, et le modèle reste libre de mal lire.
+
 **`numeros()` ne passe que par trois entonnoirs.** Les références s'écrivent
 `{identifiant}` et sont résolues par `cardHTML`, `rappelHTML` et
 `conseilCtxCourant` — pas ailleurs. Un libellé posé dans un `innerHTML` par une
