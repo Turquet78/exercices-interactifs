@@ -3058,9 +3058,10 @@ module.exports = {
                         's2lvl'],
     /* Le thème des Suites est découpé en six parties (septembre 2026, la
        cinquième — Algorithme — ajoutée le même mois ; la sixième — Limite de
-       qⁿ — en octobre 2026) : le banc navigateur clique les deux étages comme
+       qⁿ — en octobre 2026 ; la septième — Exercice de bac — en novembre
+       2026) : le banc navigateur clique les deux étages comme
        le ferait un élève. */
-    menu: { theme: 5, parties: 6, exercice: 'suite-explicite' },
+    menu: { theme: 5, parties: 7, exercice: 'suite-explicite' },
     niveau: 'Terminale',
     /* .tvi-instr n'est PAS un énoncé : c'est la consigne de travail qui suit
        (« Rédige la justification : »). L'application elle-même les distingue,
