@@ -1290,7 +1290,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2334,6 +2334,19 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #ealForm .elg-row{gap:3px}
   #ealForm .eal-quo{overflow-x:auto}
 }
+/* 8.1.1 Équations différentielles : la vérification en grille, ⟺ et = alignés comme sur la fiche */
+.edv-sous{margin:12px 0 8px}
+.edv-verif{overflow-x:auto;margin:16px 0 4px;padding-bottom:4px}
+.edv-grille{display:grid;grid-template-columns:auto auto auto auto auto;align-items:center;gap:10px 8px;font-size:1.05rem;width:max-content;max-width:none}
+.edv-lead{text-align:right;white-space:nowrap}
+.edv-g,.edv-d{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;white-space:nowrap}
+.edv-g{justify-content:flex-end}
+.edv-eq{font-weight:700}
+.edv-apres{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.edv-iff{font-weight:700;margin-left:6px}
+.edv-p{font-weight:700;font-size:1.3rem;color:var(--ink-soft)}
+math-field.dexp-mf.edv-let{min-width:42px}
+#scr-edv .mf-cor{margin-left:4px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:var(--card-max);margin:0 auto;}
@@ -3599,6 +3612,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
   </section>
 
   <!-- 7.1.11 L'ESPACE — trois points alignés, ou un plan ? (fiche « vecteur 9 ») -->
+  <!-- 8.1.1 ÉQUATIONS DIFFÉRENTIELLES — vérifier qu'une fonction est solution (fiche « équa diff ») -->
+  <section class="screen" id="scr-edv">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="edvModeTag"></span><span class="q-idx" id="edvQIdx">Question 1 / 5</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="edvLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="enonce" id="edvPrompt"></p>
+      <div id="edvForm"></div>
+      <div class="mp-feedback" id="edvFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="edvActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-eal">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ealModeTag"></span><span class="q-idx" id="ealQIdx">Question 1 / 3</span></span>
@@ -4762,6 +4789,7 @@ const TESTS={
   'espace-cube-droites': { name:'Espace \u2014 le cube\u00a0: droites parall\u00e8les, s\u00e9cantes, triangle rectangle', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 8 \u00bb, en quatre parties\u00a0: dans un cube, des coordonn\u00e9es, un milieu et des vecteurs\u00a0; les \u00e9quations param\u00e9triques de trois droites, parall\u00e8les ou s\u00e9cantes, coplanaires\u00a0; leur point d\u2019intersection, \u00e0 calculer puis \u00e0 placer\u00a0; un triangle rectangle.', start:()=>startECD() },
   'espace-reconnaitre-parametrique': { name:'Espace \u2014 reconna\u00eetre une \u00e9quation param\u00e9trique de droite', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 10 \u00bb\u00a0: d\u00e9montrer qu\u2019une \u00e9quation param\u00e9trique donn\u00e9e est celle de la droite (AB), par l\u2019une des deux m\u00e9thodes de la fiche, d\u00e9crites puis choisies par l\u2019\u00e9l\u00e8ve\u00a0: les vecteurs directeurs colin\u00e9aires puis un point commun, ou bien la droite passe par A et par B. La r\u00e9daction compl\u00e8te, jusqu\u2019aux trois valeurs de t. Trois questions.', start:()=>startERP() },
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
+  'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
@@ -4891,6 +4919,13 @@ const THEMES=[
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:7, nom:'Géométrie dans l’espace', sous:[
       { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes'] }
+    ] },
+  /* Le thème des Équations différentielles (demande de Turquet, novembre
+     2026 : « créer un exercice comme le pdf dans le nouveau thème équation
+     différentielle ») : la fiche « équa diff » — vérifier qu'une fonction est
+     solution —, {equadiff-verifier-solution}, 8.1.1. */
+  { num:8, nom:'Équations différentielles', sous:[
+      { num:1, nom:'Vérifier une solution', ids:['equadiff-verifier-solution'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -5123,7 +5158,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-edv'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5590,6 +5625,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='ecd' && test.questions && test.questions[test.idx]){ c=ecdConseilCtx(); }
   else if(test && test.kind==='erp' && test.questions && test.questions[test.idx]){ c=erpConseilCtx(); }
   else if(test && test.kind==='eal' && test.questions && test.questions[test.idx]){ c=ealConseilCtx(); }
+  else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
@@ -7066,7 +7102,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7197,7 +7233,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -21941,6 +21977,14 @@ const RAP_ERP=`<b>Reconnaître une équation paramétrique de droite</b><br>
 • <b>2<sup>e</sup> méthode</b> : deux points distincts définissent une droite. On vérifie que <i>d</i> passe par <i>A</i> <b>et</b> par <i>B</i>.<br>
 • <b>Un point est-il sur <i>d</i> ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées ; on passe le nombre seul de l’autre côté (son signe change) ; on divise par le coefficient de <i>t</i> — s’il vaut 1, il n’y a rien à diviser. Trois valeurs de <i>t</i> égales : le point est sur <i>d</i>.<br>
 • <b>Exemple</b> : <i>A</i>(2 ; 2 ; −5), <i>d</i> : <i>x</i> = −2 + 4<i>t</i>, <i>y</i> = 1 + 1<i>t</i>, <i>z</i> = −3 − 2<i>t</i>. −2 + 4<i>t</i> = 2 ⟺ 4<i>t</i> = 2 + 2 ⟺ <i>t</i> = \\(\\frac{4}{4}\\) = 1 ; 1 + 1<i>t</i> = 2 ⟺ <i>t</i> = 1 ; −3 − 2<i>t</i> = −5 ⟺ −2<i>t</i> = −5 + 3 ⟺ <i>t</i> = \\(\\frac{-2}{-2}\\) = 1 : <i>A</i> ∈ <i>d</i>.`;
+const RAP_EDV=`<b>Vérifier qu’une fonction est solution d’une équation différentielle</b><br>
+• <b>Une équation différentielle</b> relie une fonction inconnue <i>y</i> et sa dérivée <i>y</i>′, par exemple (<i>E</i>) : <i>y</i>′ = <i>y</i> + <i>x</i>.<br>
+• <b>Une solution</b> est une fonction <i>f</i>, dérivable, telle que <i>f</i>′(<i>x</i>) = <i>f</i>(<i>x</i>) + <i>x</i> pour tout réel <i>x</i>.<br>
+• <b>Méthode</b> : on remplace <i>y</i> par <i>f</i> — à gauche sa dérivée <i>f</i>′(<i>x</i>), à droite l’expression de <i>f</i>(<i>x</i>) —, puis on réduit chaque membre. Si les deux membres sont égaux pour tout <i>x</i>, <i>f</i> est solution.<br>
+• <b>Exemple</b> : <i>f</i>(<i>x</i>) = −<i>x</i> − 1 et (<i>E</i>) : <i>y</i>′ = <i>y</i> + <i>x</i>. À gauche, <i>f</i>′(<i>x</i>) = −1 ; à droite, −<i>x</i> − 1 + <i>x</i> = −1. Les deux membres sont égaux : <i>f</i> est solution.<br>
+• <b>Les dérivées utiles</b> : (e<sup><i>ax</i></sup>)′ = <i>a</i>e<sup><i>ax</i></sup> ; (e<sup><i>u</i></sup>)′ = <i>u</i>′e<sup><i>u</i></sup>, par exemple (e<sup><i>x</i>²</sup>)′ = 2<i>x</i>e<sup><i>x</i>²</sup> ; (<i>k</i>e<sup><i>u</i></sup>)′ = <i>k</i><i>u</i>′e<sup><i>u</i></sup>.<br>
+• <b>Un produit</b> : (<i>uv</i>)′ = <i>u</i>′<i>v</i> + <i>uv</i>′. Par exemple, avec <i>f</i>(<i>x</i>) = <i>x</i>e<sup><i>x</i></sup> : <i>u</i> = <i>x</i>, <i>v</i> = e<sup><i>x</i></sup>, <i>u</i>′ = 1, <i>v</i>′ = e<sup><i>x</i></sup>, donc <i>f</i>′(<i>x</i>) = 1 × e<sup><i>x</i></sup> + <i>x</i> × e<sup><i>x</i></sup> = e<sup><i>x</i></sup>(<i>x</i> + 1).<br>
+• <b>Factoriser par e<sup><i>ax</i></sup></b> : quand les deux membres contiennent la même exponentielle, on la met en facteur des deux côtés et on compare ce qui reste dans les parenthèses.`;
 const RAP_EAL=`<b>Trois points alignés, ou un plan ?</b><br>
 • <b>Remarque</b> : trois points <b>alignés</b> se prolongent sur une <b>droite</b> ; trois points <b>non alignés</b> se prolongent sur un <b>plan</b>, noté (<i>ABC</i>).<br>
 • <b>Propriété</b> : trois points <i>A</i>, <i>B</i> et <i>C</i> définissent un plan de l’espace si <i>A</i>, <i>B</i> et <i>C</i> sont <b>non alignés</b>, c’est-à-dire si <span class="elg-vec">AB</span> et <span class="elg-vec">AC</span> sont <b>non colinéaires</b>.<br>
@@ -21996,7 +22040,7 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -23022,7 +23066,8 @@ const FICHE_ECRANS={
   'scr-rec':{actions:'#recActions'},     /* 6.5 recurrence complete (fiche recurrence_4) */
   'scr-sp':{actions:'#spActions'},       /* 1.4 signe d'un produit : tableau progressif */
   'scr-eq':{actions:'#eqActions'},       /* 5.3 fonction quotient : domaine, derivee, variations */
-  'scr-rc':{actions:'#rcActions'}        /* 6.4 recurrence : encadrement de Un */
+  'scr-rc':{actions:'#rcActions'},       /* 6.4 recurrence : encadrement de Un */
+  'scr-edv':{actions:'#edvActions'}      /* 8.1.1 equations differentielles : verifier une solution */
 };
 document.addEventListener('focusin',(e)=>{
   const el=e.target;
@@ -34868,6 +34913,430 @@ function ealConseilCtx(){
     +'Saisies actuelles de l’élève : '+etat+'. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : un vecteur XY se calcule coordonnée par coordonnée, celle de Y moins celle de X ; on divise chaque coordonnée du second vecteur par celle du premier ; trois quotients égaux veulent dire que les vecteurs sont colinéaires, donc que les points sont alignés ; un seul quotient différent suffit pour qu’ils ne le soient pas.';
 }
+/* ================= 8.1.1 ÉQUATIONS DIFFÉRENTIELLES — VÉRIFIER QU'UNE FONCTION EST SOLUTION (kind 'edv') =================
+   Demande de Turquet (novembre 2026), avec la fiche « équa diff » (exercice
+   2) : « créer un exercice comme le pdf dans le nouveau thème équation
+   différentielle. On pourra créer des équations différentielles de la même
+   difficulté. Il ne faut pas de logarithme népérien. S'il y a une dérivée
+   produit à déterminer ou un quotient, on présentera cette dérivée comme dans
+   les exercices 4.1.1 ou 4.1.4 ». Les cinq vérifications de la fiche, dans
+   son ordre, chacune une question :
+     a) (E) : y′ = ay + cx + d — f(x) = mx + p, puis g(x) = Ke^{ax} + mx + p
+        (la même équation ; la fiche : y′ = y + x, f = −x − 1, g = eˣ − x − 1) ;
+     b) (E) : y′ = ay + m e^{ax} — f(x) = (mx + p)e^{ax}, un PRODUIT : sa
+        dérivée se calcule d'abord comme au 4.1.1 (u, v, u′, v′ dans l'ordre
+        qu'on veut, la formule u′×v + u×v′, la substitution, le développement
+        coefficient par coefficient, la factorisation par e^{ax}) ; la fiche :
+        y′ = y + eˣ, f = xeˣ ;
+     c) (E) : y′ = P′(x)y — f(x) = e^{P(x)}, puis g(x) = ke^{P(x)} avec k
+        réel (la même équation ; la fiche : y′ = 2xy, f = e^{x²}).
+   La vérification suit les lignes de la fiche : « y′(x) = … ⟺ …′(x) = …(x)
+   … » (le NOM de la fonction dans les deux cases), « ⟺ (……)′ = …… »
+   (l'expression de la fonction), « ⟺ …… = …… » (la dérivée calculée, le
+   second membre où la fonction est remplacée), puis la ligne réduite et
+   « ce qui est [vrai] ». Aucun logarithme : seuls des polynômes et des
+   exponentielles.
+   LE JUGE est numérique, comme celui du 4.1.1 : chaque case est lue comme une
+   FONCTION de x (compileExprExp) et comparée à ce qu'elle doit valoir en
+   plusieurs valeurs de x — toute écriture équivalente est juste. La lettre k
+   de la dernière question est remplacée par deux réels, et l'égalité doit
+   tenir pour les deux. Seule la ligne RÉDUITE de a) demande une forme :
+   pas plus de termes que la forme réduite (« −x − 1 + x » n'est pas réduit).
+   Les cases d'une même ligne valent souvent la même fonction — f′ = ay + … est
+   justement ce qu'on vérifie — : elles se distinguent par leur place, pas par
+   leur valeur. */
+const EDV_PTS=[0.37,1.13,-1.5,-0.8,0.05,1.61];
+const EDV_K=[1.7,-2.3];   /* deux valeurs de k : une égalité « pour tout k » doit tenir pour les deux */
+/* un polynôme [c0, c1, c2, c3] en LaTeX : « -x-1 », « 2x^{2}+3x » */
+function edvPolyTex(c){
+  let s='';
+  for(let d=c.length-1; d>=0; d--){
+    const a=c[d]||0; if(!a) continue;
+    const v=Math.abs(a);
+    const t=d===0 ? String(v) : (v===1?'':String(v))+'x'+(d>1?'^{'+d+'}':'');
+    s+=(s===''?(a<0?'-':''):(a<0?'-':'+'))+t;
+  }
+  return s||'0';
+}
+function edvNbMonomes(c){ return c.filter(function(v){ return !!v; }).length||1; }
+function edvCoefTex(a){ return a===1?'':a===-1?'-':String(a); }   /* devant une lettre : 1 → rien, −1 → « − » */
+function edvExpTex(a){ return 'e^{'+edvCoefTex(a)+'x}'; }
+function edvSuite(c){ const t=edvPolyTex(c); return t==='0'?'':(t[0]==='-'?t:'+'+t); }   /* « +cx+d » à la suite d'un terme */
+function edvParen(c){ return edvNbMonomes(c)>1?'\\left('+edvPolyTex(c)+'\\right)':edvPolyTex(c); }
+function edvDeriveP(P){ const d=[]; for(let i=1;i<P.length;i++) d.push(i*(P[i]||0)); return d; }
+/* LaTeX → HTML, quand MathLive n'est pas (encore) chargé : x en italique, exposants en <sup> */
+function edvHtml(tex){
+  let s=String(tex).replace(/\\left|\\right/g,'').replace(/\\times/g,'×').replace(/\\iff/g,'⟺').replace(/\\[;,]/g,' ');
+  s=s.replace(/[xyfgkuv]/g,function(m){ return '\u0001'+m+'\u0002'; });
+  for(let i=0;i<3;i++) s=s.replace(/\^\{([^{}]*)\}/g,'<sup>$1</sup>');
+  return s.replace(/'/g,'′').replace(/-/g,'−').replace(/\u0001/g,'<i>').replace(/\u0002/g,'</i>');
+}
+function edvT(tex){ return mlTex(tex, edvHtml(tex)); }
+/* ---- le tirage ---- */
+function edvGenA(){
+  for(let essai=0; essai<500; essai++){
+    const a=pick([1,1,1,2,-1,3,-2]), m=pick([-3,-2,-1,-1,1,2,3]), p=rand(-3,3);
+    const c=-a*m, d=m-a*p;   /* f = mx + p est solution de y′ = ay + cx + d */
+    if(Math.abs(d)>9) continue;
+    return {a:a, m:m, p:p, c:c, d:d};
+  }
+  return {a:1, m:-1, p:-1, c:1, d:0};
+}
+function edvGenB(){
+  return {a:pick([1,1,2,-1,3,-2]), m:pick([1,1,2,3,-1,-2]), p:Math.random()<0.6?0:pick([-3,-2,-1,1,2,3])};
+}
+function edvGenC(){
+  return pick([[0,0,1],[0,0,1],[0,0,-1],[0,0,2],[0,0,3],[0,1,1],[0,2,1],[0,3,1],[0,-1,1],[0,-2,1],[0,0,0,1]]);
+}
+const EDV_SORTES=['Aaff','Aexp','B','Cf','Ck'];
+function edvGenSession(){
+  const n=dmNbQuestions(5), sortes=[];
+  for(let i=0;i<n;i++) sortes.push(n<5 ? EDV_SORTES[Math.floor(i*5/n)] : EDV_SORTES[i%5]);
+  /* les deux questions du a) partagent leur équation, celles du c) aussi — comme sur la fiche */
+  const blocs={}; let dernier=-1;
+  return distinctes(n, function(u,i){
+    const b=Math.floor(i/5);
+    if(!blocs[b] || i===dernier) blocs[b]={A:edvGenA(), P:edvGenC()};   /* une question redite : on retire l'équation */
+    dernier=i;
+    const E=blocs[b], s=sortes[i];
+    if(s==='Aaff') return Object.assign({fam:'A', sol:'aff', nom:'f'}, E.A);
+    if(s==='Aexp') return Object.assign({fam:'A', sol:'exp', nom:'g', K:pick([1,1,2,-1,3,-2])}, E.A);
+    if(s==='B') return Object.assign({fam:'B', nom:'f'}, edvGenB());
+    if(s==='Cf') return {fam:'C', nom:'f', P:E.P, kk:false};
+    return {fam:'C', nom:'g', P:E.P, kk:true};
+  });
+}
+/* ---- ce que vaut chaque objet de la question : fonctions (x, k) et écritures LaTeX ---- */
+function edvObj(q){
+  if(q.fam==='A'){
+    const lin=[q.p,q.m], suite=edvSuite([q.d,q.c]);
+    const o={eqTex:"y'="+edvCoefTex(q.a)+'y'+suite, rhsY:edvCoefTex(q.a)+'y(x)'+suite, suite:suite};
+    if(q.sol==='aff'){
+      o.f=function(x){ return q.m*x+q.p; }; o.d=function(){ return q.m; };
+      o.fTex=edvPolyTex(lin); o.dTex=String(q.m); o.termes=1;
+    } else {
+      o.f=function(x){ return q.K*Math.exp(q.a*x)+q.m*x+q.p; }; o.d=function(x){ return q.K*q.a*Math.exp(q.a*x)+q.m; };
+      o.fTex=edvCoefTex(q.K)+edvExpTex(q.a)+edvSuite(lin); o.dTex=edvCoefTex(q.K*q.a)+edvExpTex(q.a)+edvSuite([q.m]); o.termes=2;
+    }
+    o.rhsTex=(q.a===1 ? o.fTex : edvCoefTex(q.a)+'\\left('+o.fTex+'\\right)')+suite;
+    return o;
+  }
+  if(q.fam==='B'){
+    const D=[q.m+q.a*q.p, q.a*q.m], e=edvExpTex(q.a), me=(q.m<0?'-':'+')+(Math.abs(q.m)===1?'':String(Math.abs(q.m)))+e;
+    return {eqTex:"y'="+edvCoefTex(q.a)+'y'+me, rhsY:edvCoefTex(q.a)+'y(x)'+me, me:me, eTex:e, D:D,
+      f:function(x){ return (q.m*x+q.p)*Math.exp(q.a*x); },
+      d:function(x){ return polyEval(D,x)*Math.exp(q.a*x); },
+      poly:function(x){ return polyEval(D,x); },
+      fTex:(q.p===0 ? edvCoefTex(q.m)+'x' : '\\left('+edvPolyTex([q.p,q.m])+'\\right)')+e,
+      dTex:e+'\\left('+edvPolyTex(D)+'\\right)', polyTex:edvPolyTex(D)};
+  }
+  const Pd=edvDeriveP(q.P), Pp=edvParen(Pd), eP='e^{'+edvPolyTex(q.P)+'}', k=q.kk?'k':'';
+  return {eqTex:"y'="+Pp+'y', rhsY:Pp+'\\times y(x)', Pp:Pp,
+    f:function(x,kv){ return (q.kk?kv:1)*Math.exp(polyEval(q.P,x)); },
+    d:function(x,kv){ return (q.kk?kv:1)*polyEval(Pd,x)*Math.exp(polyEval(q.P,x)); },
+    fTex:k+eP, dTex:(q.kk?'k\\times ':'')+Pp+eP, rhsTex:Pp+'\\times '+k+eP};
+}
+/* ---- lecture et juge d'une case ---- */
+function edvLire(id){
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT') return el.value||'';
+  return String(dexpCellValue(id)||'').trim();
+}
+function edvEgal(raw, ref, q){
+  if(raw==='') return false;
+  const ks=q.kk?EDV_K:[0];
+  for(const kv of ks){
+    const s=q.kk ? raw.replace(/k/gi,'('+kv+')') : raw;
+    const f=compileExprExp(s); if(!f) return false;
+    for(const x of EDV_PTS){
+      let v; try{ v=f(x); }catch(e){ return false; }
+      if(typeof v!=='number' || !isFinite(v)) return false;
+      const t=ref(x,kv);
+      if(Math.abs(v-t) > 1e-6*(1+Math.abs(t))) return false;
+    }
+  }
+  return true;
+}
+/* nombre de termes au premier niveau : « e^(x)-1 » en a deux, « -x-1+x » trois */
+function edvNbTermes(raw){
+  const s=String(raw).replace(/\s+/g,'').replace(/−/g,'-');
+  let p=0, n=1;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='('||ch==='[') p++;
+    else if(ch===')'||ch===']') p--;
+    else if(p===0 && i>0 && (ch==='+'||ch==='-') && !/[\^*/(+\-]/.test(s[i-1])) n++;
+  }
+  return n;
+}
+/* les cases du calcul de la dérivée du produit (b) : comme au 4.1.1 */
+function edvS3(q){ return q.p!==0?['edv-s3a','edv-s3b','edv-s3c']:['edv-s3a','edv-s3b']; }
+function edvIds(q){
+  const ids=[];
+  if(q.fam==='B') ids.push('edv-u','edv-v','edv-du','edv-dv','edv-s2a','edv-s2b','edv-s2c','edv-s2d', ...edvS3(q), 'edv-fac');
+  ids.push('edv-n1','edv-n2');
+  if(q.fam==='A') ids.push('edv-e1','edv-e2','edv-g2','edv-d2','edv-g3','edv-d3');
+  else if(q.fam==='B') ids.push('edv-g1','edv-d1','edv-g2','edv-d2');
+  else ids.push('edv-e1','edv-e2','edv-g2','edv-d2');
+  ids.push('edv-sel');
+  return ids;
+}
+function edvDerivee(q, out){
+  const a=q.a, m=q.m, p=q.p;
+  const eg=function(id,ref){ return edvEgal(edvLire(id),ref,q); };
+  const F={poly:[function(x){ return m*x+p; }, edvPolyTex([p,m])], dpoly:[function(){ return m; }, String(m)],
+           ex:[function(x){ return Math.exp(a*x); }, edvExpTex(a)], dex:[function(x){ return a*Math.exp(a*x); }, edvCoefTex(a)+edvExpTex(a)]};
+  const o1={u:F.poly, v:F.ex, du:F.dpoly, dv:F.dex}, o2={u:F.ex, v:F.poly, du:F.dex, dv:F.dpoly};
+  const sc=function(o){ return ['u','v','du','dv'].filter(function(k){ return eg('edv-'+k,o[k][0]); }).length; };
+  const o=sc(o2)>sc(o1)?o2:o1;   /* u et v dans l'ordre que l'élève a choisi ; à égalité, u = le polynôme */
+  ['u','v','du','dv'].forEach(function(k){ out['edv-'+k]={ok:eg('edv-'+k,o[k][0]), tex:o[k][1]}; });
+  const fp=function(x){ return (m+a*p+a*m*x)*Math.exp(a*x); };
+  /* la substitution ( )×( ) + ( )×( ) : juste en bloc, ou chaque case appariée à un facteur attendu */
+  const S2=['edv-s2a','edv-s2b','edv-s2c','edv-s2d'];
+  const fs=S2.map(function(id){ const r=edvLire(id); return r===''?null:compileExprExp(r); });
+  let bloc=false;
+  if(fs.every(Boolean)){ bloc=true;
+    for(const x of EDV_PTS){ let v; try{ v=fs[0](x)*fs[1](x)+fs[2](x)*fs[3](x); }catch(e){ bloc=false; break; }
+      const t=fp(x); if(!isFinite(v) || Math.abs(v-t)>1e-6*(1+Math.abs(t))){ bloc=false; break; } } }
+  if(bloc) S2.forEach(function(id){ out[id]={ok:true, tex:''}; });
+  else {
+    const P1=[F.dpoly,F.ex], P2=[F.poly,F.dex];
+    const cands=[[o.du,o.v,o.u,o.dv]];
+    [[P1,P2],[P2,P1]].forEach(function(XY){ [false,true].forEach(function(sx){ [false,true].forEach(function(sy){
+      const X=sx?[XY[0][1],XY[0][0]]:XY[0], Y=sy?[XY[1][1],XY[1][0]]:XY[1];
+      cands.push(X.concat(Y)); }); }); });
+    let best=null;
+    cands.forEach(function(c){
+      const v=S2.map(function(id,i){ return eg(id,c[i][0]); }), n=v.filter(Boolean).length;
+      if(!best || n>best.n) best={n:n, v:v, c:c};
+    });
+    S2.forEach(function(id,i){ out[id]={ok:best.v[i], tex:best.c[i][1]}; });
+  }
+  /* le développement : un coefficient devant chaque e^{ax} — m, amx, et ap si p ≠ 0 */
+  const S3=edvS3(q);
+  const termes=[[function(){ return m; }, String(m)], [function(x){ return a*m*x; }, edvPolyTex([0,a*m])]];
+  if(p!==0) termes.push([function(){ return a*p; }, String(a*p)]);
+  const gs=S3.map(function(id){ const r=edvLire(id); return r===''?null:compileExprExp(r); });
+  let bloc3=false;
+  if(gs.every(Boolean)){ bloc3=true;
+    for(const x of EDV_PTS){ let v; try{ v=gs.reduce(function(s,g){ return s+g(x); },0); }catch(e){ bloc3=false; break; }
+      const t=m+a*p+a*m*x; if(!isFinite(v) || Math.abs(v-t)>1e-6*(1+Math.abs(t))){ bloc3=false; break; } } }
+  if(bloc3) S3.forEach(function(id){ out[id]={ok:true, tex:''}; });
+  else {
+    const pris=termes.map(function(){ return false; });
+    S3.forEach(function(id){
+      let ok=false;
+      if(edvLire(id)!=='') for(let i=0;i<termes.length;i++){ if(!pris[i] && eg(id,termes[i][0])){ pris[i]=true; ok=true; out[id]={ok:true, tex:termes[i][1]}; break; } }
+      if(!ok) out[id]={ok:false, tex:''};
+    });
+    S3.forEach(function(id){ if(out[id].ok) return; const i=pris.indexOf(false); if(i>=0){ pris[i]=true; out[id].tex=termes[i][1]; } });
+  }
+  out['edv-fac']={ok:eg('edv-fac',function(x){ return m+a*p+a*m*x; }), tex:edvPolyTex([m+a*p,a*m])};
+}
+function edvVerdicts(q){
+  const O=edvObj(q), out={};
+  const eg=function(id,ref){ return edvEgal(edvLire(id),ref,q); };
+  if(q.fam==='B') edvDerivee(q,out);
+  ['edv-n1','edv-n2'].forEach(function(id){ out[id]={ok:edvLire(id).toLowerCase()===q.nom, tex:q.nom}; });
+  if(q.fam==='A'){
+    out['edv-e1']={ok:eg('edv-e1',O.f), tex:O.fTex};
+    out['edv-e2']={ok:eg('edv-e2',O.f), tex:O.fTex};
+    out['edv-g2']={ok:eg('edv-g2',O.d), tex:O.dTex};
+    out['edv-d2']={ok:eg('edv-d2',O.d), tex:O.rhsTex};   /* a·f + cx + d vaut f′ : c'est ce qu'on vérifie */
+    ['edv-g3','edv-d3'].forEach(function(id){ out[id]={ok:eg(id,O.d) && edvNbTermes(edvLire(id))<=O.termes, tex:O.dTex}; });
+  } else if(q.fam==='B'){
+    out['edv-g1']={ok:eg('edv-g1',O.d), tex:O.dTex};
+    out['edv-d1']={ok:eg('edv-d1',O.f), tex:O.fTex};
+    out['edv-g2']={ok:eg('edv-g2',O.poly), tex:O.polyTex};
+    out['edv-d2']={ok:eg('edv-d2',O.poly), tex:O.polyTex};
+  } else {
+    out['edv-e1']={ok:eg('edv-e1',O.f), tex:O.fTex};
+    out['edv-e2']={ok:eg('edv-e2',O.f), tex:O.fTex};
+    out['edv-g2']={ok:eg('edv-g2',O.d), tex:O.dTex};
+    out['edv-d2']={ok:eg('edv-d2',O.d), tex:O.rhsTex};
+  }
+  out['edv-sel']={ok:edvLire('edv-sel')==='vrai', tex:'vrai'};
+  edvIds(q).forEach(function(id){ const v=out[id]; if(v) v.rempli=edvLire(id)!==''; });
+  return out;
+}
+/* ---- les écritures ---- */
+function edvPromptHTML(q){
+  const O=edvObj(q), F=q.nom+'(x)='+O.fTex;
+  return 'On considère l’équation différentielle (<i>E</i>) : '+edvT(O.eqTex)+'.<br>'
+    +'<b>Vérifier que '+edvT(F)+' est une solution de l’équation différentielle (<i>E</i>)'
+    +(q.kk?', avec <i>k</i> un nombre réel':'')+'.</b>';
+}
+function edvFormHTML(q){
+  const O=edvObj(q);
+  const C=function(id,cls,nom){ return '<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>'; };
+  const L=function(id,nom){ return C(id,'edv-let',nom); };
+  const P=function(h){ return '<span class="edv-p">(</span>'+h+'<span class="edv-p">)</span>'; };
+  const row=function(lead,g,d,apres){ return '<div class="edv-lead">'+lead+'</div><div class="edv-g">'+g+'</div><div class="edv-eq">=</div><div class="edv-d">'+d+'</div><div class="edv-apres">'+(apres||'')+'</div>'; };
+  const eqv='<span class="edv-iff">⟺</span>';
+  const sel='<span>ce qui est</span><select class="tvi-sel edv-sel" id="edv-sel" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>';
+  const n=q.nom;
+  let h='';
+  if(q.fam==='B'){
+    const cep=function(id,nom){ return '<span class="dexp-pwrap show-paren"><span class="par">(</span>'+C(id,'',nom)+'<span class="par">)</span></span>'; };
+    const s3=edvS3(q).map(function(id,i){ return C(id,'dexp-mf-slim','coefficient du terme '+(i+1)+' du développement')+edvT(O.eTex); }).join('<span class="op">+</span>');
+    h+='<p class="edv-sous">On calcule d’abord la dérivée de '+edvT(n+'(x)='+O.fTex)+'.</p>'
+      +'<div class="dexp-pose">On pose <span class="dexp-hint">(u et v dans l’ordre que tu veux)</span> :</div>'
+      +'<div class="dexp-row"><span>'+edvT('u=')+C('edv-u','','u')+'</span><span>'+edvT('v=')+C('edv-v','','v')+'</span></div>'
+      +'<div class="dexp-row"><span>'+edvT("u'=")+C('edv-du','','u′')+'</span><span>'+edvT("v'=")+C('edv-dv','','v′')+'</span></div>'
+      +'<div class="dexp-formula">'+mlTex(n+"\\;{}'(x)=u'\\times v+u\\times v'", '<i>'+n+'</i> ′(<i>x</i>) = <i>u′</i>×<i>v</i> + <i>u</i>×<i>v′</i>')+'</div>'
+      +'<div class="dexp-steprow"><span class="eq">=</span>'+cep('edv-s2a','premier facteur du premier produit')+'<span class="op">×</span>'+cep('edv-s2b','second facteur du premier produit')
+        +'<span class="op">+</span>'+cep('edv-s2c','premier facteur du second produit')+'<span class="op">×</span>'+cep('edv-s2d','second facteur du second produit')+'</div>'
+      +'<div class="dexp-steprow"><span class="eq">=</span>'+s3+'</div>'
+      +'<div class="dexp-steprow dexp-stepfac"><span class="eq">=</span>'+edvT(O.eTex)+' ( '+C('edv-fac','dexp-mf-wide','facteur de '+O.eTex+' dans la dérivée factorisée')+' )</div>';
+  }
+  const tete='<span>Vérification : </span>'+edvT("y'(x)="+O.rhsY)+eqv;
+  let g='<div class="edv-grille">';
+  if(q.fam==='A'){
+    const av=edvCoefTex(q.a), sui=O.suite?edvT(O.suite):'';
+    g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.suite));
+    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>',
+           (q.a===1 ? C('edv-e2','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-e2','dexp-mf-wide','expression de la fonction')))+sui);
+    g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'));
+    g+=row(eqv, C('edv-g3','dexp-mf-wide','membre de gauche réduit'), C('edv-d3','dexp-mf-wide','membre de droite réduit'), sel);
+  } else if(q.fam==='B'){
+    const av=edvCoefTex(q.a);
+    g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.me));
+    g+=row(eqv, C('edv-g1','dexp-mf-wide','la dérivée calculée'),
+           (q.a===1 ? C('edv-d1','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-d1','dexp-mf-wide','expression de la fonction')))+edvT(O.me));
+    g+=row(eqv, edvT(O.eTex)+P(C('edv-g2','dexp-mf-wide','facteur de '+O.eTex+' à gauche')), edvT(O.eTex)+P(C('edv-d2','dexp-mf-wide','facteur de '+O.eTex+' à droite')), sel);
+  } else {
+    g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), edvT(O.Pp+'\\times')+L('edv-n2','nom de la fonction')+edvT('(x)'));
+    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>', edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
+    g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'), sel);
+  }
+  g+='</div>';
+  return h+'<div class="edv-verif">'+g+'</div>'
+    +'<p class="dexp-hint">Toute écriture égale est acceptée. Au clavier : <b>^</b> pour un exposant, <b>*</b> pour une multiplication.'
+    +(q.fam==='A'?' La dernière ligne est <b>réduite</b>.':'')+'</p>';
+}
+/* ---- cycle de vie ---- */
+async function startEDV(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='equadiff-verifier-solution'; test.kind='edv';
+  test.questions=edvGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('edv'); renderEDV();
+}
+function renderEDV(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('edvQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('edvModeTag').innerHTML=modeTagHTML();
+  $('edvLiveScore').textContent=test.score;
+  $('edvFeedback').textContent=''; $('edvFeedback').className='mp-feedback';
+  $('edvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEDV()">Vérifier</button>';
+  $('edvPrompt').innerHTML=edvPromptHTML(q);
+  $('edvForm').innerHTML=edvFormHTML(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('edvForm'));
+  if(isSoutien()){
+    edvIds(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ checkEDV(true); }); });
+  }
+  setTimeout(function(){ const el=$(edvIds(q)[0]); if(el && !test.locked) try{ el.focus(); }catch(e){} },30);
+}
+function edvFiger(el, fige){
+  if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=fige; }catch(e){} }
+  else el.disabled=fige;
+}
+/* la correction d'une case : juste → bleue ; vide → la réponse écrite en vert ; fausse → rouge, la réponse en vert à côté */
+function edvCorr(id, tex, ok){
+  const el=$(id); if(!el) return;
+  if(el.tagName==='SELECT'){ corrCase(id, tex, ok); return; }
+  el.classList.remove('ok','bad','sol');
+  if(ok) el.classList.add('ok');
+  else if(edvLire(id)===''){ try{ el.setValue(tex); }catch(e){} el.classList.add('sol'); }
+  else {
+    el.classList.add('bad');
+    const nx=el.nextElementSibling;
+    if(!(nx && nx.classList && nx.classList.contains('mf-cor')))
+      el.insertAdjacentHTML('afterend','<span class="mf-cor">'+edvT(tex)+'</span>');
+  }
+  edvFiger(el,true);
+}
+function edvRetiens(q){
+  const O=edvObj(q), n='<i>'+q.nom+'</i>';
+  if(q.fam==='A') return 'La méthode : on remplace <i>y</i> par '+n+' dans les DEUX membres — à gauche sa dérivée, à droite l’expression de '+n+' —, puis on réduit : '
+    +edvT(q.nom+"'(x)="+O.dTex)+' et '+edvT(O.rhsTex+'='+O.dTex)+' : les deux membres sont égaux pour tout réel <i>x</i>, donc '+n+' est solution de (<i>E</i>).';
+  if(q.fam==='B') return 'La clé : '+n+' est un produit, (<i>uv</i>)′ = <i>u′v</i> + <i>uv′</i>, ce qui donne '+edvT(q.nom+"'(x)="+O.dTex)+'. '
+    +'En remplaçant, chaque membre se factorise par '+edvT(O.eTex)+' et il reste '+edvT(O.polyTex)+' des deux côtés : '+n+' est solution de (<i>E</i>).';
+  return 'La clé : (e<sup><i>u</i></sup>)′ = <i>u′</i>e<sup><i>u</i></sup>, donc '+edvT(q.nom+"'(x)="+O.dTex)+', qui est bien '+edvT(O.rhsTex)+' : '+n+' est solution de (<i>E</i>)'+(q.kk?' quel que soit le réel <i>k</i>':'')+'.';
+}
+function checkEDV(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], ids=edvIds(q), verd=edvVerdicts(q);
+  let allOk=true, anyFilled=false, vides=0;
+  ids.forEach(function(id){
+    const el=$(id); if(!el) return;
+    const v=verd[id];
+    if(v.rempli) anyFilled=true; else vides++;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
+    if(v.rempli) el.classList.add(v.ok?'ok':'bad');
+    if(!v.ok) allOk=false;
+    if(live) return;
+    edvFiger(el, !!(v.ok||!isSoutien()));
+  });
+  if(live) return;
+  const fb=$('edvFeedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    ids.forEach(function(id){ const el=$(id); if(el){ el.classList.remove('ok','bad','sol'); edvFiger(el,false); } });
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('edvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEDV()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('edvLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+edvRetiens(q);
+    fb.className='mp-feedback bad';
+    ids.forEach(function(id){ edvCorr(id, verd[id].tex, verd[id].ok===true); });
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:'Équation différentielle '+edvPlain(edvObj(q).eqTex)+' : vérifier que '+q.nom+'(x) = '+edvPlain(edvObj(q).fTex)+' est solution',
+    answer:q.nom+"'(x) = "+edvPlain(edvObj(q).dTex), given:allOk?'✓':'incomplet', correct:allOk, type:'edv'}));
+  const last=test.idx===test.questions.length-1;
+  $('edvActions').innerHTML='<button class="btn btn-primary" onclick="nextEDV()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextEDV(){ if(test.idx<test.questions.length-1){ test.idx++; renderEDV(); } else finishTest(); }
+/* LaTeX → texte clair, pour l'enregistrement et le modèle */
+function edvPlain(tex){
+  let s=String(tex).replace(/\\left|\\right/g,'').replace(/\\times/g,'×').replace(/\\[;,]/g,' ').replace(/\{\}/g,'');
+  for(let i=0;i<3;i++) s=s.replace(/\^\{([^{}]*)\}/g,'^($1)');
+  return s.replace(/\^\((\w)\)/g,'^$1');
+}
+/* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
+   secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
+function edvConseilCtx(){
+  const q=test.questions[test.idx], O=edvObj(q), verd=edvVerdicts(q);
+  const etat=edvIds(q).map(function(id){ const el=$(id); const v=edvLire(id); return ((el&&el.getAttribute('aria-label'))||id)+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
+  return 'Exercice de Terminale (équations différentielles, vérifier qu’une fonction est solution). L’équation (E) : '+edvPlain(O.eqTex)+'. '
+    +'Il faut vérifier que '+q.nom+'(x) = '+edvPlain(O.fTex)+' est une solution de (E)'+(q.kk?', avec k un nombre réel quelconque':'')+'. '
+    +(q.fam==='B'?'La fonction est un PRODUIT : sa dérivée se calcule d’abord avec u, v, u′, v′ (dans l’ordre qu’on veut), la formule u′×v + u×v′, la substitution, le développement (un coefficient devant chaque exponentielle) puis la factorisation par l’exponentielle. ':'')
+    +'La vérification se rédige ligne par ligne : y′(x) = '+edvPlain(O.rhsY)+' ⟺ on écrit le NOM de la fonction (lettre '+q.nom+') ; puis on remplace par son expression ; puis on écrit la dérivée calculée à gauche et le second membre à droite ; '
+    +(q.fam==='A'?'puis chaque membre RÉDUIT ; ':q.fam==='B'?'puis chaque membre factorisé par l’exponentielle, le facteur restant dans les parenthèses ; ':'')
+    +'et on conclut « ce qui est vrai » (menu). Toute écriture égale est acceptée (vérification numérique). '
+    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+    +edvIds(q).map(function(id){ const el=$(id); return ((el&&el.getAttribute('aria-label'))||id)+' = '+edvPlain(verd[id].tex||''); }).join(' ; ')+'. '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces expressions. Méthode, sans donner la réponse : (e^u)′ = u′e^u ; (e^(ax))′ = ae^(ax) ; (uv)′ = u′v + uv′ ; '
+    +'remplacer y par la fonction et y′ par sa dérivée, puis montrer que les deux membres sont égaux pour tout x. Aucun logarithme dans cet exercice. '
+    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
 /* ================= 6.10 RÉCURRENCE — LA FORMULE EXPLICITE EN FRACTION =================
    Demande de Turquet (septembre 2026), repris de la fiche « récurrence et
    fractions » : une suite Uₙ₊₁ = (3Uₙ − 1)/(Uₙ + 1) avec U₀ = 3, et la formule
@@ -39627,6 +40096,7 @@ const QIA_SUGG={
   ecp:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Pourquoi passer directement au c) quand les droites sont parallèles ?","Comment savoir si deux droites sont sécantes ?","Pourquoi vérifier dans la dernière équation ?","Deux droites qui ne sont pas parallèles sont-elles forcément sécantes ?"],
   erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?","Quelle différence entre les deux méthodes ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
+  edv:["Faire un rappel de cours pour cet exercice.","Comment vérifier qu’une fonction est solution d’une équation différentielle ?","Comment dériver e^(x²) ?","Comment dériver un produit u × v ?","Pourquoi factoriser par l’exponentielle ?","Que veut dire « réduire » un membre ?"],
   ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
   ecb:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un sommet du cube ?","Comment trouver les coordonnées d’un point sur une arête ?","Que se passe-t-il pour un point sur le prolongement d’une arête ?","Comment calculer les coordonnées d’un vecteur ?","Comment placer un point dont on connaît les coordonnées ?"],
   edp:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Où mettre le point de départ et le vecteur directeur ?","Comment trouver un vecteur directeur de la droite (AB) ?","Comment savoir si un point appartient à une droite ?","Que veut dire « aligné avec A et B » ?"],
@@ -40388,7 +40858,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderVAE','renderEPC'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderVAE','renderEPC','renderEDV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
