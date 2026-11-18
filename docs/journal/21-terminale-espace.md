@@ -1063,3 +1063,20 @@ bout en bout aux clics de souris, chacune « parfaite », 8 éléments sur 8 ; u
 copie vide corrigée en vert, 0 sur 7 ; chaque refus (non coplanaires, hors du
 segment, parallèles, point existant, segment non rouge, mauvaise face) relu
 sur la configuration de la fiche ; aucune erreur de page.
+
+**Puis les parties cachées des droites en pointillés (Turquet, novembre 2026,
+v500 : « pour les droites, mettre des pointillés pour les parties de droite
+cachées par le cube »).** Le principe du 7.1.7 (`epoCache`), porté au 7.1.12 :
+un point est caché quand, en allant vers l'œil, on traverse l'intérieur du
+cube (`esxCache`). La direction de l'œil est le noyau de la projection
+(`ESX_OEIL`, orientée vers l'avant : A est derrière). Chaque droite tracée —
+prolongée jusqu'au bord du dessin — se découpe en morceaux vus et cachés
+(`esxMorceaux`, 200 pas), les cachés en pointillés ; la même règle vaut
+désormais pour les segments (un segment qui traverse le cube, [EC], est en
+pointillés ; un morceau de la section sur une face cachée aussi, comme avant)
+et pour la correction verte. Elle remplace la règle « toutes les faces qui le
+portent sont cachées », qui ne voyait pas l'intérieur du cube. **Vérifié** :
+sommet A, centre, centres des trois faces cachées → cachés ; B, H, centres des
+trois faces vues → vus ; (AG) et (BH) en pointillés dans le cube, pleines
+au-dehors ; (CG) et (IJ), sur la face avant, pleines. Le journal annonçait
+720 figures : la page en compte 728 (`esxListe()`), le nombre est corrigé ici.
