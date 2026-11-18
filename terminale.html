@@ -928,6 +928,13 @@
   .sa2-in.apf-calc{flex:1 1 16em;min-width:10em;max-width:40em;text-align:left}
   .apf-jetons{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px}
   .aps-jetons{justify-content:center;margin:4px 0 10px}   /* le bouton aₙ du 6.2.1, centré sous l'arbre */
+  /* 5.7.1 : les trois parties du sujet, le retrait des phrases choisies, le repère de l'escalier */
+  .sbe-partie{margin:22px 0 4px;padding-bottom:3px;font-size:1.08rem;border-bottom:2px solid var(--grid)}
+  .sbe-retrait{padding-left:22px}
+  .sbe-graphe{max-width:580px;margin:4px 0 8px}
+  #sbeGraph .svr-svg{max-width:580px}
+  .sbe-retrait select{max-width:100%}   /* une phrase de l'énoncé dans une liste : tronquée à l'écran, entière dans le menu */
+  @media(max-width:600px){ #scr-sbe .sa2-ladder .sa2-t{white-space:normal} }   /* sur un téléphone, les longues phrases des lignes se replient (le motif du 5.3.x) */
   .apf-jeton{min-width:40px;height:36px;border:1.5px solid var(--line);border-radius:8px;background:#fff;font-size:1.1rem;cursor:pointer;color:var(--ink)}
   .apf-jeton:hover{border-color:var(--blue)}
   sub i.apb-nb{margin-left:.12em}
@@ -1291,7 +1298,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -4029,6 +4036,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 5.7.1 SUITES — UN EXERCICE DE BAC (une suite arithmético-géométrique, de la modélisation au seuil) -->
+  <section class="screen" id="scr-sbe">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="sbeModeTag"></span><span class="q-idx" id="sbeQIdx">Exercice 1 / 1</span></span>
+      <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="sbeLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <div class="enonce" id="sbePrompt"></div>
+      <div id="sbeCorps"></div>
+      <div class="mp-feedback" id="sbeFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="sbeActions"></div>
+    </div>
+  </section>
+
   <!-- 6.2.1 PROBABILITÉS ET SUITES — UN EXERCICE DE BAC (l'arbre qui se répète, la suite qu'il définit) -->
   <section class="screen" id="scr-aps">
     <div class="test-top">
@@ -4590,7 +4611,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=497;
+const APP_VERSION=498;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4843,6 +4864,7 @@ const TESTS={
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
   'arbre-probabilites-bac': { name:'Probabilités \u2014 arbre : un exercice de bac', icon:'\ud83e\uddea', desc:'Un énoncé en phrases, comme au bac : choisis l\u2019événement des premières branches, complète l\u2019arbre, puis, pour chaque question posée en phrase, choisis la bonne écriture \u2014 P(A), P(A \u2229 B) ou P_A(B)\u2026 \u2014 avant d\u2019écrire le calcul \u2014 jusqu\u2019à poser P(A) = x et résoudre l\u2019équation.', start:()=>startAPC() },
   'arbre-probabilites-bac-types': { name:'Probabilités \u2014 arbre : sept exercices de bac', icon:'\ud83c\udf93', desc:'Choisis d\u2019abord ton exercice de bac, de 1 à 7 : chacun reprend les questions d\u2019un sujet, dans le même ordre, sur un autre thème et avec d\u2019autres nombres \u2014 l\u2019arbre, l\u2019écriture de chaque probabilité avant son calcul, et, pour une branche inconnue, x et 1 \u2212 x jusqu\u2019à l\u2019équation.', start:()=>startAPT(), papierChoix:()=>aptChoixHTML('dmeChoisir'), papierTirer:ty=>aptChoisirType(ty) },
+  'suite-bac-evolution': { name:'Suites \u2014 un exercice de bac', icon:'\ud83c\udf93', desc:'Le modèle d\u2019un sujet de bac blanc, sur d\u2019autres situations\u00a0: une quantité perd un pourcentage et en gagne une part fixe à chaque étape. Justifier uₙ₊₁ = q uₙ + r, calculer et interpréter u₁ et u₂, construire les termes en escalier et conjecturer\u00a0; démontrer l\u2019encadrement par récurrence, la convergence et la limite\u00a0; la suite auxiliaire géométrique, la formule explicite, puis le seuil avec un programme Python à compléter. Chaque question reprend l\u2019exercice qui la traite déjà.', start:()=>startSBE() },
   'variable-aleatoire': { name:'Variable aléatoire \u2014 loi, espérance, écart type', icon:'\ud83c\udfb2', desc:'Un jeu en deux tirages avec remise, une mise et des gains : complète l\u2019arbre, donne la loi du gain X, calcule l\u2019espérance, la variance et l\u2019écart type, puis choisis la phrase qui les interprète. Plusieurs situations, d\u2019autres nombres à chaque fois ; les fractions sont acceptées.', start:()=>startVAE() },
   'proba-suite': { name:'Probabilités et suites \u2014 un exercice de bac', icon:'\ud83d\udd01', desc:'Un même arbre qui se répète d\u2019un jour à l\u2019autre, comme au bac : l\u2019arbre des deux premiers rangs, une probabilité qui « remonte » l\u2019arbre, puis l\u2019arbre aux rangs n et n + 1 et la relation aₙ₊₁ = q aₙ + r ; la formule explicite par récurrence ou par une suite auxiliaire, la limite et le seuil, chacun interprété. Plusieurs situations, d\u2019autres nombres à chaque fois.', start:()=>startAPS() },
   'espace-coordonnees': { name:'Espace \u2014 coordonn\u00e9es, milieu, vecteur et longueur', icon:'\ud83e\uddca', desc:'Un rep\u00e8re de l\u2019espace dessin\u00e9 en perspective et deux points A et B\u00a0: lis leurs coordonn\u00e9es, puis calcule le milieu de [AB], les coordonn\u00e9es du vecteur AB et la longueur AB, en compl\u00e9tant les formules comme sur la fiche.', start:()=>startEPC() },
@@ -4920,7 +4942,12 @@ const THEMES=[
          2026) « mettre le 5.1.5 et le 5.3.3 dans le thème 5.6 » : les deux
          exercices qui finissent par une limite de qⁿ — {suite-auxiliaire-limite}
          et {recurrence-limite} — la rejoignent, en 5.6.2 et 5.6.3. */
-      { num:6, nom:'Limite de qⁿ',                      ids:['suite-limite-puissance','suite-auxiliaire-limite','recurrence-limite'] }
+      { num:6, nom:'Limite de qⁿ',                      ids:['suite-limite-puissance','suite-auxiliaire-limite','recurrence-limite'] },
+      /* Septième partie (demande de Turquet, novembre 2026 : « créer un
+         exercice sur les suites sur le modèle de l'exercice 2 » du bac blanc —
+         une suite arithmético-géométrique de la modélisation au seuil, chaque
+         question prise à l'exercice qui la traite déjà) : {suite-bac-evolution}. */
+      { num:7, nom:'Exercice de bac',                   ids:['suite-bac-evolution'] }
     ] },
   /* Le thème des Probabilités (demande de Turquet, octobre 2026 : « créer un
      thème probabilité et un sous-thème arbre de probabilité ») : 6.1.1. */
@@ -5661,6 +5688,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='apc' && test.questions && test.questions[test.idx]){ c=apcConseilCtx(); }
   else if(test && test.kind==='apt' && test.questions && test.questions[test.idx] && test.questions[test.idx].ty){ c=aptConseilCtx(); }
   else if(test && test.kind==='aps' && test.questions && test.questions[test.idx]){ c=apsConseilCtx(); }
+  else if(test && test.kind==='sbe' && test.questions && test.questions[test.idx]){ c=sbeConseilCtx(); }
   else if(test && test.kind==='vae' && test.questions && test.questions[test.idx]){ c=vaeConseilCtx(); }
   else if(test && test.kind==='cqp' && test.questions && test.questions[test.idx]){ c=cqpConseilCtx(); }
   else if(test && test.kind==='cvp' && test.questions && test.questions[test.idx]){ c=cvpConseilCtx(); }
@@ -7152,7 +7180,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7182,6 +7210,7 @@ async function resumeTest(mode){
     document.querySelectorAll('#scr-apc .apf-in').forEach(sa2Ajuster); }   /* les cases des arbres reprennent la largeur de leur saisie */
   if(test.kind==='apt'){ aptPreparer(test.questions[test.idx]); document.querySelectorAll('#scr-apt .apf-in').forEach(sa2Ajuster); }   /* le 6.1.5, de même */
   if(test.kind==='aps'){ document.querySelectorAll('#scr-aps .apf-in').forEach(sa2Ajuster); aptTraits('apq'); aptTraits('apr'); }   /* le 6.2.1, de même */
+  if(test.kind==='sbe') sbeAjusterTout();   /* le 5.7.1 : les cases reprennent la largeur de leur saisie (l'escalier, lui, est dans la question) */
   if(test.kind==='vae') vaeRestaurer();   /* le 6.3.1 : les phrases choisies, les cases à leur largeur */
 }
 
@@ -7283,7 +7312,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -21963,6 +21992,14 @@ const RAP_APS=RAP_APB+`<br>
 • <b>Une suite auxiliaire</b> <i>v</i><sub><i>n</i></sub> = <i>a</i><sub><i>n</i></sub> − ℓ : on part de <i>v</i><sub><i>n</i>+1</sub> = <i>a</i><sub><i>n</i>+1</sub> − ℓ, on remplace <i>a</i><sub><i>n</i>+1</sub>, on réduit, on factorise par <i>q</i> : <i>v</i><sub><i>n</i>+1</sub> = <i>q</i> <i>v</i><sub><i>n</i></sub>, la suite est géométrique. Alors <i>v</i><sub><i>n</i></sub> = <i>v</i><sub>1</sub> × <i>q</i><sup><i>n</i>−1</sup> (premier terme au rang 1) ou <i>v</i><sub>0</sub> × <i>q</i><sup><i>n</i></sup> (au rang 0), et <i>a</i><sub><i>n</i></sub> = <i>v</i><sub><i>n</i></sub> + ℓ.<br>
 • <b>La limite</b> : comme −1 &lt; <i>q</i> &lt; 1, <i>q</i><sup><i>n</i></sup> tend vers 0, donc <i>a</i><sub><i>n</i></sub> tend vers ℓ : sur le long terme, la probabilité de l’événement se rapproche de ℓ — elle ne devient jamais exactement égale à ℓ, et ce n’est pas une probabilité « sachant que ».<br>
 • <b>Le seuil</b> : dans le tableau de valeurs de la calculatrice, on cherche les deux termes consécutifs qui encadrent le seuil — par exemple <i>a</i><sub>9</sub> ≈ 0,5990 &lt; 0,599 n’est pas encore au-dessus, <i>a</i><sub>10</sub> ≈ 0,5994 ≥ 0,599 l’est : le plus petit entier est 10, et la suite étant monotone, elle reste ensuite au-delà du seuil.`;
+const RAP_SBE=`<b>Suite arithmético-géométrique — un exercice de bac</b><br>
+• <b>Modéliser</b> : diminuer une quantité de <i>p</i> % revient à la multiplier par 1 − <i>p</i>/100 (une baisse de 20 %, c’est × 0,8) ; « on en ajoute 300 » se traduit par « + 300 ». D’un rang au suivant : <i>u</i><sub><i>n</i>+1</sub> = 0,8 <i>u</i><sub><i>n</i></sub> + 300.<br>
+• <b>Interpréter un terme</b> : <i>u</i><sub>2</sub> est la quantité au rang 2, deux étapes après le départ <i>u</i><sub>0</sub> — ce n’est pas ce qu’on ajoute.<br>
+• <b>La construction en escalier</b> : on part de <i>u</i><sub>0</sub> sur l’axe des abscisses, on monte jusqu’à la droite <i>y</i> = <i>g</i>(<i>x</i>) (la hauteur atteinte est <i>u</i><sub>1</sub>), on rejoint horizontalement la droite <i>y</i> = <i>x</i> (ce qui ramène <i>u</i><sub>1</sub> en abscisse), puis on remonte à <i>y</i> = <i>g</i>(<i>x</i>), et ainsi de suite.<br>
+• <b>La récurrence</b> : l’initialisation calcule <i>u</i><sub>1</sub> ; l’hérédité suppose l’encadrement au rang <i>n</i> et applique <i>g</i>, croissante sur ℝ (son coefficient directeur est positif), aux quatre membres : l’ordre est conservé, <i>g</i>(ℓ) = ℓ et <i>g</i>(<i>u</i><sub>0</sub>) = <i>u</i><sub>1</sub> ; on élargit avec <i>u</i><sub>0</sub> ≤ <i>u</i><sub>1</sub> (ou <i>u</i><sub>1</sub> ≤ <i>u</i><sub>0</sub>).<br>
+• <b>Le théorème de convergence monotone</b> : une suite croissante et majorée, ou décroissante et minorée, converge. Sa limite vérifie ℓ = 0,8 ℓ + 300, donc 0,2 ℓ = 300 et ℓ = 1 500.<br>
+• <b>La suite auxiliaire</b> <i>v</i><sub><i>n</i></sub> = <i>u</i><sub><i>n</i></sub> − ℓ : <i>v</i><sub><i>n</i>+1</sub> = <i>u</i><sub><i>n</i>+1</sub> − 1 500 = 0,8 <i>u</i><sub><i>n</i></sub> + 300 − 1 500 = 0,8 <i>u</i><sub><i>n</i></sub> − 1 200 = 0,8 × (<i>u</i><sub><i>n</i></sub> − 1 500) = 0,8 <i>v</i><sub><i>n</i></sub> : géométrique de raison 0,8 ; alors <i>v</i><sub><i>n</i></sub> = <i>v</i><sub>0</sub> × 0,8<sup><i>n</i></sup> et <i>u</i><sub><i>n</i></sub> = <i>v</i><sub><i>n</i></sub> + 1 500.<br>
+• <b>Le seuil en Python</b> : on boucle TANT QUE le seuil n’est pas franchi — pour « <i>u</i><sub><i>n</i></sub> &gt; 1 400 », <code>while u &lt;= 1400 :</code> ; dans la boucle, <code>u = 0.8*u+300</code> puis <code>n = n+1</code>. Le tableau de valeurs le confirme : <i>u</i><sub>8</sub> ≈ 1 383 ≤ 1 400 et <i>u</i><sub>9</sub> ≈ 1 406 &gt; 1 400, la fonction renvoie 9.`;
 const RAP_CQP=`<b>Comprendre une question en probabilité</b><br>
 • <b>Ce que l’on SAIT, en indice</b> : « sachant que l’individu est malade », « parmi les malades », « on choisit un malade », « quand on est malade », « l’individu choisi est malade : quelle est sa probabilité… » — on ne regarde plus que les malades. C’est une probabilité <b>conditionnelle</b> : <i>P</i><sub><i>M</i></sub>(<i>T</i>), la condition en indice, ce que l’on cherche entre les parenthèses.<br>
 • <b>« et », sans rien savoir d’avance</b> : les deux à la fois, dans toute la population — une <b>intersection</b>, <i>P</i>(<i>M</i> ∩ <i>T</i>). « Ni malade ni positif » : <i>P</i>(<i class="apb-nb">M</i> ∩ <i class="apb-nb">T</i>).<br>
@@ -22096,7 +22133,7 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -29608,7 +29645,7 @@ function apsJetonAn(){
    MathLive. */
 document.addEventListener('input', function(e){
   const mf=e.target;
-  if(!mf || mf.tagName!=='MATH-FIELD' || e.data!=='n' || !mf.closest || !mf.closest('#scr-aps')) return;
+  if(!mf || mf.tagName!=='MATH-FIELD' || e.data!=='n' || !mf.closest || !mf.closest('#scr-aps, #scr-sbe')) return;   /* et au 5.7.1, pour uₙ */
   try{
     const P=mf.position, i=mf.getElementInfo(P);
     if(i && i.depth===1 && mf.getValue(P-2, P, 'latex')==='n') mf.executeCommand('moveAfterParent');
@@ -30112,6 +30149,671 @@ function apsConseilCtx(){
     +'Méthode à rappeler sans donner la réponse : somme 1 sur les branches d’un même nœud ; on multiplie le long d’un chemin, on additionne les chemins qui mènent au même événement ; P_B(A) = P(A ∩ B) ÷ P(B) ; '
     +'a_(n+1) = P(E_n) × P_(E_n)(E_(n+1)) + P(F_n) × P_(F_n)(E_(n+1)) avec P(F_n) = 1 − a_n ; une récurrence se fait en deux étapes ; une suite géométrique de raison q s’écrit v_n = v_(n0) × q^(n − n0) ; '
     +'q^n tend vers 0 quand −1 < q < 1 ; le seuil se trouve avec le tableau de valeurs de la calculatrice. '
+    +'Aide-le sur la PREMIÈRE étape fausse ou non faite, sans donner la réponse. Tu peux lui rappeler le bouton « Voir le rappel de cours » de cette fenêtre.';
+}
+/* ================= 5.7.1 SUITES — UN EXERCICE DE BAC (kind 'sbe') =================
+   Demande de Turquet (novembre 2026), avec le sujet du bac blanc 1
+   (2 décembre 2026, exercice 2 : une réserve naturelle, 20 % des animaux
+   disparaissent chaque année, 300 sont introduits) : « créer un exercice sur
+   les suites sur le modèle de l'exercice 2 ; changer complètement le thème,
+   et la formulation des questions quand cela est possible. Pour la
+   justification de la formule, on attend simplement que l'élève fasse le lien
+   entre la multiplication et le pourcentage, et entre la somme et la partie
+   de l'énoncé qui en parle. On utilisera pour chaque question les exercices
+   déjà créés qui traitent de la même chose. »
+   Une suite arithmético-géométrique uₙ₊₁ = q·uₙ + r (q = 1 − p/100) ; les
+   questions sont celles du sujet, dans son ordre, et chacune prend la
+   présentation de l'exercice qui la traite déjà :
+     A1. la relation justifiée — « × q » relié à la phrase du pourcentage et au
+         coefficient 1 − p/100, « + r » relié à la phrase de l'ajout (deux
+         listes de phrases de l'énoncé, une liste de coefficients) ;
+     A2. u₁ et u₂, la ligne de calcul du {suite-variation-recurrence} (b), puis
+         l'interprétation sur des cartes (le {proba-suite}) ;
+     A3. a) la construction en escalier, cliquée sur les deux rails, comme au
+         {suite-variation-recurrence} — cinq points ici (u₁, u₂, u₃) et un
+         repère gradué en centaines ; b) la conjecture, ses deux listes ;
+     B1. la récurrence u₀ ≤ uₙ ≤ uₙ₊₁ ≤ ℓ (ou ℓ ≤ uₙ₊₁ ≤ uₙ ≤ u₀) dans la grille
+         du {suite-variation-recurrence} : rangs en indice, valeurs dessous,
+         g appliquée aux quatre termes, l'élargissement à cinq ;
+     B2. le théorème de convergence monotone et le passage à la limite, les
+         lignes du {suite-tcm-limite} (famille affine) ;
+     C1–C2. la suite auxiliaire vₙ = uₙ − ℓ, la chaîne en champs MathLive du
+         {proba-suite} (juges apsLin, rfValEq), puis vₙ et uₙ en fonction de n ;
+     C3. le seuil : le programme Python à trous du {suite-algo-seuil} (ses
+         juges sagJusteCond / sagJusteU / sagJusteN, toute écriture
+         équivalente), les deux termes qui encadrent le seuil (le tableau de
+         valeurs du {proba-suite}, qui défile), le rang, son interprétation.
+   Huit mises en situation (SBE_CTX), aucune ne reprend les animaux du sujet.
+   LES DEUX SENS SORTENT DANS CHAQUE SÉANCE (la leçon du 5.2.5) : u₀ < ℓ, la
+   suite croît (le sujet) ; u₀ > ℓ, elle décroît — sans quoi « croissante »
+   et « majorée » tomberaient toujours juste.
+   LE TIRAGE (mesuré hors ligne sur 2 000 tirages, aucun échec) : ℓ multiple
+   de 100, p parmi 10 à 40 %, donc r = ℓ·p/100 entier ; u₀ multiple de 100 à au
+   moins 300 de ℓ ; u₁ et u₂ entiers (ils s'interprètent) ; une fenêtre de 5 à
+   9 graduations ; les deux rails écartés d'au moins SBE_GAP aux trois
+   abscisses cliquées ; le seuil à ℓ ∓ d (d « rond »), atteint entre les rangs
+   5 et 25, à au moins 1 des deux termes qui l'encadrent. Les variantes de
+   formulation (q.v) sont tirées à la génération. La question ne range que
+   des nombres et des indices : sbeAns() recalcule tout. */
+const SBE_CTX=[
+  { intro:'Au début de l’année 2027, une médiathèque possède {u0} livres.',
+    perte:'Chaque année, {p} % des livres, trop abîmés, sont retirés des rayons', ajout:'la médiathèque achète {r} livres neufs',
+    def:'le nombre de livres de la médiathèque au début de l’année 2027 + <i>n</i>',
+    quand:k=>'au début de l’année '+(2027+k), etat:v=>'la médiathèque possède '+v+' livres', nouv:v=>v+' livres neufs sont achetés',
+    grand:'le nombre de livres', us:'' },
+  { intro:'En septembre 2027, un club d’escalade compte {u0} adhérents.',
+    perte:'Chaque saison, {p} % des adhérents ne renouvellent pas leur inscription', ajout:'{r} nouveaux adhérents s’inscrivent',
+    def:'le nombre d’adhérents du club en septembre 2027 + <i>n</i>',
+    quand:k=>'en septembre '+(2027+k), etat:v=>'le club compte '+v+' adhérents', nouv:v=>v+' nouveaux adhérents s’inscrivent',
+    grand:'le nombre d’adhérents', us:'' },
+  { intro:'Au 1<sup>er</sup> janvier 2027, une ville met {u0} vélos en libre-service à la disposition de ses habitants.',
+    perte:'Chaque année, {p} % des vélos, hors d’usage, sont retirés du service', ajout:'{r} vélos neufs sont mis en circulation',
+    def:'le nombre de vélos en service au 1<sup>er</sup> janvier 2027 + <i>n</i>',
+    quand:k=>'au 1<sup>er</sup> janvier '+(2027+k), etat:v=>'la ville dispose de '+v+' vélos en service', nouv:v=>v+' vélos neufs sont mis en circulation',
+    grand:'le nombre de vélos en service', us:'' },
+  { intro:'Au début de l’année 2027, on estime à {u0} tonnes la masse de déchets plastiques présents dans un lac.',
+    perte:'Chaque année, une campagne de nettoyage retire {p} % des déchets présents dans le lac', ajout:'{r} tonnes de nouveaux déchets y sont rejetées',
+    def:'la masse, en tonnes, de déchets plastiques présents dans le lac au début de l’année 2027 + <i>n</i>',
+    quand:k=>'au début de l’année '+(2027+k), etat:v=>'le lac contient '+v+' tonnes de déchets plastiques', nouv:v=>v+' tonnes de nouveaux déchets sont rejetées dans le lac',
+    grand:'la masse de déchets', us:' tonnes' },
+  { intro:'Un jeu vidéo en ligne compte {u0} joueurs actifs lors de l’ouverture de son nouveau serveur.',
+    perte:'Chaque semaine, {p} % des joueurs actifs abandonnent le jeu', ajout:'{r} nouveaux joueurs le rejoignent',
+    def:'le nombre de joueurs actifs <i>n</i> semaines après l’ouverture du serveur',
+    quand:k=>k===0 ? 'à l’ouverture du serveur' : k===1 ? 'au bout d’une semaine' : 'au bout de '+k+' semaines',
+    etat:v=>'le serveur compte '+v+' joueurs actifs', nouv:v=>v+' nouveaux joueurs rejoignent le jeu',
+    grand:'le nombre de joueurs actifs', us:'' },
+  { intro:'Le 1<sup>er</sup> janvier 2027, une chaîne vidéo de vulgarisation scientifique compte {u0} abonnés.',
+    perte:'Chaque mois, {p} % des abonnés se désabonnent', ajout:'{r} nouveaux abonnés s’inscrivent',
+    def:'le nombre d’abonnés de la chaîne <i>n</i> mois après le 1<sup>er</sup> janvier 2027',
+    quand:k=>k===0 ? 'le 1<sup>er</sup> janvier 2027' : k===1 ? 'au bout d’un mois' : 'au bout de '+k+' mois',
+    etat:v=>'la chaîne compte '+v+' abonnés', nouv:v=>v+' nouveaux abonnés s’inscrivent',
+    grand:'le nombre d’abonnés', us:'' },
+  { intro:'Au début de l’année 2027, un parc urbain compte {u0} arbres.',
+    perte:'Chaque année, {p} % des arbres, malades ou trop âgés, sont abattus', ajout:'la ville plante {r} jeunes arbres',
+    def:'le nombre d’arbres du parc au début de l’année 2027 + <i>n</i>',
+    quand:k=>'au début de l’année '+(2027+k), etat:v=>'le parc compte '+v+' arbres', nouv:v=>'la ville plante '+v+' jeunes arbres',
+    grand:'le nombre d’arbres', us:'' },
+  { intro:'Le 1<sup>er</sup> janvier 2027, une application de covoiturage compte {u0} utilisateurs réguliers.',
+    perte:'Chaque mois, {p} % des utilisateurs réguliers cessent d’utiliser l’application', ajout:'{r} nouveaux utilisateurs réguliers s’y inscrivent',
+    def:'le nombre d’utilisateurs réguliers de l’application <i>n</i> mois après le 1<sup>er</sup> janvier 2027',
+    quand:k=>k===0 ? 'le 1<sup>er</sup> janvier 2027' : k===1 ? 'au bout d’un mois' : 'au bout de '+k+' mois',
+    etat:v=>'l’application compte '+v+' utilisateurs réguliers', nouv:v=>v+' nouveaux utilisateurs s’inscrivent',
+    grand:'le nombre d’utilisateurs réguliers', us:'' }
+];
+const SBE_P=[10,15,20,25,30,40], SBE_PAS=[100,200,250,500], SBE_D=[1,2,5,10,20,25,50,100];
+const SBE_GAP=34;   /* écart minimal entre les deux rails aux abscisses cliquées, en unités de viewBox (la cible fait 22 de large) */
+function sbeR(x){ return Math.round(x*1e9)/1e9; }
+function sbeU(q, k){ let v=q.u0; for(let i=0;i<k;i++) v=sbeR(q.q*v+q.r); return v; }
+function sbeExact(q, k){ return q.l+(q.u0-q.l)*Math.pow(q.q, k); }
+function sbeGen(c, sens){
+  for(let t=0;t<3000;t++){
+    const p=pick(SBE_P), Q=sbeR(1-p/100), l=100*rand(6,30), r=sbeR(l*p/100);
+    const u0=100*rand(1,40); if(sens==='cro' ? u0>l-300 : u0<l+300) continue;
+    const q={c:c, sens:sens, p:p, q:Q, l:l, r:r, u0:u0};
+    const u1=sbeU(q,1), u2=sbeU(q,2), u3=sbeU(q,3);
+    if(!Number.isInteger(u1) || !Number.isInteger(u2)) continue;
+    const M=Math.max(u0,l)*1.08; let pas=0, W=0;
+    for(const s of SBE_PAS){ const k=Math.ceil(M/s); if(k>=5 && k<=9){ pas=s; W=k*s; break; } }
+    if(!pas) continue;
+    const px=SVR_PLOT/W; if([u1-u0,u2-u1,u3-u2].some(function(g){ return Math.abs(g)*px<SBE_GAP; })) continue;
+    let S=null, N=0;
+    for(const d of apcMelange(SBE_D)){
+      const s=sens==='cro' ? l-d : l+d; let n=0;
+      while(n<80 && (sens==='cro' ? sbeExact(q,n)<=s : sbeExact(q,n)>=s)) n++;
+      if(n<5 || n>25) continue;
+      if(Math.abs(sbeExact(q,n-1)-s)<1 || Math.abs(sbeExact(q,n)-s)<1) continue;
+      S=s; N=n; break;
+    }
+    if(S===null) continue;
+    return Object.assign(q, {W:W, pas:pas, S:S, N:N, pts:[], ch:{},
+      v:{a1:rand(0,2), a2:rand(0,1), a3:rand(0,1), b1:rand(0,1), b2:rand(0,1), c1:rand(0,1), c2:rand(0,1), c3:rand(0,1)},
+      ordre:apcMelange(['l','u0','u1','un','un1','un2']), ordreLim:apcMelange(['l','u0','zero','inf']),
+      perm:{j1:apcMelange([0,1,2]), j3:apcMelange([0,1,2]), j2:apcMelange([0,1,2,3]), i2:apcMelange([0,1,2]), seu:apcMelange([0,1,2])}});
+  }
+  /* repli : les nombres du sujet, sur la situation tirée */
+  return {c:c, sens:'cro', p:20, q:0.8, l:1500, r:300, u0:800, W:1600, pas:200, S:1400, N:9, pts:[], ch:{},
+    v:{a1:0,a2:0,a3:0,b1:0,b2:0,c1:0,c2:0,c3:0}, ordre:['l','u0','u1','un','un1','un2'], ordreLim:['l','u0','zero','inf'],
+    perm:{j1:[0,1,2], j3:[0,1,2], j2:[0,1,2,3], i2:[0,1,2], seu:[0,1,2]}};
+}
+/* Une séance : dmNbQuestions(2) exercices, sur des situations différentes, les deux sens alternés. */
+function sbeGenSession(){
+  const ordre=apcMelange(SBE_CTX.map(function(u,i){ return i; })), s0=rand(0,1);
+  return distinctes(Math.min(dmNbQuestions(2), SBE_CTX.length), function(u,i){
+    return sbeGen(ordre[i%ordre.length], (i+s0)%2===0 ? 'cro' : 'dec'); });
+}
+/* ---- tout se recalcule de la question ---- */
+function sbeAns(q){
+  const cro=q.sens==='cro';
+  return { cro:cro, u1:sbeU(q,1), u2:sbeU(q,2), u3:sbeU(q,3), cc:sbeR(q.u0-q.l),
+    prop: cro ? ['u0','un','un1','l'] : ['l','un1','un','u0'],
+    fin:  cro ? ['u0','u1','un1','un2','l'] : ['l','un2','un1','u1','u0'],
+    plus: cro ? 1 : 0,
+    rInitS: cro ? [[0,0],[0,1]] : [[0,1],[0,0]],
+    vInit:  cro ? [q.u0, sbeU(q,1)] : [sbeU(q,1), q.u0],
+    rButS:  cro ? [[1,1],[1,2]] : [[1,2],[1,1]] };
+}
+function sbeN(v){ return numFmt(sbeR(v)); }
+function sbeFn(q){ return function(x){ return q.q*x+q.r; }; }
+const SBE_UN='<i>u</i><sub><i>n</i></sub>', SBE_UN1='<i>u</i><sub><i>n</i>+1</sub>', SBE_VN='<i>v</i><sub><i>n</i></sub>', SBE_VN1='<i>v</i><sub><i>n</i>+1</sub>';
+function sbeSu(k){ return '<i>u</i><sub>'+k+'</sub>'; }
+function sbeRec(q){ return SBE_UN1+' = '+sbeN(q.q)+'&#8239;'+SBE_UN+' + '+sbeN(q.r); }
+function sbeTexte(q, k){
+  const A=sbeAns(q);
+  return {l:sbeN(q.l), u0:sbeN(q.u0), u1:sbeN(A.u1), un:'uₙ', un1:'uₙ₊₁', un2:'uₙ₊₂'}[k];
+}
+function sbeMaj(t){ return t.charAt(0).toUpperCase()+t.slice(1); }
+function sbeTxt(h){ const d=document.createElement('div'); d.innerHTML=String(h); return d.textContent.replace(/\s+/g,' ').trim(); }
+/* les trois phrases de l'énoncé que la question 1 relie aux deux opérations ; la première dit le pourcentage, la deuxième l'ajout */
+function sbePhrases(q){
+  const C=SBE_CTX[q.c], f=function(t){ return t.replace('{u0}', sbeN(q.u0)).replace('{p}', q.p).replace('{r}', sbeN(q.r)); };
+  return [f(C.perte), f(C.ajout), f(C.intro).replace(/\.$/,'')].map(sbeTxt);
+}
+function sbeCoefs(q){ return ['1 − '+q.p+'/100', '1 + '+q.p+'/100', q.p+'/100', '100 − '+q.p]; }
+/* ---- les cases, dans l'ordre de lecture ---- */
+function sbeCases(q){
+  const A=sbeAns(q), C=[];
+  const add=function(id,t,o){ C.push(Object.assign({id:id, t:t}, o||{})); };
+  add('sbe-j1','sel',{good:'0'}); add('sbe-j2','sel',{good:'0'}); add('sbe-j3','sel',{good:'1'});
+  add('sbe-b1','nb',{v:q.u0}); add('sbe-b2','nb',{v:A.u1}); add('sbe-b3','nb',{v:A.u1}); add('sbe-b4','nb',{v:A.u2});
+  add('sbe-c1','sel',{good:A.cro?'cro':'dec'}); add('sbe-c2','sel',{good:'l'});
+  add('sbe-n0','nb',{v:0});
+  add('sbe-i1','rang',{v:[0,0]}); add('sbe-i2','rang',{v:[0,0]});
+  add('sbe-i3','rang',{v:A.rInitS[0]}); add('sbe-i4','rang',{v:A.rInitS[1]});
+  add('sbe-v1','nb',{v:A.vInit[0]}); add('sbe-v2','nb',{v:A.vInit[1]});
+  add('sbe-init','sel',{good:'vrai'});
+  add('sbe-h1','rang',{v:[1,0]}); add('sbe-h2','rang',{v:[1,0]});
+  add('sbe-m1','rang',{v:[1,1]}); add('sbe-m2','rang',{v:[1,1]});
+  add('sbe-m3','rang',{v:A.rButS[0]}); add('sbe-m4','rang',{v:A.rButS[1]});
+  add('sbe-p1','sel',{good:A.prop[1]}); add('sbe-p2','sel',{good:A.prop[2]});
+  for(let i=0;i<4;i++) add('sbe-f'+(i+1),'sel',{good:A.prop[i]});
+  add('sbe-mono','sel',{good:'cro'}); add('sbe-coef','nb',{v:q.q});
+  for(let i=0;i<5;i++) add('sbe-g'+(i+1),'sel',{good:A.fin[i]});
+  add('sbe-t-sens','sel',{good:A.cro?'cro':'dec'}); add('sbe-t-borne','sel',{good:A.cro?'maj':'min'});
+  add('sbe-t-bn',A.cro?'maj':'min',{v:q.l}); add('sbe-t-thm','sel',{good:'tcm'}); add('sbe-t-conv','sel',{good:'convergente'});
+  add('sbe-t-l1','sel',{good:'l'}); add('sbe-t-l2','sel',{good:'l'}); add('sbe-t-p1','sel',{good:'l'}); add('sbe-t-p2','sel',{good:'l'});
+  add('sbe-t-s1','nb',{v:q.q}); add('sbe-t-s2','nb',{v:q.r}); add('sbe-t-s3','nb',{v:sbeR(1-q.q)}); add('sbe-t-s4','nb',{v:q.r}); add('sbe-t-s5','nb',{v:q.l});
+  add('sbe-x1','lina',{a:q.q, b:sbeR(q.r-q.l)}); add('sbe-x2','lina',{a:q.q, b:sbeR(-q.q*q.l), red:true}); add('sbe-x3','lina',{a:1, b:-q.l});
+  add('sbe-type','sel',{good:'geo'}); add('sbe-q','nb',{v:q.q}); add('sbe-v0','nb',{v:A.cc});
+  add('sbe-vn','fn',{f:function(x){ return A.cc*Math.pow(q.q,x); }}); add('sbe-un','fn',{f:function(x){ return q.l+A.cc*Math.pow(q.q,x); }});
+  add('sbe-py-c','py-c'); add('sbe-py-u','py-u'); add('sbe-py-n','py-n');
+  add('sbe-k1','nb',{v:q.N-1}); add('sbe-w1','apx',{v:sbeExact(q,q.N-1), avant:true});
+  add('sbe-k2','nb',{v:q.N}); add('sbe-w2','apx',{v:sbeExact(q,q.N), avant:false});
+  add('sbe-N','nb',{v:q.N});
+  return C;
+}
+function sbeIds(q){ return sbeCases(q).map(function(x){ return x.id; }); }
+function sbeCaseDe(q, id){ return sbeCases(q).find(function(x){ return x.id===id; }); }
+const SBE_CARTES=['i2','seu'];
+/* uₙ dans une case : « u_n », « uₙ », « u_(n) » deviennent le aₙ du {proba-suite}, puis l'inconnue de ses juges */
+function sbeNormU(s){ return String(s==null?'':s).replace(/u(?=\s*(?:_|ₙ|n(?![a-z])))/g,'a'); }
+function sbeLire(q, id){
+  const el=$(id); if(!el) return '';
+  if(el.tagName==='SELECT' || el.tagName==='INPUT') return String(el.value==null?'':el.value);
+  const x=sbeCaseDe(q, id);
+  return (x && x.t==='lina') ? apcLire(el) : dexpCellValue(id);
+}
+function sbeJuger(q, id, raw){
+  const x=sbeCaseDe(q, id); if(!x) return {ok:false};
+  if(x.t==='sel') return {ok:raw===x.good};
+  if(x.t==='nb'){ const v=rfrNb(raw); return {ok:isFinite(v) && Math.abs(v-x.v)<1e-9*Math.max(1,Math.abs(x.v))}; }
+  if(x.t==='maj' || x.t==='min'){ const v=rfrNb(raw); return {ok:isFinite(v) && (x.t==='maj' ? v>=x.v-1e-9 : v<=x.v+1e-9)}; }
+  if(x.t==='rang'){ const r=rfrLin(raw); return {ok:!!r && Math.abs(r.p-x.v[0])<1e-9 && Math.abs(r.c-x.v[1])<1e-9}; }
+  if(x.t==='lina') return apsLin(sbeNormU(raw), x.a, x.b, x.red);
+  if(x.t==='fn') return {ok:rfValEq(raw, x.f)};
+  if(x.t==='py-c') return {ok:sagJusteCond(raw, {seuil:q.S, decreasing:q.sens!=='cro'})};
+  if(x.t==='py-u') return {ok:sagJusteU(raw, {a:q.q, b:q.r})};
+  if(x.t==='py-n') return {ok:sagJusteN(raw)};
+  if(x.t==='apx'){
+    /* une valeur approchée du terme (à moins d'une unité) qui dit le bon côté du seuil */
+    const v=rfrNb(raw), cro=q.sens==='cro';
+    if(!isFinite(v) || Math.abs(v-x.v)>=1) return {ok:false};
+    const auDela=cro ? v>q.S : v<q.S;
+    return {ok:x.avant ? !auDela : auDela};
+  }
+  return {ok:false};
+}
+/* ---- les corrections : [en clair, en LaTeX] ; pour une liste, la valeur de l'option ---- */
+function sbeCorr(q, id){
+  const x=sbeCaseDe(q, id), A=sbeAns(q), N=sbeN;
+  if(!x) return ['',''];
+  if(x.t==='sel') return [x.good, x.good];
+  if(x.t==='rang') return [svrRangStr(x.v), svrRangStr(x.v)];
+  if(x.t==='nb' || x.t==='maj' || x.t==='min') return [N(x.v), N(x.v)];
+  if(x.t==='apx'){ const t=numFmt(Math.round(x.v*100)/100); return [t, t]; }
+  const Q=N(q.q), L=N(q.l), C=A.cc;
+  const M={
+    'sbe-x1':[Q+' uₙ + '+N(q.r)+' − '+L, Q+'u_{n}+'+N(q.r)+'-'+L],
+    'sbe-x2':[Q+' uₙ − '+N(q.q*q.l), Q+'u_{n}-'+N(q.q*q.l)],
+    'sbe-x3':['uₙ − '+L, 'u_{n}-'+L],
+    'sbe-vn':[N(C)+' × '+Q+'^n', N(C)+'\\times '+Q+'^{n}'],
+    'sbe-un':[L+' '+(C<0?'−':'+')+' '+N(Math.abs(C))+' × '+Q+'^n', L+(C<0?'-':'+')+N(Math.abs(C))+'\\times '+Q+'^{n}'],
+    'sbe-py-c':['u '+(A.cro?'<=':'>=')+' '+sagPyNum(q.S)],
+    'sbe-py-u':[sagPyNum(q.q)+'*u+'+sagPyNum(q.r)],
+    'sbe-py-n':['n+1']
+  }[id];
+  return M ? [M[0], M.length>1 ? M[1] : M[0]] : ['',''];
+}
+/* ---- les cartes d'interprétation (le {proba-suite}) ; la première est la bonne ---- */
+function sbeCartesTextes(q, g){
+  const C=SBE_CTX[q.c], A=sbeAns(q), N=sbeN;
+  if(g==='i2') return [
+    sbeMaj(C.quand(1))+', '+C.etat(N(A.u1))+' et, '+C.quand(2)+', '+C.etat(N(A.u2))+'.',
+    sbeMaj(C.quand(2))+', '+C.etat(N(A.u1))+' et, '+C.quand(3)+', '+C.etat(N(A.u2))+'.',
+    sbeMaj(C.quand(1))+', '+C.nouv(N(A.u1))+' et, '+C.quand(2)+', '+C.nouv(N(A.u2))+'.'];
+  const S=N(q.S)+C.us, fr=A.cro ? 'dépassera '+S : 'passera sous les '+S;
+  return [
+    'C’est '+C.quand(q.N)+' que, pour la première fois, '+C.grand+' '+fr+'.',
+    'C’est '+C.quand(q.N-1)+' que, pour la première fois, '+C.grand+' '+fr+'.',
+    sbeMaj(C.quand(q.N))+', '+C.etat(N(q.S))+' exactement.'];
+}
+function sbeCartesHTML(q, g){
+  const T=sbeCartesTextes(q, g);
+  return '<div class="apc-cartes apt-cartes" id="sbe-g-'+g+'">'+q.perm[g].map(function(k){
+    return '<button type="button" class="apc-carte" data-k="'+k+'" onclick="sbeChoisir(\''+g+'\','+k+')"><span>'+T[k]+'</span></button>'; }).join('')+'</div>';
+}
+function sbeCartesPeindre(q, g){
+  const box=$('sbe-g-'+g); if(!box) return;
+  const ch=q.ch[g], soutien=isSoutien(), juge=test.locked || (soutien && ch!==undefined), fini=test.locked || (soutien && ch===0);
+  box.querySelectorAll('.apc-carte').forEach(function(el){
+    const k=+el.getAttribute('data-k');
+    el.classList.remove('ok','bad','sol','pts-case','hors-note','apc-pris');
+    if(ch===k) el.classList.add.apply(el.classList, juge ? ['pts-case', k===0?'ok':'bad'] : ['apc-pris']);
+    else if(k===0 && ch!==undefined && test.locked) el.classList.add('sol','hors-note');
+    else if(k===0 && ch===undefined && test.locked) el.classList.add('pts-case','sol');
+    el.disabled=fini;
+  });
+}
+function sbeChoisir(g, k){
+  const q=test.questions[test.idx]; if(!q || test.locked) return;
+  if(isSoutien() && q.ch[g]===0) return;   /* en soutien, un choix juste se fige */
+  q.ch[g]=k; sbeCartesPeindre(q, g);
+  if(isSoutien()) checkSBE(true);
+}
+/* ---- la construction en escalier (le {suite-variation-recurrence}) : cinq points ---- */
+function sbePtsAttendus(q){ const A=sbeAns(q); return [{r:'c',x:q.u0},{r:'d',x:A.u1},{r:'c',x:A.u1},{r:'d',x:A.u2},{r:'c',x:A.u2}]; }
+function sbeCadre(q){ return {W:q.W, f:sbeFn(q), att:sbePtsAttendus(q)}; }
+function sbeSVG(q, etat){
+  const c=sbeCadre(q), f=c.f, A=sbeAns(q), u=SVR_PLOT/c.W;
+  const X=function(x){ return (SVR_PADL+x*u).toFixed(1); }, Y=function(y){ return (SVR_PADT+SVR_PLOT-y*u).toFixed(1); };
+  const Wpx=SVR_PADL+SVR_PLOT+SVR_PADR, Hpx=SVR_PADT+SVR_PLOT+SVR_PADB, k=Math.round(c.W/q.pas);
+  let g='';
+  for(let i=0;i<=k;i++){
+    const v=i*q.pas;
+    g+='<line x1="'+X(v)+'" y1="'+Y(0)+'" x2="'+X(v)+'" y2="'+Y(c.W)+'" stroke="var(--grid)" stroke-width="1"/>'
+      +'<line x1="'+X(0)+'" y1="'+Y(v)+'" x2="'+X(c.W)+'" y2="'+Y(v)+'" stroke="var(--grid)" stroke-width="1"/>';
+    if(v>0) g+='<text class="sv-ax" x="'+X(v)+'" y="'+(+Y(0)+19).toFixed(1)+'" text-anchor="middle" font-size="12">'+v+'</text>'
+      +'<text class="sv-ax" x="'+(+X(0)-6).toFixed(1)+'" y="'+(+Y(v)+4).toFixed(1)+'" text-anchor="end" font-size="12">'+v+'</text>';
+  }
+  g+='<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(c.W)+'" y2="'+Y(0)+'" stroke="var(--ink-soft)" stroke-width="1.8"/>'
+    +'<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(0)+'" y2="'+Y(c.W)+'" stroke="var(--ink-soft)" stroke-width="1.8"/>'
+    +'<text class="sv-ax" x="'+(+X(0)-6).toFixed(1)+'" y="'+(+Y(0)+19).toFixed(1)+'" text-anchor="end" font-size="12">0</text>';
+  const dDiag='M'+X(0)+' '+Y(0)+'L'+X(c.W)+' '+Y(c.W);
+  const xMax=Math.min(c.W, (c.W-q.r)/q.q), dCourbe='M'+X(0)+' '+Y(f(0))+'L'+X(xMax)+' '+Y(f(xMax));
+  g+='<path d="'+dDiag+'" class="svr-diag"/><path d="'+dCourbe+'" class="svr-courbe"/>';
+  /* LA LÉGENDE, EN HAUT À GAUCHE, COMME SUR LE SUJET : le coin est toujours
+     vide (les deux droites y passent sous 0,9 W), alors qu'une étiquette posée
+     au bout d'une droite tombait sur l'autre quand ℓ est près du bord */
+  const lx=+X(0)+12, ly=+Y(c.W)+12;
+  g+='<rect x="'+lx+'" y="'+ly+'" width="128" height="50" rx="5" fill="var(--surface)" stroke="var(--grid)"/>'
+    +'<line x1="'+(lx+8)+'" y1="'+(ly+16)+'" x2="'+(lx+38)+'" y2="'+(ly+16)+'" class="svr-courbe"/>'
+    +'<text class="svr-lbl svr-lbl-c" x="'+(lx+46)+'" y="'+(ly+21)+'"><tspan class="svr-m">y</tspan> = <tspan class="svr-m">g</tspan>(<tspan class="svr-m">x</tspan>)</text>'
+    +'<line x1="'+(lx+8)+'" y1="'+(ly+36)+'" x2="'+(lx+38)+'" y2="'+(ly+36)+'" class="svr-diag"/>'
+    +'<text class="svr-lbl svr-lbl-d" x="'+(lx+46)+'" y="'+(ly+41)+'"><tspan class="svr-m">y</tspan> = <tspan class="svr-m">x</tspan></text>';
+  g+='<g class="svr-dep"><circle cx="'+X(q.u0)+'" cy="'+Y(0)+'" r="5.5"/>'
+    +'<text x="'+(+X(q.u0)+7).toFixed(1)+'" y="'+(+Y(0)-9).toFixed(1)+'">u<tspan font-size="10" dy="3">0</tspan></text></g>';
+  if(etat==='final'){
+    let dsol='M'+X(q.u0)+' '+Y(0);
+    c.att.forEach(function(e){ dsol+='L'+X(e.x)+' '+Y(escY(c,e)); });
+    g+='<path d="'+dsol+'" class="svr-esc-sol"/>'
+      +'<line class="svr-lect" x1="'+X(A.u1)+'" y1="'+Y(A.u1)+'" x2="'+X(A.u1)+'" y2="'+Y(0)+'"/>'
+      +'<line class="svr-lect" x1="'+X(A.u2)+'" y1="'+Y(A.u2)+'" x2="'+X(A.u2)+'" y2="'+Y(0)+'"/>'
+      +'<line class="svr-lect" x1="'+X(A.u2)+'" y1="'+Y(A.u3)+'" x2="'+X(A.u3)+'" y2="'+Y(A.u3)+'"/>'
+      +'<line class="svr-lect" x1="'+X(A.u3)+'" y1="'+Y(A.u3)+'" x2="'+X(A.u3)+'" y2="'+Y(0)+'"/>';
+    [[A.u1,1],[A.u2,2],[A.u3,3]].forEach(function(t){
+      g+='<text class="svr-lbl svr-lbl-s" x="'+(+X(t[0])+4).toFixed(1)+'" y="'+(+Y(0)-9).toFixed(1)+'">u<tspan font-size="10" dy="3">'+t[1]+'</tspan></text>'; });
+  }
+  const pts=Array.isArray(q.pts) ? q.pts : [];
+  if(pts.length){
+    let d='M'+X(q.u0)+' '+Y(0);
+    pts.forEach(function(p){ d+='L'+X(p.x)+' '+Y(p.r==='c' ? f(p.x) : p.x); });
+    g+='<path d="'+d+'" class="svr-esc"/>';
+  }
+  for(let i=0;i<c.att.length;i++){
+    const p=pts[i];
+    if(p){
+      const cls=(etat==='soutien' || etat==='final') ? (escPtJuste(c,i,p) ? ' ok' : ' bad') : '';
+      g+='<g class="pts-case svr-pt'+cls+'"><circle cx="'+X(p.x)+'" cy="'+Y(p.r==='c' ? f(p.x) : p.x)+'" r="7.5"/></g>';
+    } else if(etat==='final'){
+      const e=c.att[i];
+      g+='<g class="pts-case svr-pt sol"><circle cx="'+X(e.x)+'" cy="'+Y(escY(c,e))+'" r="7.5"/></g>';
+    }
+  }
+  if(etat!=='final' && !test.locked) g+='<path d="'+dDiag+'" class="svr-hit" data-rail="d"/><path d="'+dCourbe+'" class="svr-hit" data-rail="c"/>';
+  return '<svg viewBox="0 0 '+Wpx+' '+Hpx+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg svr-svg" aria-label="Repère : la droite d’équation y = g(x) et la droite d’équation y = x">'+g+'</svg>';
+}
+function sbeDessiner(etat){
+  const q=test.questions[test.idx]; if(!q) return;
+  const h=$('sbeGraph'); if(!h) return;
+  h.innerHTML=sbeSVG(q, etat||'');
+  const n=$('sbeTrace');
+  if(n) n.textContent=(q.pts && q.pts.length) ? ('Points placés : '+q.pts.length+' / 5') : 'Aucun point placé.';
+}
+/* la pose, sans le clic : jsdom n'a pas de mise en page, c'est par là que le banc principal l'éprouve */
+function sbePoser(rail, x){
+  const q=test.questions[test.idx]; if(!q || test.locked || test.kind!=='sbe') return false;
+  if(!Array.isArray(q.pts)) q.pts=[];
+  if(q.pts.length>=5 || (rail!=='c' && rail!=='d') || !(typeof x==='number' && isFinite(x))) return false;
+  q.pts.push({r:rail, x:Math.round(Math.min(q.W, Math.max(0,x))*100)/100});
+  sbeDessiner();
+  if(isSoutien()) checkSBE(true);
+  return true;
+}
+function sbeClic(evt){
+  if(test.locked || test.kind!=='sbe') return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const cible=evt.target, rail=(cible && cible.getAttribute) ? cible.getAttribute('data-rail') : null;
+  if(!rail) return;
+  if(q.pts && q.pts.length>=5){ toast('Le tracé est complet — « Effacer le tracé » pour recommencer'); return; }
+  const x=escAbscisse(evt, cible, q.W); if(x===null) return;
+  sbePoser(rail, x);
+}
+function sbeEffacer(){
+  if(test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  q.pts=[]; sbeDessiner();
+}
+/* ---- l'écran ---- */
+function sbeSel(id, opts){
+  return '<select class="tvi-sel svr-sel" id="'+id+'" aria-label="à choisir"><option value="">…</option>'
+    +opts.map(function(o){ return '<option value="'+esc(o[0])+'">'+esc(o[1])+'</option>'; }).join('')+'</select>';
+}
+function sbeTermes(q){ return q.ordre.map(function(k){ return [k, sbeTexte(q,k)]; }); }
+function sbeUc(id, plus){ return '<span class="svr-uw"><i>u</i><span class="svr-sub">'+sa2In(id,true)+(plus?'<span class="svr-p1">+1</span>':'')+'</span></span>'; }
+function sbeEnonceHTML(q){
+  const C=SBE_CTX[q.c], f=function(t){ return t.replace('{u0}', sbeN(q.u0)).replace('{p}', q.p).replace('{r}', sbeN(q.r)); };
+  return f(C.intro)+'<br>'+f(C.perte)+', tandis que '+f(C.ajout)+'.'
+    +'<br>Pour tout entier naturel <i>n</i>, on note '+SBE_UN+' '+C.def+'. Ainsi '+sbeSu(0)+' = '+sbeN(q.u0)+'.';
+}
+function sbeT(s){ return '<span class="sa2-t">'+s+'</span>'; }
+function sbePartie(t){ return '<p class="sbe-partie"><b>'+t+'</b></p>'; }
+function sbeCons(num, t){ return '<p class="apf-cons"><b>'+num+'</b> '+t+'</p>'; }
+function sbeCorpsHTML(q){
+  const C=SBE_CTX[q.c], A=sbeAns(q), N=sbeN, Q=N(q.q), L=N(q.l), V=q.v, nn='<i>n</i>';
+  const coefs=sbeCoefs(q), ph=sbePhrases(q);
+  const optPh=function(perm){ return perm.map(function(k){ return [String(k), '« '+ph[k]+' »']; }); };
+  const rel=sbeRec(q);
+  /* ---------- Partie A ---------- */
+  let h=sbePartie('Partie A — Modélisation et conjectures');
+  h+=sbeCons('1.', [
+      'Justifier que, pour tout entier naturel '+nn+', '+rel+'.',
+      'Expliquer pourquoi, pour tout entier naturel '+nn+', '+rel+'.',
+      'Montrer que la situation est modélisée par la relation '+rel+', pour tout entier naturel '+nn+'.'][V.a1]);
+  h+='<div class="sa2-ladder">'
+    +'<div class="sa2-row">'+sbeT('Dans '+SBE_UN1+' = <b>'+Q+'</b> × '+SBE_UN+' + '+N(q.r)+', la multiplication par <b>'+Q+'</b> traduit la phrase :')+'</div>'
+    +'<div class="sa2-row sbe-retrait">'+sbeSel('sbe-j1', optPh(q.perm.j1))+'</div>'
+    +'<div class="sa2-row sbe-retrait">'+sbeT('car diminuer une quantité de '+q.p+' % revient à la multiplier par')
+      +sbeSel('sbe-j2', q.perm.j2.map(function(k){ return [String(k), coefs[k]]; }))+sbeT('= '+Q+'.')+'</div>'
+    +'<div class="sa2-row">'+sbeT('L’addition de <b>'+N(q.r)+'</b> traduit la phrase :')+'</div>'
+    +'<div class="sa2-row sbe-retrait">'+sbeSel('sbe-j3', optPh(q.perm.j3))+'</div></div>';
+  h+=sbeCons('2.', [
+      'Calculer '+sbeSu(1)+' et '+sbeSu(2)+', puis interpréter ces résultats dans le contexte de l’exercice.',
+      'Déterminer '+sbeSu(1)+' et '+sbeSu(2)+'. Que représentent ces deux nombres ?'][V.a2]);
+  h+='<div class="sa2-ladder">'
+    +'<div class="sa2-row">'+sbeT(sbeSu(1)+' = '+Q+' × '+sbeSu(0)+' + '+N(q.r)+' = '+Q+' ×')+sa2In('sbe-b1')+sbeT('+ '+N(q.r)+' =')+sa2In('sbe-b2')+'</div>'
+    +'<div class="sa2-row">'+sbeT(sbeSu(2)+' = '+Q+' × '+sbeSu(1)+' + '+N(q.r)+' = '+Q+' ×')+sa2In('sbe-b3')+sbeT('+ '+N(q.r)+' =')+sa2In('sbe-b4')+'</div></div>'
+    +'<p class="apc-etape aide-ecran">Interprétation :</p>'+sbeCartesHTML(q,'i2');
+  h+=sbeCons('3.', 'On pose <i>g</i>(<i>x</i>) = '+Q+'<i>x</i> + '+N(q.r)+'. Les droites d’équations <i>y</i> = <i>g</i>(<i>x</i>) et <i>y</i> = <i>x</i> sont représentées ci-dessous.');
+  h+='<p class="apf-cons"><b>a)</b> À partir de '+sbeSu(0)+' = '+N(q.u0)+', construire graphiquement les termes '+sbeSu(1)+', '+sbeSu(2)+' et '+sbeSu(3)+' en utilisant ces deux droites.'
+    +'<span class="aide-ecran"> Clique successivement les <b>cinq points</b> de la construction en escalier, sur la droite d’équation <i>y</i> = <i>g</i>(<i>x</i>) ou sur la droite d’équation <i>y</i> = <i>x</i> : '+sbeSu(3)+' se lit alors à la hauteur du dernier point.</span></p>'
+    +'<div class="svr-colg sbe-graphe"><div class="sv-graph svr-graph" id="sbeGraph"></div>'
+    +'<div class="svr-outils"><button type="button" class="btn btn-ghost" onclick="sbeEffacer()">↺ Effacer le tracé</button><span class="svr-trace" id="sbeTrace"></span></div></div>';
+  const LIM={l:L, u0:N(q.u0), zero:'0', inf:'+∞'};
+  h+='<p class="apf-cons"><b>b)</b> '+['Conjecturer le sens de variation et la limite de la suite ('+SBE_UN+').',
+      'Que peut-on conjecturer sur le sens de variation de la suite ('+SBE_UN+') et sur sa limite ?'][V.a3]+'</p>'
+    +'<div class="sa2-ladder"><div class="sa2-row">'+sbeT('La suite ('+SBE_UN+') semble')+sbeSel('sbe-c1',[['cro','croissante'],['dec','décroissante'],['const','constante']])
+    +sbeT('et semble avoir pour limite')+sbeSel('sbe-c2', q.ordreLim.map(function(k){ return [k, LIM[k]]; }))+sbeT('.')+'</div></div>';
+  /* ---------- Partie B ---------- */
+  const G=N(A.cro ? q.u0 : q.l), D=N(A.cro ? q.l : q.u0);
+  const encH=G+' ≤ '+(A.cro ? SBE_UN+' ≤ '+SBE_UN1 : SBE_UN1+' ≤ '+SBE_UN)+' ≤ '+D;
+  h+=sbePartie('Partie B — Convergence');
+  h+=sbeCons('1.', ['Démontrer par récurrence que, pour tout entier naturel '+nn+', '+encH+'.',
+      'Montrer, à l’aide d’un raisonnement par récurrence, que pour tout entier naturel '+nn+' : '+encH+'.'][V.b1]);
+  const fixG='<span class="svr-fix">'+G+'</span>', fixD='<span class="svr-fix">'+D+'</span>';
+  const cel=function(r,c,html,cls,aBout){ return '<span class="svr-cel'+(cls?' '+cls:'')+'" data-r="'+r+'" data-c="'+c+'" style="grid-area:'+r+' / '+c+(aBout?' / auto / -1':'')+'">'+html+'</span>'; };
+  const leC=function(r,c){ return cel(r,c,'≤','svr-le'); };
+  const chaine=function(r,tA,tB){ return cel(r,2,fixG)+leC(r,3)+cel(r,4,tA)+leC(r,5)+cel(r,6,tB)+leC(r,7)+cel(r,8,fixD); };
+  const eg=function(idv){ return '<span class="sa2-t svr-eg">=</span>'+sa2In(idv); };
+  h+='<div class="svr-scroll"><div class="svr-grille svr-grec">'
+    +cel(1,1,'<b>Initialisation</b>'+sbeT('— vrai pour '+nn+' =')+sa2In('sbe-n0')+sbeT(' :'),'svr-lib')
+    +chaine(1, sbeUc('sbe-i1',A.plus===0), sbeUc('sbe-i2',A.plus===1))
+    +cel(2,1,sbeT('donc :'),'svr-lib')
+    +chaine(2, sbeUc('sbe-i3',false), sbeUc('sbe-i4',false))
+    +cel(2,9,sbeT('c’est')+sbeSel('sbe-init',[['vrai','vrai'],['faux','faux']]),'svr-suite',true)
+    +cel(3,4,eg('sbe-v1'),'svr-val')+cel(3,6,eg('sbe-v2'),'svr-val')
+    +cel(4,1,'<b>Hérédité</b>'+sbeT('— on <b>suppose</b> que c’est vrai pour '+nn+' :'),'svr-lib svr-bloc')
+    +chaine(4, sbeUc('sbe-h1',A.plus===0), sbeUc('sbe-h2',A.plus===1)).replace(/class="svr-cel/g,'class="svr-cel svr-bloc')
+    +cel(5,1,sbeT('On <b>montre</b> que c’est vrai pour '+nn+' + 1 :'),'svr-lib')
+    +chaine(5, sbeUc('sbe-m1',A.plus===0), sbeUc('sbe-m2',A.plus===1))
+    +cel(6,1,sbeT('donc :'),'svr-lib')
+    +chaine(6, sbeUc('sbe-m3',false), sbeUc('sbe-m4',false))
+    +'</div></div>';
+  const T=sbeTermes(q), off=A.cro ? 2 : 0;
+  h+='<div class="svr-demo"><div class="sa2-row svr-etape"><b>Démonstration</b></div>'
+    +'<div class="svr-scroll"><div class="svr-grille svr-gdemo">'
+    +cel(1,1+off,fixG)+leC(1,2+off)+cel(1,3+off,sbeSel('sbe-p1',T))+leC(1,4+off)+cel(1,5+off,sbeSel('sbe-p2',T))+leC(1,6+off)+cel(1,7+off,fixD)
+    +[1,2,3,4].map(function(i){ return (i>1?leC(2,2*i-2+off):'')+cel(2,2*i-1+off,'<span class="svr-fapp"><i>g</i>('+sbeSel('sbe-f'+i,T)+')</span>'); }).join('')
+    +cel(2,8+off,'<span class="svr-morceau">'+sbeT('car <i>g</i> est')+sbeSel('sbe-mono',[['cro','croissante'],['dec','décroissante']])+sbeT('sur ℝ')+'</span>'
+      +'<span class="svr-morceau">'+sbeT('(coefficient directeur')+sa2In('sbe-coef')+sbeT('&gt; 0)')+'</span>','svr-just',true)
+    +[1,2,3,4,5].map(function(i){ return (i>1?leC(3,2*i-2):'')+cel(3,2*i-1,sbeSel('sbe-g'+i,T)); }).join('')
+    +'</div></div></div>'
+    +'<div class="s1-res svr-ccl"><div class="s1-line">Conclusion : la propriété est vraie au rang 0 et héréditaire — donc, pour tout entier naturel '+nn+',&nbsp; <span class="svr-nowrap">'+encH+'.</span></div></div>'
+    +'<p class="dexp-hint">Dans les petites cases d’indice, écris le rang : 0, <i>n</i>, <i>n</i>+1… Dans les listes, choisis le terme. <i>g</i>('+N(q.l)+') = '+N(q.l)+'.</p>';
+  h+=sbeCons('2.', ['Justifier que la suite ('+SBE_UN+') converge, puis déterminer sa limite ℓ par un calcul.',
+      'En déduire que la suite ('+SBE_UN+') est convergente, et calculer sa limite ℓ.'][V.b2]);
+  const lim='<span class="tcl-lim">lim<small><i>n</i>→+∞</small></span>';
+  const optL=[['l','ℓ'],['inf','+∞'],['minf','−∞'],['0','0']], optP=[['l','ℓ'],['un','uₙ'],['un1','uₙ₊₁'],['n','n']];
+  h+='<div class="sa2-ladder">'
+    +'<div class="sa2-row">'+sbeT('La suite ('+SBE_UN+') est')+sbeSel('sbe-t-sens',[['cro','croissante'],['dec','décroissante']])
+      +sbeT('et')+sbeSel('sbe-t-borne',[['maj','majorée'],['min','minorée']])+sbeT('par')+sa2In('sbe-t-bn')+sbeT(',')+'</div>'
+    +'<div class="sa2-row">'+sbeT('donc, d’après le')+sbeSel('sbe-t-thm',[['gend','théorème des gendarmes'],['tcm','théorème de convergence monotone'],['comp','théorème de comparaison'],['tvi','théorème des valeurs intermédiaires']])
+      +sbeT(', elle est')+sbeSel('sbe-t-conv',[['convergente','convergente'],['divergente','divergente'],['constante','constante']])+sbeT('. On note ℓ sa limite.')+'</div>'
+    +'<div class="sa2-row">'+lim+sbeT(SBE_UN+' =')+sbeSel('sbe-t-l1',optL)+sbeT('et')+lim+sbeT(SBE_UN1+' =')+sbeSel('sbe-t-l2',optL)+'</div>'
+    +'<div class="sa2-row">'+sbeT('Par passage à la limite dans '+rel+' :')+'</div>'
+    +'<div class="sa2-row">'+sbeSel('sbe-t-p1',optP)+sbeT('= '+Q)+sbeSel('sbe-t-p2',optP)+sbeT('+ '+N(q.r))+'</div>'
+    +'<div class="sa2-row">'+sbeT('ℓ −')+sa2In('sbe-t-s1')+sbeT('ℓ =')+sa2In('sbe-t-s2')+'</div>'
+    +'<div class="sa2-row">'+sa2In('sbe-t-s3')+sbeT('ℓ =')+sa2In('sbe-t-s4')+'</div>'
+    +'<div class="sa2-row">'+sbeT('ℓ =')+sa2In('sbe-t-s5')+'</div></div>';
+  /* ---------- Partie C ---------- */
+  const EQ='<span class="rf-eq">=</span>';
+  h+=sbePartie('Partie C — Expression explicite et prévisions');
+  h+='<p class="apf-cons">On pose '+SBE_VN+' = '+SBE_UN+' − '+L+' pour tout entier naturel '+nn+'.</p>';
+  h+=sbeCons('1.', ['Montrer que la suite ('+SBE_VN+') est géométrique. Préciser sa raison et son premier terme.',
+      'Démontrer que la suite ('+SBE_VN+') est géométrique, de raison et de premier terme à préciser.'][V.c1]);
+  h+='<div class="rf-ligne">'+SBE_VN1+' '+EQ+' '+SBE_UN1+' − '+L+' '+EQ+' '+rfMf('sbe-x1','rf-wide')+'</div>'
+    +'<div class="rf-ligne" style="padding-left:38px">'+EQ+' '+rfMf('sbe-x2','rf-wide')+'</div>'
+    +'<div class="rf-ligne" style="padding-left:38px">'+EQ+' '+Q+' × ( '+rfMf('sbe-x3')+' ) '+EQ+' '+Q+'&#8239;'+SBE_VN+'</div>'
+    +'<div class="sa2-ladder"><div class="sa2-row">'+sbeT('Donc la suite ('+SBE_VN+') est')+sbeSel('sbe-type',[['arith','arithmétique'],['geo','géométrique']])
+      +sbeT('de raison')+sa2In('sbe-q')+sbeT(', de premier terme '+'<i>v</i><sub>0</sub> = '+sbeSu(0)+' − '+L+' =')+sa2In('sbe-v0')+sbeT('.')+'</div></div>';
+  h+=sbeCons('2.', ['En déduire l’expression de '+SBE_VN+', puis celle de '+SBE_UN+', en fonction de '+nn+'.',
+      'Exprimer '+SBE_VN+', puis '+SBE_UN+', en fonction de '+nn+'.'][V.c2]);
+  h+='<div class="rf-ligne">'+SBE_VN+' '+EQ+' '+rfMf('sbe-vn','rf-wide')+'</div>'
+    +'<div class="rf-ligne">'+SBE_UN+' '+EQ+' '+SBE_VN+' + '+L+' '+EQ+' '+rfMf('sbe-un','rf-wide')+'</div>';
+  const S=N(q.S), cmp=A.cro ? '&gt;' : '&lt;', cmpN=A.cro ? '≤' : '≥';
+  h+=sbeCons('3.', [
+      'On souhaite déterminer le plus petit entier naturel '+nn+' tel que '+SBE_UN+' '+cmp+' '+S+'. On considère la fonction Python incomplète suivante.',
+      'On cherche à partir de quel rang '+nn+' on a '+SBE_UN+' '+cmp+' '+S+'. On utilise pour cela la fonction Python incomplète ci-dessous.'][V.c3]);
+  h+='<p class="apf-cons"><b>a)</b> Compléter les trois pointillés pour que la fonction <code>seuil()</code> renvoie le plus petit entier '+nn+' tel que '+SBE_UN+' '+cmp+' '+S+'.</p>'
+    +'<div class="sag-code">'
+    +'<div class="sag-ligne">def seuil():</div>'
+    +'<div class="sag-ligne sag-ind1">n = 0</div>'
+    +'<div class="sag-ligne sag-ind1">u = '+sagPyNum(q.u0)+'</div>'
+    +'<div class="sag-ligne sag-ind1">while '+sa2In('sbe-py-c',true)+' :</div>'
+    +'<div class="sag-ligne sag-ind2">u = '+sa2In('sbe-py-u',true)+'</div>'
+    +'<div class="sag-ligne sag-ind2">n = '+sa2In('sbe-py-n',true)+'</div>'
+    +'<div class="sag-ligne sag-ind1">return n</div></div>'
+    +'<p class="dexp-hint">En Python, un nombre décimal s’écrit avec un <b>point</b> et la multiplication avec <b>*</b>.</p>';
+  h+='<p class="apf-cons"><b>b)</b> À l’aide de la calculatrice ou de Python, déterminer la valeur renvoyée par <code>seuil()</code>.</p>'
+    +'<p class="apf-astuce aide-ecran">Le tableau de valeurs de la suite ('+SBE_UN+'), comme à la calculatrice — fais-le défiler : écris les deux termes qui encadrent '+S+', arrondis à l’unité ou plus précis.</p>'
+    +'<div class="sag-tabla-wrap eav-tabla-wrap aide-ecran" tabindex="0" aria-label="tableau de valeurs de la suite">'+sbeTablaHTML(q)+'</div>'
+    +'<div class="sa2-ladder"><div class="sa2-row">'+sbeUc('sbe-k1',false)+sbeT('≈')+sa2In('sbe-w1')+sbeT(cmpN+' '+S+' &nbsp;et&nbsp;')
+      +sbeUc('sbe-k2',false)+sbeT('≈')+sa2In('sbe-w2')+sbeT(cmp+' '+S)+'</div>'
+    +'<div class="sa2-row">'+sbeT('Donc <code>seuil()</code> renvoie')+sa2In('sbe-N')+sbeT('.')+'</div></div>';
+  h+='<p class="apf-cons"><b>c)</b> Interpréter ce résultat dans le contexte de l’exercice.</p>'+sbeCartesHTML(q,'seu');
+  return h;
+}
+/* le tableau de valeurs de la question C3 : il commence au rang 3 (u₁ et u₂ sont les réponses de A2) */
+function sbeTablaHTML(q){
+  let rows='';
+  for(let n=3;n<=Math.max(q.N+8, 20);n++) rows+='<tr><td>'+n+'</td><td>'+numFmt(Math.round(sbeExact(q,n)*100)/100)+'</td></tr>';
+  return '<table class="sag-tabla"><thead><tr><th><i>n</i></th><th>'+SBE_UN+'</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+/* ---- le cycle de vie ---- */
+async function startSBE(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='suite-bac-evolution'; test.kind='sbe';
+  test.questions=sbeGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;   /* le barème, remis : test est global */
+  show('sbe'); renderSBE();
+}
+function sbeBrancher(el){
+  if(isSoutien()) el.addEventListener(el.tagName==='SELECT' ? 'change' : 'input', function(){ checkSBE(true); });
+  /* Entrée dans un champ MathLive : la case suivante, puis le bouton Vérifier (le {proba-suite}) */
+  if(el.tagName==='MATH-FIELD') el.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault(); e.stopPropagation();
+    const liste=navCasesListe(), i=liste.indexOf(el);
+    if(i>=0 && i<liste.length-1){ try{ liste[i+1].focus(); }catch(err){} }
+    else { const b=boutonVerif(); if(b) b.click(); }
+  }, true);
+}
+function sbeAjusterTout(){ document.querySelectorAll('#scr-sbe .sa2-in').forEach(sa2Ajuster); }
+function renderSBE(){
+  const q=test.questions[test.idx]; test.locked=false;
+  if(!q.ch) q.ch={};
+  if(!Array.isArray(q.pts)) q.pts=[];
+  $('sbeQIdx').textContent='Exercice '+(test.idx+1)+' / '+test.questions.length;
+  $('sbeModeTag').innerHTML=modeTagHTML();
+  $('sbeLiveScore').textContent=test.score;
+  $('sbeFeedback').textContent=''; $('sbeFeedback').className='mp-feedback';
+  $('sbeActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSBE()">Vérifier</button>';
+  $('sbePrompt').innerHTML=sbeEnonceHTML(q);
+  $('sbeCorps').innerHTML=sbeCorpsHTML(q);
+  $('sbeCorps').querySelectorAll('input, select, math-field').forEach(sbeBrancher);
+  if(window.mlDexp) window.mlDexp.upgrade($('sbeCorps'));
+  SBE_CARTES.forEach(function(g){ sbeCartesPeindre(q, g); });
+  sbeDessiner();
+  const h=$('sbeGraph'); if(h) h.onclick=sbeClic;
+  sbeAjusterTout(); setTimeout(sbeAjusterTout, 0);
+}
+/* Juge tout ce qui est à l'écran : les cases, les cartes (q.ch), les cinq points de l'escalier. */
+function sbeJugerTout(q, live){
+  const verd={};
+  let allOk=SBE_CARTES.every(function(g){ return q.ch[g]===0; });
+  let anyFilled=SBE_CARTES.some(function(g){ return q.ch[g]!==undefined; }) || (q.pts && q.pts.length>0);
+  const c=sbeCadre(q);
+  for(let i=0;i<5;i++) if(!escPtJuste(c, i, (q.pts||[])[i])) allOk=false;
+  sbeIds(q).forEach(function(id){
+    const el=$(id); if(!el){ allOk=false; return; }
+    const raw=sbeLire(q, id), rempli=String(raw).trim()!=='';
+    const j=rempli ? sbeJuger(q, id, raw) : {ok:false};
+    el.classList.remove('ok','bad','sol');
+    if(rempli){ anyFilled=true; el.classList.add(j.ok?'ok':'bad'); }   /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR */
+    if(!j.ok) allOk=false;
+    if(live) return;
+    verd[id]=j.ok;
+    const fige=!!(j.ok || !isSoutien());
+    if(el.tagName==='MATH-FIELD') el.readOnly=fige; else el.disabled=fige;
+  });
+  return {verd:verd, allOk:allOk, anyFilled:anyFilled};
+}
+function checkSBE(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  const J=sbeJugerTout(q, live);
+  if(live){ if(isSoutien() && q.pts && q.pts.length) sbeDessinerSoutien(); return; }
+  const fb=$('sbeFeedback');
+  if(!J.anyFilled){
+    fb.textContent='Fais au moins un choix, place un point ou complète une case avant de vérifier.';
+    fb.className='mp-feedback';
+    sbeIds(q).forEach(function(id){ const el=$(id); if(!el) return; el.classList.remove('ok','bad','sol'); if(el.tagName==='MATH-FIELD') el.readOnly=false; else el.disabled=false; });
+    return;
+  }
+  if(!J.allOk && isSoutien()){
+    SBE_CARTES.forEach(function(g){ sbeCartesPeindre(q, g); });
+    sbeDessiner('soutien');
+    fb.innerHTML='Presque ! Corrige ce qui est en rouge, complète ce qui manque (cases, phrases à choisir, points de l’escalier), puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('sbeActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkSBE()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  SBE_CARTES.forEach(function(g){ sbeCartesPeindre(q, g); });
+  sbeDessiner('final');
+  const A=sbeAns(q);
+  if(J.allOk){
+    test.score++; $('sbeLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, de la modélisation jusqu’au seuil, tout est juste !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(false)
+      +'<br>Retiens le fil de l’exercice : perdre '+q.p+' %, c’est multiplier par 1 − '+q.p+'/100 = '+sbeN(q.q)+' ; puis on ajoute '+sbeN(q.r)+'. '
+      +'La fonction <i>g</i> est croissante, donc elle conserve l’encadrement de la récurrence ; la suite, '+(A.cro?'croissante et majorée':'décroissante et minorée')+', converge, et ℓ = '+sbeN(q.q)+'ℓ + '+sbeN(q.r)+' donne ℓ = '+sbeN(q.l)+'. '
+      +'Avec '+SBE_VN+' = '+SBE_UN+' − '+sbeN(q.l)+', on obtient une suite géométrique de raison '+sbeN(q.q)+' : '+SBE_UN+' = '+sbeN(q.l)+(A.cc<0?' − ':' + ')+sbeN(Math.abs(A.cc))+' × '+sbeN(q.q)+'<sup><i>n</i></sup>. Sur le graphique, l’escalier juste est tracé en vert.';
+    fb.className='mp-feedback bad';
+    sbeIds(q).forEach(function(id){
+      const el=$(id); if(!el) return;
+      const C=sbeCorr(q, id), ok=J.verd[id]===true;
+      if(el.tagName==='SELECT'){ corrCase(id, sbeCaseDe(q,id).good, ok); return; }
+      if(el.tagName==='INPUT'){ corrCase(id, C[0], ok); sa2Ajuster(el); return; }
+      apcCorrCase(id, C[1], C[0], ok); el.readOnly=true;
+    });
+  }
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:sbePlain(q), answer:sbeReponseTxt(q), given:J.allOk?'✓':'incomplet', correct:J.allOk, type:'sbe'}));
+  const last=test.idx===test.questions.length-1;
+  $('sbeActions').innerHTML='<button class="btn btn-primary" onclick="nextSBE()">'+(last?'Voir mes résultats':'Exercice suivant')+'</button>';
+}
+/* en soutien, les points de l'escalier se jugent au fil des clics, comme les cases */
+function sbeDessinerSoutien(){ if(!test.locked) sbeDessiner('soutien'); const h=$('sbeGraph'); if(h) h.onclick=sbeClic; }
+function nextSBE(){ if(test.idx<test.questions.length-1){ test.idx++; renderSBE(); } else finishTest(); }
+/* ---- les textes : la réponse attendue, l'énoncé en clair, le contexte du modèle ---- */
+function sbeReponseTxt(q){
+  const A=sbeAns(q), ph=sbePhrases(q);
+  return '1. × '+sbeN(q.q)+' : « '+ph[0]+' », coefficient 1 − '+q.p+'/100 ; + '+sbeN(q.r)+' : « '+ph[1]+' » ; '
+    +'2. u1 = '+sbeN(A.u1)+', u2 = '+sbeN(A.u2)+' ; interprétation : '+sbeTxt(sbeCartesTextes(q,'i2')[0])+' ; '
+    +'3. escalier : points (u0 ; u1), (u1 ; u1), (u1 ; u2), (u2 ; u2), (u2 ; u3) avec u3 = '+sbeN(A.u3)+' ; suite '+(A.cro?'croissante':'décroissante')+', limite '+sbeN(q.l)+' ; '
+    +'B1. récurrence de '+(A.cro?sbeN(q.u0)+' ≤ u_n ≤ u_(n+1) ≤ '+sbeN(q.l):sbeN(q.l)+' ≤ u_(n+1) ≤ u_n ≤ '+sbeN(q.u0))+', g croissante (coefficient '+sbeN(q.q)+' > 0) ; '
+    +'B2. '+(A.cro?'croissante et majorée':'décroissante et minorée')+', théorème de convergence monotone, ℓ = '+sbeN(q.q)+'ℓ + '+sbeN(q.r)+', ℓ = '+sbeN(q.l)+' ; '
+    +'C1. v_(n+1) = '+sbeCorr(q,'sbe-x1')[0]+' = '+sbeCorr(q,'sbe-x2')[0]+' = '+sbeN(q.q)+'(u_n − '+sbeN(q.l)+'), géométrique de raison '+sbeN(q.q)+', v0 = '+sbeN(A.cc)+' ; '
+    +'C2. v_n = '+sbeCorr(q,'sbe-vn')[0]+', u_n = '+sbeCorr(q,'sbe-un')[0]+' ; '
+    +'C3. while '+sbeCorr(q,'sbe-py-c')[0]+' ; u = '+sbeCorr(q,'sbe-py-u')[0]+' ; n = n+1 ; u_'+(q.N-1)+' ≈ '+sbeCorr(q,'sbe-w1')[0]+', u_'+q.N+' ≈ '+sbeCorr(q,'sbe-w2')[0]+', seuil() renvoie '+q.N+' ; '+sbeTxt(sbeCartesTextes(q,'seu')[0]);
+}
+function sbePlain(q){
+  const A=sbeAns(q), S=sbeN(q.S), cmp=A.cro?'>':'<';
+  return sbeTxt(sbeEnonceHTML(q))+' Questions : A1. Justifier que u_(n+1) = '+sbeN(q.q)+' u_n + '+sbeN(q.r)+'. A2. Calculer u1 et u2, interpréter. '
+    +'A3. g(x) = '+sbeN(q.q)+'x + '+sbeN(q.r)+' : construire u1, u2, u3 en escalier ; conjecturer sens de variation et limite. '
+    +'B1. Démontrer par récurrence que '+(A.cro?sbeN(q.u0)+' ≤ u_n ≤ u_(n+1) ≤ '+sbeN(q.l):sbeN(q.l)+' ≤ u_(n+1) ≤ u_n ≤ '+sbeN(q.u0))+'. B2. Justifier la convergence, calculer ℓ. '
+    +'C. v_n = u_n − '+sbeN(q.l)+' : 1. (v_n) géométrique, raison, premier terme ; 2. v_n et u_n en fonction de n ; '
+    +'3. a) compléter la fonction Python seuil() (while, u, n) pour le plus petit n tel que u_n '+cmp+' '+S+' ; b) la valeur renvoyée ; c) l’interpréter.';
+}
+function sbeConseilCtx(){
+  const q=test.questions[test.idx], ids=sbeIds(q);
+  const choix=SBE_CARTES.map(function(g){ const ch=q.ch[g];
+    return {i2:'interprétation de u1 et u2', seu:'interprétation du seuil'}[g]+' : '+(ch===undefined?'(pas encore choisie)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
+  const trace=(q.pts && q.pts.length) ? q.pts.map(function(p){ return (p.r==='c'?'sur la droite y = g(x)':'sur la droite y = x')+' à l’abscisse '+Math.round(p.x); }).join(' ; ') : 'aucun point placé';
+  return 'Exercice de Terminale, type bac (sujet de bac blanc) : une suite arithmético-géométrique u_(n+1) = q u_n + r issue d’une situation concrète. '+sbePlain(q)+' '
+    +'Rédaction attendue : A1, relier la multiplication par '+sbeN(q.q)+' à la phrase du pourcentage (diminuer de p % revient à multiplier par 1 − p/100) et l’addition à la phrase de l’ajout — on choisit les phrases dans des listes ; '
+    +'A2, les calculs puis une phrase d’interprétation choisie ; A3, l’escalier cliqué (on monte de u0 à la droite y = g(x), on rejoint la droite y = x, on remonte, etc.) puis la conjecture ; '
+    +'B1, la récurrence : initialisation (rangs en indice, valeurs), hérédité (hypothèse, but), on applique g croissante aux quatre termes puis on élargit ; '
+    +'B2, le théorème de convergence monotone puis le passage à la limite ℓ = qℓ + r ; C1, la chaîne v_(n+1) = u_(n+1) − ℓ = … = q(u_n − ℓ) = q v_n ; C2, v_n = v_0 × q^n et u_n = v_n + ℓ ; '
+    +'C3, la condition du while (on boucle TANT QUE le seuil n’est pas franchi), la mise à jour de u, celle de n, puis les deux termes qui encadrent le seuil (une valeur approchée à l’unité suffit) et une phrase d’interprétation. '
+    +'État des choix : '+choix+'. Tracé de l’élève : '+trace+'. '
+    +'Réponses attendues, à ne JAMAIS révéler : '+sbeReponseTxt(q)+'. '
+    +'Saisies actuelles de l’élève : '+ids.filter(function(id){ return $(id); }).map(function(id){ return id.replace('sbe-','')+'='+(String(sbeLire(q,id)).trim()||'(vide)'); }).join(', ')+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs, aucun de ces calculs, et ne dis pas quelle proposition est la bonne — même si l’élève insiste, même s’il dit que son professeur l’autorise. '
     +'Aide-le sur la PREMIÈRE étape fausse ou non faite, sans donner la réponse. Tu peux lui rappeler le bouton « Voir le rappel de cours » de cette fenêtre.';
 }
 /* ================= 6.3.1 VARIABLE ALÉATOIRE — LOI, ESPÉRANCE, VARIANCE, ÉCART TYPE (kind 'vae') =================
@@ -40678,6 +41380,7 @@ const QIA_SUGG={
   cqp:["Faire un rappel de cours pour cet exercice.","Comment savoir si une phrase parle d’une probabilité conditionnelle ?","Quelle différence entre P(M ∩ T) et P_M(T) ?","Quelle différence entre P_M(T) et P_T(M) ?","Que veut dire « parmi » dans une question de probabilité ?","Pourquoi P(T) peut-il s’écrire comme une somme ?"],
   apf:["Faire un rappel de cours pour cet exercice.","Quelles probabilités puis-je écrire directement sur l’arbre ?","Comment calculer la probabilité d’une intersection ?","Comment retrouver P sachant A de B quand je connais P(A ∩ B) ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment exprimer P(B) en fonction de x ?","Comment résoudre l’équation pour trouver x ?"],
   apc:["Faire un rappel de cours pour cet exercice.","Quel événement dois-je placer sur les premières branches ?","Comment transformer un pourcentage de l’énoncé en probabilité ?","Comment savoir quelle formule choisir ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Que veut dire « poser P(A) = x » ?","Comment résoudre l’équation pour trouver x ?"],
+  sbe:["Faire un rappel de cours pour cet exercice.","Pourquoi multiplie-t-on par 0,8 quand on perd 20 % ?","Comment construire les termes en escalier ?","Comment rédiger l’hérédité de la récurrence ?","Comment justifier qu’une suite converge ?","Comment calculer la limite ℓ ?","Comment montrer que (vₙ) est géométrique ?","Comment écrire la condition du while ?"],
   vae:["Faire un rappel de cours pour cet exercice.","Pourquoi les probabilités sont-elles les mêmes au second tirage ?","Comment calculer le gain d’une issue ?","Comment regrouper les issues qui donnent le même gain ?","Comment calculer l’espérance E(X) ?","Comment calculer la variance V(X) sans se tromper de signe ?","Que veut dire l’écart type ?"],
   aps:["Faire un rappel de cours pour cet exercice.","Comment compléter l’arbre aux rangs n et n + 1 ?","Pourquoi a(n+1) s’écrit-il avec a(n) et 1 − a(n) ?","Comment choisir l’écriture de la probabilité à calculer ?","Comment rédiger l’hérédité de la récurrence ?","Comment montrer qu’une suite auxiliaire est géométrique ?","Comment justifier la limite de qⁿ ?","Comment trouver le seuil avec la calculatrice ?"],
   apt:["Faire un rappel de cours pour cet exercice.","Quel événement dois-je placer sur les premières branches ?","Comment transformer un pourcentage de l’énoncé en probabilité ?","Comment savoir quelle formule choisir ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Que veut dire « poser P(A) = x » ?","Comment résoudre l’équation pour trouver x ?"],
@@ -41427,7 +42130,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderVAE','renderEPC','renderEDV'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -42076,6 +42779,8 @@ function kbVarsFor(id){
   if(id === 'arbre-probabilites-fiche' || id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
   /* 6.2.1 : la suite aₙ et le rang n (les suites), ≈ (la valeur approchée) */
   if(id === 'proba-suite') return [{latex:"a_{n}",tooltip:"a indice n"},KB_N,{latex:"\\approx",tooltip:"environ égal"}];
+  /* 5.7.1 : la suite uₙ et le rang n */
+  if(id === 'suite-bac-evolution') return [{latex:"u_{n}",tooltip:"u indice n"},KB_N];
   return [{latex:"f"},{latex:"x"}];   /* fonctions (défaut) */
 }
 let __kbVarsKey = null;
