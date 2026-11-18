@@ -3477,3 +3477,39 @@ ne défile pas en largeur : la grille de la récurrence et les deux champs large
 défilent dans leur cadre (comme au 5.2.5 et au 6.2.1), les longues phrases des
 lignes se replient (`#scr-sbe .sa2-ladder .sa2-t`, sous 600 px). Banc des notes
 et banc de la pause verts sur l'exercice.
+
+### Le 5.7.1 retouché : escalier aimanté, hérédité pas à pas, partie C comme le 5.1.2 (v500)
+
+Demandes de Turquet (novembre 2026), après la mise en ligne :
+
+* **« Que les points soient parfaits quand l'élève clique à côté ; les traits
+  soit horizontaux soit verticaux. »** L'escalier est AIMANTÉ (`sbePrecedent`,
+  `sbeCible`) : depuis le dernier point posé (u₀ sur l'axe au départ), un clic
+  sur y = g(x) pose le point à la verticale, un clic sur y = x à l'horizontale ;
+  le rail cliqué décide, la position est exacte. Un clic à plus de
+  `SBE_AIMANT` (60 unités du dessin) du point visé ne pose rien et le dit.
+  Essayé dans Chromium avec des clics décalés de +30 et −25 unités : les cinq
+  points tombent exactement.
+* **« La démonstration étape par étape, d'abord le fois puis la somme, sans
+  utiliser la fonction g. »** L'hérédité annonce chaque étape sur sa ligne puis
+  l'écrit : « On multiplie les quatre membres par [q] > 0 : l'ordre est
+  [conservé] » (les deux bouts calculés, les termes du milieu choisis), « On
+  ajoute [r] à chaque membre », « c'est-à-dire » (uₙ₊₁, uₙ₊₂), puis « et comme
+  u₀ ≤ u₁ » l'élargissement. Les annonces ont leur propre ligne de la grille :
+  posées au bout des lignes, elles étaient coupées par le cadre (vu sur la
+  capture).
+* **Partie C, question 1, « comme dans le 5.1.2 »** : le but « vₙ₊₁ = [ ] × vₙ »,
+  une étape par ligne avec sa consigne à droite (en fonction de uₙ₊₁, par la
+  relation de récurrence, réduire, factoriser par q sur la fraction [ ]/q,
+  simplifier, q vₙ), puis v₀ en deux temps (en fonction de u₀, puis sa valeur).
+  Les classes `sa-lrow`, `sa-lstat`, `sa-lnote`, `sa-vfrac` du 5.1.2 ; les
+  **grandes parenthèses** sont ses parenthèses étirables (`saParen`), un trait
+  plus épais (`sbeParen`, `.sbe-pgrp .sbe-paren`). « uₙ₊₁ − ℓ » et « u₀ − ℓ » se
+  jugent avec le terme écrit (`sbeLinTerme`) : uₙ à la place de uₙ₊₁ est faux.
+* **L'écriture fractionnaire acceptée là où une division peut s'écrire** : les
+  cases du passage à la limite (ℓ = 300/0,2), la raison, v₀, et les cases de la
+  factorisation sont des champs MathLive lus par `SA._t.checkConst` — le juge
+  du 5.1.2 : « \frac{480}{0,3} » vaut 1 600, « \frac{70}{100} » vaut 0,7.
+
+Essayé dans Chromium : copie juste 86 cases sur 86 ; copie vide toute corrigée
+en vert ; « uₙ − 900 » refusé là où uₙ₊₁ − 900 est attendu.
