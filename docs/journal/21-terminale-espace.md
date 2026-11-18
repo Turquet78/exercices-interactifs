@@ -975,3 +975,91 @@ la géométrie ne bouge pas. Le même jour, le papier de cet exercice a cessé d
 garder les restes de sa chaîne — la cause était dans le capteur du papier,
 pas dans l'exercice : voir `09-devoirs-et-notes.md`, « Puis le papier du DM
 n°10 ».
+
+## 7.1.12 — la section d'un cube par un plan (`espace-section-cube`, kind `esx`)
+
+Demande de Turquet (novembre 2026), avec la fiche « section espace » : « en
+terminale créer un exercice du même type que le pdf ; pour la dernière
+question l'élève pourra tracer des droites ou des segments entre des points,
+placer un point à l'intersection de deux droites ou d'une droite et d'un
+segment, tracer des segments passant par un point de la section du cube
+parallèles à un segment qui fait partie de la section du cube sur une autre
+face. On tracera alors uniquement un segment. Quand le segment correspond à un
+morceau de la section, on mettra en rouge ce segment. »
+
+**La fiche.** Un cube ABCDEFGH de côté 1 (face avant BCGF, B en bas à gauche,
+A caché derrière B), I milieu de [BF], J de [BC], K de [CD]. « On admet que
+(IJ) et (CG) sont sécantes en un point L. » Construire, en laissant apparents
+les traits de construction, le point L, l'intersection 𝒟 des plans (IJK) et
+(CDH), la section du cube par le plan (IJK). Ici : une figure par écran, les
+trois constructions sur la même figure, UNE vérification. Deux figures par
+séance (`dmNbQuestions(2)`).
+
+**Les outils servent aux trois questions** — la fiche demande des
+constructions, le point L et la droite 𝒟 en sont aussi :
+
+* « Droite » : par deux points, prolongée jusqu'au bord du dessin (trait fin) ;
+* « Segment » : entre deux points ;
+* « Point d'intersection » : deux traits — droites, segments, arêtes ;
+* « Parallèle » : un point, puis un segment ROUGE ; le segment tracé est sur
+  la face opposée, il part du point et s'arrête au bord de la face — un
+  segment seulement, comme demandé —, et son extrémité devient un point ;
+* « ↶ Annuler » : la dernière construction (la parallèle part avec le point
+  qu'elle a créé).
+
+Un segment dont les deux bouts sont ceux d'un morceau de la section se peint
+en rouge, tout de suite, quel que soit l'outil qui l'a tracé ; caché (face
+qui porte A), en pointillés rouges. La section complète se remplit d'un rouge
+pâle. Recliquer l'outil actif repart de zéro sans le quitter (au premier
+essai, il se désactivait : deux segments de suite demandaient trois clics).
+
+**L'intersection est celle de l'espace, pas celle du dessin.** Chaque point
+est connu par ses trois coordonnées. Deux droites dont les dessins se croisent
+mais qui ne sont pas dans un même plan ne donnent aucun point, et la page le
+dit (« … ne sont pas dans un même plan : elles ne se coupent pas dans
+l'espace, même si leurs dessins se croisent ») — c'est l'erreur classique de
+la section. Une intersection hors d'un segment (L est sur (CG) PROLONGÉE)
+demande la droite : « … se coupent en dehors du segment [CG] : trace plutôt la
+droite (CG) ». Parallèles, point déjà nommé, point hors du dessin : chacun son
+message. La parallèle refuse un segment qui n'est pas rouge, et un point qui
+n'est pas sur la face opposée.
+
+**Les noms.** Le point construit à la place de L s'appelle L ; les autres
+prennent M, N, P, Q, R… (ni O, ni X). La correction garde le nom que l'élève a
+donné, et nomme le reste dans l'ordre de la construction (`esxNomsCorr`).
+
+**Le tirage : la fiche transportée par une symétrie du cube** (les 48), et I,
+J, K au milieu, au tiers, aux deux tiers, au quart ou aux trois quarts de leur
+arête — les trois milieux deux fois sur cinq quand ils sont possibles. Le
+dessin reste celui de la fiche ; ce sont les RÔLES des sommets qui changent
+(« I milieu de [HG], (IJ) et (EF) sécantes en L, les plans (IJK) et (EAB) »).
+Gardées (`esxConstruire`, la liste calculée au premier tirage) :
+
+* le plan ne passe par aucun sommet ;
+* la section se CONSTRUIT avec les outils à partir de I, J, K et de 𝒟
+  (`etapes` : deux points d'une même face, ou la parallèle sur la face opposée
+  à un morceau déjà trouvé) — c'est aussi la correction expliquée ;
+* la figure se lit : deux points nommés à 24 unités au moins, un point à 12 au
+  moins d'une arête qui ne le porte pas, (IJ) et (CG) sous 20° au moins sur le
+  dessin, L à 40 de K, et L à une arête au plus hors du cube.
+
+Restent 720 figures : 200 pentagones, 520 hexagones, sur 44 symétries.
+
+**La note.** Un point par figure parfaite. Sinon, la part des éléments
+trouvés — le point L, la droite 𝒟 (une DROITE qui passe par L et K), chaque
+morceau de la section —, comptés par le bilan que la vérification écrit en
+tête du verdict (`.esx-it.pts-case` : bleu trouvé, vert manquant). Ce qui
+manque est tracé en vert sur la figure, ses points nommés en vert. Les traits
+en trop ne coûtent rien : ce sont des traits de construction. En soutien, une
+ligne « Où j'en suis » suit chaque geste, et « Vérifier » sur une construction
+incomplète dit ce qui manque sans rien verrouiller.
+
+**La construction vit dans la question** (`q.cons`, du JSON : `{k:'d'|'s',a,b}`,
+`{k:'p',n,P}`, la parallèle avec `par` et son point `np`) : la pause la garde,
+la reprise la redessine.
+
+**Éprouvé** dans Chromium (1 280 px et 390 px) : deux figures construites de
+bout en bout aux clics de souris, chacune « parfaite », 8 éléments sur 8 ; une
+copie vide corrigée en vert, 0 sur 7 ; chaque refus (non coplanaires, hors du
+segment, parallèles, point existant, segment non rouge, mauvaise face) relu
+sur la configuration de la fiche ; aucune erreur de page.
