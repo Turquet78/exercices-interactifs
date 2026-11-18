@@ -1055,3 +1055,56 @@ exercices chacune, deux situations, les deux méthodes. L'alternance d'une
 séance à l'autre se déclare « non applicable » dans jsdom, qui n'a pas de
 `localStorage` à cette origine ; elle a été éprouvée dans Chromium : rec, aux,
 rec, aux…
+
+## 6.3.1 — Variable aléatoire : loi, espérance, variance, écart type ({variable-aleatoire}, kind `vae`)
+
+Demande de Turquet (novembre 2026) : « dans le thème probabilité créer un
+sous-thème variable aléatoire et faire un exercice comme le pdf » — la fiche
+« espérance » (3 boules jaunes, 2 vertes, deux tirages avec remise, mise de
+1 €, une jaune fait perdre 1 €, une verte en fait gagner 2). Trois consignes :
+plusieurs énoncés ; l'arbre donné avec ses événements, l'élève n'écrit que les
+probabilités des branches et des quatre chemins ; les fractions acceptées dans
+la loi et dans les calculs ; les interprétations CHOISIES parmi des phrases.
+
+**Le tirage.** Quatre situations (boîte de boules, roue de loterie, sac de
+jetons, paquet de cartes), N objets avec N ∈ {4, 5, 10} — les probabilités
+sont alors des décimaux exacts, sur N² —, n₁ de la première couleur, une mise
+m ∈ {1, 2, 3}, deux gains g₁ < g₂ (g₁ de −3 à 1, g₂ jusqu'à 5). Les trois
+valeurs de X sont 2g₁ − m < g₁ + g₂ − m < 2g₂ − m, toujours distinctes ; |E(X)|
+reste sous 4. Deux exercices par séance, par `distinctes()` (l'ordre des
+phrases, `q.ordre`, n'en fait pas un autre : la clé `ordre` est hors identité).
+
+**L'écran, dans l'ordre de la fiche.** a) l'arbre — la grille du 6.1.2
+(classes `apf-…`) sans accolade : Ω, la première couleur, la seconde, une case
+sur chaque branche, « P(JJ) = □ » au bout de chaque chemin ; ses traits par
+`vaeTraits()` (et `apfTraits('vae')` y renvoie, pour la photo de l'énoncé d'un
+devoir). Les cases du second niveau prennent la moitié de la hauteur de leur
+nœud, posées au-dessus de la branche haute et au-dessous de la branche basse :
+à une seule rangée, comme au 6.1.2, les deux cases du milieu se collaient
+entre les deux nœuds et la dernière tombait sous l'arbre (vu à la première
+capture). b) le gain de chaque issue, puis la loi : valeurs **dans l'ordre
+croissant**, probabilités, total. c) E(X) = □ × □ + □ × □ + □ × □, puis E(X) = □.
+d) V(X) terme par terme — p, x, E(X) dans chaque parenthèse —, V(X) ≈ □ et
+σ(X) ≈ □. Trois termes toujours, même quand une valeur vaut 0 (la fiche
+omettait le terme nul).
+
+**Le juge.** `vaeLire` lit un entier, un décimal ou une fraction, signés, entre
+parenthèses ou non (« −3 », « (−3) », « 9/25 », « -0,6 »). Une valeur exacte se
+compare à 10⁻⁹ ; V(X) et σ(X) acceptent l'exacte ou tout nombre à 0,005 près
+(l'arrondi au centième). La correction écrit les probabilités en fraction sur
+N (branches) ou N² (chemins, loi, calculs) — le dénominateur commun qui sert
+au calcul de E(X) — et E(X) en décimal exact.
+
+**Les phrases.** Quatre cartes par interprétation ; la bonne est la 0, l'ordre
+est tiré avec la question. Pour E(X) : le gain (ou la perte) moyen sur un grand
+nombre de parties et le jeu favorable/défavorable ; les pièges : « exactement
+… à chaque partie », le signe inversé, « équitable » (et, si E(X) = 0, la bonne
+devient « équitable »). Pour σ(X) : l'écart moyen à l'espérance ; les pièges :
+« au plus », « exactement à chaque partie », « en moyenne le joueur gagne ».
+Le choix se range dans une case CACHÉE (`vae-iE`, `vae-iS`) : captureBoxes
+l'emporte à la pause et `vaeRestaurer()` remet la carte choisie à la reprise ;
+#confirmer-vides ignore les cases cachées. La carte compte dans la note par
+son conteneur (`.pts-case` + `ok`/`bad`/`sol`) ; vide, il ne prend aucune
+couleur, et la correction en entraînement le peint `sol` avec la bonne carte
+en vert. Les encres suivent la règle : `.vae-opt.ok` bleu, `.bad` rouge,
+`.sol` vert.
