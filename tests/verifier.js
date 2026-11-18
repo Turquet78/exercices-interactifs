@@ -30123,6 +30123,25 @@ function bulleErreur(w, apres){
       juste.focus(); await attendre();
       bilan.suitJuste=(bexpCase===zone);
       juste.blur(); juste.dispatchEvent(new window.Event('focusout',{bubbles:true}));
+
+      /* 13. LE CONTEXTE NOMME LA CASE ET SA LIGNE. Sur une fiche où toutes les
+         questions s'affichent ensemble, « l'élève a écrit « A » » laissait le
+         modèle choisir la question — il a expliqué l'indice de P de la
+         question 3 comme la question 2 (3.10 de la Première, novembre 2026).
+         Le nom de la case et le texte de sa ligne partent ; la CORRECTION
+         écrite sur cette ligne (.sol), les autres champs et les listes, non. */
+      const liste13=document.createElement('ol'); hote.appendChild(liste13);
+      const q2=document.createElement('li'); q2.textContent='2. Calcule la probabilité de B.'; liste13.appendChild(q2);
+      const q3=document.createElement('li'); liste13.appendChild(q3);
+      q3.appendChild(document.createTextNode('3. Calcule la probabilité de A et D. '));
+      const cor=document.createElement('span'); cor.className='sol'; cor.textContent='CORRIGE-SECRET-400'; q3.appendChild(cor);
+      const voisine=document.createElement('input'); voisine.value='VOISINE-700'; q3.appendChild(voisine);
+      const ind=document.createElement('select'); ind.setAttribute('aria-label','question A3 : indice de P, la condition ou tout');
+      const o13=document.createElement('option'); o13.value='A'; o13.textContent='OPTION-A'; ind.appendChild(o13);
+      q3.appendChild(ind);
+      bexpCase=ind; bexpVal='A';
+      bilan.placeCtx=bexpContexte();
+      bexpCase=null; bexpVal='';
     } finally {
       sb.functions.invoke=invokeAvant;
       currentEleve=eleveAvant;
@@ -30209,6 +30228,20 @@ function bulleErreur(w, apres){
       r.ok && b.verifJuste === false && b.verifTrain === false && b.verifVerrou === false,
       souci || 'copie juste : ' + b.verifJuste + ', entraînement : ' + b.verifTrain
              + ', verrouillé : ' + b.verifVerrou);
+    {
+      const pc=String(b.placeCtx || '');
+      /* la PLACE seule : le contexte général de l'écran, devant, relit en
+         Seconde le texte de l'écran entier — la ligne d'essai posée par ce
+         contrôle comprise ; ce bord-ci mesure ce que la place ajoute */
+      const place=pc.indexOf('Cette case est') >= 0 ? pc.slice(pc.indexOf('Cette case est')) : '';
+      verifier('le contexte de la bulle NOMME la case fausse et le texte de SA ligne — le modèle ne choisit plus la question',
+        r.ok && pc.indexOf('question A3 : indice de P') >= 0 && pc.indexOf('3. Calcule la probabilité de A et D.') >= 0
+             && pc.indexOf('2. Calcule la probabilité de B') < 0,
+        souci || 'contexte : « ' + pc.slice(-320) + ' »');
+      verifier('la ligne décrite au modèle ne porte ni la correction de la page, ni les autres cases',
+        r.ok && place !== '' && place.indexOf('CORRIGE-SECRET-400') < 0 && place.indexOf('VOISINE-700') < 0 && place.indexOf('OPTION-A') < 0,
+        souci || 'place décrite : « ' + place.slice(0,320) + ' »');
+    }
     moyennesDevoirs(w, apres);
   });
 }
