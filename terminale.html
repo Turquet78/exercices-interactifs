@@ -2346,6 +2346,9 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .edv-apres{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .edv-iff{font-weight:700;margin-left:6px}
 .edv-p{font-weight:700;font-size:1.3rem;color:var(--ink-soft)}
+.edv-derive{display:inline-flex;align-items:center;white-space:nowrap}
+.edv-gp{font-family:KaTeX_Main,'Times New Roman',serif;font-size:2.3rem;line-height:1;font-weight:400;color:var(--ink);margin:0 2px;transform:scaleY(1.15)}
+.edv-prime{font-family:KaTeX_Main,'Times New Roman',serif;font-size:1.9rem;line-height:1;font-weight:700;color:var(--ink);align-self:flex-start;margin:-4px 0 0 1px}
 math-field.dexp-mf.edv-let{min-width:42px}
 #scr-edv .mf-cor{margin-left:4px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
@@ -4544,7 +4547,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=496;
+const APP_VERSION=497;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -35185,6 +35188,8 @@ function edvFormHTML(q){
   const C=function(id,cls,nom){ return '<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>'; };
   const L=function(id,nom){ return C(id,'edv-let',nom); };
   const P=function(h){ return '<span class="edv-p">(</span>'+h+'<span class="edv-p">)</span>'; };
+  /* « ( …… )′ » : la dérivée de l'expression — grandes parenthèses à la hauteur de la case, prime en exposant (demande de Turquet, novembre 2026 : « mieux faire apparaître la partie (……)′ ») */
+  const D=function(h){ return '<span class="edv-derive"><span class="edv-gp">(</span>'+h+'<span class="edv-gp">)</span><span class="edv-prime">\u2032</span></span>'; };
   const row=function(lead,g,d,apres){ return '<div class="edv-lead">'+lead+'</div><div class="edv-g">'+g+'</div><div class="edv-eq">=</div><div class="edv-d">'+d+'</div><div class="edv-apres">'+(apres||'')+'</div>'; };
   const eqv='<span class="edv-iff">⟺</span>';
   const sel='<span>ce qui est</span><select class="tvi-sel edv-sel" id="edv-sel" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>';
@@ -35208,7 +35213,7 @@ function edvFormHTML(q){
   if(q.fam==='A'){
     const av=edvCoefTex(q.a), sui=O.suite?edvT(O.suite):'';
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.suite));
-    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>',
+    g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')),
            (q.a===1 ? C('edv-e2','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-e2','dexp-mf-wide','expression de la fonction')))+sui);
     g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'));
     g+=row(eqv, C('edv-g3','dexp-mf-wide','membre de gauche réduit'), C('edv-d3','dexp-mf-wide','membre de droite réduit'), sel);
@@ -35220,7 +35225,7 @@ function edvFormHTML(q){
     g+=row(eqv, edvT(O.eTex)+P(C('edv-g2','dexp-mf-wide','facteur de '+O.eTex+' à gauche')), edvT(O.eTex)+P(C('edv-d2','dexp-mf-wide','facteur de '+O.eTex+' à droite')), sel);
   } else {
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), edvT(O.Pp+'\\times')+L('edv-n2','nom de la fonction')+edvT('(x)'));
-    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>', edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
+    g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')), edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
     g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'), sel);
   }
   g+='</div>';
