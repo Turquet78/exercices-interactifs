@@ -9522,7 +9522,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=706;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=707;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -88520,11 +88520,42 @@ function bexpMontrer(el){
    parler le modèle d'une saisie qui n'a jamais eu lieu, et il répondrait à
    côté. La clause de secret, elle, ne bouge pas — elle nomme seulement l'autre
    façon de livrer la réponse. */
+/* OÙ EST LA CASE. Le contexte d'un écran décrit TOUTE la page : sur une fiche
+   où huit questions s'affichent ensemble, « l'élève a écrit « A » dans une
+   case fausse » laisse le modèle choisir lui-même la question — et il choisit
+   mal (3.10 de la Première, novembre 2026 : l'indice de P de la question 3
+   expliqué comme la question 2, « qui n'a aucun rapport »). On nomme donc la
+   case (son aria-label, le nom qu'elle porte déjà pour les lecteurs d'écran)
+   et le texte de sa ligne (li, rangée de tableau) — sans les champs, les
+   listes, ni rien de ce que la page a écrit comme CORRECTION (.sol, .mf-cor) :
+   la clause de secret ne doit pas être trahie par la ligne qu'on décrit. */
+const BEXP_HORS_LIGNE='input,select,textarea,math-field,button,script,style,svg,.sol,.mf-cor,[hidden],[aria-hidden="true"],#bexpBulle';
+function bexpTexteLigne(el){
+  try{
+    const lig=el && el.closest && el.closest('li, tr');
+    if(!lig) return '';
+    const copie=lig.cloneNode(true);
+    copie.querySelectorAll(BEXP_HORS_LIGNE).forEach(function(n){ n.remove(); });
+    let t=String(copie.textContent||'').replace(/\s+/g,' ').trim();
+    if(t.length>260) t=t.slice(0,260)+'…';
+    return t;
+  }catch(e){ return ''; }
+}
+function bexpPlace(el){
+  if(!el || !el.getAttribute) return '';
+  /* une case à cocher : son libellé EST déjà la saisie lue */
+  const nom=bexpCoche(el) ? '' : String(el.getAttribute('aria-label')||el.getAttribute('title')||'').replace(/\s+/g,' ').trim().slice(0,160);
+  const ligne=bexpTexteLigne(el);
+  if(!nom && !ligne) return '';
+  return " Cette case est"+(nom?" « "+nom+" »":"")+(ligne?(nom?", sur":" sur")+" la ligne de l'écran qui dit : « "+ligne+" »":"")
+    +". Explique l'erreur de CETTE case-là, dans SA question, et ne parle pas d'une autre question.";
+}
 function bexpContexte(){
   let c=''; try{ c=String(conseilCtxCourant()||''); }catch(e){ c=''; }
   const coche=bexpCoche(bexpCase);
   return c+" L'élève vient "+(coche?"de COCHER":"d'écrire")+" « "+bexpVal+" »"
     +(coche?", une case que":" dans une case que")+" la correction vient de compter FAUSSE."
+    +bexpPlace(bexpCase)
     +" Explique-lui pourquoi "+(coche?"ce choix":"ce qu'il a écrit")+" ne convient pas — l'erreur probable, le point de méthode à revoir —"
     +" sans JAMAIS donner la réponse attendue, ni le bon résultat, ni "
     +(coche?"la case à cocher":"la valeur à écrire dans cette case")+", même s'il la demande.";
