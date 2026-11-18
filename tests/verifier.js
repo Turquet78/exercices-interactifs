@@ -4812,6 +4812,7 @@ function exercices(suite){
     regleParallelogramme(w, P);
     vecteursColineaires(w, P);
     coordonneesVecteurs(w, P);
+    coordonneesColineaires(w, P);
     vecteursColineairesSuite(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -15987,6 +15988,154 @@ function coordonneesVecteurs(w, P){
     /* au doigt : la barre « Je place » a les quatre points, départ et arrivée des deux vecteurs, puis M */
     const pd12=POSE_DOIGT.vsm.items(vsmFiche(0,true));
     if(pd12.length!==9 || pd12.map(function(x){ return x.cle; }).join(',')!=='p0,p1,p2,p3,0d,0f,1d,1f,m' || !pd12[4].off || !pd12[8].off || POSE_DOIGT.vsm.items(vsmFiche(0)).length!==1) vus.push('8.4.12 : la barre au doigt '+JSON.stringify(pd12.map(function(x){ return [x.cle,x.off]; })));
+    currentMode='train';
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* 8.4.13 {coordonnees-vecteur-colineaires} (Seconde, demande de Turquet,
+   novembre 2026 : la fiche « colinéaire et coordonnées », ses cinq cas
+   alternés sur des points tirés ; la figure posée aux gestes du 8.4.12, le
+   calcul des 8.4.11-12, le produit en croix). La place, le tirage sur trois
+   cents séances, l'écran, la copie vide, les gestes, la copie juste (l'ordre
+   libre du produit en croix), les pièges nommés, la reprise après JSON, le
+   parallélogramme, l'alignement, le soutien, la bulle, la barre au doigt et
+   le contexte du modèle. */
+function coordonneesColineaires(w, P){
+  const nom = 'colinéaires par les coordonnées (8.4.13) — la place, les cinq cas, les gestes, le produit en croix, la reprise';
+  if(!P.coordonneesVecteurs || !P.coordonneesVecteurs.colineaires){
+    ignorer(nom, 'ce niveau n\'a pas le 8.4.13');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], d=${JSON.stringify(P.coordonneesVecteurs.colineaires)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(e){ const c=e?' '+e.className+' ':'';
+      return c.indexOf(' ok ')>=0?'ok':(c.indexOf(' bad ')>=0?'bad':(c.indexOf(' sol ')>=0?'sol':'rien')); };
+    if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
+    if(TABLES_SANS.indexOf(d.exercice)>=0) vus.push('8.4.13 : le bouton des tables est retiré, alors qu’on multiplie');
+    if(RAPPELS.vcl!==RAP_VCL || !QIA_SUGG.vcl || VCD_GP_KINDS.indexOf('vcl')<0) vus.push('8.4.13 : le rappel, les questions à l’IA ou la bulle');
+    /* le tirage : chaque bloc de cinq a les cinq cas ; des points lisibles, éloignés ; la vérité du cas */
+    const V=[-5,-4,-3,-2,1,2,3,4,5], det=function(a,b){ return a[0]*b[1]-a[1]*b[0]; };
+    for(let n=0;n<300;n++){
+      const qs=vclBuildQuestions();
+      if(qs.length!==d.nb || qs.map(function(q){ return q.c; }).slice().sort().join('')!=='01234'){ vus.push('8.4.13 : une séance sans ses cinq cas '+qs.map(function(q){ return q.c; })); break; }
+      const faute=qs.find(function(q){
+        if(Object.keys(q).sort().join(',')!=='P,c,pl,t' || q.pl.some(Boolean) || q.t.some(Boolean)) return true;
+        if(q.P.length!==(q.c===2||q.c===3?3:4) || !q.P.every(function(p){ return V.indexOf(p[0])>=0&&V.indexOf(p[1])>=0; })) return true;
+        for(let a=0;a<q.P.length;a++) for(let b=a+1;b<q.P.length;b++) if(!vecLoin(q.P[a],q.P[b])) return true;
+        const u=vclVec(q,0), v=vclVec(q,1);
+        if(!u[0]||!u[1]||!v[0]||!v[1]) return true;
+        if(vclOui(q)!==(q.c%2===0)) return true;
+        if(q.c===0 && det(u,[q.P[2][0]-q.P[0][0],q.P[2][1]-q.P[0][1]])===0) return true;   /* droites confondues */
+        if(q.c===4){ const w2=[q.P[3][0]-q.P[0][0],q.P[3][1]-q.P[0][1]];
+          if(det(u,w2)===0 || u[0]*w2[0]+u[1]*w2[1]===0 || u[0]*u[0]+u[1]*u[1]===w2[0]*w2[0]+w2[1]*w2[1]) return true; }
+        return vclCases(q).length!==[26,26,25,25,21][q.c];
+      });
+      if(faute){ vus.push('8.4.13 : une question hors des règles '+JSON.stringify(faute)); break; }
+    }
+    const verifier=function(){ const av=test.score; checkVcl(); clearTimeout(test.fbTimer); return test.score-av; };
+    const ids=function(){ return vclCases(test.questions[test.idx]); };
+    const cl=function(){ return ids().map(function(i){ return classe(el(i)); }).join(','); };
+    const tous=function(c){ return ids().map(function(){ return c; }).join(','); };
+    const ecrire=function(o){ Object.keys(o).forEach(function(id){ el(id).value=o[id]; }); };
+    /* la copie juste d'une question : les nombres attendus, le produit en croix dans l'ordre de la fiche */
+    const juste=function(q){
+      const a=vclAttendu(q), o={}, u=vclVec(q,0), v=vclVec(q,1);
+      Object.keys(a).forEach(function(id){ o[id]=svrNb(a[id]); });
+      if(q.c===4){ o['vcl-eg']='oui'; o['vcl-nom']='ABCD'; o['vcl-nat']='parallélogramme'; return o; }
+      o['vcl-k-a1']=svrNb(u[0]); o['vcl-k-b1']=svrNb(v[1]); o['vcl-k-r1']=svrNb(u[0]*v[1]);
+      o['vcl-k-a2']=svrNb(u[1]); o['vcl-k-b2']=svrNb(v[0]); o['vcl-k-r2']=svrNb(u[1]*v[0]);
+      o['vcl-col']=o['vcl-cc']=vclOui(q)?'oui':'non';
+      return o;
+    };
+    const poser=function(q){ q.P.forEach(function(p,k){ vclOutil('p'+k); vclPose(p[0],p[1]); });
+      [0,1].forEach(function(k){ const w2=vclW(q,k); vclOutil('t'+k); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); }); };
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vcl' || test.questions.length!==d.nb || test.maxScore!==test.questions.reduce(function(s,q){ return s+vclCases(q).length; },0)) vus.push('8.4.13 : kind '+test.kind+', barème '+test.maxScore);
+    test.questions.forEach(function(q){ if(dmPoidsQuestion('vcl',q)!==vclCases(q).length) vus.push('8.4.13 : dmPoidsQuestion'); });
+    /* une question connue : (AB) et (CD) parallèles, CD = −½ AB */
+    const PAR=[[-4,-3],[2,1],[-2,3],[-5,1]];
+    test.questions[test.idx]=vclNeuve(0,PAR.map(function(p){ return p.slice(); })); renderVcl();
+    const ins=el('vclInstr').textContent;
+    if(ins.indexOf('A(−4 ; −3)')<0 || ins.indexOf('Démontrer que les droites (AB) et (CD) sont parallèles')<0 || ins.indexOf('puis trace les vecteurs')<0) vus.push('8.4.13 : l’énoncé : '+ins.slice(0,200));
+    if(document.querySelectorAll('#vclPts .svr-pt').length || document.querySelectorAll('#vclFl line').length) vus.push('8.4.13 : le repère n’est pas vide');
+    if(['p0','p1','p2','p3','t0','t1'].some(function(o){ return !el('vcl-'+o); }) || !el('vcl-t0').disabled || el('vcl-p0').disabled || test.vclOutil!=='p0') vus.push('8.4.13 : les boutons de la figure');
+    if(document.querySelectorAll('#vclCalc .vcd-fd').length!==4 || ids().some(function(i){ return !el(i); })) vus.push('8.4.13 : le calcul n’a pas ses deux « Fin − Début » ou ses cases');
+    /* la copie vide : tout en sol, rien de rouge ; la figure et les deux droites en vert / pointillés */
+    if(verifier()!==0 || cl()!==tous('sol')) vus.push('8.4.13 : la copie vide : '+cl());
+    if(document.querySelector('#vclCalc .bad, #vclGraph .svr-pt.eb, #vclGraph .svc-eb')) vus.push('8.4.13 : la copie vide rougit');
+    if(document.querySelectorAll('#vclCorr .svr-pt.s').length!==4 || document.querySelectorAll('#vclCorr line.svc-s').length!==2 || document.querySelectorAll('#vclCorr .vcl-droite').length!==2) vus.push('8.4.13 : la correction de la copie vide');
+    if(el('vclFeedback').textContent.indexOf('Il te manquait 26 cases')<0) vus.push('8.4.13 : le message de la copie vide : '+el('vclFeedback').textContent.slice(0,80));
+    /* les gestes du 8.4.12 */
+    test.questions[test.idx]=vclNeuve(0,PAR.map(function(p){ return p.slice(); })); renderVcl();
+    const q=test.questions[test.idx];
+    vclVif(q,{x:vcdX(1)+3,y:vcdY(1)-2});
+    if(((document.querySelector('#vclVif .svr-pt')||{}).textContent||'')!=='A') vus.push('8.4.13 : aucune croix A ne suit la souris');
+    vclPose(-3,-4);
+    if(!document.querySelector('#vclPts .svr-pt.eb') || test.vclOutil!=='p0') vus.push('8.4.13 : A faux n’est pas rouge, ou le geste passe au suivant');
+    vclPose(-3,-4); if(q.pl[0]!==null) vus.push('8.4.13 : le reclic ne retire pas A');
+    vclPose(-4,-3);
+    if(test.vclOutil!=='p1' || document.querySelectorAll('#vclPts .svr-pt.n').length!==1) vus.push('8.4.13 : A juste ne passe pas à B');
+    vclPose(2,1); vclPose(-2,3); vclPose(-5,1);
+    if(test.vclOutil!=='t0' || el('vcl-t0').disabled) vus.push('8.4.13 : les points posés n’ouvrent pas « Tracer AB » ('+test.vclOutil+')');
+    vclPose(2,1); vclPose(-4,-3);
+    if(!document.querySelector('#vclFl line.svc-eb') || test.vclOutil!=='t0') vus.push('8.4.13 : AB tracé à l’envers n’est pas rouge');
+    vclPose(-4,-3); vclPose(2,1);
+    if(test.vclOutil!=='t1' || document.querySelectorAll('#vclFl line.vsm-k').length!==1) vus.push('8.4.13 : AB juste n’est pas noir, ou le geste ne passe pas à CD');
+    vclOutil('p1'); vclPose(2,1);
+    if(q.t[0]!==null || !el('vcl-t0').disabled) vus.push('8.4.13 : B retiré ne défait pas AB');
+    vclPose(2,1); vclOutil('t0'); vclPose(-4,-3); vclPose(2,1); vclPose(-2,3); vclPose(-5,1);
+    if(!['p0','p1','p2','p3','t0','t1'].every(function(o){ return vclFait(q,o); })) vus.push('8.4.13 : la figure n’est pas posée');
+    /* la copie juste — le produit en croix dans l'autre ordre, facteurs échangés : toujours juste */
+    const J=juste(q);
+    J['vcl-k-a1']='(−3)'; J['vcl-k-b1']='4'; J['vcl-k-r1']='-12'; J['vcl-k-a2']='-2'; J['vcl-k-b2']='6'; J['vcl-k-r2']='−12';
+    ecrire(J);
+    let av=verifier();
+    if(av!==26 || cl()!==tous('ok')) vus.push('8.4.13 : la copie juste vaut '+av+' : '+cl());
+    if(document.querySelectorAll('#vclCorr .vcl-droite').length!==2 || document.querySelector('#vclCorr .svc-s')) vus.push('8.4.13 : la correction d’une copie juste');
+    /* la reprise : la figure revient du JSON */
+    test.questions[test.idx]=JSON.parse(JSON.stringify(q)); renderVcl();
+    if(document.querySelectorAll('#vclPts .svr-pt.n').length!==4 || document.querySelectorAll('#vclFl line.vsm-k').length!==2 || test.vclOutil!=='p0' || !el('vcl-t1').classList.contains('fait')) vus.push('8.4.13 : le rendu après JSON');
+    /* les pièges : CD à l'envers, fin et début échangés, un produit au signe faux, « colinéaires » faux */
+    test.questions[test.idx]=vclNeuve(0,PAR.map(function(p){ return p.slice(); })); renderVcl();
+    const q2=test.questions[test.idx];
+    q2.P.forEach(function(p,k){ vclOutil('p'+k); vclPose(p[0],p[1]); });
+    vclOutil('t0'); vclPose(-4,-3); vclPose(2,1); vclOutil('t1'); vclPose(-5,1); vclPose(-2,3);
+    const F=juste(q2); F['vcl-u-xf']='-4'; F['vcl-u-xd']='2'; F['vcl-k-r1']='12'; F['vcl-col']='non';
+    ecrire(F);
+    av=verifier();
+    const lp=cl().split(',');
+    if(av!==21 || lp[5]!=='bad' || lp[6]!=='bad' || lp[7]!=='bad' || lp[20]!=='bad' || lp[24]!=='bad' || lp[25]!=='ok') vus.push('8.4.13 : les pièges : '+av+' '+lp.join(','));
+    const fb=el('vclFeedback').textContent;
+    ['tracé à l’envers','on écrit fin − début','attention au signe','les vecteurs sont colinéaires'].forEach(function(m){ if(fb.indexOf(m)<0) vus.push('8.4.13 : le message ne dit pas « '+m+' » : '+fb.slice(0,300)); });
+    if(conseilCtxCourant().indexOf('produit en croix')<0 || conseilCtxCourant().indexOf('CD tracé de (−5 ; 1) à (−2 ; 3) (faux)')<0) vus.push('8.4.13 : le contexte du modèle');
+    /* l'alignement (trois points) et le parallélogramme : la copie juste, « dcba » compris */
+    [[3,[[-4,-3],[2,1],[5,4]],25],[4,[[-4,-2],[1,-3],[3,2],[-2,3]],21]].forEach(function(c){
+      test.questions[test.idx]=vclNeuve(c[0],c[1]); renderVcl();
+      const qq=test.questions[test.idx]; poser(qq);
+      const o=juste(qq); if(c[0]===4) o['vcl-nom']='dcba';
+      ecrire(o);
+      const n=verifier();
+      if(n!==c[2] || cl()!==tous('ok')) vus.push('8.4.13 : la copie juste du cas '+VCL_CAS[c[0]]+' vaut '+n+' : '+cl());
+      if(c[0]===4 && (document.querySelectorAll('#vclCorr polygon.vcl-droite').length!==1 || el('vclInstr').textContent.indexOf('ABCD est un parallélogramme')<0 || !el('vcl-t1').textContent.replace(/\\s+/g,'').match(/TracerDC/))) vus.push('8.4.13 : le parallélogramme (le quadrilatère, l’énoncé, DC)');
+      if(c[0]===3 && (document.querySelectorAll('#vclCorr .vcl-droite').length!==1 || el('vcl-p3') || el('vclCalc').textContent.indexOf('les points A, B et C')<0)) vus.push('8.4.13 : l’alignement (la droite, trois points, la conclusion)');
+    });
+    /* le soutien : A juste se fige, B faux rougit, rien ne se révèle ; la bulle au résultat */
+    currentMode='soutien'; test.questions[test.idx]=vclNeuve(0,PAR.map(function(p){ return p.slice(); })); renderVcl();
+    vclPose(-4,-3); vclPose(1,2);
+    checkVcl(); clearTimeout(test.fbTimer);
+    const ls=cl();
+    if(test.locked || ls!=='ok,bad,'+Array(24).fill('rien').join(',') || !el('vcl-p0').disabled || test.vclOutil!=='p1' || document.querySelector('#scr-vcl .sol')) vus.push('8.4.13 : le soutien : '+ls.slice(0,60)+' '+test.vclOutil);
+    el('vcl-u-xf').value='2'; el('vcl-u-xd').value='(−4)'; el('vcl-u-ry').focus(); el('vcl-u-rx').focus();
+    if(!el('vcdGp') || el('vcdGp').textContent.indexOf('Quand je gagne 2 et que je gagne 4')<0) vus.push('8.4.13 : la bulle ne paraît pas au résultat de AB');
+    currentMode='train'; el('vcl-u-ry').focus(); el('vcl-u-rx').focus();
+    if(el('vcdGp')) vus.push('8.4.13 : la bulle « gagne / perds » paraît hors du soutien');
+    /* au doigt : la barre « Je place » a les points, puis départ et arrivée des deux vecteurs */
+    test.vclFige={};
+    const pd=POSE_DOIGT.vcl.items(vclNeuve(2,[[-4,-3],[2,1],[5,3]]));
+    if(pd.map(function(x){ return x.cle; }).join(',')!=='p0,p1,p2,0d,0f,1d,1f' || !pd[3].off || pd[0].off) vus.push('8.4.13 : la barre au doigt '+JSON.stringify(pd.map(function(x){ return [x.cle,x.off]; })));
     currentMode='train';
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);

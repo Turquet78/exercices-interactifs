@@ -6796,3 +6796,81 @@ A faux rouge, le reclic, B, C, D, BC⃗ à l'envers rouge, le vecteur élastique
 B repris qui défait BC⃗, la figure qui ouvre le glisser) ; la copie juste
 42 sur 42 ; la reprise après JSON ; les pièges nommés ; le contexte du
 modèle ; le soutien ; la barre au doigt.
+
+## {coordonnees-vecteur-colineaires} — colinéaires par les coordonnées : parallèles, alignés, parallélogramme (8.4.13, Seconde v707)
+
+**La demande** (Turquet, novembre 2026) : « en seconde créer un exercice dans
+coordonnées de vecteurs comme le pdf. Il faudra demander de placer les points
+d'abord dans un repère et les vecteurs ensuite avant de faire les calculs. Il
+y aura les 5 cas à alterner avec tes propres exemples. Tu feras pour le
+placement des points comme les derniers exercices sur les coordonnées de
+vecteurs et tu présenteras les calculs de coordonnées de vecteurs comme les
+exercices précédents. » La fiche « colinéaire et coordonnées » : « Démontrer
+que les droites (AB) et (CD) sont parallèles », puis « … ne sont pas
+parallèles » (les mêmes points sur la fiche, une coquille), « Démontrer que
+les points A, B et C sont alignés », « … ne sont pas alignés », « Démontrer
+que ABCD est un parallélogramme » ; chaque fois « On prend les vecteurs :
+… …⃗ (… − … / … − …) … …⃗ (… / …) et … », « On vérifie le produit en croix :
+… × … = … et … × … », « Donc : … …⃗ et … …⃗ sont … », « Donc : (… …) et (… …)
+sont … » (ou « les points … sont … », « … est un … »). Comme aux 8.4.4 et
+8.4.9, le PDF n'était pas arrivé au premier message : rien n'a été construit
+avant de l'avoir lu.
+
+**Le moteur « vcl ».** La figure se pose aux gestes du 8.4.12 : un bouton
+par point, puis « Tracer » pour chacun des deux vecteurs (AB⃗ et CD⃗ ; AB⃗
+et AC⃗ pour l'alignement ; AB⃗ et DC⃗ pour le parallélogramme) ; la croix et
+la lettre suivent la souris, le faux est rouge dès sa pose, le geste ne passe
+au suivant que sur un juste, un vecteur ne s'ouvre qu'avec ses deux points
+justes, reprendre un point défait le vecteur qui n'en part plus ; juste, un
+point ou un vecteur prend l'encre noire, et le vecteur son nom. Le calcul est
+celui des 8.4.11 et 8.4.12 : les deux colonnes « Fin − Début », la bulle
+« gagne / perds » en soutien (`VCD_GP_KINDS`). Puis le produit en croix de la
+fiche (deux produits, trois cases chacun), « sont colinéaires / ne sont pas
+colinéaires », et la conclusion dans une liste ; pour le parallélogramme,
+« sont égaux / ne sont pas égaux », le nom (ABCD ou l'un des huit noms du
+même tour, `VCL_QUAD`) et la nature (`VPG_TYPES`).
+
+**Le produit en croix se juge dans l'ordre de l'élève** (`vclCroixAttendu`) :
+les deux paires sont x(AB⃗) × y(CD⃗) et y(AB⃗) × x(CD⃗) ; une ligne qui
+commence par la seconde paire est jugée sur elle, l'autre ligne sur la
+première, et l'ordre des deux facteurs d'une ligne est libre. Le résultat se
+juge sur la paire attendue de sa ligne. On n'impose pas l'ordre d'écriture de
+la fiche : l'écrire dans l'autre sens est juste.
+
+**Les cinq cas alternent** (`vclBuildQuestions`) : chaque bloc de cinq
+questions les contient tous, dans un ordre tiré ; une séance en a cinq
+(`VCL_NB`, `dmNbQuestions`). **Le tirage** (`vclGen`) : points de −5 à 5, ni
+sur un axe ni à −1, deux à deux à deux carreaux ; les deux vecteurs en biais.
+Parallèles : CD⃗ = k AB⃗ (k = −2, −1, 2, ½, −½), C hors de (AB) — sinon les
+droites seraient confondues ; pas parallèles : le même CD⃗ écarté d'un
+carreau, le piège se voit au calcul, pas à l'œil. De même pour C sur (AB), ou
+à un carreau de là (k = −1, ±2, ±½, ±3/2). Parallélogramme : C = D + AB⃗, D
+hors de (AB), ni rectangle ni losange. Les points de la fiche (D(12 ; −5)
+sort du repère) ne sont jamais tirés.
+
+**26, 25 ou 21 réponses, chacune jugée seule** (`vclJuge`) : les points (4 ou
+3), les deux vecteurs, six cases par vecteur, puis le produit en croix et les
+deux conclusions (8), ou égaux, nom, nature (3). Les messages nomment la
+faute : coordonnées échangées, signe, vecteur à l'envers, fin et début
+échangés, « soustraire un nombre négatif », le produit en croix rappelé, le
+signe d'un produit (« moins par moins donne plus »), les deux produits égaux
+ou non, la conclusion qui en découle. La correction trace en vert les points
+et les vecteurs manqués, et en pointillés la figure de la conclusion : les
+droites (AB) et (CD), la droite (AB) (C dessus ou non), ou le quadrilatère
+ABCD. On range `q.c` (le cas), `q.P`, `q.pl`, `q.t` ; les cases se rangent
+d'elles-mêmes. Le bouton des tables est GARDÉ : on multiplie.
+
+**Le banc principal** (`coordonneesColineaires`, `tests/verifier.js`) : la
+place 8.4.13, le rappel, la bulle, les tables gardées ; trois cents séances
+(les cinq cas dans chaque séance, ce qui est rangé, des points lisibles et
+éloignés, la vérité de chaque cas, les droites jamais confondues, le
+parallélogramme ni rectangle ni losange, 26/25/21 réponses) ; l'écran vide et
+ses boutons ; la copie vide (tout `sol`, rien de rouge, la figure en vert,
+les deux droites en pointillés) ; les gestes (la croix, A faux rouge, le
+reclic, AB⃗ à l'envers rouge puis noir juste, B repris qui défait AB⃗) ; la
+copie juste 26 sur 26 avec le produit en croix dans l'autre ordre, facteurs
+échangés ; la reprise après JSON ; les pièges (CD⃗ à l'envers, fin et début
+échangés, un produit au signe faux, « ne sont pas colinéaires ») et leurs
+messages ; le contexte du modèle ; l'alignement (trois points, 25 sur 25) et
+le parallélogramme (« dcba », 21 sur 21) ; le soutien ; la bulle ; la barre
+au doigt.
