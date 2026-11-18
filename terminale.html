@@ -2388,6 +2388,10 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .edv-gp{font-family:KaTeX_Main,'Times New Roman',serif;font-size:2.3rem;line-height:1;font-weight:400;color:var(--ink);margin:0 2px;transform:scaleY(1.15)}
 .edv-prime{font-family:KaTeX_Main,'Times New Roman',serif;font-size:1.9rem;line-height:1;font-weight:700;color:var(--ink);align-self:flex-start;margin:-4px 0 0 1px}
 math-field.dexp-mf.edv-let{min-width:42px}
+.edv-gris{color:var(--ink-soft);opacity:.5;font-weight:700;letter-spacing:2px}
+.edv-plus{font:600 .8rem 'Nunito',sans-serif;color:var(--ink-soft);background:transparent;border:1.5px dashed var(--grid);border-radius:8px;padding:3px 9px;cursor:pointer}
+.edv-plus:hover{color:var(--blue);border-color:var(--blue)}
+.edv-concl{display:inline-flex;align-items:center;gap:6px}
 #scr-edv .mf-cor{margin-left:4px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
@@ -4613,7 +4617,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=499;
+const APP_VERSION=500;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36334,9 +36338,9 @@ function edvIds(q){
   const ids=[];
   if(q.fam==='B') ids.push('edv-u','edv-v','edv-du','edv-dv','edv-s2a','edv-s2b','edv-s2c','edv-s2d', ...edvS3(q), 'edv-fac');
   ids.push('edv-n1','edv-n2');
-  if(q.fam==='A') ids.push('edv-e1','edv-e2','edv-g2','edv-d2','edv-g3','edv-d3');
-  else if(q.fam==='B') ids.push('edv-g1','edv-d1','edv-g2','edv-d2');
-  else ids.push('edv-e1','edv-e2','edv-g2','edv-d2');
+  if(q.fam==='B') ids.push('edv-g1','edv-d1');
+  else ids.push('edv-e1','edv-e2');
+  for(let i=0;i<edvNbLignes();i++) ids.push('edv-gL'+i,'edv-dL'+i);
   ids.push('edv-sel');
   return ids;
 }
@@ -36392,27 +36396,36 @@ function edvDerivee(q, out){
   }
   out['edv-fac']={ok:eg('edv-fac',function(x){ return m+a*p+a*m*x; }), tex:edvPolyTex([m+a*p,a*m])};
 }
+function edvNbLignes(){ return Math.max(1, (test && test.edvLignes)|0); }
+/* la forme exigée de la DERNIÈRE ligne : réduite (a), factorisée par l'exponentielle (b), libre (c) */
+function edvForme(q,O,id){
+  if(q.fam==='A') return edvNbTermes(edvLire(id))<=O.termes;
+  if(q.fam==='B') return dexp2Factorisee(edvLire(id));
+  return true;
+}
 function edvVerdicts(q){
   const O=edvObj(q), out={};
   const eg=function(id,ref){ return edvEgal(edvLire(id),ref,q); };
   if(q.fam==='B') edvDerivee(q,out);
   ['edv-n1','edv-n2'].forEach(function(id){ out[id]={ok:edvLire(id).toLowerCase()===q.nom, tex:q.nom}; });
-  if(q.fam==='A'){
-    out['edv-e1']={ok:eg('edv-e1',O.f), tex:O.fTex};
-    out['edv-e2']={ok:eg('edv-e2',O.f), tex:O.fTex};
-    out['edv-g2']={ok:eg('edv-g2',O.d), tex:O.dTex};
-    out['edv-d2']={ok:eg('edv-d2',O.d), tex:O.rhsTex};   /* a·f + cx + d vaut f′ : c'est ce qu'on vérifie */
-    ['edv-g3','edv-d3'].forEach(function(id){ out[id]={ok:eg(id,O.d) && edvNbTermes(edvLire(id))<=O.termes, tex:O.dTex}; });
-  } else if(q.fam==='B'){
+  if(q.fam==='B'){
     out['edv-g1']={ok:eg('edv-g1',O.d), tex:O.dTex};
     out['edv-d1']={ok:eg('edv-d1',O.f), tex:O.fTex};
-    out['edv-g2']={ok:eg('edv-g2',O.poly), tex:O.polyTex};
-    out['edv-d2']={ok:eg('edv-d2',O.poly), tex:O.polyTex};
   } else {
     out['edv-e1']={ok:eg('edv-e1',O.f), tex:O.fTex};
     out['edv-e2']={ok:eg('edv-e2',O.f), tex:O.fTex};
-    out['edv-g2']={ok:eg('edv-g2',O.d), tex:O.dTex};
-    out['edv-d2']={ok:eg('edv-d2',O.d), tex:O.rhsTex};
+  }
+  /* LES LIGNES ÉQUIVALENTES (Turquet, novembre 2026 : « accepter si un élève
+     réduit directement une expression en sautant une étape ») : autant de
+     lignes que l'élève en ouvre (Entrée), chaque membre égal à f′ — c'est ce
+     qu'on vérifie : a·f + cx + d vaut f′ —, et la forme n'est exigée que de la
+     DERNIÈRE : réduite au a), factorisée par l'exponentielle au b). « 2 = 2 »
+     écrit dès la première ligne est donc une copie complète. */
+  const n=edvNbLignes();
+  for(let i=0;i<n;i++){
+    const last=i===n-1, g='edv-gL'+i, d='edv-dL'+i;
+    out[g]={ok:eg(g,O.d) && (!last || edvForme(q,O,g)), tex:O.dTex};
+    out[d]={ok:eg(d,O.d) && (!last || edvForme(q,O,d)), tex:(last && q.fam!=='C') ? O.dTex : (O.rhsTex||O.dTex)};
   }
   out['edv-sel']={ok:edvLire('edv-sel')==='vrai', tex:'vrai'};
   edvIds(q).forEach(function(id){ const v=out[id]; if(v) v.rempli=edvLire(id)!==''; });
@@ -36425,6 +36438,73 @@ function edvPromptHTML(q){
     +'<b>Vérifier que '+edvT(F)+' est une solution de l’équation différentielle (<i>E</i>)'
     +(q.kk?', avec <i>k</i> un nombre réel':'')+'.</b>';
 }
+/* une ligne « ⟺ [……] = [……] » de la vérification ; « apres » porte la conclusion sur la dernière */
+function edvLigneHTML(i, apres){
+  const C=function(id,nom){ return '<math-field class="dexp-mf edv-mf dexp-mf-wide" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>'; };
+  return '<div class="edv-ligne" data-i="'+i+'" style="display:contents"><div class="edv-lead"><span class="edv-iff">\u27fa</span></div>'
+    +'<div class="edv-g">'+C('edv-gL'+i, i===0?'la dérivée calculée (membre de gauche)':'membre de gauche, ligne '+(i+1))+'</div><div class="edv-eq">=</div>'
+    +'<div class="edv-d">'+C('edv-dL'+i, i===0?'le second membre, la fonction remplacée':'membre de droite, ligne '+(i+1))+'</div><div class="edv-apres">'+(apres||'')+'</div></div>';
+}
+/* la ligne fantôme, grise : on peut poursuivre les équivalences (Entrée, ou un clic) */
+const EDV_FANTOME='<div class="edv-fantome" style="display:contents"><div class="edv-lead edv-gris"><span class="edv-iff">\u27fa</span></div><div class="edv-g edv-gris">\u2026\u2026</div><div class="edv-eq edv-gris">=</div><div class="edv-d edv-gris">\u2026\u2026</div>'
+  +'<div class="edv-apres"><button type="button" class="edv-plus" onmousedown="event.preventDefault()" onclick="edvAjouterLigne()" title="Ajouter une ligne équivalente">\u23ce Entrée : une autre ligne</button></div></div>';
+function edvPlacerConcl(){
+  const c=document.querySelector('#edvForm .edv-concl'), L=document.querySelectorAll('#edvForm .edv-ligne');
+  if(c && L.length) L[L.length-1].querySelector('.edv-apres').appendChild(c);
+}
+function edvAjouterLigne(){
+  if(test.locked || test.kind!=='edv') return;
+  const q=test.questions[test.idx], fant=document.querySelector('#edvForm .edv-fantome'); if(!fant) return;
+  const n=edvNbLignes();
+  fant.insertAdjacentHTML('beforebegin', edvLigneHTML(n,''));
+  test.edvLignes=n+1;
+  if(window.mlDexp) window.mlDexp.upgrade(fant.previousElementSibling);
+  edvPlacerConcl();
+  edvTailler(q, ['edv-gL'+n,'edv-dL'+n]);
+  edvBrancherLigne(n);
+  if(isSoutien()) checkEDV(true);   /* la ligne d'avant n'est plus la dernière : sa forme ne compte plus */
+  const g=$('edv-gL'+n), pose=function(){ try{ if(g && !test.locked) g.focus(); }catch(e){} };
+  setTimeout(pose,30); setTimeout(pose,140);
+}
+function edvRetirerLigne(i){
+  const L=document.querySelector('#edvForm .edv-ligne[data-i="'+i+'"]'); if(!L || i===0) return;
+  const c=L.querySelector('.edv-concl'); L.remove(); test.edvLignes=i;
+  if(c){ const P=document.querySelector('#edvForm .edv-ligne[data-i="'+(i-1)+'"] .edv-apres'); if(P) P.appendChild(c); }
+}
+/* Une ligne ouverte puis laissée vide n'est pas une case oubliée : elle est
+   retirée AVANT que « Vérifier » ne compte les cases — sur la FENÊTRE, en
+   capture, donc avant la boîte des cases vides (#confirmer-vides, qui écoute
+   le document) ; checkEDV le refait pour les autres chemins. */
+function edvRetirerVides(){
+  if(test.kind!=='edv' || test.locked) return;
+  for(let i=edvNbLignes()-1; i>0 && edvLire('edv-gL'+i)==='' && edvLire('edv-dL'+i)===''; i--) edvRetirerLigne(i);
+}
+window.addEventListener('click', function(e){
+  const b=e.target && e.target.closest && e.target.closest('#edvActions .btn-primary');
+  if(b) edvRetirerVides();
+}, true);
+/* Entrée au bout de la dernière ligne remplie en ouvre une autre ; retour arrière dans une dernière ligne vide la retire */
+function edvBrancherLigne(i){
+  const g=$('edv-gL'+i), d=$('edv-dL'+i); if(!g || !d) return;
+  if(isSoutien()) [g,d].forEach(function(el){ el.addEventListener('input', function(){ checkEDV(true); }); });
+  let dernier=0;
+  const ajout=function(e){
+    if(test.locked || i!==edvNbLignes()-1) return;
+    if(edvLire('edv-gL'+i)==='' || edvLire('edv-dL'+i)==='') return;
+    const t=Date.now(); if(t-dernier<350) return; dernier=t;
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    setTimeout(edvAjouterLigne,0);
+  };
+  d.addEventListener('keydown', function(e){ if(e.key==='Enter') ajout(e); });
+  d.addEventListener('change', function(){ if(d.hasFocus && d.hasFocus()) ajout(null); });
+  g.addEventListener('beforeinput', function(e){
+    if(test.locked || e.inputType!=='deleteContentBackward' || i===0 || i!==edvNbLignes()-1) return;
+    if(edvLire('edv-gL'+i)!=='' || edvLire('edv-dL'+i)!=='') return;
+    e.preventDefault(); edvRetirerLigne(i);
+    const p=$('edv-dL'+(i-1)); if(p){ try{ p.focus(); p.executeCommand('moveToMathfieldEnd'); }catch(_){} }
+    if(isSoutien()) checkEDV(true);
+  });
+}
 function edvFormHTML(q){
   const O=edvObj(q);
   const C=function(id,cls,nom){ return '<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>'; };
@@ -36434,7 +36514,8 @@ function edvFormHTML(q){
   const D=function(h){ return '<span class="edv-derive"><span class="edv-gp">(</span>'+h+'<span class="edv-gp">)</span><span class="edv-prime">\u2032</span></span>'; };
   const row=function(lead,g,d,apres){ return '<div class="edv-lead">'+lead+'</div><div class="edv-g">'+g+'</div><div class="edv-eq">=</div><div class="edv-d">'+d+'</div><div class="edv-apres">'+(apres||'')+'</div>'; };
   const eqv='<span class="edv-iff">⟺</span>';
-  const sel='<span>ce qui est</span><select class="tvi-sel edv-sel" id="edv-sel" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>';
+  const sel='<span class="edv-concl"><span>ce qui est</span><select class="tvi-sel edv-sel" id="edv-sel" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select></span>';
+  const lignes=function(){ let t=''; const N=edvNbLignes(); for(let i=0;i<N;i++) t+=edvLigneHTML(i, i===N-1?sel:''); return t+EDV_FANTOME; };
   const n=q.nom;
   let h='';
   if(q.fam==='B'){
@@ -36457,23 +36538,23 @@ function edvFormHTML(q){
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.suite));
     g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')),
            (q.a===1 ? C('edv-e2','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-e2','dexp-mf-wide','expression de la fonction')))+sui);
-    g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'));
-    g+=row(eqv, C('edv-g3','dexp-mf-wide','membre de gauche réduit'), C('edv-d3','dexp-mf-wide','membre de droite réduit'), sel);
+    g+=lignes();
   } else if(q.fam==='B'){
     const av=edvCoefTex(q.a);
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.me));
     g+=row(eqv, C('edv-g1','dexp-mf-wide','la dérivée calculée'),
            (q.a===1 ? C('edv-d1','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-d1','dexp-mf-wide','expression de la fonction')))+edvT(O.me));
-    g+=row(eqv, edvT(O.eTex)+P(C('edv-g2','dexp-mf-wide','facteur de '+O.eTex+' à gauche')), edvT(O.eTex)+P(C('edv-d2','dexp-mf-wide','facteur de '+O.eTex+' à droite')), sel);
+    g+=lignes();
   } else {
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), edvT(O.Pp+'\\times')+L('edv-n2','nom de la fonction')+edvT('(x)'));
     g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')), edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
-    g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'), sel);
+    g+=lignes();
   }
   g+='</div>';
   return h+'<div class="edv-verif">'+g+'</div>'
-    +'<p class="dexp-hint">Toute écriture égale est acceptée. Au clavier : <b>^</b> pour un exposant, <b>*</b> pour une multiplication.'
-    +(q.fam==='A'?' La dernière ligne est <b>réduite</b>.':'')+'</p>';
+    +'<p class="dexp-hint">Toute écriture égale est acceptée, et tu peux sauter des étapes. <b>Entrée</b> à la fin d’une ligne en ajoute une autre (⟺). '
+    +(q.fam==='A'?'La dernière ligne est <b>réduite</b>. ':q.fam==='B'?'La dernière ligne est <b>factorisée</b> par '+edvT(O.eTex)+'. ':'')
+    +'Au clavier : <b>^</b> pour un exposant, <b>*</b> pour une multiplication.</p>';
 }
 /* ---- cycle de vie ---- */
 async function startEDV(){
@@ -36482,7 +36563,7 @@ async function startEDV(){
   cfg=await loadConfig();
   currentTestId='equadiff-verifier-solution'; test.kind='edv';
   test.questions=edvGenSession();
-  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false; test.edvLignes=1;
   test.maxScore=test.questions.length;
   show('edv'); renderEDV();
 }
@@ -36494,11 +36575,14 @@ function renderEDV(){
   $('edvFeedback').textContent=''; $('edvFeedback').className='mp-feedback';
   $('edvActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEDV()">Vérifier</button>';
   $('edvPrompt').innerHTML=edvPromptHTML(q);
+  if(!(test.edvLignes>=1)) test.edvLignes=1;
   $('edvForm').innerHTML=edvFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('edvForm'));
   edvTailler(q);
+  for(let i=0;i<edvNbLignes();i++) edvBrancherLigne(i);
   if(isSoutien()){
-    edvIds(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ checkEDV(true); }); });
+    edvIds(q).filter(function(id){ return !/-[gd]L\d+$/.test(id); })
+      .forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ checkEDV(true); }); });
   }
   setTimeout(function(){ const el=$(edvIds(q)[0]); if(el && !test.locked) try{ el.focus(); }catch(e){} },30);
 }
@@ -36509,12 +36593,12 @@ function renderEDV(){
    MESURÉE telle que MathLive l'écrit (une sonde hors écran, à la police de la
    case), plus la marge du cadre — jamais moins qu'une lettre. Au-delà, le filet
    #cases-math-grandissent lève la largeur et la case suit ce qui est écrit. */
-function edvTailler(q){
+function edvTailler(q, liste){
   const verd=edvVerdicts(q), sonde=document.createElement('span');
   sonde.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;font-size:1.05rem;font-weight:700';
   document.body.appendChild(sonde);
-  edvIds(q).forEach(function(id){
-    const el=$(id); if(!el || el.tagName!=='MATH-FIELD' || !verd[id]) return;
+  (liste||edvIds(q)).forEach(function(id){
+    const el=$(id); if(!el || el.tagName!=='MATH-FIELD' || !verd[id] || el.dataset.grandit) return;
     const tex=verd[id].tex||'0';
     sonde.innerHTML=edvT(tex);
     let w=sonde.getBoundingClientRect().width;
@@ -36553,6 +36637,8 @@ function edvRetiens(q){
 }
 function checkEDV(live){
   if(test.locked && !live) return;
+  /* une ligne ouverte puis laissée vide n'est pas une case oubliée : elle s'en va */
+  if(!live) edvRetirerVides();
   const q=test.questions[test.idx], ids=edvIds(q), verd=edvVerdicts(q);
   let allOk=true, anyFilled=false, vides=0;
   ids.forEach(function(id){
@@ -36581,6 +36667,7 @@ function checkEDV(live){
     return;
   }
   test.locked=true;
+  { const f=document.querySelector('#edvForm .edv-fantome'); if(f) f.remove(); }
   if(allOk){
     test.score++; $('edvLiveScore').textContent=test.score;
     fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
@@ -36596,7 +36683,7 @@ function checkEDV(live){
   const last=test.idx===test.questions.length-1;
   $('edvActions').innerHTML='<button class="btn btn-primary" onclick="nextEDV()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
-function nextEDV(){ if(test.idx<test.questions.length-1){ test.idx++; renderEDV(); } else finishTest(); }
+function nextEDV(){ if(test.idx<test.questions.length-1){ test.idx++; test.edvLignes=1; renderEDV(); } else finishTest(); }
 /* LaTeX → texte clair, pour l'enregistrement et le modèle */
 function edvPlain(tex){
   let s=String(tex).replace(/\\left|\\right/g,'').replace(/\\times/g,'×').replace(/\\[;,]/g,' ').replace(/\{\}/g,'');
@@ -36611,8 +36698,8 @@ function edvConseilCtx(){
   return 'Exercice de Terminale (équations différentielles, vérifier qu’une fonction est solution). L’équation (E) : '+edvPlain(O.eqTex)+'. '
     +'Il faut vérifier que '+q.nom+'(x) = '+edvPlain(O.fTex)+' est une solution de (E)'+(q.kk?', avec k un nombre réel quelconque':'')+'. '
     +(q.fam==='B'?'La fonction est un PRODUIT : sa dérivée se calcule d’abord avec u, v, u′, v′ (dans l’ordre qu’on veut), la formule u′×v + u×v′, la substitution, le développement (un coefficient devant chaque exponentielle) puis la factorisation par l’exponentielle. ':'')
-    +'La vérification se rédige ligne par ligne : y′(x) = '+edvPlain(O.rhsY)+' ⟺ on écrit le NOM de la fonction (lettre '+q.nom+') ; puis on remplace par son expression ; puis on écrit la dérivée calculée à gauche et le second membre à droite ; '
-    +(q.fam==='A'?'puis chaque membre RÉDUIT ; ':q.fam==='B'?'puis chaque membre factorisé par l’exponentielle, le facteur restant dans les parenthèses ; ':'')
+    +'La vérification se rédige ligne par ligne : y′(x) = '+edvPlain(O.rhsY)+' ⟺ on écrit le NOM de la fonction (lettre '+q.nom+') ; puis on remplace par son expression ; puis une ou plusieurs lignes équivalentes « … = … » (la dérivée calculée à gauche, le second membre à droite ; Entrée ajoute une ligne, et l’élève peut sauter des étapes) ; '
+    +(q.fam==='A'?'la DERNIÈRE ligne doit être RÉDUITE ; ':q.fam==='B'?'la DERNIÈRE ligne doit être factorisée par l’exponentielle ; ':'')
     +'et on conclut « ce qui est vrai » (menu). Toute écriture égale est acceptée (vérification numérique). '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +edvIds(q).map(function(id){ const el=$(id); return ((el&&el.getAttribute('aria-label'))||id)+' = '+edvPlain(verd[id].tex||''); }).join(' ; ')+'. '
