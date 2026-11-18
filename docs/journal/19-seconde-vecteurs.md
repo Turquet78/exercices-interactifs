@@ -6797,7 +6797,7 @@ B repris qui défait BC⃗, la figure qui ouvre le glisser) ; la copie juste
 42 sur 42 ; la reprise après JSON ; les pièges nommés ; le contexte du
 modèle ; le soutien ; la barre au doigt.
 
-## {coordonnees-vecteur-colineaires} — colinéaires par les coordonnées : parallèles, alignés, parallélogramme (8.4.13, Seconde v707)
+## {coordonnees-vecteur-colineaires} — colinéaires par les coordonnées : parallèles, alignés, parallélogramme (8.4.13, Seconde v708)
 
 **La demande** (Turquet, novembre 2026) : « en seconde créer un exercice dans
 coordonnées de vecteurs comme le pdf. Il faudra demander de placer les points
