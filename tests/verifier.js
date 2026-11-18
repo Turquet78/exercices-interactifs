@@ -30230,13 +30230,17 @@ function bulleErreur(w, apres){
              + ', verrouillé : ' + b.verifVerrou);
     {
       const pc=String(b.placeCtx || '');
+      /* la PLACE seule : le contexte général de l'écran, devant, relit en
+         Seconde le texte de l'écran entier — la ligne d'essai posée par ce
+         contrôle comprise ; ce bord-ci mesure ce que la place ajoute */
+      const place=pc.indexOf('Cette case est') >= 0 ? pc.slice(pc.indexOf('Cette case est')) : '';
       verifier('le contexte de la bulle NOMME la case fausse et le texte de SA ligne — le modèle ne choisit plus la question',
         r.ok && pc.indexOf('question A3 : indice de P') >= 0 && pc.indexOf('3. Calcule la probabilité de A et D.') >= 0
              && pc.indexOf('2. Calcule la probabilité de B') < 0,
         souci || 'contexte : « ' + pc.slice(-320) + ' »');
       verifier('la ligne décrite au modèle ne porte ni la correction de la page, ni les autres cases',
-        r.ok && pc !== '' && pc.indexOf('CORRIGE-SECRET-400') < 0 && pc.indexOf('VOISINE-700') < 0 && pc.indexOf('OPTION-A') < 0,
-        souci || 'contexte : « ' + pc.slice(-320) + ' »');
+        r.ok && place !== '' && place.indexOf('CORRIGE-SECRET-400') < 0 && place.indexOf('VOISINE-700') < 0 && place.indexOf('OPTION-A') < 0,
+        souci || 'place décrite : « ' + place.slice(0,320) + ' »');
     }
     moyennesDevoirs(w, apres);
   });
