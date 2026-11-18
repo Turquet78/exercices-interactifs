@@ -92,3 +92,23 @@ donne 6 cases justes sur 9, les deux fausses en rouge, la conclusion oubliée
 en vert ; le b) avec u et v inversés (u = eˣ, v = x) est accepté, un
 coefficient faux du développement rougit seul ; en soutien, eˣ écrit pour
 e^(x²) rougit à la sortie de la case.
+
+**Puis la ligne « ( …… )′ » s'est vue** (Turquet, novembre 2026 : « mieux
+faire apparaître la partie (……)′ »). Les parenthèses grises de 1,3 rem et le
+prime collé en texte passaient inaperçus à côté d'une case de 2 em : la
+dérivée de l'expression se lisait comme l'expression elle-même. Elles sont
+maintenant à l'encre du texte, en fonte mathématique (KaTeX_Main), à la
+hauteur de la case, et le prime est en exposant, en gras (`.edv-derive`,
+`.edv-gp`, `.edv-prime`).
+
+**Puis la taille de chaque case a suivi sa réponse** (Turquet, même jour, sur
+une capture : « il faudrait que la taille des cases corresponde à ce qu'il faut
+mettre à l'intérieur, si on dépasse elles peuvent s'élargir »). Les cases
+étaient toutes à 170 px (`dexp-mf-wide`), qu'elles attendent « f » ou
+« e^(−x²)(−2x + 1) ». `edvTailler(q)`, appelée par le rendu, mesure la réponse
+attendue de chaque case telle que MathLive l'écrit (une sonde hors écran, à la
+police de la case), ajoute la marge du cadre (30 px, jamais moins de 40 px) et
+pose cette largeur. Au-delà, le filet commun `#cases-math-grandissent` lève la
+largeur : exécuté, une case de 59 px a suivi « e^(−x²) + 1 + 2 + … + 7 »
+jusqu'à 265 px sans rien couper. Le prix, assumé : la largeur d'une case dit à
+peu près la longueur de ce qu'on attend.

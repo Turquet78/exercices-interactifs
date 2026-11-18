@@ -2384,6 +2384,9 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .edv-apres{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .edv-iff{font-weight:700;margin-left:6px}
 .edv-p{font-weight:700;font-size:1.3rem;color:var(--ink-soft)}
+.edv-derive{display:inline-flex;align-items:center;white-space:nowrap}
+.edv-gp{font-family:KaTeX_Main,'Times New Roman',serif;font-size:2.3rem;line-height:1;font-weight:400;color:var(--ink);margin:0 2px;transform:scaleY(1.15)}
+.edv-prime{font-family:KaTeX_Main,'Times New Roman',serif;font-size:1.9rem;line-height:1;font-weight:700;color:var(--ink);align-self:flex-start;margin:-4px 0 0 1px}
 math-field.dexp-mf.edv-let{min-width:42px}
 #scr-edv .mf-cor{margin-left:4px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
@@ -36427,6 +36430,8 @@ function edvFormHTML(q){
   const C=function(id,cls,nom){ return '<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>'; };
   const L=function(id,nom){ return C(id,'edv-let',nom); };
   const P=function(h){ return '<span class="edv-p">(</span>'+h+'<span class="edv-p">)</span>'; };
+  /* « ( …… )′ » : la dérivée de l'expression — grandes parenthèses à la hauteur de la case, prime en exposant (demande de Turquet, novembre 2026 : « mieux faire apparaître la partie (……)′ ») */
+  const D=function(h){ return '<span class="edv-derive"><span class="edv-gp">(</span>'+h+'<span class="edv-gp">)</span><span class="edv-prime">\u2032</span></span>'; };
   const row=function(lead,g,d,apres){ return '<div class="edv-lead">'+lead+'</div><div class="edv-g">'+g+'</div><div class="edv-eq">=</div><div class="edv-d">'+d+'</div><div class="edv-apres">'+(apres||'')+'</div>'; };
   const eqv='<span class="edv-iff">⟺</span>';
   const sel='<span>ce qui est</span><select class="tvi-sel edv-sel" id="edv-sel" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>';
@@ -36450,7 +36455,7 @@ function edvFormHTML(q){
   if(q.fam==='A'){
     const av=edvCoefTex(q.a), sui=O.suite?edvT(O.suite):'';
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), (av?edvT(av):'')+L('edv-n2','nom de la fonction')+edvT('(x)'+O.suite));
-    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>',
+    g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')),
            (q.a===1 ? C('edv-e2','dexp-mf-wide','expression de la fonction') : edvT(av)+P(C('edv-e2','dexp-mf-wide','expression de la fonction')))+sui);
     g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'));
     g+=row(eqv, C('edv-g3','dexp-mf-wide','membre de gauche réduit'), C('edv-d3','dexp-mf-wide','membre de droite réduit'), sel);
@@ -36462,7 +36467,7 @@ function edvFormHTML(q){
     g+=row(eqv, edvT(O.eTex)+P(C('edv-g2','dexp-mf-wide','facteur de '+O.eTex+' à gauche')), edvT(O.eTex)+P(C('edv-d2','dexp-mf-wide','facteur de '+O.eTex+' à droite')), sel);
   } else {
     g+=row(tete, L('edv-n1','nom de la fonction dérivée')+edvT("'(x)"), edvT(O.Pp+'\\times')+L('edv-n2','nom de la fonction')+edvT('(x)'));
-    g+=row(eqv, P(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver'))+'<span class="edv-p">′</span>', edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
+    g+=row(eqv, D(C('edv-e1','dexp-mf-wide','expression de la fonction, à dériver')), edvT(O.Pp+'\\times')+C('edv-e2','dexp-mf-wide','expression de la fonction'));
     g+=row(eqv, C('edv-g2','dexp-mf-wide','la dérivée calculée'), C('edv-d2','dexp-mf-wide','le second membre, la fonction remplacée'), sel);
   }
   g+='</div>';
@@ -36491,10 +36496,33 @@ function renderEDV(){
   $('edvPrompt').innerHTML=edvPromptHTML(q);
   $('edvForm').innerHTML=edvFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('edvForm'));
+  edvTailler(q);
   if(isSoutien()){
     edvIds(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ checkEDV(true); }); });
   }
   setTimeout(function(){ const el=$(edvIds(q)[0]); if(el && !test.locked) try{ el.focus(); }catch(e){} },30);
+}
+/* LA TAILLE D'UNE CASE EST CELLE DE CE QU'ON Y ÉCRIT (demande de Turquet,
+   novembre 2026, sur une capture du 8.1.1 : « il faudrait que la taille des
+   cases corresponde à ce qu'il faut mettre à l'intérieur, si on dépasse elles
+   peuvent s'élargir »). Chaque case reçoit la largeur de sa réponse attendue,
+   MESURÉE telle que MathLive l'écrit (une sonde hors écran, à la police de la
+   case), plus la marge du cadre — jamais moins qu'une lettre. Au-delà, le filet
+   #cases-math-grandissent lève la largeur et la case suit ce qui est écrit. */
+function edvTailler(q){
+  const verd=edvVerdicts(q), sonde=document.createElement('span');
+  sonde.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:nowrap;font-size:1.05rem;font-weight:700';
+  document.body.appendChild(sonde);
+  edvIds(q).forEach(function(id){
+    const el=$(id); if(!el || el.tagName!=='MATH-FIELD' || !verd[id]) return;
+    const tex=verd[id].tex||'0';
+    sonde.innerHTML=edvT(tex);
+    let w=sonde.getBoundingClientRect().width;
+    if(!(w>0)) w=String(edvPlain(tex)).length*10;
+    const L=Math.max(40, Math.ceil(w)+30)+'px';
+    el.style.width=L; el.style.minWidth=L; el.style.maxWidth='none';
+  });
+  sonde.remove();
 }
 function edvFiger(el, fige){
   if(el.tagName==='MATH-FIELD'){ try{ el.readOnly=fige; }catch(e){} }
