@@ -3399,3 +3399,81 @@ acceptée avec sa remarque, « Initsation » confié au modèle, le mot absent
 refusé, « géomtrique » lu, « arithmétique » refusé) — éprouvé par sabotage
 (la relecture retirée : les deux contrôles rougissent) ; banc navigateur (les
 mots retouchés dans les vrais champs MathLive de la copie tapée).
+
+## {suite-bac-evolution} (5.7.1, v495) : un exercice de bac sur une suite arithmético-géométrique
+
+Demande de Turquet (novembre 2026), avec le sujet du bac blanc 1 du 2 décembre
+2026 (exercice 2 : une réserve naturelle, 800 animaux, 20 % disparaissent
+chaque année, 300 sont introduits) : « en terminale créer un exercice sur les
+suites sur le modèle de l'exercice 2 ; il faudra changer complètement le thème,
+et on pourra changer la formulation des questions quand cela est possible. Pour
+la justification de la formule, on attend simplement que l'élève fasse le lien
+entre la multiplication et le pourcentage, et entre la somme et la partie de
+l'énoncé qui en parle. On utilisera pour chaque question les exercices déjà
+créés qui traitent de la même chose. » Une septième partie du thème 5,
+« Exercice de bac » (le profil du banc navigateur passe à `parties: 7`).
+
+**Les questions sont celles du sujet, dans son ordre**, et chacune emprunte la
+présentation (et le juge) de l'exercice qui la traite déjà :
+
+* A1 — la relation uₙ₊₁ = q·uₙ + r : deux listes de PHRASES DE L'ÉNONCÉ (la
+  perte en pourcentage, l'ajout, la phrase de départ en leurre) — « × q » et
+  « + r » se relient chacun à la sienne —, et une liste de coefficients
+  (1 − p/100, 1 + p/100, p/100, 100 − p) pour le lien multiplication ↔
+  pourcentage. Rien d'autre n'est demandé, comme le veut la consigne ;
+* A2 — u₁ et u₂, la ligne de calcul du b) du {suite-variation-recurrence},
+  puis l'interprétation sur des cartes, comme au {proba-suite} (la bonne
+  phrase, la même décalée d'un rang, et « uₙ = ce qu'on ajoute ») ;
+* A3 — l'escalier CLIQUÉ sur les deux rails du {suite-variation-recurrence}
+  (`escPtJuste`, `escAbscisse`, les classes `svr-*`), mais cinq points (u₁, u₂,
+  u₃ : u₃ se lit à la hauteur du dernier) et un repère gradué de 100 à 500 —
+  d'où un dessin propre (`sbeSVG`) plutôt que `escSVG`, dont le quadrillage
+  est en unités. La légende est en haut à gauche, comme sur le sujet : posées
+  au bout des droites, les étiquettes tombaient sur l'autre droite quand ℓ est
+  près du bord (vu sur la première capture). Puis la conjecture, ses deux listes ;
+* B1 — la récurrence u₀ ≤ uₙ ≤ uₙ₊₁ ≤ ℓ dans la GRILLE du
+  {suite-variation-recurrence} (rangs en indice, valeurs dessous, g appliquée
+  aux quatre termes, l'élargissement à cinq) ; la justification devient « g est
+  croissante sur ℝ (coefficient directeur [q] > 0) » ;
+* B2 — le théorème de convergence monotone et le passage à la limite, les
+  lignes du {suite-tcm-limite} (famille affine), « majorée par » acceptant
+  tout majorant (la règle du M84) ;
+* C1–C2 — vₙ = uₙ − ℓ, la chaîne en champs MathLive du {proba-suite} et ses
+  juges (`apsLin` : uₙ est relu comme le aₙ de ce juge par `sbeNormU` ;
+  `rfValEq` pour vₙ et uₙ en fonction de n) ; l'indice n s'y referme tout seul,
+  comme au 6.2.1 (l'écouteur commun nomme désormais les deux écrans) ;
+* C3 — le programme Python à trous du {suite-algo-seuil} et SES juges
+  (`sagJusteCond`, `sagJusteU`, `sagJusteN` : toute écriture équivalente, le
+  test large ou strict), dans l'ordre du sujet (u puis n) ; la valeur
+  renvoyée avec les deux termes qui encadrent le seuil, lus dans le tableau qui
+  défile du {proba-suite} (à partir du rang 3 : u₁ et u₂ sont des réponses) —
+  une valeur à l'unité suffit si elle dit le bon côté du seuil ; puis
+  l'interprétation sur des cartes.
+
+**Huit situations, aucune animale** (`SBE_CTX`) : une médiathèque, un club
+d'escalade, des vélos en libre-service, les déchets plastiques d'un lac, un jeu
+en ligne (semaines), une chaîne vidéo et une application de covoiturage (mois),
+un parc urbain. **Les formulations varient** (`q.v`, tiré à la génération) :
+trois pour A1, deux pour A2, A3 b), B1, B2, C1, C2 et C3.
+
+**Les deux sens sortent dans chaque séance** (la leçon du 5.2.5) : u₀ < ℓ, la
+suite croît comme dans le sujet ; u₀ > ℓ, elle décroît (ℓ ≤ uₙ₊₁ ≤ uₙ ≤ u₀,
+« décroissante et minorée », le seuil par en dessous). Deux exercices par
+séance (`dmNbQuestions(2)`), sur deux situations.
+
+**Le tirage** (mesuré hors ligne sur 2 000 tirages, aucun échec) : ℓ multiple
+de 100, p parmi 10, 15, 20, 25, 30, 40 % — r = ℓp/100 entier ; u₀ multiple de
+100 à au moins 300 de ℓ ; u₁ et u₂ entiers (ils s'interprètent) ; 5 à 9
+graduations ; les deux rails écartés d'au moins 34 unités du dessin aux trois
+abscisses cliquées (la cible fait 22) ; le seuil à ℓ ∓ d, d « rond », atteint
+entre les rangs 5 et 25, à au moins 1 des deux termes qui l'encadrent.
+
+**Essayé dans Chromium** à 1280 et 390 px : la copie faite des corrections de la
+page est parfaite (73 cases sur 73) ; une copie vide reçoit toutes ses
+corrections en vert ; les cinq points posés par de VRAIS clics sur le dessin
+tombent sur le bon rail ; en soutien, une case juste bleuit et se fige, un
+point faux rougit, « Effacer le tracé » remet à zéro. Sur un téléphone, la page
+ne défile pas en largeur : la grille de la récurrence et les deux champs larges
+défilent dans leur cadre (comme au 5.2.5 et au 6.2.1), les longues phrases des
+lignes se replient (`#scr-sbe .sa2-ladder .sa2-t`, sous 600 px). Banc des notes
+et banc de la pause verts sur l'exercice.
