@@ -112,3 +112,30 @@ pose cette largeur. Au-delà, le filet commun `#cases-math-grandissent` lève la
 largeur : exécuté, une case de 59 px a suivi « e^(−x²) + 1 + 2 + … + 7 »
 jusqu'à 265 px sans rien couper. Le prix, assumé : la largeur d'une case dit à
 peu près la longueur de ce qu'on attend.
+
+**Puis les lignes équivalentes sont devenues libres** (Turquet, novembre 2026,
+sur une capture : un élève avait écrit « 2 = 2 » dès la ligne qui suit
+l'expression, avait laissé la ligne d'après vide, et la page la lui comptait
+oubliée — 7 cases sur 9 pour une vérification juste : « accepter si un élève
+réduit directement une expression en sautant une étape ; n'écrire qu'une
+seule ligne à compléter en dessous, puis faire en sorte que l'élève voie qu'il
+est possible de poursuivre les équivalences en appuyant sur Entrée »). Après la
+ligne de l'expression (au b), après « f′(x) = a(f(x)) + me^(ax) »), il n'y a
+plus qu'UNE ligne « ⟺ [……] = [……] », suivie d'une ligne fantôme grise
+« ⟺ …… = …… » et d'un bouton « ⏎ Entrée : une autre ligne ». Entrée au bout
+d'une dernière ligne remplie en ouvre une autre ; retour arrière dans une
+dernière ligne vide la retire ; une ligne ouverte et laissée vide est retirée
+avant que « Vérifier » ne compte les cases. Cette suppression se fait sur la
+fenêtre, en capture, donc avant la boîte des cases vides, qui écoute le document.
+
+Le juge : chaque membre de chaque ligne doit valoir f′, et la forme n'est
+exigée que de la DERNIÈRE ligne — réduite au a), factorisée par l'exponentielle
+au b) (`dexp2Factorisee`, le juge de forme du 4.1.2), libre au c). Le nombre de
+lignes est rangé dans la séance (`test.edvLignes`), donc une reprise après une
+pause rouvre autant de lignes qu'il y en avait. Le « ce qui est [vrai] » suit
+toujours la dernière ligne. Exécuté dans Chromium : la copie de la capture vaut
+1 / 1 (7 cases sur 7) ; avec deux lignes dont la dernière vaut
+« 2x + 1 − 2x + 1 », seule cette case rougit, avec « 2 » en vert ; le b) en une
+seule ligne « eˣ(x + 1) = eˣ(x + 1) » est juste ; une reprise garde les deux
+lignes et leur contenu ; un vrai clic sur « Vérifier », la boîte des cases
+vides activée, retire la ligne vide sans ouvrir la boîte.
