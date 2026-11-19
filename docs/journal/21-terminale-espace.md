@@ -1080,3 +1080,48 @@ sommet A, centre, centres des trois faces cachées → cachés ; B, H, centres d
 trois faces vues → vus ; (AG) et (BH) en pointillés dans le cube, pleines
 au-dehors ; (CG) et (IJ), sur la face avant, pleines. Le journal annonçait
 720 figures : la page en compte 728 (`esxListe()`), le nombre est corrigé ici.
+
+**Puis les pentagones une fois sur deux, et la parallèle dans les deux ordres
+(Turquet, novembre 2026, v502).** « Je souhaite avoir plus souvent des
+pentagones » : tirées au hasard parmi les 728 figures, ils ne sortaient
+qu'une fois sur quatre (200). La FORME se tire d'abord, à pile ou face
+(`esxListe` range le nombre de morceaux de chaque figure), puis la figure
+parmi celles de cette forme ; les trois milieux deux fois sur cinq quand la
+forme le permet. Mesuré sur 2 000 tirages : 1 032 pentagones, 968 hexagones.
+Et « on pourra aussi tracer les segments parallèles en cliquant d'abord sur
+le segment et ensuite sur le point, dans les deux exercices » : avec l'outil
+« Parallèle », le premier clic prend un point s'il y en a un sous le doigt,
+sinon un trait ; le second attend l'autre sorte (`esxCible`).
+
+## 7.1.13 — la section d'un cube, étape par étape (`espace-section-cube-guidee`, kind `esg`)
+
+Même demande : « faire un exercice comme celui-là, mais on précise à l'élève
+chaque étape : trace la droite (…) ; place le point d'intersection des droites
+(…) et (…) ; trace le segment […] ; trace la parallèle au segment […] passant
+par le point … ».
+
+**Le moteur du 7.1.12, son écran, ses outils, son tirage** : seul le kind
+change (`esg`, `DISPATCH esg:['esx',renderESX]`). Les étapes se lisent sur la
+construction que la page connaît déjà (`esxCfg(q).etapes`, `esgEtapes`) :
+(IJ), (CG), le point L, la droite 𝒟 = (LK), le point M où 𝒟 sort de la face,
+le segment [KM], puis chaque morceau — un segment entre deux points d'une
+même face, ou la parallèle à un morceau de la face opposée (« elle s'arrête
+en N »). Les noms sont ceux que la page donnera aux points dans l'ordre de la
+construction (L, puis M, N, P…).
+
+**La page n'accepte que le geste de l'étape en cours** (`esgJuger`) : un autre
+geste, même juste ailleurs, est retiré, et le message redit l'étape. C'est ce
+qui garantit les noms annoncés. L'étape faite se coche (✓, vert, comme les
+marqueurs « fait »), la suivante passe en gras, et le message annonce la
+suite. « Annuler » défait la dernière étape. La parallèle de l'étape doit
+être tracée avec l'outil « Parallèle ».
+
+**La note** : la part des étapes faites (le bilan des étapes, `.pts-case`) ;
+un point pour la figure dont toutes les étapes sont faites. Ce qui manque est
+tracé en vert, comme au 7.1.12. En soutien, « Vérifier » sur une figure
+inachevée dit combien d'étapes restent, sans rien verrouiller.
+
+**Éprouvé** dans Chromium : deux figures menées étape par étape (dix et onze
+étapes), un geste faux refusé à l'étape 1, chaque parallèle tracée segment
+d'abord puis point, la figure « parfaite », l'écran de fin, aucune erreur de
+page.
