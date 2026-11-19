@@ -2372,9 +2372,8 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-lc{fill:var(--green)}
 .esx-taches{display:block;margin:4px 0 0 10px}
 .esg-etapes{margin:6px 0 0 0;padding-left:1.6em}
-.esg-etapes li{margin:2px 0;color:var(--ink-soft)}
-.esg-etapes li.esg-cour{color:var(--ink);font-weight:800}
-.esg-etapes li.esg-fait{color:var(--ink)}
+.esg-etapes li{margin:2px 0;color:var(--ink)}
+.esg-etapes li.esg-fait{color:var(--ink-soft)}
 .esg-ok{color:var(--green);font-weight:800}
 .esx-taches>span{display:block}
 .esx-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.85em;line-height:1.1;margin:0 2px}
@@ -36278,6 +36277,7 @@ function esxCroisementProche(q,p){
 }
 function esxNouveauNom(q,X){
   const g=esxCfg(q), pris=esxPoints(q).map(z=>z.n);
+  if(test.kind==='esg'){ const z=esgEtapes(q).noms.find(y=>esxEq(y.P,X)); if(z && pris.indexOf(z.n)<0) return z.n; }   /* au 7.1.13, le nom annoncé par les étapes, dans n'importe quel ordre */
   if(esxEq(X,g.L) && pris.indexOf('L')<0) return 'L';
   return ESX_NOMS_LIBRES.find(n=>pris.indexOf(n)<0)||null;
 }
@@ -36476,9 +36476,12 @@ function esxConseilCtx(){
    le segment [KM], puis chaque morceau — un segment entre deux points d'une
    même face, ou la parallèle à un morceau de la face opposée. Les noms sont
    ceux que la page donnera aux points, dans l'ordre où ils sont construits
-   (L, puis M, N, P…) : la page n'accepte QUE le geste de l'étape en cours —
-   un autre est retiré, et le message redit l'étape. L'étape faite se coche
-   (✓), la suivante passe en gras. « Annuler » défait la dernière étape.
+   (L, puis M, N, P…), quel que soit l'ordre où l'élève les construit
+   (esxNouveauNom). La page n'accepte que les gestes qui réalisent une étape
+   restante, DANS L'ORDRE QU'ON VEUT (Turquet, novembre 2026) — un autre est
+   retiré, et le message le dit. L'étape faite se coche (✓) ; les outils
+   inutiles aux étapes restantes sont grisés. « Annuler » défait le dernier
+   geste.
    LA NOTE : la part des étapes faites (le bilan, .pts-case) ; un point pour la
    figure dont toutes les étapes sont faites. Ce qui manque est tracé en vert,
    comme au 7.1.12. */
@@ -36500,32 +36503,42 @@ function esgEtapes(q){
     else { const m=g.morceaux.find(z=>z.fi===e.ref);
       o.push({t:'p',A:e.P,B:e.Q,lab:'∥ par '+N(e.P),txt:'Trace la parallèle au segment ['+i(N(m.P)+N(m.Q))+'] passant par le point '+i(N(e.P))+' : elle s’arrête en '+i(N(e.Q))+'.'}); }
   });
+  o.noms=gen;
   return o;
 }
 function esgTexte(h){ const d=document.createElement('div'); d.innerHTML=h; return d.textContent; }
-function esgFaites(q){ return Math.min((q.cons||[]).length, esgEtapes(q).length); }
+/* LES ÉTAPES DANS L'ORDRE QU'ON VEUT (Turquet, novembre 2026 : « l'élève
+   n'est pas obligé de suivre les étapes dans l'ordre »). Chaque geste accepté
+   porte le numéro de l'étape qu'il réalise (e.etape) : n'importe quelle étape
+   restante, pourvu que ses points existent — la géométrie l'impose seule (pas
+   de L sans (IJ) et (CG)). Les points prennent le nom que les étapes leur
+   annoncent (esxNouveauNom), quel que soit l'ordre. */
+function esgFaitesSet(q){ const o={}; (q.cons||[]).forEach(e=>{ if(typeof e.etape==='number') o[e.etape]=1; }); return o; }
+function esgFaites(q){ return Object.keys(esgFaitesSet(q)).length; }
 function esgProchaine(q){
-  const E=esgEtapes(q), f=esgFaites(q);
-  return f>=E.length?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Étape '+(f+1)+' : '+esgTexte(E[f].txt);
+  const E=esgEtapes(q), r=E.length-esgFaites(q);
+  return r<=0?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Il reste '+r+' étape'+(r>1?'s':'')+', dans l’ordre que tu veux.';
 }
-/* le geste qui vient d'être ajouté est-il celui de l'étape ? sinon, il est retiré */
+/* le geste qui vient d'être ajouté réalise-t-il une étape restante ? sinon, il est retiré */
 function esgJuger(q,avant){
-  const E=esgEtapes(q), st=E[avant], e=q.cons[avant];
+  const E=esgEtapes(q), e=q.cons[avant], faites=esgFaitesSet(q);
   const memes=(A,B,X,Y)=>(esxEq(A,X)&&esxEq(B,Y))||(esxEq(A,Y)&&esxEq(B,X));
-  let ok=false;
-  if(st&&e){
-    if(st.t==='d') ok=e.k==='d'&&(function(){ const A=esxPt(q,e.a), B=esxPt(q,e.b); return esxSurDroite(st.A,A,B)&&esxSurDroite(st.B,A,B); })();
-    else if(st.t==='i') ok=e.k==='p'&&esxEq(e.P,st.X);
-    else if(st.t==='s') ok=e.k==='s'&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
-    else ok=e.k==='s'&&!!e.par&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
-  }
-  if(!ok){ q.cons.splice(avant); esxDire(st?'Ce n’est pas ce que demande l’étape '+(avant+1)+' : '+esgTexte(st.txt):'Toutes les étapes sont faites : clique sur « Vérifier ».', true); return; }
-  esxDire('Étape '+(avant+1)+' faite. '+esgProchaine(q));
+  const conv=function(st){
+    if(!e) return false;
+    if(st.t==='d') return e.k==='d'&&(function(){ const A=esxPt(q,e.a), B=esxPt(q,e.b); return esxSurDroite(st.A,A,B)&&esxSurDroite(st.B,A,B); })();
+    if(st.t==='i') return e.k==='p'&&esxEq(e.P,st.X);
+    if(st.t==='s') return e.k==='s'&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
+    return e.k==='s'&&!!e.par&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
+  };
+  const i=E.findIndex((st,k)=>!faites[k]&&conv(st));
+  if(i<0){ q.cons.splice(avant); esxDire(esgFaites(q)>=E.length?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Ce geste ne réalise aucune des étapes qui restent : relis-les.', true); return; }
+  e.etape=i;
+  esxDire('Étape '+(i+1)+' faite. '+esgProchaine(q));
 }
 function esgEtapesHTML(q){
-  const E=esgEtapes(q), f=esgFaites(q);
+  const E=esgEtapes(q), f=esgFaitesSet(q);
   return '<ol class="esg-etapes" id="esgEtapes">'+E.map(function(s,i){
-    return '<li class="'+(i<f?'esg-fait':(i===f&&!test.locked?'esg-cour':''))+'">'+s.txt+(i<f?' <span class="esg-ok">✓</span>':'')+'</li>'; }).join('')+'</ol>';
+    return '<li class="'+(f[i]?'esg-fait':'')+'">'+s.txt+(f[i]?' <span class="esg-ok">✓</span>':'')+'</li>'; }).join('')+'</ol>';
 }
 function esgMaj(q){ const el=$('esgEtapes'); if(el) el.outerHTML=esgEtapesHTML(q); esgOutils(q); }
 /* LES OUTILS QUI NE SERVENT PAS À L'ÉTAPE SONT GRISÉS (Turquet, novembre
@@ -36534,18 +36547,19 @@ function esgMaj(q){ const el=$('esgEtapes'); if(el) el.outerHTML=esgEtapesHTML(q
    lâché. */
 function esgOutils(q){
   if(test.locked) return;
-  const E=esgEtapes(q), f=esgFaites(q), ok=f<E.length?E[f].t:null;
-  if(esxOutil && esxOutil!==ok){ esxOutil=null; esxSel=null; }
+  const E=esgEtapes(q), f=esgFaitesSet(q), utiles={};
+  E.forEach((st,i)=>{ if(!f[i]) utiles[st.t]=1; });   /* les outils des étapes qui restent */
+  if(esxOutil && !utiles[esxOutil]){ esxOutil=null; esxSel=null; }
   document.querySelectorAll('#esxForm .esx-outil[data-outil]').forEach(function(b){
-    const o=b.getAttribute('data-outil'); b.disabled=o!==ok; b.setAttribute('aria-pressed', o===esxOutil?'true':'false'); });
+    const o=b.getAttribute('data-outil'); b.disabled=!utiles[o]; b.setAttribute('aria-pressed', o===esxOutil?'true':'false'); });
 }
 function esgPromptHTML(q){
   const g=esxCfg(q), R=g.R;
   return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
-    +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire la section du cube par le plan (<i>IJK</i>) en suivant les étapes :'
+    +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire la section du cube par le plan (<i>IJK</i>) en réalisant les étapes suivantes, dans l’ordre que tu veux :'
     +esgEtapesHTML(q);
 }
-function esgBilan(q){ const f=esgFaites(q); return esgEtapes(q).map((s,i)=>({lab:s.lab, ok:i<f})); }
+function esgBilan(q){ const f=esgFaitesSet(q); return esgEtapes(q).map((s,i)=>({lab:s.lab, ok:!!f[i]})); }
 function esgBilanHTML(q){
   return '<div class="esx-bilan">Les étapes : '+esgBilan(q).map(z=>'<span class="esx-it pts-case '+(z.ok?'ok':'sol')+'">'+z.lab+'</span>').join(' ')+'</div>';
 }
@@ -36562,10 +36576,10 @@ async function startESG(){
 function esgConseilCtx(){
   const q=test.questions[test.idx], E=esgEtapes(q), f=esgFaites(q);
   return 'Exercice de Terminale (géométrie dans l’espace, section d’un cube par un plan, ÉTAPE PAR ÉTAPE) : '+esxPlain(q)+'. '
-    +'L’élève suit des étapes écrites et construit sur la figure avec des outils : Droite (deux points), Segment (deux points), Point d’intersection (deux traits), Parallèle (un point et un segment rouge d’une face parallèle, dans l’ordre qu’il veut ; le segment tracé s’arrête au bord de la face). La page n’accepte que le geste de l’étape en cours. '
+    +'L’élève suit des étapes écrites et construit sur la figure avec des outils : Droite (deux points), Segment (deux points), Point d’intersection (deux traits), Parallèle (un point et un segment rouge d’une face parallèle, dans l’ordre qu’il veut ; le segment tracé s’arrête au bord de la face). La page n’accepte que les gestes qui réalisent une étape restante, dans l’ordre que l’élève veut. '
     +'Les étapes : '+E.map((s,i)=>(i+1)+'. '+esgTexte(s.txt)).join(' ')+' '
-    +'Étapes faites : '+f+' sur '+E.length+(f<E.length?' ; étape en cours : '+(f+1)+'. '+esgTexte(E[f].txt):'')+'. '
-    +'Aide l’élève sur l’étape en cours : quel outil choisir, sur quoi cliquer, et POURQUOI cette construction est juste (deux points d’une même face ; L dans les deux plans ; deux faces parallèles coupées selon des segments parallèles ; deux droites ne se coupent que dans un même plan).';
+    +'Étapes faites : '+f+' sur '+E.length+' ; étapes qui restent (dans l’ordre que l’élève veut) : '+(function(){ const F=esgFaitesSet(q); return E.map((s,i)=>F[i]?'':(i+1)+'. '+esgTexte(s.txt)).filter(Boolean).join(' ')||'aucune'; })()+'. '
+    +'Aide l’élève sur l’étape qu’il cherche : quel outil choisir, sur quoi cliquer, et POURQUOI cette construction est juste (deux points d’une même face ; L dans les deux plans ; deux faces parallèles coupées selon des segments parallèles ; deux droites ne se coupent que dans un même plan).';
 }
 /* ================= 7.1.14 L'ESPACE — SECTION D'UN CUBE, SANS INDICATION (kind 'esl') =================
    Demande de Turquet (novembre 2026) : « créer un exercice de section sans

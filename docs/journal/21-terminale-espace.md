@@ -1175,3 +1175,18 @@ questions.
 **Éprouvé** dans Chromium : deux figures construites (bilan à cinq puis six
 morceaux, sans L ni 𝒟), « parfaites » ; une copie vide corrigée, la
 construction par L en vert ; aucune erreur de page.
+
+**Puis les étapes du 7.1.13 dans l'ordre qu'on veut (Turquet, novembre 2026,
+v505 : « l'élève n'est pas obligé de suivre les étapes dans l'ordre »).** Un
+geste est accepté s'il réalise N'IMPORTE QUELLE étape restante ; il porte le
+numéro de cette étape (`e.etape`), et l'ensemble des étapes faites
+(`esgFaitesSet`) remplace le compte des gestes. Les prérequis n'ont pas besoin
+d'être déclarés : la géométrie les impose (pas de L sans (IJ) et (CG), pas de
+parallèle sans son segment rouge). Les points prennent le nom que les étapes
+leur annoncent, dans n'importe quel ordre (`esxNouveauNom` lit
+`esgEtapes(q).noms`). Les outils grisés deviennent ceux qu'AUCUNE étape
+restante n'utilise. L'énoncé dit « dans l'ordre que tu veux » ; plus d'étape
+en gras, les étapes faites passent en gris avec leur ✓. **Éprouvé** : trente
+séances menées dans un ordre tiré au hasard (une étape impossible est
+réessayée plus tard) — toutes complètes, « parfaites », chaque point au nom
+annoncé ; une droite hors étape refusée.
