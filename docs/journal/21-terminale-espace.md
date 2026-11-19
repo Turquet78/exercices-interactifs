@@ -531,6 +531,23 @@ Les boutons et la ligne d'aide passent AVANT la seconde figure : l'élève
 choisit son point, puis clique sur le dessin, sans redescendre sous la
 figure.
 
+**Puis une sortie en soutien : « Passer à la suite (voir la correction) »**
+(Turquet, novembre 2026, v504 : une élève, en devoir maison, « voulait
+abandonner ce point pour passer à la suite mais elle ne pouvait pas »). En
+soutien, « Revérifier » ne menait à la question suivante que sur une copie
+entièrement juste : un point qu'elle ne savait pas placer la gardait dans
+l'exercice. Le placement lui-même n'était pas en cause : 270 clics et
+touchers posés sur les points demandés (ordinateur, tablette, téléphone),
+tous acceptés. Après une vérification ratée en soutien, un second bouton,
+discret (`#ecbPasser`, `passerECB()`), corrige comme en entraînement : les
+cases se figent, le point faux reste rouge avec sa bonne place en vert, un
+point oublié est montré en vert, la question compte fausse, et « Question
+suivante » s'ouvre. **Éprouvé** dans Chromium, en soutien : une case juste et
+un point faux, « Vérifier » (le bouton apparaît), « Passer » (verrou, score
+inchangé, 0 case encore ouverte, M rouge, N et O verts), puis la question 2
+sans le bouton. Les autres exercices du thème gardent le soutien bloquant :
+la même ligne `el.disabled=!!(v.ok||!isSoutien())` est dans huit autres.
+
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un

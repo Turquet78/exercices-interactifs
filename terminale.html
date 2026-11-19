@@ -4635,7 +4635,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=503;
+const APP_VERSION=504;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -33852,7 +33852,13 @@ function ecbRetiens(q){
     +'Ici : '+ecbPtsVus(q).map(p=>'<i>'+p.L+'</i>('+p.P.map(numFmt).join(' ; ')+')').join(', ')+' ; '
     +q.vecs.map(v=>elgVec(v[0]+v[1])+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(', ')+'.';
 }
-function checkECB(live){
+/* En soutien, « Revérifier » ne mène à la suite que sur une copie juste : un
+   point introuvable bloquait l'élève dans l'exercice, sans sortie (Turquet,
+   novembre 2026 : « elle voulait abandonner ce point pour passer à la suite
+   mais elle ne pouvait pas »). Après une vérification ratée, « Passer à la
+   suite » corrige comme en entraînement : la question compte fausse. */
+function passerECB(){ if(test.locked||!isSoutien()) return; checkECB(false, true); }
+function checkECB(live, passer){
   if(test.locked && !live) return;
   const q=test.questions[test.idx], cases=ecbCases(q);
   const verd=ecbVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
@@ -33867,7 +33873,7 @@ function checkECB(live){
     /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
     if(v.rempli) el.classList.add(v.ok?'ok':'bad');
     if(live) return;
-    el.disabled=!!(v.ok||!isSoutien());
+    el.disabled=!!(v.ok||!isSoutien()||passer);
   });
   if(live){ ecbDessiner(); return; }
   const fb=$('ecbFeedback');
@@ -33879,10 +33885,11 @@ function checkECB(live){
     ecbDessiner();
     return;
   }
-  if(!allOk && isSoutien()){
+  if(!allOk && isSoutien() && !passer){
     fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) ou point(s) — complète-les, puis corrige ce qui est en rouge et revérifie.':'Presque ! Corrige ce qui est en rouge, puis revérifie.';
     fb.className='mp-feedback bad';
-    $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Revérifier</button>';
+    $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Revérifier</button>'
+      +'<button class="btn btn-ghost" id="ecbPasser" onclick="passerECB()" title="La correction s’affiche, et cette question compte fausse.">Passer à la suite (voir la correction)</button>';
     ecbDessiner();
     return;
   }
