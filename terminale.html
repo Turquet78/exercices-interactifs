@@ -4635,7 +4635,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=504;
+const APP_VERSION=505;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -33852,13 +33852,7 @@ function ecbRetiens(q){
     +'Ici : '+ecbPtsVus(q).map(p=>'<i>'+p.L+'</i>('+p.P.map(numFmt).join(' ; ')+')').join(', ')+' ; '
     +q.vecs.map(v=>elgVec(v[0]+v[1])+'('+ecbVecCo(q,v).map(numFmt).join(' ; ')+')').join(', ')+'.';
 }
-/* En soutien, « Revérifier » ne mène à la suite que sur une copie juste : un
-   point introuvable bloquait l'élève dans l'exercice, sans sortie (Turquet,
-   novembre 2026 : « elle voulait abandonner ce point pour passer à la suite
-   mais elle ne pouvait pas »). Après une vérification ratée, « Passer à la
-   suite » corrige comme en entraînement : la question compte fausse. */
-function passerECB(){ if(test.locked||!isSoutien()) return; checkECB(false, true); }
-function checkECB(live, passer){
+function checkECB(live){
   if(test.locked && !live) return;
   const q=test.questions[test.idx], cases=ecbCases(q);
   const verd=ecbVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
@@ -33873,7 +33867,7 @@ function checkECB(live, passer){
     /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
     if(v.rempli) el.classList.add(v.ok?'ok':'bad');
     if(live) return;
-    el.disabled=!!(v.ok||!isSoutien()||passer);
+    el.disabled=!!(v.ok||!isSoutien());
   });
   if(live){ ecbDessiner(); return; }
   const fb=$('ecbFeedback');
@@ -33885,11 +33879,10 @@ function checkECB(live, passer){
     ecbDessiner();
     return;
   }
-  if(!allOk && isSoutien() && !passer){
+  if(!allOk && isSoutien()){
     fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) ou point(s) — complète-les, puis corrige ce qui est en rouge et revérifie.':'Presque ! Corrige ce qui est en rouge, puis revérifie.';
     fb.className='mp-feedback bad';
-    $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Revérifier</button>'
-      +'<button class="btn btn-ghost" id="ecbPasser" onclick="passerECB()" title="La correction s’affiche, et cette question compte fausse.">Passer à la suite (voir la correction)</button>';
+    $('ecbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkECB()">Revérifier</button>';
     ecbDessiner();
     return;
   }
@@ -44367,6 +44360,107 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   document.addEventListener('input', function(e){
     const t=e.target; if(!t || !t.closest) return;
     const c=t.closest('.case-oubliee'); if(c) c.classList.remove('case-oubliee');
+  }, true);
+})();
+</script>
+<script id="passer-soutien">
+/* EN SOUTIEN, L'ÉLÈVE PEUT TOUJOURS PASSER À LA SUITE (demande de Turquet,
+   novembre 2026, née au 7.1.6 de la Terminale : une élève, en devoir maison,
+   « voulait abandonner ce point pour passer à la suite mais elle ne pouvait
+   pas » — puis « dans tous les exercices »). Le soutien ne mène à la question
+   suivante que sur une copie juste : une case ou un point introuvable
+   gardait l'élève dans l'exercice, sans sortie.
+   Une seule porte, sur le document, rien à déclarer : après un « Vérifier »
+   / « Revérifier » / « Valider » (ou Entrée) en soutien qui laisse une case
+   rouge (.bad) et aucun bouton pour avancer, un bouton « Passer à la suite
+   (voir la correction) » se pose à côté du bouton de vérification. Il
+   revérifie la question COMME EN ENTRAÎNEMENT — le mode bascule le temps de
+   cette vérification, puis revient au soutien : la correction s'écrit, la
+   question compte fausse (ou son crédit partiel), et « Question suivante »
+   s'ouvre. Un exercice qui exige d'abord un choix (une carte a/b/c/d, le
+   nombre de racines) le redemande, comme en entraînement. La boîte
+   des cases vides (#confirmer-vides) est muette pendant ce clic : l'élève a
+   déjà choisi de passer. */
+(function(){
+  const ID='passerSoutien';
+  let passe=false;
+  function visible(e){
+    if(!e || !e.isConnected || !e.getClientRects().length) return false;
+    return getComputedStyle(e).visibility!=='hidden';
+  }
+  function estVerifier(b){ return !!b && b.id!==ID && !b.disabled && /^\s*(re)?(vérifier|valider|corriger)\b/i.test(b.textContent||''); }
+  function estSuite(b){ return !!b && b.id!==ID && /suivant|résultats|^\s*▶?\s*continuer|terminer/i.test(b.textContent||''); }
+  function enSoutien(){ return typeof currentMode!=='undefined' && currentMode==='soutien'; }
+  function ecran(){ return document.querySelector('section.screen.on'); }
+  function boutons(scr){ return [...scr.querySelectorAll('button')].filter(visible); }
+  function bloque(scr){
+    const l=boutons(scr);
+    if(l.some(estSuite)) return null;
+    const b=l.find(estVerifier); if(!b) return null;
+    const rouge=[...scr.querySelectorAll('.bad')].some(visible);
+    return rouge ? b : null;
+  }
+  function poser(){
+    const scr=ecran(); if(!scr) return;
+    const ancien=document.getElementById(ID);
+    const b=enSoutien() ? bloque(scr) : null;
+    if(!b){ if(ancien) ancien.remove(); return; }
+    if(ancien && ancien.previousElementSibling===b) return;
+    if(ancien) ancien.remove();
+    const p=document.createElement('button');
+    p.type='button'; p.id=ID; p.className='btn btn-ghost passer-soutien';
+    p.textContent='Passer à la suite (voir la correction)';
+    p.title='La correction s’affiche, et cette question compte fausse.';
+    b.insertAdjacentElement('afterend', p);
+  }
+  function plusTard(){ [0,400,1200].forEach(function(t){ setTimeout(poser, t); }); }
+  window.passerSoutien=function(){
+    const scr=ecran(); if(!scr || !enSoutien()) return false;
+    const b=boutons(scr).find(estVerifier); if(!b) return false;
+    const ancien=document.getElementById(ID); if(ancien) ancien.remove();
+    const cv=window.confirmerCasesVides;
+    passe=true; prete=true; currentMode='train'; window.confirmerCasesVides=false;
+    try{ b.click(); }
+    finally{ window.confirmerCasesVides=cv; passe=false; }
+    /* une vérification peut répondre EN DIFFÉRÉ (relue par l'IA) : le mode
+       entraînement tient jusqu'à ce que la question soit corrigée (verrou,
+       bouton pour avancer, autre écran), au geste suivant de l'élève, ou au
+       bout de 20 s — jamais au-delà */
+    attendre(scr);
+    return true;
+  };
+  let minuterie=null, prete=false;
+  function rendre(){
+    if(minuterie){ clearInterval(minuterie); minuterie=null; }
+    document.removeEventListener('pointerdown', rendre, true);
+    document.removeEventListener('keydown', rendre, true);
+    if(prete && currentMode==='train') currentMode='soutien';
+    prete=false;
+    plusTard();
+  }
+  function attendre(scr){
+    const t0=Date.now();
+    const fini=function(){
+      if(ecran()!==scr || Date.now()-t0>20000) return true;
+      if(typeof test!=='undefined' && test && test.locked) return true;
+      return boutons(scr).some(estSuite);
+    };
+    if(fini()){ rendre(); return; }
+    minuterie=setInterval(function(){ if(fini()) rendre(); }, 150);
+    document.addEventListener('pointerdown', rendre, true);
+    document.addEventListener('keydown', rendre, true);
+  }
+  document.addEventListener('click', function(e){
+    const t=e.target; if(!t || !t.closest) return;
+    if(t.closest('#'+ID)){ e.preventDefault(); window.passerSoutien(); return; }
+    if(passe || !enSoutien()) return;
+    const b=t.closest('button'); if(!estVerifier(b) || !b.closest('section.screen')) return;
+    plusTard();
+  }, true);   /* en CAPTURE : la vérification redessine souvent son bouton, détaché avant la remontée */
+  document.addEventListener('keydown', function(e){
+    if(passe || e.key!=='Enter' || !enSoutien()) return;
+    const t=e.target; if(!t || !t.closest || !t.closest('section.screen')) return;
+    plusTard();
   }, true);
 })();
 </script>

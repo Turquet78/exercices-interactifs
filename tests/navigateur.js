@@ -16687,6 +16687,7 @@ if(require.main === module) (async () => {
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
       const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
       let nConfirmVides = 0;
+      const passerSoutienManque = [], passerArretes = []; let nPasserSoutien = 0, nPasserCorrige = 0;
       const indicesPlats = []; let nIndicesFlex = 0;
       const textesPetits = [], gradSurEtiquette = [], defilantsSourds = []; const casesNues = [], vecsDecales = []; let nRangeesVec = 0, nTextesSvg = 0, nDefilants = 0, nAjustables = 0;
       /* LES DÉFINITIONS S'ÉCRIVENT AVANT L'ÉNONCÉ, dans tout exercice du thème
@@ -17661,6 +17662,70 @@ if(require.main === module) (async () => {
             if(ent){ nCasesEntree += ent.n;
               if(ent.manque.length) casesEntreeMuettes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + ent.manque[0]); }
           }
+          /* EN SOUTIEN, L'ÉLÈVE PEUT TOUJOURS PASSER À LA SUITE (#passer-soutien,
+             novembre 2026 : une élève, au 7.1.6 de la Terminale, ne pouvait
+             pas abandonner un point). Mesuré en dernier, sur une copie FAUSSE
+             (chaque case ouverte reçoit « 987654 », chaque liste son dernier
+             choix) : si « Vérifier » laisse une case rouge sans bouton pour
+             avancer, « Passer à la suite (voir la correction) » doit être là,
+             et son clic doit corriger — verrou, bouton pour avancer, question
+             suivante, ou une correction écrite (.sol) de plus. Rien à
+             déclarer : la porte est sur le document. */
+          if(mode === 'soutien'){
+            const r = await s.page.evaluate(() => {
+              const on = document.querySelector('section.screen.on'); if(!on) return null;
+              const vis = e => !!(e && e.isConnected && e.getClientRects().length) && getComputedStyle(e).visibility !== 'hidden';
+              on.querySelectorAll('input,math-field,select,textarea').forEach(e => {
+                if(!vis(e) || e.disabled || e.readOnly || e.closest('#paveNum,.pave')) return;
+                if(e.tagName === 'SELECT'){ const o = [...e.options].filter(x => x.value); if(o.length){ e.value = o[o.length - 1].value; e.dispatchEvent(new Event('change', { bubbles: true })); } return; }
+                if(e.tagName === 'INPUT' && /^(checkbox|radio|button|submit|hidden|range|file|color|image|reset)$/i.test(e.type)) return;
+                if(e.tagName === 'MATH-FIELD'){ try { e.setValue('987654'); } catch(x){ e.value = '987654'; } }
+                else e.value = e.tagName === 'TEXTAREA' ? 'réponse de contrôle' : '987654';
+                e.dispatchEvent(new Event('input', { bubbles: true }));
+              });
+              const b = [...on.querySelectorAll('button')].filter(vis).find(x => !x.disabled && /^\s*(re)?(vérifier|valider|corriger)\b/i.test(x.textContent || ''));
+              if(!b) return null;
+              b.click(); return { scr: on.id };
+            });
+            if(r){
+              const etat = () => s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on');
+                const vis = e => !!(e && e.isConnected && e.getClientRects().length) && getComputedStyle(e).visibility !== 'hidden';
+                const bs = on ? [...on.querySelectorAll('button')].filter(vis) : [];
+                const pb = document.getElementById('passerSoutien');
+                return { scr: on ? on.id : '', idx: test.idx, locked: !!test.locked, mode: currentMode,
+                  suite: bs.some(x => x.id !== 'passerSoutien' && /suivant|résultats|^\s*▶?\s*continuer|terminer/i.test(x.textContent || '')),
+                  rouge: !!on && [...on.querySelectorAll('.bad')].some(vis), passer: !!pb && vis(pb),
+                  sol: on ? on.querySelectorAll('.sol').length : 0 };
+              });
+              await s.page.waitForTimeout(1300);
+              const a = await etat();
+              if(!a.suite && a.rouge && !a.locked && a.scr === r.scr){
+                nPasserSoutien++;
+                const num = await s.page.evaluate(i => TEST_NUM[i], id);
+                if(!a.passer) passerSoutienManque.push(num + ' ' + id + ' : une case rouge, aucun bouton pour avancer, et pas de « Passer à la suite »');
+                else {
+                  await s.page.click('#passerSoutien').catch(() => {});
+                  let b = null;
+                  for(let k = 0; k < 15; k++){
+                    await s.page.waitForTimeout(200);
+                    b = await etat();
+                    if(b.suite || b.locked || b.idx !== a.idx || b.scr !== a.scr || b.sol > a.sol) break;
+                  }
+                  /* « Passer » revérifie COMME EN ENTRAÎNEMENT : sur la copie du
+                     banc, un exercice qui exige d'abord un choix (une carte
+                     a/b/c/d, le nombre de racines) refuse aussi en
+                     entraînement — c'est nommé, pas compté faux. */
+                  if(b.suite || b.locked || b.idx !== a.idx || b.scr !== a.scr || b.sol > a.sol) nPasserCorrige++;
+                  else passerArretes.push(num);
+                  /* et le mode revient au soutien au geste suivant de l'élève */
+                  await s.page.keyboard.press('Shift');
+                  if(await s.page.evaluate(() => currentMode) !== 'soutien')
+                    passerSoutienManque.push(num + ' ' + id + ' : après « Passer », le mode n’est pas revenu au soutien');
+                }
+              }
+            }
+          }
         }
       }
       /* les deux bords : aucune case ne coupe son contenu, ET le filet a eu
@@ -17838,6 +17903,16 @@ if(require.main === module) (async () => {
         nConfirmVides > 0 && confirmVidesManque.length === 0,
         nConfirmVides === 0 ? 'aucune copie vide mesurée : le contrôle ne mesure rien'
           : nConfirmVides + ' exercice(s) mesuré(s) ; ' + confirmVidesManque.length + ' cas — ' + confirmVidesManque.slice(0, 8).join(' | '));
+      /* EN SOUTIEN, « PASSER À LA SUITE » — et le bord opposé : un contrôle
+         qui n'a trouvé aucun soutien bloqué ne mesure rien, et le dit */
+      verifier('en soutien, une question bloquée offre « Passer à la suite (voir la correction) », et ce bouton corrige',
+        nPasserCorrige > 0 && passerSoutienManque.length === 0,
+        nPasserCorrige === 0 ? 'aucune question passée puis corrigée : le contrôle ne mesure rien'
+          : nPasserSoutien + ' exercice(s) bloqué(s) mesuré(s), ' + nPasserCorrige + ' corrigé(s) par « Passer » ; '
+            + passerSoutienManque.length + ' cas — ' + passerSoutienManque.join(' | '));
+      if(passerArretes.length)
+        console.log('   · ' + passerArretes.length + ' exercice(s) où la copie du banc est arrêtée avant correction, en entraînement aussi (un choix à faire d’abord) : '
+          + passerArretes.join(', '));
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
