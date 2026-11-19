@@ -941,6 +941,8 @@
   /* 5.7.1 : les trois parties du sujet, le retrait des phrases choisies, le repère de l'escalier */
   .sbe-partie{margin:22px 0 4px;padding-bottom:3px;font-size:1.08rem;border-bottom:2px solid var(--grid)}
   .sbe-retrait{padding-left:22px}
+  .sbe-proj{stroke:#7C3AED;stroke-width:1.6;stroke-dasharray:5 4}   /* le report d'un point de y = x sur l'axe des abscisses */
+  .sbe-lbl-proj{fill:#7C3AED}
   .svr-cel.sbe-etape{margin-top:6px;font-style:italic;color:var(--ink-soft)}   /* l'étape annoncée, au-dessus de sa ligne */
   .sbe-pgrp .sbe-paren{width:13px;min-height:2.6em}   /* les grandes parenthèses de la partie C : un peu plus larges et plus hautes que la ligne */
   #scr-sbe math-field.sbe-mfn{min-width:70px}
@@ -4628,7 +4630,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=501;
+const APP_VERSION=502;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -30187,7 +30189,7 @@ function apsConseilCtx(){
      A2. u₁ et u₂, la ligne de calcul du {suite-variation-recurrence} (b), puis
          l'interprétation sur des cartes (le {proba-suite}) ;
      A3. a) la construction en escalier, cliquée sur les deux rails, comme au
-         {suite-variation-recurrence} — cinq points ici (u₁, u₂, u₃) et un
+         {suite-variation-recurrence} — sept points ici (u₁, u₂, u₃ reportés sur l'axe, u₄ en haut) et un
          repère gradué en centaines ; b) la conjecture, ses deux listes ;
      B1. la récurrence u₀ ≤ uₙ ≤ uₙ₊₁ ≤ ℓ (ou ℓ ≤ uₙ₊₁ ≤ uₙ ≤ u₀) dans la grille
          du {suite-variation-recurrence} : rangs en indice, valeurs dessous,
@@ -30272,7 +30274,7 @@ function sbeGen(c, sens){
     const M=Math.max(u0,l)*1.08; let pas=0, W=0;
     for(const s of SBE_PAS){ const k=Math.ceil(M/s); if(k>=5 && k<=9){ pas=s; W=k*s; break; } }
     if(!pas) continue;
-    const px=SVR_PLOT/W; if([u1-u0,u2-u1,u3-u2].some(function(g){ return Math.abs(g)*px<SBE_GAP; })) continue;
+    const u4=sbeU(q,4), px=SVR_PLOT/W; if([u1-u0,u2-u1,u3-u2,u4-u3].some(function(g){ return Math.abs(g)*px<SBE_GAP; })) continue;
     let S=null, N=0;
     for(const d of apcMelange(SBE_D)){
       const s=sens==='cro' ? l-d : l+d; let n=0;
@@ -30470,8 +30472,14 @@ function sbeChoisir(g, k){
   q.ch[g]=k; sbeCartesPeindre(q, g);
   if(isSoutien()) checkSBE(true);
 }
-/* ---- la construction en escalier (le {suite-variation-recurrence}) : cinq points ---- */
-function sbePtsAttendus(q){ const A=sbeAns(q); return [{r:'c',x:q.u0},{r:'d',x:A.u1},{r:'c',x:A.u1},{r:'d',x:A.u2},{r:'c',x:A.u2}]; }
+/* ---- la construction en escalier (le {suite-variation-recurrence}) : SEPT points ----
+   (demande de Turquet, novembre 2026 : « quand on a placé u₂ sur la droite, mettre
+   en bas verticalement sur l'axe des abscisses, en reliant avec des pointillés, u₁ ;
+   ainsi de suite jusqu'à avoir u₃ en bas, et donc u₄ sur la droite en haut ») :
+   chaque point posé sur y = x se projette AUSSITÔT sur l'axe des abscisses, en
+   pointillés, avec son nom u₁, u₂, u₃ ; le septième point, sur y = g(x), porte u₄. */
+const SBE_NPTS=7;
+function sbePtsAttendus(q){ const A=sbeAns(q); return [{r:'c',x:q.u0},{r:'d',x:A.u1},{r:'c',x:A.u1},{r:'d',x:A.u2},{r:'c',x:A.u2},{r:'d',x:A.u3},{r:'c',x:A.u3}]; }
 function sbeCadre(q){ return {W:q.W, f:sbeFn(q), att:sbePtsAttendus(q)}; }
 function sbeSVG(q, etat){
   const c=sbeCadre(q), f=c.f, A=sbeAns(q), u=SVR_PLOT/c.W;
@@ -30508,9 +30516,10 @@ function sbeSVG(q, etat){
     g+='<path d="'+dsol+'" class="svr-esc-sol"/>'
       +'<line class="svr-lect" x1="'+X(A.u1)+'" y1="'+Y(A.u1)+'" x2="'+X(A.u1)+'" y2="'+Y(0)+'"/>'
       +'<line class="svr-lect" x1="'+X(A.u2)+'" y1="'+Y(A.u2)+'" x2="'+X(A.u2)+'" y2="'+Y(0)+'"/>'
-      +'<line class="svr-lect" x1="'+X(A.u2)+'" y1="'+Y(A.u3)+'" x2="'+X(A.u3)+'" y2="'+Y(A.u3)+'"/>'
       +'<line class="svr-lect" x1="'+X(A.u3)+'" y1="'+Y(A.u3)+'" x2="'+X(A.u3)+'" y2="'+Y(0)+'"/>';
-    [[A.u1,1],[A.u2,2],[A.u3,3]].forEach(function(t){
+    /* le nom des termes que l'élève n'a pas projetés lui-même */
+    const nd=(q.pts||[]).filter(function(p){ return p.r==='d'; }).length;
+    [[A.u1,1],[A.u2,2],[A.u3,3]].forEach(function(t){ if(t[1]>nd)
       g+='<text class="svr-lbl svr-lbl-s" x="'+(+X(t[0])+4).toFixed(1)+'" y="'+(+Y(0)-9).toFixed(1)+'">u<tspan font-size="10" dy="3">'+t[1]+'</tspan></text>'; });
   }
   const pts=Array.isArray(q.pts) ? q.pts : [];
@@ -30518,6 +30527,16 @@ function sbeSVG(q, etat){
     let d='M'+X(q.u0)+' '+Y(0);
     pts.forEach(function(p){ d+='L'+X(p.x)+' '+Y(p.r==='c' ? f(p.x) : p.x); });
     g+='<path d="'+d+'" class="svr-esc"/>';
+    /* la projection de chaque point de y = x sur l'axe des abscisses, en pointillés, et son nom */
+    let k=0;
+    pts.forEach(function(p, i){
+      if(p.r==='d'){ k++;
+        g+='<line class="sbe-proj" x1="'+X(p.x)+'" y1="'+Y(p.x)+'" x2="'+X(p.x)+'" y2="'+Y(0)+'"/>'
+          +'<text class="svr-lbl sbe-lbl-proj" x="'+(+X(p.x)+4).toFixed(1)+'" y="'+(+Y(0)-9).toFixed(1)+'">u<tspan font-size="10" dy="3">'+k+'</tspan></text>';
+      } else if(i===SBE_NPTS-1){
+        g+='<text class="svr-lbl sbe-lbl-proj" text-anchor="end" x="'+(+X(p.x)-11).toFixed(1)+'" y="'+(+Y(f(p.x))+5).toFixed(1)+'">u<tspan font-size="10" dy="3">'+(k+1)+'</tspan></text>';
+      }
+    });
   }
   for(let i=0;i<c.att.length;i++){
     const p=pts[i];
@@ -30537,7 +30556,7 @@ function sbeDessiner(etat){
   const h=$('sbeGraph'); if(!h) return;
   h.innerHTML=sbeSVG(q, etat||'');
   const n=$('sbeTrace');
-  if(n) n.textContent=(q.pts && q.pts.length) ? ('Points placés : '+q.pts.length+' / 5') : 'Aucun point placé.';
+  if(n) n.textContent=(q.pts && q.pts.length) ? ('Points placés : '+q.pts.length+' / '+SBE_NPTS) : 'Aucun point placé.';
 }
 /* la pose, sans le clic : jsdom n'a pas de mise en page, c'est par là que le banc principal l'éprouve */
 /* L'ESCALIER EST AIMANTÉ (demande de Turquet, novembre 2026 : « que les
@@ -30556,7 +30575,7 @@ function sbeCible(q, rail){ const P=sbePrecedent(q); return rail==='c' ? {x:P.x,
 function sbePoser(rail, x){
   const q=test.questions[test.idx]; if(!q || test.locked || test.kind!=='sbe') return false;
   if(!Array.isArray(q.pts)) q.pts=[];
-  if(q.pts.length>=5 || (rail!=='c' && rail!=='d') || !(typeof x==='number' && isFinite(x))) return false;
+  if(q.pts.length>=SBE_NPTS || (rail!=='c' && rail!=='d') || !(typeof x==='number' && isFinite(x))) return false;
   const C=sbeCible(q, rail);
   if(Math.abs(x-C.x)*SVR_PLOT/q.W>SBE_AIMANT){ toast('Clique plus près du point suivant de l’escalier : à la verticale ou à l’horizontale du dernier point'); return false; }
   q.pts.push({r:rail, x:sbeR(C.x)});
@@ -30569,7 +30588,7 @@ function sbeClic(evt){
   const q=test.questions[test.idx]; if(!q) return;
   const cible=evt.target, rail=(cible && cible.getAttribute) ? cible.getAttribute('data-rail') : null;
   if(!rail) return;
-  if(q.pts && q.pts.length>=5){ toast('Le tracé est complet — « Effacer le tracé » pour recommencer'); return; }
+  if(q.pts && q.pts.length>=SBE_NPTS){ toast('Le tracé est complet — « Effacer le tracé » pour recommencer'); return; }
   const x=escAbscisse(evt, cible, q.W); if(x===null) return;
   sbePoser(rail, x);
 }
@@ -30628,7 +30647,7 @@ function sbeCorpsHTML(q){
     +'<p class="apc-etape aide-ecran">Interprétation :</p>'+sbeCartesHTML(q,'i2');
   h+=sbeCons('3.', 'On pose <i>g</i>(<i>x</i>) = '+Q+'<i>x</i> + '+N(q.r)+'. Les droites d’équations <i>y</i> = <i>g</i>(<i>x</i>) et <i>y</i> = <i>x</i> sont représentées ci-dessous.');
   h+='<p class="apf-cons"><b>a)</b> À partir de '+sbeSu(0)+' = '+N(q.u0)+', construire graphiquement les termes '+sbeSu(1)+', '+sbeSu(2)+' et '+sbeSu(3)+' en utilisant ces deux droites.'
-    +'<span class="aide-ecran"> Clique successivement les <b>cinq points</b> de la construction en escalier, sur la droite d’équation <i>y</i> = <i>g</i>(<i>x</i>) ou sur la droite d’équation <i>y</i> = <i>x</i> : '+sbeSu(3)+' se lit alors à la hauteur du dernier point.</span></p>'
+    +'<span class="aide-ecran"> Clique successivement les <b>sept points</b> de la construction en escalier, sur la droite d’équation <i>y</i> = <i>g</i>(<i>x</i>) ou sur la droite d’équation <i>y</i> = <i>x</i> : chaque point posé sur <i>y</i> = <i>x</i> se reporte en pointillés sur l’axe des abscisses ('+sbeSu(1)+', '+sbeSu(2)+', '+sbeSu(3)+'), et le dernier point, sur <i>y</i> = <i>g</i>(<i>x</i>), est à la hauteur '+sbeSu(4)+'.</span></p>'
     +'<div class="svr-colg sbe-graphe"><div class="sv-graph svr-graph" id="sbeGraph"></div>'
     +'<div class="svr-outils"><button type="button" class="btn btn-ghost" onclick="sbeEffacer()">↺ Effacer le tracé</button><span class="svr-trace" id="sbeTrace"></span></div></div>';
   const LIM={l:L, u0:N(q.u0), zero:'0', inf:'+∞'};
@@ -30801,13 +30820,13 @@ function renderSBE(){
   const h=$('sbeGraph'); if(h) h.onclick=sbeClic;
   sbeAjusterTout(); setTimeout(sbeAjusterTout, 0);
 }
-/* Juge tout ce qui est à l'écran : les cases, les cartes (q.ch), les cinq points de l'escalier. */
+/* Juge tout ce qui est à l'écran : les cases, les cartes (q.ch), les sept points de l'escalier. */
 function sbeJugerTout(q, live){
   const verd={};
   let allOk=SBE_CARTES.every(function(g){ return q.ch[g]===0; });
   let anyFilled=SBE_CARTES.some(function(g){ return q.ch[g]!==undefined; }) || (q.pts && q.pts.length>0);
   const c=sbeCadre(q);
-  for(let i=0;i<5;i++) if(!escPtJuste(c, i, (q.pts||[])[i])) allOk=false;
+  for(let i=0;i<SBE_NPTS;i++) if(!escPtJuste(c, i, (q.pts||[])[i])) allOk=false;
   sbeIds(q).forEach(function(id){
     const el=$(id); if(!el){ allOk=false; return; }
     const raw=sbeLire(q, id), rempli=String(raw).trim()!=='';
@@ -30877,7 +30896,7 @@ function sbeReponseTxt(q){
   const A=sbeAns(q), ph=sbePhrases(q);
   return '1. × '+sbeN(q.q)+' : « '+ph[0]+' », coefficient 1 − '+q.p+'/100 ; + '+sbeN(q.r)+' : « '+ph[1]+' » ; '
     +'2. u1 = '+sbeN(A.u1)+', u2 = '+sbeN(A.u2)+' ; interprétation : '+sbeTxt(sbeCartesTextes(q,'i2')[0])+' ; '
-    +'3. escalier : points (u0 ; u1), (u1 ; u1), (u1 ; u2), (u2 ; u2), (u2 ; u3) avec u3 = '+sbeN(A.u3)+' ; suite '+(A.cro?'croissante':'décroissante')+', limite '+sbeN(q.l)+' ; '
+    +'3. escalier : points (u0 ; u1), (u1 ; u1), (u1 ; u2), (u2 ; u2), (u2 ; u3), (u3 ; u3), (u3 ; u4), u1, u2, u3 reportés sur l’axe des abscisses, u3 = '+sbeN(A.u3)+' ; suite '+(A.cro?'croissante':'décroissante')+', limite '+sbeN(q.l)+' ; '
     +'B1. récurrence de '+(A.cro?sbeN(q.u0)+' ≤ u_n ≤ u_(n+1) ≤ '+sbeN(q.l):sbeN(q.l)+' ≤ u_(n+1) ≤ u_n ≤ '+sbeN(q.u0))+', hérédité : × '+sbeN(q.q)+' > 0 (ordre conservé) puis + '+sbeN(q.r)+' ; '
     +'B2. '+(A.cro?'croissante et majorée':'décroissante et minorée')+', théorème de convergence monotone, ℓ = '+sbeN(q.q)+'ℓ + '+sbeN(q.r)+', ℓ = '+sbeN(q.l)+' ; '
     +'C1. v_(n+1) = u_(n+1) − '+sbeN(q.l)+' = '+sbeCorr(q,'sbe-x1')[0]+' = '+sbeCorr(q,'sbe-x2')[0]+' = '+sbeN(q.q)+'(u_n − '+sbeN(q.l)+'), géométrique de raison '+sbeN(q.q)+', v0 = '+sbeN(A.cc)+' ; '
