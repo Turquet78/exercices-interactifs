@@ -36068,6 +36068,27 @@ function esxClipT(p,r,c){
     if(Math.abs(z[0])<1e-12) return; const t=z[1]/z[0]; if(z[0]<0) t0=Math.max(t0,t); else t1=Math.min(t1,t); });
   return [t0,t1];
 }
+/* UNE DROITE NE VA PAS PLUS LOIN QUE NÉCESSAIRE (Turquet, novembre 2026 :
+   « quand on trace une droite, ne prolonger qu'un petit peu ce qui est
+   nécessaire ; si on peut éviter de traverser le dessin, c'est mieux »). Elle
+   couvre ce qui est sur elle : ses deux points, les points nommés qu'elle
+   porte (sommets, I, J, K, points construits), L et les points de la section
+   s'ils y sont, et ses points d'intersection avec les autres droites tracées
+   (dans l'espace, et dans le cadre) — puis 28 unités de plus de chaque côté,
+   sans sortir du cadre. Le clic sur une droite suit la même étendue. */
+function esxEtendue(q,A,B){
+  const g=esxCfg(q), u=esxSub(B,A), uu=esxDot(u,u), c=esxCadre(q), ts=[0,1];
+  const tDe=P=>esxDot(esxSub(P,A),u)/uu;
+  esxPoints(q).map(z=>z.P).concat([g.L],g.pts).forEach(P=>{ if(esxSurDroite(P,A,B)) ts.push(tDe(P)); });
+  esxObjets(q).forEach(function(o){
+    if(o.t!=='d') return;
+    const v=esxSub(o.B,o.A), w=esxSub(o.A,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return;
+    const t=esxDot(esxVx(w,v),n)/esxDot(n,n), X=esxAdd(A,esxMul(u,t));
+    if(esxDansCadre(c,esxProj(X))) ts.push(t);
+  });
+  const pa=esxProj(A), pb=esxProj(B), L=Math.hypot(pb[0]-pa[0],pb[1]-pa[1])||1, m=28/L, cl=esxClipT(pa,pb,c);
+  return [Math.max(cl[0],Math.min(...ts)-m), Math.min(cl[1],Math.max(...ts)+m)];
+}
 /* les morceaux vus et cachés de A + t AB, t de t0 à t1 : [ta, tb, caché] */
 function esxMorceaux(A,B,t0,t1){
   const u=esxSub(B,A), N=200, pt=t=>esxAdd(A,esxMul(u,t)), o=[];
@@ -36111,7 +36132,7 @@ function esxSVG(q){
     traits.push([P(t0),P(t1)]);
     return esxMorceaux(A,B,t0,t1).map(m=>ln(P(m[0]),P(m[1]),cl+(m[2]?' esx-cache':''))).join('');
   };
-  const tDroite=(A,B)=>esxClipT(X(A),X(B),c);
+  const tDroite=(A,B)=>esxEtendue(q,A,B);
   const corr=test.locked, nc=corr?esxNomsCorr(q):null, bil=corr?esxBilan(q):null;
   /* la section complète se remplit */
   if(esxSectionFaite(q)){
@@ -36222,7 +36243,7 @@ function esxPointProche(q,p){
 function esxObjetProche(q,p){
   const c=esxCadre(q); let best=null, bd=p.tol;
   esxObjets(q).forEach(function(o){
-    const a=esxProj(o.A), b=esxProj(o.B), s=o.t==='d'?esxClip(a,b,c):[a,b];
+    const a=esxProj(o.A), b=esxProj(o.B), s=o.t==='d'?(function(){ const t=esxEtendue(q,o.A,o.B), P=k=>esxProj(esxAdd(o.A,esxMul(esxSub(o.B,o.A),k))); return [P(t[0]),P(t[1])]; })():[a,b];
     /* à égalité (un segment posé sur une droite, une droite sur une arête) : le
        segment rouge pour la parallèle, puis le segment, la droite, l'arête */
     const d=esxDist2([p.x,p.y],s[0],s[1])+(o.t==='a'?0.6:(o.t==='d'?0.3:0))-(esxOutil==='p'&&o.rouge?1:0);

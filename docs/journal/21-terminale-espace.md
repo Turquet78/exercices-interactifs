@@ -1190,3 +1190,16 @@ en gras, les étapes faites passent en gris avec leur ✓. **Éprouvé** : trent
 séances menées dans un ordre tiré au hasard (une étape impossible est
 réessayée plus tard) — toutes complètes, « parfaites », chaque point au nom
 annoncé ; une droite hors étape refusée.
+
+**Puis les droites ne vont pas plus loin que nécessaire (Turquet, novembre
+2026, v505 : « quand on trace une droite, ne prolonger qu'un petit peu ce qui
+est nécessaire ; si on peut éviter de traverser le dessin, c'est mieux »).**
+Une droite tracée allait d'un bord du cadre à l'autre. Elle couvre maintenant
+ce qui est sur elle (`esxEtendue`) : ses deux points, les points nommés
+qu'elle porte (sommets, I, J, K, points construits), L et les points de la
+section s'ils y sont, et ses intersections dans l'espace avec les autres
+droites tracées (dans le cadre) — puis 28 unités de chaque côté, sans sortir
+du cadre. Les trois exercices (7.1.12 à 7.1.14) et la correction verte en
+profitent ; le clic sur une droite suit la même étendue (vérifié sur les 728
+figures : au milieu de [LK], c'est bien (LK) que le clic désigne). (IJ) va de
+I à L, (LK) jusqu'à l'arête qu'elle doit atteindre.
