@@ -922,7 +922,7 @@ retraits ne passent jamais pour une correction : `takeRecords()` les jette dans
 le même tour. Témoin dans le banc navigateur, « 11 septdecies » (le 6.5).
 
 **En soutien, une question bloquée se passe — dans TOUS les exercices**
-(Turquet, novembre 2026, les trois niveaux, v709 / v445 / v505). Né au 7.1.6
+(Turquet, novembre 2026, les trois niveaux, v709 / v445 / v506). Né au 7.1.6
 de la Terminale : une élève, en devoir maison, ne trouvait pas où placer un
 point, voulait l'abandonner pour faire la suite, et ne le pouvait pas — le
 soutien n'ouvre « Question suivante » que sur une copie juste. Turquet :

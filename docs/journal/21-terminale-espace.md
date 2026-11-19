@@ -532,7 +532,7 @@ choisit son point, puis clique sur le dessin, sans redescendre sous la
 figure.
 
 **Puis une sortie en soutien, et pour tous les exercices** (Turquet, novembre
-2026, v505 : une élève, en devoir maison, « voulait abandonner ce point pour
+2026, v506 : une élève, en devoir maison, « voulait abandonner ce point pour
 passer à la suite mais elle ne pouvait pas » — puis « laisser l'option à
 l'élève de passer à la suite en mode soutien, dans tous les exercices »). Le
 placement n'était pas en cause : 270 clics et touchers posés sur les points
