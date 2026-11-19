@@ -3516,6 +3516,8 @@ en vert ; « uₙ − 900 » refusé là où uₙ₊₁ − 900 est attendu.
 
 ### Puis l'escalier est allé jusqu'à u₄, chaque terme reporté sur l'axe (v502)
 
+(Publié sous le numéro 502 que la 7.1.13 venait de prendre, fusionnée quelques minutes plus tôt ; la v503 rend à chacun son numéro.)
+
 Demande de Turquet (novembre 2026) : « quand on a placé u₂ sur la droite, mettre
 en bas verticalement sur l'axe des abscisses, en reliant avec des pointillés,
 u₁ ; ainsi de suite jusqu'à avoir u₃ en bas, et donc u₄ sur la droite en haut ».
