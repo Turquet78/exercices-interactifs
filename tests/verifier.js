@@ -4867,6 +4867,7 @@ function exercices(suite){
     solutionsGraphique(w, P);
     ecrireSolutions(w, P);
     clavierLitteral(w, P);
+    clavierSigne(w, P);
     exercicesBonus(w, P);
     bonusEcrit(w, P);
     meilleureNoteCompte(w, P);
@@ -32548,6 +32549,81 @@ function clavierLitteral(w, P){
     try{ document.activeElement && document.activeElement.blur(); }catch(e){}
     delete window.__paveForce;
     if(!cases && !vus.length) vus.push('aucune case relevée : le contrôle ne mesure rien');
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '');
+}
+
+/* LA TOUCHE « + » LÀ OÙ UN NOMBRE S'ÉCRIT AVEC SON SIGNE (signalé par
+   Turquet, novembre 2026, sur le 7.1.3 de la Terminale) : « les élèves qui
+   travaillent sur téléphone et sans doute sur tablette n'ont pas le signe +
+   sur le clavier virtuel ». Le pavé ancré porte « − » pour tout le monde et
+   jamais « + » ; une case qui attend « +3 » — le coefficient de t, le −xA
+   qui change de membre — doit donc le demander en plus (data-pave-plus). Le
+   profil nomme l'exercice, la touche et les cases (une expression régulière
+   sur leurs identifiants), et le kind, le tirage et le rendu de l'exercice :
+   son démarreur est asynchrone (il attend loadConfig), et ce contrôle, comme
+   ses voisins, est synchrone — la séance est donc tirée et rendue ici, par
+   les mêmes fonctions que le démarreur. Chaque question est tournée
+   (les deux formes de la séance), et sur chaque page : chaque case nommée
+   porte la touche, aucune autre ne la porte (la doctrine du bouton qui n'est
+   proposé que là où il SERT), le pavé la pose pour de vrai quand la case a
+   le focus, et la touche écrit « + » dans la case en levant « input ». Hors
+   profil, le contrôle est ignoré. */
+function clavierSigne(w, P){
+  const D = P.clavierSigne;
+  if(!D || !D.exercice){
+    ignorer('les cases où un nombre s’écrit avec son signe offrent « + » au pavé des tablettes', 'ce niveau ne déclare pas clavierSigne');
+    return;
+  }
+  verifierEval(w, 'les cases où un nombre s’écrit avec son signe offrent « + » au pavé des tablettes (' + D.exercice + ')', `(function(){
+    const vus=[], ID=${JSON.stringify(D.exercice)}, T=${JSON.stringify(D.touche)}, RE=new RegExp(${JSON.stringify(D.cases)});
+    const KIND=${JSON.stringify(D.kind)}, tirage=window[${JSON.stringify(D.tirage)}], rendu=window[${JSON.stringify(D.rendu)}];
+    if(!TESTS[ID] || typeof TESTS[ID].start!=='function') return ID+' : aucun démarreur';
+    if(typeof tirage!=='function' || typeof rendu!=='function') return ID+' : le tirage ou le rendu déclaré n’existe pas ('+${JSON.stringify(D.tirage)}+', '+${JSON.stringify(D.rendu)}+')';
+    /* le démarreur appelle bien ces deux fonctions : le contrôle rejoue ce qu'il fait, pas autre chose */
+    const src=String(TESTS[ID].start)+' '+String(window['start'+KIND.toUpperCase()]||'');
+    if(src.indexOf(${JSON.stringify(D.tirage)}+'(')<0 || src.indexOf(${JSON.stringify(D.rendu)}+'(')<0) vus.push(ID+' : le démarreur n’appelle pas '+${JSON.stringify(D.tirage)}+' et '+${JSON.stringify(D.rendu)});
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    window.__paveForce=true; try{ paveObserver(); }catch(e){}
+    currentTestId=ID; test.kind=KIND;
+    try{ test.questions=tirage(); }catch(e){ return ID+' : le tirage lève « '+e.message+' »'; }
+    test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false; test.maxScore=test.questions.length;
+    try{ show(KIND); rendu(); }catch(e){ return ID+' : le rendu lève « '+e.message+' »'; }
+    const scr=document.querySelector('section.screen.on'); if(!scr) return ID+' : aucun écran ouvert';
+    const nb=Array.isArray(test.questions)?test.questions.length:1;
+    let signees=0, formes={};
+    for(let pg=0; pg<nb; pg++){
+      if(pg>0){ test.idx=pg; test.locked=false; try{ rendu(); }catch(e){ vus.push(ID+' : la page '+(pg+1)+' lève « '+e.message+' »'); break; } }
+      try{ paveBrancher(); }catch(e){}
+      formes[String(test.questions[pg].f)]=1;
+      const ins=[].slice.call(scr.querySelectorAll('input[type="text"]'));
+      if(!ins.length){ vus.push(ID+' : aucune case de texte sur la page '+(pg+1)); continue; }
+      let premiere=null;
+      ins.forEach(function(el){
+        const l=(el.getAttribute('data-pave-plus')||'').split(' '), a=l.indexOf(T)>=0;
+        if(RE.test(el.id)){ signees++; if(!a) vus.push('page '+(pg+1)+' : la case '+el.id+' n’offre pas « '+T+' » (data-pave-plus = « '+(el.getAttribute('data-pave-plus')||'')+' »)'); else if(!premiere) premiere=el; }
+        else if(a) vus.push('page '+(pg+1)+' : la case '+el.id+' offre « '+T+' » sans que le nombre s’y écrive avec son signe');
+        const m=el.getAttribute('inputmode');
+        if(m!=='numeric' && m!=='none') vus.push('page '+(pg+1)+' : la case '+el.id+' garde le clavier du système (inputmode='+m+')');
+      });
+      if(!premiere) continue;
+      /* la touche se pose pour de vrai, et écrit dans la case */
+      try{ premiere.focus(); }catch(e){}
+      try{ paveMontrer(); }catch(e){}
+      const plus=[].slice.call(document.querySelectorAll('#paveNum .pave-plus')).map(function(b){ return b.getAttribute('data-t'); });
+      if(plus.indexOf(T)<0) vus.push('page '+(pg+1)+' : le pavé pose ['+plus.join(' ')+'] sans « '+T+' » pour la case '+premiere.id);
+      const pave=document.getElementById('paveNum');
+      if(!pave || pave.hidden) vus.push('page '+(pg+1)+' : le pavé ne s’ouvre pas sur la case '+premiere.id);
+      const avant=premiere.value; let n=0; const ec=function(){ n++; }; premiere.addEventListener('input', ec);
+      try{ paveInserer(premiere,T); paveInserer(premiere,'3'); }catch(e){ vus.push('page '+(pg+1)+' : paveInserer lève « '+e.message+' »'); }
+      if(premiere.value!==avant+T+'3') vus.push('page '+(pg+1)+' : les touches « '+T+' » puis 3 n’écrivent pas « '+T+'3 » dans la case '+premiere.id+' (« '+premiere.value+' »)');
+      if(n!==2) vus.push('page '+(pg+1)+' : une touche n’a pas levé « input »');
+      premiere.removeEventListener('input', ec); premiere.value=avant;
+    }
+    try{ document.activeElement && document.activeElement.blur(); }catch(e){}
+    delete window.__paveForce;
+    if(!signees && !vus.length) vus.push('aucune case signée relevée : le contrôle ne mesure rien');
+    if(Object.keys(formes).length<2 && !vus.length) vus.push('une seule forme de question tournée ('+Object.keys(formes).join(', ')+') : le contrôle ne voit pas les deux');
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '');
 }
