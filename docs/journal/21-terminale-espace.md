@@ -278,7 +278,7 @@ les deux points de la forme 1 jamais du même côté ; les huit copies justes
 de nouveau acceptées.
 
 **Puis la touche « + » est venue au pavé des téléphones (Turquet, novembre
-2026, v504).** « Les élèves qui travaillent sur téléphone et sans doute sur
+2026, v506).** « Les élèves qui travaillent sur téléphone et sans doute sur
 tablette n'ont pas le signe + sur le clavier virtuel. » La copie d'écran le
 montrait : dans la seconde case de « = … … » — le −xA qui change de membre —
 l'élève avait écrit « −3 » là où la correction attendait « +3 ». Les cases
@@ -1164,3 +1164,81 @@ inachevée dit combien d'étapes restent, sans rien verrouiller.
 étapes), un geste faux refusé à l'étape 1, chaque parallèle tracée segment
 d'abord puis point, la figure « parfaite », l'écran de fin, aucune erreur de
 page.
+
+**Puis le point d'intersection en un seul clic, dans les deux exercices
+(Turquet, novembre 2026, v504 : « peut-on mettre un point d'intersection
+directement sans avoir à choisir les deux droites au préalable ? dans les deux
+exercices »).** Avec l'outil « Point d'intersection », un clic près du
+CROISEMENT de deux traits dessinés (droites, segments, arêtes) les choisit
+tous les deux (`esxCroisementProche`). Parmi les traits qui passent à moins de
+2,5 tolérances du clic, la page garde les paires dont les dessins se croisent
+à moins de 1,8 tolérance, et prend la plus proche. À égalité, elle préfère la
+paire qui se coupe AUSSI dans l'espace (`esxEspaceCoupe`). Le point reste
+celui de l'espace (`esxCouper`) : un croisement qui n'existe que sur le
+dessin est refusé avec le même message qu'avant. Loin de tout croisement, le
+clic choisit un trait comme avant, et le second clic l'autre. Le 7.1.13 passe
+par le même geste, et l'étape est jugée comme si les deux traits avaient été
+cliqués. **Éprouvé** dans Chromium : sur chaque exercice, (IJ) et la seconde
+droite tracées, puis UN clic à 5 unités du croisement → « Point L placé »
+(7.1.12) et « Étape 3 faite » (7.1.13). Un clic au milieu d'une arête ne
+trouve aucun croisement. Le croisement dessiné de (AG) et [BC] est refusé :
+« ne sont pas dans un même plan ».
+
+**Puis, au 7.1.13, les outils qui ne servent pas à l'étape sont grisés
+(Turquet, novembre 2026, v505).** `esgOutils`, appelé à chaque dessin : seul
+l'outil de l'étape en cours reste actif (Droite, Segment, Point
+d'intersection ou Parallèle), « ↶ Annuler » toujours ; toutes les étapes
+faites, les quatre sont grisés. Un outil choisi puis grisé (après
+« Annuler ») est lâché. **Vérifié** : étape 1 → seule « Droite » ; étape 3 →
+seul « Point d'intersection » ; « Annuler » ramène « Droite ».
+
+## 7.1.14 — la section d'un cube, sans indication (`espace-section-cube-libre`, kind `esl`)
+
+Même jour : « créer un exercice de section sans aucune indication dans
+l'énoncé, pas de point d'intersection à placer avant de terminer la section ».
+L'énoncé ne donne que le cube et I, J, K (au milieu, au tiers… de leur arête),
+et demande la section du cube par le plan (IJK), traits de construction
+apparents. Le moteur du 7.1.12 (figure, outils, tirage à un pentagone sur deux,
+pointillés), seul le kind change (`esl`, écran `esx`).
+
+**La note ne compte que les morceaux de la section** : le point L et la droite
+𝒟 sont des traits de construction, que l'élève passe par eux ou par un autre
+chemin juste. Le bilan ne montre que les morceaux. À la correction, la
+construction par L (les droites (IJ), (CG), 𝒟) ne se montre en vert que si la
+section est incomplète, et l'explication commence par la nommer : « appelons L
+le point d'intersection des droites (IJ) et (CG), qui sont dans le même plan
+(…) ». En soutien, « Où j'en suis » compte les morceaux rouges. Le contexte
+envoyé au modèle tait la forme et les points de la section, et guide par
+questions.
+
+**Éprouvé** dans Chromium : deux figures construites (bilan à cinq puis six
+morceaux, sans L ni 𝒟), « parfaites » ; une copie vide corrigée, la
+construction par L en vert ; aucune erreur de page.
+
+**Puis les étapes du 7.1.13 dans l'ordre qu'on veut (Turquet, novembre 2026,
+v505 : « l'élève n'est pas obligé de suivre les étapes dans l'ordre »).** Un
+geste est accepté s'il réalise N'IMPORTE QUELLE étape restante ; il porte le
+numéro de cette étape (`e.etape`), et l'ensemble des étapes faites
+(`esgFaitesSet`) remplace le compte des gestes. Les prérequis n'ont pas besoin
+d'être déclarés : la géométrie les impose (pas de L sans (IJ) et (CG), pas de
+parallèle sans son segment rouge). Les points prennent le nom que les étapes
+leur annoncent, dans n'importe quel ordre (`esxNouveauNom` lit
+`esgEtapes(q).noms`). Les outils grisés deviennent ceux qu'AUCUNE étape
+restante n'utilise. L'énoncé dit « dans l'ordre que tu veux » ; plus d'étape
+en gras, les étapes faites passent en gris avec leur ✓. **Éprouvé** : trente
+séances menées dans un ordre tiré au hasard (une étape impossible est
+réessayée plus tard) — toutes complètes, « parfaites », chaque point au nom
+annoncé ; une droite hors étape refusée.
+
+**Puis les droites ne vont pas plus loin que nécessaire (Turquet, novembre
+2026, v505 : « quand on trace une droite, ne prolonger qu'un petit peu ce qui
+est nécessaire ; si on peut éviter de traverser le dessin, c'est mieux »).**
+Une droite tracée allait d'un bord du cadre à l'autre. Elle couvre maintenant
+ce qui est sur elle (`esxEtendue`) : ses deux points, les points nommés
+qu'elle porte (sommets, I, J, K, points construits), L et les points de la
+section s'ils y sont, et ses intersections dans l'espace avec les autres
+droites tracées (dans le cadre) — puis 28 unités de chaque côté, sans sortir
+du cadre. Les trois exercices (7.1.12 à 7.1.14) et la correction verte en
+profitent ; le clic sur une droite suit la même étendue (vérifié sur les 728
+figures : au milieu de [LK], c'est bien (LK) que le clic désigne). (IJ) va de
+I à L, (LK) jusqu'à l'arête qu'elle doit atteindre.

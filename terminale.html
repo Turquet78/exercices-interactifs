@@ -2352,6 +2352,7 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-outils{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px}
 .esx-outil{padding:6px 12px;font-size:.95rem}
 .esx-outil[aria-pressed="true"]{background:#ea580c;border-color:#ea580c;color:#fff}
+.esx-outil:disabled{opacity:.35;cursor:not-allowed}
 .esx-msg{min-height:1.5em;text-align:center;font-size:.95rem;color:var(--ink-soft);margin:2px 0}
 .esx-msg.esx-err{color:#b45309;font-weight:700}
 .esx-fig{max-width:600px;margin:2px auto 8px}
@@ -2375,9 +2376,8 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-lc{fill:var(--green)}
 .esx-taches{display:block;margin:4px 0 0 10px}
 .esg-etapes{margin:6px 0 0 0;padding-left:1.6em}
-.esg-etapes li{margin:2px 0;color:var(--ink-soft)}
-.esg-etapes li.esg-cour{color:var(--ink);font-weight:800}
-.esg-etapes li.esg-fait{color:var(--ink)}
+.esg-etapes li{margin:2px 0;color:var(--ink)}
+.esg-etapes li.esg-fait{color:var(--ink-soft)}
 .esg-ok{color:var(--green);font-weight:800}
 .esx-taches>span{display:block}
 .esx-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.85em;line-height:1.1;margin:0 2px}
@@ -4639,7 +4639,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=504;
+const APP_VERSION=506;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4887,6 +4887,7 @@ const TESTS={
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'espace-section-cube': { name:'Espace \u2014 section d\u2019un cube par un plan', icon:'\ud83e\uddca', desc:'La fiche \u00ab section espace \u00bb\u00a0: un cube, trois points I, J, K sur ses ar\u00eates. Construire sur la figure le point L, l\u2019intersection de deux plans, puis la section du cube par le plan (IJK) \u2014 droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESX() },
   'espace-section-cube-guidee': { name:'Espace \u2014 section d\u2019un cube, \u00e9tape par \u00e9tape', icon:'\ud83e\uddca', desc:'La section d\u2019un cube par le plan (IJK), construite en suivant les \u00e9tapes\u00a0: trace la droite (IJ), place le point d\u2019intersection L, trace le segment, trace la parall\u00e8le passant par un point\u2026 Chaque \u00e9tape se coche quand elle est faite. Deux figures.', start:()=>startESG() },
+  'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
@@ -5023,7 +5024,7 @@ const THEMES=[
      le même soir dans deux sessions ; les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:7, nom:'Géométrie dans l’espace', sous:[
-      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes','espace-section-cube','espace-section-cube-guidee'] }
+      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes','espace-section-cube','espace-section-cube-guidee','espace-section-cube-libre'] }
     ] },
   /* Le thème des Équations différentielles (demande de Turquet, novembre
      2026 : « créer un exercice comme le pdf dans le nouveau thème équation
@@ -5733,6 +5734,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='eal' && test.questions && test.questions[test.idx]){ c=ealConseilCtx(); }
   else if(test && test.kind==='esx' && test.questions && test.questions[test.idx]){ c=esxConseilCtx(); }
   else if(test && test.kind==='esg' && test.questions && test.questions[test.idx]){ c=esgConseilCtx(); }
+  else if(test && test.kind==='esl' && test.questions && test.questions[test.idx]){ c=eslConseilCtx(); }
   else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
@@ -7210,7 +7212,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -22167,7 +22169,7 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -32668,7 +32670,7 @@ function edpFormHTML(q){
      (« x = 2 + (−2) t »), le −xA qui change de membre (« +3 »). Sur un
      téléphone ou une tablette, le pavé ancré n'offre que « − » : sans la
      touche « + » en plus, l'élève ne pouvait pas écrire « +3 » (signalé par
-     Turquet, novembre 2026, v504). Les autres cases restent des nombres. */
+     Turquet, novembre 2026, v506). Les autres cases restent des nombres. */
   const I=id=>txInp(id), IS=id=>txInp(id,null,'+'), T=h=>'<span>'+h+'</span>';
   const L=(h,cls)=>'<div class="tg-line edp-l'+(cls?' '+cls:'')+'">'+h+'</div>';
   const NW=h=>'<span class="edp-nw">'+h+'</span>';
@@ -36079,6 +36081,27 @@ function esxClipT(p,r,c){
     if(Math.abs(z[0])<1e-12) return; const t=z[1]/z[0]; if(z[0]<0) t0=Math.max(t0,t); else t1=Math.min(t1,t); });
   return [t0,t1];
 }
+/* UNE DROITE NE VA PAS PLUS LOIN QUE NÉCESSAIRE (Turquet, novembre 2026 :
+   « quand on trace une droite, ne prolonger qu'un petit peu ce qui est
+   nécessaire ; si on peut éviter de traverser le dessin, c'est mieux »). Elle
+   couvre ce qui est sur elle : ses deux points, les points nommés qu'elle
+   porte (sommets, I, J, K, points construits), L et les points de la section
+   s'ils y sont, et ses points d'intersection avec les autres droites tracées
+   (dans l'espace, et dans le cadre) — puis 28 unités de plus de chaque côté,
+   sans sortir du cadre. Le clic sur une droite suit la même étendue. */
+function esxEtendue(q,A,B){
+  const g=esxCfg(q), u=esxSub(B,A), uu=esxDot(u,u), c=esxCadre(q), ts=[0,1];
+  const tDe=P=>esxDot(esxSub(P,A),u)/uu;
+  esxPoints(q).map(z=>z.P).concat([g.L],g.pts).forEach(P=>{ if(esxSurDroite(P,A,B)) ts.push(tDe(P)); });
+  esxObjets(q).forEach(function(o){
+    if(o.t!=='d') return;
+    const v=esxSub(o.B,o.A), w=esxSub(o.A,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return;
+    const t=esxDot(esxVx(w,v),n)/esxDot(n,n), X=esxAdd(A,esxMul(u,t));
+    if(esxDansCadre(c,esxProj(X))) ts.push(t);
+  });
+  const pa=esxProj(A), pb=esxProj(B), L=Math.hypot(pb[0]-pa[0],pb[1]-pa[1])||1, m=28/L, cl=esxClipT(pa,pb,c);
+  return [Math.max(cl[0],Math.min(...ts)-m), Math.min(cl[1],Math.max(...ts)+m)];
+}
 /* les morceaux vus et cachés de A + t AB, t de t0 à t1 : [ta, tb, caché] */
 function esxMorceaux(A,B,t0,t1){
   const u=esxSub(B,A), N=200, pt=t=>esxAdd(A,esxMul(u,t)), o=[];
@@ -36122,7 +36145,7 @@ function esxSVG(q){
     traits.push([P(t0),P(t1)]);
     return esxMorceaux(A,B,t0,t1).map(m=>ln(P(m[0]),P(m[1]),cl+(m[2]?' esx-cache':''))).join('');
   };
-  const tDroite=(A,B)=>esxClipT(X(A),X(B),c);
+  const tDroite=(A,B)=>esxEtendue(q,A,B);
   const corr=test.locked, nc=corr?esxNomsCorr(q):null, bil=corr?esxBilan(q):null;
   /* la section complète se remplit */
   if(esxSectionFaite(q)){
@@ -36135,7 +36158,7 @@ function esxSVG(q){
     const o=ob.find(z=>z.id==='a'+e), hl=(esxSel&&esxSel.o===o.id)||(esxSurvol&&esxSurvol.o===o.id);
     h+=ln(a,b,'esx-ar'+(e.indexOf('A')>=0?' esx-cache':'')+(hl?' esx-hl':'')); });   /* A est le sommet caché */
   /* la correction : ce qui manque, en vert */
-  if(corr){
+  if(corr && !(test.kind==='esl' && esxSectionFaite(q))){   /* au 7.1.14, la construction par L ne se montre que si la section manque */
     const vus=bil.find(z=>z.cle==='L');
     const dr=function(A,B){ const t=tDroite(A,B); return trait(A,B,t[0],t[1],'esx-cor esx-cor-dr'); };
     if(!vus.ok){
@@ -36199,7 +36222,7 @@ function esxFormHTML(q){
     +'<div class="esx-suivi" id="esxSuivi"></div>';
 }
 /* ---- les gestes ---- */
-const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment : clique sur deux points.', i:'Point d’intersection : clique sur deux droites (ou une droite et un segment, une arête).', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
+const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment : clique sur deux points.', i:'Point d’intersection : clique directement là où deux traits se croisent — ou sur un trait, puis sur l’autre.', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
 function esxDire(t,err){ esxMsg=t; esxMsgErr=!!err; const el=$('esxMsg'); if(el){ el.textContent=t; el.classList.toggle('esx-err',!!err); } }
 function esxChoisir(o){
   if(test.locked) return;
@@ -36233,7 +36256,7 @@ function esxPointProche(q,p){
 function esxObjetProche(q,p){
   const c=esxCadre(q); let best=null, bd=p.tol;
   esxObjets(q).forEach(function(o){
-    const a=esxProj(o.A), b=esxProj(o.B), s=o.t==='d'?esxClip(a,b,c):[a,b];
+    const a=esxProj(o.A), b=esxProj(o.B), s=o.t==='d'?(function(){ const t=esxEtendue(q,o.A,o.B), P=k=>esxProj(esxAdd(o.A,esxMul(esxSub(o.B,o.A),k))); return [P(t[0]),P(t[1])]; })():[a,b];
     /* à égalité (un segment posé sur une droite, une droite sur une arête) : le
        segment rouge pour la parallèle, puis le segment, la droite, l'arête */
     const d=esxDist2([p.x,p.y],s[0],s[1])+(o.t==='a'?0.6:(o.t==='d'?0.3:0))-(esxOutil==='p'&&o.rouge?1:0);
@@ -36251,9 +36274,44 @@ function esxCible(q,p){
   if(esxOutil==='p') return !esxSel ? (pt()||ob()) : (esxSel.p ? ob() : pt());
   return null;
 }
-function esxActif(){ return test.kind==='esx'||test.kind==='esg'; }
+function esxActif(){ return test.kind==='esx'||test.kind==='esg'||test.kind==='esl'; }
+/* LE POINT D'INTERSECTION EN UN CLIC (demande de Turquet, novembre 2026 : « peut-on
+   mettre un point d'intersection directement sans avoir à choisir les deux droites
+   au préalable ? dans les deux exercices »). Avec l'outil « Point d'intersection »,
+   un clic près du CROISEMENT de deux traits dessinés (droites, segments, arêtes)
+   les choisit tous les deux : la page cherche, parmi les traits qui passent près
+   du clic, les paires dont les dessins se croisent à moins de 1,8 tolérance du
+   clic, et garde la plus proche — à égalité de dessin, celle qui se coupe AUSSI
+   dans l'espace. Le point reste celui de l'espace (esxCouper) : un croisement qui
+   n'existe que sur le dessin est refusé avec le même message qu'avant. Loin de
+   tout croisement, le clic choisit un trait, comme avant, et le second clic
+   l'autre. Le 7.1.13 passe par le même geste. */
+function esxSeg2(q,o){ const c=esxCadre(q), a=esxProj(o.A), b=esxProj(o.B); return o.t==='d'?esxClip(a,b,c):[a,b]; }
+function esxCroise2(s1,s2){
+  const r=[s1[1][0]-s1[0][0], s1[1][1]-s1[0][1]], t=[s2[1][0]-s2[0][0], s2[1][1]-s2[0][1]], d=r[0]*t[1]-r[1]*t[0];
+  if(Math.abs(d)<1e-9) return null;
+  const w=[s2[0][0]-s1[0][0], s2[0][1]-s1[0][1]], u=(w[0]*t[1]-w[1]*t[0])/d, v=(w[0]*r[1]-w[1]*r[0])/d;
+  if(u<-0.02||u>1.02||v<-0.02||v>1.02) return null;
+  return [s1[0][0]+u*r[0], s1[0][1]+u*r[1]];
+}
+function esxEspaceCoupe(o1,o2){
+  const u=esxSub(o1.B,o1.A), v=esxSub(o2.B,o2.A), w=esxSub(o2.A,o1.A), n=esxVx(u,v);
+  return !esxNul(n) && Math.abs(esxDot(w,n))<1e-9;
+}
+function esxCroisementProche(q,p){
+  const ob=esxObjets(q).map(o=>({o:o, s:esxSeg2(q,o)})).filter(z=>esxDist2([p.x,p.y],z.s[0],z.s[1])<=2.5*p.tol);
+  let best=null;
+  for(let i=0;i<ob.length;i++) for(let j=i+1;j<ob.length;j++){
+    const X=esxCroise2(ob[i].s, ob[j].s); if(!X) continue;
+    const d=Math.hypot(X[0]-p.x, X[1]-p.y); if(d>1.8*p.tol) continue;
+    const ok=esxEspaceCoupe(ob[i].o, ob[j].o), sc=d-(ok?0.5*p.tol:0);
+    if(!best||sc<best.sc) best={sc:sc, a:ob[i].o.id, b:ob[j].o.id};
+  }
+  return best;
+}
 function esxNouveauNom(q,X){
   const g=esxCfg(q), pris=esxPoints(q).map(z=>z.n);
+  if(test.kind==='esg'){ const z=esgEtapes(q).noms.find(y=>esxEq(y.P,X)); if(z && pris.indexOf(z.n)<0) return z.n; }   /* au 7.1.13, le nom annoncé par les étapes, dans n'importe quel ordre */
   if(esxEq(X,g.L) && pris.indexOf('L')<0) return 'L';
   return ESX_NOMS_LIBRES.find(n=>pris.indexOf(n)<0)||null;
 }
@@ -36261,6 +36319,12 @@ function esxClic(evt){
   if(test.locked||!esxActif()) return;
   const q=test.questions[test.idx], p=esxPointeur(evt); if(!q||!p) return;
   if(!esxOutil){ esxDire('Choisis d’abord un outil : Droite, Segment, Point d’intersection ou Parallèle.'); return; }
+  if(esxOutil==='i' && !esxSel){
+    const x=esxCroisementProche(q,p);
+    if(x){ esxSurvol=null; const avant=q.cons.length; esxCouper(q,x.a,x.b);
+      if(test.kind==='esg' && q.cons.length>avant) esgJuger(q,avant);
+      esxApres(); return; }
+  }
   const c=esxCible(q,p); esxSurvol=null;
   if(!c){ esxDire(esxOutil==='i'||(esxOutil==='p'&&esxSel&&esxSel.p)?'Clique plus près d’un trait.':(esxOutil==='p'&&!esxSel?'Clique plus près d’un point ou d’un segment rouge.':'Clique plus près d’un point.'), true); esxDessiner(); return; }
   if(!esxSel){
@@ -36335,6 +36399,7 @@ function esxSuivi(){
   const el=$('esxSuivi'); if(!el) return;
   if(!isSoutien()||test.locked||test.kind==='esg'){ el.innerHTML=''; return; }   /* le 7.1.13 montre ses étapes cochées */
   const q=test.questions[test.idx], b=esxBilan(q), m=b.filter(z=>z.m), n=m.filter(z=>z.ok).length;
+  if(test.kind==='esl'){ el.innerHTML='Où j’en suis : '+n+' morceau'+(n>1?'x':'')+' de la section en rouge sur '+m.length+'.'; return; }
   el.innerHTML='Où j’en suis : le point <i>L</i> '+(b[0].ok?'✓':'…')+' — la droite 𝒟 '+(b[1].ok?'✓':'…')+' — la section : '+n+' morceau'+(n>1?'x':'')+' rouge'+(n>1?'s':'')+' sur '+m.length+'.';
 }
 /* ---- la correction expliquée ---- */
@@ -36347,11 +36412,11 @@ function esxRetiens(q){
     else if(e.t==='2') l.push(seg(e.P,e.Q)+' : <i>'+N(e.P)+'</i> et <i>'+N(e.Q)+'</i> sont sur la même face '+fc(e.fi)+'.');
     else { const m=g.morceaux.find(z=>z.fi===e.ref); l.push('Les faces '+fc(e.fi)+' et '+fc(e.ref)+' sont parallèles : le plan les coupe selon deux segments parallèles. Par <i>'+N(e.P)+'</i>, la parallèle à '+seg(m.P,m.Q)+' coupe [<i>'+ar+'</i>] en <i>'+N(e.Q)+'</i>.'); }
   });
-  return 'La clé : '+l.join(' ');
+  return 'La clé : '+(test.kind==='esl'?'appelons <i>'+N(g.L)+'</i> le point d’intersection des droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>), qui sont dans le même plan ('+fc(ESX_FACES.findIndex(f=>esxSurFace(g.I,f)&&esxSurFace(g.J,f)))+'). ':'')+l.join(' ');
 }
-function esxBilanHTML(q){
+function esxBilanHTML(q,libre){
   const nc=esxNomsCorr(q), N=nc.nom;
-  return '<div class="esx-bilan">Le bilan : '+esxBilan(q).map(function(z){
+  return '<div class="esx-bilan">Le bilan : '+esxBilan(q).filter(z=>!libre||z.m).map(function(z){
     const t=z.cle==='L'?'le point '+N(esxCfg(q).L):(z.cle==='D'?'la droite 𝒟':'['+N(z.m.P)+N(z.m.Q)+']');
     return '<span class="esx-it pts-case '+(z.ok?'ok':'sol')+'">'+t+'</span>'; }).join(' ')+'</div>';
 }
@@ -36376,14 +36441,14 @@ function renderESX(){
   $('esxFeedback').textContent=''; $('esxFeedback').className='mp-feedback';
   $('esxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkESX()">Vérifier</button>';
   const guide=test.kind==='esg';
-  $('esxPrompt').innerHTML=guide?esgPromptHTML(q):esxPromptHTML(q);
+  $('esxPrompt').innerHTML=guide?esgPromptHTML(q):(test.kind==='esl'?eslPromptHTML(q):esxPromptHTML(q));
   $('esxForm').innerHTML=esxFormHTML(q);
   esxDire(guide?esgProchaine(q):'Choisis un outil.');
   esxBrancher(); esxDessiner();
 }
 function checkESX(live){
   if(test.locked && !live) return;
-  const q=test.questions[test.idx], guide=test.kind==='esg', b=guide?esgBilan(q):esxBilan(q), ok=b.every(z=>z.ok);
+  const q=test.questions[test.idx], guide=test.kind==='esg', libre=test.kind==='esl', b=guide?esgBilan(q):(libre?esxBilan(q).filter(z=>z.m):esxBilan(q)), ok=b.every(z=>z.ok);
   if(live){ esxSuivi(); return; }
   const fb=$('esxFeedback');
   if(!ok && isSoutien() && guide){
@@ -36395,7 +36460,7 @@ function checkESX(live){
   }
   if(!ok && isSoutien()){
     const m=b.filter(z=>z.m), n=m.filter(z=>z.ok).length, manque=[];
-    if(!b[0].ok) manque.push('le point L'); if(!b[1].ok) manque.push('la droite 𝒟'); if(n<m.length) manque.push((m.length-n)+' morceau'+(m.length-n>1?'x':'')+' de la section');
+    if(!libre && !b[0].ok) manque.push('le point L'); if(!libre && !b[1].ok) manque.push('la droite 𝒟'); if(n<m.length) manque.push((m.length-n)+' morceau'+(m.length-n>1?'x':'')+' de la section');
     fb.innerHTML='Pas encore. Il manque : '+manque.join(' ; ')+'. Continue ta construction, puis revérifie.';
     fb.className='mp-feedback bad';
     $('esxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkESX()">Revérifier</button>';
@@ -36413,10 +36478,10 @@ function checkESX(live){
     fb.innerHTML='<span class="msg-neutre">Ta construction est incomplète — <span class="msg-ok">ce que tu as trouvé est en <b>bleu</b> dans le bilan</span> ; <span class="msg-sol">ce qui manquait est tracé en <b>vert</b> sur la figure</span>.</span><br>'+esxRetiens(q);
     fb.className='mp-feedback bad';
   }
-  fb.insertAdjacentHTML('afterbegin', guide?esgBilanHTML(q):esxBilanHTML(q));
+  fb.insertAdjacentHTML('afterbegin', guide?esgBilanHTML(q):esxBilanHTML(q,libre));
   const nc=esxNomsCorr(q);
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:(guide?'Espace — section d’un cube, étape par étape : ':'Espace — section d’un cube : ')+esxPlain(q),
+    q:(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : '))+esxPlain(q),
     answer:'L, 𝒟 = (LK), section '+esxCfg(q).morceaux.map(m=>'['+nc.nom(m.P)+nc.nom(m.Q)+']').join(' '),
     given:b.filter(z=>z.ok).length+(guide?' étape':' élément')+(b.filter(z=>z.ok).length>1?'s':'')+' sur '+b.length, correct:ok, type:test.kind}));
   const last=test.idx===test.questions.length-1;
@@ -36445,9 +36510,12 @@ function esxConseilCtx(){
    le segment [KM], puis chaque morceau — un segment entre deux points d'une
    même face, ou la parallèle à un morceau de la face opposée. Les noms sont
    ceux que la page donnera aux points, dans l'ordre où ils sont construits
-   (L, puis M, N, P…) : la page n'accepte QUE le geste de l'étape en cours —
-   un autre est retiré, et le message redit l'étape. L'étape faite se coche
-   (✓), la suivante passe en gras. « Annuler » défait la dernière étape.
+   (L, puis M, N, P…), quel que soit l'ordre où l'élève les construit
+   (esxNouveauNom). La page n'accepte que les gestes qui réalisent une étape
+   restante, DANS L'ORDRE QU'ON VEUT (Turquet, novembre 2026) — un autre est
+   retiré, et le message le dit. L'étape faite se coche (✓) ; les outils
+   inutiles aux étapes restantes sont grisés. « Annuler » défait le dernier
+   geste.
    LA NOTE : la part des étapes faites (le bilan, .pts-case) ; un point pour la
    figure dont toutes les étapes sont faites. Ce qui manque est tracé en vert,
    comme au 7.1.12. */
@@ -36469,41 +36537,63 @@ function esgEtapes(q){
     else { const m=g.morceaux.find(z=>z.fi===e.ref);
       o.push({t:'p',A:e.P,B:e.Q,lab:'∥ par '+N(e.P),txt:'Trace la parallèle au segment ['+i(N(m.P)+N(m.Q))+'] passant par le point '+i(N(e.P))+' : elle s’arrête en '+i(N(e.Q))+'.'}); }
   });
+  o.noms=gen;
   return o;
 }
 function esgTexte(h){ const d=document.createElement('div'); d.innerHTML=h; return d.textContent; }
-function esgFaites(q){ return Math.min((q.cons||[]).length, esgEtapes(q).length); }
+/* LES ÉTAPES DANS L'ORDRE QU'ON VEUT (Turquet, novembre 2026 : « l'élève
+   n'est pas obligé de suivre les étapes dans l'ordre »). Chaque geste accepté
+   porte le numéro de l'étape qu'il réalise (e.etape) : n'importe quelle étape
+   restante, pourvu que ses points existent — la géométrie l'impose seule (pas
+   de L sans (IJ) et (CG)). Les points prennent le nom que les étapes leur
+   annoncent (esxNouveauNom), quel que soit l'ordre. */
+function esgFaitesSet(q){ const o={}; (q.cons||[]).forEach(e=>{ if(typeof e.etape==='number') o[e.etape]=1; }); return o; }
+function esgFaites(q){ return Object.keys(esgFaitesSet(q)).length; }
 function esgProchaine(q){
-  const E=esgEtapes(q), f=esgFaites(q);
-  return f>=E.length?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Étape '+(f+1)+' : '+esgTexte(E[f].txt);
+  const E=esgEtapes(q), r=E.length-esgFaites(q);
+  return r<=0?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Il reste '+r+' étape'+(r>1?'s':'')+', dans l’ordre que tu veux.';
 }
-/* le geste qui vient d'être ajouté est-il celui de l'étape ? sinon, il est retiré */
+/* le geste qui vient d'être ajouté réalise-t-il une étape restante ? sinon, il est retiré */
 function esgJuger(q,avant){
-  const E=esgEtapes(q), st=E[avant], e=q.cons[avant];
+  const E=esgEtapes(q), e=q.cons[avant], faites=esgFaitesSet(q);
   const memes=(A,B,X,Y)=>(esxEq(A,X)&&esxEq(B,Y))||(esxEq(A,Y)&&esxEq(B,X));
-  let ok=false;
-  if(st&&e){
-    if(st.t==='d') ok=e.k==='d'&&(function(){ const A=esxPt(q,e.a), B=esxPt(q,e.b); return esxSurDroite(st.A,A,B)&&esxSurDroite(st.B,A,B); })();
-    else if(st.t==='i') ok=e.k==='p'&&esxEq(e.P,st.X);
-    else if(st.t==='s') ok=e.k==='s'&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
-    else ok=e.k==='s'&&!!e.par&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
-  }
-  if(!ok){ q.cons.splice(avant); esxDire(st?'Ce n’est pas ce que demande l’étape '+(avant+1)+' : '+esgTexte(st.txt):'Toutes les étapes sont faites : clique sur « Vérifier ».', true); return; }
-  esxDire('Étape '+(avant+1)+' faite. '+esgProchaine(q));
+  const conv=function(st){
+    if(!e) return false;
+    if(st.t==='d') return e.k==='d'&&(function(){ const A=esxPt(q,e.a), B=esxPt(q,e.b); return esxSurDroite(st.A,A,B)&&esxSurDroite(st.B,A,B); })();
+    if(st.t==='i') return e.k==='p'&&esxEq(e.P,st.X);
+    if(st.t==='s') return e.k==='s'&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
+    return e.k==='s'&&!!e.par&&memes(esxPt(q,e.a),esxPt(q,e.b),st.A,st.B);
+  };
+  const i=E.findIndex((st,k)=>!faites[k]&&conv(st));
+  if(i<0){ q.cons.splice(avant); esxDire(esgFaites(q)>=E.length?'Toutes les étapes sont faites : clique sur « Vérifier ».':'Ce geste ne réalise aucune des étapes qui restent : relis-les.', true); return; }
+  e.etape=i;
+  esxDire('Étape '+(i+1)+' faite. '+esgProchaine(q));
 }
 function esgEtapesHTML(q){
-  const E=esgEtapes(q), f=esgFaites(q);
+  const E=esgEtapes(q), f=esgFaitesSet(q);
   return '<ol class="esg-etapes" id="esgEtapes">'+E.map(function(s,i){
-    return '<li class="'+(i<f?'esg-fait':(i===f&&!test.locked?'esg-cour':''))+'">'+s.txt+(i<f?' <span class="esg-ok">✓</span>':'')+'</li>'; }).join('')+'</ol>';
+    return '<li class="'+(f[i]?'esg-fait':'')+'">'+s.txt+(f[i]?' <span class="esg-ok">✓</span>':'')+'</li>'; }).join('')+'</ol>';
 }
-function esgMaj(q){ const el=$('esgEtapes'); if(el) el.outerHTML=esgEtapesHTML(q); }
+function esgMaj(q){ const el=$('esgEtapes'); if(el) el.outerHTML=esgEtapesHTML(q); esgOutils(q); }
+/* LES OUTILS QUI NE SERVENT PAS À L'ÉTAPE SONT GRISÉS (Turquet, novembre
+   2026). « Annuler » reste toujours actif ; quand toutes les étapes sont
+   faites, les quatre outils sont grisés. Un outil grisé qui était choisi est
+   lâché. */
+function esgOutils(q){
+  if(test.locked) return;
+  const E=esgEtapes(q), f=esgFaitesSet(q), utiles={};
+  E.forEach((st,i)=>{ if(!f[i]) utiles[st.t]=1; });   /* les outils des étapes qui restent */
+  if(esxOutil && !utiles[esxOutil]){ esxOutil=null; esxSel=null; }
+  document.querySelectorAll('#esxForm .esx-outil[data-outil]').forEach(function(b){
+    const o=b.getAttribute('data-outil'); b.disabled=!utiles[o]; b.setAttribute('aria-pressed', o===esxOutil?'true':'false'); });
+}
 function esgPromptHTML(q){
   const g=esxCfg(q), R=g.R;
   return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
-    +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire la section du cube par le plan (<i>IJK</i>) en suivant les étapes :'
+    +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire la section du cube par le plan (<i>IJK</i>) en réalisant les étapes suivantes, dans l’ordre que tu veux :'
     +esgEtapesHTML(q);
 }
-function esgBilan(q){ const f=esgFaites(q); return esgEtapes(q).map((s,i)=>({lab:s.lab, ok:i<f})); }
+function esgBilan(q){ const f=esgFaitesSet(q); return esgEtapes(q).map((s,i)=>({lab:s.lab, ok:!!f[i]})); }
 function esgBilanHTML(q){
   return '<div class="esx-bilan">Les étapes : '+esgBilan(q).map(z=>'<span class="esx-it pts-case '+(z.ok?'ok':'sol')+'">'+z.lab+'</span>').join(' ')+'</div>';
 }
@@ -36520,10 +36610,44 @@ async function startESG(){
 function esgConseilCtx(){
   const q=test.questions[test.idx], E=esgEtapes(q), f=esgFaites(q);
   return 'Exercice de Terminale (géométrie dans l’espace, section d’un cube par un plan, ÉTAPE PAR ÉTAPE) : '+esxPlain(q)+'. '
-    +'L’élève suit des étapes écrites et construit sur la figure avec des outils : Droite (deux points), Segment (deux points), Point d’intersection (deux traits), Parallèle (un point et un segment rouge d’une face parallèle, dans l’ordre qu’il veut ; le segment tracé s’arrête au bord de la face). La page n’accepte que le geste de l’étape en cours. '
+    +'L’élève suit des étapes écrites et construit sur la figure avec des outils : Droite (deux points), Segment (deux points), Point d’intersection (deux traits), Parallèle (un point et un segment rouge d’une face parallèle, dans l’ordre qu’il veut ; le segment tracé s’arrête au bord de la face). La page n’accepte que les gestes qui réalisent une étape restante, dans l’ordre que l’élève veut. '
     +'Les étapes : '+E.map((s,i)=>(i+1)+'. '+esgTexte(s.txt)).join(' ')+' '
-    +'Étapes faites : '+f+' sur '+E.length+(f<E.length?' ; étape en cours : '+(f+1)+'. '+esgTexte(E[f].txt):'')+'. '
-    +'Aide l’élève sur l’étape en cours : quel outil choisir, sur quoi cliquer, et POURQUOI cette construction est juste (deux points d’une même face ; L dans les deux plans ; deux faces parallèles coupées selon des segments parallèles ; deux droites ne se coupent que dans un même plan).';
+    +'Étapes faites : '+f+' sur '+E.length+' ; étapes qui restent (dans l’ordre que l’élève veut) : '+(function(){ const F=esgFaitesSet(q); return E.map((s,i)=>F[i]?'':(i+1)+'. '+esgTexte(s.txt)).filter(Boolean).join(' ')||'aucune'; })()+'. '
+    +'Aide l’élève sur l’étape qu’il cherche : quel outil choisir, sur quoi cliquer, et POURQUOI cette construction est juste (deux points d’une même face ; L dans les deux plans ; deux faces parallèles coupées selon des segments parallèles ; deux droites ne se coupent que dans un même plan).';
+}
+/* ================= 7.1.14 L'ESPACE — SECTION D'UN CUBE, SANS INDICATION (kind 'esl') =================
+   Demande de Turquet (novembre 2026) : « créer un exercice de section sans
+   aucune indication dans l'énoncé, pas de point d'intersection à placer avant
+   de terminer la section ». L'énoncé ne donne que le cube et I, J, K, et
+   demande la section du plan (IJK). LE MOTEUR DU 7.1.12 (figure, outils,
+   tirage, pointillés), seul le kind change ('esl'). La note ne compte QUE les
+   morceaux de la section : le point L et la droite 𝒟 sont des traits de
+   construction, que l'élève trouve ou non — un autre chemin juste vaut autant.
+   À la correction, la construction par L ne se montre en vert que si la
+   section est incomplète ; l'explication la nomme (« appelons L … »). */
+function eslPromptHTML(q){
+  return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
+    +'<br>Construire sur la figure la section du cube par le plan (<i>IJK</i>), en laissant apparents les traits de construction.';
+}
+async function startESL(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='espace-section-cube-libre'; test.kind='esl';
+  test.questions=esxGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('esx'); renderESX();
+}
+function eslConseilCtx(){
+  const q=test.questions[test.idx], g=esxCfg(q), b=esxBilan(q);
+  const cons=(q.cons||[]).map(e=>e.k==='p'?'point '+e.n:(e.k==='d'?'droite ('+e.a+e.b+')':'segment ['+e.a+e.b+']'+(e.par?' (parallèle)':'')+(e.np?' jusqu’au point '+e.np.n:''))).join(', ');
+  const t=(P,o,fr)=>P+(fr[0]===1&&fr[1]===2?' milieu de ['+g.R[o[0]]+g.R[o[1]]+']':' sur ['+g.R[o[0]]+g.R[o[1]]+'] avec '+g.R[o[0]]+P+' = '+fr[0]+'/'+fr[1]+' '+g.R[o[0]]+g.R[o[1]]);
+  return 'Exercice de Terminale (géométrie dans l’espace, section d’un cube par un plan, SANS INDICATION) : cube ABCDEFGH de côté 1 (face avant BCGF, B en bas à gauche, A caché derrière B, E au-dessus de A) ; '+t('I','BF',q.a)+', '+t('J','BC',q.b)+', '+t('K','CD',q.c)+' ; construire la section du cube par le plan (IJK). L’énoncé ne donne aucune indication. '
+    +'L’élève construit sur la figure avec des outils : droite par deux points, segment, point d’intersection de deux droites (ou d’une droite et d’un segment ; la page refuse deux droites non coplanaires), parallèle à un segment rouge de la section, tracée sur la face opposée. Un segment qui est un morceau de la section devient rouge. '
+    +'Construction actuelle : '+(cons||'rien encore')+'. Morceaux de la section déjà trouvés : '+b.filter(z=>z.m&&z.ok).length+' sur '+g.morceaux.length+'. '
+    +'STRICTEMENT SECRET : la forme de la section, ses points et les arêtes qu’elle coupe — ne les donne jamais. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne pas la construction toute faite ; guide par questions. Méthode, sans la donner : relier deux points du plan situés sur une même face ; quand une face n’a qu’un point connu, prolonger une droite du plan tracée sur une face voisine jusqu’à une arête prolongée de la face cherchée (deux droites d’un même plan, non parallèles, se coupent) : ce point est dans le plan de cette face ; deux faces parallèles sont coupées selon des segments parallèles ; deux droites ne se coupent que si elles sont dans un même plan.';
 }
 /* ================= 8.1.1 ÉQUATIONS DIFFÉRENTIELLES — VÉRIFIER QU'UNE FONCTION EST SOLUTION (kind 'edv') =================
    Demande de Turquet (novembre 2026), avec la fiche « équa diff » (exercice
@@ -41732,6 +41856,7 @@ const QIA_SUGG={
   epo:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Comment savoir si deux droites de l’espace sont sécantes ?","Deux droites qui ne se coupent pas sont-elles forcément parallèles ?","Comment trouver un plan qui contient les deux droites ?","Pourquoi une partie de la droite est-elle en pointillés ?"],
   ecp:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Pourquoi passer directement au c) quand les droites sont parallèles ?","Comment savoir si deux droites sont sécantes ?","Pourquoi vérifier dans la dernière équation ?","Deux droites qui ne sont pas parallèles sont-elles forcément sécantes ?"],
   erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?","Quelle différence entre les deux méthodes ?"],
+  esl:["Faire un rappel de cours pour cet exercice.","Par où commencer la section ?","Quels points du plan sont sur une même face ?","Comment atteindre une face qui n’a qu’un seul point ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?"],
   esg:["Faire un rappel de cours pour cet exercice.","Quel outil utiliser pour cette étape ?","Pourquoi L est-il dans les deux plans ?","Pourquoi la parallèle se trace-t-elle sur la face opposée ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?"],
   esx:["Faire un rappel de cours pour cet exercice.","Pourquoi L est-il dans les deux plans ?","Comment trouver l’intersection de deux plans ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?","Par où commencer la section ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],

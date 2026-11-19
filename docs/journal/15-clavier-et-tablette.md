@@ -1864,7 +1864,7 @@ sur le téléphone réel de Turquet (police, barre d'adresse, bande des gestes),
 qui se regarde en ligne.
 
 **La touche « + » là où un nombre s'écrit avec son signe (Turquet, novembre
-2026, Terminale v504).** « Les élèves qui travaillent sur téléphone et sans
+2026, Terminale v506).** « Les élèves qui travaillent sur téléphone et sans
 doute sur tablette n'ont pas le signe + sur le clavier virtuel » — au 7.1.3,
 où le −xA qui change de membre s'écrit « +3 ». `PAVE_TOUCHES` porte « − »
 et jamais « + » : l'ajouter là l'offrirait à toutes les cases numériques du
