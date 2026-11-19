@@ -1125,3 +1125,22 @@ inachevée dit combien d'étapes restent, sans rien verrouiller.
 étapes), un geste faux refusé à l'étape 1, chaque parallèle tracée segment
 d'abord puis point, la figure « parfaite », l'écran de fin, aucune erreur de
 page.
+
+**Puis le point d'intersection en un seul clic, dans les deux exercices
+(Turquet, novembre 2026, v504 : « peut-on mettre un point d'intersection
+directement sans avoir à choisir les deux droites au préalable ? dans les deux
+exercices »).** Avec l'outil « Point d'intersection », un clic près du
+CROISEMENT de deux traits dessinés (droites, segments, arêtes) les choisit
+tous les deux (`esxCroisementProche`). Parmi les traits qui passent à moins de
+2,5 tolérances du clic, la page garde les paires dont les dessins se croisent
+à moins de 1,8 tolérance, et prend la plus proche. À égalité, elle préfère la
+paire qui se coupe AUSSI dans l'espace (`esxEspaceCoupe`). Le point reste
+celui de l'espace (`esxCouper`) : un croisement qui n'existe que sur le
+dessin est refusé avec le même message qu'avant. Loin de tout croisement, le
+clic choisit un trait comme avant, et le second clic l'autre. Le 7.1.13 passe
+par le même geste, et l'étape est jugée comme si les deux traits avaient été
+cliqués. **Éprouvé** dans Chromium : sur chaque exercice, (IJ) et la seconde
+droite tracées, puis UN clic à 5 unités du croisement → « Point L placé »
+(7.1.12) et « Étape 3 faite » (7.1.13). Un clic au milieu d'une arête ne
+trouve aucun croisement. Le croisement dessiné de (AG) et [BC] est refusé :
+« ne sont pas dans un même plan ».

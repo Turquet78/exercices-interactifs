@@ -4635,7 +4635,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=503;
+const APP_VERSION=504;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36186,7 +36186,7 @@ function esxFormHTML(q){
     +'<div class="esx-suivi" id="esxSuivi"></div>';
 }
 /* ---- les gestes ---- */
-const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment : clique sur deux points.', i:'Point d’intersection : clique sur deux droites (ou une droite et un segment, une arête).', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
+const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment : clique sur deux points.', i:'Point d’intersection : clique directement là où deux traits se croisent — ou sur un trait, puis sur l’autre.', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
 function esxDire(t,err){ esxMsg=t; esxMsgErr=!!err; const el=$('esxMsg'); if(el){ el.textContent=t; el.classList.toggle('esx-err',!!err); } }
 function esxChoisir(o){
   if(test.locked) return;
@@ -36239,6 +36239,40 @@ function esxCible(q,p){
   return null;
 }
 function esxActif(){ return test.kind==='esx'||test.kind==='esg'; }
+/* LE POINT D'INTERSECTION EN UN CLIC (demande de Turquet, novembre 2026 : « peut-on
+   mettre un point d'intersection directement sans avoir à choisir les deux droites
+   au préalable ? dans les deux exercices »). Avec l'outil « Point d'intersection »,
+   un clic près du CROISEMENT de deux traits dessinés (droites, segments, arêtes)
+   les choisit tous les deux : la page cherche, parmi les traits qui passent près
+   du clic, les paires dont les dessins se croisent à moins de 1,8 tolérance du
+   clic, et garde la plus proche — à égalité de dessin, celle qui se coupe AUSSI
+   dans l'espace. Le point reste celui de l'espace (esxCouper) : un croisement qui
+   n'existe que sur le dessin est refusé avec le même message qu'avant. Loin de
+   tout croisement, le clic choisit un trait, comme avant, et le second clic
+   l'autre. Le 7.1.13 passe par le même geste. */
+function esxSeg2(q,o){ const c=esxCadre(q), a=esxProj(o.A), b=esxProj(o.B); return o.t==='d'?esxClip(a,b,c):[a,b]; }
+function esxCroise2(s1,s2){
+  const r=[s1[1][0]-s1[0][0], s1[1][1]-s1[0][1]], t=[s2[1][0]-s2[0][0], s2[1][1]-s2[0][1]], d=r[0]*t[1]-r[1]*t[0];
+  if(Math.abs(d)<1e-9) return null;
+  const w=[s2[0][0]-s1[0][0], s2[0][1]-s1[0][1]], u=(w[0]*t[1]-w[1]*t[0])/d, v=(w[0]*r[1]-w[1]*r[0])/d;
+  if(u<-0.02||u>1.02||v<-0.02||v>1.02) return null;
+  return [s1[0][0]+u*r[0], s1[0][1]+u*r[1]];
+}
+function esxEspaceCoupe(o1,o2){
+  const u=esxSub(o1.B,o1.A), v=esxSub(o2.B,o2.A), w=esxSub(o2.A,o1.A), n=esxVx(u,v);
+  return !esxNul(n) && Math.abs(esxDot(w,n))<1e-9;
+}
+function esxCroisementProche(q,p){
+  const ob=esxObjets(q).map(o=>({o:o, s:esxSeg2(q,o)})).filter(z=>esxDist2([p.x,p.y],z.s[0],z.s[1])<=2.5*p.tol);
+  let best=null;
+  for(let i=0;i<ob.length;i++) for(let j=i+1;j<ob.length;j++){
+    const X=esxCroise2(ob[i].s, ob[j].s); if(!X) continue;
+    const d=Math.hypot(X[0]-p.x, X[1]-p.y); if(d>1.8*p.tol) continue;
+    const ok=esxEspaceCoupe(ob[i].o, ob[j].o), sc=d-(ok?0.5*p.tol:0);
+    if(!best||sc<best.sc) best={sc:sc, a:ob[i].o.id, b:ob[j].o.id};
+  }
+  return best;
+}
 function esxNouveauNom(q,X){
   const g=esxCfg(q), pris=esxPoints(q).map(z=>z.n);
   if(esxEq(X,g.L) && pris.indexOf('L')<0) return 'L';
@@ -36248,6 +36282,12 @@ function esxClic(evt){
   if(test.locked||!esxActif()) return;
   const q=test.questions[test.idx], p=esxPointeur(evt); if(!q||!p) return;
   if(!esxOutil){ esxDire('Choisis d’abord un outil : Droite, Segment, Point d’intersection ou Parallèle.'); return; }
+  if(esxOutil==='i' && !esxSel){
+    const x=esxCroisementProche(q,p);
+    if(x){ esxSurvol=null; const avant=q.cons.length; esxCouper(q,x.a,x.b);
+      if(test.kind==='esg' && q.cons.length>avant) esgJuger(q,avant);
+      esxApres(); return; }
+  }
   const c=esxCible(q,p); esxSurvol=null;
   if(!c){ esxDire(esxOutil==='i'||(esxOutil==='p'&&esxSel&&esxSel.p)?'Clique plus près d’un trait.':(esxOutil==='p'&&!esxSel?'Clique plus près d’un point ou d’un segment rouge.':'Clique plus près d’un point.'), true); esxDessiner(); return; }
   if(!esxSel){
