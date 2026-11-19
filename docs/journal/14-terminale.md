@@ -3513,3 +3513,18 @@ Demandes de Turquet (novembre 2026), après la mise en ligne :
 
 Essayé dans Chromium : copie juste 86 cases sur 86 ; copie vide toute corrigée
 en vert ; « uₙ − 900 » refusé là où uₙ₊₁ − 900 est attendu.
+
+### Puis l'escalier est allé jusqu'à u₄, chaque terme reporté sur l'axe (v502)
+
+Demande de Turquet (novembre 2026) : « quand on a placé u₂ sur la droite, mettre
+en bas verticalement sur l'axe des abscisses, en reliant avec des pointillés,
+u₁ ; ainsi de suite jusqu'à avoir u₃ en bas, et donc u₄ sur la droite en haut ».
+L'escalier compte SEPT points (`SBE_NPTS`) : (u₀ ; u₁), (u₁ ; u₁), (u₁ ; u₂),
+(u₂ ; u₂), (u₂ ; u₃), (u₃ ; u₃), (u₃ ; u₄). Chaque point que l'élève pose sur
+y = x se reporte AUSSITÔT sur l'axe des abscisses, en pointillés violets, avec
+son nom u₁, u₂, u₃ (`.sbe-proj`) ; le septième, sur y = g(x), porte u₄. À la
+vérification, les reports justes sont doublés en vert, et les noms que l'élève
+n'a pas atteints s'écrivent en vert. Le tirage exige désormais quatre écarts
+entre les rails (u₄ − u₃ compris) d'au moins 34 unités du dessin : mesuré sur
+2 000 tirages, aucun échec. Essayé dans Chromium : sept clics décalés de 20
+unités posent les sept points exacts ; copie juste 88 cases sur 88.
