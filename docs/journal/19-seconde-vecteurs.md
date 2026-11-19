@@ -6874,3 +6874,94 @@ copie juste 26 sur 26 avec le produit en croix dans l'autre ordre, facteurs
 messages ; le contexte du modèle ; l'alignement (trois points, 25 sur 25) et
 le parallélogramme (« dcba », 21 sur 21) ; le soutien ; la bulle ; la barre
 au doigt.
+
+## {coordonnees-vecteur-devoir} — le devoir surveillé, cinq questions sur les mêmes points, chacune sur le moteur de son exercice (8.4.14, Seconde v709)
+
+**La demande** (Turquet, novembre 2026) : « en seconde dans coord de vecteur
+faire un exercice comme le pdf, on présentera chaque question comme une
+question déjà posée dans les exercices de coordonnées de vecteur. Pour
+déterminer M point d'un parallélogramme on prendra comme exemple le n°8.4.10
+et on demandera de placer le point M à la fin sur le graphique. On peut
+redonner le même graphique de l'élève par exemple pour placer le point N. »
+Le PDF : un devoir surveillé, A(−2 ; −1), B(2 ; 1), C(4 ; −3), D(−4 ; 4),
+E(5 ; 0), « Le dessin ci-dessous est à compléter » ; a) ADBC est un
+parallélogramme ; b) D, B et E sont alignés ; c) M(x ; y) pour que ABCM soit
+un parallélogramme, « on justifiera la démarche » ; d) F(−4,1 ; 3,2), (AF) et
+(BC) parallèles ; e) placer N tel que « AM⃗ = CE⃗ + CB⃗ » ; f) N(x ; y) par
+un calcul.
+
+**Deux coquilles du devoir.** Avec D(−4 ; 4), ADBC n'est PAS un
+parallélogramme (AD⃗(−2 ; 5), CB⃗(−2 ; 4)) et D, B, E ne sont pas alignés ;
+avec D(−4 ; 3) les deux deviennent vrais : c'est le D voulu. Et le e) dit AM⃗
+pour AN⃗. Les points du devoir ne sont donc jamais tirés (le banc le tient
+pour D(−4 ; 4)) — de toute façon, depuis le 8.4.11, Turquet veut ses propres
+points.
+
+**Chaque question est la question d'un exercice existant, sur son moteur.**
+a), b) et d) : le 8.4.13 (« vcl » — le parallélogramme, l'alignement, le
+parallélisme). c) : le 8.4.10 (« vqs » — le schéma, deux vecteurs au choix
+dont le second finit sur M, le système, M placé à la fin dans le repère).
+e) et f) : le 8.4.11 (« vsm » — les copies glissées bout à bout depuis A, N
+placé, puis le calcul). Une question porte son moteur (`q.kd`) et sa partie
+(`q.ds`) ; `test.kind` est celui de la question en cours, `test.ds` marque la
+séance, et la « Question suivante » des trois moteurs passe par
+`vdsSuivante()`, qui change d'écran avec la question. Rien d'autre n'avait à
+savoir qu'une séance change de moteur : la reprise d'une pause rouvre l'écran
+de `test.kind` (et la suite d'une question corrigée appelle `nextVcl`, etc.,
+qui renvoient à `vdsSuivante`) ; la coupe d'un devoir pèse chaque question sur
+SON moteur (`dmAppliquerNbQ` lit `q.kd` — la seule ligne commune touchée) ; le
+contexte du modèle est celui du moteur, précédé de la question du devoir. Le
+rappel est propre (`RAP_VDS`, ses cinq points rangés par question).
+
+**Les moteurs ont appris des lettres** (`q.L`), sans rien changer à leurs
+propres exercices (le banc le tient) : `vclL`, `vclT` (un texte écrit pour
+A, B, C, D, dit avec les lettres de la question), `vclQuad` ; `vsmL`, `vsmS`
+(le point de départ). ADBC est le « ABCD » du 8.4.13 lu A, D, B, C (AD⃗ = CB⃗,
+et « bcad » est un nom juste) ; D, B, E son « A, B, C » ; A, F, B, C son
+« (AB) et (CD) » ; C, E, B, A le « A, B, C, D » du 8.4.11. Le 8.4.10 avait
+déjà A, B, C, M.
+
+**Le même graphique.** Ce que les questions précédentes ont établi est posé
+par la page et ne compte pas deux fois (`q.don` : D et B au b, A, B, C et F
+au d — `vclOutils` les écarte des gestes, de la barre au doigt et du barème) ;
+le reste se montre en gris (`q.ctx`, `vdsContexte` : A et C au b, D et E au
+c, D, E et M au d, D, M et F au e), et les noms des flèches les évitent
+(`vdsCtxPts`). Le a) part d'un repère vide : le dessin est à compléter.
+
+**F est décimal** — c'est le piège du devoir : (AF) a l'air parallèle, le
+calcul le prouve. F n'est pas sur un nœud : la page le place et trace AF⃗
+(`q.tf`), l'élève trace BC⃗. Les cases du d) lisent « −2,1 », « (−4,1) »,
+« 8.4 » (`q.dec`, `vclLit`), les calculs s'arrondissent au centième (`vclR`).
+`svrNb` écrit désormais la virgule (il n'avait jamais vu de décimal) ; la
+numérotation du d) commence au calcul quand il ne reste qu'un geste… et
+reste « 1) Trace BC⃗ ».
+
+**Le tirage : 7 points dans −5…5, c'était 6 figures.** A, B, C, puis
+D = A + B − C, E = D + k DB⃗, M = A + C − B, N = A + CE⃗ + CB⃗ : sept points
+entiers, deux à deux à deux carreaux, ni sur un axe ni à −1 (la règle des
+autres tirages), et tout ce que chaque moteur exige des siens (ADBC ni
+rectangle ni losange, les vecteurs en biais, A et C d'accord sur l'étape
+« + », A négatif pour le 8.4.11, trois de C, E, B, A jamais alignés, les
+copies dans le repère). Énumérées, il n'en restait que 6. En acceptant −1,
+766 ; avec F (une décimale, à 1,2 au moins des axes et des autres points),
+560. Les lettres posées à −1 évitent les graduations : `vclCoin`, `vcmCroix`,
+`vsmCoin` (qui ne le faisait que pour l'abscisse) et `vdsContexte` — aucun
+autre tirage ne produit −1, rien n'a bougé ailleurs. Les figures sont
+énumérées une fois (`VDS_FIG`, 60 ms) : un tirage au hasard en trouverait une
+sur dix mille.
+
+**Vu à la capture** (Chromium, 1 280 px) : F(0,2 ; −0,8) collé à l'origine,
+sa lettre et le nom de AF⃗ sur les graduations — d'où la distance aux axes ;
+le D gris sous le nom AN⃗ — d'où `vdsCtxPts`.
+
+**Le banc principal** (`coordonneesDevoir`) : la place, le rappel ; les
+moteurs d'origine (lettres et gestes) inchangés ; la lecture des décimaux et
+la virgule ; une lettre à −1 hors des graduations ; deux cents devoirs (les
+cinq moteurs dans l'ordre, les mêmes points, la géométrie de chaque question,
+F décimal et loin des axes, jamais la coquille, le poids de chaque question,
+du JSON) ; la copie juste menée d'un écran à l'autre, 130 sur 130 (« bcad »,
+le produit en croix dans l'autre ordre, BC⃗ = AM⃗, les copies dans l'autre
+ordre) avec ce que la page pose d'avance et les points gris ; la copie vide
+du d) (les virgules, rien de rouge) ; la reprise d'une pause sur la question
+c, puis la suite vers le d). Le banc des notes et celui de la pause, restreints
+au 8.4.14 : verts.
