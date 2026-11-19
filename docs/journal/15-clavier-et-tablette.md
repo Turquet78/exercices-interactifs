@@ -1862,3 +1862,18 @@ rectangle nul — « hidden » seul est précisément ce qui trompait. Les trois
 niveaux y passent, les deux orientations. Ce qu'aucun banc ne voit : le rendu
 sur le téléphone réel de Turquet (police, barre d'adresse, bande des gestes),
 qui se regarde en ligne.
+
+**La touche « + » là où un nombre s'écrit avec son signe (Turquet, novembre
+2026, Terminale v506).** « Les élèves qui travaillent sur téléphone et sans
+doute sur tablette n'ont pas le signe + sur le clavier virtuel » — au 7.1.3,
+où le −xA qui change de membre s'écrit « +3 ». `PAVE_TOUCHES` porte « − »
+et jamais « + » : l'ajouter là l'offrirait à toutes les cases numériques du
+niveau, où il n'écrirait qu'une réponse fausse. La case le demande donc en
+plus (`data-pave-plus="+"`, le troisième argument de `txInp`), et seule une
+case où le signe s'écrit. Avec ça, un détail de la grille du téléphone
+debout : une touche supplémentaire SEULE, auto-placée après les zones
+nommées, tombait dans la première colonne, un carré perdu à gauche ;
+`#paveSup .pave-plus:only-child{grid-column:1/-1}` lui donne la rangée
+entière. Deux touches ou plus se rangent comme avant. Contrôle :
+`clavierSigne`, banc principal, déclaré par le profil — chronique au 7.1.3
+(`docs/journal/21-terminale-espace.md`).

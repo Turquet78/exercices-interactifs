@@ -277,6 +277,45 @@ entre −3 et 3, trois t égaux exactement quand le point est sur la droite,
 les deux points de la forme 1 jamais du même côté ; les huit copies justes
 de nouveau acceptées.
 
+**Puis la touche « + » est venue au pavé des téléphones (Turquet, novembre
+2026, v506).** « Les élèves qui travaillent sur téléphone et sans doute sur
+tablette n'ont pas le signe + sur le clavier virtuel. » La copie d'écran le
+montrait : dans la seconde case de « = … … » — le −xA qui change de membre —
+l'élève avait écrit « −3 » là où la correction attendait « +3 ». Les cases
+du 7.1.3 sont des `txInp` : `inputmode="numeric"`, donc servies par le pavé
+ancré, qui porte « − » pour tout le monde et jamais « + » — et le clavier du
+système ne s'ouvre pas derrière lui. Le juge, lui, acceptait « 3 » pour
+« +3 » (`tgParseFrac` retire le signe), mais rien ne le disait à l'élève, et
+la fiche écrit le signe.
+
+* **Les cases où un nombre s'écrit AVEC son signe demandent « + » en plus**
+  (`data-pave-plus="+"`, par le troisième argument de `txInp`) : le
+  coefficient de t (`edp-s0u`…, « x = 2 + (−2) t ») et le −xA du troisième
+  système (`edp-0-f0b`…). Les autres cases restent des nombres : la doctrine
+  du bouton qui n'est proposé que là où il SERT, et le contrôle tient les
+  deux bords (une case signée sans « + », une case non signée avec).
+* **Une case qui ne demande qu'UNE touche en plus la voit prendre toute la
+  rangée** sous le rectangle du pavé d'un téléphone debout
+  (`#paveSup .pave-plus:only-child{grid-column:1/-1}`) : auto-placée dans la
+  grille, elle était un seul carré perdu dans le coin gauche. Sur tablette,
+  la rangée unique se replie et la touche vient dessous, centrée — comme les
+  touches d'un ensemble de solutions.
+
+**Contrôle** : `clavierSigne` (banc principal, `tests/verifier.js`, déclaré
+par le profil de la Terminale : l'exercice, la touche, l'expression des
+identifiants, et le kind, le tirage et le rendu — `startEDP` est asynchrone,
+il attend `loadConfig`, et un contrôle synchrone qui l'appelait lisait un
+écran vide ; la séance est donc tirée par `edpGenSession` et rendue par
+`renderEDP`, les deux fonctions que le démarreur appelle, ce que le contrôle
+relit dans sa source). Chaque question est tournée, et sur chaque page : chaque case nommée
+porte la touche, aucune autre ne la porte, le pavé la pose quand la case a
+le focus, et « + » puis « 3 » y écrivent « +3 » en levant « input » deux
+fois ; les deux formes de la séance doivent avoir été vues. **Éprouvé dans
+Chromium** (390 × 844, 820 × 1180, 1180 × 820, tactile) : les neuf cases de
+la forme 1 et les six de la forme 2 offrent « + », le pavé ancré au bas et
+au bord, la touche écrit « +3 » ; sur le téléphone, la barre « + » mesure
+376 × 46 sous le rectangle.
+
 ## 7.1.4 — deux droites parallèles ? (`espace-droites-paralleles`, kind `epa`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un

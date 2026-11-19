@@ -2589,6 +2589,13 @@ module.exports = {
 
   /* ------------------------------------------------------------------ */
   'terminale.html': {
+    /* Le 7.1.3 (équation paramétrique d'une droite) : le coefficient de t
+       (edp-s0u…) et le −xA qui change de membre (edp-0-f0b…) s'écrivent AVEC
+       leur signe — « +3 ». Sur téléphone et tablette, le pavé ancré n'a que
+       « − » : ces cases, et elles seules, lui demandent « + » en plus
+       (data-pave-plus). Signalé par Turquet, novembre 2026. */
+    clavierSigne: { exercice: 'espace-droite-parametrique', touche: '+', cases: '^(edp-s\\du|edp-\\d-f\\db)$',
+                    kind: 'edp', tirage: 'edpGenSession', rendu: 'renderEDP' },
     /* LES TIRAGES PAR FAMILLES (octobre 2026). Un démarreur qui écrit
        « test.questions = ….map(…) » sans distincte() ne regarde pas les
        questions déjà tirées : il n'est sûr que si CHAQUE place du plan est
