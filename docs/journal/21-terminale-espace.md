@@ -1144,3 +1144,34 @@ droite tracées, puis UN clic à 5 unités du croisement → « Point L placé �
 (7.1.12) et « Étape 3 faite » (7.1.13). Un clic au milieu d'une arête ne
 trouve aucun croisement. Le croisement dessiné de (AG) et [BC] est refusé :
 « ne sont pas dans un même plan ».
+
+**Puis, au 7.1.13, les outils qui ne servent pas à l'étape sont grisés
+(Turquet, novembre 2026, v505).** `esgOutils`, appelé à chaque dessin : seul
+l'outil de l'étape en cours reste actif (Droite, Segment, Point
+d'intersection ou Parallèle), « ↶ Annuler » toujours ; toutes les étapes
+faites, les quatre sont grisés. Un outil choisi puis grisé (après
+« Annuler ») est lâché. **Vérifié** : étape 1 → seule « Droite » ; étape 3 →
+seul « Point d'intersection » ; « Annuler » ramène « Droite ».
+
+## 7.1.14 — la section d'un cube, sans indication (`espace-section-cube-libre`, kind `esl`)
+
+Même jour : « créer un exercice de section sans aucune indication dans
+l'énoncé, pas de point d'intersection à placer avant de terminer la section ».
+L'énoncé ne donne que le cube et I, J, K (au milieu, au tiers… de leur arête),
+et demande la section du cube par le plan (IJK), traits de construction
+apparents. Le moteur du 7.1.12 (figure, outils, tirage à un pentagone sur deux,
+pointillés), seul le kind change (`esl`, écran `esx`).
+
+**La note ne compte que les morceaux de la section** : le point L et la droite
+𝒟 sont des traits de construction, que l'élève passe par eux ou par un autre
+chemin juste. Le bilan ne montre que les morceaux. À la correction, la
+construction par L (les droites (IJ), (CG), 𝒟) ne se montre en vert que si la
+section est incomplète, et l'explication commence par la nommer : « appelons L
+le point d'intersection des droites (IJ) et (CG), qui sont dans le même plan
+(…) ». En soutien, « Où j'en suis » compte les morceaux rouges. Le contexte
+envoyé au modèle tait la forme et les points de la section, et guide par
+questions.
+
+**Éprouvé** dans Chromium : deux figures construites (bilan à cinq puis six
+morceaux, sans L ni 𝒟), « parfaites » ; une copie vide corrigée, la
+construction par L en vert ; aucune erreur de page.
