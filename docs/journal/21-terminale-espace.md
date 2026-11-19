@@ -570,6 +570,16 @@ Les boutons et la ligne d'aide passent AVANT la seconde figure : l'élève
 choisit son point, puis clique sur le dessin, sans redescendre sous la
 figure.
 
+**Puis une sortie en soutien, et pour tous les exercices** (Turquet, novembre
+2026, v506 : une élève, en devoir maison, « voulait abandonner ce point pour
+passer à la suite mais elle ne pouvait pas » — puis « laisser l'option à
+l'élève de passer à la suite en mode soutien, dans tous les exercices »). Le
+placement n'était pas en cause : 270 clics et touchers posés sur les points
+demandés (ordinateur, tablette, téléphone), tous acceptés. C'est le soutien
+qui enfermait : « Revérifier » n'ouvrait la question suivante que sur une
+copie juste. La sortie est commune aux trois niveaux — `#passer-soutien`,
+voir `docs/journal/02-conventions-ecran.md`.
+
 ## 7.1.7 — parallèles, sécantes ou non coplanaires (`espace-positions-droites`, kind `epo`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 7 » : « créer un

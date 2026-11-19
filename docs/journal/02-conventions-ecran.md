@@ -920,3 +920,58 @@ Entrée, la surveillance s'arrête (la validation peint) et la frappe suivante
 dans la même case la réarme, avant la correction (capture). Nos propres
 retraits ne passent jamais pour une correction : `takeRecords()` les jette dans
 le même tour. Témoin dans le banc navigateur, « 11 septdecies » (le 6.5).
+
+**En soutien, une question bloquée se passe — dans TOUS les exercices**
+(Turquet, novembre 2026, les trois niveaux, v709 / v445 / v506). Né au 7.1.6
+de la Terminale : une élève, en devoir maison, ne trouvait pas où placer un
+point, voulait l'abandonner pour faire la suite, et ne le pouvait pas — le
+soutien n'ouvre « Question suivante » que sur une copie juste. Turquet :
+« laisser l'option à l'élève de passer à la suite en mode soutien », puis
+« dans tous les exercices ».
+
+**Une seule porte, sur le document** (`#passer-soutien`, fin de fichier,
+juste après `#confirmer-vides`), rien à déclarer. En soutien, après un clic
+« Vérifier » / « Revérifier » / « Valider » / « Corriger » (ou Entrée) sur un
+écran d'exercice, la porte regarde l'écran à 0, 400 et 1 200 ms : une case
+rouge (`.bad`) visible, un bouton de vérification, et aucun bouton pour
+avancer (« suivant », « résultats », « Continuer », « Terminer ») — alors
+« Passer à la suite (voir la correction) » se pose juste après le bouton de
+vérification. Son clic revérifie la question **comme en entraînement** : le
+mode bascule à `train`, la boîte des cases vides est muette pour ce clic (le
+choix est fait), le bouton de vérification est cliqué — la correction
+s'écrit en vert, la question compte fausse (ou son crédit partiel), le
+bouton pour avancer s'ouvre. Rien n'est réécrit exercice par exercice : c'est
+le chemin d'entraînement que chacun a déjà.
+
+**Le mode revient au soutien**, et c'est là que le premier essai s'est pris
+en défaut : rendu juste après le clic, il manquait les vérifications relues
+par l'IA (la 1.9 de la Terminale, les dérivées rédigées), qui répondent plus
+tard — elles répondaient en soutien et refusaient de nouveau. Le mode tient
+donc jusqu'à ce que la question soit corrigée (verrou `test.locked`, bouton
+pour avancer, autre écran), jusqu'au geste suivant de l'élève (pointerdown
+ou touche, en capture : son geste se joue déjà en soutien), ou 20 s au plus.
+La note de fin lit le soutien : son plafond tient.
+
+**Deux pièges, vus à la première exécution.** La vérification redessine
+souvent son propre bouton (`innerHTML` des actions) : à la remontée de
+l'événement, le bouton est détaché et `closest('section.screen')` ne trouve
+rien — la porte écoute donc en CAPTURE, avant l'exercice. Et le banc qui
+balayait sans MathLive voyait des écrans à moitié morts : la mesure se fait
+avec MathLive servi.
+
+**Ce qui n'est pas une sortie** : un exercice qui exige d'abord un choix
+(une carte a/b/c/d en Première, le nombre de racines ou de facteurs en
+Terminale) le redemande sur « Passer », comme en entraînement. L'élève a
+toujours une issue — faire ce choix —, mais la porte ne choisit pas à sa
+place.
+
+**Éprouvé** dans Chromium, avec MathLive, chaque exercice du menu des trois
+niveaux en soutien, sur une copie fausse : aucun écran bloqué sans le bouton,
+et la correction écrite par « Passer » partout où l'entraînement l'écrit
+(Terminale 67, Première 62 ; les autres passent sans blocage ou s'arrêtent au
+choix à faire). Contrôle universel : section 9 du banc navigateur, « en
+soutien, une question bloquée offre « Passer à la suite (voir la
+correction) », et ce bouton corrige », avec ses deux bords — aucun écran
+bloqué sans le bouton, et au moins une question réellement corrigée par lui
+— et le mode relu au soutien après le geste suivant.
+
