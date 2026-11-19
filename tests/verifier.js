@@ -4813,6 +4813,7 @@ function exercices(suite){
     vecteursColineaires(w, P);
     coordonneesVecteurs(w, P);
     coordonneesColineaires(w, P);
+    coordonneesDevoir(w, P);
     vecteursColineairesSuite(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -15990,6 +15991,120 @@ function coordonneesVecteurs(w, P){
     if(pd12.length!==9 || pd12.map(function(x){ return x.cle; }).join(',')!=='p0,p1,p2,p3,0d,0f,1d,1f,m' || !pd12[4].off || !pd12[8].off || POSE_DOIGT.vsm.items(vsmFiche(0)).length!==1) vus.push('8.4.12 : la barre au doigt '+JSON.stringify(pd12.map(function(x){ return [x.cle,x.off]; })));
     currentMode='train';
     return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* 8.4.14 {coordonnees-vecteur-devoir} (Seconde, demande de Turquet, novembre
+   2026 : un devoir surveillé, « chaque question comme une question déjà posée
+   dans les exercices de coordonnées de vecteur »). La place ; deux cents
+   devoirs tirés (les moteurs, la géométrie de chaque question, les points
+   lisibles, F décimal hors des nœuds, jamais la coquille du devoir) ; la
+   lecture des décimaux ; la copie juste menée d'un écran à l'autre (130 sur
+   130) ; ce que la page pose d'avance ; la copie vide de la question d ; la
+   reprise d'une pause entre deux moteurs ; les lettres à −1 hors des
+   graduations ; les moteurs d'origine inchangés. */
+function coordonneesDevoir(w, P){
+  const nom = 'le devoir surveillé (8.4.14) — cinq questions, trois moteurs, les mêmes points';
+  if(!P.coordonneesVecteurs || !P.coordonneesVecteurs.devoir){
+    ignorer(nom, 'ce niveau n\'a pas le 8.4.14');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], d=${JSON.stringify(P.coordonneesVecteurs.devoir)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const el=function(id){ return document.getElementById(id); };
+    if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
+    if(RAPPELS_ID[d.exercice]!==RAP_VDS || !QIA_SUGG_ID[d.exercice]) vus.push('8.4.14 : le rappel ou les questions à l’IA');
+    /* les moteurs d'origine ne changent pas */
+    if(vsmNomVec(vsmFiche(0),0)!=='BC' || vclNomVec(vclNeuve(4,[[0,0],[1,0],[1,1],[0,1]]),1)!=='DC' || vclOutils(vclNeuve(0,[[1,1],[2,2],[3,3],[4,4]])).join()!=='p0,p1,p2,p3,t0,t1') vus.push('8.4.14 : un moteur d’origine a changé de lettres ou de gestes');
+    /* les décimaux */
+    const qd={dec:1};
+    if(vclLit(qd,'-2,1')!==-2.1 || vclLit(qd,'(−4,1)')!==-4.1 || vclLit(qd,'8.4')!==8.4 || vclLit(qd,'3')!==3 || vclLit(qd,'2,1,1')!==null || vclLit({},'2,1')!==null) vus.push('8.4.14 : la lecture des décimaux');
+    if(svrNb(-2.1)!=='−2,1' || svrNb(8.4)!=='8,4' || svrNb(-3)!=='−3') vus.push('8.4.14 : svrNb écrit '+svrNb(-2.1));
+    /* les lettres à −1 évitent les graduations */
+    const qc=vclNeuve(2,[[-1,-1],[3,2],[-4,4]]);
+    if(vclCoin(qc,[-1,-1]).join()!=='-1,-1') vus.push('8.4.14 : la lettre d’un point à −1 touche les graduations');
+    /* deux cents devoirs */
+    const V=[-5,-4,-3,-2,-1,1,2,3,4,5], dans=function(p){ return V.indexOf(p[0])>=0&&V.indexOf(p[1])>=0; };
+    const egal=function(a,b){ return a[0]===b[0]&&a[1]===b[1]; };
+    for(let n=0;n<200;n++){
+      const qs=vdsBuildQuestions(), Z=qs[0].Z;
+      const f=function(){
+        if(qs.length!==d.nb || qs.map(function(q){ return q.kd; }).join()!=='vcl,vcl,vqs,vcl,vsm' || qs.map(function(q){ return q.ds; }).join('')!=='abcde') return 'les cinq questions';
+        if(!qs.every(function(q){ return q.Z===Z||JSON.stringify(q.Z)===JSON.stringify(Z); })) return 'des points différents';
+        const T=['A','B','C','D','E','M','N'].map(function(L){ return Z[L]; });
+        if(!T.every(dans)) return 'un point hors de −5…5 ou sur un axe';
+        for(let a=0;a<7;a++) for(let b=a+1;b<7;b++) if(!vecLoin(T[a],T[b])) return 'deux points trop proches';
+        if(egal(Z.D,[-4,4])) return 'la coquille du devoir';
+        if(!vclOui(qs[0]) || qs[0].c!==4 || qs[0].L.join('')!=='ADBC') return 'ADBC n’est pas un parallélogramme';
+        if(!vclOui(qs[1]) || qs[1].L.join('')!=='DBE') return 'D, B, E ne sont pas alignés';
+        if(!egal(vcmM(qs[2]),Z.M)) return 'M';
+        if(Z.F.every(Number.isInteger) || !Z.F.every(function(x){ return Math.abs(x)<=5.5&&Math.abs(x)>=1.2; }) || !vclOui(qs[3]) || !qs[3].dec) return 'F, ou (AF) non parallèle à (BC) : '+Z.F;
+        if(vclDet({c:0,P:[Z.A,Z.B,Z.B,Z.C]})===0) return 'droites confondues';
+        if(!egal(vsmM(qs[4]),Z.N) || vsmNomVec(qs[4],0)!=='CE' || vsmNomVec(qs[4],1)!=='CB' || vsmS(qs[4])!=='A') return 'N';
+        if(!(Z.A[0]<0||Z.A[1]<0) || (Z.A[0]<0||Z.A[1]<0)!==(Z.C[0]<0||Z.C[1]<0)) return 'les signes de A et C';
+        if(qs.some(function(q){ return dmPoidsQuestion(q.kd,q)!==window[q.kd+'Cases'](q).length; })) return 'dmPoidsQuestion';
+        if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) return 'pas du JSON';
+        return '';
+      }();
+      if(f){ vus.push('8.4.14 : '+f+' '+JSON.stringify(Z)); break; }
+    }
+    /* la copie juste, menée d'un écran à l'autre */
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const max=test.questions.reduce(function(s,q){ return s+window[q.kd+'Cases'](q).length; },0);
+    if(!test.ds || test.kind!=='vcl' || test.maxScore!==max || !el('scr-vcl').classList.contains('on')) vus.push('8.4.14 : le départ (kind '+test.kind+', barème '+test.maxScore+')');
+    const set=function(id,v){ const e=el(id); if(!e){ vus.push('8.4.14 : pas de case '+id); return; } e.value=v; };
+    const ecrans=[];
+    for(let i=0;i<5;i++){
+      const q=test.questions[test.idx], k=test.kind, av=test.score;
+      ecrans.push(k+':'+document.querySelector('.screen.on').id);
+      if(el(k+'Idx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.14 : l’en-tête de la question '+q.ds);
+      if(el(k+'Instr').textContent.indexOf('On a les points A'+svrCoord(q.Z.A))<0) vus.push('8.4.14 : l’énoncé du devoir manque à la question '+q.ds);
+      if(k==='vcl'){
+        if(q.ds==='b' && (vclOutils(q).join()!=='p2,t0,t1' || document.querySelectorAll('#vclPts .svr-pt.n').length!==2 || document.querySelectorAll('#vclPts .vds-ctx').length!==2)) vus.push('8.4.14 : b) D et B posés, A et C en gris');
+        if(q.ds==='d' && (vclOutils(q).join()!=='t1' || document.querySelectorAll('#vclFl line.vsm-k').length!==1 || document.querySelectorAll('#vclPts .svr-pt.n').length!==4)) vus.push('8.4.14 : d) F posé et AF tracé par la page');
+        vclOutils(q).forEach(function(o){ vclOutil(o); const kk=+o[1]; if(o[0]==='p') vclPose(q.P[kk][0],q.P[kk][1]); else { const w2=vclW(q,kk); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); } });
+        const a=vclAttendu(q); Object.keys(a).forEach(function(id){ set(id,svrNb(a[id])); });
+        const u=vclVec(q,0), v=vclVec(q,1);
+        if(q.c===4){ set('vcl-eg','oui'); set('vcl-nom','bcad'); set('vcl-nat','parallélogramme'); }
+        else { set('vcl-k-a1',svrNb(v[1])); set('vcl-k-b1',svrNb(u[0])); set('vcl-k-r1',svrNb(vclR(u[0]*v[1]))); set('vcl-k-a2',svrNb(u[1])); set('vcl-k-b2',svrNb(v[0])); set('vcl-k-r2',svrNb(vclR(u[1]*v[0]))); set('vcl-col','oui'); set('vcl-cc','oui'); }
+        checkVcl();
+      } else if(k==='vqs'){
+        if(document.querySelectorAll('#vqsPts .vds-ctx').length!==2) vus.push('8.4.14 : c) D et E en gris');
+        const S=vqsSchemaDefaut(q); VQS_SCHEMA.forEach(function(id,j){ set(id,S[j]); });
+        set('vqs-v1a','B'); set('vqs-v1b','C'); set('vqs-v2a','A'); set('vqs-v2b','M');
+        const a=vqsAttendu(q).a; Object.keys(a).forEach(function(id){ if(VQS_SCHEMA.indexOf(id)<0&&VQS_NOMS_V.indexOf(id)<0&&el(id)) set(id,svrNb(a[id])); });
+        const M=vcmM(q); vqsPose(M[0],M[1]);
+        checkVqs();
+      } else {
+        if(document.querySelectorAll('#vsmPts .vds-ctx').length!==3 || el('vsmInstr').textContent.indexOf('f) On pose N')<0) vus.push('8.4.14 : e) D, M, F en gris, l’énoncé e) f)');
+        const D=q.P[3]; vsmDeplacer(1,D); vsmDeplacer(0,svrPlus(D,vsmVec(q,1)));
+        const M=vsmM(q); vsmOutil('M'); vsmPose(M[0],M[1]);
+        const a=vsmAttendu(q); Object.keys(a).forEach(function(id){ set(id,svrNb(a[id])); });
+        checkVsm();
+      }
+      clearTimeout(test.fbTimer);
+      const n=test.score-av, attendu=window[k+'Cases'](q).length;
+      if(n!==attendu) vus.push('8.4.14 : la copie juste de '+q.ds+') vaut '+n+' sur '+attendu+' — '+document.querySelector('.screen.on .mp-feedback').textContent.slice(0,160));
+      if(i<4){ const b=el(k+'Next'); if(!b){ vus.push('8.4.14 : pas de « Question suivante » en '+q.ds); break; } window['next'+k[0].toUpperCase()+k.slice(1)](); }
+    }
+    if(ecrans.join()!=='vcl:scr-vcl,vcl:scr-vcl,vqs:scr-vqs,vcl:scr-vcl,vsm:scr-vsm') vus.push('8.4.14 : les écrans '+ecrans.join());
+    if(test.score!==test.maxScore) vus.push('8.4.14 : '+test.score+' sur '+test.maxScore);
+    /* la copie vide de la question d : la correction en vert, avec des virgules, rien de rouge */
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    test.idx=3; test.kind='vcl'; show('vcl'); renderVcl(); checkVcl(); clearTimeout(test.fbTimer);
+    const qd2=test.questions[3];
+    if(document.querySelector('#vclCalc .bad, #vclGraph .svc-eb') || el('vcl-u-rx').value!==svrNb(vclVec(qd2,0)[0]) || el('vcl-u-rx').value.indexOf('.')>=0) vus.push('8.4.14 : la copie vide du d) ('+el('vcl-u-rx').value+')');
+    /* la reprise d'une pause : la question c sur l'écran du 8.4.10 */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    test.idx=2; test.kind='vqs';
+    const snap=JSON.parse(JSON.stringify(snapshotTest()));
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test,snap,{locked:false});
+    if(!afficherEcranDe(test.kind) || !el('scr-vqs').classList.contains('on') || el('vqsIdx').textContent.indexOf('Question c)')<0 || !test.ds) vus.push('8.4.14 : la reprise de la question c');
+    vdsSuivante();
+    if(test.kind!=='vcl' || !el('scr-vcl').classList.contains('on') || test.questions[test.idx].ds!=='d') vus.push('8.4.14 : la suite de la reprise');
+    currentMode='train';
+    return vus.slice(0,8).join(' | ');
   })()`, v => v === '', undefined);
 }
 
