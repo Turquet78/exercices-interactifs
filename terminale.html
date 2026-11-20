@@ -36086,8 +36086,10 @@ function esxClipT(p,r,c){
    nécessaire » ; puis « il faut qu'au début les droites tracées permettent de
    faire une intersection intéressante ; ne prolonger les droites plus loin que
    s'il y a une intersection avec une autre droite permettant de construire la
-   section »). Une droite couvre ses deux points et les points nommés qu'elle
-   porte, puis seulement les points UTILES À LA SECTION — ceux du plan (IJK) :
+   section » — pour le 7.1.14 seulement). Une droite couvre ses deux points et
+   les points nommés qu'elle porte ; au 7.1.12 et au 7.1.13, L, les points de
+   la section et ses intersections avec les droites tracées ; au 7.1.14,
+   seulement les points UTILES À LA SECTION — ceux du plan (IJK) :
      — une droite du plan (IJK), comme (IJ) ou (LK), va jusqu'à ses
        intersections avec les droites des arêtes du cube (dans son plan de
        face) : c'est là qu'elle rencontre la trace d'une autre face — L, M… ;
@@ -36102,6 +36104,19 @@ function esxEtendue(q,A,B){
   const g=esxCfg(q), u=esxSub(B,A), uu=esxDot(u,u), c=esxCadre(q), ts=[0,1];
   const tDe=P=>esxDot(esxSub(P,A),u)/uu, dedans=X=>esxDansCadre(c,esxProj(X));
   esxPoints(q).forEach(z=>{ if(esxSurDroite(z.P,A,B)) ts.push(tDe(z.P)); });
+  /* LA RÈGLE DU PLAN (IJK) NE VAUT QUE POUR LE 7.1.14 (Turquet, novembre 2026 :
+     « ce ne vaut que pour le 7.1.14 ») : au 7.1.12 et au 7.1.13, une droite
+     couvre L et les points de la section qu'elle porte, et ses intersections
+     avec les autres droites tracées. */
+  if(test.kind!=='esl'){
+    [g.L].concat(g.pts).forEach(P=>{ if(esxSurDroite(P,A,B)) ts.push(tDe(P)); });
+    esxObjets(q).forEach(function(o){
+      if(o.t!=='d') return;
+      const v=esxSub(o.B,o.A), w=esxSub(o.A,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return;
+      const t=esxDot(esxVx(w,v),n)/esxDot(n,n), X=esxAdd(A,esxMul(u,t));
+      if(dedans(X)) ts.push(t);
+    });
+  } else {
   /* le point commun de deux droites de l'espace, ou null */
   const inter=function(P,Q){ const v=esxSub(Q,P), w=esxSub(P,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return null; return esxAdd(A,esxMul(u,esxDot(esxVx(w,v),n)/esxDot(n,n))); };
   if(esxDansPlan(q,A) && esxDansPlan(q,B)){
@@ -36114,6 +36129,7 @@ function esxEtendue(q,A,B){
     if(o.t!=='d') return;
     const X=inter(o.A,o.B); if(X && dedans(X) && esxDansPlan(q,X)) ts.push(tDe(X));
   });
+  }
   const pa=esxProj(A), pb=esxProj(B), L=Math.hypot(pb[0]-pa[0],pb[1]-pa[1])||1, m=28/L, cl=esxClipT(pa,pb,c);
   return [Math.max(cl[0],Math.min(...ts)-m), Math.min(cl[1],Math.max(...ts)+m)];
 }

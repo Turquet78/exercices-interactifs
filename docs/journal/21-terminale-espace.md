@@ -1267,3 +1267,8 @@ l'intersection avec une autre droite tracée ne compte que si elle est dans le
 plan. Une droite inutile à la section, comme (AG), s'arrête près de ses
 points. **Vérifié** sur les 728 figures : (IJ) tracée seule atteint L, (CG)
 seule atteint L, (LK) atteint M.
+Le même jour, Turquet a précisé : « ce ne vaut que pour le 7.1.14 ». La règle
+du plan (IJK) n'est donc appliquée qu'au kind `esl` ; au 7.1.12 et au 7.1.13
+(`esx`, `esg`), une droite garde la règle précédente — ses points, L et les
+points de la section qu'elle porte, ses intersections avec les autres droites
+tracées. Dans les trois exercices, (IJ) tracée seule atteint L.
