@@ -36306,7 +36306,9 @@ function esxAnnuler(){
   if(test.locked) return;
   const q=test.questions[test.idx]; esxSel=null;
   if(!q.cons||!q.cons.length){ esxDire('Rien à annuler.'); return; }
-  q.cons.pop(); esxDire('Dernière construction annulée.'); esxApres();
+  const der=q.cons.pop();
+  if(der && der.grp!==undefined) while(q.cons.length && q.cons[q.cons.length-1].grp===der.grp) q.cons.pop();   /* un groupe (la parallèle hors du cube) part d'un coup */
+  esxDire('Dernière construction annulée.'); esxApres();
 }
 function esxDessiner(){ const q=test.questions[test.idx], h=$('esxFig'); if(!q||!h) return; h.innerHTML=esxSVG(q); esxSuivi(); if(test.kind==='esg') esgMaj(q); }
 function esxApres(){ esxDessiner(); if(isSoutien()) checkESX(true); }
@@ -36452,8 +36454,29 @@ function esxParallele(q,a,io){
   const o=esxObjets(q).find(z=>z.id===io), A=esxPt(q,a); if(!o||!A) return;
   if(!o.rouge){ esxDire('Choisis un segment rouge : un morceau de la section déjà tracé.', true); return; }
   const f=ESX_FACES.find(z=>esxSurFace(o.A,z)&&esxSurFace(o.B,z)), opp=f&&ESX_FACES.find(z=>z.k===f.k&&z.v!==f.v);
-  if(!opp||!esxSurFace(A,opp)){ esxDire('Le point '+a+' n’est pas sur la face parallèle à celle de '+esxNomObj(o)+' ('+esxNomFace(opp||f)+').', true); return; }
-  const u=esxSub(o.B,o.A); let t0=-Infinity, t1=Infinity;
+  const u=esxSub(o.B,o.A);
+  /* UN POINT DU PLAN DE LA FACE OPPOSÉE, HORS DU CUBE (Turquet, novembre
+     2026, sur une capture : M, sur (AE) prolongée, et la parallèle à [JI]) :
+     la parallèle se trace en DROITE à partir de ce point, et le morceau
+     qu'elle découpe sur la face — le segment rouge — en même temps. Ses deux
+     bouts deviennent des points ; les trois gestes forment un seul groupe,
+     qu'« Annuler » défait d'un coup. */
+  if(opp && Math.abs(A[opp.k]-opp.v)<1e-9 && !esxSurFace(A,opp)){
+    let a0=-Infinity, a1=Infinity;
+    for(let k=0;k<3;k++){ if(k===opp.k||Math.abs(u[k])<1e-12) continue; const ta=(0-A[k])/u[k], tb=(1-A[k])/u[k]; a0=Math.max(a0,Math.min(ta,tb)); a1=Math.min(a1,Math.max(ta,tb)); }
+    if(!(a1-a0>1e-9)){ esxDire('Par '+a+', la parallèle à '+esxNomObj(o)+' ne traverse pas la face '+esxNomFace(opp)+'.', true); return; }
+    const X1=esxAdd(A,esxMul(u,a0)), X2=esxAdd(A,esxMul(u,a1)), grp=Date.now()+Math.random(), ajout=[];
+    const nomDe=function(X){ const d=esxNomDe(q,X); if(d) return d; const n=esxNouveauNom(q,X); if(!n) return null; const e={k:'p',n:n,P:X,grp:grp}; q.cons.push(e); ajout.push(e); return n; };
+    const n1=nomDe(X1), n2=nomDe(X2);
+    if(!n1||!n2){ ajout.forEach(()=>q.cons.pop()); esxDire('Trop de points : annule des constructions inutiles.', true); return; }
+    const loin=Math.abs(a0)>Math.abs(a1)?n1:n2;
+    if(!esxObjets(q).some(z=>z.t==='d'&&esxSurDroite(A,z.A,z.B)&&esxSurDroite(X1,z.A,z.B))) q.cons.push({k:'d',a:a,b:loin,grp:grp});
+    if(!esxObjets(q).some(z=>z.t!=='d'&&((esxEq(z.A,X1)&&esxEq(z.B,X2))||(esxEq(z.A,X2)&&esxEq(z.B,X1))))) q.cons.push({k:'s',a:n1,b:n2,par:1,grp:grp});
+    esxDire('Par '+a+', la parallèle à '+esxNomObj(o)+' est tracée ; sur la face '+esxNomFace(opp)+', elle découpe le segment ['+n1+n2+']'+(esxEstMorceau(q,X1,X2)?' — c’est un morceau de la section, il passe en rouge.':'.'));
+    return;
+  }
+  if(!opp||!esxSurFace(A,opp)){ esxDire('Le point '+a+' n’est ni sur la face parallèle à celle de '+esxNomObj(o)+' ('+esxNomFace(opp||f)+'), ni dans son plan.', true); return; }
+  let t0=-Infinity, t1=Infinity;
   for(let k=0;k<3;k++){ if(Math.abs(u[k])<1e-12) continue; const ta=(0-A[k])/u[k], tb=(1-A[k])/u[k]; t0=Math.max(t0,Math.min(ta,tb)); t1=Math.min(t1,Math.max(ta,tb)); }
   const t=(t1>1e-9)?t1:((t0<-1e-9)?t0:0);
   if(Math.abs(t)<1e-9 || (t0<-1e-9&&t1>1e-9)){ esxDire('La parallèle à '+esxNomObj(o)+' par '+a+' ne traverse pas la face '+esxNomFace(opp)+'.', true); return; }
