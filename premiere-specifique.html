@@ -1997,6 +1997,15 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #rgcHost .rgc-nbs{gap:14px 44px}
 #rgcHost .rgc-grp{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 #rgcHost .pt-step{margin-top:18px}
+/* le coup de pouce : un bouton vert, et sa réponse en vert sous les nombres */
+#rgcHost .rgc-pouce-zone{display:flex;justify-content:center;margin:6px 0 2px}
+#rgcHost .rgc-pouce-btn{background:var(--green);color:#fff;border:none;box-shadow:0 3px 0 #0f5c3d}
+#rgcHost .rgc-pouce-btn:hover{filter:brightness(1.08)}
+#rgcHost .rgc-pouce{background:var(--green-soft);border:2px solid var(--green);border-radius:12px;padding:10px 16px;color:var(--green);text-align:center;max-width:100%}
+#rgcHost .rgc-pouce-titre{font-family:"Nunito";font-weight:800;font-size:.95rem;margin-bottom:6px}
+#rgcHost .rgc-pouce-ls{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 30px;font-size:calc(1.35rem * var(--tab-nb,1))}
+#rgcHost .rgc-pouce-l{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+#rgcHost .rgc-pouce-l .fr{font-size:.85em}
 /* « [ ] < [ ] < [ ] » ne se coupe jamais : sur un téléphone, les cases maigrissent */
 #rgcHost .rgc-ordre{flex-wrap:nowrap}
 @media(max-width:520px){ #rgcHost .f-dec{min-width:72px} #rgcHost .rgc-ordre{gap:4px} }
@@ -9333,7 +9342,7 @@ function rgcVaut(s,v){
 async function startRgc(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
-  test.kind='rgc'; test.qId='ranger-croissant';
+  test.kind='rgc'; test.qId='ranger-croissant'; test.rgcPouce=null;
   const n=dmNbQuestions(RGC_NB);
   test.questions=distinctes(dmNbQuestions(RGC_NB),function(_,i){ return genRgc(i,n); });
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
@@ -9361,10 +9370,41 @@ function renderRgc(){
     +(frac?' Écris d’abord chaque fraction en <b>nombre décimal</b>.':'')
     +' Complète les cases avec des <b>nombres décimaux</b>.';
   $('rgcHost').innerHTML=`<div class="pt-row rgc-nbs">${grp}</div>`
+    +`<div class="rgc-pouce-zone"><button type="button" class="btn rgc-pouce-btn" id="rgcPouceBtn" onclick="rgcCoupDePouce()">💡 Coup de pouce</button><div class="rgc-pouce" id="rgcPouce" hidden></div></div>`
     +`<div class="pt-step"><div class="pt-lab">Dans l’ordre croissant, du plus petit au plus grand</div><div class="pt-row rgc-ordre">${ordre}</div></div>`;
+  if(test.rgcPouce===test.idx) rgcCoupDePouce(true);
   const order=rgcCases(q).map(c=>$(c.id)).filter(Boolean);
   order.forEach((el,i)=>el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); if(i+1<order.length) order[i+1].focus(); else checkRgcAnswer(); } }));
   setTimeout(()=>order[0]&&order[0].focus(),70);
+}
+/* LE COUP DE POUCE (demande de Turquet, novembre 2026) : « un bouton coup de
+   pouce en vert qui donne les valeurs décimales des fractions et qui rajoute
+   des zéros aux écritures décimales pour qu'ils aient le même nombre de
+   chiffres derrière la virgule ». Il ne juge rien et ne remplit aucune case :
+   il écrit, sous les nombres, chaque fraction en décimal puis chaque nombre
+   complété de zéros (A = 2/5 = 0,4 = 0,40 ; B = 0,39 ; C = 3/10 = 0,3 = 0,30).
+   Ouvert, il le reste pour la question (test.rgcPouce, rangé avec la pause) ;
+   il ne coûte aucun point. */
+function rgcChiffresApres(v){ const s=sdDecStr(v), p=s.indexOf(','); return p<0?0:s.length-p-1; }
+function rgcAligne(v,nc){ const s=sdDecStr(v), p=s.indexOf(','); const dec=p<0?'':s.slice(p+1); return nc ? (p<0?s:s.slice(0,p))+','+dec.padEnd(nc,'0') : s; }
+function rgcPouceHTML(q){
+  const nbs=rgcNombres(q), nc=Math.max(...nbs.map(x=>rgcChiffresApres(x.v)));
+  const eg='<span class="rgc-pouce-eg">=</span>';
+  const lignes=nbs.map(x=>{
+    let h='<i>'+x.lettre+'</i>'+eg;
+    if(x.d) h+=fracBox(x.n,x.d)+eg+'<b>'+sdDecStr(x.v)+'</b>';
+    else h+=sdDecStr(x.v);
+    if(rgcChiffresApres(x.v)<nc) h+=eg+'<b>'+rgcAligne(x.v,nc)+'</b>';
+    return '<span class="rgc-pouce-l">'+h+'</span>';
+  }).join('');
+  return '<div class="rgc-pouce-titre">'+(nbs.some(x=>x.d)?'Les fractions en nombre décimal, puis tous':'Tous')
+    +' les nombres avec '+nc+' chiffre'+(nc>1?'s':'')+' après la virgule&nbsp;:</div><div class="rgc-pouce-ls">'+lignes+'</div>';
+}
+function rgcCoupDePouce(redessin){
+  const q=test.questions && test.questions[test.idx], z=$('rgcPouce'); if(!q||!z) return;
+  z.innerHTML=rgcPouceHTML(q); z.hidden=false;
+  const b=$('rgcPouceBtn'); if(b) b.hidden=true;
+  if(!redessin){ test.rgcPouce=test.idx; try{ autoSave(); }catch(e){} }
 }
 function checkRgcAnswer(live){
   if(test.locked) return;
@@ -33444,7 +33484,8 @@ Pour comparer des nombres décimaux, on compare d’abord la partie entière, pu
 Astuce : on écrit tous les nombres avec le <b>même nombre de chiffres après la virgule</b>, puis on compare comme des entiers : \\(0{,}3=0{,}30\\) et \\(0{,}27\\) — comme 30 &gt; 27, \\(0{,}3&gt;0{,}27\\).<br>
 Piège : \\(0{,}27\\) n’est pas plus grand que \\(0{,}3\\) parce que 27 &gt; 3 — un nombre qui a plus de chiffres n’est pas forcément plus grand.<br>
 Une <b>fraction</b> se range après l’avoir écrite en nombre décimal : \\(\\frac{3}{4}=0{,}75\\), \\(\\frac{1}{5}=0{,}2\\) — le bouton « ½ Écritures décimales » rappelle celles à connaître.<br>
-Les cases attendent des <b>nombres décimaux</b> : ni lettre, ni fraction.`;
+Les cases attendent des <b>nombres décimaux</b> : ni lettre, ni fraction.<br>
+Le bouton vert « 💡 Coup de pouce » écrit les fractions en nombre décimal et complète les nombres avec des zéros.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, rgc:RAP_RGC, vap:RAP_VAP, voc:RAP_VOC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
 const RAP_DI2=`<b>Diminuer en calculant la baisse</b><br>

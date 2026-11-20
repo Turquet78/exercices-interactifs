@@ -383,3 +383,13 @@ téléphone, les trois nombres se replient entre eux, jamais au milieu de
 maigrissent à 72 px). Banc : « {ranger-croissant} : la séance suit les cinq
 lignes de la fiche… », « …ne pose jamais deux fois la même », « …une case
 vaut un nombre décimal (0,40 = 0,4), jamais une lettre ni une fraction ».
+Puis, le même jour (avant la mise en ligne) : « faire un bouton coup de pouce
+en vert qui donne les valeurs décimales des fractions et qui rajoute des zéros
+aux écritures décimales pour qu'ils aient le même nombre de chiffres derrière
+la virgule ». Le bouton « 💡 Coup de pouce » (vert, `--green`) est posé entre
+les nombres et le rangement ; un clic écrit dessous, dans un cadre vert,
+« A = 2/5 = 0,4 = 0,40 ; B = 0,39 ; C = 3/10 = 0,3 = 0,30 » (`rgcPouceHTML`) et
+le bouton disparaît. Il ne remplit aucune case, ne juge rien et ne coûte aucun
+point ; ouvert, il le reste pour la question, pause comprise (`test.rgcPouce`).
+Banc : « {ranger-croissant} : le coup de pouce écrit les fractions en décimal
+et ajoute les zéros… ».
