@@ -359,3 +359,37 @@ différence entre 23 et du quart de 4 », vu en relisant vingt tirages. Banc :
 « {vocabulaire-calcul-2} : des nombres dans les bornes demandées… » (200
 séances, chaque nombre de chaque question ; les bords de `voc2Ok` des deux
 côtés ; ni choix de calcul, ni doublon ; identité et « Recommencer »).
+
+**Le 1.15 {ranger-croissant} : ranger trois nombres dans l'ordre croissant, les cases en nombres décimaux (v447).**
+Demande de Turquet, novembre 2026, sur sa fiche « Ranger dans l'ordre
+croissant » : « faire un exercice comme le pdf. On prendra les mêmes valeurs.
+On demandera aux élèves de compléter les cases avec des nombres décimaux. Il
+y aura le bouton qui met les fractions les plus connues avec leur valeur
+décimale ». Les cinq lignes de la fiche, ses nombres, son ordre
+(`RGC_FICHE`) : 0,2 ; 0,1 ; 0,18 — 0,6 ; 0,5 ; 0,09 — 0,08 ; 0,81 ; 0,8 —
+2/5 ; 0,39 ; 3/10 — 1/4 ; 0,29 ; 3/10. Une fraction s'écrit d'abord en
+nombre décimal (« A = 2/5 = [ ] »), puis « [ ] < [ ] < [ ] » reçoit les trois
+NOMBRES — ni lettre, ni fraction : `rgcVaut` n'accepte que `^\d+(,\d+)?$`, et
+compare des valeurs en millièmes (0,40 vaut 0,4). Chaque case se juge seule ;
+le message de méthode écrit les trois nombres avec le même nombre de
+chiffres après la virgule (0,20 ; 0,10 ; 0,18), et nomme la lettre ou la
+fraction écrite à la place d'un nombre. La fenêtre « ½ Écritures décimales »
+du 1.13 y est posée (`DEC_ECRANS`). Le réglage « Questions » d'un devoir :
+moins de cinq garde des lignes réparties dans l'ordre ; au-delà, la fiche
+recommence, ses nombres redistribués entre A, B et C (`q.p`, une des six
+permutations) — mêmes valeurs, jamais deux fois la même question. Sur un
+téléphone, les trois nombres se replient entre eux, jamais au milieu de
+« A = 2/5 = [ ] », et « [ ] < [ ] < [ ] » ne se coupe pas (les cases
+maigrissent à 72 px). Banc : « {ranger-croissant} : la séance suit les cinq
+lignes de la fiche… », « …ne pose jamais deux fois la même », « …une case
+vaut un nombre décimal (0,40 = 0,4), jamais une lettre ni une fraction ».
+Puis, le même jour (avant la mise en ligne) : « faire un bouton coup de pouce
+en vert qui donne les valeurs décimales des fractions et qui rajoute des zéros
+aux écritures décimales pour qu'ils aient le même nombre de chiffres derrière
+la virgule ». Le bouton « 💡 Coup de pouce » (vert, `--green`) est posé entre
+les nombres et le rangement ; un clic écrit dessous, dans un cadre vert,
+« A = 2/5 = 0,4 = 0,40 ; B = 0,39 ; C = 3/10 = 0,3 = 0,30 » (`rgcPouceHTML`) et
+le bouton disparaît. Il ne remplit aucune case, ne juge rien et ne coûte aucun
+point ; ouvert, il le reste pour la question, pause comprise (`test.rgcPouce`).
+Banc : « {ranger-croissant} : le coup de pouce écrit les fractions en décimal
+et ajoute les zéros… ».

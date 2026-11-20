@@ -59256,6 +59256,37 @@ function premiere(w){
   verifier('{valeur-approchee} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde l’ordre de la fiche', vapOrdre === 0, vapOrdre + ' écarts');
   verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
 
+  /* {ranger-croissant} (1.15) : les CINQ lignes de la fiche « Ranger dans
+     l'ordre croissant » de Turquet (novembre 2026), avec ses nombres et dans
+     son ordre ; les cases reçoivent des NOMBRES DÉCIMAUX — 0,40 vaut 0,4, une
+     lettre ou une fraction ne valent rien ; une séance de 1 à DM_NBQ_MAX
+     questions ne pose jamais deux fois la même. */
+  const rgcR = w.eval(`(function(){
+    const FICHE=['0,2;0,1;0,18|0,1<0,18<0,2','0,6;0,5;0,09|0,09<0,5<0,6','0,08;0,81;0,8|0,08<0,8<0,81',
+                 '2/5;0,39;3/10|0,3<0,39<0,4','1/4;0,29;3/10|0,25<0,29<0,3'];
+    let horsFiche=0, doublons=0, juge=0;
+    const qs=distinctes(5,function(_,i){ return genRgc(i,5); });
+    qs.forEach((q,i)=>{ const s=rgcNombres(q).map(rgcNbStr).join(';')+'|'+rgcReponse(q).replace(/ /g,'');
+      if(s!==FICHE[i]) horsFiche++; });
+    for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
+      if(new Set(t.map(q=>rgcTexte(q))).size!==n) doublons++;
+      let prec=-1; if(n<=5) t.forEach(q=>{ if(q.f<prec) horsFiche++; prec=q.f; }); }
+    [['0,4',400,true],['0,40',400,true],['0.4',400,true],['0,04',400,false],['2/5',400,false],['A',400,false],['',400,false],['0,25',250,true],['0,3',300,true]]
+      .forEach(c=>{ const s=String(c[0]).replace(/\\./g,','); if(rgcVaut(s,c[1])!==c[2]) juge++; });
+    /* le coup de pouce : chaque fraction en décimal, puis les zéros ajoutés */
+    let pouce=0;
+    [[0,['0,2 = 0,20','0,1 = 0,10','0,18']],[3,['= 0,4 = 0,40','0,39','= 0,3 = 0,30']],[4,['= 0,25','0,29','= 0,3 = 0,30']]].forEach(c=>{
+      const d=document.createElement('div'); d.innerHTML=rgcPouceHTML({f:c[0],p:0});
+      const s=d.textContent.replace(/\s+/g,' ').replace(/ ?= ?/g,' = ');
+      c[1].forEach(m=>{ if(s.indexOf(m)<0) pouce++; }); });
+    return horsFiche+'|'+doublons+'|'+juge+'|'+pouce;
+  })()`);
+  const [rgcFiche, rgcDoublons, rgcJuge, rgcPouce] = rgcR.split('|').map(Number);
+  verifier('{ranger-croissant} : la séance suit les cinq lignes de la fiche, avec ses nombres et dans son ordre', rgcFiche === 0, rgcFiche + ' écarts');
+  verifier('{ranger-croissant} : une séance de 1 à DM_NBQ_MAX questions ne pose jamais deux fois la même', rgcDoublons === 0, rgcDoublons + ' séances avec un doublon');
+  verifier('{ranger-croissant} : le coup de pouce écrit les fractions en décimal et ajoute les zéros (0,4 = 0,40 ; 0,3 = 0,30)', rgcPouce === 0, rgcPouce + ' écritures manquantes');
+  verifier('{ranger-croissant} : une case vaut un nombre décimal (0,40 = 0,4), jamais une lettre ni une fraction', rgcJuge === 0, rgcJuge + ' jugements faux');
+
   /* {valeur-approchee}, partie 2 : la fraction (0,01 = 1/100) est FACULTATIVE
      (demande de Turquet, novembre 2026) — laissée vide, elle ne coûte rien et
      ne reçoit ni rouge ni correction ; écrite, elle se juge, et fausse elle
