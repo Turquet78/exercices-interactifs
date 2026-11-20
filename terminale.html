@@ -4639,7 +4639,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=507;
+const APP_VERSION=508;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36043,8 +36043,26 @@ function esxObjets(q){
 }
 function esxNomObj(o){ return o.t==='d'?'('+o.a+o.b+')':'['+o.a+o.b+']'; }
 /* le cadre du dessin : le cube, L et la section, avec une marge */
+/* LE CADRE DU 7.1.14 S'OUVRE AUX TRACES DU PLAN (Turquet, novembre 2026 :
+   « pourquoi les droites (JK) et (AD) ne peuvent pas être prolongées jusqu'à
+   leur point d'intersection ? »). Le cadre ne couvrait que le cube, L et la
+   section : le point commun de (JK) et (AD), utile à la section, tombait
+   dehors, et un point hors du cadre est refusé. Sans indication, l'élève peut
+   passer par n'importe quelle trace : au 7.1.14, le cadre couvre aussi chaque
+   point où le plan (IJK) coupe la droite d'une arête, s'il reste à une
+   demi-arête au plus du cube (le plus grand cadre passe de 335 à 548 unités
+   de large ; trois quarts d'arête l'auraient porté à 618). */
+function esxTraces(q){
+  const g=esxCfg(q), o=[];
+  ESX_AR.forEach(function(e){
+    const A=ESX_CO[e[0]], u=esxSub(ESX_CO[e[1]],A), den=esxDot(g.n,u); if(Math.abs(den)<1e-12) return;
+    const X=esxAdd(A,esxMul(u,(g.d-esxDot(g.n,A))/den));
+    if(X.every(x=>x>=-0.5-1e-9 && x<=1.5+1e-9)) o.push(X);
+  });
+  return o;
+}
 function esxCadre(q){
-  const g=esxCfg(q), pts=ESX_SOM.map(L=>esxProj(ESX_CO[L])).concat([esxProj(g.L)], g.pts.map(esxProj));
+  const g=esxCfg(q), pts=ESX_SOM.map(L=>esxProj(ESX_CO[L])).concat([esxProj(g.L)], g.pts.map(esxProj), test.kind==='esl'?esxTraces(q).map(esxProj):[]);
   const x0=Math.min(...pts.map(p=>p[0]))-40, y0=Math.min(...pts.map(p=>p[1]))-40;
   return {x0:x0, y0:y0, W:Math.max(...pts.map(p=>p[0]))+40-x0, H:Math.max(...pts.map(p=>p[1]))+40-y0};
 }

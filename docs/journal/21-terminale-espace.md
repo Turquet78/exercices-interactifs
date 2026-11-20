@@ -1272,3 +1272,17 @@ du plan (IJK) n'est donc appliquée qu'au kind `esl` ; au 7.1.12 et au 7.1.13
 (`esx`, `esg`), une droite garde la règle précédente — ses points, L et les
 points de la section qu'elle porte, ses intersections avec les autres droites
 tracées. Dans les trois exercices, (IJ) tracée seule atteint L.
+
+**Puis le cadre du 7.1.14 s'ouvre aux traces du plan (Turquet, novembre 2026,
+v508 : « pourquoi dans le 7.1.14 les droites (JK) et (AD) ne peuvent pas être
+prolongées jusqu'à leur point d'intersection ? »).** Le cadre du dessin ne
+couvrait que le cube, L et la section ; sur la figure de la capture (I, J, K
+milieux, la fiche), (JK) et (AD) se coupent en (1,5 ; 1 ; 0), à droite de D,
+hors du cadre — et un point hors du cadre est refusé, donc la droite ne s'y
+prolongeait pas. Au 7.1.14, où l'élève peut passer par n'importe quelle trace,
+le cadre couvre aussi chaque point où le plan (IJK) coupe la droite d'une
+arête, à une demi-arête au plus du cube (`esxTraces`). Le prix : la figure
+rapetisse — le plus grand cadre passe à 548 unités de large (618 avec trois
+quarts d'arête, écartés). **Vérifié** sur la figure de la capture : le point
+de (JK) et (AD) se place (« Point M placé à l'intersection de (JK) et
+(AD) »). Le 7.1.12 et le 7.1.13 gardent leur cadre.
