@@ -1306,3 +1306,22 @@ rapetisse — le plus grand cadre passe à 548 unités de large (618 avec trois
 quarts d'arête, écartés). **Vérifié** sur la figure de la capture : le point
 de (JK) et (AD) se place (« Point M placé à l'intersection de (JK) et
 (AD) »). Le 7.1.12 et le 7.1.13 gardent leur cadre.
+
+**Puis les segments rouges, dits et bornés au cube (Turquet, novembre 2026,
+v509 : « dans les sections du cube, préciser qu'il faut tracer des segments
+rouges sur le cube ; préciser sur le bouton que le segment est rouge ; et si
+l'élève trace un segment dont un morceau est en dehors du cube, ne pas tracer
+ce segment »).** Dans les trois exercices (7.1.12 à 7.1.14) :
+* l'énoncé finit par une consigne (`.esx-consigne`) : « La section se trace en
+  segments rouges sur le cube : chaque morceau joint deux points des arêtes,
+  sur une face ; avec l'outil « Segment rouge » (ou « Parallèle »), il passe en
+  rouge dès qu'il est juste » ;
+* l'outil s'appelle « Segment rouge », son aide le redit ; au 7.1.13, les
+  étapes disent « Trace le segment rouge […] » et la parallèle « un segment
+  rouge, qui s'arrête en N » ;
+* un segment dont un bout est hors du cube n'est pas tracé (le cube est
+  convexe : ses deux bouts suffisent) — « Le segment [IL] sort du cube : on ne
+  trace que des segments sur le cube. Pour aller plus loin, trace la droite
+  (IL). » Un segment intérieur ([EC]) reste permis, gris.
+**Vérifié** dans Chromium : [IL] refusé, [IJ] rouge, [EC] gris ; trente séances
+du 7.1.13 dans le désordre menées au bout.
