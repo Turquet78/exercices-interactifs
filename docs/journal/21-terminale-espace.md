@@ -1252,3 +1252,23 @@ du cadre. Les trois exercices (7.1.12 à 7.1.14) et la correction verte en
 profitent ; le clic sur une droite suit la même étendue (vérifié sur les 728
 figures : au milieu de [LK], c'est bien (LK) que le clic désigne). (IJ) va de
 I à L, (LK) jusqu'à l'arête qu'elle doit atteindre.
+
+**Puis une droite ne se prolonge que vers une intersection UTILE (Turquet,
+novembre 2026, v507 : « il faut qu'au début les droites tracées permettent de
+faire une intersection intéressante ; ne prolonger les droites plus loin que
+s'il y a une intersection avec une autre droite permettant de construire la
+section »).** La première version courte ne s'étendait vers L que si L était
+déjà sur elle ou si l'autre droite était déjà tracée. `esxEtendue` regarde
+maintenant le plan (IJK) (`esxDansPlan`) : une droite du plan — (IJ), (JK),
+(LK)… — va jusqu'à ses intersections avec les droites des arêtes du cube
+(c'est là qu'elle rencontre la trace d'une autre face) ; une autre droite —
+(CG), une arête prolongée — va jusqu'au point où elle perce le plan ; et
+l'intersection avec une autre droite tracée ne compte que si elle est dans le
+plan. Une droite inutile à la section, comme (AG), s'arrête près de ses
+points. **Vérifié** sur les 728 figures : (IJ) tracée seule atteint L, (CG)
+seule atteint L, (LK) atteint M.
+Le même jour, Turquet a précisé : « ce ne vaut que pour le 7.1.14 ». La règle
+du plan (IJK) n'est donc appliquée qu'au kind `esl` ; au 7.1.12 et au 7.1.13
+(`esx`, `esg`), une droite garde la règle précédente — ses points, L et les
+points de la section qu'elle porte, ses intersections avec les autres droites
+tracées. Dans les trois exercices, (IJ) tracée seule atteint L.
