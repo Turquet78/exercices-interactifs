@@ -1325,3 +1325,12 @@ ce segment »).** Dans les trois exercices (7.1.12 à 7.1.14) :
   (IL). » Un segment intérieur ([EC]) reste permis, gris.
 **Vérifié** dans Chromium : [IL] refusé, [IJ] rouge, [EC] gris ; trente séances
 du 7.1.13 dans le désordre menées au bout.
+
+**Puis le bouton de la parallèle dit qu'il trace un segment rouge (Turquet,
+novembre 2026, v510 : « préciser sur le bouton que parallèle c'est pour des
+segments rouges »).** L'outil « Parallèle » devient « Segment rouge
+parallèle », dans les trois exercices ; la consigne de l'énoncé, l'aide de
+l'outil et le message « Choisis d'abord un outil » suivent. **Vérifié** dans
+Chromium : les cinq boutons (« Droite | Segment rouge | Point d'intersection |
+Segment rouge parallèle | ↶ Annuler ») ; trente séances du 7.1.13 dans le
+désordre menées au bout.
