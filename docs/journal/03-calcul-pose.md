@@ -360,7 +360,7 @@ différence entre 23 et du quart de 4 », vu en relisant vingt tirages. Banc :
 séances, chaque nombre de chaque question ; les bords de `voc2Ok` des deux
 côtés ; ni choix de calcul, ni doublon ; identité et « Recommencer »).
 
-**Le 1.15 {ranger-croissant} : ranger trois nombres dans l'ordre croissant, les cases en nombres décimaux (v446).**
+**Le 1.15 {ranger-croissant} : ranger trois nombres dans l'ordre croissant, les cases en nombres décimaux (v447).**
 Demande de Turquet, novembre 2026, sur sa fiche « Ranger dans l'ordre
 croissant » : « faire un exercice comme le pdf. On prendra les mêmes valeurs.
 On demandera aux élèves de compléter les cases avec des nombres décimaux. Il

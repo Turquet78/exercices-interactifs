@@ -706,3 +706,40 @@ d'un champ qui garde le focus est un Entrée (`trdLibreTouche`), celui d'un
 champ qu'on quitte n'est rien. La case « x » qui rougissait pendant que l'élève
 écrivait le membre de droite est devenue une règle de tout le site (voir
 `02-conventions-ecran.md`, `gardeAutres`). Banc navigateur, « 11 septdecies ».
+
+## 6.6 {image-second-degre} — l'image d'un nombre par une fonction du second degré, la fiche à ses valeurs (novembre 2026, Première v446)
+
+Demande de Turquet : « en première faire un exercice comme le pdf » (la fiche
+« image second degré »), « présenter comme le pdf avec des flèches et des
+accolades », « quand une case est recopiée sur la ligne du dessous, la
+recopier automatiquement » — puis, en cours de travail, « on prendra les mêmes
+exemples avec les mêmes valeurs numériques ». Kind `isd`, écran `scr-isd`.
+
+**Rien n'est tiré.** `ISD_FICHE` porte les sept questions de la fiche, dans
+son ordre : 1² et (−1)², puis l'image de 1 et de −1 par x² + 3x − 1,
+3x² − 2x + 1 et −3x² + 2x + 1. (La fiche écrit « f(1) = » devant l'image de
+−1 de la deuxième fonction : coquille corrigée, l'écran écrit f(−1).) Aucune
+question ne se répète : la fonction ou le nombre change d'une question à
+l'autre. Le réglage « Questions » d'un devoir n'a donc pas de prise.
+
+**La présentation de la fiche est une grille à cinq colonnes** (intitulé,
+« f(x) = » / « f(1) = » / « = », puis un terme par colonne) : chaque terme de
+f(x) tombe au-dessus de son groupe, chaque accolade au-dessus de sa case.
+Flèches et accolades sont un `<svg>` posé par-dessus (`isdTrace`, sur le modèle
+de `dvlTrace`), qui lit les positions RENDUES et se retrace au redimensionnement.
+Les flèches visent le GROUPE entier (`isd-g1`, `isd-g2`) et non la parenthèse :
+viser la parenthèse les faisait pencher, la fiche les a droites.
+
+**La recopie automatique** : quand a ≠ 1, la ligne « = a × [carré]  [bx]  [c] »
+est suivie de « = [a × carré]  bx  c », dont les deux derniers termes ne sont
+que la recopie de la ligne du dessus. Ce sont des miroirs (`.isd-mir`, comme
+les `.sui-mir` du 7.1) : du texte, pas des cases — ni notés, ni réclamés par
+`#confirmer-vides`, recopiés à chaque frappe, après la correction et à la
+reprise d'une pause (`restoreBoxes` appelle `isdMiroirs`). Le miroir d'une case
+fausse recopie la saisie de l'élève : la correction verte est sur la case.
+
+**Le terme qui en suit un autre garde son signe** (la règle du 5.2) : « 3 »
+pour « +3 » au milieu de la ligne est jugé faux, et le pourquoi dit « le nombre
+est juste, mais ce terme en suit un autre ». Une parenthèse se lit avec ou sans
+ses parenthèses (« (−1) » ou « −1 »). Un point par question parfaite, les cases
+justes au crédit partiel (`ptsExo`).
