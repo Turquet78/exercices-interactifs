@@ -2743,7 +2743,12 @@ module.exports = {
                sources) ; le plancher est ce que le banc navigateur exige
                d'une touche RENDUE sur une tablette de 1180 px, où le pavé
                faisait 634 px et ses touches 40. */
-            largeurPaysage: { toucheMax: 80, plancher: 52 } },
+            largeurPaysage: { toucheMax: 80, plancher: 52 },
+            /* LA TOUCHE « + » À LA PLACE DU « / » (Turquet, novembre 2026) :
+               dans une case dont le pavé n'ajoute que « + » — les cases
+               signées du 7.1.3 —, « + » vient à droite du « − » et « / »
+               part au bout (mesuré sur un téléphone debout et couché). */
+            plusSeul: { exercice: 'espace-droite-parametrique', champ: '#edp-s0u' } },
     /* LE CLAVIER MATHÉMATIQUE À L'ÉCRAN (demande de Turquet, septembre 2026) :
        ses deux couches se nomment « clavier A » (chiffres, opérations) et
        « clavier B » (sin, cos, π…) — « fn » et « 123 » ne disaient rien à un

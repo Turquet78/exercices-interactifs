@@ -316,6 +316,26 @@ la forme 1 et les six de la forme 2 offrent « + », le pavé ancré au bas et
 au bord, la touche écrit « +3 » ; sur le téléphone, la barre « + » mesure
 376 × 46 sous le rectangle.
 
+**Puis « + » a pris la place du « / » (Turquet, novembre 2026, v508).** « La
+touche / est importante sur le clavier virtuel dans cet exercice ? Si oui je
+préfère que l'on échange la position du + et du /. » Elle ne l'est pas :
+depuis v433, chaque valeur de t est un entier, et le numérateur et le
+dénominateur de la dernière ligne ont chacun leur case. Dans une case dont
+le pavé n'ajoute que « + », le « + » vient donc juste à droite du « − », où
+était le « / », et le « / » part là où arrivait le « + » : au bout de la
+rangée unique (après ⏎, par l'ordre flex — `order` sur ⌫, ⏎ et « / »), ou
+sous le rectangle d'un téléphone debout (`grid-area:div` pour le « + »,
+rangée entière pour le « / »). Tout en CSS, sous `#paveNum:has(#paveSup
+.pave-plus[data-t="+"]:only-child)` : une case qui demande plusieurs touches
+en plus (le `( ) + ×` du 6.1.2) n'est pas touchée, et le moteur du pavé,
+commun aux trois niveaux, ne change pas. **Contrôle** : banc navigateur,
+section du pavé, « sur un téléphone debout / couché, dans une case qui
+n'ajoute que « + », il prend la place du « / », à côté du « − », et « / »
+part au bout » — déclaré par `pave.plusSeul` dans le profil ; mesuré au
+rectangle : « + » sur la rangée du « − », à moins de 12 px à sa droite, « / »
+sous le rectangle ou après ⏎. Éprouvé dans Chromium aux quatre formats
+(téléphone et tablette, debout et couché).
+
 ## 7.1.4 — deux droites parallèles ? (`espace-droites-paralleles`, kind `epa`)
 
 Demande de Turquet (octobre 2026), avec la fiche « vecteur 5 » : « créer un
