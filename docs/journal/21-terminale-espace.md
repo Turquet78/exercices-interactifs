@@ -1325,3 +1325,27 @@ ce segment »).** Dans les trois exercices (7.1.12 à 7.1.14) :
   (IL). » Un segment intérieur ([EC]) reste permis, gris.
 **Vérifié** dans Chromium : [IL] refusé, [IJ] rouge, [EC] gris ; trente séances
 du 7.1.13 dans le désordre menées au bout.
+
+**Puis le bouton de la parallèle dit qu'il trace un segment rouge (Turquet,
+novembre 2026, v510 : « préciser sur le bouton que parallèle c'est pour des
+segments rouges »).** L'outil « Parallèle » devient « Segment rouge
+parallèle », dans les trois exercices ; la consigne de l'énoncé, l'aide de
+l'outil et le message « Choisis d'abord un outil » suivent. **Vérifié** dans
+Chromium : les cinq boutons (« Droite | Segment rouge | Point d'intersection |
+Segment rouge parallèle | ↶ Annuler ») ; trente séances du 7.1.13 dans le
+désordre menées au bout.
+
+**Puis la parallèle par un point HORS DU CUBE (Turquet, novembre 2026, sur une
+capture du 7.1.14 : M, sur (AE) prolongée, et la parallèle à [JI] — « il faut
+tracer la droite parallèle à partir de M et tracer le segment rouge de la face
+correspondante en même temps »).** La page refusait : « Le point M n'est pas
+sur la face parallèle ». Désormais, dans les trois exercices, un point du PLAN
+de la face opposée, hors du cube, est accepté : la parallèle se trace en
+droite à partir de ce point, et le segment qu'elle découpe sur la face — rouge
+s'il est un morceau de la section — se trace en même temps ; ses deux bouts
+deviennent des points. Les gestes ajoutés portent un même `grp`, et
+« Annuler » les retire d'un coup. Un point qui n'est ni sur la face ni dans son
+plan reste refusé, et le message le dit. **Vérifié** sur une figure du 7.1.14 :
+(JK) et (AD) se coupent en M hors du cube, la parallèle à [IJ] par M est
+tracée avec le segment rouge [NP] sur la face ADHE (quatre gestes), « Annuler »
+les retire tous ; trente séances du 7.1.13 dans le désordre menées au bout.
