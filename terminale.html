@@ -4639,7 +4639,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=506;
+const APP_VERSION=507;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36083,21 +36083,36 @@ function esxClipT(p,r,c){
 }
 /* UNE DROITE NE VA PAS PLUS LOIN QUE NÉCESSAIRE (Turquet, novembre 2026 :
    « quand on trace une droite, ne prolonger qu'un petit peu ce qui est
-   nécessaire ; si on peut éviter de traverser le dessin, c'est mieux »). Elle
-   couvre ce qui est sur elle : ses deux points, les points nommés qu'elle
-   porte (sommets, I, J, K, points construits), L et les points de la section
-   s'ils y sont, et ses points d'intersection avec les autres droites tracées
-   (dans l'espace, et dans le cadre) — puis 28 unités de plus de chaque côté,
-   sans sortir du cadre. Le clic sur une droite suit la même étendue. */
+   nécessaire » ; puis « il faut qu'au début les droites tracées permettent de
+   faire une intersection intéressante ; ne prolonger les droites plus loin que
+   s'il y a une intersection avec une autre droite permettant de construire la
+   section »). Une droite couvre ses deux points et les points nommés qu'elle
+   porte, puis seulement les points UTILES À LA SECTION — ceux du plan (IJK) :
+     — une droite du plan (IJK), comme (IJ) ou (LK), va jusqu'à ses
+       intersections avec les droites des arêtes du cube (dans son plan de
+       face) : c'est là qu'elle rencontre la trace d'une autre face — L, M… ;
+     — une autre droite, comme (CG), va jusqu'au point où elle perce le plan
+       (IJK) — L pour (CG) ;
+     — et ses intersections avec les autres droites tracées, si elles sont
+       dans le plan (IJK).
+   Puis 28 unités de chaque côté, sans sortir du cadre. Le clic sur une droite
+   suit la même étendue. */
+function esxDansPlan(q,P){ const g=esxCfg(q); return Math.abs(esxDot(g.n,P)-g.d)<1e-9*Math.max(1,Math.hypot(g.n[0],g.n[1],g.n[2])); }
 function esxEtendue(q,A,B){
   const g=esxCfg(q), u=esxSub(B,A), uu=esxDot(u,u), c=esxCadre(q), ts=[0,1];
-  const tDe=P=>esxDot(esxSub(P,A),u)/uu;
-  esxPoints(q).map(z=>z.P).concat([g.L],g.pts).forEach(P=>{ if(esxSurDroite(P,A,B)) ts.push(tDe(P)); });
+  const tDe=P=>esxDot(esxSub(P,A),u)/uu, dedans=X=>esxDansCadre(c,esxProj(X));
+  esxPoints(q).forEach(z=>{ if(esxSurDroite(z.P,A,B)) ts.push(tDe(z.P)); });
+  /* le point commun de deux droites de l'espace, ou null */
+  const inter=function(P,Q){ const v=esxSub(Q,P), w=esxSub(P,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return null; return esxAdd(A,esxMul(u,esxDot(esxVx(w,v),n)/esxDot(n,n))); };
+  if(esxDansPlan(q,A) && esxDansPlan(q,B)){
+    ESX_AR.forEach(e=>{ const X=inter(ESX_CO[e[0]],ESX_CO[e[1]]); if(X && dedans(X)) ts.push(tDe(X)); });
+  } else {
+    const den=esxDot(g.n,u);
+    if(Math.abs(den)>1e-12){ const X=esxAdd(A,esxMul(u,(g.d-esxDot(g.n,A))/den)); if(dedans(X)) ts.push(tDe(X)); }
+  }
   esxObjets(q).forEach(function(o){
     if(o.t!=='d') return;
-    const v=esxSub(o.B,o.A), w=esxSub(o.A,A), n=esxVx(u,v); if(esxNul(n)||Math.abs(esxDot(w,n))>1e-9) return;
-    const t=esxDot(esxVx(w,v),n)/esxDot(n,n), X=esxAdd(A,esxMul(u,t));
-    if(esxDansCadre(c,esxProj(X))) ts.push(t);
+    const X=inter(o.A,o.B); if(X && dedans(X) && esxDansPlan(q,X)) ts.push(tDe(X));
   });
   const pa=esxProj(A), pb=esxProj(B), L=Math.hypot(pb[0]-pa[0],pb[1]-pa[1])||1, m=28/L, cl=esxClipT(pa,pb,c);
   return [Math.max(cl[0],Math.min(...ts)-m), Math.min(cl[1],Math.max(...ts)+m)];
