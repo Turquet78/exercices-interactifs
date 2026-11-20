@@ -36017,7 +36017,28 @@ function esxConstruire(si,fa,fb,fc,lisible){
   if(esxAngle2([pJ[0]-pI[0],pJ[1]-pI[1]],[pG[0]-pC[0],pG[1]-pC[1]])<20) return null;
   const pL=esxProj(Lp), pK=esxProj(K); if(Math.hypot(pL[0]-pK[0],pL[1]-pK[1])<40) return null;
   if(Math.max(...Lp.map(x=>Math.max(-x,x-1)))>1+1e-9) return null;              /* L à une arête au plus hors du cube */
+  if(esxLargeur(pts)<ESX_EPAISSEUR) return null;                                  /* une section assez épaisse pour se voir */
   return cfg;
+}
+/* LA SECTION DOIT SE VOIR (Turquet, novembre 2026, sur une capture où la
+   section, presque vue par la tranche, n'était qu'un trait : « il faut que la
+   section ait une épaisseur d'au moins 1 cm au plus large »). L'épaisseur
+   est la largeur minimale du polygone dessiné (la plus petite distance entre
+   deux droites parallèles qui l'encadrent : pour chaque côté, le sommet le plus
+   éloigné). 60 unités du dessin : 1,5 cm environ sur un ordinateur, 1 cm sur un
+   téléphone. Sur les 728 figures, 598 passent (160 pentagones) ; la plus mince
+   écartée n'avait que 2 unités. */
+const ESX_EPAISSEUR=60;
+function esxLargeur(pts){
+  const P=pts.map(esxProj), c=[P.reduce((a,p)=>a+p[0],0)/P.length, P.reduce((a,p)=>a+p[1],0)/P.length];
+  P.sort((a,b)=>Math.atan2(a[1]-c[1],a[0]-c[0])-Math.atan2(b[1]-c[1],b[0]-c[0]));
+  let w=Infinity;
+  for(let i=0;i<P.length;i++){
+    const a=P[i], b=P[(i+1)%P.length], L=Math.hypot(b[0]-a[0],b[1]-a[1]); if(L<1e-9) continue;
+    let m=0; P.forEach(p=>{ m=Math.max(m, Math.abs((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]))/L); });
+    w=Math.min(w,m);
+  }
+  return w;
 }
 function esxCfg(q){
   const k=q.sym+'|'+q.a+'|'+q.b+'|'+q.c;

@@ -1369,3 +1369,17 @@ Chromium, aux trois exercices : « Segment rouge », K, puis le croisement de
 outil, le même clic → « Point M nommé sur la section » ; le croisement de (JK)
 et (AD), hors du cube, ne nomme rien ; trente séances du 7.1.13 dans le
 désordre menées au bout.
+
+**Puis une section assez épaisse pour se voir (Turquet, novembre 2026, sur une
+capture où la section, presque vue par la tranche, n'était qu'un trait : « il
+faut que la section ait une épaisseur d'au moins 1 cm au plus large »).**
+`esxConstruire` écarte désormais toute figure dont la section dessinée est
+trop mince : sa largeur minimale (`esxLargeur` — pour chaque côté du polygone
+projeté, le sommet le plus éloigné ; la plus petite de ces distances) doit
+valoir au moins `ESX_EPAISSEUR` = 60 unités du dessin, soit 1,5 cm environ sur
+un ordinateur et 1 cm sur un téléphone. La plus mince des 728 figures
+n'avait que 2,3 unités. Restent 598 figures (160 pentagones, 438 hexagones) ;
+le tirage garde un pentagone sur deux. **Vérifié** : 3 000 tirages — 1 478
+pentagones, 1 522 hexagones, épaisseur minimale tirée 62,6 ; trente séances
+du 7.1.13 dans le désordre menées au bout. Les figures déjà tirées (une pause)
+restent jouables : `esxCfg` ne refiltre pas.
