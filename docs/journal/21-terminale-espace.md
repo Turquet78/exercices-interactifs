@@ -1349,3 +1349,23 @@ plan reste refusé, et le message le dit. **Vérifié** sur une figure du 7.1.14
 (JK) et (AD) se coupent en M hors du cube, la parallèle à [IJ] par M est
 tracée avec le segment rouge [NP] sur la face ADHE (quatre gestes), « Annuler »
 les retire tous ; trente séances du 7.1.13 dans le désordre menées au bout.
+
+**Puis un croisement de la section se nomme tout seul (Turquet, novembre 2026,
+v511 : « quand on appuie sur un point d'intersection qui se trouve sur la
+section du cube pour tracer une parallèle, un segment ou une droite, ou avec
+aucun bouton sélectionné, le nommer et l'utiliser ; le bouton Point
+d'intersection sera nommé Nommer un point d'intersection »).** Quand le clic
+attend un point (Droite, Segment rouge, la parallèle avant son segment) ou
+qu'aucun outil n'est choisi, et qu'aucun point nommé n'est sous le doigt, la
+page cherche le croisement de deux traits le plus proche
+(`esxCroisementProche`, le même que pour l'outil d'intersection) ; s'il est un
+vrai point de l'espace, dans le plan (IJK) et sur le cube
+(`esxNommerCroisement`), il devient un point nommé — puis sert au geste en
+cours (`p.forcePt`). Un croisement hors de la section (L, le point de (JK) et
+(AD) hors du cube) ne se nomme pas ainsi : il garde l'outil. Au 7.1.13, le
+point créé passe par `esgJuger` comme n'importe quel geste. **Vérifié** dans
+Chromium, aux trois exercices : « Segment rouge », K, puis le croisement de
+(LK) et [DH] → M nommé et [KM] rouge (au 7.1.13 : « Étape 6 faite ») ; sans
+outil, le même clic → « Point M nommé sur la section » ; le croisement de (JK)
+et (AD), hors du cube, ne nomme rien ; trente séances du 7.1.13 dans le
+désordre menées au bout.
