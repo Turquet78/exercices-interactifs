@@ -2394,6 +2394,8 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-ls{font-size:17px;font-weight:800;fill:var(--ink);font-style:italic;font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
 .esx-lc{fill:var(--green)}
 .esx-taches{display:block;margin:4px 0 0 10px}
+.esx-consigne{display:block;margin-top:6px}
+.esx-consigne b{color:#dc2626}
 .esg-etapes{margin:6px 0 0 0;padding-left:1.6em}
 .esg-etapes li{margin:2px 0;color:var(--ink)}
 .esg-etapes li.esg-fait{color:var(--ink-soft)}
@@ -4658,7 +4660,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=508;
+const APP_VERSION=509;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36273,14 +36275,15 @@ function esxPromptHTML(q){
   const g=esxCfg(q), R=g.R;
   return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
     +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire sur la figure, en laissant apparents les traits de construction :'
-    +'<span class="esx-taches"><span>• le point <i>L</i> ;</span><span>• l’intersection 𝒟 des plans (<i>IJK</i>) et (<i>'+R.C+R.D+R.H+'</i>) ;</span><span>• la section du cube par le plan (<i>IJK</i>).</span></span>';
+    +'<span class="esx-taches"><span>• le point <i>L</i> ;</span><span>• l’intersection 𝒟 des plans (<i>IJK</i>) et (<i>'+R.C+R.D+R.H+'</i>) ;</span><span>• la section du cube par le plan (<i>IJK</i>).</span></span>'
+    +'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Parallèle »), il passe en rouge dès qu’il est juste.</span>';
 }
 function esxPlain(q){
   const g=esxCfg(q), R=g.R, t=(P,o,fr)=>P+(fr[0]===1&&fr[1]===2?' milieu de ['+R[o[0]]+R[o[1]]+']':' sur ['+R[o[0]]+R[o[1]]+'] avec '+R[o[0]]+P+' = '+fr[0]+'/'+fr[1]+' '+R[o[0]]+R[o[1]]);
   return 'cube ABCDEFGH de côté 1 (face avant BCGF, B en bas à gauche, A caché derrière B, E au-dessus de A) ; '+t('I','BF',q.a)+', '+t('J','BC',q.b)+', '+t('K','CD',q.c)
     +' ; (IJ) et ('+R.C+R.G+') sécantes en L ; construire L, l’intersection 𝒟 des plans (IJK) et ('+R.C+R.D+R.H+'), la section du cube par (IJK)';
 }
-const ESX_OUTILS=[['d','Droite'],['s','Segment'],['i','Point d’intersection'],['p','Parallèle']];
+const ESX_OUTILS=[['d','Droite'],['s','Segment rouge'],['i','Point d’intersection'],['p','Parallèle']];
 function esxFormHTML(q){
   return '<div class="esx-outils" role="toolbar" aria-label="Outils de construction">'
     +ESX_OUTILS.map(o=>'<button type="button" class="btn btn-ghost esx-outil" data-outil="'+o[0]+'" aria-pressed="false" onclick="esxChoisir(\''+o[0]+'\')">'+o[1]+'</button>').join('')
@@ -36290,7 +36293,7 @@ function esxFormHTML(q){
     +'<div class="esx-suivi" id="esxSuivi"></div>';
 }
 /* ---- les gestes ---- */
-const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment : clique sur deux points.', i:'Point d’intersection : clique directement là où deux traits se croisent — ou sur un trait, puis sur l’autre.', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
+const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment rouge : clique sur deux points du cube — il passe en rouge s’il est un morceau de la section.', i:'Point d’intersection : clique directement là où deux traits se croisent — ou sur un trait, puis sur l’autre.', p:'Parallèle : clique sur un point et sur un segment rouge d’une face parallèle, dans l’ordre que tu veux.'};
 function esxDire(t,err){ esxMsg=t; esxMsgErr=!!err; const el=$('esxMsg'); if(el){ el.textContent=t; el.classList.toggle('esx-err',!!err); } }
 function esxChoisir(o){
   if(test.locked) return;
@@ -36419,6 +36422,12 @@ function esxTracer(q,a,b){
     q.cons.push({k:'d',a:a,b:b}); esxDire('Droite ('+a+b+') tracée.');
   } else {
     if(ob.some(o=>o.t!=='d'&&((esxEq(o.A,A)&&esxEq(o.B,B))||(esxEq(o.A,B)&&esxEq(o.B,A))))){ esxDire('Ce segment est déjà tracé.', true); return; }
+    /* UN SEGMENT NE SORT PAS DU CUBE (Turquet, novembre 2026 : « si l'élève
+       trace un segment dont un morceau est en dehors du cube, ne pas tracer
+       ce segment »). Le cube est convexe : le segment y reste si ses deux
+       bouts y sont. Pour aller au-delà, il y a la droite. */
+    const dansCube=P=>P.every(x=>x>-1e-9&&x<1+1e-9);
+    if(!dansCube(A)||!dansCube(B)){ esxDire('Le segment ['+a+b+'] sort du cube : on ne trace que des segments sur le cube. Pour aller plus loin, trace la droite ('+a+b+').', true); return; }
     q.cons.push({k:'s',a:a,b:b});
     esxDire(esxEstMorceau(q,A,B)?'Segment ['+a+b+'] tracé : c’est un morceau de la section, il passe en rouge.':'Segment ['+a+b+'] tracé.');
   }
@@ -36599,11 +36608,11 @@ function esgEtapes(q){
     {t:'i',X:g.L,lab:'L',txt:'Place le point d’intersection '+i('L')+' des droites ('+i('IJ')+') et ('+i(R.C+R.G)+').'},
     {t:'d',A:g.L,B:g.K,lab:'(LK)',txt:'Trace la droite ('+i('LK')+') : c’est 𝒟, l’intersection des plans ('+i('IJK')+') et ('+i(R.C+R.D+R.H)+').'},
     {t:'i',X:M,lab:N(M),txt:'Place le point d’intersection '+i(N(M))+' de la droite ('+i('LK')+') et du segment ['+i(esxAreteDe(M))+'].'},
-    {t:'s',A:g.K,B:M,lab:'[K'+N(M)+']',txt:'Trace le segment ['+i('K'+N(M))+'].'}];
+    {t:'s',A:g.K,B:M,lab:'[K'+N(M)+']',txt:'Trace le segment rouge ['+i('K'+N(M))+'].'}];
   g.etapes.slice(1).forEach(function(e){
-    if(e.t==='2') o.push({t:'s',A:e.P,B:e.Q,lab:'['+N(e.P)+N(e.Q)+']',txt:'Trace le segment ['+i(N(e.P)+N(e.Q))+'].'});
+    if(e.t==='2') o.push({t:'s',A:e.P,B:e.Q,lab:'['+N(e.P)+N(e.Q)+']',txt:'Trace le segment rouge ['+i(N(e.P)+N(e.Q))+'].'});
     else { const m=g.morceaux.find(z=>z.fi===e.ref);
-      o.push({t:'p',A:e.P,B:e.Q,lab:'∥ par '+N(e.P),txt:'Trace la parallèle au segment ['+i(N(m.P)+N(m.Q))+'] passant par le point '+i(N(e.P))+' : elle s’arrête en '+i(N(e.Q))+'.'}); }
+      o.push({t:'p',A:e.P,B:e.Q,lab:'∥ par '+N(e.P),txt:'Trace la parallèle au segment ['+i(N(m.P)+N(m.Q))+'] passant par le point '+i(N(e.P))+' : un segment rouge, qui s’arrête en '+i(N(e.Q))+'.'}); }
   });
   o.noms=gen;
   return o;
@@ -36659,7 +36668,7 @@ function esgPromptHTML(q){
   const g=esxCfg(q), R=g.R;
   return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
     +'<br>On admet que les droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>) sont sécantes en un point <i>L</i>. Construire la section du cube par le plan (<i>IJK</i>) en réalisant les étapes suivantes, dans l’ordre que tu veux :'
-    +esgEtapesHTML(q);
+    +esgEtapesHTML(q)+'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Parallèle »), il passe en rouge dès qu’il est juste.</span>';
 }
 function esgBilan(q){ const f=esgFaitesSet(q); return esgEtapes(q).map((s,i)=>({lab:s.lab, ok:!!f[i]})); }
 function esgBilanHTML(q){
@@ -36695,7 +36704,8 @@ function esgConseilCtx(){
    section est incomplète ; l'explication la nomme (« appelons L … »). */
 function eslPromptHTML(q){
   return '<i>ABCDEFGH</i> désigne un cube de côté 1. '+esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c)
-    +'<br>Construire sur la figure la section du cube par le plan (<i>IJK</i>), en laissant apparents les traits de construction.';
+    +'<br>Construire sur la figure la section du cube par le plan (<i>IJK</i>), en laissant apparents les traits de construction.'
+    +'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Parallèle »), il passe en rouge dès qu’il est juste.</span>';
 }
 async function startESL(){
   if(!currentEleve){ accueil(); return; }
