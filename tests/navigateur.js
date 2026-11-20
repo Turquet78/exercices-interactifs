@@ -19023,6 +19023,48 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
 
+      /* ---- LA TOUCHE « + » À LA PLACE DU « / » (demande de Turquet, novembre
+         2026 : « j'préfère que l'on échange la position du + et du / »). Dans
+         une case dont le pavé n'ajoute que « + » (les cases signées du 7.1.3),
+         le « / » ne sert à rien : « + » prend sa place, juste à droite du
+         « − », et « / » part au bout. Mesuré au rectangle sur un téléphone
+         debout (le rectangle de calculatrice : « / » descend sous lui) et
+         couché (la rangée unique : « / » après ⏎). Déclaré par pave.plusSeul ;
+         sans déclaration, le contrôle s'affiche « non applicable ». */
+      if(!P.pave.plusSeul){
+        ignorer('dans une case qui n\'ajoute que « + », il prend la place du « / », à côté du « − »', 'ce fichier ne déclare pas pave.plusSeul');
+      } else {
+        const PS = P.pave.plusSeul;
+        for(const [nom, lw, lh] of [['debout', 390, 844], ['couché', 844, 390]]){
+          const intitule = 'sur un téléphone ' + nom + ', dans une case qui n\'ajoute que « + », il prend la place du « / », à côté du « − », et « / » part au bout';
+          s = await ouvrir(chromium, ml, { viewport: { width: lw, height: lh }, hasTouch: true });
+          if(await connecter(s.page) !== 'scr-space'){
+            ignorer(intitule, 'connexion impossible');
+          } else {
+            await ouvrirExoPave(s.page, PS.exercice);
+            await s.page.evaluate(ch => { const e = document.querySelector(ch); if(e){ e.scrollIntoView({ block: 'center' }); e.focus(); } paveMontrer(); }, PS.champ);
+            await s.page.waitForTimeout(500);
+            const g = await s.page.evaluate(() => {
+              const p = document.getElementById('paveNum');
+              const R = t => { const b = p.querySelector('.pave-t[data-t="' + t + '"]'); if(!b) return null;
+                const r = b.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom) }; };
+              return { visible: !p.hidden, sup: [...p.querySelectorAll('.pave-plus')].map(b => b.getAttribute('data-t')),
+                       plus: R('+'), moins: R('−'), div: R('/'), ent: R('⏎') };
+            });
+            /* « + » sur la rangée du « − », collé à sa droite (l'écart d'une grille ou d'un flex : au plus 12 px) */
+            const aCote = !!(g.plus && g.moins) && Math.abs(g.plus.t - g.moins.t) <= 1 && g.plus.l >= g.moins.r && g.plus.l - g.moins.r <= 12;
+            /* « / » sous le rectangle (debout), ou sur la rangée après ⏎ (couché) */
+            const divLoin = !!(g.div && g.moins) && (g.div.t >= g.moins.b - 1 || (!!g.ent && g.div.l >= g.ent.r && Math.abs(g.div.t - g.moins.t) <= 1));
+            verifier(intitule, g.visible && g.sup.join(' ') === '+' && aCote && divLoin,
+              !g.visible ? 'le pavé reste caché'
+                : g.sup.join(' ') !== '+' ? ('le pavé ajoute [' + g.sup.join(' ') + '] et non « + » seul')
+                : !aCote ? ('« + » ' + JSON.stringify(g.plus) + ' n\'est pas juste à droite de « − » ' + JSON.stringify(g.moins))
+                : ('« / » ' + JSON.stringify(g.div) + ' n\'est ni sous le rectangle ni après ⏎ ' + JSON.stringify(g.ent)));
+          }
+          await s.nav.close(); s = null;
+        }
+      }
+
       /* ---- les cases MATHÉMATIQUES confiées au pavé, sur un contexte TACTILE ----
          Là où le niveau confie ses cases MathLive au pavé (PAVE_MF), le clavier
          MathLive complet ne doit PAS se déployer au focus — c'est un contexte

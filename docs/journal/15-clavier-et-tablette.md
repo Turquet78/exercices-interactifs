@@ -1877,3 +1877,12 @@ nommées, tombait dans la première colonne, un carré perdu à gauche ;
 entière. Deux touches ou plus se rangent comme avant. Contrôle :
 `clavierSigne`, banc principal, déclaré par le profil — chronique au 7.1.3
 (`docs/journal/21-terminale-espace.md`).
+**Puis « + » a pris la place du « / » (Turquet, novembre 2026, Terminale
+v508)** : « si la touche / n'est pas importante dans cet exercice, je préfère
+que l'on échange la position du + et du / ». Dans une case dont le pavé
+n'ajoute que « + », le « + » vient à droite du « − » et le « / » part au bout
+— par `order` sur la rangée unique, par `grid-area` sur le rectangle du
+téléphone debout, sous `#paveNum:has(#paveSup .pave-plus[data-t="+"]:only-child)`.
+Le moteur du pavé ne change pas ; une case qui demande plusieurs touches
+garde la disposition d'avant. Contrôle au banc navigateur (`pave.plusSeul`) ;
+chronique au 7.1.3 (`docs/journal/21-terminale-espace.md`).
