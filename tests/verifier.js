@@ -5016,6 +5016,7 @@ function exercices(suite){
     fractionsRedigees(w, P);
     calculLitteralRedige(w, P);
     sommeProduitFractions(w, P);
+    troisFractionsPpcm(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -8592,6 +8593,105 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- {trois-fractions-ppcm} de la Première (4.11) ---------------------
+   Demande de Turquet (novembre 2026) : « additionner 3 fractions, il peut y
+   avoir une soustraction mais le résultat doit être positif ; les 3
+   dénominateurs différents entre eux, pris parmi 2-3-4, 2-3-9, 2-4-5, 3-9-6,
+   2-3-6, 2-4-8, 2-5-10, 2-6-12 ; le dénominateur commun le plus petit
+   possible ; si un élève n'écrit pas le × 1 sur la première ligne de calcul,
+   ne pas compter faux ». Déclaré par le profil (troisFractionsPpcm).
+   ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque triplet est
+     dans la liste et CHACUN sort (2-5-10 et 2-3-6 donnent toujours un
+     résultat qui se simplifie : exiger l'irréductible les effaçait) ; le
+     dénominateur commun rangé est le PPCM ; au plus une soustraction, les
+     trois motifs ++, +−, −+ sortent ; de gauche à droite rien ne passe sous
+     zéro ; le résultat recalculé, positif, non entier ; paires guidée PUIS
+     rédigée, des mêmes signes.
+   ② LE JUGE, par de vrais évènements « input » : sur le plus petit
+     dénominateur, la copie vaut le point, × 1 écrit ou laissé VIDE (et
+     alors ni rouge ni corrigé) ; un × 2 à la place du × 1 rougit ; la même
+     copie sur un multiple commun plus grand ne vaut pas le point ; la
+     rédigée sur le plus petit est juste, sur un plus grand le juge ne
+     l'accepte pas d'office. Le 4.10, témoin, garde son dénominateur libre. */
+function troisFractionsPpcm(w, P){
+  const R = P.troisFractionsPpcm;
+  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif';
+  if(!R){ ignorer(nom, 'exercice propre à la Première'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[], id='trois-fractions-ppcm', LISTE=${JSON.stringify(R.denos)};
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    const ppcm=function(a,b){ return a/pgcd(a,b)*b; };
+    const cle=function(t){ return t.slice().sort(function(x,y){ return x-y; }).join('-'); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
+    const vusT={}, vusS={}; let faute='';
+    for(let t=0;t<200 && !faute;t++){
+      currentTestId=id; TESTS[id].start();
+      if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
+      if(!test.redac){ faute='pas de question rédigée'; break; }
+      const qs=test.questions||[];
+      qs.forEach(function(q,i){
+        if(faute) return;
+        const eti=q.a+'/'+q.b+' '+q.op+' '+q.c+'/'+q.d+' '+q.op2+' '+q.e+'/'+q.f;
+        if(!!q.redac!==(i%2===1)){ faute='la question '+(i+1)+' : les paires sont guidée PUIS rédigée'; return; }
+        if(i%2===1 && (q.op!==qs[i-1].op || q.op2!==qs[i-1].op2)){ faute='la paire '+i+'/'+(i+1)+' change de signes'; return; }
+        const t3=[q.b,q.d,q.f];
+        if(new Set(t3).size!==3){ faute=eti+' : deux dénominateurs égaux'; return; }
+        if(!LISTE.some(function(l){ return cle(l)===cle(t3); })){ faute=eti+' : le triplet '+cle(t3)+' n’est pas dans la liste'; return; }
+        vusT[cle(t3)]=1;
+        const D=ppcm(ppcm(q.b,q.d),q.f);
+        if(q.D!==D){ faute=eti+' : dénominateur commun rangé '+q.D+' au lieu de '+D; return; }
+        if(['++','+−','−+'].indexOf(q.op+q.op2)<0){ faute=eti+' : signes « '+q.op+q.op2+' »'; return; }
+        vusS[q.op+q.op2]=1;
+        if(pgcd(q.a,q.b)!==1 || pgcd(q.c,q.d)!==1 || pgcd(q.e,q.f)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+        const n1=q.a*D/q.b, n2=q.c*D/q.d, n3=q.e*D/q.f;
+        const p=(q.op==='+')?n1+n2:n1-n2, N=(q.op2==='+')?p+n3:p-n3;
+        if(p<=0){ faute=eti+' : de gauche à droite, le calcul passe sous zéro'; return; }
+        if(N!==q.N || n1!==q.N1 || n2!==q.N2 || n3!==q.N3){ faute=eti+' : les numérateurs rangés ne suivent pas le calcul'; return; }
+        if(N<=0){ faute=eti+' : résultat négatif ou nul'; return; }
+        if(N%D===0){ faute=eti+' : résultat entier'; return; }
+      });
+    }
+    if(faute) return id+' : '+faute;
+    LISTE.forEach(function(l){ if(!vusT[cle(l)]) vus.push('le triplet '+cle(l)+' ne sort jamais en 200 séances'); });
+    ['++','+−','−+'].forEach(function(k){ if(!vusS[k]) vus.push('les signes '+k+' ne sortent jamais'); });
+
+    const $=function(i){ return document.getElementById(i); };
+    const tape=function(i,v){ const el=$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(i){ const el=$(i); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+    currentTestId=id; TESTS[id].start();
+    /* 3/8 + 1/2 + 1/4 = 3/8 + 4/8 + 2/8 = 9/8 : le × 1 est sous 3/8 */
+    const Q={a:3,b:8,c:1,d:2,e:1,f:4,op:'+',op2:'+',N1:3,N2:4,N3:2,D:8,N:9};
+    const pose=function(){ test.questions=[Object.assign({},Q)]; test.idx=0; test.locked=false; test.answers=[]; renderTsfTest(); };
+    const copie=function(m1,D){ const k=D/8;
+      if(m1!==null){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
+      tape('tsf-a2',4*k); tape('tsf-b2',4*k); tape('tsf-a3',2*k); tape('tsf-b3',2*k);
+      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-d',D); tape('tsf-fn',9*k); tape('tsf-fd',D); };
+    pose();
+    if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
+    if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
+    copie(null,8); checkTsfAnswer();
+    if(!der() || !der().correct) vus.push('le × 1 laissé vide est compté faux');
+    if(peint('tsf-a1')!=='rien' || peint('tsf-b1')!=='rien') vus.push('le × 1 laissé vide est peint ('+peint('tsf-a1')+')');
+    pose(); copie(1,8); checkTsfAnswer();
+    if(!der() || !der().correct) vus.push('la copie juste avec le × 1 écrit est comptée fausse');
+    pose(); copie(2,8); checkTsfAnswer();
+    if(der() && der().correct) vus.push('un × 2 à la place du × 1 est compté juste');
+    if(peint('tsf-a1')!=='faux') vus.push('un × 2 à la place du × 1 ne rougit pas ('+peint('tsf-a1')+')');
+    pose(); copie(2,16); checkTsfAnswer();
+    if(der() && der().correct) vus.push('la copie sur 16 (pas le plus petit dénominateur commun) est comptée juste');
+    const m=tsfrMath(Q,function(n,d){ return n+'/'+d; },'');
+    const j1=m.juge('3/8+1/2+1/4 = 3/8+4/8+2/8 = 9/8'), j2=m.juge('3/8+1/2+1/4 = 6/16+8/16+4/16 = 18/16 = 9/8');
+    if(!(j1.sait && j1.correct)) vus.push('la rédigée juste sur 8 n’est pas acceptée : '+JSON.stringify(j1));
+    if(j2.sait && j2.correct) vus.push('la rédigée sur 16 est acceptée d’office');
+    currentTestId='triple-somme-fractions'; TESTS['triple-somme-fractions'].start();
+    if(test.ppcm) vus.push('le 4.10 hérite du drapeau ppcm');
+    return vus.join(' ; ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---------- {somme-produit-fractions} de la Première (4.6) ------------------
    Le 5.12 de la Seconde, porté en octobre 2026. Demande de Turquet : « les
    nombres doivent être entre 1 et 5, les fractions au départ sont
