@@ -662,7 +662,8 @@ module.exports = {
        resumeTest). Une déclaration qui ne sert plus rougit. */
     pauseReprise: { minuterie: 'calcul-mental', parcours: 'fractions-decimales', horsAtteinte: {
       'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
-      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause'
+      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
+      'trois-fractions-ppcm-redige': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire (comme les exercices libres de la Seconde ; la rédigée du 4.11, même feuille, est reprise par sa guidée)'
     } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
        une copie vide n'atteint pas la fin (une colonne à colorier, une table
