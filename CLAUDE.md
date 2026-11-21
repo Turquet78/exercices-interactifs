@@ -306,6 +306,7 @@ règle ci-dessous, lis le paragraphe qui la porte :
 - **Abandonner ne pose aucune note, et n'efface que la pause de son mode.**
 - **Cinq oublis silencieux en ajoutant un exercice.**
 - **Une question corrigée ne se rejuge plus après une pause.** Le brouillon range le verrou et la suite ; une correction dont le bouton « Question suivante » n'apparaît qu'après un autre geste (« ▶ Exécuter », une minuterie) nomme sa suite : `marquerSuite('nextXxx')`.
+- **Un champ de question nommé `v` est invisible à `distincte()`** : `cleQuestion()` écarte les clés de `CLE_HORS` (`v`, `ci`, `g`, `opts`…). Des données rangées sous ces noms ne distinguent plus deux questions — la séance peut poser deux fois la même (1.15 de la Première, `docs/journal/03-calcul-pose.md`).
 - **« Sortie » (en-tête, `#sortieLien`) remplace « Mettre en pause » et « Abandonner », et « Reprendre » demande « Continuer » ou « Recommencer ».** Bloc `#sortie-reprise` ; la sortie est une pause (`pauseTest`), la carte appelle `choisirReprise(mode)` — sauf l'évaluation de la Première, une seule tentative. Banc : `tests/sortie.js`.
 
 ### Cours en PDF, porte du professeur et portail

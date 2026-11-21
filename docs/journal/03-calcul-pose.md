@@ -437,3 +437,18 @@ autre question du même niveau. Banc : « {ranger-croissant} : cinq niveaux
 dans l'ordre de la fiche, nombres tirés entre 0 et 1, deux au moins à moins
 d'un dixième » (3 000 tirages par niveau, la forme de chaque niveau ; l'ordre
 des niveaux de 1 à DM_NBQ_MAX questions ; la relecture d'une séance d'avant).
+Puis, à peine en ligne, un DOUBLON trouvé par le banc (v451) : relancé pour un
+simple changement de version, le contrôle « une séance de 1 à DM_NBQ_MAX
+questions ne pose jamais deux fois la même » a rougi — une fois, au hasard
+d'un tirage ; l'action l'avait passé vert. Cause : `cleQuestion()`, la clé
+de `distincte()`, écarte tout champ nommé `v` (`CLE_HORS` — la variante
+d'énoncé des autres exercices), et la valeur de chaque nombre de `q.nb` en
+est un. Deux questions d'un même niveau avaient donc la même clé : la
+protection contre les répétitions ne faisait rien, et ne rendait la main
+qu'au bout de ses 200 essais. Remède : la question porte aussi `txt`, le
+texte de ses trois nombres, qui entre dans la clé. Le contrôle tient
+désormais le bord au lieu de l'attendre : deux questions de textes
+différents ont deux clés différentes (200 paires), et chaque longueur de
+séance est tirée vingt fois. Éprouvé par sabotage — `txt` retiré : « 128
+séances avec un doublon ». Le piège vaut pour tout exercice futur : un
+champ de question nommé `v` est invisible à `distincte()`.
