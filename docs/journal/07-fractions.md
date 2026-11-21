@@ -2400,7 +2400,7 @@ le contrôle universel lit aussi × et ÷, et le parcours de la rédigée
 (section 6 terdecies bis, 4.1 et 4.2) mesure le signe de son énoncé contre
 le trait, à 3 px près.
 
-## Première — 4.11 : trois fractions sur le PLUS PETIT dénominateur commun (novembre 2026, Première v448)
+## Première — 4.11 : trois fractions sur le PLUS PETIT dénominateur commun (novembre 2026, Première v449)
 
 Demande de Turquet : « en première faire un exercice comme le pdf, où il faut
 additionner 3 fractions, il peut y avoir une soustraction mais le résultat
