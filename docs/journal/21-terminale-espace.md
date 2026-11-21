@@ -1442,3 +1442,28 @@ Puis, le même jour, une demande de plus :
   le porte pas, ou à moins de 24 d'un sommet ou d'un point nommé (la règle
   qui tenait déjà L et les points de la section). Il reste 378 figures, dont
   66 pentagones ; le tirage reste à un pentagone sur deux (1490 sur 3000).
+
+#### Un bouton « Indice » au 7.1.12 et au 7.1.14 (v514)
+
+Turquet, novembre 2026 : « dans le 7.1.12 et le 7.1.14, mettre un bouton
+indice qui donne une étape possible à faire pour l'élève pour continuer la
+section ». « 💡 Indice », à côté d'« Annuler » (pas au 7.1.13, dont les étapes
+sont écrites), écrit dans la ligne de message une étape possible, calculée sur
+la construction de l'élève telle qu'elle est (`esxIndiceTexte`) :
+
+1. un morceau de la section pas encore tracé dont les deux bouts sont déjà des
+   points nommés → « trace le segment rouge […] » ;
+2. un morceau dont la face opposée porte déjà son segment rouge, et dont un
+   bout est nommé → « trace la parallèle à […] passant par … » ;
+3. sinon, la première étape non faite de la construction du 7.1.13
+   (`esgEtapes`) : (IJ), (CG), L, (LK), le point où (LK) quitte la face.
+
+Les points se disent par le nom que l'élève leur a donné. Au 7.1.12, une
+section complète sans L ou sans 𝒟 ramène l'indice à leur construction : l'énoncé
+les demande. L'indice ne coûte rien à la note.
+
+**Exécuté** dans Chromium : un élève qui ne fait QUE ce que dit l'indice
+(chaque phrase relue et jouée) termine la section sur 76 figures du 7.1.14 et
+76 du 7.1.12, sans jamais rester bloqué (824 gestes chacun) ; au 7.1.12, une
+section tracée sans L ni 𝒟 → (IJ), (CG), L, (LK), puis « La section est
+complète », bilan tout juste ; le bouton cliqué écrit son indice.
