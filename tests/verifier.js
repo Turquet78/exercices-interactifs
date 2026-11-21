@@ -16292,7 +16292,7 @@ function coordonneesDevoirFractions(w, P){
       const q=test.questions[test.idx], av=test.score;
       if(el('vdfIdx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.15 : l’en-tête de la question '+q.ds);
       if(el('vdfInstr').textContent.indexOf('On a les points A')<0 || document.querySelectorAll('#vdfInstr .vdf-pt').length!==(q.ds==='d'?6:5)) vus.push('8.4.15 : l’énoncé du devoir à la question '+q.ds);
-      if(document.querySelector('#scr-vdf svg')) vus.push('8.4.15 : un dessin à la question '+q.ds);
+      if(document.querySelector('#vdfInstr svg, #vdfHost svg, #scr-vdf .lv-graph')) vus.push('8.4.15 : un dessin à la question '+q.ds);
       if(!vdfPlan(q).ch.some(function(c){ return el('vdf-'+c.id+'-d1'); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
       juste(q, i%2===1);
       checkVdf(); clearTimeout(test.fbTimer);
