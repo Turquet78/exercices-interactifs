@@ -9599,7 +9599,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=712;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=713;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -73921,6 +73921,9 @@ function renderVcl(){
     .replace('</defs>',['vclArrK:var(--ink)','vclArr1:var(--vpg-1)','vclArr2:var(--vpg-2)'].map(function(m){ const c=m.split(':');
       return '<marker id="'+c[0]+'" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+c[1]+'"/></marker>'; }).join('')+'</defs>');
   $('vclCalc').innerHTML=vclCalcHTML(q);
+  /* l'écran est partagé avec le devoir 8.4.14, dont les questions a), b), d) cachent le calcul (vclEgMaj) :
+     une question ordinaire du 8.4.13 le rend visible, sans quoi « Vérifier » compte 20 cases jamais montrées */
+  $('vclCalc').style.display='';
   vcdGpFermer();
   vclCalcBrancher(q);
   /* 8.4.14, a) : les listes des deux vecteurs, rendues par la reprise */
