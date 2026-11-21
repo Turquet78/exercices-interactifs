@@ -4151,7 +4151,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=453;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=454;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -24392,8 +24392,35 @@ function tsfGen(op, i){
 const TSF3_DENOS=[[2,3,4],[2,3,9],[2,4,5],[3,9,6],[2,3,6],[2,4,8],[2,5,10],[2,6,12]];
 const TSF3_SIGNES=[['+','+'],['+','−'],['−','+']];
 const TSF3_MAX=60;
+/* 4.12 (novembre 2026, demande de Turquet) : avec le plus petit dénominateur
+   commun, AUCUN nombre du calcul ne dépasse 20 — ni les numérateurs sur D
+   (N1, N2, N3), ni la somme partielle, ni le résultat, ni D (le plus grand
+   PPCM de la liste vaut 20). Le 4.11 garde son plafond de 60. Les cas sont
+   ÉNUMÉRÉS (un tirage par rejet sous un plafond si serré n'aurait presque
+   jamais trouvé le triplet 2, 4, 5 en « + + », qui n'a qu'une solution par
+   ordre) : le triplet est tiré uniformément parmi ceux qui ont un cas, puis
+   le cas uniformément. */
+const TSF4_MAX=20;
+function tsf4Cas(sg){
+  const parT=[];
+  TSF3_DENOS.forEach(function(t){ const cas=[];
+    [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].forEach(function(o){
+      const b=t[o[0]], d=t[o[1]], f=t[o[2]], D=tsfPpcm(tsfPpcm(b,d),f);
+      if(D>TSF4_MAX) return;
+      for(let a=1;a<=9;a++) for(let c=1;c<=9;c++) for(let e=1;e<=9;e++){
+        if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
+        const N1=a*D/b, N2=c*D/d, N3=e*D/f;
+        if(N1>TSF4_MAX || N2>TSF4_MAX || N3>TSF4_MAX) continue;
+        const P=(sg[0]==='+') ? N1+N2 : N1-N2, N=(sg[1]==='+') ? P+N3 : P-N3;
+        if(P<=0 || N<=0 || P>TSF4_MAX || N>TSF4_MAX || N%D===0) continue;
+        cas.push({a:a,b:b,c:c,d:d,e:e,f:f,op:sg[0],op2:sg[1],N1:N1,N2:N2,N3:N3,D:D,N:N});
+      } });
+    if(cas.length) parT.push(cas); });
+  return parT;
+}
 function tsf3Gen(op, i){
   const sg = TSF3_SIGNES[(typeof i==='number' ? Math.floor(i/2) : rand(0,2)) % 3];
+  if(test && test.toutRedac){ const parT=tsf4Cas(sg); return Object.assign({}, pick(pick(parT))); }
   for(let essai=0; essai<4000; essai++){
     if(essai%200===0){ var t=pick(TSF3_DENOS).slice();
       for(let k=t.length-1;k>0;k--){ const j=rand(0,k), x=t[k]; t[k]=t[j]; t[j]=x; } }
