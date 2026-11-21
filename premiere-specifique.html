@@ -4136,7 +4136,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=449;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=450;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4705,7 +4705,7 @@ const TESTS={
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
   'vocabulaire-calcul': { name:'Vocabulaire du calcul', icon:'\ud83d\udde3\ufe0f', desc:'Le double, le tiers, le quart, l\u2019inverse, la somme, le produit, la diff\u00e9rence, le quotient\u00a0: choisis le bon calcul, puis \u00e9cris le r\u00e9sultat \u2014 et enfin des calculs en deux ou trois \u00e9tapes (le double du tiers de 12). Les nombres de la fiche, dans son ordre.', start:()=>startVoc() },
-  'ranger-croissant': { name:'Ranger dans l\u2019ordre croissant', icon:'\ud83d\udcf6', desc:'Range trois nombres du plus petit au plus grand (0,2\u00a0; 0,1\u00a0; 0,18), puis avec des fractions \u00e0 \u00e9crire d\u2019abord en nombre d\u00e9cimal (2/5\u00a0; 0,39\u00a0; 3/10). Les cinq lignes de la fiche, dans son ordre\u00a0; le rangement accepte des nombres d\u00e9cimaux ou des fractions.', start:()=>startRgc() },
+  'ranger-croissant': { name:'Ranger dans l\u2019ordre croissant', icon:'\ud83d\udcf6', desc:'Range trois nombres du plus petit au plus grand (0,2\u00a0; 0,1\u00a0; 0,18), puis avec des fractions \u00e0 \u00e9crire d\u2019abord en nombre d\u00e9cimal (2/5\u00a0; 0,39\u00a0; 3/10). Cinq niveaux, ceux de la fiche, avec des nombres tir\u00e9s entre 0 et 1\u00a0; le rangement accepte des nombres d\u00e9cimaux ou des fractions.', start:()=>startRgc() },
   'vocabulaire-calcul-2': { name:'Vocabulaire du calcul (nombres tir\u00e9s)', icon:'\ud83d\udcac', desc:'Comme le vocabulaire du calcul, sans calcul \u00e0 choisir\u00a0: le double, la moiti\u00e9, l\u2019inverse, la somme, le quotient\u2026 de nombres tir\u00e9s au hasard, puis des calculs en \u00e9tapes et sans \u00e9tapes. Entiers de 1 \u00e0 30, ou d\u00e9cimaux jusqu\u2019\u00e0 5 (0,1\u00a0; 0,2\u00a0; 0,25\u00a0; 0,4\u00a0; 0,5).', start:()=>startVoc2() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
@@ -9410,14 +9410,51 @@ const RGC_FICHE=[
 ];
 const RGC_NB=RGC_FICHE.length;
 const RGC_PERMS=[[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]];
-function genRgc(i,n){
-  if(n<=RGC_NB) return {f:Math.min(RGC_NB-1,Math.floor(i*RGC_NB/Math.max(1,n))), p:0};
-  return {f:i%RGC_NB, p:(i<RGC_NB?0:rand(1,RGC_PERMS.length-1))};
+/* LES VALEURS SONT TIRÉES (Turquet, novembre 2026 : « tu peux changer les
+   valeurs, mais il faut des questions de niveau équivalent avec des nombres
+   entre 0 et 1 et au moins deux qui sont proches à moins d'un dixième
+   près »). Cinq NIVEAUX, un par ligne de la fiche, qui gardent chacun le
+   piège de sa ligne — RGC_FICHE reste le modèle, et sert encore à relire
+   une séance mise en pause avant le tirage (q.f) :
+     ① 0,2 ; 0,1 ; 0,18 — deux dixièmes voisins et un centième entre eux ;
+     ② 0,6 ; 0,5 ; 0,09 — un nombre à deux chiffres (0,0d), plus « long » que
+        les autres, est le plus petit : 0,t ; 0,tu ; 0,0d avec d > t ;
+     ③ 0,08 ; 0,81 ; 0,8 — 0,0d ; 0,d ; 0,du ;
+     ④ 2/5 ; 0,39 ; 3/10 — deux fractions de dixièmes voisins, un décimal à
+        deux chiffres entre elles ;
+     ⑤ 1/4 ; 0,29 ; 3/10 — une fraction à deux chiffres (1/4, 3/4), une
+        fraction de dixièmes à 0,05 d'elle, un décimal entre les deux.
+   Chaque tirage est vérifié (rgcTirageOk) : trois valeurs distinctes,
+   strictement entre 0 et 1, et deux au moins à MOINS de 0,1 l'une de
+   l'autre (0,5 et 0,6 ne comptent pas : l'écart vaut un dixième). Les trois
+   nombres s'affichent dans un ordre tiré (q.nb, l'ordre de l'écran). Le
+   niveau d'une question se lit sur sa place dans la séance, comme au 1.11. */
+const RGC_FR10={100:[1,10],200:[1,5],300:[3,10],400:[2,5],500:[1,2],600:[3,5],700:[7,10],800:[4,5],900:[9,10]};
+const RGC_FR100={250:[1,4],750:[3,4]};
+function rgcNiveau(i,n){ return Math.min(RGC_NB, 1+Math.floor(i*RGC_NB/Math.max(1,n))); }
+function rgcFr(v,tab){ const f=tab[v]; return {n:f[0],d:f[1],v:v}; }
+function rgcTirageOk(nb){
+  const v=nb.map(x=>x.v).sort((a,b)=>a-b);
+  return v.every(x=>x>0&&x<1000) && v[0]<v[1] && v[1]<v[2] && (v[1]-v[0]<100 || v[2]-v[1]<100);
 }
+function genRgcNiveau(niv){
+  let nb;
+  for(let essai=0; essai<50; essai++){
+    if(niv===1){ const t=rand(1,8); nb=[{v:t*100},{v:(t+1)*100},{v:t*100+rand(1,9)*10}]; }
+    else if(niv===2){ const t=rand(2,7); nb=[{v:t*100},{v:t*100+rand(1,9)*10},{v:rand(t+2,9)*10}]; }
+    else if(niv===3){ const d=rand(2,9); nb=[{v:d*10},{v:d*100},{v:d*100+rand(1,4)*10}]; }
+    else if(niv===4){ const t=rand(1,8), x=(t+1)*100-rand(1,9)*10; nb=[rgcFr((t+1)*100,RGC_FR10),{v:x},rgcFr(t*100,RGC_FR10)]; }
+    else { const f=pick([250,750]), g=f+pick([-50,50]), lo=Math.min(f,g), x=lo+rand(1,4)*10; nb=[rgcFr(f,RGC_FR100),{v:x},rgcFr(g,RGC_FR10)]; }
+    if(rgcTirageOk(nb)) break;
+  }
+  return {niv:niv, nb:sdMelange(nb)};
+}
+function genRgc(i,n){ return genRgcNiveau(rgcNiveau(i,n)); }
 /* les trois nombres de la question, dans l'ordre affiché — sans lettre :
    « ne pas mettre A =, B = et C = dans l'énoncé » (Turquet, novembre 2026) */
 function rgcNombres(q){
-  const L=RGC_FICHE[q.f], P=RGC_PERMS[q.p||0];
+  if(q.nb) return q.nb.map(x=>Object.assign({},x));
+  const L=RGC_FICHE[q.f], P=RGC_PERMS[q.p||0];     /* une séance d'avant le tirage, mise en pause */
   return P.map(j=>Object.assign({},L[j]));
 }
 function rgcRanges(q){ return rgcNombres(q).map(x=>x.v).sort((a,b)=>a-b); }
@@ -34946,10 +34983,10 @@ const QIA_MODELES={
     const q=qdmAutre(()=>VAP_GABARITS[g](), c=>vapTexte(c));
     return vapCorrection(q);
   },
-  rgc:function(){   /* une AUTRE ligne de la fiche : la correction de la question affichée reste à trouver */
+  rgc:function(){   /* le même niveau, d'autres nombres : la correction de la question affichée reste à trouver */
     const act=(test && test.questions && test.questions[test.idx])||null;
-    const autres=[0,1,2,3,4].filter(f=>!act || f!==act.f);
-    const q={f:pick(autres), p:0}, nbs=rgcNombres(q), tex=v=>sdDecStr(v).replace(',','{,}');
+    const niv=act ? (act.niv || ((act.f||0)+1)) : 1;
+    const q=qdmAutre(()=>genRgcNiveau(niv), c=>rgcTexte(c)), nbs=rgcNombres(q), tex=v=>sdDecStr(v).replace(',','{,}');
     const l=['\\('+nbs.map(x=>(x.d?qdmFrac(x.n,x.d)+' = '+tex(x.v):tex(x.v))).join(' \\quad ')+'\\)'];
     l.push('Dans l’ordre croissant : \\('+rgcRanges(q).map(tex).join(' < ')+'\\)');
     return l.join('\n');
