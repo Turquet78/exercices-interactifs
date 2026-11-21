@@ -8615,7 +8615,7 @@ function multiplierFractions(w, P){
      l'accepte pas d'office. Le 4.10, témoin, garde son dénominateur libre. */
 function troisFractionsPpcm(w, P){
   const R = P.troisFractionsPpcm;
-  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif';
+  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif, la mise en page de la fiche ; {trois-fractions-ppcm-redige} tout rédigé';
   if(!R){ ignorer(nom, 'exercice propre à la Première'); return; }
   verifierEval(w, nom, `(function(){
     const vus=[], id='trois-fractions-ppcm', LISTE=${JSON.stringify(R.denos)};
@@ -8668,7 +8668,14 @@ function troisFractionsPpcm(w, P){
     const copie=function(m1,D){ const k=D/8;
       if(m1!==null){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
       tape('tsf-a2',4*k); tape('tsf-b2',4*k); tape('tsf-a3',2*k); tape('tsf-b3',2*k);
-      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-d',D); tape('tsf-fn',9*k); tape('tsf-fd',D); };
+      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-d',D); tape('tsf-fn',9*k); };
+    pose();
+    /* la mise en page de la fiche : le dénominateur commun sur sa ligne, la somme sur la ligne des fractions */
+    if($('tsf-fd')) vus.push('une case de dénominateur final : la somme s’écrit sur le dénominateur commun');
+    if(!/dénominateur commun/.test((document.querySelector('#tsfHost .tsf-dc')||{}).textContent||'')) vus.push('pas de ligne « Mettre au même dénominateur commun »');
+    tape('tsf-d',8);
+    if(document.querySelectorAll('#tsfHost .tsf-dmir').length!==4 || [].some.call(document.querySelectorAll('#tsfHost .tsf-dmir'), function(m){ return m.textContent!=='8'; }))
+      vus.push('les dénominateurs de la ligne de la somme ne recopient pas le dénominateur commun écrit');
     pose();
     if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
     if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
@@ -8686,8 +8693,24 @@ function troisFractionsPpcm(w, P){
     const j1=m.juge('3/8+1/2+1/4 = 3/8+4/8+2/8 = 9/8'), j2=m.juge('3/8+1/2+1/4 = 6/16+8/16+4/16 = 18/16 = 9/8');
     if(!(j1.sait && j1.correct)) vus.push('la rédigée juste sur 8 n’est pas acceptée : '+JSON.stringify(j1));
     if(j2.sait && j2.correct) vus.push('la rédigée sur 16 est acceptée d’office');
+    /* {trois-fractions-ppcm-redige} (4.12) : les mêmes énoncés, tout rédigé */
+    const id2='trois-fractions-ppcm-redige';
+    if(!TESTS[id2] || !TEST_NUM[id2]) vus.push(id2+' : absent du menu');
+    else{
+      currentTestId=id2; TESTS[id2].start();
+      if(test.qId!==id2) vus.push(id2+' : la note part sous « '+test.qId+' »');
+      if(!test.ppcm) vus.push(id2+' : pas le drapeau ppcm — ce ne sont pas les énoncés du 4.11');
+      const qs=test.questions||[];
+      if(qs.length!==8) vus.push(id2+' : '+qs.length+' questions au lieu de 8');
+      if(qs.some(function(q){ return !q.redac; })) vus.push(id2+' : une question n’est pas rédigée');
+      if(qs.some(function(q){ return !LISTE.some(function(l){ return cle(l)===cle([q.b,q.d,q.f]); }); })) vus.push(id2+' : un triplet hors de la liste');
+      renderTsfTest();
+      const z=$('tsfrZone');
+      if(!z || z.hidden || !$('tsfrSheet')) vus.push(id2+' : la feuille de rédaction ne s’ouvre pas à la première question');
+      if(document.querySelector('#tsfHost math-field')) vus.push(id2+' : des cases guidées sont dessinées');
+    }
     currentTestId='triple-somme-fractions'; TESTS['triple-somme-fractions'].start();
-    if(test.ppcm) vus.push('le 4.10 hérite du drapeau ppcm');
+    if(test.ppcm || test.toutRedac) vus.push('le 4.10 hérite du drapeau ppcm ou toutRedac');
     return vus.join(' ; ');
   })()`, v => v === '', undefined);
 }
