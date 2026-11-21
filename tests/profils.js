@@ -304,6 +304,9 @@ module.exports = {
          par des traits (des boutons, hors du relevé) — la rangée à cases est
          celle des calculs de la partie 5, posée ici avant la mesure. */
       questionCases: { 'relier-fractions': { rendu: 'renderRlf', q: { e: 5, P: 20, N: 15, n: 1, d: 5 } } },
+      /* {trois-fractions-ppcm-redige} (4.12) : tout se rédige dans une feuille,
+         il n'y a aucune rangée à cases à mesurer */
+      sansRangee: { 'trois-fractions-ppcm-redige': 'tout le calcul se rédige dans une feuille, sans aucune case' },
       maillons: { 'revision-fractions': [
         { nom: 'produit à compléter', rendu: 'renderRvfTest', q: { type: 'diff-add', n1: 3, d1: 4, n2: 3, d2: 5 }, cases: ['rvf-a1', 'rvf-b1'] },
         { nom: 'simplification', rendu: 'renderRvfTest', q: { type: 'mult-frac', n1: 2, d1: 3, n2: 3, d2: 4, svu: true }, cases: ['rvf-s0-dn', 'rvf-s0-dd'] } ] } },

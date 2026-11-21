@@ -24420,7 +24420,7 @@ function tsfMiroirs(){
 function tsfFicheHTML(q, op, op2){
   const sur=function(id,lab){ return '<span class="f-frac-input">'+lgMF(id,'f-num',lab)+'<span class="f-fbar"></span><span class="f-whole tsf-dmir">…</span></span>'; };
   return '<div class="pt-step">'
-     +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span>'+lgMF('tsf-d','','dénominateur commun')+'</div>'
+     +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span>'+lgMF('tsf-d','f-den','dénominateur commun')+'</div>'
      +'<div class="pt-row tsf-fiche">'
        +'<span class="f-eq spf-eq">A&nbsp;=</span><span class="lg-c">'+lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3')+'</span>'
        +lgLigne(true, sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')

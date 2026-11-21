@@ -2480,3 +2480,16 @@ dénominateurs recopiés ; et pour le 4.12 : l'identifiant de la note, huit
 questions toutes rédigées sur des triplets de la liste, la feuille ouverte dès
 la première question, aucune case guidée dessinée ; le 4.10 n'hérite d'aucun
 des deux drapeaux.
+
+Deux bancs ont rougi sur la première poussée, et leurs leçons restent :
+* **Le banc navigateur (« 6 terdecies ter », l'encre du thème)** a trouvé la
+  case du dénominateur commun à 48 px au lieu de 42 : posée sans classe hors
+  d'une fraction, elle échappait à la règle du thème, qui ne dimensionne que
+  `math-field.pm-mf.f-num` / `.f-den`. Elle porte `f-den` — c'est un
+  dénominateur. Il a aussi refusé le 4.12, qui n'a « aucune case à remplir
+  dans la rangée » : un exercice tout rédigé se déclare désormais
+  (`encreFractions.sansRangee`, raison comprise), et une déclaration qui
+  trouve une case rougit.
+* **Le banc de la pause** ne sait pas écrire une feuille libre (il remplit des
+  cases de zéros) : le 4.12 se déclare dans `pauseReprise.horsAtteinte`, comme
+  les quatre calculs libres de la Seconde.
