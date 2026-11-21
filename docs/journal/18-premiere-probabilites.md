@@ -915,3 +915,70 @@ prend la classe `fpb-sans-noms`, qui rend aux cellules la marge haute que
 l'étiquette occupait. Le 3.10 garde ses étiquettes. Les noms des cases à
 remplir (`aria-label`, « effectif de A ∩ D ») restent : ils servent aux
 lecteurs d'écran et au contexte de la bulle d'explication.
+
+## {reunion-probabilites} (3.12, v452) : la réunion A ∪ D, case par case
+
+Demande de Turquet (novembre 2026) : « faire un exercice comme le 3.10, où
+le tableau est déjà complété et qui demande de déterminer la probabilité de
+l'union des deux évènements A et D (sans les contraires). On rappellera que
+A ∪ D signifie toutes les personnes (ou objets, à adapter au contexte) qui
+sont dans le groupe qui réunit toutes les personnes qui sont dans A avec
+celles qui sont dans D. Demander si la case A ∩ D fait partie des éléments
+de A, puis de D, puis du groupe qui réunit A avec D ; mettre en rouge la
+réponse fausse ; une fois les réponses validées, colorier la case si elle
+fait partie de l'union. Faire la même chose pour les trois autres cases, et
+ne colorier que si c'est validé. Demander ensuite le nombre de personnes ou
+d'objets dans cette union, puis P(A ∪ D) sous forme fractionnaire. » Ajouté
+EN DERNIER dans `THEMES` : rien n'est renuméroté.
+
+**Le moteur des 3.5 à 3.9** (kind `pb`, une question à la fois, `PBX`,
+`checkPBAnswer`, `finishPB`, `pbDemarrer('reunion-probabilites', ruSeance())`)
+— pas la page-fiche du 3.10 : la case se colorie question après question,
+ce qu'une fiche à un seul « Vérifier » ne sait pas montrer. Six questions :
+- quatre CASES (`rucase`, `q.c` : A ∩ D, A ∩ D̄, Ā ∩ D, Ā ∩ D̄, dans cet
+  ordre) : trois listes oui / non (`pb-ra`, `pb-rd`, `pb-ru`) — « La case …
+  fait-elle partie des éléments de A ? », « … de D ? », « … du groupe qui
+  réunit A avec D, c'est-à-dire A ∪ D ? ». La case de la question est
+  entourée dans le tableau (`ru-ici`) ;
+- le NOMBRE d'éléments de A ∪ D (`runb`, une case `pb-u`) : la somme des
+  trois cases coloriées ;
+- P(A ∪ D) (`rup`, `pb-n1` / `pb-n2`) : toute fraction égale est juste
+  (`pbFracJuger`).
+
+**La case se colorie à la validation, jamais avant.** `checkPBAnswer`
+appelle désormais `PBX[q.t].apres(q)` une fois la question verrouillée :
+`PBX.rucase.apres` colorie la case (`ru-un`, ambre — ni le bleu du juste, ni
+le vert de la correction) si elle est dans A ∪ D. En soutien, une réponse
+rouge laisse la question ouverte (`soutienAgain`) : rien ne se colorie
+avant « Revérifier » juste. En entraînement, la question se verrouille avec
+sa correction verte, et la case se colorie d'après la bonne réponse. Aux
+questions suivantes, le tableau se redessine avec les cases des questions
+déjà validées (`ruColories`, lu sur `test.idx` : une reprise après pause
+recolorie de même).
+
+**Le tableau est complet** (`ruTableHTML`) : lignes A et Ā, colonnes D et
+D̄, comme au 3.10, chaque case avec son nom dans le coin ; « Machine A »
+porte déjà sa lettre, l'en-tête ne la répète pas. Les quatre cases du
+milieu sont quatre multiples de 5 différents, de 10 à 95. Le rappel de la
+réunion est sous l'énoncé, à chaque question (`ruRappel`), accordé au
+contexte : « tous les élèves … tous ceux qui », « toutes les pièces …
+toutes celles qui ».
+
+**Les contextes** (`RU_CTX`, `q.ru = 1`, lus par `pbCtx`) : un lycée
+(association sportive, demi-pensionnaires), une usine (machine A, défaut),
+un club de sport (athlétisme, danse), un train régional (abonnés, deuxième
+classe), une médiathèque (livre audio, DVD), un entrepôt (transporteur A,
+colis endommagés). Les lettres sont toujours A et D, aucune question ne
+porte sur un contraire.
+
+**Le reste du branchement** : `TESTS`, `THEMES` (3.12), « Recommencer » par
+la table des démarreurs du kind `pb`, `RAP_RU` dans `RAPPELS_ID`,
+`QIA_SUGG`, et le contexte du modèle par `PBX[q.t].ctx` (`ruCtxCommun` : le
+tableau, les évènements, la définition de la réunion, la question).
+
+Vérifié en l'ouvrant dans Chromium (1280 × 900 et 390 × 844), en
+entraînement et en soutien : une réponse fausse à « … de D ? » rougit seule,
+la case ne se colorie qu'à la validation (en soutien, après « Revérifier »
+juste) ; les trois cases de A ∪ D coloriées à la question 5, Ā ∩ D̄ jamais ;
+le nombre et la fraction justes, la séance menée à l'écran de fin ; aucun
+débordement horizontal, aucune erreur JavaScript.
