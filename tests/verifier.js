@@ -16277,6 +16277,11 @@ function coordonneesDevoir(w, P){
     if(!afficherEcranDe(test.kind) || !el('scr-vqs').classList.contains('on') || el('vqsIdx').textContent.indexOf('Question c)')<0 || !test.ds) vus.push('8.4.14 : la reprise de la question c');
     vdsSuivante();
     if(test.kind!=='vcl' || !el('scr-vcl').classList.contains('on') || test.questions[test.idx].ds!=='d') vus.push('8.4.14 : la suite de la reprise');
+    /* l'écran est partagé avec le 8.4.13 : le calcul que le d) du devoir a caché revient au 8.4.13
+       (v713 — sans quoi l'élève ne voyait que la figure, et « Vérifier » comptait 20 cases jamais montrées) */
+    if(el('vclCalc').style.display!=='none') vus.push('8.4.14 : le d) repris ne cache plus le calcul — le contrôle qui suit ne prouve plus rien');
+    currentTestId='coordonnees-vecteur-colineaires'; TESTS[currentTestId].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vcl' || test.ds || el('vclCalc').style.display==='none' || !el('vcl-u-xf')) vus.push('8.4.13 après le devoir 8.4.14 : le calcul reste caché');
     currentMode='train';
     return vus.slice(0,8).join(' | ');
   })()`, v => v === '', undefined);
