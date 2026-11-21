@@ -2449,3 +2449,34 @@ de signes, le PPCM rangé, rien sous zéro), puis 3/8 + 1/2 + 1/4 tapé par de
 vrais évènements « input » : × 1 vide ou écrit vaut le point, × 2 rougit, la
 copie sur 16 est refusée ; la rédigée sur 8 est juste, sur 16 non ; le 4.10
 n'hérite pas du drapeau.
+
+**Puis le 4.11 a pris la mise en page de la fiche, et le 4.12 est né (novembre
+2026, Première v452).** Le PDF de la fiche « somme 3 fractions » est arrivé :
+« présente l'exercice comme sur le pdf en écrivant le dénominateur commun sur
+la ligne suivante et en écrivant la somme sur la même ligne que la deuxième
+ligne » ; puis « ensuite faire un exercice avec les mêmes énoncés mais où il
+faut rédiger comme dans le 4.10 ».
+
+* **4.11, la fiche** (`tsfFicheHTML`) : sous l'énoncé « Calcule A = … », une
+  ligne « Mettre au même dénominateur commun [case] » — c'est l'élève qui
+  l'écrit, et c'est la PREMIÈRE case (`tsfCases`, ordre d'Entrée) ; puis
+  « A = » devant les trois produits ; puis, sur UNE ligne, les trois
+  numérateurs sur le dénominateur commun et leur somme : « = …/D + …/D − …/D
+  = …/D ». Les dénominateurs de cette ligne ne sont pas des cases : ils
+  recopient le dénominateur commun écrit (`tsfMiroirs`, « … » tant qu'il est
+  vide ; appelé à la frappe, à la correction et à la reprise d'une pause).
+  La somme n'a donc qu'une case, son numérateur — plus de `tsf-fd` au 4.11 —
+  jugé sur le plus petit dénominateur commun. Le 4.10 garde sa mise en page.
+* **4.12, {trois-fractions-ppcm-redige}** : les énoncés du 4.11 (`tsf3Gen`,
+  drapeau `ppcm`), mais toutes les questions rédigées (`test.toutRedac`, huit,
+  le réglage « Questions » d'un devoir les compte une à une) — la feuille et
+  le juge de la rédigée du 4.10, l'étape exigée sur le PLUS PETIT dénominateur
+  commun. `sfrRendu` masque la scène des cases guidées quand l'exercice n'a
+  que des rédigées, et la rend à tout autre exercice du même écran.
+
+Contrôle : le contrôle du 4.11 (`troisFractionsPpcm`) vérifie aussi la ligne
+du dénominateur commun, l'absence de case de dénominateur final, les quatre
+dénominateurs recopiés ; et pour le 4.12 : l'identifiant de la note, huit
+questions toutes rédigées sur des triplets de la liste, la feuille ouverte dès
+la première question, aucune case guidée dessinée ; le 4.10 n'hérite d'aucun
+des deux drapeaux.
