@@ -16163,10 +16163,27 @@ function coordonneesDevoir(w, P){
       if(el(k+'Instr').textContent.indexOf('On a les points A'+svrCoord(q.Z.A))<0) vus.push('8.4.14 : l’énoncé du devoir manque à la question '+q.ds);
       if(k==='vcl'){
         if(q.ds==='b' && (vclOutils(q).join()!=='p2,t0,t1' || document.querySelectorAll('#vclPts .svr-pt.n').length!==2 || document.querySelectorAll('#vclPts .vds-ctx').length!==2)) vus.push('8.4.14 : b) D et B posés, A et C en gris');
-        if(q.ds==='d' && (vclOutils(q).join()!=='t1' || document.querySelectorAll('#vclFl line.vsm-k').length!==1 || document.querySelectorAll('#vclPts .svr-pt.n').length!==4)) vus.push('8.4.14 : d) F posé et AF tracé par la page');
+        if(q.ds==='d' && (vclOutils(q).join()!=='t0,t1' || document.querySelectorAll('#vclFl line').length!==0 || document.querySelectorAll('#vclPts .svr-pt.n').length!==4 || !el('vclh-1') || el('vclCalc').style.display!=='none')) vus.push('8.4.14 : d) F posé par la page, aucun vecteur tracé, la croix de F cliquable, le calcul caché');
+        if((q.ds==='b'||q.ds==='d') && (el('vcl-t0').textContent.indexOf('Tracer un')<0 || (el('vcl-p2')&&el('vcl-p2').textContent.indexOf('Placer E')<0))) vus.push('8.4.14 : '+q.ds+') les boutons « Placer » et « Tracer un … vecteur »');
         const cache=function(){ return el('vclCalc').style.display==='none'; };
         if(q.ds==='a' && (vclOutils(q).join()!=='p0,p1,p2,p3' || !q.eg || !cache() || !el('vcl-v1a') || !el('vcl-v1a').disabled || el('vclInstr').textContent.indexOf('puis trace')>=0 || document.querySelector('#vclBody .svr-out[id^="vcl-t"]'))) vus.push('8.4.14 : a) sans tracé de vecteur, le calcul caché, les listes fermées ('+vclOutils(q).join()+')');
-        vclOutils(q).forEach(function(o){ vclOutil(o); const kk=+o[1]; if(o[0]==='p') vclPose(q.P[kk][0],q.P[kk][1]); else { const w2=vclW(q,kk); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); } });
+        if(q.lt){
+          /* b) et d) : les vecteurs au choix de l'élève — un tracé faux rougit et le dit ; deux justes ouvrent le calcul, qui les suit */
+          const tr=function(k,a,b){ vclOutil('t'+k); vclPose(q.P[a][0],q.P[a][1]); vclPose(q.P[b][0],q.P[b][1]); };
+          if(q.ds==='b'){ vclOutil('p2'); vclPose(q.P[2][0],q.P[2][1]); }
+          const v=el('vclVerif');
+          if(q.ds==='b'){ tr(0,2,0); tr(1,0,2);
+            if(!v.classList.contains('bad') || v.textContent.indexOf('mêmes points')<0 || !document.querySelector('#vclFl .svc-eb') || q.vc) vus.push('8.4.14 : b) ED puis DE ne rougit pas : '+v.textContent.slice(0,100));
+            tr(1,1,2); }
+          else { tr(0,1,2);
+            if(!v.classList.contains('bad') || v.textContent.indexOf('(AF)')<0 || q.vc) vus.push('8.4.14 : d) FB ne rougit pas : '+v.textContent.slice(0,100));
+            tr(0,1,0); tr(1,3,2); }
+          const at=q.ds==='b'?'["ED","BE"]':'["FA","CB"]';
+          if(JSON.stringify(q.vc)!==at || !v.classList.contains('good') || el('vclCalc').style.display==='none' || vclNomVec(q,1)!==JSON.parse(at)[1] || el('vclCalc').textContent.indexOf(JSON.parse(at)[0])<0) vus.push('8.4.14 : '+q.ds+') les vecteurs de l’élève n’ouvrent pas le calcul ('+JSON.stringify(q.vc)+') : '+v.textContent.slice(0,100));
+          test.questions[test.idx]=JSON.parse(JSON.stringify(q)); renderVcl(); q=test.questions[test.idx];
+          if(JSON.stringify(q.vc)!==at || el('vclCalc').style.display==='none' || !el('vcl-t1').disabled || document.querySelectorAll('#vclFl line.vsm-k').length!==2) vus.push('8.4.14 : '+q.ds+') la reprise des vecteurs de l’élève');
+        }
+        else vclOutils(q).forEach(function(o){ vclOutil(o); const kk=+o[1]; if(o[0]==='p') vclPose(q.P[kk][0],q.P[kk][1]); else { const w2=vclW(q,kk); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); } });
         if(q.ds==='a'){
           if(!document.querySelector('#vclFl polygon.vcl-pgm') || el('vcl-v1a').disabled) vus.push('8.4.14 : a) les quatre points ne tracent pas le parallélogramme, ou n’ouvrent pas les listes');
           const choisir=function(n1,n2){ set('vcl-v1a',n1[0]); set('vcl-v1b',n1[1]); set('vcl-v2a',n2[0]); set('vcl-v2b',n2[1]); vclEgChoix(); return el('vclVerif'); };
@@ -16186,8 +16203,8 @@ function coordonneesDevoir(w, P){
         }
         const a=vclAttendu(q); Object.keys(a).forEach(function(id){ set(id,svrNb(a[id])); });
         const u=vclVec(q,0), v=vclVec(q,1);
-        if(q.c===4){ set('vcl-eg','oui'); set('vcl-nom','bcad'); set('vcl-nat','parallélogramme'); }
-        else { set('vcl-k-a1',svrNb(v[1])); set('vcl-k-b1',svrNb(u[0])); set('vcl-k-r1',svrNb(vclR(u[0]*v[1]))); set('vcl-k-a2',svrNb(u[1])); set('vcl-k-b2',svrNb(v[0])); set('vcl-k-r2',svrNb(vclR(u[1]*v[0]))); set('vcl-col','oui'); set('vcl-cc','oui'); }
+        if(q.c===4){ set('vcl-eg','eg'); set('vcl-nom','bcad'); set('vcl-nat','parallélogramme'); }
+        else { set('vcl-k-a1',svrNb(v[1])); set('vcl-k-b1',svrNb(u[0])); set('vcl-k-r1',svrNb(vclR(u[0]*v[1]))); set('vcl-k-a2',svrNb(u[1])); set('vcl-k-b2',svrNb(v[0])); set('vcl-k-r2',svrNb(vclR(u[1]*v[0]))); set('vcl-col','col'); set('vcl-cc','oui'); }
         checkVcl();
       } else if(k==='vqs'){
         if(document.querySelectorAll('#vqsPts .vds-ctx').length!==2) vus.push('8.4.14 : c) D et E en gris');
@@ -16284,10 +16301,10 @@ function coordonneesColineaires(w, P){
     const juste=function(q){
       const a=vclAttendu(q), o={}, u=vclVec(q,0), v=vclVec(q,1);
       Object.keys(a).forEach(function(id){ o[id]=svrNb(a[id]); });
-      if(q.c===4){ o['vcl-eg']='oui'; o['vcl-nom']='ABCD'; o['vcl-nat']='parallélogramme'; return o; }
+      if(q.c===4){ o['vcl-eg']='eg'; o['vcl-nom']='ABCD'; o['vcl-nat']='parallélogramme'; return o; }
       o['vcl-k-a1']=svrNb(u[0]); o['vcl-k-b1']=svrNb(v[1]); o['vcl-k-r1']=svrNb(u[0]*v[1]);
       o['vcl-k-a2']=svrNb(u[1]); o['vcl-k-b2']=svrNb(v[0]); o['vcl-k-r2']=svrNb(u[1]*v[0]);
-      o['vcl-col']=o['vcl-cc']=vclOui(q)?'oui':'non';
+      o['vcl-col']=vclOui(q)?'col':'ncol'; o['vcl-cc']=vclOui(q)?'oui':'non';
       return o;
     };
     const poser=function(q){ q.P.forEach(function(p,k){ vclOutil('p'+k); vclPose(p[0],p[1]); });
@@ -16343,7 +16360,7 @@ function coordonneesColineaires(w, P){
     const q2=test.questions[test.idx];
     q2.P.forEach(function(p,k){ vclOutil('p'+k); vclPose(p[0],p[1]); });
     vclOutil('t0'); vclPose(-4,-3); vclPose(2,1); vclOutil('t1'); vclPose(-5,1); vclPose(-2,3);
-    const F=juste(q2); F['vcl-u-xf']='-4'; F['vcl-u-xd']='2'; F['vcl-k-r1']='12'; F['vcl-col']='non';
+    const F=juste(q2); F['vcl-u-xf']='-4'; F['vcl-u-xd']='2'; F['vcl-k-r1']='12'; F['vcl-col']='ncol';
     ecrire(F);
     av=verifier();
     const lp=cl().split(',');
@@ -16351,6 +16368,16 @@ function coordonneesColineaires(w, P){
     const fb=el('vclFeedback').textContent;
     ['tracé à l’envers','on écrit fin − début','attention au signe','les vecteurs sont colinéaires'].forEach(function(m){ if(fb.indexOf(m)<0) vus.push('8.4.13 : le message ne dit pas « '+m+' » : '+fb.slice(0,300)); });
     if(conseilCtxCourant().indexOf('produit en croix')<0 || conseilCtxCourant().indexOf('CD tracé de (−5 ; 1) à (−2 ; 3) (faux)')<0) vus.push('8.4.13 : le contexte du modèle');
+    /* les quatre mots, toujours ; une phrase vraie qui ne permet pas de conclure est fausse, et le dit */
+    if(Array.from(el('vcl-col').options).map(function(o){ return o.value; }).join()!==',eg,neg,col,ncol' || el('vcl-p0').textContent.indexOf('Placer A')<0) vus.push('8.4.13 : la liste n’a pas ses quatre mots, ou le bouton n’écrit pas « Placer »');
+    test.questions[test.idx]=vclNeuve(0,PAR.map(function(p){ return p.slice(); })); renderVcl(); poser(test.questions[test.idx]);
+    const G=juste(test.questions[test.idx]); G['vcl-col']='neg'; ecrire(G);
+    av=verifier();
+    if(av!==25 || classe(el('vcl-col'))!=='bad' || el('vclFeedback').textContent.indexOf('ne permet pas de conclure')<0) vus.push('8.4.13 : « ne sont pas égaux », vrai, n’est pas compté faux avec son explication ('+av+') : '+el('vclFeedback').textContent.slice(0,160));
+    test.questions[test.idx]=vclNeuve(4,[[-4,-2],[1,-3],[3,2],[-2,3]]); renderVcl(); poser(test.questions[test.idx]);
+    const H=juste(test.questions[test.idx]); H['vcl-eg']='col'; ecrire(H);
+    av=verifier();
+    if(av!==20 || el('vclFeedback').textContent.indexOf('il faut deux vecteurs ÉGAUX')<0) vus.push('8.4.13 : « sont colinéaires », vrai, ne conclut pas au parallélogramme ('+av+') : '+el('vclFeedback').textContent.slice(0,160));
     /* l'alignement (trois points) et le parallélogramme : la copie juste, « dcba » compris */
     [[3,[[-4,-3],[2,1],[5,4]],25],[4,[[-4,-2],[1,-3],[3,2],[-2,3]],21]].forEach(function(c){
       test.questions[test.idx]=vclNeuve(c[0],c[1]); renderVcl();
