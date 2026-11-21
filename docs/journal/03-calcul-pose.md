@@ -416,3 +416,24 @@ pas vu. Une fraction fausse du rangement est corrigée par la fraction de
 l'énoncé quand le nombre attendu en est une, sinon par le décimal. Le message
 « pas des fractions » est retiré ; l'énoncé dit « (facultatif) » et « des
 nombres décimaux ou des fractions ».
+
+Puis les valeurs sont TIRÉES (v450) : « tu peux changer les valeurs, mais il
+faut des questions de niveau équivalent avec des nombres entre 0 et 1 et au
+moins deux qui sont proches à moins d'un dixième près ». Cinq niveaux, un par
+ligne de la fiche, chacun gardant le piège de sa ligne (`genRgcNiveau`) :
+① deux dixièmes voisins et un centième entre eux (0,3 ; 0,39 ; 0,4) ;
+② 0,t ; 0,tu ; 0,0d avec d > t — le nombre « long » est le plus petit
+(0,3 ; 0,31 ; 0,06) ; ③ 0,0d ; 0,d ; 0,du (0,09 ; 0,9 ; 0,93) ; ④ deux
+fractions de dixièmes voisins et un décimal entre elles (1/2 ; 0,59 ; 3/5) ;
+⑤ 1/4 ou 3/4, une fraction de dixièmes à 0,05, un décimal entre les deux
+(3/4 ; 0,78 ; 4/5). Chaque tirage passe par `rgcTirageOk` : trois valeurs
+distinctes, strictement entre 0 et 1, et deux au moins à MOINS de 0,1 —
+« à moins d'un dixième près » lu au sens strict : 0,5 et 0,6 ne comptent
+pas, ce qui a fait passer la ligne ② de la fiche de 0,5 ; 0,6 à 0,t ; 0,tu.
+L'ordre d'affichage est tiré (`q.nb`), le niveau se lit sur la place dans la
+séance (`rgcNiveau`, comme au 1.11). `RGC_FICHE` reste : elle relit une séance
+mise en pause avant le tirage (`q.f`). Le corrigé type de l'aide tire une
+autre question du même niveau. Banc : « {ranger-croissant} : cinq niveaux
+dans l'ordre de la fiche, nombres tirés entre 0 et 1, deux au moins à moins
+d'un dixième » (3 000 tirages par niveau, la forme de chaque niveau ; l'ordre
+des niveaux de 1 à DM_NBQ_MAX questions ; la relecture d'une séance d'avant).
