@@ -2022,6 +2022,8 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #rgcHost math-field.pm-mf{font-size:calc(1.7rem * var(--tab-nb,1));line-height:1.15;max-width:320px;}
 @media(max-width:900px){ #rgcHost math-field.pm-mf{font-size:calc(1.4rem * var(--tab-nb,1));} }
 #rgcHost .f-dec{width:auto;min-width:110px;max-width:320px;}
+/* une fraction écrite dans une case (2/5) s'empile et reste DANS la case */
+#rgcHost math-field.pm-mf.f-dec{height:auto;min-height:50px;}
 #rgcHost .f-whole,#rgcHost .f-eq,#rgcHost .f-times{font-size:calc(1.7rem * var(--tab-nb,1));}
 @media(max-width:900px){ #rgcHost .f-whole,#rgcHost .f-eq,#rgcHost .f-times{font-size:calc(1.4rem * var(--tab-nb,1));} }
 #rgcHost .pt-row{margin:10px 0;gap:8px}
@@ -4100,7 +4102,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=447;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=448;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4669,7 +4671,7 @@ const TESTS={
   'somme-fractions': { name:'Somme et différence de fractions', icon:'\u2797', desc:'Mets les deux fractions au même dénominateur en complétant les multiplications, écris la somme ou la différence, puis donne la fraction finale.', start:()=>startSF() },
   'valeur-approchee': { name:'Valeur approch\u00e9e et ordre de grandeur', icon:'\u2248', desc:'Approcher un nombre par un entier (8,001 ; 40 + 0,01 ; 10\u207b\u00b2 + 10), calculer avec des puissances de 10 (0,1 \u00d7 1000), puis donner un ordre de grandeur (11 \u00d7 99 \u2248 10 \u00d7 100). Seize questions, dans l\u2019ordre de la fiche.', start:()=>startVap() },
   'vocabulaire-calcul': { name:'Vocabulaire du calcul', icon:'\ud83d\udde3\ufe0f', desc:'Le double, le tiers, le quart, l\u2019inverse, la somme, le produit, la diff\u00e9rence, le quotient\u00a0: choisis le bon calcul, puis \u00e9cris le r\u00e9sultat \u2014 et enfin des calculs en deux ou trois \u00e9tapes (le double du tiers de 12). Les nombres de la fiche, dans son ordre.', start:()=>startVoc() },
-  'ranger-croissant': { name:'Ranger dans l\u2019ordre croissant', icon:'\ud83d\udcf6', desc:'Range trois nombres du plus petit au plus grand (0,2\u00a0; 0,1\u00a0; 0,18), puis avec des fractions \u00e0 \u00e9crire d\u2019abord en nombre d\u00e9cimal (2/5\u00a0; 0,39\u00a0; 3/10). Les cinq lignes de la fiche, dans son ordre\u00a0; les cases re\u00e7oivent des nombres d\u00e9cimaux.', start:()=>startRgc() },
+  'ranger-croissant': { name:'Ranger dans l\u2019ordre croissant', icon:'\ud83d\udcf6', desc:'Range trois nombres du plus petit au plus grand (0,2\u00a0; 0,1\u00a0; 0,18), puis avec des fractions \u00e0 \u00e9crire d\u2019abord en nombre d\u00e9cimal (2/5\u00a0; 0,39\u00a0; 3/10). Les cinq lignes de la fiche, dans son ordre\u00a0; le rangement accepte des nombres d\u00e9cimaux ou des fractions.', start:()=>startRgc() },
   'vocabulaire-calcul-2': { name:'Vocabulaire du calcul (nombres tir\u00e9s)', icon:'\ud83d\udcac', desc:'Comme le vocabulaire du calcul, sans calcul \u00e0 choisir\u00a0: le double, la moiti\u00e9, l\u2019inverse, la somme, le quotient\u2026 de nombres tir\u00e9s au hasard, puis des calculs en \u00e9tapes et sans \u00e9tapes. Entiers de 1 \u00e0 30, ou d\u00e9cimaux jusqu\u2019\u00e0 5 (0,1\u00a0; 0,2\u00a0; 0,25\u00a0; 0,4\u00a0; 0,5).', start:()=>startVoc2() },
   'ecriture-decimale-fractions': { name:'\u00c9criture d\u00e9cimale d\u2019une somme de fractions', icon:'\u2795', desc:'Donne l\u2019\u00e9criture d\u00e9cimale d\u2019une fraction d\u00e9cimale, puis d\u2019un entier plus des dixi\u00e8mes, des centi\u00e8mes et des milli\u00e8mes \u2014 dans l\u2019ordre, puis dans le d\u00e9sordre, puis m\u00eal\u00e9s \u00e0 des nombres d\u00e9cimaux. Sept niveaux, du plus simple au plus difficile, comme sur la fiche.', start:()=>startSdec() },
   'lire-probabilites': { name:'Lire une probabilité dans un tableau', icon:'\ud83d\udd0e', desc:'Le tableau d’une classe, d’une entreprise, d’un club… est donné, et la probabilité demandée est écrite : P(A), P<sub>A</sub>(B)… Complète d’abord les évènements contraires, puis calcule chaque probabilité sur sa ligne, avec les lettres et les effectifs du tableau.', start:()=>startLP() },
@@ -9347,10 +9349,11 @@ async function finishSdec(){
    Les CINQ lignes de la fiche, dans son ordre, avec ses nombres (RGC_FICHE) :
      0,2 ; 0,1 ; 0,18 — 0,6 ; 0,5 ; 0,09 — 0,08 ; 0,81 ; 0,8 —
      2/5 ; 0,39 ; 3/10 — 1/4 ; 0,29 ; 3/10.
-   Une fraction s'écrit d'abord en nombre décimal (A = 2/5 = [ ]), puis les
-   trois cases « [ ] < [ ] < [ ] » reçoivent des NOMBRES DÉCIMAUX — ni une
-   lettre, ni une fraction (rgcVaut). 0,40 vaut 0,4 : le juge compare des
-   valeurs. Chaque case se juge seule : une case juste ne rougit pas parce
+   Une fraction peut d'abord s'écrire en nombre décimal (2/5 = [ ], case
+   facultative), puis les trois cases « [ ] < [ ] < [ ] » reçoivent des
+   nombres décimaux ou des fractions (rgcVaut) — d'abord des décimaux seuls,
+   la fraction acceptée ensuite (voir rgcValeur). 0,40 vaut 0,4 : le juge
+   compare des valeurs. Chaque case se juge seule : une case juste ne rougit pas parce
    qu'une autre est fausse.
    Les valeurs se tiennent en MILLIÈMES entiers (q.v) : aucun calcul flottant.
    Le réglage « Questions » d'un devoir : moins de cinq garde des lignes
@@ -9366,15 +9369,15 @@ const RGC_FICHE=[
 ];
 const RGC_NB=RGC_FICHE.length;
 const RGC_PERMS=[[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]];
-const RGC_LETTRES=['A','B','C'];
 function genRgc(i,n){
   if(n<=RGC_NB) return {f:Math.min(RGC_NB-1,Math.floor(i*RGC_NB/Math.max(1,n))), p:0};
   return {f:i%RGC_NB, p:(i<RGC_NB?0:rand(1,RGC_PERMS.length-1))};
 }
-/* les trois nombres de la question, lettre par lettre */
+/* les trois nombres de la question, dans l'ordre affiché — sans lettre :
+   « ne pas mettre A =, B = et C = dans l'énoncé » (Turquet, novembre 2026) */
 function rgcNombres(q){
   const L=RGC_FICHE[q.f], P=RGC_PERMS[q.p||0];
-  return P.map((j,k)=>Object.assign({lettre:RGC_LETTRES[k]},L[j]));
+  return P.map(j=>Object.assign({},L[j]));
 }
 function rgcRanges(q){ return rgcNombres(q).map(x=>x.v).sort((a,b)=>a-b); }
 /* chaque case et sa valeur : les écritures décimales des fractions, puis les
@@ -9386,15 +9389,33 @@ function rgcCases(q){
   return c;
 }
 function rgcNbStr(x){ return x.d ? x.n+'/'+x.d : sdDecStr(x.v); }
-function rgcTexte(q){ return rgcNombres(q).map(x=>x.lettre+' = '+rgcNbStr(x)).join(' ; '); }
+function rgcTexte(q){ return rgcNombres(q).map(rgcNbStr).join(' ; '); }
 function rgcReponse(q){ return rgcRanges(q).map(sdDecStr).join(' < '); }
 /* la case lue en texte : « 0{,}25 » de MathLive, « 0.25 », espaces ôtés */
-function rgcLire(id){ const el=$(id); return el ? String(el.value==null?'':el.value).replace(/\{,\}/g,',').replace(/\\[,!; ]/g,'').replace(/\s+/g,'').replace(/\./g,',') : ''; }
-/* un NOMBRE DÉCIMAL égal à v millièmes — une lettre ou une fraction ne valent rien */
-function rgcVaut(s,v){
-  if(!/^\d+(,\d+)?$/.test(s)) return false;
-  const fr=parseDecToFrac(s); return !!fr && fr.n*1000===v*fr.d;
+function rgcLire(id){ const el=$(id); if(!el) return '';
+  let s=String(el.value==null?'':el.value).replace(/\{,\}/g,',').replace(/\\[,!; ]/g,'').replace(/\\left|\\right/g,'').replace(/\s+/g,'').replace(/\./g,',');
+  /* la fraction écrite au « / » s'empile dans la case : \frac{2}{5} se lit 2/5 */
+  /* … et la valeur d'une case MathLive de cette page l'écrit « (2)/(5) » :
+     les parenthèses autour d'un nombre seul tombent */
+  return s.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g,'$1/$2').replace(/\\[dt]?frac(\d)(\d)/g,'$1/$2')
+    .replace(/\((\d+(?:,\d+)?)\)/g,'$1'); }
+/* LA FRACTION EST ACCEPTÉE (Turquet, novembre 2026) : « accepter qu'un élève
+   donne la fraction plutôt que la valeur décimale dans le rangement par ordre
+   croissant ». Une case vaut un nombre décimal (0,40 = 0,4) OU une fraction
+   (2/5, 4/10), égal à v millièmes ; une lettre ou un calcul ne valent rien. */
+function rgcValeur(s){
+  if(/^\d+(,\d+)?$/.test(s)) return parseDecToFrac(s);
+  const m=/^(\d+(?:,\d+)?)\/(\d+(?:,\d+)?)$/.exec(s); if(!m) return null;
+  const a=parseDecToFrac(m[1]), b=parseDecToFrac(m[2]); if(!a||!b||!b.n) return null;
+  return {n:a.n*b.d, d:a.d*b.n};
 }
+function rgcVaut(s,v){ const fr=rgcValeur(s); return !!fr && fr.n*1000===v*fr.d; }
+/* LA VALEUR DÉCIMALE D'UNE FRACTION EST FACULTATIVE (même demande : « accepter
+   qu'un élève ne donne pas la valeur décimale d'une fraction ») : la case
+   « 2/5 = [ ] » vide ne coûte rien, ne rougit pas, ne reçoit pas de
+   correction et ne fait pas ouvrir « Il reste des cases vides »
+   (data-facultatif) ; écrite, elle se juge. */
+function rgcFacultative(c){ return /^rgcX/.test(c.id); }
 async function startRgc(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -9413,18 +9434,16 @@ function renderRgc(){
   $('rgcFeedback').textContent=''; $('rgcFeedback').className='mp-feedback';
   $('rgcActions').innerHTML='<button class="btn btn-primary" onclick="checkRgcAnswer()">Vérifier</button>';
   const nbs=rgcNombres(q), frac=nbs.some(x=>x.d);
-  const mf=(id,lab)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lab}"></math-field>`;
+  const mf=(id,lab,fac)=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="${lab}"${fac?' data-facultatif="1"':''}></math-field>`;
   const eg='<span class="f-times">=</span>';
   const grp=nbs.map((x,k)=>{
-    const tete=`<span class="f-whole"><i>${x.lettre}</i></span>`;
-    if(x.d) return `<span class="rgc-grp">${tete}${eg}${fracBox(x.n,x.d)}${fEq(mf('rgcX'+k,'écriture décimale de '+x.lettre))}</span>`;
-    return `<span class="rgc-grp">${tete}${eg}<span class="f-whole">${sdDecStr(x.v)}</span></span>`;
+    if(x.d) return `<span class="rgc-grp">${fracBox(x.n,x.d)}${fEq(mf('rgcX'+k,'écriture décimale de '+x.n+'/'+x.d+' (facultative)',true))}</span>`;
+    return `<span class="rgc-grp"><span class="f-whole">${sdDecStr(x.v)}</span></span>`;
   }).join('');
   const inf='<span class="f-times">&lt;</span>';
   const ordre=[0,1,2].map(k=>mf('rgcO'+k,(k===0?'le plus petit':k===1?'le deuxième':'le plus grand')+' nombre, en écriture décimale')).join(inf);
   $('rgcPrompt').innerHTML='Range dans l’ordre <b>croissant</b> les nombres suivants.'
-    +(frac?' Écris d’abord chaque fraction en <b>nombre décimal</b>.':'')
-    +' Complète les cases avec des <b>nombres décimaux</b>.';
+    +(frac?' Tu peux d’abord écrire chaque fraction en <b>nombre décimal</b> (facultatif), puis ranger les nombres en écrivant des nombres décimaux ou des fractions.':' Complète les cases avec des <b>nombres décimaux</b>.');
   $('rgcHost').innerHTML=`<div class="pt-row rgc-nbs">${grp}</div>`
     +`<div class="rgc-pouce-zone"><button type="button" class="btn rgc-pouce-btn" id="rgcPouceBtn" onclick="rgcCoupDePouce()">💡 Coup de pouce</button><div class="rgc-pouce" id="rgcPouce" hidden></div></div>`
     +`<div class="pt-step"><div class="pt-lab">Dans l’ordre croissant, du plus petit au plus grand</div><div class="pt-row rgc-ordre">${ordre}</div></div>`;
@@ -9438,7 +9457,7 @@ function renderRgc(){
    des zéros aux écritures décimales pour qu'ils aient le même nombre de
    chiffres derrière la virgule ». Il ne juge rien et ne remplit aucune case :
    il écrit, sous les nombres, chaque fraction en décimal puis chaque nombre
-   complété de zéros (A = 2/5 = 0,4 = 0,40 ; B = 0,39 ; C = 3/10 = 0,3 = 0,30).
+   complété de zéros (2/5 = 0,4 = 0,40 ; 0,39 ; 3/10 = 0,3 = 0,30).
    Ouvert, il le reste pour la question (test.rgcPouce, rangé avec la pause) ;
    il ne coûte aucun point. */
 function rgcChiffresApres(v){ const s=sdDecStr(v), p=s.indexOf(','); return p<0?0:s.length-p-1; }
@@ -9447,9 +9466,9 @@ function rgcPouceHTML(q){
   const nbs=rgcNombres(q), nc=Math.max(...nbs.map(x=>rgcChiffresApres(x.v)));
   const eg='<span class="rgc-pouce-eg">=</span>';
   const lignes=nbs.map(x=>{
-    let h='<i>'+x.lettre+'</i>'+eg;
-    if(x.d) h+=fracBox(x.n,x.d)+eg+'<b>'+sdDecStr(x.v)+'</b>';
-    else h+=sdDecStr(x.v);
+    let h;
+    if(x.d) h=fracBox(x.n,x.d)+eg+'<b>'+sdDecStr(x.v)+'</b>';
+    else h=sdDecStr(x.v);
     if(rgcChiffresApres(x.v)<nc) h+=eg+'<b>'+rgcAligne(x.v,nc)+'</b>';
     return '<span class="rgc-pouce-l">'+h+'</span>';
   }).join('');
@@ -9471,14 +9490,23 @@ function checkRgcAnswer(live){
     return;
   }
   let allOk=true;
-  cases.forEach(c=>{ const ok=rgcVaut(rgcLire(c.id),c.v); marqueSaufVide(c.id,ok,soutien); if(!ok) allOk=false; });
+  cases.forEach(c=>{ const s=rgcLire(c.id);
+    if(s==='' && rgcFacultative(c)){ const el=$(c.id); if(el){ el.classList.remove('ok','bad'); el.disabled=!soutien; } return; }
+    const ok=rgcVaut(s,c.v); marqueSaufVide(c.id,ok,soutien); if(!ok) allOk=false; });
   if(!allOk && soutien){ soutienAgain('rgcFeedback','rgcActions','checkRgcAnswer','rgcHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('rgcLiveScore').textContent=test.score;
     $('rgcFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']); $('rgcFeedback').className='mp-feedback good';
   } else {
-    cases.forEach(c=>corTrainDec(c.id,sdDecStr(c.v)));
-    $('rgcFeedback').textContent=rgcMethode(q, cases.some(c=>/[A-C]/.test(rgcLire(c.id).replace(/\\[a-z]+/g,''))), cases.some(c=>/\\frac|\//.test(rgcLire(c.id))));
+    /* la correction suit l'écriture de l'élève : une fraction fausse dans le
+       rangement est corrigée par la fraction de l'énoncé quand ce nombre en
+       est une (2/5), sinon par le nombre décimal */
+    const nbs=rgcNombres(q);
+    cases.forEach(c=>{ const s=rgcLire(c.id);
+      if(s==='' && rgcFacultative(c)) return;
+      const x=nbs.find(y=>y.d && y.v===c.v);
+      corTrainDec(c.id, (x && s.indexOf('/')>=0 && /^rgcO/.test(c.id)) ? x.n+'/'+x.d : sdDecStr(c.v)); });
+    $('rgcFeedback').textContent=rgcMethode(q);
     $('rgcFeedback').className='mp-feedback bad';
   }
   const donne=cases.filter(c=>/^rgcO/.test(c.id)).map(c=>rgcLire(c.id)||'…').join(' < ');
@@ -9489,17 +9517,15 @@ function checkRgcAnswer(live){
 }
 /* Le message de méthode : les fractions en décimal, puis le même nombre de
    chiffres après la virgule — on compare alors comme des entiers. */
-function rgcMethode(q,lettre,fraction){
+function rgcMethode(q){
   const nbs=rgcNombres(q), R=rgcRanges(q);
   const nc=Math.max(...nbs.map(x=>{ const s=sdDecStr(x.v), p=s.indexOf(','); return p<0?0:s.length-p-1; }));
   const aligne=v=>{ const s=sdDecStr(v); const p=s.indexOf(','); const dec=p<0?'':s.slice(p+1); return (p<0?s:s.slice(0,p))+','+dec.padEnd(nc,'0'); };
   let s='Méthode : ';
   const fr=nbs.filter(x=>x.d);
   if(fr.length) s+=fr.map(x=>x.n+'/'+x.d+' = '+sdDecStr(x.v)).join(' et ')+' ; ';
-  s+='avec le même nombre de chiffres après la virgule, '+nbs.map(x=>x.lettre+' = '+aligne(x.v)).join(' ; ')
-    +', on compare comme des entiers : '+R.map(aligne).join(' < ')+', donc '+rgcReponse(q)+'.';
-  if(lettre) s+=' Les cases attendent les nombres eux-mêmes, pas les lettres.';
-  if(fraction) s+=' Les cases attendent des nombres décimaux, pas des fractions.';
+  s+='on écrit tous les nombres avec le même nombre de chiffres après la virgule ('+nbs.map(x=>aligne(x.v)).join(' ; ')
+    +') et on les compare comme des entiers : '+R.map(aligne).join(' < ')+', donc '+rgcReponse(q)+'.';
   return s;
 }
 function nextRgcQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderRgc(); autoSave(); } else finishRgc(); }
@@ -33822,7 +33848,7 @@ Pour comparer des nombres décimaux, on compare d’abord la partie entière, pu
 Astuce : on écrit tous les nombres avec le <b>même nombre de chiffres après la virgule</b>, puis on compare comme des entiers : \\(0{,}3=0{,}30\\) et \\(0{,}27\\) — comme 30 &gt; 27, \\(0{,}3&gt;0{,}27\\).<br>
 Piège : \\(0{,}27\\) n’est pas plus grand que \\(0{,}3\\) parce que 27 &gt; 3 — un nombre qui a plus de chiffres n’est pas forcément plus grand.<br>
 Une <b>fraction</b> se range après l’avoir écrite en nombre décimal : \\(\\frac{3}{4}=0{,}75\\), \\(\\frac{1}{5}=0{,}2\\) — le bouton « ½ Écritures décimales » rappelle celles à connaître.<br>
-Les cases attendent des <b>nombres décimaux</b> : ni lettre, ni fraction.<br>
+Dans le rangement, tu peux écrire un nombre décimal ou une fraction ; écrire la valeur décimale d’une fraction est facultatif.<br>
 Le bouton vert « 💡 Coup de pouce » écrit les fractions en nombre décimal et complète les nombres avec des zéros.`;
 const RAPPELS={ eds:RAP_EDS, cm:RAP_CM, augq:RAP_AUGQ, pct:RAP_PCT, pctq:RAP_PCTQ, aug:RAP_AUG, dim:RAP_DIM,
                 mp:RAP_MP, md:RAP_MD, u:RAP_U, fracp:RAP_FRAC, tm:RAP_TM, fp:RAP_FP, pcol:RAP_PCOL, ag2:RAP_AG2, ag2q:RAP_AG2Q, syn:RAP_SYN, bs:RAP_BS, lc:RAP_LC, sdec:RAP_SDEC, rgc:RAP_RGC, vap:RAP_VAP, voc:RAP_VOC, hs:RAP_HS, hsc:RAP_HSC, sf:RAP_SF, pb:RAP_PB, rvf:RAP_RVF, mlt:RAP_MLT, spf:RAP_SPF, ima:RAP_IMA };
@@ -34189,10 +34215,10 @@ function conseilCtxCourant(){
   } else if(k==='rgc' && q){
     const fr=rgcNombres(q).filter(x=>x.d);
     att='Nombres affichés : '+rgcTexte(q)+'. Réponse attendue, STRICTEMENT SECRÈTE : '
-      +(fr.length?fr.map(x=>x.lettre+' = '+x.n+'/'+x.d+' = '+sdDecStr(x.v)).join(' ; ')+' ; ':'')
-      +'dans l’ordre croissant '+rgcReponse(q)+'. Chaque case attend un NOMBRE DÉCIMAL (0,40 vaut 0,4), jamais une lettre ni une fraction. '
+      +(fr.length?fr.map(x=>x.n+'/'+x.d+' = '+sdDecStr(x.v)).join(' ; ')+' ; ':'')
+      +'dans l’ordre croissant '+rgcReponse(q)+'. Chaque case du rangement accepte un nombre décimal (0,40 vaut 0,4) ou une fraction égale (2/5) ; la case de la valeur décimale d’une fraction est FACULTATIVE. '
       +'Méthode enseignée : écrire chaque fraction en nombre décimal (écritures à connaître : 1/2 = 0,5 ; 1/4 = 0,25 ; 3/4 = 0,75 ; 1/5 = 0,2 ; 2/5 = 0,4 ; 1/10 = 0,1…), puis écrire tous les nombres avec le même nombre de chiffres après la virgule et les comparer comme des entiers. '
-      +'Erreurs classiques : croire 0,18 plus grand que 0,2 parce que 18 > 2, ou 0,09 plus grand que 0,5 ; ranger dans l’ordre décroissant ; écrire les lettres A, B, C au lieu des nombres.';
+      +'Erreurs classiques : croire 0,18 plus grand que 0,2 parce que 18 > 2, ou 0,09 plus grand que 0,5 ; ranger dans l’ordre décroissant.';
   } else if(k==='sdec' && q){
     const F=sdFracDec(q.V);
     att='Niveau '+q.niv+' sur 7. Calcul affiché : '+sdTexte(q)+'. Réponse attendue, STRICTEMENT SECRÈTE : '+sdDecStr(q.V)
@@ -34521,7 +34547,7 @@ const QIA_MODELES={
     const act=(test && test.questions && test.questions[test.idx])||null;
     const autres=[0,1,2,3,4].filter(f=>!act || f!==act.f);
     const q={f:pick(autres), p:0}, nbs=rgcNombres(q), tex=v=>sdDecStr(v).replace(',','{,}');
-    const l=['\\('+nbs.map(x=>x.lettre+' = '+(x.d?qdmFrac(x.n,x.d)+' = '+tex(x.v):tex(x.v))).join(' \\quad ')+'\\)'];
+    const l=['\\('+nbs.map(x=>(x.d?qdmFrac(x.n,x.d)+' = '+tex(x.v):tex(x.v))).join(' \\quad ')+'\\)'];
     l.push('Dans l’ordre croissant : \\('+rgcRanges(q).map(tex).join(' < ')+'\\)');
     return l.join('\n');
   },
