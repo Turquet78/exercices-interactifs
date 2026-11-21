@@ -3290,6 +3290,13 @@
   #vclGraph .vcm-et.vsm-k text,#vclGraph .vcm-et.vsm-k path{fill:var(--ink)} #vclGraph .vcm-et.vsm-k line{stroke:var(--ink)}
   #vclGraph .vcm-et.svc-s text,#vclGraph .vcm-et.svc-s path{fill:var(--green)} #vclGraph .vcm-et.svc-s line{stroke:var(--green)}
   #vclGraph .vcl-droite{fill:none;stroke:var(--ink-soft);stroke-width:1.5;stroke-dasharray:5 4}
+  /* 8.4.14, a) : le parallélogramme tracé par la page, les deux vecteurs au choix (orange, violet — le 8.4.10) */
+  #scr-vcl{--vpg-1:#E67E22;--vpg-2:#8E44AD}
+  #vclGraph .vcl-pgm{fill:none;stroke:var(--ink);stroke-width:1.6}
+  #vclGraph .vcl-v1{stroke:var(--vpg-1);stroke-width:2.8;stroke-linecap:round} #vclGraph .vcl-v2{stroke:var(--vpg-2);stroke-width:2.8;stroke-linecap:round}
+  #vclGraph .vcm-et.vcl-v1 text,#vclGraph .vcm-et.vcl-v1 path{fill:var(--vpg-1);stroke:none} #vclGraph .vcm-et.vcl-v1 line{stroke:var(--vpg-1);stroke-width:1.4}
+  #vclGraph .vcm-et.vcl-v2 text,#vclGraph .vcm-et.vcl-v2 path{fill:var(--vpg-2);stroke:none} #vclGraph .vcm-et.vcl-v2 line{stroke:var(--vpg-2);stroke-width:1.4}
+  #vclBody .vcl-eg-et{align-items:center} #vclBody .vcl-choix{max-width:none;flex-direction:row;flex-wrap:wrap;gap:12px}
   .vcl-prod{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .vcl-prod .vcd-c .mf-cor{position:static;transform:none;margin-left:.3em;align-self:center}
   #vsmGraph .svr-vif{opacity:.75}
@@ -9550,7 +9557,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=709;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=710;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14124,7 +14131,7 @@ const RAP_VCL=`<b>Colinéaires par les coordonnées : parallèles, alignés, par
 /* 8.4.14 {coordonnees-vecteur-devoir} : le devoir surveillé, chaque question comme dans son exercice */
 const RAP_VDS=`<b>Le devoir surveillé : cinq questions sur les mêmes points</b><br>
 <b>① Fin − début</b> : les coordonnées de <span class="vgt-vec">AB</span> sont (<i>x</i><sub>B</sub> − <i>x</i><sub>A</sub> ; <i>y</i><sub>B</sub> − <i>y</i><sub>A</sub>) : la fin, puis le début. Soustraire un nombre négatif, c'est ajouter son opposé.<br>
-<b>② Un parallélogramme (a)</b> : si <span class="vgt-vec">AD</span> = <span class="vgt-vec">CB</span> (mêmes coordonnées), ADBC est un parallélogramme — on lit les lettres en faisant le tour.<br>
+<b>② Un parallélogramme (a)</b> : on choisit deux vecteurs égaux sur le parallélogramme tracé — deux côtés qui se font face, parcourus dans le même sens, par exemple <span class="vgt-vec">AD</span> = <span class="vgt-vec">CB</span>. S'ils ont les mêmes coordonnées, ADBC est un parallélogramme — on lit les lettres en faisant le tour.<br>
 <b>③ Alignés, parallèles (b, d)</b> : <span class="vgt-vec">u</span> (<i>x</i> ; <i>y</i>) et <span class="vgt-vec">v</span> (<i>x</i>′ ; <i>y</i>′) sont colinéaires quand <i>x</i> × <i>y</i>′ = <i>y</i> × <i>x</i>′. Si <span class="vgt-vec">DB</span> et <span class="vgt-vec">DE</span> sont colinéaires, D, B et E sont alignés ; si <span class="vgt-vec">AF</span> et <span class="vgt-vec">BC</span> le sont, (AF) et (BC) sont parallèles. Avec des nombres décimaux, le calcul est le même : 2,1 × 4 = 8,4.<br>
 <b>④ Le quatrième point (c)</b> : ABCM est un parallélogramme quand <span class="vgt-vec">BA</span> = <span class="vgt-vec">CM</span> — un vecteur qu'on sait calculer, et son égal qui <b>finit sur M</b>. On résout <i>x</i> − <i>x</i><sub>C</sub> = … et <i>y</i> − <i>y</i><sub>C</sub> = …, puis on place M pour vérifier.<br>
 <b>⑤ Le point d'une somme (e, f)</b> : pour <span class="vgt-vec">AN</span> = <span class="vgt-vec">CE</span> + <span class="vgt-vec">CB</span>, on part de A, on fait le chemin <span class="vgt-vec">CE</span>, puis le chemin <span class="vgt-vec">CB</span> ; par le calcul, <i>x</i> − <i>x</i><sub>A</sub> = (abscisse de <span class="vgt-vec">CE</span>) + (abscisse de <span class="vgt-vec">CB</span>), et de même pour <i>y</i>.`;
@@ -73134,7 +73141,7 @@ function vclCas(q){ return VCL_CAS[q.c]; }
 function vclAli(q){ return q.c===2||q.c===3; }
 function vclNbP(q){ return q.P.length; }
 /* les deux vecteurs : [indice du début, indice de la fin] */
-function vclW(q,k){ return [[[0,1],[2,3]],[[0,1],[2,3]],[[0,1],[0,2]],[[0,1],[0,2]],[[0,1],[3,2]]][q.c][k]; }
+function vclW(q,k){ if(q.eg) return vclEgW(q)[k]; return [[[0,1],[2,3]],[[0,1],[2,3]],[[0,1],[0,2]],[[0,1],[0,2]],[[0,1],[3,2]]][q.c][k]; }
 function vclVec(q,k){ const w=vclW(q,k), d=q.P[w[0]], f=q.P[w[1]]; return [vclR(f[0]-d[0]), vclR(f[1]-d[1])]; }
 function vclNomVec(q,k){ const w=vclW(q,k); return vclL(q)[w[0]]+vclL(q)[w[1]]; }
 function vclVecHTML(q,k){ const w=vclW(q,k); return vepVecHTML(vclL(q)[w[0]], vclL(q)[w[1]]); }
@@ -73208,13 +73215,108 @@ function vclBuildQuestions(){
    déjà posés (q.don, les points des questions précédentes ; q.tf, un vecteur qui part d'un point
    hors des nœuds) n'en sont pas */
 function vclOutils(q){ const r=[], don=q.don||[], tf=q.tf||[]; for(let k=0;k<vclNbP(q);k++) if(don.indexOf(k)<0) r.push('p'+k);
-  [0,1].forEach(function(k){ if(tf.indexOf(k)<0) r.push('t'+k); }); return r; }
+  if(!q.eg) [0,1].forEach(function(k){ if(tf.indexOf(k)<0) r.push('t'+k); }); return r; }
 function vclCasesDe(q){
   const r=[];
   ['u','v'].forEach(function(c){ VCL_C6.forEach(function(s){ r.push('vcl-'+c+'-'+s); }); });
   return r.concat(q.c===4?['vcl-eg','vcl-nom','vcl-nat']:VCL_CROIX.concat(['vcl-col','vcl-cc']));
 }
-/* 26, 25 ou 21 réponses par question — la convention que lit dmPoidsQuestion() */
+/* LES DEUX VECTEURS ÉGAUX AU CHOIX DE L'ÉLÈVE — la question a) du devoir du
+   8.4.14 (q.eg ; demande de Turquet, novembre 2026 : « supprimer tracer les
+   vecteurs… tracer le parallélogramme et demander à l'élève de donner deux
+   vecteurs égaux sur ce parallélogramme comme dans l'exercice 8.4.10 »).
+   L'élève place les quatre points, sans tracer de vecteur ; la page trace
+   alors le parallélogramme, et l'élève nomme deux vecteurs par quatre listes
+   sous deux flèches (orange, violet — celles du 8.4.10), tracés sur la figure
+   dès qu'ils sont nommés. La page dit, dans tous les modes, s'ils sont égaux
+   (vclEgVerdict) ; le calcul ne s'ouvre que sur une paire juste, qui se fige
+   alors (q.vc) : la suite se calcule avec les vecteurs de l'élève (vclW).
+   Les listes ne sont pas des réponses comptées : la paire est toujours juste
+   quand le calcul s'ouvre, et le barème ne dépend pas du choix (19
+   réponses). Une copie vérifiée sans paire juste est corrigée avec AD⃗ = CB⃗
+   (le défaut, vclEgW). On range q.vc (la paire figée) et q.vs (les quatre
+   listes), pour la reprise. */
+const VCL_EG_W=[[0,1],[3,2]];
+function vclEgOk(n){ return typeof n==='string'&&/^[A-Z]{2}$/.test(n)&&n[0]!==n[1]; }
+function vclEgW(q){
+  const L=vclL(q), n=q.vc;
+  if(!Array.isArray(n)||n.length!==2||!n.every(function(m){ return vclEgOk(m)&&L.indexOf(m[0])>=0&&L.indexOf(m[1])>=0; })) return VCL_EG_W;
+  return n.map(function(m){ return [L.indexOf(m[0]), L.indexOf(m[1])]; });
+}
+function vclEgVec(q,n){ const L=vclL(q), a=q.P[L.indexOf(n[0])], b=q.P[L.indexOf(n[1])]; return [vclR(b[0]-a[0]), vclR(b[1]-a[1])]; }
+/* un côté du tour, dans un sens ou dans l'autre */
+function vclEgCote(q,n){ const L=vclL(q), i=L.indexOf(n[0]), j=L.indexOf(n[1]); return (j-i+4)%4===1||(i-j+4)%4===1; }
+/* les quatre points justes : le parallélogramme se trace, les listes s'ouvrent */
+function vclEgPoints(q){ for(let k=0;k<vclNbP(q);k++) if(!vclFait(q,'p'+k)) return false; return true; }
+/* les deux noms : la paire figée, ou ce que disent les listes */
+function vclEgNoms(q){
+  if(q.vc) return q.vc.slice();
+  return [1,2].map(function(k){ const a=$('vcl-v'+k+'a'), b=$('vcl-v'+k+'b'); return ((a&&a.value)||'?')+((b&&b.value)||'?'); });
+}
+function vclEgJuste(q,n){ if(!vclEgOk(n[0])||!vclEgOk(n[1])||n[0]===n[1]) return false; const u=vclEgVec(q,n[0]), v=vclEgVec(q,n[1]); return u[0]===v[0]&&u[1]===v[1]; }
+/* le constat, au fil des listes : {txt, cls} */
+function vclEgVerdict(q,n){
+  const V=function(m){ return vepVecHTML(m[0],m[1]); }, Q=vclT(q,'ABCD');
+  if(test.locked){
+    if(q.vc) return {txt:'<b>'+V(q.vc[0])+' = '+V(q.vc[1])+'</b> : le calcul est fait avec ces deux vecteurs.', cls:'good'};
+    const d=VCL_EG_W.map(function(w){ return vclL(q)[w[0]]+vclL(q)[w[1]]; });
+    return {txt:'Deux vecteurs égaux sur le parallélogramme '+Q+' : par exemple '+V(d[0])+' = '+V(d[1])+' (en vert sur la figure). Le calcul est corrigé avec eux.', cls:''};
+  }
+  if(!vclEgPoints(q)) return {txt:'Place d’abord les quatre points : le parallélogramme '+Q+' se tracera, puis tu choisiras deux vecteurs égaux.', cls:''};
+  const m=[]; let bad=false;
+  [0,1].forEach(function(i){ const s=n[i]; if(s[0]!=='?'&&s[0]===s[1]){ m.push('Le '+(i?'second':'premier')+' vecteur a deux fois la même lettre : un vecteur va d’un point à un AUTRE point.'); bad=true; } });
+  if(vclEgOk(n[0])&&vclEgOk(n[1])){
+    const u=vclEgVec(q,n[0]), v=vclEgVec(q,n[1]);
+    if(n[0]===n[1]){ m.push('<b>C’est deux fois le même vecteur.</b> Choisis un AUTRE vecteur, égal à '+V(n[0])+'.'); bad=true; }
+    else if(vclEgJuste(q,n)) return {txt:'<b>'+V(n[0])+' = '+V(n[1])+'</b> : ce sont deux côtés opposés du parallélogramme '+Q+', parcourus dans le même sens. On calcule avec ces deux vecteurs.', cls:'good'};
+    else if(!vclEgCote(q,n[0])||!vclEgCote(q,n[1])){ const g=vclEgCote(q,n[0])?n[1]:n[0]; m.push('<b>'+V(n[0])+' et '+V(n[1])+' ne sont pas égaux</b> : '+V(g)+' est une diagonale du parallélogramme '+Q+', aucun autre vecteur ne lui est égal. Choisis un côté.'); bad=true; }
+    else if(u[0]===-v[0]&&u[1]===-v[1]){ m.push('<b>'+V(n[0])+' et '+V(n[1])+' ne sont pas égaux</b> : ils ont la même direction et la même longueur, mais pas le même sens. Parcours l’un des deux côtés dans l’autre sens.'); bad=true; }
+    else { m.push('<b>'+V(n[0])+' et '+V(n[1])+' ne sont pas égaux</b> : ce sont deux côtés qui se suivent, ils n’ont pas la même direction. Prends deux côtés qui se font face.'); bad=true; }
+  } else if(vclEgOk(n[0])) m.push('Le vecteur '+V(n[0])+' est tracé en orange. Choisis maintenant un vecteur qui lui soit égal sur le parallélogramme '+Q+'.');
+  else if(!bad) m.push('Le parallélogramme '+Q+' est tracé. Choisis deux vecteurs égaux sur ce parallélogramme.');
+  return {txt:m.join(' '), cls:bad?'bad':''};
+}
+/* le bloc des listes, sous les boutons des points */
+function vclEgHTML(q){
+  const o={pre:'vcl', L:vclL(q).slice().sort()};
+  return '<div class="svr-et vcl-eg-et"><span class="svr-et-n">2)</span><div class="vqs-choix vcl-choix"><div class="vqs-choix-t">Deux vecteurs égaux sur le parallélogramme '+vclT(q,'ABCD')+' :</div>'
+    +'<div class="vqs-choix-eg">'+vpgNomHTML(1,o)+'<span class="vqs-choix-sg">=</span>'+vpgNomHTML(2,o)+'</div></div></div>';
+}
+const VCL_EG_SEL=['vcl-v1a','vcl-v1b','vcl-v2a','vcl-v2b'];
+/* tout ce qui suit les listes : la paire figée sur une paire juste, les listes ouvertes ou non, le calcul montré ou non, le constat */
+function vclEgMaj(q){
+  if(!q||!q.eg) return;
+  const n=vclEgNoms(q);
+  if(!q.vc&&!test.locked&&vclEgPoints(q)&&vclEgJuste(q,n)){
+    q.vc=n.slice();
+    $('vclCalc').innerHTML=vclCalcHTML(q); vclCalcBrancher(q);
+    recoveryDirty=true; clearTimeout(test.vclSave); test.vclSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },800);
+    setTimeout(function(){ const e=$('vcl-u-xf'); if(e&&!test.locked) try{ e.focus(); }catch(_){} },40);
+  }
+  const ouvert=!test.locked&&!q.vc&&vclEgPoints(q);
+  VCL_EG_SEL.forEach(function(id){ const e=$(id); if(e) e.disabled=!ouvert; });
+  const c=$('vclCalc'); if(c) c.style.display=(q.vc||test.locked)?'':'none';
+  const v=$('vclVerif');
+  if(v){ const r=vclEgVerdict(q,n); v.innerHTML=r.txt; v.className='vcm-verif'+(r.cls?' '+r.cls:''); }
+}
+function vclEgChoix(){
+  if(test.kind!=='vcl'||test.locked) return;
+  const q=test.questions[test.idx]; if(!q||!q.eg||q.vc) return;
+  q.vs=VCL_EG_SEL.map(function(id){ const e=$(id); return (e&&e.value)||''; });
+  recoveryDirty=true;
+  vclEgMaj(q); vclDessiner(q);
+}
+/* les vecteurs nommés, sur le parallélogramme tracé (dans vclDessiner) */
+function vclEgDessin(q,ev){
+  if(!q.eg||!vclEgPoints(q)) return '';
+  const L=vclL(q), P=q.P;
+  let f='<polygon class="vcl-pgm" points="'+[0,1,2,3].map(function(k){ return vcdX(P[k][0])+','+vcdY(P[k][1]); }).join(' ')+'"/>';
+  if(test.locked&&!q.vc) return f;
+  vclEgNoms(q).forEach(function(n,i){ if(!vclEgOk(n)||L.indexOf(n[0])<0||L.indexOf(n[1])<0) return;
+    f+=vclFleche(q,P[L.indexOf(n[0])],P[L.indexOf(n[1])],'vcl-v'+(i+1),'vclArr'+(i+1),n,ev); });
+  return f;
+}
+/* 26, 25 ou 21 réponses par question (19 à la question a du 8.4.14) — la convention que lit dmPoidsQuestion() */
 function vclCases(q){ return vclOutils(q).map(function(o){ return 'vcl-'+o; }).concat(vclCasesDe(q)); }
 function vclFige(id){ return !!(test.vclFige&&test.vclFige[id]); }
 function vclEtat(id){ return (test.vclEtat&&test.vclEtat[id])||''; }
@@ -73322,7 +73424,7 @@ function vclDroite(p,u){
 function vclDessiner(q){
   const fl=$('vclFl'), pts=$('vclPts'); if(!fl||!pts) return;
   const ev=[];
-  let f='', p='';
+  let f=vclEgDessin(q,ev), p='';
   document.querySelectorAll('#vclGraph .vec-t.sel').forEach(function(el){ el.classList.remove('sel'); el.setAttribute('aria-pressed','false'); });
   for(let k=0;k<2;k++){
     const t=q.t[k];
@@ -73394,7 +73496,7 @@ function vclPose(i,j){
     vclDefaire(q);
   }
   if(fini) test.vclOutil=vclSuivant(q,o);
-  vclDessiner(q); vclMajOutils(q);
+  vclEgMaj(q); vclDessiner(q); vclMajOutils(q);
   recoveryDirty=true;
   clearTimeout(test.vclSave); test.vclSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },1200);
 }
@@ -73441,7 +73543,7 @@ function vclCalcHTML(q){
         +'<div class="vcd-bloc"><span class="vcd-nom">'+H+'</span>'+vsmColHTML(vcdCase(id('rx'),'la première coordonnée de '+nom), vcdCase(id('ry'),'la seconde coordonnée de '+nom))+'</div>'
       +'</div></div>';
   };
-  const e1=vclOutils(q).length?1:0;   /* sans geste à faire (8.4.14, d), la numérotation commence au calcul */
+  const e1=(vclOutils(q).length?1:0)+(q.eg?1:0);   /* sans geste à faire (8.4.14, d), la numérotation commence au calcul ; au a), le choix des vecteurs est le 2) */
   let h='<div class="vcd-titre">'+(1+e1)+') On prend les vecteurs '+U+' et '+V+'.</div>'
     +'<div class="vcm-deux">'+colonne('u',0)+colonne('v',1)+'</div>';
   if(q.c===4){
@@ -73630,6 +73732,8 @@ function vclFinal(q,subs){
   if(q.c===4) h+='<polygon class="vcl-droite" points="'+[0,1,2,3].map(function(k){ return vcdX(P[k][0])+','+vcdY(P[k][1]); }).join(' ')+'"/>';
   else { h+=vclDroite(P[0],vclVec(q,0)); if(!vclAli(q)) h+=vclDroite(P[2],vclVec(q,1)); }
   [0,1].forEach(function(k){ if(S['vcl-t'+k]&&!S['vcl-t'+k].ok){ const w=vclW(q,k); h+=vclFleche(q,P[w[0]],P[w[1]],'svc-s','vclArrS',vclNomVec(q,k),ev); } });
+  /* 8.4.14, a) sans paire juste : la paire de la correction, en vert */
+  if(q.eg&&!q.vc) [0,1].forEach(function(k){ const w=vclW(q,k); h+=vclFleche(q,P[w[0]],P[w[1]],'svc-s','vclArrS',vclNomVec(q,k),ev); });
   for(let k=0;k<vclNbP(q);k++) if(S['vcl-p'+k]&&!S['vcl-p'+k].ok) h+=vclCroix(q,P[k],vclL(q)[k],'s');
   const c=$('vclCorr'); if(c) c.innerHTML=h;
 }
@@ -73637,6 +73741,16 @@ function vclFinal(q,subs){
 function vclDemontrer(q){
   return vclT(q,['les droites (AB) et (CD) sont parallèles','les droites (AB) et (CD) ne sont pas parallèles',
     'les points A, B et C sont alignés','les points A, B et C ne sont pas alignés','ABCD est un parallélogramme'][q.c]);
+}
+/* les cases du calcul : la bulle du soutien, la sauvegarde, le relais des listes */
+function vclCalcBrancher(q){
+  /* soutien : la bulle « gagne / perds » du 8.4.4, à côté des résultats des deux vecteurs */
+  ['vcl-u-rx','vcl-u-ry','vcl-v-rx','vcl-v-ry'].forEach(function(id){ const el=$(id); if(!el) return;
+    el.addEventListener('focus', function(){ vcdGpOuvrir(el); });
+    el.addEventListener('click', function(){ vcdGpOuvrir(el); }); });
+  vclCasesDe(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.vclSave); test.vclSave=setTimeout(autoSave,1000); recoveryDirty=true;
+    /* une liste n'est pas une case INPUT : le relais commun du document ne la voit pas */
+    if(el.tagName==='SELECT') liveCheckCurrent(); }); });
 }
 function renderVcl(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
@@ -73659,27 +73773,33 @@ function renderVcl(){
   const liste=function(t){ return t.length>1?t.slice(0,-1).join(', ')+' et '+t[t.length-1]:t[0]; };
   const geste=q.ds?(aPoser.length?'Place '+liste(aPoser)+(aTracer.length?', puis trace ':'. '):(aTracer.length?'Trace ':''))+(aTracer.length?liste(aTracer)+'. ':'')
     :'Place les points dans le repère, puis trace les vecteurs '+U+' et '+V+'. ';
-  const e1=geste?1:0;
+  const e1=(geste?1:0)+(q.eg?1:0);
+  const traces=O.some(function(o){ return o[0]==='t'; });
   $('vclInstr').innerHTML=(q.ds?vdsEnonce(q)+'<b>'+q.ds+') Démontrer que '+vclDemontrer(q)+'.</b>'+(q.dec?' Le point '+vclL(q)[1]+' n’est pas sur un nœud du quadrillage : la page l’a placé, et a tracé '+U+'.':'')+'<br>'
       :'On donne '+pts.slice(0,n-1).join(', ')+' et '+pts[n-1]+'. <b>Démontrer que '+vclDemontrer(q)+'.</b><br>')
-    +(e1?'1) '+geste:'')+(1+e1)+') Calcule les coordonnées de '+U+' et de '+V+' : fin − début. '
+    +(geste?'1) '+geste:'')+(q.eg?'2) La page trace le parallélogramme '+vclT(q,'ABCD')+' : choisis deux vecteurs égaux sur ce parallélogramme. ':'')
+    +(1+e1)+') Calcule les coordonnées '+(q.eg?'de ces deux vecteurs':'de '+U+' et de '+V)+' : fin − début. '
     +(2+e1)+(q.c===4?') Conclus.':') Vérifie le produit en croix, puis conclus.')
-    +'<span class="kv-sous">'+(e1?'Choisis le geste avec les boutons sous l’énoncé, puis clique les nœuds du repère : un point se pose d’un clic (un second clic au même endroit le retire) ; un vecteur se trace en cliquant son début, puis sa fin. ':'')
+    +'<span class="kv-sous">'+(geste?'Choisis le geste avec les boutons sous l’énoncé, puis clique les nœuds du repère : un point se pose d’un clic (un second clic au même endroit le retire)'+(traces?' ; un vecteur se trace en cliquant son début, puis sa fin. ':'. '):'')
+    +(q.eg?'Les deux vecteurs se choisissent avec les listes, sous les deux flèches : le calcul s’ouvre quand ils sont égaux. ':'')
     +'Pour le calcul, écris les abscisses sur la ligne du haut et les ordonnées sur celle du bas.</span>';
   const b_=function(o,txt){ return '<button type="button" class="svr-out pts-case" id="vcl-'+o+'" onclick="vclOutil(\''+o+'\')"><span class="svr-rond" aria-hidden="true">●</span>'+txt+'</button>'; };
-  $('vclBody').innerHTML=e1?'<div class="svr-etapes"><div class="svr-et"><span class="svr-et-n">1)</span>'
-    +O.map(function(o){ return b_(o, o[0]==='p'?pts[+o[1]]:'Tracer '+(o==='t0'?U:V)); }).join('')+'</div></div>':'';
+  $('vclBody').innerHTML=geste?'<div class="svr-etapes"><div class="svr-et"><span class="svr-et-n">1)</span>'
+    +O.map(function(o){ return b_(o, o[0]==='p'?pts[+o[1]]:'Tracer '+(o==='t0'?U:V)); }).join('')+'</div>'+(q.eg?vclEgHTML(q):'')+'</div>'
+    +(q.eg?'<div class="vcm-verif" id="vclVerif" aria-live="polite"></div>':''):'';
   $('vclGraph').innerHTML=vcdSVG(q,'vcl')
-    .replace('</defs>','<marker id="vclArrK" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs>');
+    .replace('</defs>',['vclArrK:var(--ink)','vclArr1:var(--vpg-1)','vclArr2:var(--vpg-2)'].map(function(m){ const c=m.split(':');
+      return '<marker id="'+c[0]+'" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+c[1]+'"/></marker>'; }).join('')+'</defs>');
   $('vclCalc').innerHTML=vclCalcHTML(q);
   vcdGpFermer();
-  /* soutien : la bulle « gagne / perds » du 8.4.4, à côté des résultats des deux vecteurs */
-  ['vcl-u-rx','vcl-u-ry','vcl-v-rx','vcl-v-ry'].forEach(function(id){ const el=$(id); if(!el) return;
-    el.addEventListener('focus', function(){ vcdGpOuvrir(el); });
-    el.addEventListener('click', function(){ vcdGpOuvrir(el); }); });
-  vclCasesDe(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ clearTimeout(test.vclSave); test.vclSave=setTimeout(autoSave,1000); recoveryDirty=true;
-    /* une liste n'est pas une case INPUT : le relais commun du document ne la voit pas */
-    if(el.tagName==='SELECT') liveCheckCurrent(); }); });
+  vclCalcBrancher(q);
+  /* 8.4.14, a) : les listes des deux vecteurs, rendues par la reprise */
+  if(q.eg){
+    if(q.vc&&!vclEgJuste(q,q.vc)) q.vc=null;
+    const vs=q.vc?[q.vc[0][0],q.vc[0][1],q.vc[1][0],q.vc[1][1]]:(Array.isArray(q.vs)?q.vs:[]);
+    VCL_EG_SEL.forEach(function(id,j){ const e=$(id); if(!e) return; if(vs[j]&&vclL(q).indexOf(vs[j])>=0) e.value=vs[j]; e.addEventListener('change', vclEgChoix); });
+    vclEgMaj(q);
+  }
   vclDessiner(q); vclMajOutils(q);
   vclBrancher();
   $('vclFeedback').textContent=''; $('vclFeedback').className='mp-feedback';
@@ -73701,11 +73821,12 @@ function checkVcl(){
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
+  vclEgMaj(q);   /* 8.4.14, a) : le calcul se montre, corrigé avec la paire de l'élève ou celle par défaut */
   const pourquoi=vclPourquoi(q,subs);
   const v=function(id){ const e=$(id); if(!e) return '?'; const s=String(e.value).trim(); if(!s) return '?'; return e.tagName==='SELECT'?e.options[e.selectedIndex].text:s; };
   const nu=vclNomVec(q,0), nv=vclNomVec(q,1), u=vclVec(q,0), w=vclVec(q,1), oui=vclOui(q), M=vclMots(q);
   let donne=q.P.map(function(_,k){ return vclL(q)[k]+(q.pl[k]?' placé en '+svrCoord(q.pl[k]):' non placé'); }).join(', ')
-    +', '+[0,1].map(function(k){ const t=vclTrace(q,k); return vclNomVec(q,k)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f):' non tracé'); }).join(', ')
+    +', '+(q.eg?(q.vc?'vecteurs égaux choisis : '+q.vc.join(' = '):'aucune paire de vecteurs égaux trouvée'):[0,1].map(function(k){ const t=vclTrace(q,k); return vclNomVec(q,k)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f):' non tracé'); }).join(', '))
     +' — '+nu+' ('+v('vcl-u-xf')+' − '+v('vcl-u-xd')+' ; '+v('vcl-u-yf')+' − '+v('vcl-u-yd')+') = ('+v('vcl-u-rx')+' ; '+v('vcl-u-ry')+')'
     +' — '+nv+' ('+v('vcl-v-xf')+' − '+v('vcl-v-xd')+' ; '+v('vcl-v-yf')+' − '+v('vcl-v-yd')+') = ('+v('vcl-v-rx')+' ; '+v('vcl-v-ry')+')';
   donne+=q.c===4?' — '+nu+' et '+nv+' '+v('vcl-eg')+' — '+v('vcl-nom')+' est un '+v('vcl-nat')
@@ -73744,7 +73865,9 @@ function ctxVcl(q){
   const val=function(id){ const e=$(id); if(!e) return '?'; const s=String(e.value).trim(); if(!s) return '?'; return e.tagName==='SELECT'?e.options[e.selectedIndex].text:s; };
   const ctx='Exercice de GÉOMÉTRIE dans un repère (tu ne vois pas le dessin ; description exacte). Repère gradué de −5 à 5 sur les deux axes, quadrillé. '
    +'Énoncé : on donne '+q.P.map(function(p,k){ return vclL(q)[k]+svrCoord(p); }).join(', ')+' ; démontrer que '+vclDemontrer(q)+'. '
-   +'1) Placer les points et tracer les vecteurs '+nu+' et '+nv+' (l’élève clique les nœuds du repère : un point d’un clic, un vecteur en cliquant son début puis sa fin). '
+   +(q.eg?'1) Placer les points (l’élève clique les nœuds du repère). Puis la page trace le quadrilatère '+vclT(q,'ABCD')+' et l’élève choisit deux vecteurs égaux sur ce parallélogramme (deux côtés opposés parcourus dans le même sens) ; le calcul ne s’ouvre que sur une paire juste. '
+     +(q.vc?'L’élève a choisi '+nu+' = '+nv+'. ':'L’élève n’a pas encore trouvé deux vecteurs égaux (listes : '+vclEgNoms(q).join(' et ')+'). ')
+     :'1) Placer les points et tracer les vecteurs '+nu+' et '+nv+' (l’élève clique les nœuds du repère : un point d’un clic, un vecteur en cliquant son début puis sa fin). ')
    +'2) Calculer les coordonnées de '+nu+' et de '+nv+' par « fin − début » (en haut la différence des abscisses, en bas celle des ordonnées, puis le résultat). '
    +(q.c===4?'3) Conclure : « Donc '+nu+' et '+nv+' sont égaux / ne sont pas égaux », « Donc … (le nom du quadrilatère) est un … (sa nature) ». '
      :'3) Vérifier le produit en croix : « … × … = … et … × … = … » (l’abscisse de '+nu+' fois l’ordonnée de '+nv+', puis l’ordonnée de '+nu+' fois l’abscisse de '+nv+') ; '
@@ -73753,7 +73876,7 @@ function ctxVcl(q){
    +(q.c===4?', '+(oui?M.col[0]:M.col[1])+vclT(q,', ABCD est un parallélogramme. ')
      :', produits '+svrNb(vclR(u[0]*w[1]))+' et '+svrNb(vclR(u[1]*w[0]))+', '+(oui?M.col[0]:M.col[1])+', '+(oui?M.cc[0]:M.cc[1])+'. ')
    +'Ce que l’élève a posé : '+q.P.map(function(_,k){ return vclL(q)[k]+(q.pl[k]?' en '+svrCoord(q.pl[k])+(vclFait(q,'p'+k)?' (juste)':' (faux)'):' pas placé'); }).join(', ')
-   +', '+[0,1].map(function(k){ const t=vclTrace(q,k); return (k?nv:nu)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f)+(vclFait(q,'t'+k)?' (juste)':' (faux)'):' pas tracé'); }).join(', ')
+   +(q.eg?'':', '+[0,1].map(function(k){ const t=vclTrace(q,k); return (k?nv:nu)+(t?' tracé de '+svrCoord(t.d)+' à '+svrCoord(t.f)+(vclFait(q,'t'+k)?' (juste)':' (faux)'):' pas tracé'); }).join(', '))
    +' ; '+nu+' : '+val('vcl-u-xf')+' − '+val('vcl-u-xd')+' et '+val('vcl-u-yf')+' − '+val('vcl-u-yd')+', résultat ('+val('vcl-u-rx')+' ; '+val('vcl-u-ry')+')'
    +' ; '+nv+' : '+val('vcl-v-xf')+' − '+val('vcl-v-xd')+' et '+val('vcl-v-yf')+' − '+val('vcl-v-yd')+', résultat ('+val('vcl-v-rx')+' ; '+val('vcl-v-ry')+')'
    +(q.c===4?' ; conclusion : '+val('vcl-eg')+', '+val('vcl-nom')+' est un '+val('vcl-nat')+'. '
@@ -73882,7 +74005,7 @@ function vdsGen(){
   const F0=vdsFigures(), f=F0.length?pick(F0):[[-3,-2],[2,1],[3,-2],2];
   const Z=vdsFigure(f[0],f[1],f[2],f[3]); Z.F=pick(vdsFs(Z)||[[0.5,0.5]]);
   const cp=function(L){ return L.map(function(l){ return Z[l].slice(); }); };
-  const a=vclNeuve(4,cp(['A','D','B','C'])); Object.assign(a,{L:['A','D','B','C'], ds:'a', kd:'vcl', Z:Z, ctx:[]});
+  const a=vclNeuve(4,cp(['A','D','B','C'])); Object.assign(a,{L:['A','D','B','C'], ds:'a', kd:'vcl', Z:Z, ctx:[], eg:1, vc:null, vs:['','','','']});
   const b=vclNeuve(2,cp(['D','B','E'])); Object.assign(b,{L:['D','B','E'], ds:'b', kd:'vcl', Z:Z, don:[0,1], ctx:['A','C']});
   const c=vcmNeuve(cp(['A','B','C'])); Object.assign(c,{ds:'c', kd:'vqs', Z:Z, ctx:['D','E']});
   const d=vclNeuve(0,cp(['A','F','B','C'])); Object.assign(d,{L:['A','F','B','C'], ds:'d', kd:'vcl', Z:Z, don:[0,1,2,3], tf:[0], dec:1, ctx:['D','E','M']});
@@ -91812,7 +91935,7 @@ POSE_DOIGT.vcl={ hote:'vclGraph',
     if(test.vclEtat) delete test.vclEtat[id];
     const el=$(id); if(el) el.classList.remove('ok','bad');
     test.vclOutil=o;
-    vclDessiner(q); vclMajOutils(q);
+    vclEgMaj(q); vclDessiner(q); vclMajOutils(q);
   },
   choisir:function(q,cle){ test.vclOutil=cle[0]==='p'?cle:'t'+cle[0]; vclMajOutils(q); }
 };
