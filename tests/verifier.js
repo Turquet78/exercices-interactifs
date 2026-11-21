@@ -7688,6 +7688,14 @@ function fractionsDepartIrreductibles(w, apres){
             if(!faute && q[p[1]]>0 && pgcd(q[p[0]],q[p[1]])!==1)
               faute='tire '+q[p[0]]+'/'+q[p[1]]+' ('+p[0]+'/'+p[1]+(q.type?', '+q.type:'')+')';
           });
+          /* des POINTS aux coordonnées fractionnaires, rangés en paires [n, d] (q.Z, le 8.4.15 de la Seconde) */
+          if(q.Z && typeof q.Z==='object') Object.keys(q.Z).forEach(function(L){
+            (Array.isArray(q.Z[L])?q.Z[L]:[]).forEach(function(c){
+              if(!Array.isArray(c) || c.length!==2 || !num(c[0]) || !num(c[1]) || c[1]<2) return;
+              lues++;
+              if(!faute && pgcd(c[0],c[1])!==1) faute='tire le point '+L+' avec la coordonnée '+c[0]+'/'+c[1];
+            });
+          });
         });
       }
       if(!faute && !lues) faute='aucune fraction de départ reconnue dans ses questions — à déclarer dans fractionsIrreductibles.sans si son sujet est une fraction réductible';
