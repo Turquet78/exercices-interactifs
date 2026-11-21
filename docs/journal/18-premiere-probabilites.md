@@ -916,7 +916,7 @@ l'étiquette occupait. Le 3.10 garde ses étiquettes. Les noms des cases à
 remplir (`aria-label`, « effectif de A ∩ D ») restent : ils servent aux
 lecteurs d'écran et au contexte de la bulle d'explication.
 
-## {reunion-probabilites} (3.12, v452) : la réunion A ∪ D, case par case
+## {reunion-probabilites} (3.12, v453 ; la 4.11 avait pris la v452 le même jour) : la réunion A ∪ D, case par case
 
 Demande de Turquet (novembre 2026) : « faire un exercice comme le 3.10, où
 le tableau est déjà complété et qui demande de déterminer la probabilité de
