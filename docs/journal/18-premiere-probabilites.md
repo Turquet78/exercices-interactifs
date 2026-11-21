@@ -905,3 +905,13 @@ fractions dessous — jamais un « = » séparé de sa case.
 Vérifié dans Chromium (1280 et 390 px) : copie juste 8 / 8, l'indice de la
 conditionnelle mis à « tout » rougit cette seule question (7 / 8), aucune
 largeur de page dépassée.
+
+**Puis le tableau du 3.11 a perdu le nom de ses cases (v449 ; la 1.15 et la 6.7 avaient pris la v448 le même jour).** Demande de
+Turquet (novembre 2026) : « dans le 3.11, dans le tableau des effectifs,
+enlever les noms des cases écrits en petit et en gris ». Au 3.11 seulement
+(`fpbSeul()`), `fpbTableHTML` n'écrit plus les étiquettes `.pb-cl` (A ∩ D,
+A, D…) — ni sur les cases données, ni sur les cases à remplir ; le tableau
+prend la classe `fpb-sans-noms`, qui rend aux cellules la marge haute que
+l'étiquette occupait. Le 3.10 garde ses étiquettes. Les noms des cases à
+remplir (`aria-label`, « effectif de A ∩ D ») restent : ils servent aux
+lecteurs d'écran et au contexte de la bulle d'explication.

@@ -1946,6 +1946,8 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 #pbHost .pbf-tete math-field.pm-mf{font-size:calc(1.3rem * var(--tab-nb,1));min-width:62px}
 #pbHost .pbf-tete .fpb-tab td{padding:12px 10px 2px}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
+#pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 10px}
+@media(max-width:560px){ #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 4px} }
 @media(max-width:560px){
   .pbf-2col{grid-template-columns:1fr}
   #pbHost .pbf-tete .pb-tab th{padding:2px 4px;font-size:calc(.72rem * var(--tab-nb,1));line-height:1.15}
@@ -26872,13 +26874,15 @@ function fpbNum(i){ return i<FPB_NB_A ? 'A'+(i+1) : 'B'+(i-FPB_NB_A+1); }
 function fpbTableHTML(q){
   const C=pbCtx(q), v=pbValeurs(q.n), noms=['A.B','nA.B','B','A.nB','nA.nB','nB','A','nA',''];
   const cel=i=>{
-    const lab='<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span>';
+    /* Le 3.11 (fractions seules) n'écrit pas le nom des cases (v448) :
+       l'élève lit le tableau par ses en-têtes, comme sur la fiche. */
+    const lab=fpbSeul() ? '' : '<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span>';
     const dedans=(q.k.indexOf(i)<0)
       ? pbMf('pb-c'+i+'-0', 'effectif'+(noms[i] ? ' de '+pbTxt(noms[i]) : ' total'))
       : '<span class="pb-v">'+fpbNombre(v[i])+'</span>';
     return '<td>'+lab+dedans+'</td>';
   };
-  return '<table class="pb-tab fpb-tab">'
+  return '<table class="pb-tab fpb-tab'+(fpbSeul() ? ' fpb-sans-noms' : '')+'">'
     +'<tr><th></th><th>'+esc(C.Pl+' avec '+C.dc)+' '+pbHTML('B')+'</th><th>'+esc(C.Pl+' sans '+C.dc)+' '+pbHTML('nB')+'</th><th>Total</th></tr>'
     +'<tr><th>'+esc(C.cA)+'</th>'+cel(0)+cel(3)+cel(6)+'</tr>'
     +'<tr><th>'+esc(C.cnA)+'</th>'+cel(1)+cel(4)+cel(7)+'</tr>'
