@@ -4136,7 +4136,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=450;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=451;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -9447,7 +9447,12 @@ function genRgcNiveau(niv){
     else { const f=pick([250,750]), g=f+pick([-50,50]), lo=Math.min(f,g), x=lo+rand(1,4)*10; nb=[rgcFr(f,RGC_FR100),{v:x},rgcFr(g,RGC_FR10)]; }
     if(rgcTirageOk(nb)) break;
   }
-  return {niv:niv, nb:sdMelange(nb)};
+  nb=sdMelange(nb);
+  /* txt porte les nombres dans la CLÉ de distincte() : cleQuestion() écarte
+     tout champ nommé « v » (CLE_HORS), et la valeur de chaque nombre en est
+     un — sans txt, deux questions d'un même niveau avaient la même clé, et
+     la séance pouvait poser deux fois la même (vu au banc, novembre 2026) */
+  return {niv:niv, nb:nb, txt:nb.map(rgcNbStr).join(' ; ')};
 }
 function genRgc(i,n){ return genRgcNiveau(rgcNiveau(i,n)); }
 /* les trois nombres de la question, dans l'ordre affiché — sans lettre :

@@ -59406,7 +59406,13 @@ function premiere(w){
         && (v[1]-v[0]<100 || v[2]-v[1]<100) && N.every(x=>!x.d || x.n*1000===x.v*x.d) && forme[niv](N,v[0],v[1],v[2]);
       if(!ok) horsFiche++;
     }
-    for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
+    /* vingt fois chaque longueur : un doublon passé par distincte() ne se
+       voit qu'au hasard d'un tirage (une première fois vu ainsi) ; et deux
+       questions différentes ont deux clés différentes (cleQuestion écarte
+       tout champ « v », la valeur des nombres) */
+    for(let k=0;k<200;k++){ const a=genRgcNiveau(1+k%5), b=genRgcNiveau(1+k%5);
+      if(rgcTexte(a)!==rgcTexte(b) && cleQuestion(a)===cleQuestion(b)) doublons++; }
+    for(let r=0;r<20;r++) for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
       if(new Set(t.map(q=>rgcTexte(q))).size!==n) doublons++;
       let prec=0; t.forEach(q=>{ if(q.niv<prec) horsFiche++; prec=q.niv; });
       if(n===5 && t.map(q=>q.niv).join('')!=='12345') horsFiche++; }
