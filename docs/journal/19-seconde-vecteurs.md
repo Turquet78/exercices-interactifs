@@ -7122,3 +7122,50 @@ double du dénominateur commun, la somme dans l'autre ordre, le résultat non
 simplifié, l'autre nom du parallélogramme, le produit en croix inversé) ;
 deux dénominateurs différents ; la copie vide ; le soutien ; la reprise d'une
 pause sur la question c ; le contexte du modèle.
+
+### Puis les deux vecteurs au choix, refusés s'ils ne conviennent pas, et le calcul en colonnes (Seconde v713)
+
+**La demande** (Turquet, novembre 2026) : « Pour un parallélogramme l'élève
+doit donner deux vecteurs égaux possibles, et on refuse la proposition si
+elle est fausse. Pour les points alignés, il doit proposer deux vecteurs
+possibles, et on refuse la proposition si elle ne correspond pas au
+problème ; de même pour les droites parallèles. Pour la présentation des
+calculs, je veux que cela reste comme dans les autres exercices, avec des
+vecteurs en colonne, les soustractions dans les colonnes : je ne veux pas
+que l'on calcule séparément les abscisses et les ordonnées. »
+
+**Le choix** (a, b, d) : deux listes de lettres par vecteur (`vpgNomHTML`, le
+geste du 8.4.14), les lettres de tous les points de l'énoncé — une lettre
+étrangère au problème doit pouvoir être proposée, pour être refusée.
+`vdfAvis` dit pourquoi une paire est refusée : a) un sommet qui n'est pas de
+ADBC, deux fois le même vecteur, une diagonale (AB, DC), deux côtés opposés
+dans des sens contraires, deux côtés qui se suivent — la vérité se lit sur
+les coordonnées exactes ; b) un point qui n'est pas D, B ou E, deux vecteurs
+qui relient les MÊMES points (toujours colinéaires : cela ne prouve rien) ;
+d) un vecteur qui n'est ni sur (AF) ni sur (BC), ou deux sur la même droite.
+Une paire juste se fige (`q.vc`), les listes se ferment, le calcul s'ouvre
+avec elle (`vdfCalcMonter`) ; caché jusque-là. Le choix ne compte pas dans
+la note (comme au 8.4.14). En soutien, « Vérifier » sans paire ne juge rien
+et le dit ; en entraînement, la correction se fait avec la paire de la page
+(`VDF_DEF`), et la phrase le dit.
+
+**Le barème suit la paire** (`vdfBareme`) : l'étape du même dénominateur
+dépend des vecteurs (DB⃗, DE⃗ ou BE⃗ n'ont pas les mêmes dénominateurs), donc
+le nombre de cases aussi — `test.maxScore` se recalcule quand une paire se
+fige, et `vdfCases` (la coupe d'un devoir) lit `q.vc`. Et le tirage éprouve
+TOUTES les paires justes (`VDF_PAIRES`, au signe près) : quelle que soit la
+paire, chaque question garde au moins une mise au même dénominateur.
+
+**Les colonnes** (`vdfColBloc`) : le nom, puis « Fin − Début » au-dessus de
+la parenthèse des deux différences (l'abscisse en haut, l'ordonnée en bas),
+puis la parenthèse du même dénominateur — vide sur la ligne qui ne le demande
+pas —, puis celle des résultats. Les trois parenthèses ont les mêmes hauteurs
+de ligne (`vdfRangs`, une ligne à fraction empilée est haute dans les trois) :
+une ligne se lit d'un trait d'une parenthèse à l'autre. La somme CE⃗ + CB⃗ et
+le point (M, N : « x = … + x_C » en haut, y en bas) s'écrivent de même ; le
+système et le produit en croix restent en lignes, comme au 8.4.13.
+
+**Le banc** (`coordonneesDevoirFractions`) : six propositions refusées et
+trois retenues par question (le calcul caché ou ouvert, les listes figées,
+le barème recalculé, le plan qui suit la paire) ; les vecteurs en colonne ;
+« Vérifier » sans paire en soutien.

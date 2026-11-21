@@ -16385,8 +16385,32 @@ function coordonneesDevoirFractions(w, P){
     checkVdf(); clearTimeout(test.fbTimer);
     const q1=test.questions[0], cR=vdfPlan(q1).ch[0];
     if(document.querySelector('#vdfHost .bad') || classe(el('vdf-'+cR.id+'-r'))!=='sol' || !vdfEq(vdfLit(el('vdf-'+cR.id+'-r').value),vdfRes(cR))) vus.push('8.4.15 : la copie vide');
-    /* le soutien : la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
+    /* LE CHOIX DES DEUX VECTEURS (a, b, d) : refusé s'il ne convient pas, le calcul caché ; accepté, figé, le calcul ouvert, le barème suivi */
+    const choisir=function(v){ VDF_SEL.forEach(function(id,i){ const e=el(id); e.value=v[i]; }); vdfChoix(); };
+    const PR={a:{non:['ADDB','ABDC','DAAD','ADAD','AEBC','ADBC'], oui:['DABC','DBAC','BDCA']},
+      b:{non:['DBBD','DADB','DBDB','EEDB'], oui:['BDBE','EDDB','DEBE']}, d:{non:['AFFA','ABBC','AFDB','BCCB'], oui:['FACB','BCAF','AFBC']}};
+    ['a','b','d'].forEach(function(ds,j){
+      PR[ds].non.forEach(function(s){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=[0,1,3][j]; renderVdf();
+        const q=test.questions[test.idx]; choisir(s.split(''));
+        if(q.vc || el('vdfCalc').style.display!=='none' || el('vdfVerif').className.indexOf('bad')<0) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas refusée ('+el('vdfVerif').textContent.slice(0,80)+')');
+      });
+      PR[ds].oui.forEach(function(s){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=[0,1,3][j]; renderVdf();
+        const q=test.questions[test.idx]; choisir(s.split(''));
+        const tot=test.questions.reduce(function(n,qq){ return n+vdfCases(qq).length; },0);
+        if(!q.vc || q.vc.join('')!==s || el('vdfCalc').style.display==='none' || !el('vdf-ux-a') || test.maxScore!==tot || vdfPlan(q).vec.map(function(v){ return v.join(''); }).join('')!==s || !el('vdf-v1a').disabled) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas retenue');
+      });
+    });
+    /* les vecteurs en colonne : les abscisses en haut, les ordonnées en bas, dans les mêmes parenthèses */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const col=document.querySelector('#vdfHost .vdf-col3');
+    if(!col || !col.querySelector('#vdf-ux-a') || !col.querySelector('#vdf-uy-a') || document.querySelector('#vdfHost .vdf-lab')) vus.push('8.4.15 : les vecteurs ne sont pas en colonne');
+    /* le soutien : sans paire, rien ne se juge ; puis la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
     currentMode='soutien'; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    checkVdf(); clearTimeout(test.fbTimer);
+    if(test.locked || el('vdfFeedback').textContent.indexOf('Choisis d’abord')<0) vus.push('8.4.15 : en soutien, Vérifier sans paire choisie');
+    choisir(['A','D','C','B']);
     const q2=test.questions[0], c2=vdfPlan(q2).ch[0];
     set('vdf-'+c2.id+'-a',vdfLatex(c2.t1)); set('vdf-'+c2.id+'-b','\\\\frac{1}{7}');
     checkVdf(); clearTimeout(test.fbTimer);
