@@ -7169,3 +7169,27 @@ système et le produit en croix restent en lignes, comme au 8.4.13.
 trois retenues par question (le calcul caché ou ouvert, les listes figées,
 le barème recalculé, le plan qui suit la paire) ; les vecteurs en colonne ;
 « Vérifier » sans paire en soutien.
+
+### Puis la mise au même dénominateur présentée comme au 5.3 (Seconde v714)
+
+**La demande** (Turquet, novembre 2026) : « on proposera de mettre au même
+dénominateur en présentant les étapes comme dans le 5.3 » — {somme-fractions} :
+chaque fraction multipliée en haut ET en bas par une case (« 3 × [ ] » sur
+« 4 × [ ] »), puis « ([ ] − [ ]) / [ ] » sur le dénominateur commun, puis le
+résultat.
+
+**Deux colonnes au milieu** (`vdfProd`, puis la colonne `sf-somme`) : les
+cases sont celles du 5.3 (`k1a`, `k1b`, `k2a`, `k2b`, `N1`, `N2`, `D` — sept
+par ligne qui le demande), sur les classes de {somme-fractions}. Les nombres
+multipliés ne sont PAS donnés par la page : ce sont ceux que l'élève a écrits
+dans la colonne « Fin − Début », recopiés au fil de la frappe (`vdfMiroirs`,
+un entier sur 1 ; « … » tant que la case est vide ou illisible) — les écrire
+d'avance aurait donné la réponse de la première colonne.
+
+**Le juge** (`vdfJugeCh`) : le dénominateur commun reste libre (tout multiple
+commun), pourvu que les deux fractions y arrivent ; un multiplicateur du bas
+se juge sur ce qu'il donne, celui du haut sur celui du bas (« le même nombre
+en haut et en bas »), les numérateurs et le dénominateur sur le dénominateur
+commun retenu. Le banc éprouve la route par 2 × le plus petit, deux
+dénominateurs différents (le second rougit), un multiplicateur du haut
+différent de celui du bas (lui seul rougit), et la recopie dans les produits.
