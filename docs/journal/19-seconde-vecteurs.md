@@ -7056,3 +7056,69 @@ CB⃗ ouvrent le calcul qui les nomme ; leur reprise après JSON ; la copie just
 sur ces vecteurs. `coordonneesColineaires` — les quatre mots, « Placer A » ;
 « ne sont pas égaux » sur des droites parallèles et « sont colinéaires » sur
 un parallélogramme comptés faux, avec « ne permet pas de conclure ».
+
+## {coordonnees-vecteur-devoir-fractions} — le devoir sans dessin, aux coordonnées fractionnaires, l'étape du même dénominateur (8.4.15, Seconde v712)
+
+**La demande** (Turquet, novembre 2026) : « en seconde faire un exercice
+comme le 8.4.14, sans le schéma, donc sans vecteur à tracer, mais avec des
+fractions simples dans certaines coordonnées pour que dans chaque question il
+y ait au moins une fois une addition ou une soustraction avec au moins une
+fraction et donc une mise au même dénominateur à faire. On mettra une étape
+supplémentaire pour que l'élève puisse mettre au même dénominateur avant de
+donner le résultat. »
+
+**Lu ainsi** : plus de repère du tout. Des points à coordonnées
+fractionnaires ne tombent pas sur un nœud — il n'y aurait rien à placer, et
+le seul geste qui restait au 8.4.14 (le schéma du c, les vecteurs tracés)
+est celui que la demande retire. Les cinq questions restent celles du
+devoir, sur les mêmes points : a) ADBC parallélogramme (AD⃗ = CB⃗, le nom et
+la nature) ; b) D, B, E alignés (DB⃗, DE⃗, le produit en croix) ; c) M pour
+ABCM (BA⃗ = CM⃗ : le système x − x_C = …, puis x = … + x_C) ; d) (AF) ∥ (BC),
+F fractionnaire ; e) N tel que AN⃗ = CE⃗ + CB⃗ (CE⃗, CB⃗, leur somme, le
+système, puis x et y). Le « placer N » du e) disparaît avec le repère.
+
+**Un seul moteur, un seul écran** (« vdf ») : les moteurs du 8.4.14 vivent
+de leurs gestes (vcl, vqs, vsm), et leurs cases lisent des entiers ou des
+décimaux (`vcdCase`). Ici tout est calcul, en cases MathLive (`pmMF`) : la
+touche / pose le trait, et la reprise d'une pause rend la fraction empilée.
+
+**Une chaîne par coordonnée** (`vdfPlan`) :
+« [fin] − [début] = [r] », et, quand une fraction s'y trouve ET que les deux
+dénominateurs diffèrent (un entier a le dénominateur 1), l'étape du milieu :
+les deux termes réécrits en deux fractions empilées, numérateur et
+dénominateur dans des cases (`.f-frac-input`, la forme des exercices de
+fractions), la seconde entre parenthèses quand elle est négative. Deux
+termes déjà sur le même dénominateur (7/3 − 1/3) n'ont pas d'étape : elle
+ne dirait rien. Le juge (`vdfJugeCh`) : le dénominateur commun est LIBRE —
+tout multiple commun est juste, pourvu que les deux soient le même ; deux
+dénominateurs différents rougissent le second, et le message dit « le MÊME
+dénominateur » ; chaque numérateur se juge sur SON dénominateur. Le résultat
+se lit en valeur (« 4/2 » vaut 2) ; une somme se lit dans les deux ordres (le
+système, la somme de deux vecteurs) ; le produit en croix garde la liberté du
+8.4.13 (`vdfCroixAttendu`). Les nombres sont des rationnels exacts
+(`vdfQ`, [n, d]) — jamais un flottant arrondi.
+
+**Le tirage** (`vdfGen`, `vdfConvient`) : A, B, C entre −4 et 4, entiers ou
+fractions d'une même famille de dénominateurs (2 et 4, ou 2 et 3 : le
+dénominateur commun ne dépasse jamais 6) ; D = A + B − C, E = D + k DB⃗,
+M = A + C − B, N = A + CE⃗ + CB⃗, F = A + k′ BC⃗. Tous les points entre −6 et 6,
+de dénominateur 4 au plus ; deux à quatre fractions parmi les six coordonnées
+de A, B, C ; aucune coordonnée de vecteur nulle ; ADBC non aplati, F hors de
+(BC) ; et CHAQUE QUESTION a au moins une chaîne à l'étape du même
+dénominateur — la demande, tenue par le tirage et par le banc. 18 ms par
+tirage en moyenne ; une figure de secours qui convient (le banc la relit).
+Une question ne range que sa partie (`q.ds`) et les points (`q.Z`).
+
+**Le barème** : chaque case compte (23 à 48 par question selon le tirage),
+`vdfCases` pour la coupe d'un devoir. Le bouton des tables reste : on
+multiplie.
+
+**Le banc principal** (`coordonneesDevoirFractions`) : la place, le rappel ;
+la lecture de ce que l'élève tape (`\frac`, « -(3)/(4) », « (−6/2) »,
+« 1,5 ») ; deux cents devoirs (la géométrie des cinq questions, les fractions
+de A, B, C, une étape par question, le dénominateur commun ≤ 6, du JSON) ;
+la copie juste de a) à e), une question sur deux par d'autres routes (le
+double du dénominateur commun, la somme dans l'autre ordre, le résultat non
+simplifié, l'autre nom du parallélogramme, le produit en croix inversé) ;
+deux dénominateurs différents ; la copie vide ; le soutien ; la reprise d'une
+pause sur la question c ; le contexte du modèle.
