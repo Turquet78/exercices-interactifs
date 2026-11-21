@@ -1383,3 +1383,23 @@ le tirage garde un pentagone sur deux. **Vérifié** : 3 000 tirages — 1 478
 pentagones, 1 522 hexagones, épaisseur minimale tirée 62,6 ; trente séances
 du 7.1.13 dans le désordre menées au bout. Les figures déjà tirées (une pause)
 restent jouables : `esxCfg` ne refiltre pas.
+
+**Puis la parallèle se règle sur une DROITE qui porte un morceau pas encore
+tracé (Turquet, novembre 2026, v512 : « pour tracer une parallèle, quand un
+élève sélectionne une droite correspondant à un segment rouge qui n'est pas
+encore tracé, accepter cette droite pour tracer la droite et/ou le segment
+rouge parallèle passant par un point de la section »).** La référence de
+« Segment rouge parallèle » n'est plus seulement un segment rouge : un trait
+qui n'est pas rouge — une droite, un segment gris — est accepté s'il porte un
+morceau de la section (`esxCfg(q).morceaux`, les deux bouts du morceau sur la
+droite du trait). La face et la direction se lisent alors sur ce morceau, qui
+n'a pas besoin d'être tracé ; la suite est celle d'avant — segment rouge sur
+la face opposée, ou droite et segment par un point hors du cube. Un trait qui
+ne porte aucun morceau est refusé : « (AG) ne porte aucun morceau de la
+section : choisis un segment rouge, ou une droite qui contient un morceau de
+la section. » L'aide de l'outil et le message après le choix du point le
+disent. Au 7.1.13, rien ne change pour le juge : l'étape ne regarde que le
+segment tracé. **Vérifié** dans Chromium sur six figures du 7.1.12 : (IJ) ou
+(KM) tracée en droite, [IJ] ou [KM] pas tracé, la parallèle par le point
+de la face opposée sort en segment rouge ; (AG) refusée. Aucun banc ne couvre
+encore les sections du cube.
