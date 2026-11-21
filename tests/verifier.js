@@ -59356,22 +59356,38 @@ function premiere(w){
   verifier('{valeur-approchee} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde l’ordre de la fiche', vapOrdre === 0, vapOrdre + ' écarts');
   verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
 
-  /* {ranger-croissant} (1.15) : les CINQ lignes de la fiche « Ranger dans
-     l'ordre croissant » de Turquet (novembre 2026), avec ses nombres et dans
-     son ordre ; une case reçoit un nombre décimal ou une fraction égale —
+  /* {ranger-croissant} (1.15) : les CINQ niveaux de la fiche « Ranger dans
+     l'ordre croissant » de Turquet (novembre 2026), dans son ordre, avec des
+     nombres TIRÉS — chaque niveau garde la forme de sa ligne, trois nombres
+     distincts strictement entre 0 et 1, deux au moins à moins de 0,1 l'un de
+     l'autre (3 000 tirages par niveau) ; une séance mise en pause avant le
+     tirage (q.f) se relit encore ; une case reçoit un nombre décimal ou une fraction égale —
      0,40 vaut 0,4, 4/10 vaut 2/5 —, une lettre ou un calcul ne valent rien
      (le rangement accepte la fraction depuis novembre 2026) ; une séance de 1 à DM_NBQ_MAX
      questions ne pose jamais deux fois la même. */
   const rgcR = w.eval(`(function(){
-    const FICHE=['0,2;0,1;0,18|0,1<0,18<0,2','0,6;0,5;0,09|0,09<0,5<0,6','0,08;0,81;0,8|0,08<0,8<0,81',
-                 '2/5;0,39;3/10|0,3<0,39<0,4','1/4;0,29;3/10|0,25<0,29<0,3'];
     let horsFiche=0, doublons=0, juge=0;
-    const qs=distinctes(5,function(_,i){ return genRgc(i,5); });
-    qs.forEach((q,i)=>{ const s=rgcNombres(q).map(rgcNbStr).join(';')+'|'+rgcReponse(q).replace(/ /g,'');
-      if(s!==FICHE[i]) horsFiche++; });
+    /* la forme de chaque niveau, sur les valeurs rangées a < b < c (millièmes) */
+    const deux=v=>v%100!==0 && v%10===0, dix=v=>v%100===0;
+    const forme={
+      1:(N,a,b,c)=>!N.some(x=>x.d) && dix(a)&&dix(c)&&c-a===100&&deux(b),
+      2:(N,a,b,c)=>!N.some(x=>x.d) && a<100&&dix(b)&&deux(c)&&c-b<100&&a/10>b/100,
+      3:(N,a,b,c)=>!N.some(x=>x.d) && a<100&&dix(b)&&deux(c)&&c-b<100&&a/10===b/100,
+      4:(N,a,b,c)=>N.filter(x=>x.d===10||x.d===5||x.d===2).length===2 && dix(a)&&dix(c)&&c-a===100&&deux(b)&&!N.find(x=>x.v===b).d,
+      5:(N,a,b,c)=>N.filter(x=>x.d===4).length===1 && N.filter(x=>x.d&&x.d!==4).length===1 && !N.find(x=>x.v===b).d && deux(b) && c-a===50
+    };
+    for(let niv=1;niv<=5;niv++) for(let k=0;k<3000;k++){
+      const q=genRgcNiveau(niv), N=rgcNombres(q), v=N.map(x=>x.v).sort((x,y)=>x-y);
+      const ok=q.niv===niv && N.length===3 && v[0]>0 && v[2]<1000 && v[0]<v[1] && v[1]<v[2]
+        && (v[1]-v[0]<100 || v[2]-v[1]<100) && N.every(x=>!x.d || x.n*1000===x.v*x.d) && forme[niv](N,v[0],v[1],v[2]);
+      if(!ok) horsFiche++;
+    }
     for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
       if(new Set(t.map(q=>rgcTexte(q))).size!==n) doublons++;
-      let prec=-1; if(n<=5) t.forEach(q=>{ if(q.f<prec) horsFiche++; prec=q.f; }); }
+      let prec=0; t.forEach(q=>{ if(q.niv<prec) horsFiche++; prec=q.niv; });
+      if(n===5 && t.map(q=>q.niv).join('')!=='12345') horsFiche++; }
+    /* une séance mise en pause avant le tirage se relit avec les nombres de la fiche */
+    if(rgcTexte({f:3,p:0})!=='2/5 ; 0,39 ; 3/10') horsFiche++;
     [['0,4',400,true],['0,40',400,true],['0.4',400,true],['0,04',400,false],['2/5',400,true],['4/10',400,true],['1/4',400,false],['3/10',300,true],['A',400,false],['2+2',400,false],['',400,false],['0,25',250,true],['0,3',300,true]]
       .forEach(c=>{ const s=String(c[0]).replace(/\\./g,','); if(rgcVaut(s,c[1])!==c[2]) juge++; });
     /* le coup de pouce : chaque fraction en décimal, puis les zéros ajoutés */
@@ -59383,7 +59399,7 @@ function premiere(w){
     return horsFiche+'|'+doublons+'|'+juge+'|'+pouce;
   })()`);
   const [rgcFiche, rgcDoublons, rgcJuge, rgcPouce] = rgcR.split('|').map(Number);
-  verifier('{ranger-croissant} : la séance suit les cinq lignes de la fiche, avec ses nombres et dans son ordre', rgcFiche === 0, rgcFiche + ' écarts');
+  verifier('{ranger-croissant} : cinq niveaux dans l’ordre de la fiche, nombres tirés entre 0 et 1, deux au moins à moins d’un dixième (3 000 tirages par niveau)', rgcFiche === 0, rgcFiche + ' écarts');
   verifier('{ranger-croissant} : une séance de 1 à DM_NBQ_MAX questions ne pose jamais deux fois la même', rgcDoublons === 0, rgcDoublons + ' séances avec un doublon');
   verifier('{ranger-croissant} : le coup de pouce écrit les fractions en décimal et ajoute les zéros (0,4 = 0,40 ; 0,3 = 0,30)', rgcPouce === 0, rgcPouce + ' écritures manquantes');
   verifier('{ranger-croissant} : une case vaut un nombre décimal (0,40 = 0,4) ou une fraction égale (2/5 = 4/10), jamais une lettre ni un calcul', rgcJuge === 0, rgcJuge + ' jugements faux');
