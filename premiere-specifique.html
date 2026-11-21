@@ -1780,6 +1780,7 @@ i.pb-P{margin-right:.14em}
   .isd-in.sol{background:var(--green-soft);color:var(--green);border-color:var(--green)}
   .isd-in:disabled{opacity:1;-webkit-text-fill-color:currentColor}
   .isd-cor{margin-left:4px;font-size:.8em}
+  .isd-plus{margin-right:4px}
   .isd-mir{display:inline-block;min-width:2.6em;text-align:center;color:var(--blue-dark)}
   .isd-mir.isd-vide{color:var(--ink-soft)}
   .isd-carres{display:flex;flex-direction:column;align-items:center;gap:18px;font-family:"Fredoka";font-weight:600;font-size:1.35rem;color:var(--blue-dark);margin:6px 0}
@@ -3794,7 +3795,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
       <span class="score-tag"><span class="score-lbl">Exercices parfaits</span>&nbsp;<b id="isdLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="mp-instr" id="isdPrompt">Calcule l&rsquo;image d&rsquo;un nombre par une fonction du second degr&eacute;. Les fl&egrave;ches montrent o&ugrave; va chaque terme de <i>f</i>&nbsp;(<i>x</i>)&nbsp;: on remplace <i>x</i> par le nombre, entre parenth&egrave;ses. Sous chaque accolade, &eacute;cris la valeur du terme, avec son signe, puis le r&eacute;sultat. Un terme recopi&eacute; sur la ligne du dessous s&rsquo;y &eacute;crit tout seul.</p>
+      <p class="mp-instr" id="isdPrompt">Calcule l&rsquo;image d&rsquo;un nombre par une fonction du second degr&eacute;. Les fl&egrave;ches montrent o&ugrave; va chaque terme de <i>f</i>&nbsp;(<i>x</i>)&nbsp;: on remplace <i>x</i> par le nombre, entre parenth&egrave;ses. Sous chaque accolade, &eacute;cris la valeur du terme &mdash; quand elle est positive, le signe <b>+</b> est d&eacute;j&agrave; &eacute;crit devant la case &mdash;, puis le r&eacute;sultat. Un terme recopi&eacute; sur la ligne du dessous s&rsquo;y &eacute;crit tout seul.</p>
       <div class="mp-stage"><div style="width:100%" id="isdHost"></div></div>
       <div class="mp-feedback" id="isdFeedback" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -4133,7 +4134,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=448;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=449;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -20077,8 +20078,15 @@ function ctxTsc(q){
    ils recopient la case du dessus à chaque frappe, ne se notent pas et ne se
    réclament pas. Seule la case du produit a × 1 est à écrire.
 
-   LE TERME QUI EN SUIT UN AUTRE GARDE SON SIGNE (la règle du 5.2) : « +3 »,
-   « −1 » ; « 3 » au milieu de la ligne est jugé faux, et le pourquoi le dit. */
+   LE « + » D'UN TERME POSITIF EST ÉCRIT PAR LA PAGE (demande de Turquet,
+   novembre 2026 : « quand une case représente le résultat d'un calcul de la
+   ligne du dessus et que c'est un terme d'une somme, si le nombre est positif
+   mettre le signe + devant cette case si elle n'est pas au début de
+   l'expression »). Les cases du second terme et du terme constant (et leurs
+   miroirs) portent donc un « + » imprimé devant elles quand leur valeur est
+   positive ; l'élève y écrit « 3 » (« +3 » est accepté). Une valeur négative
+   n'a rien devant sa case : l'élève écrit « −2 ». La première case d'une
+   ligne (le carré, le produit, le résultat) n'a jamais de signe imprimé. */
 const ISD_FICHE=[
   {t:'carres'},
   {t:'img', a:1, b:3, c:-1, x:1},
@@ -20104,8 +20112,8 @@ function isdCases(q){
     {id:'isd-p1', v:q.x, role:'par'},
     {id:'isd-p2', v:q.x, role:'par'},
     {id:'isd-s1', v:sq, role:'sq'},
-    {id:'isd-s2', v:q.b*q.x, role:'bx', sg:true},
-    {id:'isd-s3', v:q.c, role:'c', sg:true}];
+    {id:'isd-s2', v:q.b*q.x, role:'bx'},
+    {id:'isd-s3', v:q.c, role:'c'}];
   if(q.a!==1) cs.push({id:'isd-q1', v:q.a*sq, role:'ax'});
   cs.push({id:'isd-r', v:q.a*sq+q.b*q.x+q.c, role:'r'});
   return cs;
@@ -20119,11 +20127,14 @@ function isdLit(v){
 }
 function isdJuste(c, el){
   if(!el) return false;
-  const lu=isdLit(el.value); if(!lu || lu.v!==c.v) return false;
-  return !c.sg || lu.signe || c.v===0;
+  const lu=isdLit(el.value); return !!lu && lu.v===c.v;
 }
-/* La bonne réponse, telle qu'elle s'écrit dans la case */
-function isdBon(c){ return c.sg ? isdSg(c.v) : isdN(c.v); }
+/* La bonne réponse, telle qu'elle s'écrit dans la case : le « + » d'un terme
+   positif est déjà imprimé devant elle */
+function isdBon(c){ return isdN(c.v); }
+/* le « + » imprimé devant la case (ou le miroir) d'un terme positif qui n'est
+   pas en tête de ligne */
+function isdPlus(v){ return v>0 ? '<span class="isd-plus">+</span>' : ''; }
 function isdCase(id, aria){
   return '<input class="isd-in" id="'+id+'" type="text" inputmode="numeric" data-pave-plus="+" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+aria+'">';
 }
@@ -20148,15 +20159,17 @@ function isdSchema(q){
       ['<span id="isd-g2">'+isdS(q.b)+' × <span id="isd-g2p">('+isdCase('isd-p2','le nombre qui remplace x dans '+isdN(q.b)+'x')+')</span></span>'],
       ['<span id="isd-g3">'+isdS(q.c)+'</span>']]);
   const s1=isdCase('isd-s1', 'la valeur du carré');
+  const vb=q.b*q.x, s2=isdPlus(vb)+isdCase('isd-s2', vb>0 ? 'le second terme, sans son signe +, déjà écrit' : 'le second terme, avec son signe'),
+        s3=isdPlus(q.c)+isdCase('isd-s3', q.c>0 ? 'le terme constant, sans son signe +, déjà écrit' : 'le terme constant, avec son signe');
   if(q.a===1){
     h+=ligne('isd-l4', [['','isd-lab'],['=','isd-nom'],[s1],
-        [isdCase('isd-s2','le second terme, avec son signe')],[isdCase('isd-s3','le terme constant, avec son signe')]]);
+        [s2],[s3]]);
   } else {
     acc.push('isd-g4');
     h+=ligne('isd-l4 isd-acc', [['','isd-lab'],['=','isd-nom'],['<span id="isd-g4">'+isdN(q.a)+' × '+s1+'</span>'],
-        [isdCase('isd-s2','le second terme, avec son signe')],[isdCase('isd-s3','le terme constant, avec son signe')]]);
+        [s2],[s3]]);
     h+=ligne('isd-l5', [['','isd-lab'],['=','isd-nom'],[isdCase('isd-q1','le produit '+isdN(q.a)+' fois le carré')],
-        [isdMir('isd-s2')],[isdMir('isd-s3')]]);
+        [isdPlus(vb)+isdMir('isd-s2')],[isdPlus(q.c)+isdMir('isd-s3')]]);
   }
   h+=ligne('isd-l6', [['','isd-lab'],['=','isd-nom'],[isdCase('isd-r','l’image de '+ax)],[''],['']]);
   return '<div class="isd-schema" data-fl=\''+JSON.stringify(fl)+'\' data-acc=\''+JSON.stringify(acc)+'\'>'
@@ -20221,7 +20234,7 @@ function renderIsdTest(){
   $('isdActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdAnswer()">Vérifier</button>';
   const h=q.t==='carres'
     ? '<p class="isd-consigne">Calcule chaque carré.</p>'+isdCarresHTML()
-    : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+(q.a===1?'':(q.a===-1?'−':isdN(q.a)))+'<i>x</i>² '+isdS(q.b)+'<i>x</i> '+isdS(q.c)+'. Calcule l’image de <b>'+isdN(q.x)+'</b> en suivant les flèches et les accolades. Un terme qui en suit un autre garde son signe : <b>+3</b>, <b>−1</b>.</p>'
+    : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+(q.a===1?'':(q.a===-1?'−':isdN(q.a)))+'<i>x</i>² '+isdS(q.b)+'<i>x</i> '+isdS(q.c)+'. Calcule l’image de <b>'+isdN(q.x)+'</b> en suivant les flèches et les accolades. Quand un terme est positif, son signe <b>+</b> est déjà écrit devant sa case&nbsp;; un terme négatif s’écrit avec son signe&nbsp;: <b>−1</b>.</p>'
       +'<div class="isd-page">'+isdSchema(q)+'</div>';
   $('isdHost').innerHTML=h;
   isdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
@@ -20256,12 +20269,11 @@ function isdPourquoi(q, subs){
   if(!f) return '';
   const c=f.c, lu=isdLit(f.el.value);
   if(c.role==='carre') return c.x<0 ? '(−1)² = (−1) × (−1) = 1 : moins par moins donne plus, un carré n’est jamais négatif.' : '1² = 1 × 1 = 1.';
-  if(lu && lu.v===c.v && c.sg && !lu.signe) return 'Le nombre est juste, mais ce terme en suit un autre : il garde son signe, '+isdBon(c)+'.';
   const ax=isdN(q.x), pa='('+ax+')';
   if(c.role==='par') return 'Pour calculer f('+ax+'), on remplace x par '+ax+' partout : on écrit '+ax+' dans chaque parenthèse.';
   if(c.role==='sq') return pa+'² = '+pa+' × '+pa+' = '+(q.x*q.x)+(q.x<0?' : moins par moins donne plus.':'.');
-  if(c.role==='bx') return isdN(q.b)+' × '+pa+' = '+isdN(q.b*q.x)+' : la règle des signes'+(q.b*q.x>0?', et le terme s’écrit avec son signe : '+isdSg(q.b*q.x):'')+'.';
-  if(c.role==='c') return 'Le terme constant se recopie avec son signe : '+isdSg(q.c)+'.';
+  if(c.role==='bx') return isdN(q.b)+' × '+pa+' = '+isdN(q.b*q.x)+' : la règle des signes'+(q.b*q.x>0?' ; le + est déjà écrit devant la case, il reste '+(q.b*q.x):'')+'.';
+  if(c.role==='c') return 'Le terme constant se recopie'+(q.c>0?' : le + est déjà écrit devant la case, il reste '+q.c:' avec son signe : '+isdN(q.c))+'.';
   if(c.role==='ax') return isdN(q.a)+' × '+(q.x*q.x)+' = '+isdN(q.a*q.x*q.x)+'.';
   const t1=q.a*q.x*q.x, t2=q.b*q.x;
   return 'On calcule la somme de la ligne du dessus : '+isdN(t1)+' '+isdS(t2)+' '+isdS(q.c)+' = '+isdN(t1+t2+q.c)+'.';
@@ -20317,7 +20329,7 @@ function ctxIsd(q){
   if(q.t==='carres') c='L’élève calcule 1² = 1 × 1 et (−1)² = (−1) × (−1), en échauffement. Réponses attendues, STRICTEMENT SECRÈTES : 1 et 1.';
   else {
     const sq=q.x*q.x, t1=q.a*sq, t2=q.b*q.x;
-    c='L’élève calcule l’image de '+isdN(q.x)+' par f(x) = '+isdF(q)+', sur un schéma : des flèches descendent de chaque terme de f(x) vers sa place dans f('+isdN(q.x)+'), où il écrit '+isdN(q.x)+' dans chaque parenthèse ; sous chaque accolade, il écrit la valeur du terme (le carré'+(q.a!==1?', puis '+isdN(q.a)+' × le carré':'')+', le produit '+isdN(q.b)+' × ('+isdN(q.x)+') avec son signe, le terme constant avec son signe), puis le résultat. '
+    c='L’élève calcule l’image de '+isdN(q.x)+' par f(x) = '+isdF(q)+', sur un schéma : des flèches descendent de chaque terme de f(x) vers sa place dans f('+isdN(q.x)+'), où il écrit '+isdN(q.x)+' dans chaque parenthèse ; sous chaque accolade, il écrit la valeur du terme (le carré'+(q.a!==1?', puis '+isdN(q.a)+' × le carré':'')+', le produit '+isdN(q.b)+' × ('+isdN(q.x)+'), le terme constant), puis le résultat. Devant la case d’un terme positif qui n’est pas en tête de ligne, le signe + est DÉJÀ imprimé : l’élève y écrit le nombre seul ; un terme négatif s’écrit avec son −. '
       +'Réponses attendues, STRICTEMENT SECRÈTES : ('+isdN(q.x)+')² = '+sq+(q.a!==1?' ; '+isdN(q.a)+' × '+sq+' = '+isdN(t1):'')+' ; '+isdN(q.b)+' × ('+isdN(q.x)+') = '+isdSg(t2)+' ; '+isdSg(q.c)+' ; f('+isdN(q.x)+') = '+isdN(t1+t2+q.c)+'. '
       +'Méthode : remplacer x par le nombre, entre parenthèses ; le carré se calcule avant de multiplier par le coefficient ; un carré n’est jamais négatif ; chaque terme garde son signe.';
   }
