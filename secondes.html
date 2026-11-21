@@ -3311,10 +3311,33 @@
   #vdfHost .vcm-l{font-size:1.5rem}
   #vdfHost .vdf-lab i{font-size:1.5rem}
   #vdfHost .vdf-sys{grid-template-columns:auto auto auto auto}
+  /* les colonnes : trois parenthèses aux mêmes hauteurs de ligne (vdfRangs) */
+  #vdfHost{--vdf-hb:3.2rem;--vdf-hh:7rem}
+  #vdfHost .vdf-calc-in{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+  #vdfHost .vdf-ligne-c{display:flex;justify-content:center;margin:4px 0 6px}
+  #vdfHost .vdf-cbloc{display:inline-flex;align-items:center;gap:8px;flex-wrap:nowrap}
+  #vdfHost .vdf-cnom{font-family:"Fredoka";font-weight:600;font-size:1.5rem;display:inline-flex;align-items:center;gap:4px}
+  #vdfHost .vdf-cnom .vgt-vec{font-size:1em}
+  #vdfHost .vdf-cdiff{position:relative;display:inline-flex}
+  #vdfHost .vdf-ctete{position:absolute;bottom:100%;left:0;right:0;display:grid;grid-template-columns:1fr auto 1fr;justify-items:center;align-items:end;font-size:.8rem;padding:0 10px 2px}
+  #vdfHost .vdf-ligne-c:has(.vdf-ctete){margin-top:22px}
+  #vdfHost .vdf-col{display:grid;align-items:center;justify-items:center;column-gap:6px;row-gap:10px;padding:6px 12px;flex-direction:initial}
+  #vdfHost .vdf-col3{grid-template-columns:auto auto auto}
+  #vdfHost .vdf-col1{grid-template-columns:auto}
+  #vdfHost .vdf-somnom{display:inline-flex;align-items:center;gap:4px}
+  #vdfHost .vdf-choix{max-width:none;margin:0 auto}
+  #vdfHost{--vdf-hh:7.6rem}
+  #vdfHost .sf-prod .sf-l{gap:4px}
+  #vdfHost math-field.vdf-k{width:2.2em;min-width:0}
+  #vdfHost .sf-somme .sf-haut{gap:6px}
+  #vdfHost .sf-somme math-field.f-num{width:2.8em}
+  #vdfHost .vdf-mir{font-family:"Fredoka";font-weight:500;font-size:1.6rem;color:var(--ink);min-width:1.2em;text-align:center}
+  #vdfHost #vdfVerif{text-align:center;margin:4px auto 6px;max-width:640px}
+  #vdfHost .vdf-choix .vpg-vn .vcd-c .mf-cor{top:100%;left:50%;transform:translate(-50%,.25em)}
   #vdfHost .vdf-sysr{display:contents}
   #vdfHost .vcm-sys-ligne{display:flex;justify-content:flex-start;padding-left:9.5em}
   @media (max-width:640px){ #vdfHost .vdf-lab{min-width:0;width:100%} #vdfHost .vcm-sys-ligne{padding-left:0}
-    #vdfHost math-field.pm-mf{font-size:1.3rem} }
+    #vdfHost math-field.pm-mf{font-size:1.3rem} #vdfHost{--vdf-hb:2.7rem;--vdf-hh:6rem} #vdfHost .vdf-cbloc{flex-wrap:wrap;justify-content:center} }
   #vclGraph .vsm-k{stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
   #vclGraph .vcm-et text{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;stroke:none}
   #vclGraph .vcm-et line{stroke-width:1.4}
@@ -9599,7 +9622,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=713;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=714;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -14187,7 +14210,8 @@ const RAP_VDF=`<b>Le devoir sans dessin : des fractions dans les coordonnées</b
 <b>① Fin − début</b> : les coordonnées de <span class="vgt-vec">AB</span> sont (<i>x</i><sub>B</sub> − <i>x</i><sub>A</sub> ; <i>y</i><sub>B</sub> − <i>y</i><sub>A</sub>). Soustraire un nombre négatif, c'est ajouter son opposé.<br>
 <b>② Le même dénominateur</b> : pour ajouter ou soustraire deux fractions, on les écrit d'abord sur le MÊME dénominateur, en multipliant le numérateur ET le dénominateur par le même nombre ; un entier s'écrit aussi en fraction : <span class="kv-co">3 = <span class="sf-f"><span class="n">6</span><span class="bar"></span><span class="sf-lu">/</span><span class="d">2</span></span></span>. Puis on ajoute (ou on soustrait) les numérateurs, et on garde le dénominateur : <span class="kv-co"><span class="sf-f"><span class="n">1</span><span class="bar"></span><span class="sf-lu">/</span><span class="d">2</span></span> − (−3) = <span class="sf-f"><span class="n">1</span><span class="bar"></span><span class="sf-lu">/</span><span class="d">2</span></span> − (<span class="sf-f"><span class="n">−6</span><span class="bar"></span><span class="sf-lu">/</span><span class="d">2</span></span>) = <span class="sf-f"><span class="n">7</span><span class="bar"></span><span class="sf-lu">/</span><span class="d">2</span></span></span>.<br>
 <b>③ Un produit de fractions</b> : on multiplie les numérateurs entre eux et les dénominateurs entre eux ; <span class="vgt-vec">u</span> (<i>x</i> ; <i>y</i>) et <span class="vgt-vec">v</span> (<i>x</i>′ ; <i>y</i>′) sont colinéaires quand <i>x</i> × <i>y</i>′ = <i>y</i> × <i>x</i>′.<br>
-<b>④ Les cinq questions</b> : a) <span class="vgt-vec">AD</span> = <span class="vgt-vec">CB</span>, donc ADBC est un parallélogramme ; b) <span class="vgt-vec">DB</span> et <span class="vgt-vec">DE</span> colinéaires, donc D, B, E alignés ; c) <span class="vgt-vec">CM</span> = <span class="vgt-vec">BA</span> : <i>x</i> − <i>x</i><sub>C</sub> = …, donc <i>x</i> = … + <i>x</i><sub>C</sub> ; d) <span class="vgt-vec">AF</span> et <span class="vgt-vec">BC</span> colinéaires, donc (AF) et (BC) parallèles ; e) <span class="vgt-vec">AN</span> = <span class="vgt-vec">CE</span> + <span class="vgt-vec">CB</span> : on ajoute les coordonnées des deux vecteurs, puis <i>x</i> − <i>x</i><sub>A</sub> = …`;
+<b>④ Deux vecteurs au choix</b> (a, b, d) : on propose deux vecteurs ; une proposition qui ne convient pas est refusée — a) deux vecteurs ÉGAUX sur ADBC (deux côtés qui se font face, dans le même sens) ; b) deux vecteurs qui relient deux des points D, B, E, pas deux fois les mêmes points ; d) un vecteur qui relie A et F, l'autre B et C.<br>
+<b>⑤ Les cinq questions</b> : a) <span class="vgt-vec">AD</span> = <span class="vgt-vec">CB</span>, donc ADBC est un parallélogramme ; b) <span class="vgt-vec">DB</span> et <span class="vgt-vec">DE</span> colinéaires, donc D, B, E alignés ; c) <span class="vgt-vec">CM</span> = <span class="vgt-vec">BA</span> : <i>x</i> − <i>x</i><sub>C</sub> = …, donc <i>x</i> = … + <i>x</i><sub>C</sub> ; d) <span class="vgt-vec">AF</span> et <span class="vgt-vec">BC</span> colinéaires, donc (AF) et (BC) parallèles ; e) <span class="vgt-vec">AN</span> = <span class="vgt-vec">CE</span> + <span class="vgt-vec">CB</span> : on ajoute les coordonnées des deux vecteurs, puis <i>x</i> − <i>x</i><sub>A</sub> = …`;
 /* 8.4.11 {coordonnees-vecteur-somme} */
 const RAP_VSM=`<b>Le point d'une somme de vecteurs, construit puis calculé</b><br>
 <b>① Construire</b> : pour placer M tel que <span class="vgt-vec">DM</span> = <span class="vgt-vec">BC</span> + <span class="vgt-vec">BA</span>, on part de D, on fait le chemin <span class="vgt-vec">BC</span>, puis le chemin <span class="vgt-vec">BA</span> : les vecteurs bout à bout, un début va sur une fin. M est au bout.<br>
@@ -74301,12 +74325,73 @@ function vdfSomCh(Z,u,v,cle){ const c=['abscisse','ordonnée'];
 /* x = r + x_C (le système résolu) */
 function vdfSysCh(Z,R,P,cle){ return [0,1].map(function(i){ return {id:cle+(i?'y':'x'), t1:R[i], op:'+', t2:Z[P][i], lab:(i?'y':'x'), som:1, sys:1}; }); }
 function vdfVec(Z,P,Q){ return vdfPSub(Z[Q],Z[P]); }
+/* LES DEUX VECTEURS AU CHOIX DE L'ÉLÈVE (a, b, d ; demande de Turquet,
+   novembre 2026 : « pour un parallélogramme l'élève doit donner deux vecteurs
+   égaux possibles, et on refuse la proposition si elle est fausse ; pour les
+   points alignés, deux vecteurs possibles, refusés s'ils ne correspondent pas
+   au problème ; de même pour les droites parallèles »). Deux listes de lettres
+   par vecteur (vpgNomHTML, le geste du 8.4.14) ; le calcul ne s'ouvre que sur
+   une paire qui convient, et se fait avec elle (q.vc, figée) ; une paire qui
+   ne convient pas est refusée, et la phrase dit pourquoi. a) deux vecteurs
+   ÉGAUX sur ADBC (AD⃗ = CB⃗, DB⃗ = AC⃗ et leurs opposés) ; b) deux vecteurs qui
+   relient deux des points D, B, E, pas deux fois les mêmes points ; d) un
+   vecteur qui relie A et F, l'autre B et C. Le choix ne compte pas dans la
+   note (comme au 8.4.14) ; le barème suit la paire choisie (test.maxScore
+   recalculé : l'étape du même dénominateur dépend des vecteurs). Sans paire
+   juste à la vérification, la correction se fait avec la paire de la page. */
+const VDF_DEF={a:['AD','CB'], b:['DB','DE'], d:['AF','BC']};
+const VDF_SEL=['vdf-v1a','vdf-v1b','vdf-v2a','vdf-v2b'];
+function vdfChoisit(q){ return !!q&&(q.ds==='a'||q.ds==='b'||q.ds==='d'); }
+function vdfNoms(q){ return q.vc?q.vc.slice():VDF_DEF[q.ds].slice(); }
+function vdfLettres(q){ return q.ds==='d'?['A','B','C','D','E','F']:['A','B','C','D','E']; }
+/* ce que disent les listes (ou, rangé, q.vs) */
+function vdfLus(q){
+  if(q.vc) return q.vc.slice();
+  const v=VDF_SEL.map(function(id,i){ const e=$(id); return e?(e.value||''):((q.vs||[])[i]||''); });
+  return [(v[0]||'?')+(v[1]||'?'), (v[2]||'?')+(v[3]||'?')];
+}
+function vdfPaire(n,a,b){ return (n[0]===a&&n[1]===b)||(n[0]===b&&n[1]===a); }
+/* la proposition : {ok, txt, cls} */
+function vdfAvis(q,n){
+  const V=function(m){ return vepVecHTML(m[0],m[1]); };
+  const plein=function(m){ return m.indexOf('?')<0; };
+  if(!plein(n[0])||!plein(n[1])){
+    const t={a:'Choisis deux vecteurs ÉGAUX sur le parallélogramme ADBC.', b:'Choisis deux vecteurs qui relient deux des points D, B et E.',
+      d:'Choisis un vecteur sur la droite (AF) et un vecteur sur la droite (BC).'}[q.ds];
+    return {ok:false, txt:t, cls:''};
+  }
+  for(let i=0;i<2;i++) if(n[i][0]===n[i][1]) return {ok:false, txt:'Le '+(i?'second':'premier')+' vecteur a deux fois la même lettre : un vecteur va d’un point à un AUTRE point.', cls:'bad'};
+  const U=V(n[0]), W=V(n[1]);
+  if(q.ds==='a'){
+    const S=['A','D','B','C'], hors=(n[0]+n[1]).split('').find(function(l){ return S.indexOf(l)<0; });
+    if(hors) return {ok:false, txt:'<b>Refusé</b> : '+hors+' n’est pas un sommet du quadrilatère ADBC. Prends deux vecteurs qui vont d’un sommet à un autre.', cls:'bad'};
+    if(n[0]===n[1]) return {ok:false, txt:'<b>Refusé</b> : c’est deux fois le même vecteur. Choisis un AUTRE vecteur, égal à '+U+'.', cls:'bad'};
+    const u=vdfVec(q.Z,n[0][0],n[0][1]), w=vdfVec(q.Z,n[1][0],n[1][1]);
+    if(vdfEq(u[0],w[0])&&vdfEq(u[1],w[1])) return {ok:true, txt:'<b>'+U+' = '+W+'</b> : deux côtés opposés de ADBC, parcourus dans le même sens. On calcule avec ces deux vecteurs.', cls:'good'};
+    const diag=function(m){ return vdfPaire(m,'A','B')||vdfPaire(m,'D','C'); };
+    if(diag(n[0])||diag(n[1])) return {ok:false, txt:'<b>Refusé : '+U+' et '+W+' ne sont pas égaux</b> — '+V(diag(n[0])?n[0]:n[1])+' est une diagonale de ADBC (on fait le tour A, D, B, C), aucun autre vecteur ne lui est égal. Prends deux côtés qui se font face.', cls:'bad'};
+    if(vdfEq(u[0],[-w[0][0],w[0][1]])&&vdfEq(u[1],[-w[1][0],w[1][1]])) return {ok:false, txt:'<b>Refusé : '+U+' et '+W+' ne sont pas égaux</b> — même direction, même longueur, mais pas le même sens. Parcours l’un des deux côtés dans l’autre sens.', cls:'bad'};
+    return {ok:false, txt:'<b>Refusé : '+U+' et '+W+' ne sont pas égaux</b> — ce sont deux côtés qui se suivent (on fait le tour A, D, B, C). Prends deux côtés qui se font face.', cls:'bad'};
+  }
+  if(q.ds==='b'){
+    const S=['D','B','E'], hors=(n[0]+n[1]).split('').find(function(l){ return S.indexOf(l)<0; });
+    if(hors) return {ok:false, txt:'<b>Refusé</b> : on veut savoir si D, B et E sont alignés — '+hors+' n’a rien à faire ici. Prends deux vecteurs qui relient deux de ces trois points.', cls:'bad'};
+    if(vdfPaire(n[1],n[0][0],n[0][1])) return {ok:false, txt:'<b>Refusé</b> : '+U+' et '+W+' relient les MÊMES points — ils sont toujours colinéaires, et cela ne prouve rien. Le second vecteur doit utiliser le troisième point.', cls:'bad'};
+    return {ok:true, txt:'<b>'+U+' et '+W+'</b> relient deux des points D, B, E et ont un point en commun : s’ils sont colinéaires, les trois points sont alignés. On calcule avec ces deux vecteurs.', cls:'good'};
+  }
+  const af=function(m){ return vdfPaire(m,'A','F'); }, bc=function(m){ return vdfPaire(m,'B','C'); };
+  if((af(n[0])&&bc(n[1]))||(bc(n[0])&&af(n[1]))) return {ok:true, txt:'<b>'+U+'</b> est sur la droite '+(af(n[0])?'(AF)':'(BC)')+', <b>'+W+'</b> sur la droite '+(af(n[1])?'(AF)':'(BC)')+' : s’ils sont colinéaires, les droites sont parallèles. On calcule avec ces deux vecteurs.', cls:'good'};
+  const pb=[0,1].filter(function(i){ return !af(n[i])&&!bc(n[i]); });
+  if(pb.length) return {ok:false, txt:'<b>Refusé</b> : '+V(n[pb[0]])+' n’est ni sur la droite (AF) ni sur la droite (BC). Un vecteur doit relier A et F, l’autre B et C.', cls:'bad'};
+  return {ok:false, txt:'<b>Refusé</b> : les deux vecteurs sont sur la même droite '+(af(n[0])?'(AF)':'(BC)')+'. Il en faut un sur (AF) et un sur (BC).', cls:'bad'};
+}
+/* les paires qui conviennent, au signe près (le tirage les éprouve toutes) */
+const VDF_PAIRES={a:[['AD','CB'],['DB','AC']], b:[['DB','DE'],['DB','BE'],['DE','BE']], d:[['AF','BC']]};
 /* le plan d'une question : ses vecteurs, ses chaînes */
 function vdfPlan(q){
   const Z=q.Z;
-  if(q.ds==='a') return {vec:[['A','D'],['C','B']], ch:vdfVecCh(Z,'A','D','u').concat(vdfVecCh(Z,'C','B','v')), fin:'pgm'};
-  if(q.ds==='b') return {vec:[['D','B'],['D','E']], ch:vdfVecCh(Z,'D','B','u').concat(vdfVecCh(Z,'D','E','v')), fin:'ali'};
-  if(q.ds==='d') return {vec:[['A','F'],['B','C']], ch:vdfVecCh(Z,'A','F','u').concat(vdfVecCh(Z,'B','C','v')), fin:'par'};
+  if(vdfChoisit(q)){ const N=vdfNoms(q);
+    return {vec:[[N[0][0],N[0][1]],[N[1][0],N[1][1]]], ch:vdfVecCh(Z,N[0][0],N[0][1],'u').concat(vdfVecCh(Z,N[1][0],N[1][1],'v')), fin:{a:'pgm', b:'ali', d:'par'}[q.ds]}; }
   if(q.ds==='c'){ const R=vdfVec(Z,'B','A');
     return {vec:[['B','A']], ch:vdfVecCh(Z,'B','A','u').concat(vdfSysCh(Z,R,'C','s')), sys:{P:'C', R:R, pt:'M', w:['C','M']}, fin:'pt'}; }
   const S=vdfPAdd(vdfVec(Z,'C','E'),vdfVec(Z,'C','B'));
@@ -74329,8 +74414,10 @@ function vdfConvient(Z){
   const nf=['A','B','C'].reduce(function(n,L){ return n+Z[L].filter(function(r){ return r[1]>1; }).length; },0);
   if(nf<2||nf>4) return false;
   let total=0;
-  for(const ds of VDF_PARTIES){
-    const P=vdfPlan({ds:ds, Z:Z});
+  const plans=[];
+  VDF_PARTIES.forEach(function(ds){ (VDF_PAIRES[ds]||[null]).forEach(function(vc,j){ plans.push({ds:ds, vc:vc, compte:j===0}); }); });
+  for(const pl of plans){
+    const P=vdfPlan({ds:pl.ds, Z:Z, vc:pl.vc});
     let mil=0;
     for(const c of P.ch){
       const r=vdfRes(c);
@@ -74339,8 +74426,8 @@ function vdfConvient(Z){
       if(Math.abs(c.t1[0])>40||Math.abs(c.t2[0])>40||Math.abs(r[0]/r[1])>8) return false;
       if(vdfMilieu(c.t1,c.t2)) mil++;
     }
-    if(!mil) return false;                                     /* la demande : une mise au même dénominateur par question */
-    total+=mil;
+    if(!mil) return false;                                     /* la demande : une mise au même dénominateur par question, quelle que soit la paire choisie */
+    if(pl.compte) total+=mil;
     if(P.fin==='ali'||P.fin==='par'){
       const u=vdfVec(Z,P.vec[0][0],P.vec[0][1]), v=vdfVec(Z,P.vec[1][0],P.vec[1][1]);
       const p1=vdfMul(u[0],v[1]), p2=vdfMul(u[1],v[0]);
@@ -74369,7 +74456,9 @@ function vdfBuildQuestions(){
 }
 
 /* --- les cases --- */
-function vdfIdsCh(c){ return [c.id+'-a', c.id+'-b'].concat(vdfMilieu(c.t1,c.t2)?[c.id+'-n1',c.id+'-d1',c.id+'-n2',c.id+'-d2']:[]).concat([c.id+'-r']); }
+/* l'étape du même dénominateur, comme au 5.3 {somme-fractions} : les deux multiplicateurs de chaque fraction (en haut, en bas), puis les deux numérateurs et le dénominateur commun */
+const VDF_MIL=['k1a','k1b','k2a','k2b','N1','N2','D'];
+function vdfIdsCh(c){ return [c.id+'-a', c.id+'-b'].concat(vdfMilieu(c.t1,c.t2)?VDF_MIL.map(function(s){ return c.id+'-'+s; }):[]).concat([c.id+'-r']); }
 const VDF_CROIX=['k-a1','k-b1','k-r1','k-a2','k-b2','k-r2'];
 function vdfCasesDe(q){
   const P=vdfPlan(q), r=[];
@@ -74386,31 +74475,86 @@ function vdfCases(q){ return vdfCasesDe(q); }
 
 /* --- l'écran --- */
 function vdfMF(id,aria,cls){ return '<span class="sf-case"><math-field class="dexp-mf pm-mf '+(cls||'vdf-mf')+'" id="'+id+'" aria-label="'+esc(aria)+'"></math-field></span>'; }
-function vdfFracIn(n,d,aria){ return '<span class="f-frac-input">'+vdfMF(n,'le numérateur de '+aria,'f-num')+'<span class="f-fbar"></span>'+vdfMF(d,'le dénominateur de '+aria,'f-den')+'</span>'; }
 function vdfOp(o){ return '<span class="f-times">'+o+'</span>'; }
-/* une chaîne : [fin] − [début] (= [ ]/[ ] − ([ ]/[ ])) = [résultat] */
-function vdfChHTML(c){
-  const i='vdf-'+c.id, neg=c.t2[0]<0;
-  const t1a=c.sys?'le nombre trouvé pour '+c.lab:(c.som?'la première coordonnée ajoutée, '+c.lab:'la '+c.lab.split(' de ')[0]+' du point de fin de '+c.lab.split(' de ')[1]);
-  const t2a=c.sys?'ce qu’on ajoute pour '+c.lab:(c.som?'la seconde coordonnée ajoutée, '+c.lab:'la '+c.lab.split(' de ')[0]+' du point de début de '+c.lab.split(' de ')[1]);
-  let h='<span class="vdf-t">'+vdfMF(i+'-a',t1a)+vdfOp(c.op)+vdfMF(i+'-b',t2a)+'</span>';
-  if(vdfMilieu(c.t1,c.t2)){
-    const f2=vdfFracIn(i+'-n2',i+'-d2','la seconde fraction au même dénominateur');
-    h+=fEq('<span class="vdf-t vdf-mil">'+vdfFracIn(i+'-n1',i+'-d1','la première fraction au même dénominateur')+vdfOp(c.op)+(neg?fParen(f2):f2)+'</span>');
-  }
-  return h+fEq(vdfMF(i+'-r','le résultat, '+c.lab));
+/* ce que dit chaque case d'une chaîne, pour qui écoute la page et pour le modèle */
+function vdfAria(c,k){
+  if(c.sys) return k?'ce qu’on ajoute pour '+c.lab:'le nombre trouvé pour '+c.lab;
+  if(c.som) return (k?'la seconde':'la première')+' coordonnée ajoutée, '+c.lab;
+  const ab=c.lab.split(' de '); return 'la '+ab[0]+' du point de '+(k?'début':'fin')+' de '+ab[1];
 }
-function vdfLigne(tete,c){ return '<div class="pt-row vdf-ligne"><span class="vdf-lab">'+tete+'</span>'+vdfChHTML(c)+'</div>'; }
+/* UN BLOC EN COLONNES (demande de Turquet, novembre 2026 : « que cela reste
+   comme dans les autres exercices, avec des vecteurs en colonne, les
+   soustractions dans les colonnes ») : le nom, puis la colonne des deux
+   différences (l'abscisse en haut, l'ordonnée en bas), puis, si une ligne le
+   demande, la colonne du même dénominateur (vide sur la ligne qui ne le
+   demande pas), puis la colonne des résultats. Les trois colonnes ont les
+   mêmes hauteurs de ligne (vdfRangs) : une ligne garde sa hauteur d'une
+   parenthèse à l'autre, la fraction empilée comprise. */
+function vdfRangs(ch){ return 'grid-template-rows:'+ch.map(function(c){ return vdfMilieu(c.t1,c.t2)?'var(--vdf-hh)':'var(--vdf-hb)'; }).join(' '); }
+function vdfColBloc(nom,ch,tete){
+  const rg=vdfRangs(ch), mil=ch.map(function(c){ return vdfMilieu(c.t1,c.t2); });
+  let h='<div class="vdf-cbloc">'+(nom?'<span class="vdf-cnom">'+nom+'</span>':'')
+    +'<span class="vdf-cdiff">'+(tete?'<span class="vdf-ctete">'+tete+'</span>':'')
+    +'<span class="vco-par vdf-col vdf-col3" style="'+rg+'">'+ch.map(function(c){ const i='vdf-'+c.id;
+      return vdfMF(i+'-a',vdfAria(c,0))+vdfOp(c.op)+vdfMF(i+'-b',vdfAria(c,1)); }).join('')+'</span></span>';
+  if(mil.some(Boolean)){
+    /* ① chaque fraction multipliée en haut ET en bas par le même nombre — ses
+       nombres sont ceux que l'élève a écrits dans la première colonne,
+       recopiés au fil de la frappe (vdfMiroirs) : la page ne les donne pas */
+    h+=fEq('<span class="vco-par vdf-col vdf-col3 vdf-cmil" style="'+rg+'">'+ch.map(function(c,k){
+      if(!mil[k]) return '<span></span><span></span><span></span>';
+      const i='vdf-'+c.id, f2=vdfProd(i,2,c.lab);
+      return vdfProd(i,1,c.lab)+vdfOp(c.op)+(c.t2[0]<0?fParen(f2):f2); }).join('')+'</span>');
+    /* ② les deux numérateurs sur le dénominateur commun */
+    h+=fEq('<span class="vco-par vdf-col vdf-col1 vdf-cmil" style="'+rg+'">'+ch.map(function(c,k){
+      if(!mil[k]) return '<span></span>';
+      const i='vdf-'+c.id;
+      return '<span class="f-frac-input sf-somme"><span class="sf-haut">'+vdfMF(i+'-N1','le premier numérateur sur le dénominateur commun, '+c.lab,'f-num')+vdfOp(c.op)
+        +vdfMF(i+'-N2','le second numérateur sur le dénominateur commun, '+c.lab,'f-num')+'</span><span class="f-fbar"></span>'+vdfMF(i+'-D','le dénominateur commun, '+c.lab,'f-den')+'</span>'; }).join('')+'</span>');
+  }
+  h+=fEq('<span class="vco-par vdf-col vdf-col1" style="'+rg+'">'+ch.map(function(c){ return vdfMF('vdf-'+c.id+'-r','le résultat, '+c.lab); }).join('')+'</span>');
+  return h+'</div>';
+}
 function vdfVecH(P,Q){ return vepVecHTML(P,Q); }
+/* une fraction multipliée en haut ET en bas, comme au 5.3 : « n × [ ] » sur « d × [ ] » */
+function vdfProd(i,j,lab){
+  const m=function(s,aria){ return vdfMF(i+'-k'+j+s,aria,'vdf-k'); };
+  return '<span class="f-frac-input sf-prod">'
+    +'<span class="sf-l"><span class="vdf-mir" id="'+i+'-m'+j+'n">…</span>'+vdfOp('×')+m('a','le multiplicateur du numérateur de la '+(j===1?'première':'seconde')+' fraction, '+lab)+'</span>'
+    +'<span class="f-fbar"></span>'
+    +'<span class="sf-l"><span class="vdf-mir" id="'+i+'-m'+j+'d">…</span>'+vdfOp('×')+m('b','le multiplicateur du dénominateur de la '+(j===1?'première':'seconde')+' fraction, '+lab)+'</span></span>';
+}
+/* les nombres de la première colonne, recopiés dans les produits (numérateur, dénominateur ; un entier sur 1) */
+function vdfMiroirs(){
+  const q=test.questions&&test.questions[test.idx]; if(!q||test.kind!=='vdf') return;
+  vdfPlan(q).ch.forEach(function(c){
+    if(!vdfMilieu(c.t1,c.t2)) return;
+    const i='vdf-'+c.id;
+    ['a','b'].forEach(function(s,j){
+      const r=vdfLit(vdfVal(i+'-'+s)), en=$(i+'-m'+(j+1)+'n'), ed=$(i+'-m'+(j+1)+'d');
+      if(en) en.textContent=r?svrNb(r[0]):'…';
+      if(ed) ed.textContent=r?String(r[1]):'…';
+    });
+  });
+}
+/* le choix des deux vecteurs (a, b, d), sous l'énoncé */
+function vdfChoixHTML(q){
+  const o={pre:'vdf', L:vdfLettres(q)};
+  const t={a:'Deux vecteurs égaux sur le parallélogramme ADBC :', b:'Deux vecteurs qui relient deux des points D, B et E :', d:'Un vecteur sur la droite (AF) et un vecteur sur la droite (BC) :'}[q.ds];
+  return '<div class="vcd-titre vdf-titre">1) On choisit deux vecteurs.</div>'
+    +'<div class="vqs-choix vdf-choix"><div class="vqs-choix-t">'+t+'</div>'
+    +'<div class="vqs-choix-eg">'+vpgNomHTML(1,o)+'<span class="vqs-choix-sg">'+(q.ds==='a'?'=':'et')+'</span>'+vpgNomHTML(2,o)+'</div></div>'
+    +'<div class="vcm-verif" id="vdfVerif" aria-live="polite"></div>';
+}
 function vdfCalcHTML(q){
   const P=vdfPlan(q), C={}; P.ch.forEach(function(c){ C[c.id]=c; });
-  let n=0, h='';
+  let n=vdfChoisit(q)?1:0, h='';
   const titre=function(t){ n++; return '<div class="vcd-titre vdf-titre">'+n+') '+t+'</div>'; };
+  const FD='<span class="vcd-fd">Fin</span><span class="vcd-m">−</span><span class="vcd-fd">Début</span>';
   const vecBloc=function(k,cle){ const v=P.vec[k], H=vdfVecH(v[0],v[1]);
-    return titre('Les coordonnées de '+H+' : fin − début (la fin '+v[1]+', le début '+v[0]+').')
-      +'<div class="pt-step vdf-bloc">'+vdfLigne(H+' abscisse :',C[cle+'x'])+vdfLigne(H+' ordonnée :',C[cle+'y'])+'</div>'; };
-  h+=vecBloc(0,'u');
-  if(P.vec[1]) h+=vecBloc(1,'v');
+    return '<div class="vdf-ligne-c">'+vdfColBloc(H,[C[cle+'x'],C[cle+'y']],FD)+'</div>'; };
+  h+=titre('Les coordonnées de '+vdfVecH(P.vec[0][0],P.vec[0][1])+(P.vec[1]?' et de '+vdfVecH(P.vec[1][0],P.vec[1][1]):'')+' : fin − début, l’abscisse en haut, l’ordonnée en bas.')
+    +vecBloc(0,'u')+(P.vec[1]?vecBloc(1,'v'):'');
   if(P.fin==='pgm'||P.fin==='ali'||P.fin==='par'){
     const U=vdfVecH(P.vec[0][0],P.vec[0][1]), V=vdfVecH(P.vec[1][0],P.vec[1][1]);
     if(P.fin==='pgm'){
@@ -74432,18 +74576,18 @@ function vdfCalcHTML(q){
         +vclSel('vdf-cc',P.fin==='ali'?'alignés ou pas':'parallèles ou pas',P.fin==='ali'?[['oui','sont alignés'],['non','ne sont pas alignés']]:[['oui','sont parallèles'],['non','ne sont pas parallèles']])+'<span class="vcp-mot">.</span></div>';
     return h;
   }
-  /* c) et e) : le système, puis x et y */
-  if(P.ch.some(function(c){ return c.id==='wx'; })){
+  /* c) et e) : la somme (e), le système, puis le point, en colonne lui aussi */
+  if(C.wx){
     const H=vdfVecH('C','E')+vdfOp('+')+vdfVecH('C','B');
-    h+=titre('Les coordonnées de '+H+' : on ajoute les abscisses, puis les ordonnées.')
-      +'<div class="pt-step vdf-bloc">'+vdfLigne('abscisse :',C.wx)+vdfLigne('ordonnée :',C.wy)+'</div>';
+    h+=titre('Les coordonnées de '+H+' : on ajoute les abscisses (en haut), puis les ordonnées (en bas).')
+      +'<div class="vdf-ligne-c">'+vdfColBloc('<span class="vdf-somnom">'+H+'</span>',[C.wx,C.wy],'')+'</div>';
   }
   const S=P.sys, W=vdfVecH(S.w[0],S.w[1]), egal=S.pt==='M'?vdfVecH('C','M')+' = '+vdfVecH('B','A'):vdfVecH('A','N')+' = '+vdfVecH('C','E')+' + '+vdfVecH('C','B');
   const sl=function(L){ return '<span class="vcm-l"><i>'+L+'</i> −</span>'+vdfMF('vdf-sys-'+L+'c','ce qu’on retranche à '+L)+'<span class="vcm-l">=</span>'+vdfMF('vdf-sys-'+L+'r','ce que vaut '+L+' moins ce nombre'); };
   h+=titre(W+' a pour coordonnées (<i>x</i> − <i>x</i><sub>'+S.P+'</sub> ; <i>y</i> − <i>y</i><sub>'+S.P+'</sub>). On veut '+egal+' :')
     +'<div class="vcm-sys-ligne vdf-sysl"><div class="vcm-sys vcm-sys2 vdf-sys"><span class="vdf-sysr">'+sl('x')+'</span><span class="vdf-sysr">'+sl('y')+'</span></div></div>'
-    +titre('On résout : on ajoute '+'<i>x</i><sub>'+S.P+'</sub> de chaque côté, et de même pour <i>y</i>.')
-    +'<div class="pt-step vdf-bloc">'+vdfLigne('<i>x</i> =',C.sx)+vdfLigne('<i>y</i> =',C.sy)+'</div>';
+    +titre('On résout : on ajoute <i>x</i><sub>'+S.P+'</sub> de chaque côté, et de même pour <i>y</i> — en haut <i>x</i>, en bas <i>y</i>.')
+    +'<div class="vdf-ligne-c">'+vdfColBloc(S.pt,[C.sx,C.sy],'')+'</div>';
   return h;
 }
 function vdfEnonce(q){
@@ -74470,17 +74614,27 @@ function vdfJugeCh(c,subs){
   push(i+'-a', t1, vdfEq(a,t1), a);
   push(i+'-b', t2, vdfEq(b,t2), b);
   if(vdfMilieu(c.t1,c.t2)){
-    /* LE MÊME DÉNOMINATEUR : tout multiple commun des deux dénominateurs, le même des deux côtés */
-    const L=vdfLcm(t1[1],t2[1]);
-    const n1=vdfEnt(vdfVal(i+'-n1')), d1=vdfEnt(vdfVal(i+'-d1')), n2=vdfEnt(vdfVal(i+'-n2')), d2=vdfEnt(vdfVal(i+'-d2'));
-    const multiple=function(d){ return d!==null&&d>0&&d%L===0; };
-    const ok1=multiple(d1), ok2=multiple(d2)&&(!ok1||d2===d1);
-    const dr1=d1!==null&&d1>0?d1:(ok2?d2:L), dr2=d2!==null&&d2>0?d2:(ok1?d1:L);
-    const D=ok1?d1:(ok2?d2:L);
-    push(i+'-n1', [t1[0]*D/t1[1],1], n1!==null&&n1*t1[1]===t1[0]*dr1, n1===null?null:[n1,1]);
-    push(i+'-d1', [D,1], ok1, d1===null?null:[d1,1]);
-    push(i+'-n2', [t2[0]*D/t2[1],1], n2!==null&&n2*t2[1]===t2[0]*dr2, n2===null?null:[n2,1]);
-    push(i+'-d2', [D,1], ok2, d2===null?null:[d2,1]);
+    /* LE MÊME DÉNOMINATEUR, COMME AU 5.3 : chaque fraction multipliée en haut
+       ET en bas par le même nombre ; le dénominateur commun est libre — tout
+       multiple commun —, pourvu que les deux fractions y arrivent toutes les
+       deux. Chaque case se juge seule : un multiplicateur du bas sur ce qu'il
+       donne, celui du haut sur celui du bas, les numérateurs et le
+       dénominateur sur le dénominateur commun retenu. */
+    const L=vdfLcm(t1[1],t2[1]), T=[t1,t2];
+    const k=['k1a','k1b','k2a','k2b','N1','N2','D'].map(function(s){ return vdfEnt(vdfVal(i+'-'+s)); });
+    const bas=[k[1],k[3]], haut=[k[0],k[2]];
+    const Dde=function(j){ const b=bas[j]; return b!==null&&b>0?T[j][1]*b:null; };
+    const okB=[0,1].map(function(j){ const Dj=Dde(j); return Dj!==null&&Dj%L===0; });
+    if(okB[0]&&okB[1]&&Dde(0)!==Dde(1)) okB[1]=false;            /* deux dénominateurs différents : le second rougit */
+    const D=okB[0]?Dde(0):(okB[1]?Dde(1):L);
+    [0,1].forEach(function(j){
+      const kj=D/T[j][1];
+      push(i+'-k'+(j+1)+'a', [kj,1], haut[j]!==null&&haut[j]>0&&(okB[j]?haut[j]===bas[j]:haut[j]===kj), haut[j]===null?null:[haut[j],1]);
+      push(i+'-k'+(j+1)+'b', [kj,1], okB[j], bas[j]===null?null:[bas[j],1]);
+    });
+    push(i+'-N1', [t1[0]*D/t1[1],1], k[4]!==null&&k[4]===t1[0]*D/t1[1], k[4]===null?null:[k[4],1]);
+    push(i+'-N2', [t2[0]*D/t2[1],1], k[5]!==null&&k[5]===t2[0]*D/t2[1], k[5]===null?null:[k[5],1]);
+    push(i+'-D', [D,1], k[6]!==null&&k[6]===D, k[6]===null?null:[k[6],1]);
   }
   const r=vdfRes(c), lr=vdfLit(vdfVal(i+'-r'));
   push(i+'-r', r, vdfEq(lr,r), lr);
@@ -74551,13 +74705,18 @@ function vdfPourquoi(q,subs){
           m.push(ab[0].charAt(0).toUpperCase()+ab[0].slice(1)+' de '+v+' : fin − début, d’abord '+ab[0].replace('abscisse','l’abscisse').replace('ordonnée','l’ordonnée')+' de '+v[1]+' ('+vdfTxt(c.t1)+'), puis celle de '+v[0]+' ('+vdfTxt(c.t2)+').'); }
         return;
       }
-      if(part==='n1'||part==='n2'||part==='d1'||part==='d2'){
-        if(vu['m'+c.id]) return; vu['m'+c.id]=1;
+      if(/^k[12][ab]$/.test(part)){
+        if(vu['k'+c.id]) return; vu['k'+c.id]=1;
         const L=vdfLcm(c.t1[1],c.t2[1]);
-        const d1=vdfEnt(vdfVal('vdf-'+c.id+'-d1')), d2=vdfEnt(vdfVal('vdf-'+c.id+'-d2'));
-        if(d1!==null&&d2!==null&&d1!==d2) m.push('Les deux fractions doivent avoir le MÊME dénominateur : ici '+L+' convient.');
-        else m.push('Au même dénominateur '+L+' : '+vdfTxt(c.t1)+' = '+svrNb(c.t1[0]*L/c.t1[1])+'/'+L+' et '+vdfTxt(c.t2)+' = '+svrNb(c.t2[0]*L/c.t2[1])+'/'+L
-          +' — on multiplie le numérateur ET le dénominateur par le même nombre.');
+        const b1=vdfEnt(vdfVal('vdf-'+c.id+'-k1b')), b2=vdfEnt(vdfVal('vdf-'+c.id+'-k2b'));
+        if(b1&&b2&&b1*c.t1[1]!==b2*c.t2[1]&&(b1*c.t1[1])%L===0&&(b2*c.t2[1])%L===0) m.push('Les deux fractions doivent arriver au MÊME dénominateur : ici '+L+' convient.');
+        else m.push('Pour arriver au dénominateur '+L+' : '+vdfTxt(c.t1)+' se multiplie par '+(L/c.t1[1])+' en haut ET en bas, '+vdfTxt(c.t2)+' par '+(L/c.t2[1])+' — le même nombre en haut et en bas, sinon la fraction change.');
+        return;
+      }
+      if(part==='N1'||part==='N2'||part==='D'){
+        if(vu['n'+c.id]) return; vu['n'+c.id]=1;
+        const L=vdfLcm(c.t1[1],c.t2[1]);
+        m.push('Sur le dénominateur '+L+', les numérateurs deviennent '+svrNb(c.t1[0]*L/c.t1[1])+' et '+svrNb(c.t2[0]*L/c.t2[1])+' : on écrit les deux numérateurs en haut, le dénominateur commun en bas.');
         return;
       }
       if(part==='r'){
@@ -74573,10 +74732,11 @@ function vdfPourquoi(q,subs){
     if(/k-[ab]/.test(s.id)){ if(vu.kx) return; vu.kx=1; m.push('Le produit en croix : l’abscisse du premier vecteur fois l’ordonnée du second, puis l’ordonnée du premier fois l’abscisse du second.'); return; }
     if(/k-r/.test(s.id)){ m.push('Pour multiplier des fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux : le produit vaut '+vdfTxt(s.bon)+'.'); return; }
     if(s.id==='vdf-col') m.push('Les deux produits sont égaux : les vecteurs sont colinéaires.');
-    if(s.id==='vdf-cc') m.push(q.ds==='b'?'DB et DE sont colinéaires et partent du même point D : D, B et E sont alignés.':'AF et BC sont colinéaires : les droites (AF) et (BC) sont parallèles.');
-    if(s.id==='vdf-eg') m.push('AD et CB ont les mêmes coordonnées : ils sont égaux.');
-    if(s.id==='vdf-nom') m.push('AD = CB : on fait le tour A, D, B, C — le parallélogramme ADBC.');
-    if(s.id==='vdf-nat') m.push('Si AD = CB, alors ADBC est un parallélogramme.');
+    const N=vdfChoisit(q)?vdfNoms(q):['',''];
+    if(s.id==='vdf-cc') m.push(q.ds==='b'?N[0]+' et '+N[1]+' sont colinéaires et ont un point commun : D, B et E sont alignés.':N[0]+' et '+N[1]+' sont colinéaires : les droites (AF) et (BC) sont parallèles.');
+    if(s.id==='vdf-eg') m.push(N[0]+' et '+N[1]+' ont les mêmes coordonnées : ils sont égaux.');
+    if(s.id==='vdf-nom') m.push(N[0]+' = '+N[1]+' : on fait le tour A, D, B, C — le parallélogramme ADBC.');
+    if(s.id==='vdf-nat') m.push('Si '+N[0]+' = '+N[1]+', alors ADBC est un parallélogramme.');
   });
   return m.slice(0,4).join(' ');
 }
@@ -74607,18 +74767,68 @@ function renderVdf(){
   $('vdfIdx').textContent='Question '+q.ds+') — '+(test.idx+1)+' / '+test.questions.length;
   $('vdfModeTag').innerHTML=modeTagHTML();
   $('vdfInstr').innerHTML=vdfEnonce(q)+'<b>'+vdfQuestion(q)+'</b>'
-    +'<span class="kv-sous">Chaque calcul s’écrit sur sa ligne. Quand une fraction s’y trouve, l’étape du milieu réécrit les deux nombres sur le MÊME dénominateur (en haut le numérateur, en bas le dénominateur) ; puis le résultat. Pour écrire une fraction dans une case, la touche / pose le trait.</span>';
-  $('vdfHost').innerHTML=vdfCalcHTML(q);
-  pmUpgrade($('vdfHost'));
+    +'<span class="kv-sous">'+(vdfChoisit(q)?'Choisis d’abord deux vecteurs : le calcul s’ouvre quand ils conviennent. ':'')+'Les vecteurs s’écrivent en colonne : l’abscisse en haut, l’ordonnée en bas. Quand une fraction se trouve dans une ligne, on met au même dénominateur comme au 5.3 : chaque fraction est multipliée en haut ET en bas par le même nombre, puis les deux numérateurs s’écrivent sur le dénominateur commun ; puis la colonne du résultat. Pour écrire une fraction dans une case, la touche / pose le trait.</span>';
+  /* la reprise rend la paire figée et les listes, rien d'autre */
+  const nom=function(s){ return typeof s==='string'&&/^[A-F]{2}$/.test(s)?s:null; };
+  q.vc=Array.isArray(q.vc)&&q.vc.length===2&&q.vc.every(nom)?q.vc:null;
+  $('vdfHost').innerHTML=(vdfChoisit(q)?vdfChoixHTML(q):'')+'<div id="vdfCalc" class="vdf-calc-in"></div>';
+  if(vdfChoisit(q)){
+    VDF_SEL.forEach(function(id,i){ const e=$(id); if(!e) return;
+      const v=q.vc?(i<2?q.vc[0][i]:q.vc[1][i-2]):((q.vs||[])[i]||''); if(v) e.value=v;
+      e.addEventListener('change', vdfChoix); });
+  }
+  vdfCalcMonter(q);
+  vdfChoixMaj(q);
+  $('vdfFeedback').textContent=''; $('vdfFeedback').className='mp-feedback';
+  $('vdfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="vdfValidate" type="button" onclick="checkVdf()">Vérifier</button>';
+}
+/* le calcul, pour la paire figée (ou, sans paire, rien : il reste caché) */
+function vdfCalcMonter(q){
+  const c=$('vdfCalc'); if(!c) return;
+  c.innerHTML=vdfCalcHTML(q);
+  pmUpgrade(c);
+  if(!c.__mir){ c.__mir=true; c.addEventListener('input', function(){ vdfMiroirs(); }, true); }
+  setTimeout(vdfMiroirs,0); setTimeout(vdfMiroirs,300);
   vdfCasesDe(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){
     clearTimeout(test.vdfSave); test.vdfSave=setTimeout(autoSave,1000); recoveryDirty=true;
     if(el.tagName==='SELECT') liveCheckCurrent(); }); });
-  $('vdfFeedback').textContent=''; $('vdfFeedback').className='mp-feedback';
-  $('vdfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="vdfValidate" type="button" onclick="checkVdf()">Vérifier</button>';
+}
+/* le barème suit la paire choisie : l'étape du même dénominateur dépend des vecteurs */
+function vdfBareme(){ test.maxScore=test.questions.reduce(function(n,q){ return n+vdfCases(q).length; },0); }
+/* les listes, le constat, le calcul montré ou non */
+function vdfChoixMaj(q){
+  const c=$('vdfCalc');
+  if(!vdfChoisit(q)){ if(c) c.style.display=''; return; }
+  const n=vdfLus(q), a=vdfAvis(q,n);
+  VDF_SEL.forEach(function(id){ const e=$(id); if(e) e.disabled=!!q.vc||!!test.locked; });
+  if(c) c.style.display=(q.vc||test.locked)?'':'none';
+  const v=$('vdfVerif'); if(!v) return;
+  if(test.locked&&!q.vc){ const d=VDF_DEF[q.ds];
+    v.innerHTML='Deux vecteurs qui conviennent : par exemple '+vepVecHTML(d[0][0],d[0][1])+' et '+vepVecHTML(d[1][0],d[1][1])+'. Le calcul est corrigé avec eux.'; v.className='vcm-verif'; return; }
+  v.innerHTML=a.txt; v.className='vcm-verif'+(a.cls?' '+a.cls:'');
+}
+function vdfChoix(){
+  if(test.kind!=='vdf'||test.locked) return;
+  const q=test.questions[test.idx]; if(!vdfChoisit(q)||q.vc) return;
+  q.vs=VDF_SEL.map(function(id){ const e=$(id); return (e&&e.value)||''; });
+  recoveryDirty=true;
+  const n=vdfLus(q);
+  if(vdfAvis(q,n).ok){
+    q.vc=n; vdfBareme(); vdfCalcMonter(q);
+    clearTimeout(test.vdfSave); test.vdfSave=setTimeout(function(){ if(typeof autoSave==='function') autoSave(); },800);
+    setTimeout(function(){ const e=$('vdf-ux-a'); if(e&&!test.locked) try{ e.focus(); }catch(_){} },40);
+  }
+  vdfChoixMaj(q);
 }
 function checkVdf(){
   if(test.locked) return;
   const q=test.questions[test.idx];
+  if(vdfChoisit(q)&&!q.vc&&isSoutien()){
+    vdfChoixMaj(q);
+    $('vdfFeedback').textContent='Choisis d’abord deux vecteurs qui conviennent : le calcul s’ouvrira avec eux.';
+    $('vdfFeedback').className='mp-feedback bad';
+    return;
+  }
   const subs=vdfJuge(q), n=subs.filter(function(s){ return s.ok; }).length;
   if(n<subs.length && isSoutien()){
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; });
@@ -74630,9 +74840,11 @@ function checkVdf(){
     return;
   }
   test.locked=true; clearTimeout(test.qTimer);
+  vdfChoixMaj(q);
   const pourquoi=vdfPourquoi(q,subs);
   const donne=subs.map(function(s){ const e=s.el; if(!e) return '?'; const v=String(e.value).trim(); if(!v) return '?'; return e.tagName==='SELECT'?e.options[e.selectedIndex].text:v; }).join(' ');
   subs.forEach(vdfMarque);
+  vdfMiroirs();
   test.score+=n;
   const fb=$('vdfFeedback');
   if(n===subs.length){ fb.textContent=pick(['Parfait !','Bravo, tout est juste !','Excellent !','Exactement !']); fb.className='mp-feedback good'; }
@@ -74673,7 +74885,8 @@ function ctxVdf(q){
   const ctx='Exercice de COORDONNÉES DE VECTEURS, sans dessin : un devoir de cinq questions sur les mêmes points '
     +VDF_PTS.slice(0,5).map(function(L){ return vdfPtTxt(L,Z[L]); }).join(', ')+' (a : ADBC parallélogramme ; b : D, B, E alignés ; c : M pour que ABCM soit un parallélogramme ; d : avec '+vdfPtTxt('F',Z.F)+', (AF) et (BC) parallèles ; e : N tel que AN = CE + CB). '
     +'Question en cours : '+vdfQuestionTxt(q)+' '
-    +'Chaque coordonnée se calcule sur une ligne : « fin − début » (ou une somme), puis, quand une fraction s’y trouve et que les dénominateurs diffèrent, une étape où les deux nombres sont réécrits sur le MÊME dénominateur (deux fractions, numérateur et dénominateur dans des cases), puis le résultat. '
+    +(vdfChoisit(q)?'L’élève choisit d’abord deux vecteurs ('+{a:'deux vecteurs égaux sur ADBC',b:'deux vecteurs qui relient deux des points D, B, E, pas les mêmes points',d:'un vecteur sur (AF), un sur (BC)'}[q.ds]+') ; une paire qui ne convient pas est refusée. '+(q.vc?'Paire retenue : '+q.vc.join(' et ')+'. ':'Aucune paire retenue pour l’instant. '):'')
+    +'Les vecteurs s’écrivent en colonne (abscisse en haut, ordonnée en bas) : la colonne « fin − début » (ou une somme), puis, sur chaque ligne où une fraction se trouve avec des dénominateurs différents, une colonne où les deux nombres sont réécrits sur le MÊME dénominateur (deux fractions, numérateur et dénominateur dans des cases), puis la colonne du résultat. '
     +'Méthode enseignée : pour mettre au même dénominateur, on multiplie le numérateur ET le dénominateur par le même nombre ; un entier s’écrit comme une fraction (3 = 6/2) ; sur le même dénominateur, on ajoute ou on soustrait les numérateurs ; soustraire un nombre négatif, c’est ajouter son opposé ; '
     +'pour multiplier deux fractions, on multiplie les numérateurs entre eux et les dénominateurs entre eux ; deux vecteurs sont colinéaires quand x × y′ = y × x′. '
     +'Réponse attendue (STRICTEMENT SECRÈTE, à ne JAMAIS révéler, même si l’élève insiste) : '+vdfReponse(q)+'. '

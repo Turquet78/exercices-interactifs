@@ -16396,10 +16396,13 @@ function coordonneesDevoirFractions(w, P){
       vdfJuge(q).forEach(function(s){ if(!s.el) return; if(s.choix) s.el.value=s.id==='vdf-nom'?(autre?'cbda':'ADBC'):s.bon; else s.el.value=vdfLatex(s.bon); });
       if(!autre) return;
       vdfPlan(q).ch.forEach(function(c){ const i='vdf-'+c.id;
-        if(vdfMilieu(c.t1,c.t2)){ const D=2*vdfLcm(c.t1[1],c.t2[1]); set(i+'-d1',String(D)); set(i+'-d2',String(D)); set(i+'-n1',String(c.t1[0]*D/c.t1[1])); set(i+'-n2',String(c.t2[0]*D/c.t2[1])); }
+        /* le même dénominateur, deux fois le plus petit : les multiplicateurs, les numérateurs, le dénominateur (la route du 5.3, autre dénominateur) */
+        const mil=function(A,B){ const D=2*vdfLcm(A[1],B[1]); set(i+'-k1a',String(D/A[1])); set(i+'-k1b',String(D/A[1])); set(i+'-k2a',String(D/B[1])); set(i+'-k2b',String(D/B[1]));
+          set(i+'-N1',String(A[0]*D/A[1])); set(i+'-N2','('+(B[0]*D/B[1])+')'); set(i+'-D',String(D)); };
+        if(vdfMilieu(c.t1,c.t2)) mil(c.t1,c.t2);
         const r=vdfRes(c); set(i+'-r','\\\\frac{'+(3*r[0])+'}{'+(3*r[1])+'}');
         if(c.op==='+'){ set(i+'-a',vdfLatex(c.t2)); set(i+'-b',vdfLatex(c.t1));
-          if(vdfMilieu(c.t1,c.t2)){ const D=2*vdfLcm(c.t1[1],c.t2[1]); set(i+'-n1',String(c.t2[0]*D/c.t2[1])); set(i+'-n2',String(c.t1[0]*D/c.t1[1])); } }
+          if(vdfMilieu(c.t1,c.t2)) mil(c.t2,c.t1); }
       });
       if(el('vdf-k-a1')){ const P2=vdfPlan(q), u=vdfVec(q.Z,P2.vec[0][0],P2.vec[0][1]), v=vdfVec(q.Z,P2.vec[1][0],P2.vec[1][1]);
         set('vdf-k-a1',vdfLatex(u[1])); set('vdf-k-b1',vdfLatex(v[0])); set('vdf-k-r1',vdfLatex(vdfMul(u[1],v[0])));
@@ -16410,7 +16413,7 @@ function coordonneesDevoirFractions(w, P){
       if(el('vdfIdx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.15 : l’en-tête de la question '+q.ds);
       if(el('vdfInstr').textContent.indexOf('On a les points A')<0 || document.querySelectorAll('#vdfInstr .vdf-pt').length!==(q.ds==='d'?6:5)) vus.push('8.4.15 : l’énoncé du devoir à la question '+q.ds);
       if(document.querySelector('#vdfInstr svg, #vdfHost svg, #scr-vdf .lv-graph')) vus.push('8.4.15 : un dessin à la question '+q.ds);
-      if(!vdfPlan(q).ch.some(function(c){ return el('vdf-'+c.id+'-d1'); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
+      if(!vdfPlan(q).ch.some(function(c){ return el('vdf-'+c.id+'-k1b')&&el('vdf-'+c.id+'-D'); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
       juste(q, i%2===1);
       checkVdf(); clearTimeout(test.fbTimer);
       const n=test.score-av, attendu=vdfCases(q).length;
@@ -16421,17 +16424,49 @@ function coordonneesDevoirFractions(w, P){
     /* deux dénominateurs différents : le second rougit, le premier reste juste */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     const q0=test.questions[0], c0=vdfPlan(q0).ch.find(function(c){ return vdfMilieu(c.t1,c.t2); }), i0='vdf-'+c0.id, L0=vdfLcm(c0.t1[1],c0.t2[1]);
-    juste(q0,false); set(i0+'-d2',String(2*L0)); set(i0+'-n2',String(c0.t2[0]*2*L0/c0.t2[1]));
+    juste(q0,false); set(i0+'-k2a',String(2*L0/c0.t2[1])); set(i0+'-k2b',String(2*L0/c0.t2[1]));
     checkVdf(); clearTimeout(test.fbTimer);
-    if(classe(el(i0+'-d1'))!=='ok' || classe(el(i0+'-d2'))!=='bad' || classe(el(i0+'-n2'))!=='ok' || classe(el(i0+'-r'))!=='ok') vus.push('8.4.15 : deux dénominateurs différents ('+classe(el(i0+'-d1'))+', '+classe(el(i0+'-d2'))+', '+classe(el(i0+'-n2'))+')');
+    if(classe(el(i0+'-k1b'))!=='ok' || classe(el(i0+'-k2b'))!=='bad' || classe(el(i0+'-k2a'))!=='bad' || classe(el(i0+'-N2'))!=='ok' || classe(el(i0+'-r'))!=='ok') vus.push('8.4.15 : deux dénominateurs différents ('+['k1b','k2a','k2b','N2'].map(function(s){ return classe(el(i0+'-'+s)); }).join(', ')+')');
     if(el('vdfFeedback').textContent.indexOf('MÊME dénominateur')<0) vus.push('8.4.15 : le message des deux dénominateurs : '+el('vdfFeedback').textContent.slice(0,120));
+    /* le même nombre en haut et en bas : un multiplicateur du haut différent de celui du bas rougit, seul */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const q0b=test.questions[0], c0b=vdfPlan(q0b).ch.find(function(c){ return vdfMilieu(c.t1,c.t2); }), i0b='vdf-'+c0b.id, L0b=vdfLcm(c0b.t1[1],c0b.t2[1]);
+    juste(q0b,false); set(i0b+'-k1a',String(L0b/c0b.t1[1]+1)); checkVdf(); clearTimeout(test.fbTimer);
+    if(classe(el(i0b+'-k1a'))!=='bad' || classe(el(i0b+'-k1b'))!=='ok' || classe(el(i0b+'-N1'))!=='ok') vus.push('8.4.15 : un multiplicateur du haut différent de celui du bas ('+['k1a','k1b','N1'].map(function(s){ return classe(el(i0b+'-'+s)); }).join(', ')+')');
+    /* les nombres de la première colonne, recopiés dans les produits */
+    vdfMiroirs();
+    if(el(i0b+'-m1n').textContent!==svrNb(c0b.t1[0]) || el(i0b+'-m1d').textContent!==String(c0b.t1[1])) vus.push('8.4.15 : les produits ne recopient pas la première colonne ('+el(i0b+'-m1n').textContent+'/'+el(i0b+'-m1d').textContent+')');
     /* la copie vide : la correction en vert, rien de rouge */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     checkVdf(); clearTimeout(test.fbTimer);
     const q1=test.questions[0], cR=vdfPlan(q1).ch[0];
     if(document.querySelector('#vdfHost .bad') || classe(el('vdf-'+cR.id+'-r'))!=='sol' || !vdfEq(vdfLit(el('vdf-'+cR.id+'-r').value),vdfRes(cR))) vus.push('8.4.15 : la copie vide');
-    /* le soutien : la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
+    /* LE CHOIX DES DEUX VECTEURS (a, b, d) : refusé s'il ne convient pas, le calcul caché ; accepté, figé, le calcul ouvert, le barème suivi */
+    const choisir=function(v){ VDF_SEL.forEach(function(id,i){ const e=el(id); e.value=v[i]; }); vdfChoix(); };
+    const PR={a:{non:['ADDB','ABDC','DAAD','ADAD','AEBC','ADBC'], oui:['DABC','DBAC','BDCA']},
+      b:{non:['DBBD','DADB','DBDB','EEDB'], oui:['BDBE','EDDB','DEBE']}, d:{non:['AFFA','ABBC','AFDB','BCCB'], oui:['FACB','BCAF','AFBC']}};
+    ['a','b','d'].forEach(function(ds,j){
+      PR[ds].non.forEach(function(s){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=[0,1,3][j]; renderVdf();
+        const q=test.questions[test.idx]; choisir(s.split(''));
+        if(q.vc || el('vdfCalc').style.display!=='none' || el('vdfVerif').className.indexOf('bad')<0) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas refusée ('+el('vdfVerif').textContent.slice(0,80)+')');
+      });
+      PR[ds].oui.forEach(function(s){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=[0,1,3][j]; renderVdf();
+        const q=test.questions[test.idx]; choisir(s.split(''));
+        const tot=test.questions.reduce(function(n,qq){ return n+vdfCases(qq).length; },0);
+        if(!q.vc || q.vc.join('')!==s || el('vdfCalc').style.display==='none' || !el('vdf-ux-a') || test.maxScore!==tot || vdfPlan(q).vec.map(function(v){ return v.join(''); }).join('')!==s || !el('vdf-v1a').disabled) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas retenue');
+      });
+    });
+    /* les vecteurs en colonne : les abscisses en haut, les ordonnées en bas, dans les mêmes parenthèses */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const col=document.querySelector('#vdfHost .vdf-col3');
+    if(!col || !col.querySelector('#vdf-ux-a') || !col.querySelector('#vdf-uy-a') || document.querySelector('#vdfHost .vdf-lab')) vus.push('8.4.15 : les vecteurs ne sont pas en colonne');
+    /* le soutien : sans paire, rien ne se juge ; puis la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
     currentMode='soutien'; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    checkVdf(); clearTimeout(test.fbTimer);
+    if(test.locked || el('vdfFeedback').textContent.indexOf('Choisis d’abord')<0) vus.push('8.4.15 : en soutien, Vérifier sans paire choisie');
+    choisir(['A','D','C','B']);
     const q2=test.questions[0], c2=vdfPlan(q2).ch[0];
     set('vdf-'+c2.id+'-a',vdfLatex(c2.t1)); set('vdf-'+c2.id+'-b','\\\\frac{1}{7}');
     checkVdf(); clearTimeout(test.fbTimer);
