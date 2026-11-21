@@ -16166,14 +16166,33 @@ function coordonneesDevoir(w, P){
     const set=function(id,v){ const e=el(id); if(!e){ vus.push('8.4.14 : pas de case '+id); return; } e.value=v; };
     const ecrans=[];
     for(let i=0;i<5;i++){
-      const q=test.questions[test.idx], k=test.kind, av=test.score;
+      let q=test.questions[test.idx]; const k=test.kind, av=test.score;
       ecrans.push(k+':'+document.querySelector('.screen.on').id);
       if(el(k+'Idx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.14 : l’en-tête de la question '+q.ds);
       if(el(k+'Instr').textContent.indexOf('On a les points A'+svrCoord(q.Z.A))<0) vus.push('8.4.14 : l’énoncé du devoir manque à la question '+q.ds);
       if(k==='vcl'){
         if(q.ds==='b' && (vclOutils(q).join()!=='p2,t0,t1' || document.querySelectorAll('#vclPts .svr-pt.n').length!==2 || document.querySelectorAll('#vclPts .vds-ctx').length!==2)) vus.push('8.4.14 : b) D et B posés, A et C en gris');
         if(q.ds==='d' && (vclOutils(q).join()!=='t1' || document.querySelectorAll('#vclFl line.vsm-k').length!==1 || document.querySelectorAll('#vclPts .svr-pt.n').length!==4)) vus.push('8.4.14 : d) F posé et AF tracé par la page');
+        const cache=function(){ return el('vclCalc').style.display==='none'; };
+        if(q.ds==='a' && (vclOutils(q).join()!=='p0,p1,p2,p3' || !q.eg || !cache() || !el('vcl-v1a') || !el('vcl-v1a').disabled || el('vclInstr').textContent.indexOf('puis trace')>=0 || document.querySelector('#vclBody .svr-out[id^="vcl-t"]'))) vus.push('8.4.14 : a) sans tracé de vecteur, le calcul caché, les listes fermées ('+vclOutils(q).join()+')');
         vclOutils(q).forEach(function(o){ vclOutil(o); const kk=+o[1]; if(o[0]==='p') vclPose(q.P[kk][0],q.P[kk][1]); else { const w2=vclW(q,kk); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); } });
+        if(q.ds==='a'){
+          if(!document.querySelector('#vclFl polygon.vcl-pgm') || el('vcl-v1a').disabled) vus.push('8.4.14 : a) les quatre points ne tracent pas le parallélogramme, ou n’ouvrent pas les listes');
+          const choisir=function(n1,n2){ set('vcl-v1a',n1[0]); set('vcl-v1b',n1[1]); set('vcl-v2a',n2[0]); set('vcl-v2b',n2[1]); vclEgChoix(); return el('vclVerif'); };
+          [['AD','DB','se suivent'],['AD','BC','pas le même sens'],['AB','DC','diagonale'],['AD','AD','deux fois le même']].forEach(function(c){
+            const v=choisir(c[0],c[1]);
+            if(!v.classList.contains('bad') || v.textContent.indexOf(c[2])<0 || !cache() || q.vc) vus.push('8.4.14 : a) '+c[0]+' et '+c[1]+' : '+v.className+' '+v.textContent.slice(0,120));
+          });
+          set('vcl-v2a',''); set('vcl-v2b',''); vclEgChoix();
+          if(document.querySelectorAll('#vclFl line.vcl-v1').length!==1 || document.querySelector('#vclFl line.vcl-v2')) vus.push('8.4.14 : a) le premier vecteur n’est pas tracé seul en orange');
+          const v=choisir('DB','AC');
+          if(!v.classList.contains('good') || cache() || JSON.stringify(q.vc)!=='["DB","AC"]' || !el('vcl-v1a').disabled || document.querySelectorAll('#vclFl line.vcl-v2').length!==1) vus.push('8.4.14 : a) DB = AC n’ouvre pas le calcul : '+v.textContent.slice(0,120));
+          if(vclNomVec(q,0)!=='DB' || vclNomVec(q,1)!=='AC' || el('vclCalc').textContent.indexOf('DB')<0) vus.push('8.4.14 : a) le calcul ne suit pas les vecteurs de l’élève');
+          /* la reprise : la paire figée revient du JSON */
+          test.questions[test.idx]=JSON.parse(JSON.stringify(q)); renderVcl();
+          if(cache() || el('vcl-v2b').value!=='C' || !el('vcl-v2b').disabled || vclNomVec(test.questions[test.idx],0)!=='DB') vus.push('8.4.14 : a) la paire choisie ne revient pas à la reprise');
+          q=test.questions[test.idx];
+        }
         const a=vclAttendu(q); Object.keys(a).forEach(function(id){ set(id,svrNb(a[id])); });
         const u=vclVec(q,0), v=vclVec(q,1);
         if(q.c===4){ set('vcl-eg','oui'); set('vcl-nom','bcad'); set('vcl-nat','parallélogramme'); }
@@ -16200,6 +16219,11 @@ function coordonneesDevoir(w, P){
     }
     if(ecrans.join()!=='vcl:scr-vcl,vcl:scr-vcl,vqs:scr-vqs,vcl:scr-vcl,vsm:scr-vsm') vus.push('8.4.14 : les écrans '+ecrans.join());
     if(test.score!==test.maxScore) vus.push('8.4.14 : '+test.score+' sur '+test.maxScore);
+    /* la copie vide de la question a : le calcul s'ouvre, corrigé avec AD = CB, en vert ; rien de rouge */
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    checkVcl(); clearTimeout(test.fbTimer);
+    const qa=test.questions[0];
+    if(el('vclCalc').style.display==='none' || document.querySelector('#vclCalc .bad, #vclGraph .svc-eb, #vclGraph .svr-pt.eb') || el('vcl-u-rx').value!==svrNb(vclVec(qa,0)[0]) || vclNomVec(qa,0)!=='AD' || document.querySelectorAll('#vclCorr line.svc-s').length!==2 || !el('vcl-v1a').disabled) vus.push('8.4.14 : la copie vide du a)');
     /* la copie vide de la question d : la correction en vert, avec des virgules, rien de rouge */
     currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     test.idx=3; test.kind='vcl'; show('vcl'); renderVcl(); checkVcl(); clearTimeout(test.fbTimer);
@@ -59512,7 +59536,13 @@ function premiere(w){
         && (v[1]-v[0]<100 || v[2]-v[1]<100) && N.every(x=>!x.d || x.n*1000===x.v*x.d) && forme[niv](N,v[0],v[1],v[2]);
       if(!ok) horsFiche++;
     }
-    for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
+    /* vingt fois chaque longueur : un doublon passé par distincte() ne se
+       voit qu'au hasard d'un tirage (une première fois vu ainsi) ; et deux
+       questions différentes ont deux clés différentes (cleQuestion écarte
+       tout champ « v », la valeur des nombres) */
+    for(let k=0;k<200;k++){ const a=genRgcNiveau(1+k%5), b=genRgcNiveau(1+k%5);
+      if(rgcTexte(a)!==rgcTexte(b) && cleQuestion(a)===cleQuestion(b)) doublons++; }
+    for(let r=0;r<20;r++) for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
       if(new Set(t.map(q=>rgcTexte(q))).size!==n) doublons++;
       let prec=0; t.forEach(q=>{ if(q.niv<prec) horsFiche++; prec=q.niv; });
       if(n===5 && t.map(q=>q.niv).join('')!=='12345') horsFiche++; }
