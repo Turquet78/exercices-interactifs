@@ -1384,7 +1384,27 @@ pentagones, 1 522 hexagones, épaisseur minimale tirée 62,6 ; trente séances
 du 7.1.13 dans le désordre menées au bout. Les figures déjà tirées (une pause)
 restent jouables : `esxCfg` ne refiltre pas.
 
-#### Tous les points d'intersection intéressants sont atteignables (v512)
+**Puis la parallèle se règle sur une DROITE qui porte un morceau pas encore
+tracé (Turquet, novembre 2026, v512 : « pour tracer une parallèle, quand un
+élève sélectionne une droite correspondant à un segment rouge qui n'est pas
+encore tracé, accepter cette droite pour tracer la droite et/ou le segment
+rouge parallèle passant par un point de la section »).** La référence de
+« Segment rouge parallèle » n'est plus seulement un segment rouge : un trait
+qui n'est pas rouge — une droite, un segment gris — est accepté s'il porte un
+morceau de la section (`esxCfg(q).morceaux`, les deux bouts du morceau sur la
+droite du trait). La face et la direction se lisent alors sur ce morceau, qui
+n'a pas besoin d'être tracé ; la suite est celle d'avant — segment rouge sur
+la face opposée, ou droite et segment par un point hors du cube. Un trait qui
+ne porte aucun morceau est refusé : « (AG) ne porte aucun morceau de la
+section : choisis un segment rouge, ou une droite qui contient un morceau de
+la section. » L'aide de l'outil et le message après le choix du point le
+disent. Au 7.1.13, rien ne change pour le juge : l'étape ne regarde que le
+segment tracé. **Vérifié** dans Chromium sur six figures du 7.1.12 : (IJ) ou
+(KM) tracée en droite, [IJ] ou [KM] pas tracé, la parallèle par le point
+de la face opposée sort en segment rouge ; (AG) refusée. Aucun banc ne couvre
+encore les sections du cube.
+
+#### Tous les points d'intersection intéressants sont atteignables (v513)
 
 Turquet, novembre 2026, sur une capture du 7.1.14 où (JK) et (CG)
 s'arrêtaient avant de se couper : « il faudrait que tous les points
@@ -1413,7 +1433,7 @@ Exécuté dans Chromium sur la figure de la capture : Droite, K, puis le
 croisement de (IJ) et (BA) → le point L se crée, se nomme, et (KL) se trace ;
 sans outil, le croisement de (JK) et (CG) → « Point M nommé. »
 
-Puis, le même jour, deux demandes de plus :
+Puis, le même jour, une demande de plus :
 
 * **Aucun point intéressant ne tombe sur une arête du dessin.** Sur une
   capture, M, intersection de deux droites du plan (IJK), se dessinait sur
@@ -1422,11 +1442,3 @@ Puis, le même jour, deux demandes de plus :
   le porte pas, ou à moins de 24 d'un sommet ou d'un point nommé (la règle
   qui tenait déjà L et les points de la section). Il reste 378 figures, dont
   66 pentagones ; le tirage reste à un pentagone sur deux (1490 sur 3000).
-* **Une droite qui porte un morceau de la section vaut son segment rouge pour
-  la parallèle** : « quand un élève sélectionne une droite correspondant à un
-  segment rouge qui n'est pas encore tracé, accepter cette droite ».
-  `esxParallele` règle alors la parallèle sur le morceau que la droite porte.
-  Exécuté : (KL), trace sur la face du bas, puis la parallèle par I → [IM]
-  rouge sur la face du haut ; une droite qui ne porte aucun morceau, (BA), est
-  refusée avec « Choisis un segment rouge, ou une droite qui porte un morceau
-  de la section. »

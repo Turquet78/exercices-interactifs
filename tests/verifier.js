@@ -5016,6 +5016,7 @@ function exercices(suite){
     fractionsRedigees(w, P);
     calculLitteralRedige(w, P);
     sommeProduitFractions(w, P);
+    troisFractionsPpcm(w, P);
     synthesePourcentage(w, P);
     synthesePourcentageMethode(w, P);
     syntheseLibrePourcentage(w, P);
@@ -8592,6 +8593,105 @@ function multiplierFractions(w, P){
     return vus.join(' | ');
   })()`, v => v === '', undefined);
 }
+/* ---------- {trois-fractions-ppcm} de la Première (4.11) ---------------------
+   Demande de Turquet (novembre 2026) : « additionner 3 fractions, il peut y
+   avoir une soustraction mais le résultat doit être positif ; les 3
+   dénominateurs différents entre eux, pris parmi 2-3-4, 2-3-9, 2-4-5, 3-9-6,
+   2-3-6, 2-4-8, 2-5-10, 2-6-12 ; le dénominateur commun le plus petit
+   possible ; si un élève n'écrit pas le × 1 sur la première ligne de calcul,
+   ne pas compter faux ». Déclaré par le profil (troisFractionsPpcm).
+   ① LE TIRAGE, deux cents séances par le démarreur RÉEL : chaque triplet est
+     dans la liste et CHACUN sort (2-5-10 et 2-3-6 donnent toujours un
+     résultat qui se simplifie : exiger l'irréductible les effaçait) ; le
+     dénominateur commun rangé est le PPCM ; au plus une soustraction, les
+     trois motifs ++, +−, −+ sortent ; de gauche à droite rien ne passe sous
+     zéro ; le résultat recalculé, positif, non entier ; paires guidée PUIS
+     rédigée, des mêmes signes.
+   ② LE JUGE, par de vrais évènements « input » : sur le plus petit
+     dénominateur, la copie vaut le point, × 1 écrit ou laissé VIDE (et
+     alors ni rouge ni corrigé) ; un × 2 à la place du × 1 rougit ; la même
+     copie sur un multiple commun plus grand ne vaut pas le point ; la
+     rédigée sur le plus petit est juste, sur un plus grand le juge ne
+     l'accepte pas d'office. Le 4.10, témoin, garde son dénominateur libre. */
+function troisFractionsPpcm(w, P){
+  const R = P.troisFractionsPpcm;
+  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif';
+  if(!R){ ignorer(nom, 'exercice propre à la Première'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[], id='trois-fractions-ppcm', LISTE=${JSON.stringify(R.denos)};
+    const pgcd=function(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a||1; };
+    const ppcm=function(a,b){ return a/pgcd(a,b)*b; };
+    const cle=function(t){ return t.slice().sort(function(x,y){ return x-y; }).join('-'); };
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
+    const vusT={}, vusS={}; let faute='';
+    for(let t=0;t<200 && !faute;t++){
+      currentTestId=id; TESTS[id].start();
+      if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
+      if(!test.redac){ faute='pas de question rédigée'; break; }
+      const qs=test.questions||[];
+      qs.forEach(function(q,i){
+        if(faute) return;
+        const eti=q.a+'/'+q.b+' '+q.op+' '+q.c+'/'+q.d+' '+q.op2+' '+q.e+'/'+q.f;
+        if(!!q.redac!==(i%2===1)){ faute='la question '+(i+1)+' : les paires sont guidée PUIS rédigée'; return; }
+        if(i%2===1 && (q.op!==qs[i-1].op || q.op2!==qs[i-1].op2)){ faute='la paire '+i+'/'+(i+1)+' change de signes'; return; }
+        const t3=[q.b,q.d,q.f];
+        if(new Set(t3).size!==3){ faute=eti+' : deux dénominateurs égaux'; return; }
+        if(!LISTE.some(function(l){ return cle(l)===cle(t3); })){ faute=eti+' : le triplet '+cle(t3)+' n’est pas dans la liste'; return; }
+        vusT[cle(t3)]=1;
+        const D=ppcm(ppcm(q.b,q.d),q.f);
+        if(q.D!==D){ faute=eti+' : dénominateur commun rangé '+q.D+' au lieu de '+D; return; }
+        if(['++','+−','−+'].indexOf(q.op+q.op2)<0){ faute=eti+' : signes « '+q.op+q.op2+' »'; return; }
+        vusS[q.op+q.op2]=1;
+        if(pgcd(q.a,q.b)!==1 || pgcd(q.c,q.d)!==1 || pgcd(q.e,q.f)!==1){ faute=eti+' : une fraction de départ est réductible'; return; }
+        const n1=q.a*D/q.b, n2=q.c*D/q.d, n3=q.e*D/q.f;
+        const p=(q.op==='+')?n1+n2:n1-n2, N=(q.op2==='+')?p+n3:p-n3;
+        if(p<=0){ faute=eti+' : de gauche à droite, le calcul passe sous zéro'; return; }
+        if(N!==q.N || n1!==q.N1 || n2!==q.N2 || n3!==q.N3){ faute=eti+' : les numérateurs rangés ne suivent pas le calcul'; return; }
+        if(N<=0){ faute=eti+' : résultat négatif ou nul'; return; }
+        if(N%D===0){ faute=eti+' : résultat entier'; return; }
+      });
+    }
+    if(faute) return id+' : '+faute;
+    LISTE.forEach(function(l){ if(!vusT[cle(l)]) vus.push('le triplet '+cle(l)+' ne sort jamais en 200 séances'); });
+    ['++','+−','−+'].forEach(function(k){ if(!vusS[k]) vus.push('les signes '+k+' ne sortent jamais'); });
+
+    const $=function(i){ return document.getElementById(i); };
+    const tape=function(i,v){ const el=$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
+    const peint=function(i){ const el=$(i); const c=el?el.className:'';
+      return /\\bok\\b/.test(c)?'juste':(/\\bbad\\b/.test(c)?'faux':(/\\bsol\\b/.test(c)?'correction':'rien')); };
+    const der=function(){ return test.answers[test.answers.length-1]; };
+    currentTestId=id; TESTS[id].start();
+    /* 3/8 + 1/2 + 1/4 = 3/8 + 4/8 + 2/8 = 9/8 : le × 1 est sous 3/8 */
+    const Q={a:3,b:8,c:1,d:2,e:1,f:4,op:'+',op2:'+',N1:3,N2:4,N3:2,D:8,N:9};
+    const pose=function(){ test.questions=[Object.assign({},Q)]; test.idx=0; test.locked=false; test.answers=[]; renderTsfTest(); };
+    const copie=function(m1,D){ const k=D/8;
+      if(m1!==null){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
+      tape('tsf-a2',4*k); tape('tsf-b2',4*k); tape('tsf-a3',2*k); tape('tsf-b3',2*k);
+      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-d',D); tape('tsf-fn',9*k); tape('tsf-fd',D); };
+    pose();
+    if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
+    if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
+    copie(null,8); checkTsfAnswer();
+    if(!der() || !der().correct) vus.push('le × 1 laissé vide est compté faux');
+    if(peint('tsf-a1')!=='rien' || peint('tsf-b1')!=='rien') vus.push('le × 1 laissé vide est peint ('+peint('tsf-a1')+')');
+    pose(); copie(1,8); checkTsfAnswer();
+    if(!der() || !der().correct) vus.push('la copie juste avec le × 1 écrit est comptée fausse');
+    pose(); copie(2,8); checkTsfAnswer();
+    if(der() && der().correct) vus.push('un × 2 à la place du × 1 est compté juste');
+    if(peint('tsf-a1')!=='faux') vus.push('un × 2 à la place du × 1 ne rougit pas ('+peint('tsf-a1')+')');
+    pose(); copie(2,16); checkTsfAnswer();
+    if(der() && der().correct) vus.push('la copie sur 16 (pas le plus petit dénominateur commun) est comptée juste');
+    const m=tsfrMath(Q,function(n,d){ return n+'/'+d; },'');
+    const j1=m.juge('3/8+1/2+1/4 = 3/8+4/8+2/8 = 9/8'), j2=m.juge('3/8+1/2+1/4 = 6/16+8/16+4/16 = 18/16 = 9/8');
+    if(!(j1.sait && j1.correct)) vus.push('la rédigée juste sur 8 n’est pas acceptée : '+JSON.stringify(j1));
+    if(j2.sait && j2.correct) vus.push('la rédigée sur 16 est acceptée d’office');
+    currentTestId='triple-somme-fractions'; TESTS['triple-somme-fractions'].start();
+    if(test.ppcm) vus.push('le 4.10 hérite du drapeau ppcm');
+    return vus.join(' ; ');
+  })()`, v => v === '', undefined);
+}
+
 /* ---------- {somme-produit-fractions} de la Première (4.6) ------------------
    Le 5.12 de la Seconde, porté en octobre 2026. Demande de Turquet : « les
    nombres doivent être entre 1 et 5, les fractions au départ sont
@@ -16057,14 +16157,33 @@ function coordonneesDevoir(w, P){
     const set=function(id,v){ const e=el(id); if(!e){ vus.push('8.4.14 : pas de case '+id); return; } e.value=v; };
     const ecrans=[];
     for(let i=0;i<5;i++){
-      const q=test.questions[test.idx], k=test.kind, av=test.score;
+      let q=test.questions[test.idx]; const k=test.kind, av=test.score;
       ecrans.push(k+':'+document.querySelector('.screen.on').id);
       if(el(k+'Idx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.14 : l’en-tête de la question '+q.ds);
       if(el(k+'Instr').textContent.indexOf('On a les points A'+svrCoord(q.Z.A))<0) vus.push('8.4.14 : l’énoncé du devoir manque à la question '+q.ds);
       if(k==='vcl'){
         if(q.ds==='b' && (vclOutils(q).join()!=='p2,t0,t1' || document.querySelectorAll('#vclPts .svr-pt.n').length!==2 || document.querySelectorAll('#vclPts .vds-ctx').length!==2)) vus.push('8.4.14 : b) D et B posés, A et C en gris');
         if(q.ds==='d' && (vclOutils(q).join()!=='t1' || document.querySelectorAll('#vclFl line.vsm-k').length!==1 || document.querySelectorAll('#vclPts .svr-pt.n').length!==4)) vus.push('8.4.14 : d) F posé et AF tracé par la page');
+        const cache=function(){ return el('vclCalc').style.display==='none'; };
+        if(q.ds==='a' && (vclOutils(q).join()!=='p0,p1,p2,p3' || !q.eg || !cache() || !el('vcl-v1a') || !el('vcl-v1a').disabled || el('vclInstr').textContent.indexOf('puis trace')>=0 || document.querySelector('#vclBody .svr-out[id^="vcl-t"]'))) vus.push('8.4.14 : a) sans tracé de vecteur, le calcul caché, les listes fermées ('+vclOutils(q).join()+')');
         vclOutils(q).forEach(function(o){ vclOutil(o); const kk=+o[1]; if(o[0]==='p') vclPose(q.P[kk][0],q.P[kk][1]); else { const w2=vclW(q,kk); vclPose(q.P[w2[0]][0],q.P[w2[0]][1]); vclPose(q.P[w2[1]][0],q.P[w2[1]][1]); } });
+        if(q.ds==='a'){
+          if(!document.querySelector('#vclFl polygon.vcl-pgm') || el('vcl-v1a').disabled) vus.push('8.4.14 : a) les quatre points ne tracent pas le parallélogramme, ou n’ouvrent pas les listes');
+          const choisir=function(n1,n2){ set('vcl-v1a',n1[0]); set('vcl-v1b',n1[1]); set('vcl-v2a',n2[0]); set('vcl-v2b',n2[1]); vclEgChoix(); return el('vclVerif'); };
+          [['AD','DB','se suivent'],['AD','BC','pas le même sens'],['AB','DC','diagonale'],['AD','AD','deux fois le même']].forEach(function(c){
+            const v=choisir(c[0],c[1]);
+            if(!v.classList.contains('bad') || v.textContent.indexOf(c[2])<0 || !cache() || q.vc) vus.push('8.4.14 : a) '+c[0]+' et '+c[1]+' : '+v.className+' '+v.textContent.slice(0,120));
+          });
+          set('vcl-v2a',''); set('vcl-v2b',''); vclEgChoix();
+          if(document.querySelectorAll('#vclFl line.vcl-v1').length!==1 || document.querySelector('#vclFl line.vcl-v2')) vus.push('8.4.14 : a) le premier vecteur n’est pas tracé seul en orange');
+          const v=choisir('DB','AC');
+          if(!v.classList.contains('good') || cache() || JSON.stringify(q.vc)!=='["DB","AC"]' || !el('vcl-v1a').disabled || document.querySelectorAll('#vclFl line.vcl-v2').length!==1) vus.push('8.4.14 : a) DB = AC n’ouvre pas le calcul : '+v.textContent.slice(0,120));
+          if(vclNomVec(q,0)!=='DB' || vclNomVec(q,1)!=='AC' || el('vclCalc').textContent.indexOf('DB')<0) vus.push('8.4.14 : a) le calcul ne suit pas les vecteurs de l’élève');
+          /* la reprise : la paire figée revient du JSON */
+          test.questions[test.idx]=JSON.parse(JSON.stringify(q)); renderVcl();
+          if(cache() || el('vcl-v2b').value!=='C' || !el('vcl-v2b').disabled || vclNomVec(test.questions[test.idx],0)!=='DB') vus.push('8.4.14 : a) la paire choisie ne revient pas à la reprise');
+          q=test.questions[test.idx];
+        }
         const a=vclAttendu(q); Object.keys(a).forEach(function(id){ set(id,svrNb(a[id])); });
         const u=vclVec(q,0), v=vclVec(q,1);
         if(q.c===4){ set('vcl-eg','oui'); set('vcl-nom','bcad'); set('vcl-nat','parallélogramme'); }
@@ -16091,6 +16210,11 @@ function coordonneesDevoir(w, P){
     }
     if(ecrans.join()!=='vcl:scr-vcl,vcl:scr-vcl,vqs:scr-vqs,vcl:scr-vcl,vsm:scr-vsm') vus.push('8.4.14 : les écrans '+ecrans.join());
     if(test.score!==test.maxScore) vus.push('8.4.14 : '+test.score+' sur '+test.maxScore);
+    /* la copie vide de la question a : le calcul s'ouvre, corrigé avec AD = CB, en vert ; rien de rouge */
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    checkVcl(); clearTimeout(test.fbTimer);
+    const qa=test.questions[0];
+    if(el('vclCalc').style.display==='none' || document.querySelector('#vclCalc .bad, #vclGraph .svc-eb, #vclGraph .svr-pt.eb') || el('vcl-u-rx').value!==svrNb(vclVec(qa,0)[0]) || vclNomVec(qa,0)!=='AD' || document.querySelectorAll('#vclCorr line.svc-s').length!==2 || !el('vcl-v1a').disabled) vus.push('8.4.14 : la copie vide du a)');
     /* la copie vide de la question d : la correction en vert, avec des virgules, rien de rouge */
     currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     test.idx=3; test.kind='vcl'; show('vcl'); renderVcl(); checkVcl(); clearTimeout(test.fbTimer);
@@ -59256,22 +59380,45 @@ function premiere(w){
   verifier('{valeur-approchee} : une séance d’une autre longueur (1 à DM_NBQ_MAX) garde l’ordre de la fiche', vapOrdre === 0, vapOrdre + ' écarts');
   verifier('{valeur-approchee} : les attendus sont exacts (10⁻² + 10 ≈ 10, 0,01 × 10 = 0,1, 101 × 999 ≈ 100 000)', vapFaux === 0, vapFaux + ' valeurs fausses');
 
-  /* {ranger-croissant} (1.15) : les CINQ lignes de la fiche « Ranger dans
-     l'ordre croissant » de Turquet (novembre 2026), avec ses nombres et dans
-     son ordre ; les cases reçoivent des NOMBRES DÉCIMAUX — 0,40 vaut 0,4, une
-     lettre ou une fraction ne valent rien ; une séance de 1 à DM_NBQ_MAX
+  /* {ranger-croissant} (1.15) : les CINQ niveaux de la fiche « Ranger dans
+     l'ordre croissant » de Turquet (novembre 2026), dans son ordre, avec des
+     nombres TIRÉS — chaque niveau garde la forme de sa ligne, trois nombres
+     distincts strictement entre 0 et 1, deux au moins à moins de 0,1 l'un de
+     l'autre (3 000 tirages par niveau) ; une séance mise en pause avant le
+     tirage (q.f) se relit encore ; une case reçoit un nombre décimal ou une fraction égale —
+     0,40 vaut 0,4, 4/10 vaut 2/5 —, une lettre ou un calcul ne valent rien
+     (le rangement accepte la fraction depuis novembre 2026) ; une séance de 1 à DM_NBQ_MAX
      questions ne pose jamais deux fois la même. */
   const rgcR = w.eval(`(function(){
-    const FICHE=['0,2;0,1;0,18|0,1<0,18<0,2','0,6;0,5;0,09|0,09<0,5<0,6','0,08;0,81;0,8|0,08<0,8<0,81',
-                 '2/5;0,39;3/10|0,3<0,39<0,4','1/4;0,29;3/10|0,25<0,29<0,3'];
     let horsFiche=0, doublons=0, juge=0;
-    const qs=distinctes(5,function(_,i){ return genRgc(i,5); });
-    qs.forEach((q,i)=>{ const s=rgcNombres(q).map(rgcNbStr).join(';')+'|'+rgcReponse(q).replace(/ /g,'');
-      if(s!==FICHE[i]) horsFiche++; });
-    for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
+    /* la forme de chaque niveau, sur les valeurs rangées a < b < c (millièmes) */
+    const deux=v=>v%100!==0 && v%10===0, dix=v=>v%100===0;
+    const forme={
+      1:(N,a,b,c)=>!N.some(x=>x.d) && dix(a)&&dix(c)&&c-a===100&&deux(b),
+      2:(N,a,b,c)=>!N.some(x=>x.d) && a<100&&dix(b)&&deux(c)&&c-b<100&&a/10>b/100,
+      3:(N,a,b,c)=>!N.some(x=>x.d) && a<100&&dix(b)&&deux(c)&&c-b<100&&a/10===b/100,
+      4:(N,a,b,c)=>N.filter(x=>x.d===10||x.d===5||x.d===2).length===2 && dix(a)&&dix(c)&&c-a===100&&deux(b)&&!N.find(x=>x.v===b).d,
+      5:(N,a,b,c)=>N.filter(x=>x.d===4).length===1 && N.filter(x=>x.d&&x.d!==4).length===1 && !N.find(x=>x.v===b).d && deux(b) && c-a===50
+    };
+    for(let niv=1;niv<=5;niv++) for(let k=0;k<3000;k++){
+      const q=genRgcNiveau(niv), N=rgcNombres(q), v=N.map(x=>x.v).sort((x,y)=>x-y);
+      const ok=q.niv===niv && N.length===3 && v[0]>0 && v[2]<1000 && v[0]<v[1] && v[1]<v[2]
+        && (v[1]-v[0]<100 || v[2]-v[1]<100) && N.every(x=>!x.d || x.n*1000===x.v*x.d) && forme[niv](N,v[0],v[1],v[2]);
+      if(!ok) horsFiche++;
+    }
+    /* vingt fois chaque longueur : un doublon passé par distincte() ne se
+       voit qu'au hasard d'un tirage (une première fois vu ainsi) ; et deux
+       questions différentes ont deux clés différentes (cleQuestion écarte
+       tout champ « v », la valeur des nombres) */
+    for(let k=0;k<200;k++){ const a=genRgcNiveau(1+k%5), b=genRgcNiveau(1+k%5);
+      if(rgcTexte(a)!==rgcTexte(b) && cleQuestion(a)===cleQuestion(b)) doublons++; }
+    for(let r=0;r<20;r++) for(let n=1;n<=DM_NBQ_MAX;n++){ const t=distinctes(n,function(_,i){ return genRgc(i,n); });
       if(new Set(t.map(q=>rgcTexte(q))).size!==n) doublons++;
-      let prec=-1; if(n<=5) t.forEach(q=>{ if(q.f<prec) horsFiche++; prec=q.f; }); }
-    [['0,4',400,true],['0,40',400,true],['0.4',400,true],['0,04',400,false],['2/5',400,false],['A',400,false],['',400,false],['0,25',250,true],['0,3',300,true]]
+      let prec=0; t.forEach(q=>{ if(q.niv<prec) horsFiche++; prec=q.niv; });
+      if(n===5 && t.map(q=>q.niv).join('')!=='12345') horsFiche++; }
+    /* une séance mise en pause avant le tirage se relit avec les nombres de la fiche */
+    if(rgcTexte({f:3,p:0})!=='2/5 ; 0,39 ; 3/10') horsFiche++;
+    [['0,4',400,true],['0,40',400,true],['0.4',400,true],['0,04',400,false],['2/5',400,true],['4/10',400,true],['1/4',400,false],['3/10',300,true],['A',400,false],['2+2',400,false],['',400,false],['0,25',250,true],['0,3',300,true]]
       .forEach(c=>{ const s=String(c[0]).replace(/\\./g,','); if(rgcVaut(s,c[1])!==c[2]) juge++; });
     /* le coup de pouce : chaque fraction en décimal, puis les zéros ajoutés */
     let pouce=0;
@@ -59282,10 +59429,10 @@ function premiere(w){
     return horsFiche+'|'+doublons+'|'+juge+'|'+pouce;
   })()`);
   const [rgcFiche, rgcDoublons, rgcJuge, rgcPouce] = rgcR.split('|').map(Number);
-  verifier('{ranger-croissant} : la séance suit les cinq lignes de la fiche, avec ses nombres et dans son ordre', rgcFiche === 0, rgcFiche + ' écarts');
+  verifier('{ranger-croissant} : cinq niveaux dans l’ordre de la fiche, nombres tirés entre 0 et 1, deux au moins à moins d’un dixième (3 000 tirages par niveau)', rgcFiche === 0, rgcFiche + ' écarts');
   verifier('{ranger-croissant} : une séance de 1 à DM_NBQ_MAX questions ne pose jamais deux fois la même', rgcDoublons === 0, rgcDoublons + ' séances avec un doublon');
   verifier('{ranger-croissant} : le coup de pouce écrit les fractions en décimal et ajoute les zéros (0,4 = 0,40 ; 0,3 = 0,30)', rgcPouce === 0, rgcPouce + ' écritures manquantes');
-  verifier('{ranger-croissant} : une case vaut un nombre décimal (0,40 = 0,4), jamais une lettre ni une fraction', rgcJuge === 0, rgcJuge + ' jugements faux');
+  verifier('{ranger-croissant} : une case vaut un nombre décimal (0,40 = 0,4) ou une fraction égale (2/5 = 4/10), jamais une lettre ni un calcul', rgcJuge === 0, rgcJuge + ' jugements faux');
 
   /* {valeur-approchee}, partie 2 : la fraction (0,01 = 1/100) est FACULTATIVE
      (demande de Turquet, novembre 2026) — laissée vide, elle ne coûte rien et

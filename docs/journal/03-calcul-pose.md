@@ -393,3 +393,62 @@ le bouton disparaît. Il ne remplit aucune case, ne juge rien et ne coûte aucun
 point ; ouvert, il le reste pour la question, pause comprise (`test.rgcPouce`).
 Banc : « {ranger-croissant} : le coup de pouce écrit les fractions en décimal
 et ajoute les zéros… ».
+Puis, le lendemain : « ne pas mettre A =, B = et C = dans l'énoncé » (v448).
+Les trois nombres s'écrivent nus (0,2   0,1   0,18 ; 2/5 = [ ]   0,39
+3/10 = [ ]) ; les lettres quittent aussi le coup de pouce (2/5 = 0,4 = 0,40),
+le message de méthode, le compte rendu, le contexte de l'aide et le corrigé
+type. Le message « pas les lettres » tombe avec elles ; le juge, lui, ne
+change pas — une case n'accepte toujours qu'un nombre décimal.
+Puis, le même jour : « accepter qu'un élève ne donne pas la valeur décimale
+d'une fraction, et accepter qu'un élève donne la fraction plutôt que la valeur
+décimale dans le rangement ; on mettra l'écriture fractionnaire dans la case si
+l'élève donne une fraction » (v448, avec le retrait des lettres). La case
+« 2/5 = [ ] » devient FACULTATIVE (`data-facultatif`, `rgcFacultative`) : vide,
+elle ne rougit pas, ne reçoit aucune correction et ne fait pas ouvrir « Il
+reste des cases vides » ; écrite, elle se juge. Le rangement accepte un nombre
+décimal OU une fraction égale (`rgcValeur` : 2/5, 4/10) ; la fraction tapée au
+« / » s'empile dans la case (MathLive), et la case grandit pour la contenir
+(`height:auto`, comme au 1.12). Piège vu en tapant pour de vrai au clavier :
+la valeur d'une case MathLive de cette page rend la fraction en « (3)/(10) »,
+pas en `\frac{3}{10}` — `rgcLire` lève les parenthèses autour d'un nombre
+seul ; un contrôle qui aurait posé `\frac{3}{10}` par programme ne l'aurait
+pas vu. Une fraction fausse du rangement est corrigée par la fraction de
+l'énoncé quand le nombre attendu en est une, sinon par le décimal. Le message
+« pas des fractions » est retiré ; l'énoncé dit « (facultatif) » et « des
+nombres décimaux ou des fractions ».
+
+Puis les valeurs sont TIRÉES (v450) : « tu peux changer les valeurs, mais il
+faut des questions de niveau équivalent avec des nombres entre 0 et 1 et au
+moins deux qui sont proches à moins d'un dixième près ». Cinq niveaux, un par
+ligne de la fiche, chacun gardant le piège de sa ligne (`genRgcNiveau`) :
+① deux dixièmes voisins et un centième entre eux (0,3 ; 0,39 ; 0,4) ;
+② 0,t ; 0,tu ; 0,0d avec d > t — le nombre « long » est le plus petit
+(0,3 ; 0,31 ; 0,06) ; ③ 0,0d ; 0,d ; 0,du (0,09 ; 0,9 ; 0,93) ; ④ deux
+fractions de dixièmes voisins et un décimal entre elles (1/2 ; 0,59 ; 3/5) ;
+⑤ 1/4 ou 3/4, une fraction de dixièmes à 0,05, un décimal entre les deux
+(3/4 ; 0,78 ; 4/5). Chaque tirage passe par `rgcTirageOk` : trois valeurs
+distinctes, strictement entre 0 et 1, et deux au moins à MOINS de 0,1 —
+« à moins d'un dixième près » lu au sens strict : 0,5 et 0,6 ne comptent
+pas, ce qui a fait passer la ligne ② de la fiche de 0,5 ; 0,6 à 0,t ; 0,tu.
+L'ordre d'affichage est tiré (`q.nb`), le niveau se lit sur la place dans la
+séance (`rgcNiveau`, comme au 1.11). `RGC_FICHE` reste : elle relit une séance
+mise en pause avant le tirage (`q.f`). Le corrigé type de l'aide tire une
+autre question du même niveau. Banc : « {ranger-croissant} : cinq niveaux
+dans l'ordre de la fiche, nombres tirés entre 0 et 1, deux au moins à moins
+d'un dixième » (3 000 tirages par niveau, la forme de chaque niveau ; l'ordre
+des niveaux de 1 à DM_NBQ_MAX questions ; la relecture d'une séance d'avant).
+Puis, à peine en ligne, un DOUBLON trouvé par le banc (v451) : relancé pour un
+simple changement de version, le contrôle « une séance de 1 à DM_NBQ_MAX
+questions ne pose jamais deux fois la même » a rougi — une fois, au hasard
+d'un tirage ; l'action l'avait passé vert. Cause : `cleQuestion()`, la clé
+de `distincte()`, écarte tout champ nommé `v` (`CLE_HORS` — la variante
+d'énoncé des autres exercices), et la valeur de chaque nombre de `q.nb` en
+est un. Deux questions d'un même niveau avaient donc la même clé : la
+protection contre les répétitions ne faisait rien, et ne rendait la main
+qu'au bout de ses 200 essais. Remède : la question porte aussi `txt`, le
+texte de ses trois nombres, qui entre dans la clé. Le contrôle tient
+désormais le bord au lieu de l'attendre : deux questions de textes
+différents ont deux clés différentes (200 paires), et chaque longueur de
+séance est tirée vingt fois. Éprouvé par sabotage — `txt` retiré : « 128
+séances avec un doublon ». Le piège vaut pour tout exercice futur : un
+champ de question nommé `v` est invisible à `distincte()`.

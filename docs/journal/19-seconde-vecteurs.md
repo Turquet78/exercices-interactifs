@@ -6965,3 +6965,43 @@ ordre) avec ce que la page pose d'avance et les points gris ; la copie vide
 du d) (les virgules, rien de rouge) ; la reprise d'une pause sur la question
 c, puis la suite vers le d). Le banc des notes et celui de la pause, restreints
 au 8.4.14 : verts.
+
+### Puis la question a) a pris les vecteurs de l'élève, comme au 8.4.10 (Seconde v710)
+
+**La demande** (Turquet, novembre 2026) : « dans le 8.4.14, pour la question 1
+supprimer tracer les vecteurs… sinon pour la question 2 tracer le
+parallélogramme et demander à l'élève de donner deux vecteurs égaux sur ce
+parallélogramme comme dans l'exercice 8.4.10. On tracera les vecteurs de
+l'élève et on lui dira si c'est bon ou faux comme dans le 8.4.10. Il ne pourra
+continuer que si c'est bon. On continuera la résolution de la question avec
+les vecteurs de l'élève comme dans le 8.4.10. » Les « questions 1 et 2 » sont
+les étapes 1) et 2) de la question a) (ADBC parallélogramme), seule touchée.
+
+**Un drapeau sur la question, le moteur du 8.4.13 inchangé** (`q.eg`, posé
+par `vdsGen` au a) seulement). 1) Les quatre points, sans « Tracer »
+(`vclOutils` écarte t0 et t1). 2) Dès que les quatre points sont justes
+(`vclEgPoints`), la page trace ADBC en trait plein (`vcl-pgm`, jamais
+`vcl-droite` : la correction garde son pointillé) et ouvre deux paires de
+listes sous deux flèches, orange et violet — `vpgNomHTML` du 8.4.10, préfixe
+`vcl`. Chaque vecteur nommé se trace sur la figure dans sa couleur, et la page
+dit au fil des listes, dans tous les modes (`vclEgVerdict`) : égaux (deux
+côtés opposés, même sens) ; même direction et longueur mais sens contraire ;
+une diagonale ; deux côtés qui se suivent ; deux fois le même ; une lettre
+deux fois. 3) Le calcul (`#vclCalc`) reste caché tant que la paire n'est pas
+juste ; juste, elle se FIGE (`q.vc`, listes fermées) et le calcul se réécrit
+avec elle (`vclW` lit `q.vc` : DB⃗ = AC⃗ se calcule DB⃗ et AC⃗, « Donc DB⃗ et
+AC⃗ sont égaux »). 4) La conclusion, inchangée.
+
+**Le barème ne dépend pas du choix** : les listes ne sont pas des réponses
+comptées (la paire est toujours juste quand le calcul s'ouvre) ; la question
+passe de 21 à 19 réponses (les deux tracés retirés). Une copie vérifiée sans
+paire juste montre le calcul, corrigé avec AD⃗ = CB⃗ (`VCL_EG_W`), la paire
+tracée en vert. La reprise rend la paire figée (`q.vc`) ou les listes en cours
+(`q.vs`) ; une `q.vc` qui ne serait plus juste est oubliée.
+
+**Le banc** (`coordonneesDevoir`) : au a), aucun « Tracer », le calcul caché,
+les listes fermées ; les quatre points tracent ADBC et ouvrent les listes ;
+AD⃗/DB⃗, AD⃗/BC⃗, AB⃗/DC⃗, AD⃗/AD⃗ rougissent sans ouvrir le calcul ; AD⃗ seul
+est tracé en orange ; DB⃗ = AC⃗ ouvre le calcul, qui les nomme ; la reprise
+après JSON ; la copie juste menée sur DB⃗ = AC⃗ ; la copie vide du a)
+(calcul montré, AD⃗ = CB⃗ en vert, rien de rouge).
