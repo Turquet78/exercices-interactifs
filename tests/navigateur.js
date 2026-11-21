@@ -9141,6 +9141,10 @@ if(require.main === module) (async () => {
             .find(e => e.getBoundingClientRect().width > 0);
           if(!c) return null; c.focus(); return c.id || '(sans id)';
         });
+        /* un exercice tout rédigé (une feuille, aucune case) se DÉCLARE, raison
+           comprise (E.sansRangee) ; une déclaration qui trouve des cases rougit */
+        const sansRangee = (E.sansRangee || {})[id];
+        if(sansRangee){ if(premiere) dits.push(num + ' : déclaré sans rangée (' + sansRangee + '), mais une case s\'y trouve'); continue; }
         if(!premiere){ dits.push(num + ' : aucune case à remplir dans la rangée'); continue; }
         await s.page.waitForTimeout(60);
         await s.page.keyboard.type('97', { delay: 20 });

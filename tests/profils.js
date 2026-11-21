@@ -304,6 +304,9 @@ module.exports = {
          par des traits (des boutons, hors du relevé) — la rangée à cases est
          celle des calculs de la partie 5, posée ici avant la mesure. */
       questionCases: { 'relier-fractions': { rendu: 'renderRlf', q: { e: 5, P: 20, N: 15, n: 1, d: 5 } } },
+      /* {trois-fractions-ppcm-redige} (4.12) : tout se rédige dans une feuille,
+         il n'y a aucune rangée à cases à mesurer */
+      sansRangee: { 'trois-fractions-ppcm-redige': 'tout le calcul se rédige dans une feuille, sans aucune case' },
       maillons: { 'revision-fractions': [
         { nom: 'produit à compléter', rendu: 'renderRvfTest', q: { type: 'diff-add', n1: 3, d1: 4, n2: 3, d2: 5 }, cases: ['rvf-a1', 'rvf-b1'] },
         { nom: 'simplification', rendu: 'renderRvfTest', q: { type: 'mult-frac', n1: 2, d1: 3, n2: 3, d2: 4, svu: true }, cases: ['rvf-s0-dn', 'rvf-s0-dd'] } ] } },
@@ -662,7 +665,8 @@ module.exports = {
        resumeTest). Une déclaration qui ne sert plus rougit. */
     pauseReprise: { minuterie: 'calcul-mental', parcours: 'fractions-decimales', horsAtteinte: {
       'tables-multiplication': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
-      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause'
+      'tables-multiplication-2': 'une table se joue au clavier contre la montre : pas de « Vérifier », pas de question verrouillée à mettre en pause',
+      'trois-fractions-ppcm-redige': 'calcul libre que la page refuse tant qu\'il n\'est pas écrit à la suite de l\'énoncé : le banc ne sait pas l\'écrire (comme les exercices libres de la Seconde ; la rédigée du 4.11, même feuille, est reprise par sa guidée)'
     } },
     /* tests/notes.js — la note enregistrée est celle qui s'affiche. Quand
        une copie vide n'atteint pas la fin (une colonne à colorier, une table
