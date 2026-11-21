@@ -325,6 +325,9 @@ module.exports = {
        (mesuré dans le banc navigateur) ; et après chaque guidée, une question
        RÉDIGÉE sur la même page, comme au 4.3 (sommeProduitRedigee). */
     sommeProduit: { max: 5, inter: 6 },
+    /* {trois-fractions-ppcm} (4.11, novembre 2026) : les triplets de
+       dénominateurs de la demande de Turquet, tels qu'il les a écrits. */
+    troisFractionsPpcm: { denos: [[2,3,4],[2,3,9],[2,4,5],[3,9,6],[2,3,6],[2,4,8],[2,5,10],[2,6,12]] },
     /* Les fractions de DÉPART d'un calcul de fractions sont irréductibles
        (décision de Turquet, octobre 2026). Le contrôle démarre chaque exercice
        de fractions et lit ses questions ; ne se déclarent ici que ceux dont le

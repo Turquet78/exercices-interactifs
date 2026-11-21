@@ -4100,7 +4100,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=447;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=448;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4690,6 +4690,7 @@ const TESTS={
      suivie d'une rédigée (voir l'en-tête de pqdGen). Ajoutés en fin de thème. */
   'produit-difference-fractions': { name:'Un produit avec une diff\u00e9rence dedans', icon:'\u2716\ufe0f', desc:'a/b\u00d7(c/d\u2212e/f)\u00a0: la parenth\u00e8se se calcule D\u2019ABORD par des cases, puis le produit, comme en {multiplier-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdH() },
   'quotient-difference-fractions': { name:'Un quotient avec une diff\u00e9rence dedans', icon:'\u2797', desc:'Comme {produit-difference-fractions}, avec un maillon de plus\u00a0: diviser, c\u2019est multiplier par l\u2019inverse \u2014 comme en {diviser-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdI() },
+  'trois-fractions-ppcm': { name:'Trois fractions, le plus petit d\u00e9nominateur commun', icon:'\u2795', desc:'Trois fractions \u00e0 additionner \u2014 une soustraction peut s\u2019y glisser, le r\u00e9sultat reste positif\u00a0: trois d\u00e9nominateurs diff\u00e9rents, \u00e0 mettre sur le PLUS PETIT d\u00e9nominateur commun, par des cases. Le \u00ab\u00a0\u00d7\u00a01\u00a0\u00bb peut se laisser vide. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf3() },
   'triple-somme-fractions': { name:'La somme de trois fractions', icon:'\u2795', desc:'a/b+c/d\u2212e/f ou a/b\u2212c/d\u2212e/f\u00a0: trois fractions \u00e0 mettre au m\u00eame d\u00e9nominateur, le plus petit possible, par des cases \u2014 aucune priorit\u00e9 \u00e0 respecter ici, on calcule de gauche \u00e0 droite. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf() },
   /* Le thème 5, Calcul littéral : les 7.8 à 7.10 de la Seconde, avec leur
      question rédigée (demande de Turquet, novembre 2026). */
@@ -4780,7 +4781,7 @@ const THEMES=[
      pris ici par le 1.9 : le 4.3 porte donc un identifiant neuf. */
   /* Puis : « reprendre le 5.12 de seconde et le mettre en première ». Ajouté
      EN DERNIER (4.6), il ne renumérote rien. */
-  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions','relier-fractions','produit-difference-fractions','quotient-difference-fractions','triple-somme-fractions'] },
+  { num:4, nom:'Fractions', ids:['revision-fractions','croiser-denominateurs','somme-fractions-2','multiplier-fractions','diviser-fractions','somme-produit-fractions','relier-fractions','produit-difference-fractions','quotient-difference-fractions','triple-somme-fractions','trois-fractions-ppcm'] },
   /* Demande de Turquet, novembre 2026 : « mets les exercices de seconde 7.8 ;
      7.9 ; 7.10 en première dans un thème calcul littéral », chacun suivi
      d'une question rédigée. Ajouté EN DERNIER, il ne renumérote rien ; les
@@ -4966,7 +4967,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') startTsf(); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.ppcm?startTsf3():startTsf()); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -23951,32 +23952,80 @@ function tsfGen(op, i){
   return (op==='+') ? {a:1,b:2,c:3,d:4,e:5,f:8,op:'+',N1:4,N2:6,N3:5,D:8,N:5}
                     : {a:7,b:8,c:1,d:4,e:1,f:2,op:'−',N1:7,N2:2,N3:4,D:8,N:1};
 }
+/* {trois-fractions-ppcm} (4.11, novembre 2026) : le MÊME moteur, drapeau
+   test.ppcm. Demande de Turquet : trois fractions à additionner, une
+   soustraction possible mais un résultat positif, trois dénominateurs
+   DIFFÉRENTS pris dans une liste fermée (TSF3_DENOS), et le dénominateur
+   commun LE PLUS PETIT POSSIBLE — exigé, pas seulement conseillé. Une paire
+   « × 1 » (la fraction déjà sur le dénominateur commun) laissée vide n'est
+   pas comptée fausse. Les deux signes vivent dans la question (q.op, q.op2) ;
+   au plus une soustraction, et rien ne passe au-dessous de zéro de gauche à
+   droite. Le résultat n'est pas entier ; il PEUT se simplifier — avec 2, 5
+   et 10 ou 2, 3 et 6 il se simplifie toujours (5a + 2c + e est pair quand a
+   et e sont impairs), si bien qu'exiger un résultat irréductible aurait
+   effacé deux triplets de la liste. La case finale accepte toute fraction
+   égale ; la rédigée signale une fin non simplifiée. Le triplet est tiré
+   d'abord, uniformément, puis les numérateurs : chaque triplet sort aussi
+   souvent que les autres. */
+const TSF3_DENOS=[[2,3,4],[2,3,9],[2,4,5],[3,9,6],[2,3,6],[2,4,8],[2,5,10],[2,6,12]];
+const TSF3_SIGNES=[['+','+'],['+','−'],['−','+']];
+const TSF3_MAX=60;
+function tsf3Gen(op, i){
+  const sg = TSF3_SIGNES[(typeof i==='number' ? Math.floor(i/2) : rand(0,2)) % 3];
+  for(let essai=0; essai<4000; essai++){
+    if(essai%200===0){ var t=pick(TSF3_DENOS).slice();
+      for(let k=t.length-1;k>0;k--){ const j=rand(0,k), x=t[k]; t[k]=t[j]; t[j]=x; } }
+    const b=t[0], d=t[1], f=t[2], D=tsfPpcm(tsfPpcm(b,d),f);
+    const a=rand(1,9), c=rand(1,9), e=rand(1,9);
+    if(gcd(a,b)!==1 || gcd(c,d)!==1 || gcd(e,f)!==1) continue;
+    const N1=a*D/b, N2=c*D/d, N3=e*D/f;
+    if(N1>TSF3_MAX || N2>TSF3_MAX || N3>TSF3_MAX) continue;
+    const P=(sg[0]==='+') ? N1+N2 : N1-N2, N=(sg[1]==='+') ? P+N3 : P-N3;
+    if(P<=0 || N<=0) continue;                   /* la soustraction reste positive */
+    if(P>TSF3_MAX || N>TSF3_MAX) continue;
+    if(N%D===0) continue;
+    return {a:a,b:b,c:c,d:d,e:e,f:f,op:sg[0],op2:sg[1],N1:N1,N2:N2,N3:N3,D:D,N:N};
+  }
+  return {a:1,b:2,c:2,d:3,e:1,f:4,op:'+',op2:'+',N1:6,N2:8,N3:3,D:12,N:17};
+}
 const TSF_NB=4;
-function tsfBuildQuestions(){ return redPaires(TSF_NB, tsfGen); }
+function tsfBuildQuestions(){ return redPaires(TSF_NB, (test && test.ppcm) ? tsf3Gen : tsfGen); }
 function tsfCases(){ return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-d','tsf-fn','tsf-fd']; }
 function tsfOp(q){ return q.op==='−' ? '−' : '+'; }
-function tsfTexte(q){ return q.a+'/'+q.b+' '+tsfOp(q)+' '+q.c+'/'+q.d+' − '+q.e+'/'+q.f; }
+/* le second signe : toujours « − » au 4.10, libre au 4.11 (q.op2) */
+function tsfOp2(q){ return q.op2==='+' ? '+' : '−'; }
+function tsfTexte(q){ return q.a+'/'+q.b+' '+tsfOp(q)+' '+q.c+'/'+q.d+' '+tsfOp2(q)+' '+q.e+'/'+q.f; }
+/* 4.11 : la paire « × 1 » de la fraction déjà sur le dénominateur commun est
+   FACULTATIVE — laissée vide, elle n'est ni fausse ni réclamée. */
+function tsfFac(q, i){ return !!(test && test.ppcm) && [q.b,q.d,q.f][i]===q.D; }
+function tsfPaireVide(i){ return pfVide([['tsf-a1','tsf-b1'],['tsf-a2','tsf-b2'],['tsf-a3','tsf-b3']][i]); }
+function tsfCasesExigees(q){
+  const fac=[0,1,2].filter(function(i){ return tsfFac(q,i) && tsfPaireVide(i); }).map(function(i){ return ['tsf-a'+(i+1),'tsf-b'+(i+1)]; });
+  const hors=[].concat.apply([], fac);
+  return tsfCases().filter(function(id){ return hors.indexOf(id)<0; });
+}
 function renderTsfTest(){
   if(test.redac && sfrRendu()) return;
   const q=test.questions[test.idx]; test.locked=false;
-  const op=tsfOp(q);
+  const op=tsfOp(q), op2=tsfOp2(q);
   $('tsfIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagTsf').innerHTML=modeTagHTML();
   $('tsfLiveScore').textContent=test.score;
   $('tsfFeedback').textContent=''; $('tsfFeedback').className='mp-feedback';
   $('tsfActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkTsfAnswer()">Vérifier</button>';
-  $('tsfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f)+'.';
+  $('tsfPrompt').innerHTML='Calcule '+sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>'+op2+'</b> '+sfTermeHTML(q.e,q.f)+'.';
   $('tsfHost').innerHTML=
     '<div class="pt-step"><div class="pt-lab">① mettre les trois fractions au même dénominateur (le plus petit possible)&nbsp;· ② le calcul sur ce dénominateur&nbsp;· ③ la fraction finale</div>'
      +'<div class="pt-row">'
-       +lgLigne(false, sfTermeHTML(q.a,q.b)+lgOp(op)+sfTermeHTML(q.c,q.d)+lgOp('−')+sfTermeHTML(q.e,q.f))
-       +lgLigne(true, lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp('−')+lgProduit(q.e,q.f,'tsf-a3','tsf-b3'))
+       +lgLigne(false, sfTermeHTML(q.a,q.b)+lgOp(op)+sfTermeHTML(q.c,q.d)+lgOp(op2)+sfTermeHTML(q.e,q.f))
+       +lgLigne(true, lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3'))
        +lgLigne(true, '<span class="f-frac-input sf-somme">'
-         +'<span class="sf-haut">'+lgMF('tsf-n1','f-num','premier numérateur')+'<span class="f-times">'+op+'</span>'+lgMF('tsf-n2','f-num','second numérateur')+'<span class="f-times">−</span>'+lgMF('tsf-n3','f-num','troisième numérateur')+'</span>'
+         +'<span class="sf-haut">'+lgMF('tsf-n1','f-num','premier numérateur')+'<span class="f-times">'+op+'</span>'+lgMF('tsf-n2','f-num','second numérateur')+'<span class="f-times">'+op2+'</span>'+lgMF('tsf-n3','f-num','troisième numérateur')+'</span>'
          +'<span class="f-fbar"></span>'
          +lgMF('tsf-d','f-den','dénominateur commun')+'</span>')
        +lgLigne(true, lgFrac('tsf-fn','tsf-fd','numérateur final','dénominateur final'))
      +'</div></div>';
+  [0,1,2].forEach(function(i){ if(tsfFac(q,i)) ['tsf-a'+(i+1),'tsf-b'+(i+1)].forEach(function(id){ const el=$(id); if(el) el.setAttribute('data-facultatif',''); }); });
   lgEntree(tsfCases(), checkTsfAnswer);
 }
 /* LE DÉNOMINATEUR COMMUN EST LIBRE, la règle du 4.6 (pfCroixJuge) portée à
@@ -23992,7 +24041,9 @@ function tsfJuge(q){
   };
   const ms=paires.map(function(p){ return mult(pfLu(p[0]),pfLu(p[1])); });
   const Ds=ms.map(function(m,i){ return m>0 ? dens[i]*m : 0; });
-  const commun=function(x){ return x>0 && dens.every(function(dd){ return x%dd===0; }); };
+  /* 4.11 : seul le PLUS PETIT dénominateur commun est accepté */
+  const commun = (test && test.ppcm) ? function(x){ return x===q.D; }
+                                     : function(x){ return x>0 && dens.every(function(dd){ return x%dd===0; }); };
   /* LA CIBLE : le dénominateur que la MAJORITÉ des paires annonce (deux sur
      trois), ou la seule paire qui mène quelque part ; à défaut — deux paires
      qui se contredisent —, le dénominateur écrit, s'il est commun aux trois.
@@ -24002,23 +24053,24 @@ function tsfJuge(q){
   prom.forEach(function(x){ if(prom.filter(function(y){ return y===x; }).length>=2) cible=x; });
   if(cible===null && prom.length===1) cible=prom[0];
   if(cible===null && !isNaN(d) && commun(d)) cible=d;
-  const ok=Ds.map(function(x){ return cible!==null && x===cible; });
+  const ok=Ds.map(function(x,i){ return (cible!==null && x===cible) || (tsfFac(q,i) && ms[i]===-1); });
   const okD=!isNaN(d) && commun(d) && (cible===null || d===cible);
   const Dc = cible!==null ? cible : q.D;
   const Ns=nums.map(function(n,i){ return n*Dc/dens[i]; });
   const lus=['tsf-n1','tsf-n2','tsf-n3'].map(pfLu);
   const okN=lus.map(function(v,i){ return !isNaN(v) && v===Ns[i]; });
-  const R=(tsfOp(q)==='+' ? Ns[0]+Ns[1] : Ns[0]-Ns[1]) - Ns[2];
+  const P0=(tsfOp(q)==='+' ? Ns[0]+Ns[1] : Ns[0]-Ns[1]);
+  const R=(tsfOp2(q)==='+') ? P0+Ns[2] : P0-Ns[2];
   const fracJ=pfFracJuge(pfLu('tsf-fn'),pfLu('tsf-fd'),R,Dc);
   return {ok1:ok[0],ok2:ok[1],ok3:ok[2],okN1:okN[0],okN2:okN[1],okN3:okN[2],okD:okD,okFn:fracJ[0],okFd:fracJ[1],
     Dc:Dc, m:dens.map(function(x){ return Dc/x; }), Ns:Ns, R:R,
-    croix: ok[0]&&ok[1]&&ok[2], somme: okN[0]&&okN[1]&&okN[2]&&okD, vide:pfVide(tsfCases())};
+    croix: ok[0]&&ok[1]&&ok[2], somme: okN[0]&&okN[1]&&okN[2]&&okD, vide:pfVide(tsfCasesExigees(q))};
 }
 function tsfPourquoi(q,r){
   if(r.vide) return 'Il manque des cases. Les réponses qui manquent sont écrites en vert : compare-les à ce que tu as écrit.';
   const rang=['première','deuxième','troisième'];
   for(let i=0;i<3;i++) if(!r['ok'+(i+1)])
-    return 'La '+rang[i]+' fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux trois fractions : sur '+r.Dc+', c’est × '+r.m[i]+'.';
+    return 'La '+rang[i]+' fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux trois fractions'+((test&&test.ppcm)?', le plus petit possible':'')+' : sur '+r.Dc+', c’est × '+r.m[i]+'.';
   if(!r.somme) return 'Sur le dénominateur '+r.Dc+', les numérateurs deviennent '+r.Ns[0]+', '+r.Ns[1]+' et '+r.Ns[2]+'.';
   return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(r.R,r.Dc)+'.';
 }
@@ -24043,9 +24095,9 @@ function checkTsfAnswer(live){
   } else {
     $('tsfFeedback').textContent=tsfPourquoi(q,r); $('tsfFeedback').className='mp-feedback bad';
     /* la correction suit la ROUTE de l'élève (r.Dc), comme au 4.6 */
-    corTrainDec('tsf-a1',r.m[0]); corTrainDec('tsf-b1',r.m[0]);
-    corTrainDec('tsf-a2',r.m[1]); corTrainDec('tsf-b2',r.m[1]);
-    corTrainDec('tsf-a3',r.m[2]); corTrainDec('tsf-b3',r.m[2]);
+    /* une paire « × 1 » facultative laissée vide ne reçoit pas de correction */
+    [0,1,2].forEach(function(i){ if(tsfFac(q,i) && tsfPaireVide(i)) return;
+      corTrainDec('tsf-a'+(i+1),r.m[i]); corTrainDec('tsf-b'+(i+1),r.m[i]); });
     corTrainDec('tsf-n1',r.Ns[0]); corTrainDec('tsf-n2',r.Ns[1]); corTrainDec('tsf-n3',r.Ns[2]); corTrainDec('tsf-d',r.Dc);
     pfCorFinale('tsf-fn','tsf-fd',r.R,r.Dc);
   }
@@ -24057,23 +24109,29 @@ function checkTsfAnswer(live){
   const nb=$('tsfNext'); if(nb) nb.focus();
 }
 function nextTsfQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderTsfTest(); autoSave(); } else finishTest(); }
-async function startTsf(){
+async function startTsf(ppcm){
   if(!currentEleve){ accueil(); return; }
+  test.ppcm=!!ppcm;
   const qs=tsfBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'tsf', questions:qs, idx:0, score:0, maxScore:qs.length,
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
   test.redac=true;
-  test.qId='triple-somme-fractions';
+  if(ppcm) test.ppcm=true;
+  if(ppcm) test.qId='trois-fractions-ppcm';
+  else test.qId='triple-somme-fractions';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('tsf'); renderTsfTest();
 }
+function startTsf3(){ return startTsf(true); }
 function ctxTsf(q){
   const c='L’élève calcule '+tsfTexte(q)+' en complétant des cases, une étape par ligne, dans l’ordre du cours : '
    +'mettre les TROIS fractions au même dénominateur — chaque fraction multipliée en haut et en bas par le nombre qui mène au dénominateur commun —, '
-   +'puis le calcul des numérateurs sur ce dénominateur, puis la fraction finale. Tout dénominateur commun est accepté ; le plus petit est conseillé, et tous les nombres du calcul restent alors inférieurs ou égaux à 20. '
-   +'Réponses attendues, STRICTEMENT SECRÈTES : le plus petit dénominateur commun est '+q.D+', le résultat final est '+q.N+'/'+q.D+'. '
+   +'puis le calcul des numérateurs sur ce dénominateur, puis la fraction finale. '
+   +((test&&test.ppcm) ? 'Le dénominateur commun doit être le PLUS PETIT possible : un autre multiple commun est compté faux. La fraction déjà sur ce dénominateur se multiplie par 1 ; l’élève peut laisser ces deux cases « × 1 » vides. '
+                       : 'Tout dénominateur commun est accepté ; le plus petit est conseillé, et tous les nombres du calcul restent alors inférieurs ou égaux à 20. ')
+   +'Réponses attendues, STRICTEMENT SECRÈTES : le plus petit dénominateur commun est '+q.D+', le résultat final est '+q.N+'/'+q.D+(gcd(q.N,q.D)>1 ? ' (soit '+(q.N/gcd(q.N,q.D))+'/'+(q.D/gcd(q.N,q.D))+' simplifié ; les deux écritures sont acceptées dans la case finale)' : '')+'. '
    +'Il n’y a ici aucune priorité opératoire à respecter : on calcule de gauche à droite.';
   return {nombre:'', contexte:c};
 }
@@ -24164,29 +24222,35 @@ function pqdrMath(q, tx, ent){
   };
 }
 function tsfrMath(q, tx, ent){
-  const finale=q.N+'/'+q.D, op=tsfOp(q), P=(op==='+') ? q.N1+q.N2 : q.N1-q.N2;
-  const texte=tx(q.a,q.b)+' '+op+' '+tx(q.c,q.d)+' − '+tx(q.e,q.f);
-  const m1=q.D/q.b, m2=q.D/q.d, m3=q.D/q.f;
+  const g0=gcd(q.N,q.D), Nr=q.N/g0, Dr=q.D/g0;          /* 4.11 : le résultat peut se simplifier */
+  const finale=Nr+'/'+Dr, brut=q.N+'/'+q.D, op=tsfOp(q), op2=tsfOp2(q), P=(op==='+') ? q.N1+q.N2 : q.N1-q.N2;
+  const texte=tx(q.a,q.b)+' '+op+' '+tx(q.c,q.d)+' '+op2+' '+tx(q.e,q.f);
+  const m1=q.D/q.b, m2=q.D/q.d, m3=q.D/q.f, ppcm=!!(test&&test.ppcm);
+  /* 4.11 : l'étape du même dénominateur doit être sur le PLUS PETIT */
+  const etape = ppcm ? function(m){ if(!redEtapeMemeDenoN(m)) return false; const d=libreNiv0(m,'+-'), x=libreDeno(d.parts[0]); return !!x && x.p===q.D*x.q; } : redEtapeMemeDenoN;
   return {
     texte:texte, final:finale, produit:null,
-    latex:'\\frac{'+q.a+'}{'+q.b+'}'+(op==='+'?'+':'-')+'\\frac{'+q.c+'}{'+q.d+'}-\\frac{'+q.e+'}{'+q.f+'}',
-    html:sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>−</b> '+sfTermeHTML(q.e,q.f),
+    latex:'\\frac{'+q.a+'}{'+q.b+'}'+(op==='+'?'+':'-')+'\\frac{'+q.c+'}{'+q.d+'}'+(op2==='+'?'+':'-')+'\\frac{'+q.e+'}{'+q.f+'}',
+    html:sfTermeHTML(q.a,q.b)+' <b>'+op+'</b> '+sfTermeHTML(q.c,q.d)+' <b>'+op2+'</b> '+sfTermeHTML(q.e,q.f),
     consigne:'Écris l’étape où les trois fractions ont le même dénominateur — le plus petit possible —, puis donne le résultat simplifié.',
-    juge:function(rep){ return redJugeChaine(rep, q.N, q.D, [], [redEtapeMemeDenoN]); },
+    juge:function(rep){ return redJugeChaine(rep, q.N, q.D, [], [etape]); },
     enonceIA: ent+'L’élève doit calculer '+texte+', et donner le résultat sous forme de fraction IRRÉDUCTIBLE. Il écrit son calcul LUI-MÊME dans une feuille de calcul.'
       +' La première ligne contient déjà « '+texte+' = », qu’il complète à la suite du « = ».'+redFacons(texte),
     attenduIA: 'RÉSULTAT ATTENDU : '+finale+', fraction irréductible.'
       +' Le plus petit dénominateur commun est '+q.D+' : le premier terme se multiplie par '+m1+', le second par '+m2+', le troisième par '+m3
-      +' — '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+' = ('+q.N1+' '+op+' '+q.N2+' − '+q.N3+')/'+q.D+' = '+finale+', déjà irréductible.'
+      +' — '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' '+op2+' '+q.N3+'/'+q.D+' = ('+q.N1+' '+op+' '+q.N2+' '+op2+' '+q.N3+')/'+q.D+' = '+brut+(g0>1 ? ', qui se simplifie en '+finale+'.' : ', déjà irréductible.')
       +' Calculer de gauche à droite donne '+P+'/'+q.D+' avant la dernière soustraction. L’élève peut AUSSI calculer en deux temps : les deux premières fractions d’abord, puis la troisième — c’est juste aussi, pourvu que chaque égalité soit vraie.'
       +'\n\nRÈGLE DE DÉCISION — « correct » vaut true SEULEMENT si les TROIS conditions sont réunies.'
-      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE : au moins une ligne montre des fractions portant le MÊME dénominateur, ajoutées ou soustraites — par exemple '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' − '+q.N3+'/'+q.D+'. Tout dénominateur commun convient, pourvu que la suite s’y tienne. Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
+      +'\n1. L’ÉTAPE DE MISE AU MÊME DÉNOMINATEUR EST ÉCRITE : au moins une ligne montre des fractions portant le MÊME dénominateur, ajoutées ou soustraites — par exemple '+q.N1+'/'+q.D+' '+op+' '+q.N2+'/'+q.D+' '+op2+' '+q.N3+'/'+q.D+'. '
+      +(ppcm ? 'Ce dénominateur commun doit être le PLUS PETIT, '+q.D+' : un autre multiple commun est REFUSÉ. Ne pas écrire « × 1 » pour la fraction déjà sur '+q.D+' n’est PAS une faute.'
+             : 'Tout dénominateur commun convient, pourvu que la suite s’y tienne.')
+      +' Un élève qui écrit directement le résultat, sans cette étape, est REFUSÉ.'
       +redRegleFinale(2, finale)
       +'\n3. AUCUNE ÉGALITÉ FAUSSE : découpe tout le calcul aux « = » ; chaque morceau doit valoir '+finale+'. Une seule égalité fausse suffit à refuser — dis alors LAQUELLE.'
       +'\nL’ordre des termes, les espaces, les parenthèses superflues, le signe × ou · n’ont aucune importance.'
       +redConsignesFeedback(finale),
     ctx:'L’élève calcule '+texte+' en écrivant LUI-MÊME son calcul dans une feuille, sans aucune case : la première ligne porte déjà « '+texte+' = », il écrit à la suite. '
-      +'Il doit mettre les TROIS fractions au même dénominateur (le plus petit possible est '+q.D+'), puis calculer les numérateurs de gauche à droite, et donner le résultat sous forme irréductible. '
+      +'Il doit mettre les TROIS fractions au même dénominateur (le plus petit possible est '+q.D+(ppcm?', exigé':'')+'), puis calculer les numérateurs de gauche à droite, et donner le résultat sous forme irréductible. '
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+finale+'. Juste au-dessus, il vient de faire la même sorte de calcul, guidé par des cases.'
   };
 }
@@ -32193,6 +32257,12 @@ Pas de priorité ici — que des + et des − — mais trois fractions au lieu d
 <b>② Chaque fraction se multiplie en haut ET en bas</b> par ce qu’il faut pour y arriver : \\(\\frac{1\\times 4}{2\\times 4}+\\frac{3\\times 2}{4\\times 2}-\\frac{5\\times 1}{8\\times 1}=\\frac{4}{8}+\\frac{6}{8}-\\frac{5}{8}\\)<br>
 <b>③ On calcule les numérateurs de gauche à droite</b>, jamais les dénominateurs : \\(\\frac{4+6-5}{8}=\\frac{5}{8}\\)<br>
 <b>④ Une soustraction</b> à la place de l’addition se traite de la même façon : \\(\\frac{7}{8}-\\frac{1}{4}-\\frac{1}{2}=\\frac{7}{8}-\\frac{2}{8}-\\frac{4}{8}=\\frac{1}{8}\\). On simplifie à la fin si c’est possible.`;
+const RAP_TSF3=`<b>Trois fractions sur le PLUS PETIT dénominateur commun</b><br>
+<b>① On cherche le plus petit nombre que les trois dénominateurs divisent</b> : on essaie les multiples du plus grand. Avec 2, 3 et 4 : 4 ? 3 ne divise pas 4 ; 8 ? non plus ; 12 ? oui — c’est 12.<br>
+<b>② Chaque fraction se multiplie en haut ET en bas</b> par ce qu’il faut pour y arriver : \\(\\frac{1}{2}+\\frac{2}{3}-\\frac{3}{4}=\\frac{1\\times 6}{2\\times 6}+\\frac{2\\times 4}{3\\times 4}-\\frac{3\\times 3}{4\\times 3}=\\frac{6}{12}+\\frac{8}{12}-\\frac{9}{12}\\)<br>
+<b>Une fraction qui est déjà sur ce dénominateur</b> se multiplie par 1 : avec 2, 3 et 6, \\(\\frac{5}{6}\\) reste \\(\\frac{5}{6}\\) — écrire « × 1 » n’est pas obligatoire.<br>
+<b>③ On calcule les numérateurs de gauche à droite</b>, jamais les dénominateurs : \\(\\frac{6+8-9}{12}=\\frac{5}{12}\\)<br>
+Piège : 2 × 3 × 4 = 24 est AUSSI un dénominateur commun, mais pas le plus petit — ici, il est compté faux.`;
 const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
 <b>Dans une somme, la multiplication se calcule TOUJOURS avant l’addition</b> — même sans parenthèses autour d’elle. C’est la même règle qu’avec des nombres seuls : \\(2+3\\times 4\\) fait 14, pas 20.<br>
 <b>① On calcule d’abord le produit</b>, comme dans {multiplier-fractions} : \\(\\frac{1}{2}\\times\\frac{3}{2}=\\frac{1\\times 3}{2\\times 2}=\\frac{3}{4}\\)<br>
@@ -33918,7 +33988,7 @@ La question 1 se fait dans le <b>tableau</b>, comme dans {augmentation-tableau}.
 · <b>des phrases avec tes calculs</b> : « il y a 6 années donc 6 × 20 = 120 », puis « je fais 500 − 120 = 380 » ;<br>
 · ou <b>directement le résultat</b>, si tu l'as calculé de tête.<br>
 Chaque calcul que tu écris doit être juste : une égalité fausse suffit à rendre la réponse fausse.<br><br>`+RAP_SUI;
-const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus

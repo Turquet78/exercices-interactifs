@@ -2399,3 +2399,53 @@ exercice, jamais la rédigée, qui vient en second. Les deux trous sont fermés 
 le contrôle universel lit aussi × et ÷, et le parcours de la rédigée
 (section 6 terdecies bis, 4.1 et 4.2) mesure le signe de son énoncé contre
 le trait, à 3 px près.
+
+## Première — 4.11 : trois fractions sur le PLUS PETIT dénominateur commun (novembre 2026, Première v448)
+
+Demande de Turquet : « en première faire un exercice comme le pdf, où il faut
+additionner 3 fractions, il peut y avoir une soustraction mais le résultat
+doit être positif. Les 3 dénominateurs doivent être différents entre eux, et
+il peut y avoir 2, 3 et 4 ou 2, 3, 9 ou 2, 4, 5 ou 3, 9, 6, ou 2, 3, 6 ou
+2, 3, 9 ou 2, 4, 8 ou 2, 5, 10 ou 2, 6, 12 ; le dénominateur commun doit être
+le plus petit possible. Si un élève n'écrit pas le × 1 sur la 1re ligne de
+calcul, ne pas compter faux. » Le PDF n'était pas joint à la session :
+l'écran est celui du 4.10, le plus proche.
+
+* **Le moteur du 4.10, un drapeau** : `test.ppcm`, posé par `startTsf(true)`
+  (`startTsf3`), voyage avec le test (pause, reprise, « Recommencer »).
+  L'identifiant est neuf, {trois-fractions-ppcm} ; ajouté en fin de thème, il
+  ne renumérote rien. Kind, écran, correction en direct, rendu enveloppé,
+  questions d'aide et rédigée sont ceux du `tsf`.
+* **Le second signe vit dans la question** (`q.op2`, `tsfOp2`) : toujours
+  « − » au 4.10 (champ absent), libre au 4.11. Au plus une soustraction —
+  « il peut y avoir UNE soustraction » — : les motifs ++, +−, −+ tournent
+  d'une paire à l'autre ; rien ne passe sous zéro de gauche à droite.
+* **Le triplet est tiré d'abord, uniformément** (`TSF3_DENOS`, dans l'ordre
+  mélangé), puis les numérateurs (1 à 9, fractions irréductibles, nombres du
+  calcul ≤ 60). Un premier essai tirait triplet ET numérateurs d'un même
+  coup, avec un résultat irréductible exigé comme au 4.10 : 2-5-10 et 2-3-6
+  ne sortaient JAMAIS. Avec a et e impairs, 5a + 2c + e (ou 3a + 2c + e) est
+  pair : le résultat se simplifie toujours. Le résultat PEUT donc se
+  simplifier ; la case finale accepte toute fraction égale, la rédigée
+  signale une fin non simplifiée (motif « simplifier »).
+* **Le plus petit dénominateur commun est EXIGÉ** dans la guidée : `tsfJuge`
+  ne tient pour « commun » que `q.D`. Sur 24 au lieu de 12, toutes les
+  paires rougissent et le message dit « le plus petit possible ». Dans la
+  rédigée, l'étape exigée est le même dénominateur SUR `q.D` ; une copie sur
+  un multiple plus grand fait s'abstenir le juge local, et la règle donnée au
+  modèle la refuse.
+* **Le « × 1 » est facultatif** (`tsfFac`) : la paire de la fraction déjà sur
+  le dénominateur commun, laissée vide, est juste, n'est pas peinte, ne
+  reçoit pas de correction, ne compte pas dans « il manque des cases »
+  (`tsfCasesExigees`), et ne déclenche pas la boîte des cases vides
+  (`data-facultatif`, lu par `#confirmer-vides`). Écrite, elle se juge comme
+  les autres : un × 2 à sa place rougit.
+
+Contrôle : « {trois-fractions-ppcm} : trois dénominateurs de la liste, le
+plus petit dénominateur commun exigé, le × 1 facultatif » (`tests/verifier.js`,
+déclaré par `troisFractionsPpcm` dans le profil de la Première) — deux cents
+séances par le vrai démarreur (chaque triplet de la liste sort, chaque motif
+de signes, le PPCM rangé, rien sous zéro), puis 3/8 + 1/2 + 1/4 tapé par de
+vrais évènements « input » : × 1 vide ou écrit vaut le point, × 2 rougit, la
+copie sur 16 est refusée ; la rédigée sur 8 est juste, sur 16 non ; le 4.10
+n'hérite pas du drapeau.
