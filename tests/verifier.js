@@ -8737,6 +8737,22 @@ function troisFractionsPpcm(w, P){
       if(qs.length!==8) vus.push(id2+' : '+qs.length+' questions au lieu de 8');
       if(qs.some(function(q){ return !q.redac; })) vus.push(id2+' : une question n’est pas rédigée');
       if(qs.some(function(q){ return !LISTE.some(function(l){ return cle(l)===cle([q.b,q.d,q.f]); }); })) vus.push(id2+' : un triplet hors de la liste');
+      /* novembre 2026 : sur le plus petit dénominateur commun, aucun nombre
+         du calcul (numérateurs sur D, somme partielle, résultat, D) ne
+         dépasse 20 — deux cents séances, et chaque triplet doit sortir */
+      const vusT={}; let trop=null;
+      for(let s=0; s<200 && !trop; s++){
+        TESTS[id2].start();
+        (test.questions||[]).forEach(function(q){
+          vusT[cle([q.b,q.d,q.f])]=1;
+          const P=(q.op==='+') ? q.N1+q.N2 : q.N1-q.N2;
+          const tous=[q.D,q.N1,q.N2,q.N3,P,q.N];
+          if(!trop && tous.some(function(x){ return x>20 || x<=0; })) trop=JSON.stringify(q);
+        });
+      }
+      if(trop) vus.push(id2+' : un nombre du calcul dépasse 20 : '+trop);
+      LISTE.forEach(function(l){ if(!vusT[cle(l)]) vus.push(id2+' : le triplet '+l+' ne sort jamais'); });
+      TESTS[id2].start();
       renderTsfTest();
       const z=$('tsfrZone');
       if(!z || z.hidden || !$('tsfrSheet')) vus.push(id2+' : la feuille de rédaction ne s’ouvre pas à la première question');
@@ -16301,6 +16317,11 @@ function coordonneesDevoir(w, P){
     if(!afficherEcranDe(test.kind) || !el('scr-vqs').classList.contains('on') || el('vqsIdx').textContent.indexOf('Question c)')<0 || !test.ds) vus.push('8.4.14 : la reprise de la question c');
     vdsSuivante();
     if(test.kind!=='vcl' || !el('scr-vcl').classList.contains('on') || test.questions[test.idx].ds!=='d') vus.push('8.4.14 : la suite de la reprise');
+    /* l'écran est partagé avec le 8.4.13 : le calcul que le d) du devoir a caché revient au 8.4.13
+       (v713 — sans quoi l'élève ne voyait que la figure, et « Vérifier » comptait 20 cases jamais montrées) */
+    if(el('vclCalc').style.display!=='none') vus.push('8.4.14 : le d) repris ne cache plus le calcul — le contrôle qui suit ne prouve plus rien');
+    currentTestId='coordonnees-vecteur-colineaires'; TESTS[currentTestId].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='vcl' || test.ds || el('vclCalc').style.display==='none' || !el('vcl-u-xf')) vus.push('8.4.13 après le devoir 8.4.14 : le calcul reste caché');
     currentMode='train';
     return vus.slice(0,8).join(' | ');
   })()`, v => v === '', undefined);
