@@ -7006,7 +7006,58 @@ est tracé en orange ; DB⃗ = AC⃗ ouvre le calcul, qui les nomme ; la reprise
 après JSON ; la copie juste menée sur DB⃗ = AC⃗ ; la copie vide du a)
 (calcul montré, AD⃗ = CB⃗ en vert, rien de rouge).
 
-## {coordonnees-vecteur-devoir-fractions} — le devoir sans dessin, aux coordonnées fractionnaires, l'étape du même dénominateur (8.4.15, Seconde v711)
+### Puis les questions b) et d) ont pris des vecteurs tracés au choix, et la conclusion ses quatre mots (Seconde v711)
+
+**La demande** (Turquet, novembre 2026) : « dans la question b demander de
+tracer deux vecteurs sur les 3 points alignés ; quand ce n'est pas bon le
+signaler. On utilisera les vecteurs de l'élève pour la suite. Pour la question
+sur les droites parallèles, demander à l'élève de tracer des vecteurs sur ces
+deux droites ; si leur dessin n'est pas valide le dire, ensuite terminer la
+résolution avec le choix des vecteurs de l'élève. Quand on demande de placer
+un point, mettre le mot placer dans la case… comme “tracer” pour les vecteurs.
+Pour les 8.4.13 et 8.4.14, quand il faut choisir le bon mot pour deux vecteurs
+avant la conclusion, mettre toujours les 4 mots “égaux”, “pas égaux”,
+“colinéaires”, “pas colinéaires” ; une réponse vraie qui ne permet pas de
+conclure sera indiquée comme fausse avec une explication. »
+
+**Les tracés au choix** (`q.lt`, posé par `vdsGen` au b et au d). Au b),
+« Tracer un premier vecteur », « Tracer un second vecteur » : chacun relie
+deux des points D, B, E, le second pas sur le même couple que le premier
+(`vclLtJuste` ; deux couples distincts des trois points ont toujours un point
+commun, la colinéarité dit donc l'alignement). Au d), « Tracer un vecteur sur
+(AF) », « … sur (BC) » : AF⃗ ou FA⃗, BC⃗ ou CB⃗. Le d) ne trace plus AF⃗ d'office
+(`q.tf` n'est plus posé) : F n'est pas sur un nœud, sa croix devient une cible
+(`vclHorsHTML`, `vclHors`) et la reprise garde un tracé qui en part
+(`renderVcl` accepte un point de la question hors des nœuds). Un tracé faux
+rougit et la page dit pourquoi, dans tous les modes (`vclLtVerdict`, dans
+`#vclVerif`) ; deux tracés justes figent la figure (`vclLtFiger`), rangent
+leurs noms dans `q.vc` (la mécanique du a) et ouvrent le calcul, qui les suit
+(`vclW`). Les tracés restent des réponses comptées : 23 réponses au b comme
+au d. Vérifiée sans deux tracés justes, la question est corrigée avec DB⃗ et
+DE⃗, ou AF⃗ et BC⃗, en vert.
+
+**« Placer »** : chaque bouton de point du moteur (8.4.13 et 8.4.14) s'écrit
+« Placer A(… ; …) », comme « Tracer … » pour un vecteur.
+
+**Les quatre mots** (`VCL_QUATRE` : sont égaux, ne sont pas égaux, sont
+colinéaires, ne sont pas colinéaires), dans la liste « Donc : u⃗ et v⃗ … » des
+cinq cas. L'attendu (`vclMotAttendu`) : égaux ou non pour un parallélogramme,
+colinéaires ou non sinon. Une phrase vraie qui n'est pas l'attendu
+(`vclMotVrai`) est fausse et le message le dit : « C'est vrai, … ne sont pas
+égaux, mais cela ne permet pas de conclure : le produit en croix dit s'ils
+sont COLINÉAIRES… », ou « … sont colinéaires, mais… pour un parallélogramme,
+il faut deux vecteurs ÉGAUX ». Les valeurs des listes ont changé (`eg`, `neg`,
+`col`, `ncol` au lieu de `oui`, `non`) : une pause d'avant rend la liste vide.
+
+**Le banc** : `coordonneesDevoir` — au d), aucun vecteur tracé, la croix de F
+cliquable, le calcul caché ; les boutons « Placer » et « Tracer un … » ; ED⃗
+puis DE⃗ rougit (« mêmes points »), FB⃗ rougit (« (AF) ») ; ED⃗ et BE⃗, FA⃗ et
+CB⃗ ouvrent le calcul qui les nomme ; leur reprise après JSON ; la copie juste
+sur ces vecteurs. `coordonneesColineaires` — les quatre mots, « Placer A » ;
+« ne sont pas égaux » sur des droites parallèles et « sont colinéaires » sur
+un parallélogramme comptés faux, avec « ne permet pas de conclure ».
+
+## {coordonnees-vecteur-devoir-fractions} — le devoir sans dessin, aux coordonnées fractionnaires, l'étape du même dénominateur (8.4.15, Seconde v712)
 
 **La demande** (Turquet, novembre 2026) : « en seconde faire un exercice
 comme le 8.4.14, sans le schéma, donc sans vecteur à tracer, mais avec des
