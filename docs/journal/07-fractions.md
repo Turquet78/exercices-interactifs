@@ -2495,7 +2495,7 @@ Deux bancs ont rougi sur la première poussée, et leurs leçons restent :
   les quatre calculs libres de la Seconde.
 
 **Puis le dénominateur commun écrit par la page, la simplification du 4.1, et
-rien au-dessus de 20 (novembre 2026, Première v453).** Demandes de Turquet :
+rien au-dessus de 20 (novembre 2026, Première v454).** Demandes de Turquet :
 « écrire le dénominateur commun comme la fiche, et proposer une simplification
 du résultat si c'est possible comme dans le 4.1 » ; puis « je ne veux aucun
 résultat supérieur à 20 dans les cases ».
