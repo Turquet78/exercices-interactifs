@@ -2451,6 +2451,9 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
  #tsfHost .tsf-dc .tsf-dc-t{font-family:Nunito,system-ui,sans-serif;font-size:.72em;font-weight:700;color:var(--fx-encre,inherit)}
  #tsfHost .pt-row.tsf-fiche>.spf-eq{justify-self:end;white-space:nowrap}
  #tsfHost .tsf-dmir{min-width:1ch;text-align:center}
+ /* la ligne de la somme est aussi la rangée où la simplification du 4.1
+    (SE_CFG.tsf) s'accroche, sur la même ligne */
+ #tsfHost .pt-row.tsf-se-row{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap}
 #pqdHost .pt-row>.lg-c,#tsfHost .pt-row>.lg-c{grid-column:2;display:inline-flex;align-items:center;gap:10px}
 #pqdPrompt,#tsfPrompt{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
 @media(max-width:520px){ #pqdHost .pt-row,#tsfHost .pt-row{column-gap:8px;row-gap:10px} #pqdHost .lg-c,#tsfHost .lg-c{gap:6px} }
@@ -4151,7 +4154,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=454;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=455;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -23157,7 +23160,14 @@ const SE_CFG={
      est aussi celle de la correction : 10/8 montre sa chaîne d'emblée, et
      elle disparaît si l'élève passe par 4 (2/4 + 3/4 = 5/4). */
   spf:{host:'spfHost', pfx:'spf-e', src:['spf-x-rn','spf-x-rd'],
-       brut:function(q){ const r=spfJuge(q); return r.se ? r.se.F : null; }}
+       brut:function(q){ const r=spfJuge(q); return r.se ? r.se.F : null; }},
+  /* {trois-fractions-ppcm} (4.11, novembre 2026) : « proposer une
+     simplification du résultat si c'est possible comme dans le 4.1 ». La
+     somme s'écrit sur le dénominateur commun DONNÉ par la page : la source du
+     dénominateur est le nombre écrit sous la case (tsf-fdm, qui porte sa
+     valeur) ; la fraction brute est N/D, quand elle se simplifie. */
+  tsf:{host:'tsfFin', pfx:'tsf-e', src:['tsf-fn','tsf-fdm'],
+       brut:function(q){ return gcd(q.N,q.D)>1 ? {n:q.N, d:q.D} : null; }}
 };
 /* Les étapes, à partir de la fraction brute F et des diviseurs écrits : une
    étape tant que la fraction se simplifie, et la chaîne s'arrête au premier
@@ -24391,17 +24401,24 @@ function tsfGen(op, i){
    souvent que les autres. */
 const TSF3_DENOS=[[2,3,4],[2,3,9],[2,4,5],[3,9,6],[2,3,6],[2,4,8],[2,5,10],[2,6,12]];
 const TSF3_SIGNES=[['+','+'],['+','−'],['−','+']];
-const TSF3_MAX=60;
+/* AUCUN NOMBRE AU-DESSUS DE 20 DANS LES CASES (demande de Turquet, novembre
+   2026) : les trois numérateurs sur le dénominateur commun, le calcul de
+   gauche à droite et la somme ; les multiplicateurs et la simplification
+   restent en dessous. */
+const TSF3_MAX=20;
 /* 4.12 (novembre 2026, demande de Turquet) : avec le plus petit dénominateur
    commun, AUCUN nombre du calcul ne dépasse 20 — ni les numérateurs sur D
    (N1, N2, N3), ni la somme partielle, ni le résultat, ni D (le plus grand
-   PPCM de la liste vaut 20). Le 4.11 garde son plafond de 60. Les cas sont
+   PPCM de la liste vaut 20). Le 4.11 suit la même règle depuis la v455 : « aucun
+   résultat supérieur à 20 dans les cases » — les deux tirent par tsf4Cas. Les cas sont
    ÉNUMÉRÉS (un tirage par rejet sous un plafond si serré n'aurait presque
    jamais trouvé le triplet 2, 4, 5 en « + + », qui n'a qu'une solution par
    ordre) : le triplet est tiré uniformément parmi ceux qui ont un cas, puis
    le cas uniformément. */
 const TSF4_MAX=20;
+const TSF4_CACHE={};
 function tsf4Cas(sg){
+  const cle=sg.join(''); if(TSF4_CACHE[cle]) return TSF4_CACHE[cle];
   const parT=[];
   TSF3_DENOS.forEach(function(t){ const cas=[];
     [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].forEach(function(o){
@@ -24416,11 +24433,13 @@ function tsf4Cas(sg){
         cas.push({a:a,b:b,c:c,d:d,e:e,f:f,op:sg[0],op2:sg[1],N1:N1,N2:N2,N3:N3,D:D,N:N});
       } });
     if(cas.length) parT.push(cas); });
+  TSF4_CACHE[cle]=parT;
   return parT;
 }
 function tsf3Gen(op, i){
   const sg = TSF3_SIGNES[(typeof i==='number' ? Math.floor(i/2) : rand(0,2)) % 3];
-  if(test && test.toutRedac){ const parT=tsf4Cas(sg); return Object.assign({}, pick(pick(parT))); }
+  /* 4.11 et 4.12 : les cas énumérés, aucun nombre au-dessus de 20 */
+  if(test && test.ppcm){ const parT=tsf4Cas(sg); if(parT.length) return Object.assign({}, pick(pick(parT))); }
   for(let essai=0; essai<4000; essai++){
     if(essai%200===0){ var t=pick(TSF3_DENOS).slice();
       for(let k=t.length-1;k>0;k--){ const j=rand(0,k), x=t[k]; t[k]=t[j]; t[j]=x; } }
@@ -24446,22 +24465,38 @@ function tsfBuildQuestions(){
 function tsfCases(){
   /* 4.11 : la mise en page de la fiche — le dénominateur commun s'écrit EN
      PREMIER, sur sa ligne ; la somme n'a qu'un numérateur, sur ce dénominateur */
-  if(test && test.ppcm) return ['tsf-d','tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-fn'];
+  if(test && test.ppcm) return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-fn']
+    .concat(test.etapes && typeof seIds==='function' ? seIds('tsf') : []);
   return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-d','tsf-fn','tsf-fd']; }
 /* Les dénominateurs de la ligne de la somme recopient le dénominateur commun
    écrit par l'élève (« … » tant qu'il est vide). */
 function tsfMiroirs(){
-  const e=$('tsf-d'), v=e ? String(e.value||'').trim() : '';
-  document.querySelectorAll('#tsfHost .tsf-dmir').forEach(function(m){ m.textContent = v==='' ? '…' : v; });
+  /* le dénominateur commun est écrit par la page, comme sur la fiche (novembre
+     2026) ; le dernier porte aussi sa VALEUR : la chaîne de simplification le
+     lit comme une case (SE_CFG.tsf.src) */
+  const q=test && test.questions && test.questions[test.idx]; if(!q) return;
+  document.querySelectorAll('#tsfHost .tsf-dmir').forEach(function(m){ m.textContent=String(q.D); m.value=String(q.D); });
+}
+function tsfEntree(){
+  const h=$('tsfHost'); if(!h) return;
+  if(!h.__entree){ h.__entree=true;
+    h.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' || !test || test.kind!=='tsf' || !test.ppcm || test.redac && test.questions[test.idx] && test.questions[test.idx].redac) return;
+      const ids=tsfCases(), i=ids.indexOf(e.target && e.target.id); if(i<0) return;
+      e.preventDefault();
+      const suiv=ids.slice(i+1).map(function(id){ return $(id); }).find(function(el){ return el && !el.disabled; });
+      if(suiv) suiv.focus(); else checkTsfAnswer();
+    }); }
+  setTimeout(function(){ const el=$(tsfCases()[0]); if(el) el.focus(); },70);
 }
 function tsfFicheHTML(q, op, op2){
-  const sur=function(id,lab){ return '<span class="f-frac-input">'+lgMF(id,'f-num',lab)+'<span class="f-fbar"></span><span class="f-whole tsf-dmir">…</span></span>'; };
+  const sur=function(id,lab,idD){ return '<span class="f-frac-input">'+lgMF(id,'f-num',lab)+'<span class="f-fbar"></span><span class="f-whole tsf-dmir"'+(idD?' id="'+idD+'"':'')+'>'+q.D+'</span></span>'; };
   return '<div class="pt-step">'
-     +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span>'+lgMF('tsf-d','f-den','dénominateur commun')+'</div>'
+     +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span><span class="f-whole">'+q.D+'</span></div>'
      +'<div class="pt-row tsf-fiche">'
        +'<span class="f-eq spf-eq">A&nbsp;=</span><span class="lg-c">'+lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3')+'</span>'
-       +lgLigne(true, sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')
-         +fEq(sur('tsf-fn','numérateur de la somme')))
+       +spfEq()+'<span class="lg-c" id="tsfFin"><span class="pt-row tsf-se-row">'+sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')
+         +fEq(sur('tsf-fn','numérateur de la somme','tsf-fdm'))+'</span></span>'
      +'</div></div>';
 }
 function tsfOp(q){ return q.op==='−' ? '−' : '+'; }
@@ -24499,8 +24534,10 @@ function renderTsfTest(){
        +lgLigne(true, lgFrac('tsf-fn','tsf-fd','numérateur final','dénominateur final'))
      +'</div></div>';
   [0,1,2].forEach(function(i){ if(tsfFac(q,i)) ['tsf-a'+(i+1),'tsf-b'+(i+1)].forEach(function(id){ const el=$(id); if(el) el.setAttribute('data-facultatif',''); }); });
-  lgEntree(tsfCases(), checkTsfAnswer);
-  if(test.ppcm){ const d=$('tsf-d'); if(d) d.addEventListener('input', tsfMiroirs); tsfMiroirs(); }
+  /* 4.11 : Entrée suit l'ordre du moment — la chaîne de simplification
+     apparaît en cours de route, après la somme */
+  if(test.ppcm) tsfEntree(); else lgEntree(tsfCases(), checkTsfAnswer);
+  if(test.ppcm){ tsfMiroirs(); if(test.etapes) seMonte('tsf', q); }
 }
 /* LE DÉNOMINATEUR COMMUN EST LIBRE, la règle du 4.6 (pfCroixJuge) portée à
    trois termes. Le résultat rend la ROUTE (Dc, m, N) pour le message et la
@@ -24522,7 +24559,7 @@ function tsfJuge(q){
      trois), ou la seule paire qui mène quelque part ; à défaut — deux paires
      qui se contredisent —, le dénominateur écrit, s'il est commun aux trois.
      Une paire juste ne rougit pas parce qu'une autre a pris une autre route. */
-  const prom=Ds.filter(commun), d=pfLu('tsf-d');
+  const prom=Ds.filter(commun), d=(test && test.ppcm) ? q.D : pfLu('tsf-d');   /* 4.11 : donné par la page */
   let cible=null;
   prom.forEach(function(x){ if(prom.filter(function(y){ return y===x; }).length>=2) cible=x; });
   if(cible===null && prom.length===1) cible=prom[0];
@@ -24538,7 +24575,9 @@ function tsfJuge(q){
   /* 4.11 : la somme s'écrit sur le dénominateur commun — un seul numérateur */
   const fracJ=(test && test.ppcm) ? [!isNaN(pfLu('tsf-fn')) && pfLu('tsf-fn')===R, true]
                                   : pfFracJuge(pfLu('tsf-fn'),pfLu('tsf-fd'),R,Dc);
-  return {ok1:ok[0],ok2:ok[1],ok3:ok[2],okN1:okN[0],okN2:okN[1],okN3:okN[2],okD:okD,okFn:fracJ[0],okFd:fracJ[1],
+  /* 4.11 : la simplification du 4.1, quand la somme se simplifie */
+  const se=(test && test.ppcm && test.etapes && typeof seJuge==='function') ? seJuge('tsf', SE_CFG.tsf.brut(q)) : null;
+  return {se:se, ok1:ok[0],ok2:ok[1],ok3:ok[2],okN1:okN[0],okN2:okN[1],okN3:okN[2],okD:okD,okFn:fracJ[0],okFd:fracJ[1],
     Dc:Dc, m:dens.map(function(x){ return Dc/x; }), Ns:Ns, R:R,
     croix: ok[0]&&ok[1]&&ok[2], somme: okN[0]&&okN[1]&&okN[2]&&okD, vide:pfVide(tsfCasesExigees(q))};
 }
@@ -24548,11 +24587,18 @@ function tsfPourquoi(q,r){
   for(let i=0;i<3;i++) if(!r['ok'+(i+1)])
     return 'La '+rang[i]+' fraction se multiplie en haut ET en bas par le même nombre, qui doit mener à un dénominateur commun aux trois fractions'+((test&&test.ppcm)?', le plus petit possible':'')+' : sur '+r.Dc+', c’est × '+r.m[i]+'.';
   if(!r.somme) return 'Sur le dénominateur '+r.Dc+', les numérateurs deviennent '+r.Ns[0]+', '+r.Ns[1]+' et '+r.Ns[2]+'.';
-  return (test&&test.ppcm) ? 'Il reste à écrire la somme : '+r.R+'/'+r.Dc+'.' : 'Il reste à écrire la fraction finale : '+pfFinaleTexte(r.R,r.Dc)+'.';
+  if(test && test.ppcm){
+    if(!r.okFn) return 'Il reste à écrire la somme : '+r.R+'/'+r.Dc+(r.se?', que tu simplifieras ensuite.':'.');
+    if(r.se && !r.se.ok) return seMessage(r.se);
+    return 'Relis chaque case.';
+  }
+  return 'Il reste à écrire la fraction finale : '+pfFinaleTexte(r.R,r.Dc)+'.';
 }
 function checkTsfAnswer(live){
   if(test.locked) return;
   const q=test.questions[test.idx];
+  /* la chaîne de simplification suit ce qui est écrit AVANT d'être jugée */
+  if(!live && test.ppcm && test.etapes) seMaj('tsf', q, true);
   const r=tsfJuge(q);
   const mode=live?'live':'check';
   const col=pf2Col(mode);
@@ -24561,8 +24607,9 @@ function checkTsfAnswer(live){
   else { col(g1,r.ok1); col(g2,r.ok2); col(g3,r.ok3); }
   col(['tsf-n1'],r.okN1); col(['tsf-n2'],r.okN2); col(['tsf-n3'],r.okN3); col(['tsf-d'],r.okD);
   col(['tsf-fn'],r.okFn); col(['tsf-fd'],r.okFd);
+  if(r.se) r.se.cases.forEach(function(c){ col([c.id],c.ok); });
   if(live) return;
-  const allOk = r.croix && r.somme && r.okFn && r.okFd && !r.vide;
+  const allOk = r.croix && r.somme && r.okFn && r.okFd && (!r.se || r.se.ok) && !r.vide;
   if(!allOk && isSoutien()){ soutienAgain('tsfFeedback','tsfActions','checkTsfAnswer','tsfHost'); return; }
   test.locked=true;
   if(allOk){ test.score++; $('tsfLiveScore').textContent=test.score;
@@ -24575,7 +24622,9 @@ function checkTsfAnswer(live){
     [0,1,2].forEach(function(i){ if(tsfFac(q,i) && tsfPaireVide(i)) return;
       corTrainDec('tsf-a'+(i+1),r.m[i]); corTrainDec('tsf-b'+(i+1),r.m[i]); });
     corTrainDec('tsf-n1',r.Ns[0]); corTrainDec('tsf-n2',r.Ns[1]); corTrainDec('tsf-n3',r.Ns[2]); corTrainDec('tsf-d',r.Dc);
-    if(test.ppcm){ corTrainDec('tsf-fn',r.R); tsfMiroirs(); }
+    if(test.ppcm){ corTrainDec('tsf-fn',r.R);
+      if(r.se){ r.se.cases.forEach(function(c){ corTrainDec(c.id,c.bon); }); seMiroirs('tsf'); }
+      tsfMiroirs(); }
     else pfCorFinale('tsf-fn','tsf-fd',r.R,r.Dc);
   }
   const donne=tsfCases().map(id=>{ const el=$(id); return String((el&&el.value)||'?').trim()||'?'; }).join(' ');
@@ -24597,6 +24646,7 @@ async function startTsf(ppcm, toutRedac){
   test.redac=true;
   if(ppcm) test.ppcm=true;
   if(toutRedac) test.toutRedac=true;
+  if(ppcm && !toutRedac) test.etapes=true;   /* 4.11 : la simplification du 4.1 */
   if(toutRedac) test.qId='trois-fractions-ppcm-redige';
   else if(ppcm) test.qId='trois-fractions-ppcm';
   else test.qId='triple-somme-fractions';

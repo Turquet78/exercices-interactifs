@@ -2422,7 +2422,7 @@ l'écran est celui du 4.10, le plus proche.
   d'une paire à l'autre ; rien ne passe sous zéro de gauche à droite.
 * **Le triplet est tiré d'abord, uniformément** (`TSF3_DENOS`, dans l'ordre
   mélangé), puis les numérateurs (1 à 9, fractions irréductibles, nombres du
-  calcul ≤ 60). Un premier essai tirait triplet ET numérateurs d'un même
+  calcul ≤ 60, puis ≤ 20 — voir plus bas). Un premier essai tirait triplet ET numérateurs d'un même
   coup, avec un résultat irréductible exigé comme au 4.10 : 2-5-10 et 2-3-6
   ne sortaient JAMAIS. Avec a et e impairs, 5a + 2c + e (ou 3a + 2c + e) est
   pair : le résultat se simplifie toujours. Le résultat PEUT donc se
@@ -2508,3 +2508,40 @@ puis le cas. Chaque triplet garde au moins six cas par motif de signes.
 Contrôle : dans `troisFractionsPpcm`, deux cents séances du 4.12 — aucun
 nombre au-dessus de 20 ni sous zéro, chaque triplet sort. Éprouvé par
 sabotage (`TSF4_MAX` à 60 : « un nombre du calcul dépasse 20 … N:21 »).
+
+**Puis le dénominateur commun écrit par la page, la simplification du 4.1, et
+rien au-dessus de 20 (novembre 2026, Première v455).** Demandes de Turquet :
+« écrire le dénominateur commun comme la fiche, et proposer une simplification
+du résultat si c'est possible comme dans le 4.1 » ; puis « je ne veux aucun
+résultat supérieur à 20 dans les cases ».
+
+* **Le dénominateur commun n'est plus une case** : « Mettre au même
+  dénominateur commun 12 », écrit par la page, et les quatre dénominateurs de
+  la ligne de la somme l'écrivent aussi (`tsfMiroirs` lit `q.D`). Le juge
+  prend `q.D` à la place de la case : seules les paires « × m » et les
+  numérateurs restent à juger.
+* **La simplification est celle du 4.1, par le moteur des 4.2 à 4.6**
+  (`SE_CFG.tsf`) : quand la somme écrite se simplifie, la ligne continue —
+  « = (4 ÷ [2])/(6 ÷ [2]) = [2]/[3] » —, diviseur au choix, étape après étape
+  jusqu'à l'irréductible ; elle n'apparaît qu'une fois la somme écrite. La
+  source du dénominateur est le nombre écrit sous la case de la somme
+  (`tsf-fdm`), qui porte sa valeur comme une case. La ligne de la somme est
+  donc une petite rangée (`#tsfFin .pt-row.tsf-se-row`, en ligne et non en
+  grille) au bout de laquelle `seDessine` accroche les étapes. Entrée suit
+  l'ordre du moment (`tsfEntree`, un seul écouteur sur l'hôte) : depuis la
+  somme, elle passe à la simplification si elle s'est ouverte. `test.etapes`
+  n'est posé qu'au 4.11 (ni au 4.10, ni au 4.12).
+* **Rien au-dessus de 20 dans les cases** : les trois numérateurs sur le
+  dénominateur commun, le calcul de gauche à droite et la somme. Une autre
+  session avait posé la même borne au 4.12 le même soir, par des cas
+  ÉNUMÉRÉS (`tsf4Cas`) : à la fusion, le 4.11 a pris ce tirage aussi (mémoïsé
+  par motif de signes) — chaque triplet sort aussi souvent que les autres, là
+  où le tirage par rejet sous 20 ne trouvait 2-4-5 qu'une fois sur seize.
+
+Contrôle : `troisFractionsPpcm` vérifie aussi la ligne « … commun 8 » écrite
+et l'absence de case, aucun nombre au-dessus de 20 en deux cents séances, au
+moins une somme qui se simplifie, puis 1/2 + 1/3 − 1/6 = … = 4/6 tapé par de
+vrais évènements « input » : la simplification s'ouvre à la somme écrite, les
+nombres divisés recopient 4/6, le diviseur se recopie en bas, 2/3 vaut le
+point, 4/6 laissé tel quel ne le vaut pas et la correction écrit le diviseur ;
+9/8 n'ouvre aucune simplification.

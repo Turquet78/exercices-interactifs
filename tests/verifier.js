@@ -8624,7 +8624,7 @@ function multiplierFractions(w, P){
      l'accepte pas d'office. Le 4.10, témoin, garde son dénominateur libre. */
 function troisFractionsPpcm(w, P){
   const R = P.troisFractionsPpcm;
-  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif, la mise en page de la fiche ; {trois-fractions-ppcm-redige} tout rédigé';
+  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif, la mise en page de la fiche, aucun nombre au-dessus de 20, la simplification du 4.1 ; {trois-fractions-ppcm-redige} tout rédigé';
   if(!R){ ignorer(nom, 'exercice propre à la Première'); return; }
   verifierEval(w, nom, `(function(){
     const vus=[], id='trois-fractions-ppcm', LISTE=${JSON.stringify(R.denos)};
@@ -8633,7 +8633,7 @@ function troisFractionsPpcm(w, P){
     const cle=function(t){ return t.slice().sort(function(x,y){ return x-y; }).join('-'); };
     currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
     if(!TESTS[id] || !TEST_NUM[id]) return id+' : absent du menu';
-    const vusT={}, vusS={}; let faute='';
+    const vusT={}, vusS={}; let faute='', vusSimp=false;
     for(let t=0;t<200 && !faute;t++){
       currentTestId=id; TESTS[id].start();
       if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
@@ -8659,11 +8659,15 @@ function troisFractionsPpcm(w, P){
         if(N!==q.N || n1!==q.N1 || n2!==q.N2 || n3!==q.N3){ faute=eti+' : les numérateurs rangés ne suivent pas le calcul'; return; }
         if(N<=0){ faute=eti+' : résultat négatif ou nul'; return; }
         if(N%D===0){ faute=eti+' : résultat entier'; return; }
+        /* « aucun résultat supérieur à 20 dans les cases » (novembre 2026) */
+        if(Math.max(n1,n2,n3,p,N)>20){ faute=eti+' : un nombre des cases dépasse 20 ('+[n1,n2,n3,p,N].join(', ')+')'; return; }
+        if(pgcd(N,D)>1) vusSimp=true;
       });
     }
     if(faute) return id+' : '+faute;
     LISTE.forEach(function(l){ if(!vusT[cle(l)]) vus.push('le triplet '+cle(l)+' ne sort jamais en 200 séances'); });
     ['++','+−','−+'].forEach(function(k){ if(!vusS[k]) vus.push('les signes '+k+' ne sortent jamais'); });
+    if(!vusSimp) vus.push('aucune somme ne se simplifie en 200 séances : la simplification du 4.1 n’est jamais exercée');
 
     const $=function(i){ return document.getElementById(i); };
     const tape=function(i,v){ const el=$(i); if(!el){ vus.push('pas de case '+i); return; } el.value=String(v); el.dispatchEvent(new Event('input',{bubbles:true})); };
@@ -8677,14 +8681,16 @@ function troisFractionsPpcm(w, P){
     const copie=function(m1,D){ const k=D/8;
       if(m1!==null){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
       tape('tsf-a2',4*k); tape('tsf-b2',4*k); tape('tsf-a3',2*k); tape('tsf-b3',2*k);
-      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-d',D); tape('tsf-fn',9*k); };
+      tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-fn',9*k); };
     pose();
     /* la mise en page de la fiche : le dénominateur commun sur sa ligne, la somme sur la ligne des fractions */
     if($('tsf-fd')) vus.push('une case de dénominateur final : la somme s’écrit sur le dénominateur commun');
-    if(!/dénominateur commun/.test((document.querySelector('#tsfHost .tsf-dc')||{}).textContent||'')) vus.push('pas de ligne « Mettre au même dénominateur commun »');
-    tape('tsf-d',8);
+    /* le dénominateur commun est ÉCRIT par la page, comme sur la fiche (novembre 2026) */
+    if(!/dénominateur commun\s*8\s*$/.test(((document.querySelector('#tsfHost .tsf-dc')||{}).textContent||'').replace(/\u00a0/g,' '))) vus.push('la ligne « Mettre au même dénominateur commun 8 » n’écrit pas le dénominateur commun');
+    if($('tsf-d')) vus.push('le dénominateur commun est une case : la fiche l’écrit');
     if(document.querySelectorAll('#tsfHost .tsf-dmir').length!==4 || [].some.call(document.querySelectorAll('#tsfHost .tsf-dmir'), function(m){ return m.textContent!=='8'; }))
-      vus.push('les dénominateurs de la ligne de la somme ne recopient pas le dénominateur commun écrit');
+      vus.push('les dénominateurs de la ligne de la somme n’écrivent pas le dénominateur commun');
+    if(seIds('tsf').length) vus.push('9/8 ne se simplifie pas, et une simplification est proposée');
     pose();
     if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
     if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
@@ -8698,6 +8704,24 @@ function troisFractionsPpcm(w, P){
     if(peint('tsf-a1')!=='faux') vus.push('un × 2 à la place du × 1 ne rougit pas ('+peint('tsf-a1')+')');
     pose(); copie(2,16); checkTsfAnswer();
     if(der() && der().correct) vus.push('la copie sur 16 (pas le plus petit dénominateur commun) est comptée juste');
+    /* la simplification du 4.1 : 1/2 + 1/3 − 1/6 = 3/6 + 2/6 − 1/6 = 4/6 = (4÷2)/(6÷2) = 2/3 */
+    const Q2={a:1,b:2,c:1,d:3,e:1,f:6,op:'+',op2:'−',N1:3,N2:2,N3:1,D:6,N:4};
+    const pose2=function(){ test.questions=[Object.assign({},Q2)]; test.idx=0; test.locked=false; test.answers=[]; renderTsfTest(); };
+    const copie2=function(){ tape('tsf-a1',3); tape('tsf-b1',3); tape('tsf-a2',2); tape('tsf-b2',2); tape('tsf-n1',3); tape('tsf-n2',2); tape('tsf-n3',1); };
+    pose2(); copie2();
+    if(seIds('tsf').length) vus.push('la simplification s’affiche avant que la somme soit écrite');
+    tape('tsf-fn',4);
+    if(!$('tsf-e0-dn')) vus.push('4/6 écrit : aucune simplification ne s’ouvre');
+    else{
+      if(($('tsf-e0-an')||{}).textContent!=='4' || ($('tsf-e0-ad')||{}).textContent!=='6') vus.push('les nombres divisés ne recopient pas 4/6');
+      tape('tsf-e0-dn',2);
+      if(($('tsf-e0-dd')||{}).value!=='2') vus.push('le diviseur écrit en haut ne se recopie pas en bas');
+      tape('tsf-e0-n',2); tape('tsf-e0-d',3); checkTsfAnswer();
+      if(!der() || !der().correct) vus.push('1/2 + 1/3 − 1/6 = … = 4/6 = 2/3 est compté faux');
+    }
+    pose2(); copie2(); tape('tsf-fn',4); checkTsfAnswer();
+    if(der() && der().correct) vus.push('4/6 laissé sans simplification vaut le point');
+    if(peint('tsf-e0-dn')!=='correction') vus.push('le diviseur laissé vide ne reçoit pas la correction ('+peint('tsf-e0-dn')+')');
     const m=tsfrMath(Q,function(n,d){ return n+'/'+d; },'');
     const j1=m.juge('3/8+1/2+1/4 = 3/8+4/8+2/8 = 9/8'), j2=m.juge('3/8+1/2+1/4 = 6/16+8/16+4/16 = 18/16 = 9/8');
     if(!(j1.sait && j1.correct)) vus.push('la rédigée juste sur 8 n’est pas acceptée : '+JSON.stringify(j1));
