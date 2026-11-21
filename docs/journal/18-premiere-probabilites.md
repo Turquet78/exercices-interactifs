@@ -906,7 +906,7 @@ Vérifié dans Chromium (1280 et 390 px) : copie juste 8 / 8, l'indice de la
 conditionnelle mis à « tout » rougit cette seule question (7 / 8), aucune
 largeur de page dépassée.
 
-**Puis le tableau du 3.11 a perdu le nom de ses cases (v448).** Demande de
+**Puis le tableau du 3.11 a perdu le nom de ses cases (v449 ; la 1.15 et la 6.7 avaient pris la v448 le même jour).** Demande de
 Turquet (novembre 2026) : « dans le 3.11, dans le tableau des effectifs,
 enlever les noms des cases écrits en petit et en gris ». Au 3.11 seulement
 (`fpbSeul()`), `fpbTableHTML` n'écrit plus les étiquettes `.pb-cl` (A ∩ D,
