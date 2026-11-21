@@ -4814,6 +4814,7 @@ function exercices(suite){
     coordonneesVecteurs(w, P);
     coordonneesColineaires(w, P);
     coordonneesDevoir(w, P);
+    coordonneesDevoirFractions(w, P);
     vecteursColineairesSuite(w, P);
     tangenteExp(w, P);
     recurrenceFormule(w, P);
@@ -16205,6 +16206,127 @@ function coordonneesDevoir(w, P){
     vdsSuivante();
     if(test.kind!=='vcl' || !el('scr-vcl').classList.contains('on') || test.questions[test.idx].ds!=='d') vus.push('8.4.14 : la suite de la reprise');
     currentMode='train';
+    return vus.slice(0,8).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* 8.4.15 {coordonnees-vecteur-devoir-fractions} (Seconde, demande de Turquet,
+   novembre 2026 : « comme le 8.4.14, sans le schéma, avec des fractions
+   simples dans certaines coordonnées », chaque question ayant au moins une
+   mise au même dénominateur, et l'étape qui la fait écrire). La place ; la
+   lecture des fractions tapées ; deux cents devoirs (la géométrie de chaque
+   question, des fractions dans A, B, C, une étape du même dénominateur par
+   question, des dénominateurs simples, du JSON) ; la copie juste de bout en
+   bout ; les routes justes qui ne sont pas celles de la page (un autre
+   dénominateur commun, une somme dans l'autre ordre, un résultat non
+   simplifié, le produit en croix dans l'autre ordre) ; deux dénominateurs
+   différents refusés ; la copie vide ; la reprise d'une pause. */
+function coordonneesDevoirFractions(w, P){
+  const nom = 'le devoir sans dessin aux coordonnées fractionnaires (8.4.15) — le tirage, l’étape du même dénominateur, la copie juste';
+  if(!P.coordonneesVecteurs || !P.coordonneesVecteurs.devoirFractions){
+    ignorer(nom, 'ce niveau n\'a pas le 8.4.15');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], d=${JSON.stringify(P.coordonneesVecteurs.devoirFractions)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(e){ const c=e?' '+e.className+' ':'';
+      return c.indexOf(' ok ')>=0?'ok':(c.indexOf(' bad ')>=0?'bad':(c.indexOf(' sol ')>=0?'sol':'rien')); };
+    if(TEST_NUM[d.exercice]!==d.numero) vus.push(d.exercice+' porte le numéro '+TEST_NUM[d.exercice]+' au lieu de '+d.numero);
+    if(RAPPELS.vdf!==RAP_VDF || !QIA_SUGG.vdf) vus.push('8.4.15 : le rappel ou les questions à l’IA');
+    if(TABLES_SANS.indexOf(d.exercice)>=0) vus.push('8.4.15 : le bouton des tables est retiré, alors qu’on multiplie');
+    /* ce que l'élève tape */
+    const lit=function(s){ const r=vdfLit(s); return r?r.join('/'):'null'; };
+    const L={'\\\\frac{3}{4}':'3/4','-(3)/(4)':'-3/4','(−6/2)':'-3/1','(-6)/(2)':'-3/1','-\\\\frac{6}{2}':'-3/1','1,5':'3/2','4':'4/1','−2':'-2/1','2,1,1':'null','':'null','x':'null','3/0':'null'};
+    Object.keys(L).forEach(function(s){ if(lit(s)!==L[s]) vus.push('8.4.15 : « '+s+' » se lit '+lit(s)+' au lieu de '+L[s]); });
+    /* deux cents devoirs */
+    const ok=function(r){ return Array.isArray(r)&&r.length===2&&Number.isInteger(r[0])&&Number.isInteger(r[1])&&r[1]>0&&gcd(r[0],r[1])===1; };
+    const det=function(u,v){ return vdfSub(vdfMul(u[0],v[1]),vdfMul(u[1],v[0]))[0]; };
+    const meme=function(p,q){ return vdfEq(p[0],q[0])&&vdfEq(p[1],q[1]); };
+    if(!vdfConvient(vdfFigure([[1,1],[-3,2]],[[-1,3],[1,1]],[[1,3],[-1,2]],[3,2],[-3,2]))) vus.push('8.4.15 : la figure de secours ne convient pas');
+    for(let n=0;n<200;n++){
+      const qs=vdfBuildQuestions(), Z=qs[0].Z;
+      const f=function(){
+        if(qs.length!==d.nb || qs.map(function(q){ return q.ds; }).join('')!=='abcde') return 'les cinq questions';
+        if(!qs.every(function(q){ return JSON.stringify(q.Z)===JSON.stringify(Z); })) return 'des points différents';
+        if(!['A','B','C','D','E','F','M','N'].every(function(l){ return Z[l]&&Z[l].every(ok)&&Z[l].every(function(r){ return r[1]<=4&&Math.abs(r[0]/r[1])<=6; }); })) return 'un point hors des fractions simples';
+        const nf=['A','B','C'].reduce(function(s,l){ return s+Z[l].filter(function(r){ return r[1]>1; }).length; },0);
+        if(nf<2||nf>4) return nf+' fractions dans A, B, C';
+        if(!meme(vdfVec(Z,'A','D'),vdfVec(Z,'C','B')) || !det(vdfVec(Z,'A','D'),vdfVec(Z,'A','C'))) return 'ADBC';
+        if(det(vdfVec(Z,'D','B'),vdfVec(Z,'D','E')) || meme(Z.E,Z.D) || meme(Z.E,Z.B)) return 'D, B, E';
+        if(!meme(vdfVec(Z,'B','A'),vdfVec(Z,'C','M'))) return 'M';
+        if(det(vdfVec(Z,'A','F'),vdfVec(Z,'B','C')) || !det(vdfVec(Z,'B','C'),vdfVec(Z,'B','F'))) return 'F';
+        if(!meme(vdfVec(Z,'A','N'),vdfPAdd(vdfVec(Z,'C','E'),vdfVec(Z,'C','B')))) return 'N';
+        for(const q of qs){
+          const ch=vdfPlan(q).ch;
+          if(!ch.some(function(c){ return vdfMilieu(c.t1,c.t2); })) return 'la question '+q.ds+' sans mise au même dénominateur';
+          if(ch.some(function(c){ return vdfLcm(c.t1[1],c.t2[1])>6; })) return 'un dénominateur commun au-delà de 6';
+          if(ch.some(function(c){ return !vdfRes(c)[0]; })) return 'une coordonnée nulle';
+          if(dmPoidsQuestion('vdf',q)!==vdfCasesDe(q).length) return 'dmPoidsQuestion';
+        }
+        if(JSON.stringify(JSON.parse(JSON.stringify(qs)))!==JSON.stringify(qs)) return 'pas du JSON';
+        return '';
+      }();
+      if(f){ vus.push('8.4.15 : '+f+' '+JSON.stringify(Z)); break; }
+    }
+    /* la copie juste, de a) à e), par les routes de la page puis par d'autres */
+    currentTestId=d.exercice; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const max=test.questions.reduce(function(s,q){ return s+vdfCases(q).length; },0);
+    if(test.kind!=='vdf' || test.maxScore!==max || !el('scr-vdf').classList.contains('on')) vus.push('8.4.15 : le départ (kind '+test.kind+', barème '+test.maxScore+')');
+    const set=function(id,v){ const e=el(id); if(!e){ vus.push('8.4.15 : pas de case '+id); return; } e.value=v; };
+    const juste=function(q,autre){
+      vdfJuge(q).forEach(function(s){ if(!s.el) return; if(s.choix) s.el.value=s.id==='vdf-nom'?(autre?'cbda':'ADBC'):s.bon; else s.el.value=vdfLatex(s.bon); });
+      if(!autre) return;
+      vdfPlan(q).ch.forEach(function(c){ const i='vdf-'+c.id;
+        if(vdfMilieu(c.t1,c.t2)){ const D=2*vdfLcm(c.t1[1],c.t2[1]); set(i+'-d1',String(D)); set(i+'-d2',String(D)); set(i+'-n1',String(c.t1[0]*D/c.t1[1])); set(i+'-n2',String(c.t2[0]*D/c.t2[1])); }
+        const r=vdfRes(c); set(i+'-r','\\\\frac{'+(3*r[0])+'}{'+(3*r[1])+'}');
+        if(c.op==='+'){ set(i+'-a',vdfLatex(c.t2)); set(i+'-b',vdfLatex(c.t1));
+          if(vdfMilieu(c.t1,c.t2)){ const D=2*vdfLcm(c.t1[1],c.t2[1]); set(i+'-n1',String(c.t2[0]*D/c.t2[1])); set(i+'-n2',String(c.t1[0]*D/c.t1[1])); } }
+      });
+      if(el('vdf-k-a1')){ const P2=vdfPlan(q), u=vdfVec(q.Z,P2.vec[0][0],P2.vec[0][1]), v=vdfVec(q.Z,P2.vec[1][0],P2.vec[1][1]);
+        set('vdf-k-a1',vdfLatex(u[1])); set('vdf-k-b1',vdfLatex(v[0])); set('vdf-k-r1',vdfLatex(vdfMul(u[1],v[0])));
+        set('vdf-k-a2',vdfLatex(v[1])); set('vdf-k-b2',vdfLatex(u[0])); set('vdf-k-r2',vdfLatex(vdfMul(u[0],v[1]))); }
+    };
+    for(let i=0;i<5;i++){
+      const q=test.questions[test.idx], av=test.score;
+      if(el('vdfIdx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.15 : l’en-tête de la question '+q.ds);
+      if(el('vdfInstr').textContent.indexOf('On a les points A')<0 || document.querySelectorAll('#vdfInstr .vdf-pt').length!==(q.ds==='d'?6:5)) vus.push('8.4.15 : l’énoncé du devoir à la question '+q.ds);
+      if(document.querySelector('#scr-vdf svg')) vus.push('8.4.15 : un dessin à la question '+q.ds);
+      if(!vdfPlan(q).ch.some(function(c){ return el('vdf-'+c.id+'-d1'); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
+      juste(q, i%2===1);
+      checkVdf(); clearTimeout(test.fbTimer);
+      const n=test.score-av, attendu=vdfCases(q).length;
+      if(n!==attendu) vus.push('8.4.15 : la copie juste'+(i%2?' (autres routes)':'')+' de '+q.ds+') vaut '+n+' sur '+attendu+' — '+[...document.querySelectorAll('#vdfHost .bad')].map(function(e){ return e.id+'='+e.value; }).join(' ').slice(0,200));
+      if(i<4){ if(!el('vdfNext')){ vus.push('8.4.15 : pas de « Question suivante » en '+q.ds); break; } nextVdf(); }
+    }
+    if(test.score!==test.maxScore) vus.push('8.4.15 : '+test.score+' sur '+test.maxScore);
+    /* deux dénominateurs différents : le second rougit, le premier reste juste */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const q0=test.questions[0], c0=vdfPlan(q0).ch.find(function(c){ return vdfMilieu(c.t1,c.t2); }), i0='vdf-'+c0.id, L0=vdfLcm(c0.t1[1],c0.t2[1]);
+    juste(q0,false); set(i0+'-d2',String(2*L0)); set(i0+'-n2',String(c0.t2[0]*2*L0/c0.t2[1]));
+    checkVdf(); clearTimeout(test.fbTimer);
+    if(classe(el(i0+'-d1'))!=='ok' || classe(el(i0+'-d2'))!=='bad' || classe(el(i0+'-n2'))!=='ok' || classe(el(i0+'-r'))!=='ok') vus.push('8.4.15 : deux dénominateurs différents ('+classe(el(i0+'-d1'))+', '+classe(el(i0+'-d2'))+', '+classe(el(i0+'-n2'))+')');
+    if(el('vdfFeedback').textContent.indexOf('MÊME dénominateur')<0) vus.push('8.4.15 : le message des deux dénominateurs : '+el('vdfFeedback').textContent.slice(0,120));
+    /* la copie vide : la correction en vert, rien de rouge */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    checkVdf(); clearTimeout(test.fbTimer);
+    const q1=test.questions[0], cR=vdfPlan(q1).ch[0];
+    if(document.querySelector('#vdfHost .bad') || classe(el('vdf-'+cR.id+'-r'))!=='sol' || !vdfEq(vdfLit(el('vdf-'+cR.id+'-r').value),vdfRes(cR))) vus.push('8.4.15 : la copie vide');
+    /* le soutien : la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
+    currentMode='soutien'; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    const q2=test.questions[0], c2=vdfPlan(q2).ch[0];
+    set('vdf-'+c2.id+'-a',vdfLatex(c2.t1)); set('vdf-'+c2.id+'-b','\\\\frac{1}{7}');
+    checkVdf(); clearTimeout(test.fbTimer);
+    if(classe(el('vdf-'+c2.id+'-a'))!=='ok' || classe(el('vdf-'+c2.id+'-b'))!=='bad' || classe(el('vdf-'+c2.id+'-r'))!=='rien' || test.locked || document.querySelector('#vdfHost .mf-cor')) vus.push('8.4.15 : le soutien');
+    currentMode='train';
+    /* la reprise d'une pause, sur la question c */
+    TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
+    test.idx=2;
+    const snap=JSON.parse(JSON.stringify(snapshotTest()));
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test,snap,{locked:false});
+    if(!afficherEcranDe(test.kind) || !el('scr-vdf').classList.contains('on') || el('vdfIdx').textContent.indexOf('Question c)')<0 || !el('vdf-sys-xc')) vus.push('8.4.15 : la reprise de la question c');
+    if(conseilCtxCourant().indexOf('STRICTEMENT SECRÈTE')<0) vus.push('8.4.15 : le contexte du modèle');
     return vus.slice(0,8).join(' | ');
   })()`, v => v === '', undefined);
 }
