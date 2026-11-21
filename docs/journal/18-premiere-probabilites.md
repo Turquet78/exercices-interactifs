@@ -915,3 +915,9 @@ prend la classe `fpb-sans-noms`, qui rend aux cellules la marge haute que
 l'étiquette occupait. Le 3.10 garde ses étiquettes. Les noms des cases à
 remplir (`aria-label`, « effectif de A ∩ D ») restent : ils servent aux
 lecteurs d'écran et au contexte de la bulle d'explication.
+
+**Puis la Première est passée en v450, sans autre changement.** Le 3.11
+(#1113), la 6.6 (#1110) et la 4.11 (#1111) avaient été fusionnées le même
+jour sous le même numéro 449 — le contrôle de version de chacune avait passé
+avant que les autres n'arrivent sur `main`. La v450 redonne à la page publiée
+un numéro qui n'appartient qu'à elle.
