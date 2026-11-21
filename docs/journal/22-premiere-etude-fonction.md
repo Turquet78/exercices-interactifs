@@ -743,3 +743,15 @@ pour « +3 » au milieu de la ligne est jugé faux, et le pourquoi dit « le nom
 est juste, mais ce terme en suit un autre ». Une parenthèse se lit avec ou sans
 ses parenthèses (« (−1) » ou « −1 »). Un point par question parfaite, les cases
 justes au crédit partiel (`ptsExo`).
+
+**Puis le « + » d'un terme positif est écrit par la page (v448).** Demande de
+Turquet : « quand une case représentant le résultat d'un calcul de la ligne du
+dessus est un terme d'une somme, si le nombre est positif mettre le signe +
+devant cette case si elle n'est pas au début de l'expression ». Les cases du
+second terme et du terme constant, et leurs miroirs, portent un « + » imprimé
+(`isdPlus`) quand leur valeur est positive ; l'élève y écrit le nombre seul
+(« +3 » reste accepté). Une valeur négative n'a rien devant sa case : l'élève
+écrit « −2 ». La règle « le terme garde son signe » et son message (« le
+nombre est juste, mais… ») disparaissent : le signe n'est plus à écrire que
+pour un terme négatif, et un « 2 » pour « −2 » est simplement faux. La première
+case d'une ligne (carré, produit, résultat) n'a jamais de signe imprimé.
