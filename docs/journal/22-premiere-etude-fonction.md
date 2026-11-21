@@ -743,3 +743,50 @@ pour « +3 » au milieu de la ligne est jugé faux, et le pourquoi dit « le nom
 est juste, mais ce terme en suit un autre ». Une parenthèse se lit avec ou sans
 ses parenthèses (« (−1) » ou « −1 »). Un point par question parfaite, les cases
 justes au crédit partiel (`ptsExo`).
+
+## 6.7 {image-second-degre-libre} — le 6.6, les calculs rédigés (v448)
+
+Demande de Turquet (novembre 2026) : « en première faire un exercice comme le
+6.6, où l'élève doit écrire ses calculs dans un champ de saisie, qui affichera
+"f(....) =" au début du champ, et avec la valeur de l'énoncé dans les
+parenthèses. Quand on appuie sur Entrée, le champ passe à la ligne avec un "="
+aligné sur le premier "=" de la ligne du dessus. On acceptera tout calcul avec
+au moins une étape intermédiaire. »
+
+**Un moteur à lui, kind `isdl`, écran `#scr-isdl`.** Les questions sont les
+six images de la fiche du 6.6 (`ISD_FICHE` sans l'échauffement des carrés),
+dans son ordre et à ses valeurs : rien n'est tiré, comme au 6.6.
+
+**Les lignes, au geste du 6.5.** Une grille à trois colonnes — « f(1) », « = »,
+la case — : les « = » tombent dans la même colonne sans rien mesurer. Entrée
+dans la dernière ligne remplie ouvre une ligne « = [ … ] » (le curseur y va
+À L'INSTANT, pas après un `setTimeout` : une frappe rapide après Entrée se
+perdait pendant le redessin, vu dans Chromium) ; dans une ligne remplie qui
+n'est pas la dernière, passe à la suivante ; dans la dernière ligne VIDE, la
+retire et clique « Vérifier » (la porte `#confirmer-vides` voit passer ce
+clic). ⌫ dans une ligne vide la retire. Entrée est prise sur la FENÊTRE, en
+capture, comme au 6.5 ; la touche ⏎ du pavé des tablettes envoie un `keydown`
+Entrée à une case en texte, donc passe par la même porte. Les lignes vivent
+dans l'état (`test.isdlE = {idx, lignes}`) et partent avec la pause.
+
+**Le juge** — `isdlVal`, un petit lecteur sans inconnue : nombres à virgule,
+`+ − × ÷ * / :`, parenthèses, carrés (`²`, `^2` — la case offre la touche ^,
+et `caseExposants` écrit « ² »), multiplication implicite « 3(−1)² » ;
+−1² vaut −1 (la puissance passe avant le signe). Une ligne est juste si elle
+vaut f(x) ; une ligne peut être une chaîne « 1 + 3 − 1 = 3 », chaque maillon
+doit alors valoir f(x), et un « f(1) = » recopié en tête est toléré. Le calcul
+est FINI quand la dernière ligne se termine par le résultat SEUL et qu'un
+maillon au moins n'est pas un nombre seul — « −3 » écrit d'emblée est juste,
+mais la question n'est pas parfaite : il manque l'étape intermédiaire, et le
+message le dit avec un calcul type.
+
+**La correction.** Juste en bleu, faux en rouge ; une première ligne vide
+reçoit le calcul type en vert ; un calcul inachevé reçoit en vert, sous ses
+lignes, ce qui manque (le calcul type et le résultat s'il n'y avait aucune
+étape, le résultat seul sinon) — une case `sol` de plus, qui compte non juste
+dans la note de l'exercice. Les cases GRANDISSENT avec leur contenu
+(`isdlLargeur`) : la première capture montrait la correction verte coupée
+avant son « = −3 ». En soutien, une ligne se colore une fois validée (la règle
+commune de la case qu'on écrit) ; un calcul juste mais inachevé garde
+« Revérifier » et dit « Va jusqu'au bout » plutôt que « corrige les cases en
+rouge » devant un écran sans rouge.
