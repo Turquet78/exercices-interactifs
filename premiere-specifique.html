@@ -1945,6 +1945,13 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .fpb-mot{font-family:"Nunito";font-weight:800;font-size:calc(1.05rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap}
 #pbHost .pbf-tete math-field.pm-mf{font-size:calc(1.3rem * var(--tab-nb,1));min-width:62px}
 #pbHost .pbf-tete .fpb-tab td{padding:12px 10px 2px}
+/* {reunion-probabilites} (3.12) : la case de la question entourée, les
+   cases validées de A ∪ D coloriées (ambre : ni le bleu du juste, ni le
+   vert de la correction), le rappel de la réunion sous l'énoncé. */
+.ru-tab td.ru-un{background:#FFE3A1}
+.ru-tab td.ru-ici{outline:4px solid var(--blue-dark);outline-offset:-5px}
+.ru-rappel{font-family:"Nunito";font-weight:600;font-size:calc(.98rem * var(--tab-nb,1));color:var(--ink);background:#FFF7E3;border:1.5px solid #F2D08A;border-radius:12px;padding:8px 12px;margin:8px auto;max-width:760px;line-height:1.45}
+.ru-case{font-weight:800}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
 #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 10px}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 4px} }
@@ -4768,6 +4775,7 @@ const TESTS={
   'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, trois probabilités : P(A ∩ D) posée en mots, P<sub>D</sub>(A)… ; Partie B, les mêmes calculs dits en fréquences : une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle. Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* 3.11 (novembre 2026) : la même fiche, d'autres énoncés, et seulement la fraction à écrire */
   'frequences-probabilites-direct': { name:'Fréquences et probabilités : la fiche, fractions seules', icon:'\ud83e\uddee', desc:'La fiche du {frequences-probabilites} avec d’autres énoncés (contrôle technique, aéroport, jouets, vigneron, photos, chocolaterie), et sur chaque ligne seulement la fraction à écrire avec les effectifs du tableau : ni fraction en lettres, ni nom à composer. Partie A en probabilités, partie B en fréquences.', start:()=>startFPB2() },
+  'reunion-probabilites': { name:'La réunion A ∪ D dans un tableau', icon:'\ud83d\udd17', desc:'Le tableau d’effectifs est complet. Case par case : fait-elle partie de A ? de D ? du groupe qui réunit A avec D, la réunion A ∪ D ? Chaque case validée de A ∪ D se colorie ; puis tu comptes les éléments de A ∪ D et tu calcules P(A ∪ D), en écriture fractionnaire.', start:()=>startRU() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres ronds : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
@@ -4820,7 +4828,9 @@ const THEMES=[
     'probabilites-sens','tableau-trois-colonnes','frequences-arrondies','independance','automatismes-probabilites',
     /* Puis (novembre 2026) la fiche en deux parties, fréquences puis
        probabilités (3.10), ajoutée EN DERNIER : elle ne renumérote rien. */
-    'frequences-probabilites','frequences-probabilites-direct'] },
+    'frequences-probabilites','frequences-probabilites-direct',
+    /* Puis (novembre 2026) la réunion A ∪ D case par case (3.12), EN DERNIER. */
+    'reunion-probabilites'] },
   /* Demande de Turquet, octobre 2026 : « mettre l'exercice de seconde 5.11 en
      première dans un nouveau thème fraction ». Ajouté EN DERNIER, il ne
      renumérote rien. {somme-fractions} reste dans le calcul mental : un
@@ -5020,7 +5030,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -26036,6 +26046,8 @@ function checkPBAnswer(live){
   }
   test.locked=true;
   ids.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
+  /* 3.12 : une question validée peut changer la page (la case coloriée) */
+  if(PBX[q.t] && PBX[q.t].apres) PBX[q.t].apres(q);
   if(allOk){ test.score++; $('pbLiveScore').textContent=test.score;
     $('pbFeedback').textContent=pick(['Bravo, c’est juste !','Parfait !','Excellent !','Très bien !']);
     $('pbFeedback').className='mp-feedback good';
@@ -26303,7 +26315,7 @@ function pbfCtxTexte(){
    dans le thème : une case juste ne rougit jamais pour une voisine. Les
    propositions et leur ordre sont rangés dans la question (opts, ordre),
    jamais retirés à l'affichage. */
-function pbCtx(q){ return (q && q.fpb) ? ((q.fpb===2 ? FPB2_CTX : FPB_CTX)[q.ci]||FPB_CTX[0]) : (q && q.c3) ? (PB3_CTX[q.ci]||PB3_CTX[0]) : (PB_CTX[q && q.ci]||PB_CTX[0]); }
+function pbCtx(q){ return (q && q.ru) ? (RU_CTX[q.ci]||RU_CTX[0]) : (q && q.fpb) ? ((q.fpb===2 ? FPB2_CTX : FPB_CTX)[q.ci]||FPB_CTX[0]) : (q && q.c3) ? (PB3_CTX[q.ci]||PB3_CTX[0]) : (PB_CTX[q && q.ci]||PB_CTX[0]); }
 function pbNeg(e){ return e.charAt(0)==='n' ? e.slice(1) : 'n'+e; }
 /* un évènement simple de L'AUTRE critère */
 function pbAutre(e){ return /A$/.test(e) ? pick(['B','nB']) : pick(['A','nA']); }
@@ -27217,6 +27229,191 @@ function fpbCtxTexte(){
 }
 async function startFPB(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-probabilites', fpbSeance(1)); }
 async function startFPB2(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-probabilites-direct', fpbSeance(2)); }
+/* ---------- 3.12 {reunion-probabilites} : LA RÉUNION A ∪ D, CASE PAR CASE ----------
+   Demande de Turquet (novembre 2026) : « faire un exercice comme le 3.10, où
+   le tableau est déjà complété et qui demande de déterminer la probabilité de
+   l'union des deux évènements A et D (sans les contraires). On rappellera
+   que A ∪ D signifie toutes les personnes (ou objets) qui sont dans le groupe
+   qui réunit toutes les personnes qui sont dans A avec celles qui sont dans
+   D. Demander si la case A ∩ D fait partie des éléments de A, puis de D,
+   puis du groupe qui réunit A avec D ; mettre en rouge la réponse fausse ;
+   une fois les réponses validées, colorier la case si elle fait partie de
+   l'union — de même pour les trois autres cases, et ne colorier que si
+   c'est validé. Puis le nombre d'éléments de l'union, puis P(A ∪ D) sous
+   forme fractionnaire. »
+   LE MOTEUR DES 3.5 À 3.9 (kind « pb », PBX, checkPBAnswer, une question à
+   la fois) — six questions :
+   - quatre CASES (q.t = 'rucase', q.c le code de la case : A∩D, A∩D̄, Ā∩D,
+     Ā∩D̄, dans cet ordre) : trois listes oui / non — dans A ? dans D ? dans
+     le groupe qui réunit A avec D ? La case est entourée dans le tableau ;
+     elle se COLORIE quand la question est validée (PBX.rucase.apres, appelé
+     par checkPBAnswer une fois la question verrouillée : en soutien, jamais
+     tant qu'une réponse est rouge), et reste coloriée aux questions
+     suivantes (ruColories) ;
+   - le NOMBRE d'éléments de A ∪ D (q.t = 'runb') : la somme des trois cases
+     coloriées ;
+   - P(A ∪ D) (q.t = 'rup') : une fraction, toute fraction égale est juste
+     (pb-n1 / pb-n2, pbFracJuger).
+   Le tableau est COMPLET (aucune case à trouver), ses lignes A et Ā, ses
+   colonnes D et D̄, comme au 3.10. Les effectifs : quatre multiples de 5
+   différents, de 10 à 95. Contextes : RU_CTX (q.ru = 1, lu par pbCtx). */
+const RU_CTX=[
+  /* f : le nom est féminin (« toutes celles »). lA, lnA : en tête des lignes ;
+     lB, lnB : en tête des colonnes. A, B : les évènements, à l'indicatif ;
+     pA, pnA, pB, pnB : au pluriel, « les élèves qui … ». */
+  { let:{A:'A',B:'D'}, intro:'Un lycée compte', pl:'élèves', f:false, un:'un élève', le:'l’élève', tous:'les élèves du lycée',
+    lA:'Association sportive', lnA:'Pas d’association sportive', lB:'Demi-pensionnaires', lnB:'Externes',
+    A:'fait partie de l’association sportive', B:'est demi-pensionnaire',
+    pA:'qui font partie de l’association sportive', pnA:'qui ne font pas partie de l’association sportive', pB:'qui sont demi-pensionnaires', pnB:'qui sont externes' },
+  { let:{A:'A',B:'D'}, intro:'Une usine fabrique chaque jour', pl:'pièces', f:true, un:'une pièce', le:'la pièce', tous:'les pièces fabriquées dans la journée',
+    lA:'Machine A', lnA:'Machine B', lB:'Avec défaut', lnB:'Sans défaut',
+    A:'provient de la machine A', B:'présente un défaut',
+    pA:'qui proviennent de la machine A', pnA:'qui proviennent de la machine B', pB:'qui présentent un défaut', pnB:'qui ne présentent pas de défaut' },
+  { let:{A:'A',B:'D'}, intro:'Un club de sport compte', pl:'adhérents', f:false, un:'un adhérent', le:'l’adhérent', tous:'les adhérents du club',
+    lA:'Athlétisme', lnA:'Pas d’athlétisme', lB:'Danse', lnB:'Pas de danse',
+    A:'fait de l’athlétisme', B:'fait de la danse',
+    pA:'qui font de l’athlétisme', pnA:'qui ne font pas d’athlétisme', pB:'qui font de la danse', pnB:'qui ne font pas de danse' },
+  { let:{A:'A',B:'D'}, intro:'Un train régional transporte ce matin', pl:'voyageurs', f:false, un:'un voyageur', le:'le voyageur', tous:'les voyageurs du train',
+    lA:'Abonnés', lnA:'Non abonnés', lB:'Deuxième classe', lnB:'Première classe',
+    A:'possède un abonnement', B:'voyage en deuxième classe',
+    pA:'qui possèdent un abonnement', pnA:'qui ne possèdent pas d’abonnement', pB:'qui voyagent en deuxième classe', pnB:'qui voyagent en première classe' },
+  { let:{A:'A',B:'D'}, intro:'Une médiathèque a reçu cette semaine', pl:'lecteurs', f:false, un:'un lecteur', le:'le lecteur', tous:'les lecteurs de la semaine',
+    lA:'Livre audio', lnA:'Pas de livre audio', lB:'DVD', lnB:'Pas de DVD',
+    A:'a emprunté un livre audio', B:'a emprunté un DVD',
+    pA:'qui ont emprunté un livre audio', pnA:'qui n’ont pas emprunté de livre audio', pB:'qui ont emprunté un DVD', pnB:'qui n’ont pas emprunté de DVD' },
+  { let:{A:'A',B:'D'}, intro:'Un entrepôt a reçu aujourd’hui', pl:'colis', f:false, un:'un colis', le:'le colis', tous:'les colis du jour',
+    lA:'Transporteur A', lnA:'Transporteur B', lB:'Endommagés', lnB:'Intacts',
+    A:'est livré par le transporteur A', B:'est endommagé',
+    pA:'qui sont livrés par le transporteur A', pnA:'qui sont livrés par le transporteur B', pB:'qui sont endommagés', pnB:'qui sont intacts' }
+];
+/* Les quatre cases, dans l'ordre des questions : A ∩ D d'abord. */
+const RU_CASES=['A.B','A.nB','nA.B','nA.nB'];
+function ruA(c){ return c.split('.').indexOf('A')>=0; }
+function ruD(c){ return c.split('.').indexOf('B')>=0; }
+function ruDans(c){ return ruA(c) || ruD(c); }
+function ruOn(v){ return v ? 'oui' : 'non'; }
+/* « A ∪ D », dans l'écriture de la page */
+function ruUnion(){ return pbHTML('A')+' ∪ '+pbHTML('B'); }
+function ruUnionTxt(){ return pbTxt('A')+' ∪ '+pbTxt('B'); }
+/* « tous les élèves qui sont dans A avec tous ceux qui sont dans D » */
+function ruRappel(C){
+  const tous=C.f ? 'toutes' : 'tous', ceux=C.f ? 'celles' : 'ceux';
+  return ruUnion()+' signifie '+tous+' les '+esc(C.pl)+' qui sont dans le groupe qui réunit '+tous+' les '+esc(C.pl)+' qui sont dans '+pbHTML('A')
+    +' avec '+tous+' '+ceux+' qui sont dans '+pbHTML('B')+'.';
+}
+/* « les élèves qui font partie de l'association sportive et qui sont externes » */
+function ruDecrit(C, c){ const p=c.split('.'); return 'les '+C.pl+' '+C['p'+p[0]]+' et '+C['p'+p[1]]; }
+function ruSeance(){
+  const ci=rand(0,RU_CTX.length-1); let m=null;
+  for(let e=0;e<500 && !m;e++){
+    const t=[0,0,0,0].map(()=>5*rand(2,19));
+    if(new Set(t).size===4) m=t;
+  }
+  if(!m) m=[35,20,45,15];
+  const qs=[], pose=o=>qs.push(distincte(qs, ()=>Object.assign(o, { ru:1, n:m.slice(), ci:ci, rep:{} })));
+  RU_CASES.forEach(c=>pose({ t:'rucase', c:c }));
+  pose({ t:'runb' });
+  pose({ t:'rup' });
+  return qs;
+}
+function ruNb(q){ return RU_CASES.filter(ruDans).reduce((s,c)=>s+pbEff(q,c),0); }
+/* Les cases coloriées : celles des questions de cases DÉJÀ VALIDÉES (avant
+   la question en cours, ou la question en cours une fois verrouillée) qui
+   sont dans A ∪ D. */
+function ruColories(){
+  const qs=test.questions||[], vues=[];
+  qs.forEach((q,j)=>{ if(q.t==='rucase' && (j<test.idx || (j===test.idx && test.locked)) && ruDans(q.c)) vues.push(PB_CASE[q.c]); });
+  return vues;
+}
+/* Le tableau complet, lignes A et Ā, colonnes D et D̄ : la case de la
+   question entourée, les cases validées de A ∪ D coloriées. */
+function ruTableHTML(q){
+  const C=pbCtx(q), v=pbValeurs(q.n), noms=['A.B','nA.B','B','A.nB','nA.nB','nB','A','nA',''];
+  const vues=ruColories(), ici=(q.t==='rucase') ? PB_CASE[q.c] : -1;
+  const cel=i=>'<td id="ru-c'+i+'" class="'+(vues.indexOf(i)>=0 ? 'ru-un' : '')+(i===ici ? ' ru-ici' : '')+'">'
+    +'<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span><span class="pb-v">'+v[i]+'</span></td>';
+  return '<table class="pb-tab ru-tab">'
+    +'<tr><th></th><th>'+esc(C.lB)+' '+pbHTML('B')+'</th><th>'+esc(C.lnB)+' '+pbHTML('nB')+'</th><th>Total</th></tr>'
+    /* « Machine A » porte déjà sa lettre : on ne la répète pas */
+    +'<tr><th>'+esc(C.lA)+(/ A$/.test(C.lA) ? '' : ' '+pbHTML('A'))+'</th>'+cel(0)+cel(3)+cel(6)+'</tr>'
+    +'<tr><th>'+esc(C.lnA)+' '+pbHTML('nA')+'</th>'+cel(1)+cel(4)+cel(7)+'</tr>'
+    +'<tr><th>Total</th>'+cel(2)+cel(5)+cel(8)+'</tr>'
+    +'</table>';
+}
+/* L'énoncé (sous le tableau) et le rappel de la réunion, à chaque question. */
+function ruRendreTete(q, consigne){
+  const C=pbCtx(q);
+  $('pbPrompt').innerHTML=esc(C.intro)+' '+pbEff(q,'T')+' '+esc(C.pl)+'. On choisit '+esc(C.un)+' au hasard parmi '+esc(C.tous)+'. On considère les évènements '
+    +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+C.B)+' ». '+consigne;
+  return '<div class="pt-step">'+ruTableHTML(q)+'</div><div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
+    +'<p class="ru-rappel"><b>Rappel.</b> '+ruRappel(C)+'</p>';
+}
+PBX.rucase={
+  att(q){ return { 'pb-ra':ruOn(ruA(q.c)), 'pb-rd':ruOn(ruD(q.c)), 'pb-ru':ruOn(ruDans(q.c)) }; },
+  render(q){
+    const C=pbCtx(q), opts=[{ v:'oui', t:'oui' },{ v:'non', t:'non' }], nm=pbHTML(q.c);
+    const ligne=(id,txt,lab)=>'<p class="pb-def pb-phrase">'+txt+' '+pbSel(q,id,opts,lab,'pb-mots')+'</p>';
+    $('pbHost').innerHTML=ruRendreTete(q, 'Réponds aux trois questions sur la case entourée dans le tableau.')
+      +'<div class="pt-step">'
+        +'<p class="pb-def ru-case">La case '+nm+' : '+esc(ruDecrit(C,q.c))+' ('+pbEff(q,q.c)+' '+esc(C.pl)+').</p>'
+        +ligne('pb-ra','La case '+nm+' fait-elle partie des éléments de '+pbHTML('A')+' ?','la case '+pbTxt(q.c)+' fait-elle partie de '+pbTxt('A'))
+        +ligne('pb-rd','La case '+nm+' fait-elle partie des éléments de '+pbHTML('B')+' ?','la case '+pbTxt(q.c)+' fait-elle partie de '+pbTxt('B'))
+        +ligne('pb-ru','La case '+nm+' fait-elle partie du groupe qui réunit '+pbHTML('A')+' avec '+pbHTML('B')+', c’est-à-dire '+ruUnion()+' ?','la case '+pbTxt(q.c)+' fait-elle partie de '+ruUnionTxt())
+      +'</div>';
+    pbPlacerEnonce(true);
+  },
+  /* la question validée : sa case se colorie si elle est dans A ∪ D */
+  apres(q){ const td=$('ru-c'+PB_CASE[q.c]); if(td && ruDans(q.c)) td.classList.add('ru-un'); },
+  pourquoi(q){
+    const C=pbCtx(q), a=ruA(q.c), d=ruD(q.c), nm=pbHTML(q.c);
+    return 'Les '+esc(C.pl)+' de la case '+nm+' sont '+(a ? 'dans '+pbHTML('A') : 'dans '+pbHTML('nA')+', donc pas dans '+pbHTML('A'))+', et '+(d ? 'dans '+pbHTML('B') : 'dans '+pbHTML('nB')+', donc pas dans '+pbHTML('B'))+'. '
+      +'Un élément est dans '+ruUnion()+' dès qu’il est dans '+pbHTML('A')+' ou dans '+pbHTML('B')+' (ou dans les deux) : '
+      +(ruDans(q.c) ? 'la case '+nm+' fait partie de '+ruUnion()+'.' : 'la case '+nm+' n’est ni dans '+pbHTML('A')+' ni dans '+pbHTML('B')+', elle ne fait pas partie de '+ruUnion()+'.');
+  },
+  label(q){ return 'La case '+pbTxt(q.c)+' : dans '+pbTxt('A')+' ? dans '+pbTxt('B')+' ? dans '+ruUnionTxt()+' ?'; },
+  ctx(q){ return ruCtxCommun(q)+'Question : la case '+pbTxt(q.c)+' ('+ruDecrit(pbCtx(q),q.c)+') — fait-elle partie de '+pbTxt('A')+' ? de '+pbTxt('B')+' ? du groupe qui réunit '+pbTxt('A')+' avec '+pbTxt('B')+' ('+ruUnionTxt()+') ? L’élève répond oui ou non dans trois listes. '; }
+};
+PBX.runb={
+  att(q){ return { 'pb-u':String(ruNb(q)) }; },
+  render(q){
+    const C=pbCtx(q);
+    $('pbHost').innerHTML=ruRendreTete(q, 'Calcule le nombre de '+esc(C.pl)+' dans '+ruUnion()+' : ce sont '+(C.f ? 'celles' : 'ceux')+' des cases coloriées.')
+      +'<div class="pt-step"><div class="pt-row"><span class="fpb-mot">Nombre '+esc(lpDe(C.pl))+' dans</span><span class="pb-nom">'+ruUnion()+'</span>'
+        +fEq(pbMf('pb-u','nombre '+lpDe(C.pl)+' dans '+ruUnionTxt()))+'</div></div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    const cs=RU_CASES.filter(ruDans);
+    return ruUnion()+' réunit les trois cases coloriées, '+cs.map(pbHTML).join(', ')+' : on additionne leurs effectifs, '
+      +cs.map(c=>pbEff(q,c)).join(' + ')+' = '+ruNb(q)+'. La case '+pbHTML('nA.nB')+' n’en fait pas partie.';
+  },
+  label(){ return 'Nombre d’éléments de '+ruUnionTxt(); },
+  ctx(q){ return ruCtxCommun(q)+'Les cases de '+ruUnionTxt()+' ('+RU_CASES.filter(ruDans).map(pbTxt).join(', ')+') sont coloriées. L’élève calcule le nombre d’éléments de '+ruUnionTxt()+' : la somme de ces trois cases. '; }
+};
+PBX.rup={
+  att(q){ return { 'pb-n1':String(ruNb(q)), 'pb-n2':String(pbEff(q,'T')) }; },
+  render(q){
+    const C=pbCtx(q), nom='<span class="pb-nom"><i class="pb-P">P</i>('+ruUnion()+' )</span>';
+    $('pbHost').innerHTML=ruRendreTete(q, 'Calcule '+'<span class="pb-nomp"><i>P</i>('+ruUnion()+')</span>, la probabilité que '+esc(C.le)+' soit dans '+ruUnion()+', sous forme fractionnaire.')
+      +'<p class="pb-def">Il y a '+ruNb(q)+' '+esc(C.pl)+' dans '+ruUnion()+'.</p>'
+      +'<div class="pt-step">'+pbxLigneEff(nom)+'</div>';
+    pbPlacerEnonce(true);
+  },
+  pourquoi(q){
+    return 'On choisit au hasard parmi TOUS : '+ruNb(q)+' éléments de '+ruUnion()+' sur un total de '+pbEff(q,'T')+' — '
+      +'<span class="pb-nomp"><i>P</i>('+ruUnion()+')</span> = '+pbFr(ruNb(q),pbEff(q,'T'))+' (une fraction égale est juste aussi).';
+  },
+  label(){ return 'P('+ruUnionTxt()+')'; },
+  ctx(q){ return ruCtxCommun(q)+'L’élève calcule P('+ruUnionTxt()+') en écriture fractionnaire : nombre d’éléments de '+ruUnionTxt()+' sur l’effectif total (une fraction égale, simplifiée ou non, est acceptée). '; }
+};
+function ruCtxCommun(q){
+  const C=pbCtx(q);
+  return 'Tableau d’effectifs COMPLET : '+C.intro+' '+pbEff(q,'T')+' '+C.pl+' ; '+pbTxt('A')+' = « '+C.le+' '+C.A+' », '+pbTxt('B')+' = « '+C.le+' '+C.B+' ». '
+    +pbEffTxt(pbValeurs(q.n))
+    +'L’exercice porte sur la réunion '+ruUnionTxt()+' : tous les '+C.pl+' qui sont dans le groupe qui réunit ceux de '+pbTxt('A')+' avec ceux de '+pbTxt('B')
+    +' — un élément y est dès qu’il est dans '+pbTxt('A')+' ou dans '+pbTxt('B')+'. Les quatre cases du milieu sont examinées une à une (dans '+pbTxt('A')+' ? dans '+pbTxt('B')+' ? dans '+ruUnionTxt()+' ?), puis on compte '+ruUnionTxt()+', puis P('+ruUnionTxt()+'). Pas de formule P(A) + P(D) − P(A ∩ D) : on compte les cases. ';
+}
+async function startRU(){ if(!currentEleve){ accueil(); return; } pbDemarrer('reunion-probabilites', ruSeance()); }
 /* Les démarreurs des 3.5 à 3.9 : le moteur de {tableau-probabilites}, leur
    identité à chacun — la note part sous test.qId. */
 function pbDemarrer(qId, qs){
@@ -34478,7 +34675,14 @@ La question 1 se fait dans le <b>tableau</b>, comme dans {augmentation-tableau}.
 · <b>des phrases avec tes calculs</b> : « il y a 6 années donc 6 × 20 = 120 », puis « je fais 500 − 120 = 380 » ;<br>
 · ou <b>directement le résultat</b>, si tu l'as calculé de tête.<br>
 Chaque calcul que tu écris doit être juste : une égalité fausse suffit à rendre la réponse fausse.<br><br>`+RAP_SUI;
-const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+/* {reunion-probabilites} (3.12) : la réunion A ∪ D, case par case. */
+const RAP_RU=`<b>La réunion de deux évènements</b><br>
+<b>Ce que veut dire A ∪ D.</b> \\(A\\cup D\\) (on lit « A union D ») désigne toutes les personnes (ou tous les objets) qui sont dans le groupe qui réunit toutes celles qui sont dans \\(A\\) avec toutes celles qui sont dans \\(D\\) : on y est dès qu’on est dans \\(A\\), ou dans \\(D\\), ou dans les deux.<br>
+<b>Case par case.</b> Une case du tableau fait partie de \\(A\\cup D\\) si elle fait partie de \\(A\\) OU de \\(D\\). Sur les quatre cases du milieu, trois en font partie : \\(A\\cap D\\), \\(A\\cap\\overline{D}\\) et \\(\\overline{A}\\cap D\\). Seule \\(\\overline{A}\\cap\\overline{D}\\) (ni dans \\(A\\), ni dans \\(D\\)) n’en fait pas partie.<br>
+<b>Le nombre d’éléments.</b> On additionne les trois cases : par exemple 30 + 25 + 40 = 95.<br>
+<b>La probabilité.</b> On choisit au hasard parmi tous : \\(P(A\\cup D)=\\dfrac{\\text{nombre d’éléments de } A\\cup D}{\\text{effectif total}}\\), par exemple \\(\\dfrac{95}{120}\\).<br>
+Piège classique : compter deux fois la case \\(A\\cap D\\) en additionnant le total de \\(A\\) et le total de \\(D\\).`;
+const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -34587,6 +34791,7 @@ const QIA_SUGG={
   'automatismes-probabilites':["Comment lire un arbre pondéré ?","Pourquoi multiplie-t-on le long d’une branche ?","Comment calculer P(B) avec un arbre ?","Pourquoi une probabilité est-elle entre 0 et 1 ?"],
   'frequences-probabilites':["Quelle différence entre une fréquence et une probabilité ?","Quelle différence entre la fréquence de « A et D » et la fréquence de A parmi D ?","Pourquoi P_D(A) ne se divise-t-elle pas par le total ?","Comment trouver une case qui manque dans le tableau ?"],
   'frequences-probabilites-direct':["Quelle différence entre une fréquence et une probabilité ?","Par quoi divise-t-on dans une probabilité « sachant que » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Comment trouver une case qui manque dans le tableau ?"],
+  'reunion-probabilites':["Que veut dire A ∪ D ?","Pourquoi la case A ∩ D fait-elle partie de A ∪ D ?","Pourquoi ne pas additionner le total de A et le total de D ?","Quelle différence entre A ∩ D et A ∪ D ?"],
   'lire-probabilites':["Que veut dire l’indice sous P ?","Comment lire P_A(B) avec le mot « parmi » ?","Quelle différence entre P_A(B) et P_B(A) ?","Que représente l’évènement contraire Ā ?"],
   pb:["Quelle différence entre P(A∩B) et P_B(A) ?","Comment trouver une case qui manque dans le tableau ?","Que veut dire « parmi » dans une probabilité conditionnelle ?","Que représente l’évènement contraire Ā ?"],
   trd:["Pourquoi la repr\u00e9sentation d\u2019une fonction affine est-elle une droite ?","Comment placer un point sur un rep\u00e8re ?","Comment calculer la somme de deux nombres relatifs ?","Que veut dire transposer un terme ?","Comment lire un ant\u00e9c\u00e9dent sur le graphique ?","Comment trouver le signe de f(x) sur le dessin ?"],
