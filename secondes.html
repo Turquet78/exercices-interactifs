@@ -73945,6 +73945,9 @@ function renderVcl(){
     .replace('</defs>',['vclArrK:var(--ink)','vclArr1:var(--vpg-1)','vclArr2:var(--vpg-2)'].map(function(m){ const c=m.split(':');
       return '<marker id="'+c[0]+'" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="'+c[1]+'"/></marker>'; }).join('')+'</defs>');
   $('vclCalc').innerHTML=vclCalcHTML(q);
+  /* l'écran est partagé avec le devoir 8.4.14, dont les questions a), b), d) cachent le calcul (vclEgMaj) :
+     une question ordinaire du 8.4.13 le rend visible, sans quoi « Vérifier » compte 20 cases jamais montrées */
+  $('vclCalc').style.display='';
   vcdGpFermer();
   vclCalcBrancher(q);
   /* 8.4.14, a) : les listes des deux vecteurs, rendues par la reprise */

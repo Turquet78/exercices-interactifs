@@ -2493,3 +2493,18 @@ Deux bancs ont rougi sur la première poussée, et leurs leçons restent :
 * **Le banc de la pause** ne sait pas écrire une feuille libre (il remplit des
   cases de zéros) : le 4.12 se déclare dans `pauseReprise.horsAtteinte`, comme
   les quatre calculs libres de la Seconde.
+
+**Puis le 4.12 a plafonné TOUS ses nombres à 20 (novembre 2026, Première
+v454).** Demande de Turquet : « dans le 4.12, il ne faut aucun résultat
+intermédiaire ou pour la solution dans les calculs qui donne un numérateur ou
+un dénominateur supérieur à 20, avec le plus petit dénominateur commun ».
+Le plus grand PPCM de la liste vaut 20 (2, 4, 5) : D tenait déjà ; ce sont
+N1, N2, N3, la somme partielle et le résultat qui montaient jusqu'à 60. Le
+4.11 garde son plafond (la demande ne visait que le 4.12). Sous un plafond si
+serré, le tirage par rejet de `tsf3Gen` ne trouvait presque jamais 2, 4, 5 en
+« + + » (une seule solution par ordre, 10 + 5 + 4) : le 4.12 ÉNUMÈRE ses cas
+(`tsf4Cas`, `TSF4_MAX`), tire le triplet uniformément parmi ceux qui en ont,
+puis le cas. Chaque triplet garde au moins six cas par motif de signes.
+Contrôle : dans `troisFractionsPpcm`, deux cents séances du 4.12 — aucun
+nombre au-dessus de 20 ni sous zéro, chaque triplet sort. Éprouvé par
+sabotage (`TSF4_MAX` à 60 : « un nombre du calcul dépasse 20 … N:21 »).

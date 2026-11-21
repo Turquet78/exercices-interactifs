@@ -1403,3 +1403,67 @@ segment tracé. **Vérifié** dans Chromium sur six figures du 7.1.12 : (IJ) ou
 (KM) tracée en droite, [IJ] ou [KM] pas tracé, la parallèle par le point
 de la face opposée sort en segment rouge ; (AG) refusée. Aucun banc ne couvre
 encore les sections du cube.
+
+#### Tous les points d'intersection intéressants sont atteignables (v513)
+
+Turquet, novembre 2026, sur une capture du 7.1.14 où (JK) et (CG)
+s'arrêtaient avant de se couper : « il faudrait que tous les points
+d'intersection intéressants soient possibles » ; et « si je clique sur Droite
+puis sur le point d'intersection de (IJ) et (BA), qu'il apparaisse
+automatiquement et qu'il soit nommé automatiquement ».
+
+* **Le cadre prend tous les points intéressants.** Un point intéressant est un
+  point du plan de la section sur la droite d'une arête (`esxTraces`) : il est
+  dans deux plans de faces, la section passe par lui d'une face à l'autre. Le
+  cadre les prenait jusqu'à une demi-arête hors du cube, au 7.1.14 seulement ;
+  il les prend jusqu'à une arête et demie (`ESX_TRACE_LOIN`), aux trois
+  exercices. Sur la capture, (JK) ∩ (CG) est à 4/3 d'arête sous C : il sortait
+  du cadre, donc aucune des deux droites n'allait jusqu'à lui. Les points
+  plus lointains qu'une arête et demie restent hors du dessin.
+* **La figure grandit avec son cadre** (`esxTailleFig`) : 1,45 pixel par unité,
+  sans dépasser l'écran ni 80 % de sa hauteur — le cube garde sa taille au lieu
+  de rapetisser quand le cadre s'élargit.
+* **Tout croisement réel se nomme au clic**, plus seulement ceux de la section
+  dans le cube (`esxNommerCroisement`) : hors du cube aussi, là où vivent L et
+  M. Le croisement se cherche sur les droites TELLES QU'ELLES SONT DESSINÉES
+  (`esxSeg2` suit `esxEtendue`), plus sur leur prolongement jusqu'au bord du
+  cadre, que l'élève ne voit pas.
+
+Exécuté dans Chromium sur la figure de la capture : Droite, K, puis le
+croisement de (IJ) et (BA) → le point L se crée, se nomme, et (KL) se trace ;
+sans outil, le croisement de (JK) et (CG) → « Point M nommé. »
+
+Puis, le même jour, une demande de plus :
+
+* **Aucun point intéressant ne tombe sur une arête du dessin.** Sur une
+  capture, M, intersection de deux droites du plan (IJK), se dessinait sur
+  l'arête [HD] : « c'est à éviter ». `esxConstruire` écarte toute figure dont
+  un point intéressant du cadre passe à moins de 12 unités d'une arête qui ne
+  le porte pas, ou à moins de 24 d'un sommet ou d'un point nommé (la règle
+  qui tenait déjà L et les points de la section). Il reste 378 figures, dont
+  66 pentagones ; le tirage reste à un pentagone sur deux (1490 sur 3000).
+
+#### Un bouton « Indice » au 7.1.12 et au 7.1.14 (v514)
+
+Turquet, novembre 2026 : « dans le 7.1.12 et le 7.1.14, mettre un bouton
+indice qui donne une étape possible à faire pour l'élève pour continuer la
+section ». « 💡 Indice », à côté d'« Annuler » (pas au 7.1.13, dont les étapes
+sont écrites), écrit dans la ligne de message une étape possible, calculée sur
+la construction de l'élève telle qu'elle est (`esxIndiceTexte`) :
+
+1. un morceau de la section pas encore tracé dont les deux bouts sont déjà des
+   points nommés → « trace le segment rouge […] » ;
+2. un morceau dont la face opposée porte déjà son segment rouge, et dont un
+   bout est nommé → « trace la parallèle à […] passant par … » ;
+3. sinon, la première étape non faite de la construction du 7.1.13
+   (`esgEtapes`) : (IJ), (CG), L, (LK), le point où (LK) quitte la face.
+
+Les points se disent par le nom que l'élève leur a donné. Au 7.1.12, une
+section complète sans L ou sans 𝒟 ramène l'indice à leur construction : l'énoncé
+les demande. L'indice ne coûte rien à la note.
+
+**Exécuté** dans Chromium : un élève qui ne fait QUE ce que dit l'indice
+(chaque phrase relue et jouée) termine la section sur 76 figures du 7.1.14 et
+76 du 7.1.12, sans jamais rester bloqué (824 gestes chacun) ; au 7.1.12, une
+section tracée sans L ni 𝒟 → (IJ), (CG), L, (LK), puis « La section est
+complète », bilan tout juste ; le bouton cliqué écrit son indice.

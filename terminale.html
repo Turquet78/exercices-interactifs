@@ -4660,7 +4660,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=512;
+const APP_VERSION=514;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -36018,6 +36018,19 @@ function esxConstruire(si,fa,fb,fc,lisible){
   const pL=esxProj(Lp), pK=esxProj(K); if(Math.hypot(pL[0]-pK[0],pL[1]-pK[1])<40) return null;
   if(Math.max(...Lp.map(x=>Math.max(-x,x-1)))>1+1e-9) return null;              /* L à une arête au plus hors du cube */
   if(esxLargeur(pts)<ESX_EPAISSEUR) return null;                                  /* une section assez épaisse pour se voir */
+  /* AUCUN POINT INTÉRESSANT NE TOMBE SUR UNE ARÊTE DU DESSIN (Turquet, novembre
+     2026, sur une capture où M, intersection de deux droites du plan (IJK),
+     se dessinait sur l'arête [HD] : « c'est à éviter »). Chaque point du plan
+     de la section sur la droite d'une arête, dans le cadre, reste à 12 unités
+     de toute arête qui ne le porte pas, et à 24 des sommets et des points
+     nommés — comme L et les points de la section. */
+  const g0={n:n,d:d};
+  for(const X of esxTraces(g0)){
+    if(pts.some(Y=>esxEq(X,Y))||esxEq(X,Lp)) continue;
+    const x=esxProj(X);
+    if(p2.some(y=>Math.hypot(x[0]-y[0],x[1]-y[1])<24)) return null;
+    for(const e of ESX_AR){ const A=ESX_CO[e[0]], B=ESX_CO[e[1]]; if(esxNul(esxVx(esxSub(X,A),esxSub(B,A)))) continue; if(esxDist2(x,esxProj(A),esxProj(B))<12) return null; }
+  }
   return cfg;
 }
 /* LA SECTION DOIT SE VOIR (Turquet, novembre 2026, sur une capture où la
@@ -36094,17 +36107,27 @@ function esxNomObj(o){ return o.t==='d'?'('+o.a+o.b+')':'['+o.a+o.b+']'; }
    point où le plan (IJK) coupe la droite d'une arête, s'il reste à une
    demi-arête au plus du cube (le plus grand cadre passe de 335 à 548 unités
    de large ; trois quarts d'arête l'auraient porté à 618). */
+/* TOUS LES POINTS D'INTERSECTION INTÉRESSANTS SONT DANS LE CADRE (Turquet,
+   novembre 2026, sur une capture où (JK) et (CG) s'arrêtaient avant de se
+   couper : « il faudrait que tous les points d'intersection intéressants
+   soient possibles »). Un point intéressant est un point du plan de la section
+   sur la droite d'une arête : il est dans deux plans de faces, c'est par lui
+   que la section passe d'une face à l'autre. Le cadre les prend tous jusqu'à
+   une arête et demie hors du cube (au lieu d'une demi-arête), aux trois
+   exercices ; la figure grandit avec son cadre (esxTailleFig) pour que le cube
+   garde sa taille. */
+const ESX_TRACE_LOIN=1.5;
 function esxTraces(q){
-  const g=esxCfg(q), o=[];
+  const g=Array.isArray(q.n)?q:esxCfg(q), o=[];   /* une question, ou directement le plan {n, d} */
   ESX_AR.forEach(function(e){
     const A=ESX_CO[e[0]], u=esxSub(ESX_CO[e[1]],A), den=esxDot(g.n,u); if(Math.abs(den)<1e-12) return;
     const X=esxAdd(A,esxMul(u,(g.d-esxDot(g.n,A))/den));
-    if(X.every(x=>x>=-0.5-1e-9 && x<=1.5+1e-9)) o.push(X);
+    if(X.every(x=>x>=-ESX_TRACE_LOIN-1e-9 && x<=1+ESX_TRACE_LOIN+1e-9)) o.push(X);
   });
   return o;
 }
 function esxCadre(q){
-  const g=esxCfg(q), pts=ESX_SOM.map(L=>esxProj(ESX_CO[L])).concat([esxProj(g.L)], g.pts.map(esxProj), test.kind==='esl'?esxTraces(q).map(esxProj):[]);
+  const g=esxCfg(q), pts=ESX_SOM.map(L=>esxProj(ESX_CO[L])).concat([esxProj(g.L)], g.pts.map(esxProj), esxTraces(q).map(esxProj));
   const x0=Math.min(...pts.map(p=>p[0]))-40, y0=Math.min(...pts.map(p=>p[1]))-40;
   return {x0:x0, y0:y0, W:Math.max(...pts.map(p=>p[0]))+40-x0, H:Math.max(...pts.map(p=>p[1]))+40-y0};
 }
@@ -36308,7 +36331,8 @@ const ESX_OUTILS=[['d','Droite'],['s','Segment rouge'],['i','Nommer un point d�
 function esxFormHTML(q){
   return '<div class="esx-outils" role="toolbar" aria-label="Outils de construction">'
     +ESX_OUTILS.map(o=>'<button type="button" class="btn btn-ghost esx-outil" data-outil="'+o[0]+'" aria-pressed="false" onclick="esxChoisir(\''+o[0]+'\')">'+o[1]+'</button>').join('')
-    +'<button type="button" class="btn btn-ghost esx-outil" onclick="esxAnnuler()">↶ Annuler</button></div>'
+    +'<button type="button" class="btn btn-ghost esx-outil" onclick="esxAnnuler()">↶ Annuler</button>'
+    +(test.kind==='esg'?'':'<button type="button" class="btn btn-ghost esx-outil esx-indice" onclick="esxIndice()">💡 Indice</button>')+'</div>'
     +'<div class="esx-msg" id="esxMsg" aria-live="polite"></div>'
     +'<div class="esx-fig" id="esxFig"></div>'
     +'<div class="esx-suivi" id="esxSuivi"></div>';
@@ -36331,7 +36355,64 @@ function esxAnnuler(){
   if(der && der.grp!==undefined) while(q.cons.length && q.cons[q.cons.length-1].grp===der.grp) q.cons.pop();   /* un groupe (la parallèle hors du cube) part d'un coup */
   esxDire('Dernière construction annulée.'); esxApres();
 }
-function esxDessiner(){ const q=test.questions[test.idx], h=$('esxFig'); if(!q||!h) return; h.innerHTML=esxSVG(q); esxSuivi(); if(test.kind==='esg') esgMaj(q); }
+/* LA FIGURE GRANDIT AVEC SON CADRE : le cube garde sa taille (1,45 pixel par
+   unité) quand le cadre s'élargit pour les points d'intersection lointains,
+   sans dépasser la largeur de l'écran ni 80 % de sa hauteur. */
+function esxTailleFig(q,h){ const c=esxCadre(q); h.style.maxWidth='min('+Math.round(1.45*c.W)+'px, calc(80vh * '+(c.W/c.H).toFixed(3)+'))'; }
+function esxDessiner(){ const q=test.questions[test.idx], h=$('esxFig'); if(!q||!h) return; esxTailleFig(q,h); h.innerHTML=esxSVG(q); esxSuivi(); if(test.kind==='esg') esgMaj(q); }
+/* UN INDICE : UNE ÉTAPE POSSIBLE POUR CONTINUER (Turquet, novembre 2026 :
+   « dans le 7.1.12 et le 7.1.14, mettre un bouton indice qui donne une étape
+   possible à faire pour l'élève pour continuer la section »). L'indice part
+   de la construction de l'élève, telle qu'elle est :
+     1. un morceau de la section pas encore tracé dont les deux bouts sont déjà
+        des points nommés → le tracer ;
+     2. un morceau dont la parallèle se trace déjà (un point nommé, le morceau
+        de la face opposée tracé en rouge) → la tracer ;
+     3. sinon, la première étape non faite de la construction du 7.1.13
+        (esgEtapes) — (IJ), (CG), L, (LK), le point où (LK) sort de la face…
+   Les points se disent par leur nom quand l'élève les a construits, et se
+   décrivent sinon. Le 7.1.13 n'en a pas besoin : ses étapes sont écrites. */
+function esxIndice(){
+  if(test.locked) return;
+  const q=test.questions[test.idx]; if(!q) return;
+  esxDire('💡 '+esgTexte(esxIndiceTexte(q)));
+}
+function esxIndiceTexte(q){
+  const g=esxCfg(q), R=g.R, ob=esxObjets(q), nm=X=>esxNomDe(q,X), i=n=>'<i>'+n+'</i>';
+  const seg=(A,B)=>ob.some(o=>o.t!=='d'&&((esxEq(o.A,A)&&esxEq(o.B,B))||(esxEq(o.A,B)&&esxEq(o.B,A))));
+  const droite=(A,B)=>ob.some(o=>o.t==='d'&&esxSurDroite(A,o.A,o.B)&&esxSurDroite(B,o.A,o.B));
+  const reste=g.morceaux.filter(m=>!seg(m.P,m.Q));
+  const lDfaits=test.kind!=='esx'||(nm(g.L)&&droite(g.L,g.K));   /* au 7.1.12, l'énoncé demande aussi L et 𝒟 */
+  if(!reste.length && lDfaits) return 'La section est complète : clique sur « Vérifier ».';
+  const face=m=>esxNomFace(ESX_FACES[m.fi]);
+  /* 1. deux points nommés sur une même face */
+  const m1=reste.find(m=>nm(m.P)&&nm(m.Q));
+  if(m1) return 'Les points '+i(nm(m1.P))+' et '+i(nm(m1.Q))+' sont tous les deux dans le plan ('+i('IJK')+') et sur la face '+i(face(m1))+' : trace le segment rouge ['+i(nm(m1.P)+nm(m1.Q))+'].';
+  /* 2. une parallèle qui se trace déjà */
+  for(const m of reste){
+    const opp=ESX_FACES.findIndex(f=>f.k===ESX_FACES[m.fi].k&&f.v!==ESX_FACES[m.fi].v), r=g.morceaux.find(z=>z.fi===opp);
+    if(!r||!seg(r.P,r.Q)) continue;
+    const X=nm(m.P)?m.P:(nm(m.Q)?m.Q:null); if(!X) continue;
+    return 'La face '+i(face(m))+' est parallèle à la face '+i(face(r))+' : le plan ('+i('IJK')+') les coupe selon deux segments parallèles. Avec « Segment rouge parallèle », trace la parallèle à ['+i(nm(r.P)+nm(r.Q))+'] passant par '+i(nm(X))+'.';
+  }
+  /* 3. la construction du 7.1.13, première étape non faite */
+  const E=esgEtapes(q), lab=X=>nm(X)||null;
+  for(const st of E){
+    if(st.t==='d'){ if(droite(st.A,st.B)) continue;
+      const a=lab(st.A), b=lab(st.B); if(!a||!b) continue;
+      if(esxEq(st.A,g.L)) return 'Les points '+i(a)+' et '+i(b)+' sont dans le plan ('+i('IJK')+') et dans le plan de la face '+i(R.C+R.D+R.H+R.G)+' : trace la droite ('+i(a+b)+'), c’est l’intersection de ces deux plans.';
+      if(esxEq(st.A,g.I)) return 'Les points '+i('I')+' et '+i('J')+' sont sur la même face : trace la droite ('+i('IJ')+') et prolonge-la hors du cube.';
+      return 'Trace la droite ('+i(a+b)+') : elle est dans le même plan que ('+i('IJ')+'), elles vont se couper.';
+    }
+    if(st.t==='i'){ if(nm(st.X)) continue;
+      if(esxEq(st.X,g.L)){ if(!droite(g.I,g.J)||!droite(ESX_CO[R.C],ESX_CO[R.G])) continue;
+        return 'Les droites ('+i('IJ')+') et ('+i(R.C+R.G)+') sont dans le même plan, celui de la face '+i(face({fi:ESX_FACES.findIndex(f=>esxSurFace(g.I,f)&&esxSurFace(g.J,f))}))+' : place leur point d’intersection.'; }
+      const a=esxAreteDe(st.X), dK=ob.find(o=>o.t==='d'&&esxSurDroite(st.X,o.A,o.B)); if(!dK) continue;
+      return 'Place le point d’intersection de la droite '+esxNomObj(dK).replace(/\(([^)]*)\)/,(z,n)=>'('+i(n)+')')+' et de l’arête ['+i(a||'')+'] : c’est là que la section quitte la face.';
+    }
+  }
+  return 'Cherche deux points du plan ('+i('IJK')+') sur une même face, ou prolonge une droite du plan ('+i('IJK')+') jusqu’à la droite d’une arête de la même face.';
+}
 function esxApres(){ esxDessiner(); if(isSoutien()) checkESX(true); }
 /* la position du pointeur dans le dessin, et la tolérance du clic */
 function esxPointeur(evt){
@@ -36380,7 +36461,11 @@ function esxActif(){ return test.kind==='esx'||test.kind==='esg'||test.kind==='e
    n'existe que sur le dessin est refusé avec le même message qu'avant. Loin de
    tout croisement, le clic choisit un trait, comme avant, et le second clic
    l'autre. Le 7.1.13 passe par le même geste. */
-function esxSeg2(q,o){ const c=esxCadre(q), a=esxProj(o.A), b=esxProj(o.B); return o.t==='d'?esxClip(a,b,c):[a,b]; }
+function esxSeg2(q,o){
+  if(o.t!=='d') return [esxProj(o.A),esxProj(o.B)];
+  const e=esxEtendue(q,o.A,o.B), u=esxSub(o.B,o.A);   /* la droite telle qu'elle est dessinée */
+  return [esxProj(esxAdd(o.A,esxMul(u,e[0]))), esxProj(esxAdd(o.A,esxMul(u,e[1])))];
+}
 function esxCroise2(s1,s2){
   const r=[s1[1][0]-s1[0][0], s1[1][1]-s1[0][1]], t=[s2[1][0]-s2[0][0], s2[1][1]-s2[0][1]], d=r[0]*t[1]-r[1]*t[0];
   if(Math.abs(d)<1e-9) return null;
@@ -36403,14 +36488,17 @@ function esxCroisementProche(q,p){
   }
   return best;
 }
-/* le croisement cliqué, s'il est un point de la section : son nom (créé au besoin) */
+/* le croisement cliqué, s'il est un VRAI point de l'espace : son nom (créé au
+   besoin). D'abord sur la section seulement ; puis partout (Turquet, novembre
+   2026 : « si je clique sur Droite puis sur le point d'intersection de (IJ) et
+   (BA), qu'il apparaisse automatiquement et qu'il soit nommé ») — hors du cube
+   aussi, là où vivent les points comme L ou M. */
 function esxNommerCroisement(q,p){
   const x=esxCroisementProche(q,p); if(!x) return null;
   const ob=esxObjets(q), o1=ob.find(o=>o.id===x.a), o2=ob.find(o=>o.id===x.b); if(!o1||!o2||!esxEspaceCoupe(o1,o2)) return null;
   const u=esxSub(o1.B,o1.A), v=esxSub(o2.B,o2.A), w=esxSub(o2.A,o1.A), n=esxVx(u,v), nn=esxDot(n,n);
   const t=esxDot(esxVx(w,v),n)/nn, s2=esxDot(esxVx(w,u),n)/nn, X=esxAdd(o1.A,esxMul(u,t));
   if([[o1,t],[o2,s2]].some(z=>z[0].t!=='d'&&(z[1]<-1e-9||z[1]>1+1e-9))) return null;
-  if(!esxDansPlan(q,X) || !X.every(c=>c>-1e-9&&c<1+1e-9)) return null;   /* sur la section du cube seulement */
   const deja=esxNomDe(q,X); if(deja) return {n:deja, nouveau:false};
   const avant=q.cons.length, dire=esxMsg, err=esxMsgErr;
   esxCouper(q,x.a,x.b);
@@ -36440,7 +36528,7 @@ function esxClic(evt){
   if(attendPoint && !esxPointProche(q,p)){
     const r=esxNommerCroisement(q,p);
     if(r){
-      if(!esxOutil){ esxDire(r.nouveau?'Point '+r.n+' nommé sur la section.':'C’est le point '+r.n+'.'); esxApres(); return; }
+      if(!esxOutil){ esxDire(r.nouveau?'Point '+r.n+' nommé.':'C’est le point '+r.n+'.'); esxApres(); return; }
       p.forcePt=r.n;
     }
   }
