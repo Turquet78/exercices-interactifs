@@ -2495,7 +2495,7 @@ Deux bancs ont rougi sur la première poussée, et leurs leçons restent :
   les quatre calculs libres de la Seconde.
 
 **Puis le 4.12 a plafonné TOUS ses nombres à 20 (novembre 2026, Première
-v453).** Demande de Turquet : « dans le 4.12, il ne faut aucun résultat
+v454).** Demande de Turquet : « dans le 4.12, il ne faut aucun résultat
 intermédiaire ou pour la solution dans les calculs qui donne un numérateur ou
 un dénominateur supérieur à 20, avec le plus petit dénominateur commun ».
 Le plus grand PPCM de la liste vaut 20 (2, 4, 5) : D tenait déjà ; ce sont
