@@ -393,3 +393,26 @@ le bouton disparaît. Il ne remplit aucune case, ne juge rien et ne coûte aucun
 point ; ouvert, il le reste pour la question, pause comprise (`test.rgcPouce`).
 Banc : « {ranger-croissant} : le coup de pouce écrit les fractions en décimal
 et ajoute les zéros… ».
+Puis, le lendemain : « ne pas mettre A =, B = et C = dans l'énoncé » (v448).
+Les trois nombres s'écrivent nus (0,2   0,1   0,18 ; 2/5 = [ ]   0,39
+3/10 = [ ]) ; les lettres quittent aussi le coup de pouce (2/5 = 0,4 = 0,40),
+le message de méthode, le compte rendu, le contexte de l'aide et le corrigé
+type. Le message « pas les lettres » tombe avec elles ; le juge, lui, ne
+change pas — une case n'accepte toujours qu'un nombre décimal.
+Puis, le même jour : « accepter qu'un élève ne donne pas la valeur décimale
+d'une fraction, et accepter qu'un élève donne la fraction plutôt que la valeur
+décimale dans le rangement ; on mettra l'écriture fractionnaire dans la case si
+l'élève donne une fraction » (v448, avec le retrait des lettres). La case
+« 2/5 = [ ] » devient FACULTATIVE (`data-facultatif`, `rgcFacultative`) : vide,
+elle ne rougit pas, ne reçoit aucune correction et ne fait pas ouvrir « Il
+reste des cases vides » ; écrite, elle se juge. Le rangement accepte un nombre
+décimal OU une fraction égale (`rgcValeur` : 2/5, 4/10) ; la fraction tapée au
+« / » s'empile dans la case (MathLive), et la case grandit pour la contenir
+(`height:auto`, comme au 1.12). Piège vu en tapant pour de vrai au clavier :
+la valeur d'une case MathLive de cette page rend la fraction en « (3)/(10) »,
+pas en `\frac{3}{10}` — `rgcLire` lève les parenthèses autour d'un nombre
+seul ; un contrôle qui aurait posé `\frac{3}{10}` par programme ne l'aurait
+pas vu. Une fraction fausse du rangement est corrigée par la fraction de
+l'énoncé quand le nombre attendu en est une, sinon par le décimal. Le message
+« pas des fractions » est retiré ; l'énoncé dit « (facultatif) » et « des
+nombres décimaux ou des fractions ».
