@@ -3608,3 +3608,13 @@ l'amplitude avec l'autre borne écrite ne dépasse pas 0,01 — 1,61 < α < 1,62
 comme 1,614 < α < 1,615 ; 1,60 < α < 1,62 (trop large) et 1,62 < α < 1,63 (à
 côté) sont faux. La correction écrit l'encadrement au centième. Le banc
 navigateur le tient (« 6 quinquagies »).
+
+### Puis la question du TVI juste après les variations (v519)
+
+Demande de Turquet (novembre 2026) : « mettre la question 4 juste après
+l'étude de variation de f ». L'unique solution α de f(x) = k et son encadrement
+à la calculatrice deviennent la question 2 de la partie B, juste après le
+tableau de variations et le minimum dont ils se servent ; la tangente devient
+la 3, f″ et la convexité la 4, l'équation différentielle reste la 5. Les cases
+et leurs juges n'ont pas changé, seul leur ordre (à l'écran, dans la liste des
+cases et dans le contexte envoyé au modèle).
