@@ -1952,6 +1952,14 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .ru-tab td.ru-ici{outline:4px solid var(--blue-dark);outline-offset:-5px}
 .ru-rappel{font-family:"Nunito";font-weight:600;font-size:calc(.98rem * var(--tab-nb,1));color:var(--ink);background:#FFF7E3;border:1.5px solid #F2D08A;border-radius:12px;padding:8px 12px;margin:8px auto;max-width:760px;line-height:1.45}
 .ru-case{font-weight:800}
+/* seconde partie : les quatre cases du milieu se cliquent ; une case fausse rougit un instant */
+.ru-tab td.ru-cliq{cursor:pointer}
+.ru-tab td.ru-cliq:not(.ru-un):hover{background:#F3F7FF}
+.ru-tab td.ru-cliq:focus-visible{outline:3px solid var(--blue);outline-offset:-4px}
+.ru-tab td.ru-faux{animation:ruFaux .9s ease}
+@keyframes ruFaux{0%,60%{background:var(--red-soft);box-shadow:inset 0 0 0 3px var(--red)}100%{background:transparent;box-shadow:none}}
+.ru-compte{font-weight:800;color:var(--blue-dark)}
+.ru-partie{font-weight:800;color:var(--blue-dark)}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
 #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 10px}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 4px} }
@@ -4787,7 +4795,7 @@ const TESTS={
   'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, trois probabilités : P(A ∩ D) posée en mots, P<sub>D</sub>(A)… ; Partie B, les mêmes calculs dits en fréquences : une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle. Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* 3.11 (novembre 2026) : la même fiche, d'autres énoncés, et seulement la fraction à écrire */
   'frequences-probabilites-direct': { name:'Fréquences et probabilités : la fiche, fractions seules', icon:'\ud83e\uddee', desc:'La fiche du {frequences-probabilites} avec d’autres énoncés (contrôle technique, aéroport, jouets, vigneron, photos, chocolaterie), et sur chaque ligne seulement la fraction à écrire avec les effectifs du tableau : ni fraction en lettres, ni nom à composer. Partie A en probabilités, partie B en fréquences.', start:()=>startFPB2() },
-  'reunion-probabilites': { name:'La réunion A ∪ D dans un tableau', icon:'\ud83d\udd17', desc:'Le tableau d’effectifs est complet. Case par case : fait-elle partie de A ? de D ? du groupe qui réunit A avec D, la réunion A ∪ D ? Chaque case validée de A ∪ D se colorie ; puis tu comptes les éléments de A ∪ D et tu calcules P(A ∪ D), en écriture fractionnaire.', start:()=>startRU() },
+  'reunion-probabilites': { name:'La réunion A ∪ D dans un tableau', icon:'\ud83d\udd17', desc:'Le tableau d’effectifs est complet. Case par case : fait-elle partie de A ? de D ? du groupe qui réunit A avec D, la réunion A ∪ D ? Chaque case validée de A ∪ D se colorie ; puis tu comptes les éléments de A ∪ D et tu calcules P(A ∪ D), en écriture fractionnaire. Seconde partie, une nouvelle situation : clique les trois cases de A ∪ B, puis calcule P(A ∪ B).', start:()=>startRU() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres ronds : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
@@ -25743,7 +25751,9 @@ function lpEnonce(q){
    séance (PB_CTX, « let »). Une pause sans « let » garde A et B. */
 function pbLettre(e){
   /* le tableau à trois colonnes du 3.6 a ses contextes à lui (PB3_CTX) */
-  const q=test.questions && test.questions[0], C=q && pbCtx(q);
+  const q0=test.questions && test.questions[0], qi=test.questions && test.questions[test.idx];
+  /* 3.12 : la seconde partie a ses lettres à elle (A et B) */
+  const q=(qi && qi.ru) ? qi : q0, C=q && pbCtx(q);
   return (C && C.let && C.let[e]) || e;
 }
 /* L'indice VIDE de P se dit « rien » au 3.1 ; sur la fiche (3.3) il se dit
@@ -26384,7 +26394,7 @@ function pbfCtxTexte(){
    dans le thème : une case juste ne rougit jamais pour une voisine. Les
    propositions et leur ordre sont rangés dans la question (opts, ordre),
    jamais retirés à l'affichage. */
-function pbCtx(q){ return (q && q.ru) ? (RU_CTX[q.ci]||RU_CTX[0]) : (q && q.fpb) ? ((q.fpb===2 ? FPB2_CTX : FPB_CTX)[q.ci]||FPB_CTX[0]) : (q && q.c3) ? (PB3_CTX[q.ci]||PB3_CTX[0]) : (PB_CTX[q && q.ci]||PB_CTX[0]); }
+function pbCtx(q){ return (q && q.ru===2) ? (RU2_CTX[q.ci]||RU2_CTX[0]) : (q && q.ru) ? (RU_CTX[q.ci]||RU_CTX[0]) : (q && q.fpb) ? ((q.fpb===2 ? FPB2_CTX : FPB_CTX)[q.ci]||FPB_CTX[0]) : (q && q.c3) ? (PB3_CTX[q.ci]||PB3_CTX[0]) : (PB_CTX[q && q.ci]||PB_CTX[0]); }
 function pbNeg(e){ return e.charAt(0)==='n' ? e.slice(1) : 'n'+e; }
 /* un évènement simple de L'AUTRE critère */
 function pbAutre(e){ return /A$/.test(e) ? pick(['B','nB']) : pick(['A','nA']); }
@@ -27357,6 +27367,34 @@ const RU_CTX=[
 ];
 /* Les quatre cases, dans l'ordre des questions : A ∩ D d'abord. */
 const RU_CASES=['A.B','A.nB','nA.B','nA.nB'];
+/* La SECONDE PARTIE (v459, demande de Turquet : « fais la suite de cet
+   exercice avec un nouveau tableau, un nouvel énoncé, où on demande de
+   cliquer sur les 3 cases représentant A ∪ B ; quand c'est bien cliqué,
+   mettre en couleur la case ; tant que les 3 cases ne sont pas trouvées, ne
+   pas continuer ; ensuite demander la probabilité de A ∪ B ») : d'autres
+   histoires, les évènements A et B (q.ru = 2, lus par pbCtx). */
+const RU2_CTX=[
+  { let:{A:'A',B:'B'}, intro:'Un camping accueille cette semaine', pl:'vacanciers', f:false, un:'un vacancier', le:'le vacancier', tous:'les vacanciers du camping',
+    lA:'Vélo loué', lnA:'Pas de vélo', lB:'Canoë réservé', lnB:'Pas de canoë',
+    A:'loue un vélo', B:'réserve une sortie en canoë',
+    pA:'qui louent un vélo', pnA:'qui ne louent pas de vélo', pB:'qui réservent une sortie en canoë', pnB:'qui ne réservent pas de sortie en canoë' },
+  { let:{A:'A',B:'B'}, intro:'Une cantine sert ce midi', pl:'élèves', f:false, un:'un élève', le:'l’élève', tous:'les élèves de la cantine',
+    lA:'Avec entrée', lnA:'Sans entrée', lB:'Avec dessert', lnB:'Sans dessert',
+    A:'prend une entrée', B:'prend un dessert',
+    pA:'qui prennent une entrée', pnA:'qui ne prennent pas d’entrée', pB:'qui prennent un dessert', pnB:'qui ne prennent pas de dessert' },
+  { let:{A:'A',B:'B'}, intro:'Un magasin reçoit ce samedi', pl:'clients', f:false, un:'un client', le:'le client', tous:'les clients du samedi',
+    lA:'Paie par carte', lnA:'Paie en espèces', lB:'Carte de fidélité', lnB:'Sans carte de fidélité',
+    A:'paie par carte bancaire', B:'a la carte de fidélité',
+    pA:'qui paient par carte bancaire', pnA:'qui paient en espèces', pB:'qui ont la carte de fidélité', pnB:'qui n’ont pas la carte de fidélité' },
+  { let:{A:'A',B:'B'}, intro:'Un fabricant de jouets contrôle chaque jour', pl:'peluches', f:true, un:'une peluche', le:'la peluche', tous:'les peluches du jour',
+    lA:'Atelier 1', lnA:'Atelier 2', lB:'Couture abîmée', lnB:'Couture intacte',
+    A:'vient de l’atelier 1', B:'a une couture abîmée',
+    pA:'qui viennent de l’atelier 1', pnA:'qui viennent de l’atelier 2', pB:'qui ont une couture abîmée', pnB:'qui ont une couture intacte' },
+  { let:{A:'A',B:'B'}, intro:'Un cinéma accueille ce soir', pl:'spectateurs', f:false, un:'un spectateur', le:'le spectateur', tous:'les spectateurs de la soirée',
+    lA:'Pop-corn', lnA:'Pas de pop-corn', lB:'Séance en 3D', lnB:'Séance classique',
+    A:'achète du pop-corn', B:'voit le film en 3D',
+    pA:'qui achètent du pop-corn', pnA:'qui n’achètent pas de pop-corn', pB:'qui voient le film en 3D', pnB:'qui voient le film en séance classique' }
+];
 function ruA(c){ return c.split('.').indexOf('A')>=0; }
 function ruD(c){ return c.split('.').indexOf('B')>=0; }
 function ruDans(c){ return ruA(c) || ruD(c); }
@@ -27384,18 +27422,32 @@ function ruSeance(){
     jeux.push([a,b,c,d].map(x=>10*x));
   }
   const m=jeux.length ? pick(jeux) : [30,20,40,10];
-  const qs=[], pose=o=>qs.push(distincte(qs, ()=>Object.assign(o, { ru:1, n:m.slice(), ci:ci, rep:{} })));
-  RU_CASES.forEach(c=>pose({ t:'rucase', c:c }));
-  pose({ t:'runb' });
-  pose({ t:'rup' });
+  /* le second tableau : les mêmes règles, d'autres nombres */
+  const autres=jeux.filter(j=>j.join()!==m.join()), m2=autres.length ? pick(autres) : [10,40,20,30];
+  const qs=[], pose=(o,ru,n,c)=>qs.push(distincte(qs, ()=>Object.assign(o, { ru:ru, n:n.slice(), ci:c, rep:{} })));
+  RU_CASES.forEach(c=>pose({ t:'rucase', c:c }, 1, m, ci));
+  pose({ t:'runb' }, 1, m, ci);
+  pose({ t:'rup' }, 1, m, ci);
+  /* seconde partie : un nouveau tableau, un nouvel énoncé (A et B) */
+  const ci2=rand(0,RU2_CTX.length-1);
+  pose({ t:'ruclic' }, 2, m2, ci2);
+  pose({ t:'rup' }, 2, m2, ci2);
   return qs;
 }
 function ruNb(q){ return RU_CASES.filter(ruDans).reduce((s,c)=>s+pbEff(q,c),0); }
 /* Les cases coloriées : celles des questions de cases DÉJÀ VALIDÉES (avant
    la question en cours, ou la question en cours une fois verrouillée) qui
    sont dans A ∪ D. */
-function ruColories(){
+function ruColories(q0){
   const qs=test.questions||[], vues=[];
+  /* seconde partie : les cases trouvées au clic (q.rep.tr), puis, la
+     question passée, les trois cases de A ∪ B */
+  if(q0 && q0.ru===2){
+    qs.forEach((q,j)=>{ if(q.t!=='ruclic' || q.ru!==2) return;
+      if(j<test.idx) RU_CASES.filter(ruDans).forEach(c=>vues.push(PB_CASE[c]));
+      else if(j===test.idx) ((q.rep && q.rep.tr) || []).forEach(i=>vues.push(+i)); });
+    return vues;
+  }
   qs.forEach((q,j)=>{ if(q.t==='rucase' && (j<test.idx || (j===test.idx && test.locked)) && ruDans(q.c)) vues.push(PB_CASE[q.c]); });
   return vues;
 }
@@ -27403,8 +27455,11 @@ function ruColories(){
    question entourée, les cases validées de A ∪ D coloriées. */
 function ruTableHTML(q){
   const C=pbCtx(q), v=pbValeurs(q.n), noms=['A.B','nA.B','B','A.nB','nA.nB','nB','A','nA',''];
-  const vues=ruColories(), ici=(q.t==='rucase') ? PB_CASE[q.c] : -1;
-  const cel=i=>'<td id="ru-c'+i+'" class="'+(vues.indexOf(i)>=0 ? 'ru-un' : '')+(i===ici ? ' ru-ici' : '')+'">'
+  const vues=ruColories(q), ici=(q.t==='rucase') ? PB_CASE[q.c] : -1;
+  /* au clic (ruclic), les quatre cases du milieu se cliquent — au clavier aussi */
+  const clic=i=>(q.t==='ruclic' && [0,1,3,4].indexOf(i)>=0)
+    ? ' role="button" tabindex="0" aria-label="case '+pbTxt(noms[i])+'" onclick="ruCliquer('+i+')" onkeydown="ruTouche(event,'+i+')"' : '';
+  const cel=i=>'<td id="ru-c'+i+'" class="'+(vues.indexOf(i)>=0 ? 'ru-un' : '')+(i===ici ? ' ru-ici' : '')+(clic(i) ? ' ru-cliq' : '')+'"'+clic(i)+'>'
     +'<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span><span class="pb-v">'+v[i]+'</span></td>';
   return '<table class="pb-tab ru-tab">'
     +'<tr><th></th><th>'+esc(C.lB)+' '+pbHTML('B')+'</th><th>'+esc(C.lnB)+' '+pbHTML('nB')+'</th><th>Total</th></tr>'
@@ -27417,7 +27472,7 @@ function ruTableHTML(q){
 /* L'énoncé (sous le tableau) et le rappel de la réunion, à chaque question. */
 function ruRendreTete(q, consigne){
   const C=pbCtx(q);
-  $('pbPrompt').innerHTML=esc(C.intro)+' '+pbEff(q,'T')+' '+esc(C.pl)+'. On choisit '+esc(C.un)+' au hasard parmi '+esc(C.tous)+'. On considère les évènements '
+  $('pbPrompt').innerHTML=(q.ru===2 ? '<span class="ru-partie">Deuxième partie, une nouvelle situation.</span> ' : '')+esc(C.intro)+' '+pbEff(q,'T')+' '+esc(C.pl)+'. On choisit '+esc(C.un)+' au hasard parmi '+esc(C.tous)+'. On considère les évènements '
     +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+C.B)+' ». '+consigne;
   return '<div class="pt-step">'+ruTableHTML(q)+'</div><div class="pt-step pb-enonce-ici" id="pbEnonceIci"></div>'
     +'<p class="ru-rappel"><b>Rappel.</b> '+ruRappel(C)+'</p>';
@@ -27469,23 +27524,74 @@ PBX.rup={
   render(q){
     const C=pbCtx(q), nom='<span class="pb-nom"><i class="pb-P">P</i>('+ruUnion()+' )</span>';
     $('pbHost').innerHTML=ruRendreTete(q, 'Calcule '+'<span class="pb-nomp"><i>P</i>('+ruUnion()+')</span>, la probabilité que '+esc(C.le)+' soit dans '+ruUnion()+', sous forme fractionnaire.')
-      +'<p class="pb-def">Il y a '+ruNb(q)+' '+esc(C.pl)+' dans '+ruUnion()+'.</p>'
+      /* seconde partie : l'élève additionne lui-même les trois cases coloriées */
+      +(q.ru===2 ? '<p class="pb-def">Les trois cases de '+ruUnion()+' sont coloriées dans le tableau.</p>' : '<p class="pb-def">Il y a '+ruNb(q)+' '+esc(C.pl)+' dans '+ruUnion()+'.</p>')
       +'<div class="pt-step">'+pbxLigneEff(nom)+'</div>';
     pbPlacerEnonce(true);
   },
   pourquoi(q){
     return 'On choisit au hasard parmi TOUS : '+ruNb(q)+' éléments de '+ruUnion()+' sur un total de '+pbEff(q,'T')+' — '
-      +'<span class="pb-nomp"><i>P</i>('+ruUnion()+')</span> = '+pbFr(ruNb(q),pbEff(q,'T'))+' (une fraction égale est juste aussi).';
+      +'<span class="pb-nomp"><i>P</i>('+ruUnion()+')</span> = '+pbFr(ruNb(q),pbEff(q,'T'))+' (une fraction égale est juste aussi).'
+      +(q.ru===2 ? ' Les trois cases coloriées : '+RU_CASES.filter(ruDans).map(c=>pbEff(q,c)).join(' + ')+' = '+ruNb(q)+'.' : '');
   },
   label(){ return 'P('+ruUnionTxt()+')'; },
   ctx(q){ return ruCtxCommun(q)+'L’élève calcule P('+ruUnionTxt()+') en écriture fractionnaire : nombre d’éléments de '+ruUnionTxt()+' sur l’effectif total (une fraction égale, simplifiée ou non, est acceptée). '; }
 };
+/* Seconde partie : cliquer les trois cases de A ∪ B. Une case juste se
+   colorie et reste ; une case fausse rougit un instant, rien d'autre. La
+   question n'a pas de bouton « Vérifier » : la troisième case trouvée la
+   valide (checkPBAnswer, aucune case à juger : elle compte juste), et
+   « Question suivante » n'apparaît qu'alors. Les cases trouvées sont
+   rangées dans q.rep.tr : une pause les retrouve. */
+PBX.ruclic={
+  att(){ return {}; },
+  render(q){
+    const C=pbCtx(q);
+    $('pbHost').innerHTML=ruRendreTete(q, 'Clique sur les trois cases du tableau qui représentent '+ruUnion()+'.')
+      +'<p class="pb-def ru-compte" id="ruCompte">'+ruCompteTxt(q)+'</p>';
+    pbPlacerEnonce(true);
+    /* pas de « Vérifier » tant que les trois cases ne sont pas trouvées ;
+       une reprise qui les retrouve toutes rend le bouton, sans rejouer seule
+       la validation (la pause d'une question validée passe à la suite) */
+    $('pbActions').innerHTML=((q.rep && q.rep.tr) || []).length>=3 ? '<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>' : '';
+  },
+  pourquoi(q){ return 'Les trois cases de '+ruUnion()+' : '+RU_CASES.filter(ruDans).map(pbHTML).join(', ')+'.'; },
+  label(){ return 'Les trois cases de '+ruUnionTxt()+', cliquées'; },
+  ctx(q){ return ruCtxCommun(q)+'Seconde partie, nouvelle situation : l’élève CLIQUE sur les trois cases du tableau qui représentent '+ruUnionTxt()+' ; une case juste se colorie, une case fausse rougit un instant, et il ne peut pas continuer tant que les trois ne sont pas trouvées. '; }
+};
+function ruCompteTxt(q){
+  const n=((q.rep && q.rep.tr) || []).length;
+  return n>=3 ? 'Les trois cases de '+ruUnion()+' sont trouvées.' : 'Cases de '+ruUnion()+' trouvées : '+n+' sur 3.';
+}
+function ruCliquer(i){
+  const q=test.questions && test.questions[test.idx];
+  if(!q || q.t!=='ruclic' || test.locked) return;
+  q.rep=q.rep||{}; const tr=q.rep.tr=(q.rep.tr||[]).map(Number);
+  const noms=['A.B','nA.B','B','A.nB','nA.nB'], c=noms[i], td=$('ru-c'+i), fb=$('pbFeedback');
+  if(!c || !td || tr.indexOf(i)>=0) return;
+  if(ruDans(c)){
+    tr.push(i); td.classList.add('ru-un');
+    fb.innerHTML='Oui : la case '+pbHTML(c)+' est dans '+(ruA(c) ? pbHTML('A') : pbHTML('B'))+', elle fait partie de '+ruUnion()+'.';
+    fb.className='mp-feedback good';
+  } else {
+    td.classList.remove('ru-faux'); void td.offsetWidth; td.classList.add('ru-faux');
+    setTimeout(()=>td.classList.remove('ru-faux'), 900);
+    fb.innerHTML='Non : la case '+pbHTML(c)+' n’est ni dans '+pbHTML('A')+' ni dans '+pbHTML('B')+', elle ne fait pas partie de '+ruUnion()+'.';
+    fb.className='mp-feedback bad';
+  }
+  const cp=$('ruCompte'); if(cp) cp.innerHTML=ruCompteTxt(q);
+  /* la troisième case valide la question AVANT la sauvegarde : une pause
+     retrouve alors la question corrigée et sa suite */
+  if(tr.length>=3) checkPBAnswer();
+  autoSave();
+}
+function ruTouche(e,i){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); ruCliquer(i); } }
 function ruCtxCommun(q){
   const C=pbCtx(q);
   return 'Tableau d’effectifs COMPLET : '+C.intro+' '+pbEff(q,'T')+' '+C.pl+' ; '+pbTxt('A')+' = « '+C.le+' '+C.A+' », '+pbTxt('B')+' = « '+C.le+' '+C.B+' ». '
     +pbEffTxt(pbValeurs(q.n))
     +'L’exercice porte sur la réunion '+ruUnionTxt()+' : tous les '+C.pl+' qui sont dans le groupe qui réunit ceux de '+pbTxt('A')+' avec ceux de '+pbTxt('B')
-    +' — un élément y est dès qu’il est dans '+pbTxt('A')+' ou dans '+pbTxt('B')+'. Les quatre cases du milieu sont examinées une à une (dans '+pbTxt('A')+' ? dans '+pbTxt('B')+' ? dans '+ruUnionTxt()+' ?), puis on compte '+ruUnionTxt()+', puis P('+ruUnionTxt()+'). Pas de formule P(A) + P(D) − P(A ∩ D) : on compte les cases. ';
+    +' — un élément y est dès qu’il est dans '+pbTxt('A')+' ou dans '+pbTxt('B')+'. Les quatre cases du milieu sont examinées une à une (dans '+pbTxt('A')+' ? dans '+pbTxt('B')+' ? dans '+ruUnionTxt()+' ?), puis on compte '+ruUnionTxt()+', puis P('+ruUnionTxt()+') ; dans une seconde partie, sur un nouveau tableau, l’élève clique les trois cases de '+ruUnionTxt()+', puis calcule P('+ruUnionTxt()+'). Pas de formule P(A) + P(B) − P(A ∩ B) : on compte les cases. ';
 }
 async function startRU(){ if(!currentEleve){ accueil(); return; } pbDemarrer('reunion-probabilites', ruSeance()); }
 /* Les démarreurs des 3.5 à 3.9 : le moteur de {tableau-probabilites}, leur

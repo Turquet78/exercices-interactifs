@@ -4962,7 +4962,7 @@ const TESTS={
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'espace-section-cube': { name:'Espace \u2014 section d\u2019un cube par un plan', icon:'\ud83e\uddca', desc:'La fiche \u00ab section espace \u00bb\u00a0: un cube, trois points I, J, K sur ses ar\u00eates. Construire sur la figure le point L, l\u2019intersection de deux plans, puis la section du cube par le plan (IJK) \u2014 droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESX() },
   'espace-section-cube-guidee': { name:'Espace \u2014 section d\u2019un cube, \u00e9tape par \u00e9tape', icon:'\ud83e\uddca', desc:'La section d\u2019un cube par le plan (IJK), construite en suivant les \u00e9tapes\u00a0: trace la droite (IJ), place le point d\u2019intersection L, trace le segment, trace la parall\u00e8le passant par un point\u2026 Chaque \u00e9tape se coche quand elle est faite. Deux figures.', start:()=>startESG() },
-  'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 placer I, J, K puis construire la section du cube par le plan (IJK).', start:()=>startEBC() },
+  'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 construire la section du cube par le plan (IJK).', start:()=>startEBC() },
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
@@ -20776,6 +20776,8 @@ function ecvConseilCtx(){
    B4 — f(x) = k admet une unique solution α sur [x₀ ; +∞[ (les mots du
         {tvi}), puis l'encadrement d'amplitude 0,01 cherché À LA CALCULATRICE,
         tout encadrement plus précis accepté ;
+   À l'écran, B4 vient juste après B1, en question 2 (demande de Turquet,
+   novembre 2026) : la tangente devient la 3, f″ la 4.
    B5 — f est solution de y′ = 2y + a e^(2x), la grille du
         {equadiff-verifier-solution} (famille b : la dérivée est déjà connue).
    f(x) = (ax + b)e^(2x), a ∈ {2, 4, 6} — pair, pour que le minimum
@@ -20906,21 +20908,7 @@ function efbCases(q){
   Lm('efb-tv0',0); out.push({id:'efb-tv1', type:'tabnum', good:Math.round(A.m*10)/10, vrai:A.m}); Lm('efb-tv2','+∞');
   N('efb-m1',A.x0,A.x0F); N('efb-m2',A.x0,A.x0F); N('efb-m3',A.x0,A.x0F);
   out.push({id:'efb-m4', type:'coef', good:A.mC, avec:'efb-m5'}); N('efb-m5',A.mE);
-  /* B2 la tangente en A (le f) du 2.2.2) */
-  N('efb-f1',0); N('efb-f2',0); N('efb-f3',A.f0);
-  N('efb-f4',0); N('efb-f5',0); N('efb-f6',A.fp0);
-  N('efb-f7',0); N('efb-f8',0); N('efb-f9',0);
-  N('efb-f10',A.fp0); N('efb-f11',0); N('efb-f12',A.f0);
-  N('efb-f13',A.fp0); N('efb-f14',A.f0);
-  /* B3 a) f″ — la même chaîne, appliquée à f′ */
-  EFB_DER2.forEach(id=>out.push({id:id, type:'der', grp:2}));
-  /* B3 b) le signe de f″, la convexité (le h) du 2.2.2), le point d'inflexion (le i) */
-  N('efb-h0',A.xI,A.xIF);
-  S('efb-h1','−'); S('efb-h2','+'); S('efb-h3','+'); S('efb-h4','+'); S('efb-h5','−'); S('efb-h6','+');
-  S('efb-h7','concave'); S('efb-h8','convexe');
-  N('efb-i1',A.xI,A.xIF); N('efb-i2',A.xI,A.xIF); N('efb-i3',A.xI,A.xIF); N('efb-i4',A.xI,A.xIF); N('efb-i5',A.cI); N('efb-i6',A.eI);
-  N('efb-i7',A.xI,A.xIF); N('efb-i8',A.cI); N('efb-i9',A.eI);
-  /* B4 le TVI, puis l'encadrement */
+  /* B2 (le B4 du sujet) le TVI, puis l'encadrement */
   S('efb-e1','continue'); S('efb-e2','croissante'); Lm('efb-e3','+∞'); S('efb-e4','TVI'); S('efb-e5','unique');
   /* l'encadrement se cherche À LA CALCULATRICE (demande de Turquet, novembre
      2026 : « demande à l'élève de le faire à la calculatrice et accepte tout
@@ -20928,6 +20916,20 @@ function efbCases(q){
      amplitude ne dépasse pas 0,01 — 1,61 < α < 1,62 comme 1,614 < α < 1,615 */
   out.push({id:'efb-e8', type:'enc', bord:'bas', good:A.b2, al:A.al, autre:'efb-e9'});
   out.push({id:'efb-e9', type:'enc', bord:'haut', good:A.c2, al:A.al, autre:'efb-e8'});
+  /* B3 la tangente en A (le f) du 2.2.2) */
+  N('efb-f1',0); N('efb-f2',0); N('efb-f3',A.f0);
+  N('efb-f4',0); N('efb-f5',0); N('efb-f6',A.fp0);
+  N('efb-f7',0); N('efb-f8',0); N('efb-f9',0);
+  N('efb-f10',A.fp0); N('efb-f11',0); N('efb-f12',A.f0);
+  N('efb-f13',A.fp0); N('efb-f14',A.f0);
+  /* B4 a) f″ — la même chaîne, appliquée à f′ */
+  EFB_DER2.forEach(id=>out.push({id:id, type:'der', grp:2}));
+  /* B4 b) le signe de f″, la convexité (le h) du 2.2.2), le point d'inflexion (le i) */
+  N('efb-h0',A.xI,A.xIF);
+  S('efb-h1','−'); S('efb-h2','+'); S('efb-h3','+'); S('efb-h4','+'); S('efb-h5','−'); S('efb-h6','+');
+  S('efb-h7','concave'); S('efb-h8','convexe');
+  N('efb-i1',A.xI,A.xIF); N('efb-i2',A.xI,A.xIF); N('efb-i3',A.xI,A.xIF); N('efb-i4',A.xI,A.xIF); N('efb-i5',A.cI); N('efb-i6',A.eI);
+  N('efb-i7',A.xI,A.xIF); N('efb-i8',A.cI); N('efb-i9',A.eI);
   /* B5 l'équation différentielle (la grille du 8.1.1) */
   out.push({id:'efb-y1', type:'nom'}); out.push({id:'efb-y2', type:'nom'});
   out.push({id:'efb-y3', type:'fn', f:x=>(A.dp*x+A.dq)*Math.exp(2*x), tex:'\\left('+edvPolyTex([A.dq,A.dp])+'\\right)e^{2x}'});
@@ -21043,14 +21045,24 @@ function efbFormHTML(q){
     +'<div class="tg-line"><span>Ce minimum vaut</span> <span class="tg-eq">'+f+'(</span> '+txInp('efb-m1')+' <span class="tg-eq">) =</span> '
     +txSubst(q.a,q.b,txInp('efb-m2'))+' '+efbE2('efb-m3')
     +' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-m4'))+' '+efbEsup('efb-m5')+'</div>';
-  h+='<p class="tx-part">2. Déterminer l’équation de la tangente à C<sub><i>f</i></sub> au point A d’abscisse 0.</p>'
+  /* 2. le TVI et l'encadrement, juste après l'étude des variations (demande de
+     Turquet, novembre 2026 : « mettre la question 4 juste après l'étude de
+     variation ») — dans le sujet, elle venait après la convexité */
+  h+='<p class="tx-part">2. Montrer que l’équation '+fx+' = '+K+' admet une unique solution α sur ['+X0+' ; +∞[. En donner un encadrement d’amplitude 0,01.</p>'
+    +'<div class="tg-line asg-line"><span>Sur ['+X0+' ; +∞[, '+f+' est</span> '+asgSelMot('efb-e1')+' <span>et strictement</span> '+asgSelMot('efb-e2')
+    +'<span>, elle varie de '+efbCoefE(A.mC,A.mE)+' à</span> '+asgLim('efb-e3')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line"><span>'+K+' est compris entre ces deux valeurs : d’après le</span> '+asgSelMot('efb-e4')
+    +'<span>, l’équation '+fx+' = '+K+' admet une</span> '+asgSelMot('efb-e5')+' <span>solution α sur cet intervalle.</span></div>'
+    +'<p class="apf-astuce aide-ecran">À la calculatrice : le tableau de valeurs de '+f+', au pas de 0,1 puis de 0,01, montre où '+fx+' dépasse '+K+'. Tout encadrement d’amplitude 0,01 ou plus petite est accepté.</p>'
+    +'<div class="tg-line asg-line"><span>Un encadrement de α d’amplitude 0,01 :</span> '+txInp('efb-e8')+' <span>&lt; α &lt;</span> '+txInp('efb-e9')+'</div>';
+  h+='<p class="tx-part">3. Déterminer l’équation de la tangente à C<sub><i>f</i></sub> au point A d’abscisse 0.</p>'
     +'<div class="tg-line tx-avec">y = '+fp+'(a)(<i>x</i> − a) + '+f+'(a), avec a = 0. On calcule d’abord '+f+'(0) et '+fp+'(0) :</div>'
     +'<div class="tg-line"><span class="tg-eq">'+f+'(0) =</span> '+txSubst(q.a,q.b,txInp('efb-f1'))+' '+efbE2('efb-f2')+' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-f3'))+'</div>'
     +'<div class="tg-line"><span class="tg-eq">'+fp+'(0) =</span> '+txSubst(A.dp,A.dq,txInp('efb-f4'))+' '+efbE2('efb-f5')+' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-f6'))+'</div>'
     +'<div class="tg-line"><span class="tg-eq">y =</span> '+fp+'( '+txInp('efb-f7')+' )( <i>x</i> − '+txInp('efb-f8')+' ) + '+f+'( '+txInp('efb-f9')+' )</div>'
     +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('efb-f10')+' ( <i>x</i> − '+txInp('efb-f11')+' ) + '+txInp('efb-f12')+'</div>'
     +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('efb-f13')+' <i>x</i> '+txInp('efb-f14')+' <span class="dexp-hint">(la constante s’écrit avec son signe'+(A.f0===0?' ; ici elle vaut 0':'')+')</span></div>';
-  h+='<p class="tx-part">3. a) Montrer que, pour tout <i>x</i> réel, '+fs+'(<i>x</i>) = ('+aff2+') '+EFB_EX.html+'.</p>'
+  h+='<p class="tx-part">4. a) Montrer que, pour tout <i>x</i> réel, '+fs+'(<i>x</i>) = ('+aff2+') '+EFB_EX.html+'.</p>'
     +'<div class="tg-line tx-avec">On dérive '+fp+'(<i>x</i>) = ('+aff+') '+EFB_EX.html+' : c’est encore un produit.</div>'
     +asgDerBlocHTML('efb-g', {tex:"f\\;{}''(x)", html:fs+'(x)'}, EFB_EX);
   h+='<p class="tx-part">b) Étudier la convexité de '+f+' et déterminer les coordonnées exactes du point d’inflexion.</p>'
@@ -21065,13 +21077,6 @@ function efbFormHTML(q){
     +'<div class="tg-line"><span class="tg-eq">'+f+'(</span> '+txInp('efb-i2')+' <span class="tg-eq">) =</span> '+txSubst(q.a,q.b,txInp('efb-i3'))+' '+efbE2('efb-i4')
     +' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-i5'))+' '+efbEsup('efb-i6')+'</div>'
     +'<div class="tg-line"><span>Donc le point d’inflexion a pour coordonnées</span> <span class="tg-eq">(</span> '+txInp('efb-i7')+' <span class="tg-eq">;</span> '+txInp('efb-i8')+' '+efbEsup('efb-i9')+' <span class="tg-eq">)</span></div>';
-  h+='<p class="tx-part">4. Montrer que l’équation '+fx+' = '+K+' admet une unique solution α sur ['+X0+' ; +∞[. En donner un encadrement d’amplitude 0,01.</p>'
-    +'<div class="tg-line asg-line"><span>Sur ['+X0+' ; +∞[, '+f+' est</span> '+asgSelMot('efb-e1')+' <span>et strictement</span> '+asgSelMot('efb-e2')
-    +'<span>, elle varie de '+efbCoefE(A.mC,A.mE)+' à</span> '+asgLim('efb-e3')+'<span>.</span></div>'
-    +'<div class="tg-line asg-line"><span>'+K+' est compris entre ces deux valeurs : d’après le</span> '+asgSelMot('efb-e4')
-    +'<span>, l’équation '+fx+' = '+K+' admet une</span> '+asgSelMot('efb-e5')+' <span>solution α sur cet intervalle.</span></div>'
-    +'<p class="apf-astuce aide-ecran">À la calculatrice : le tableau de valeurs de '+f+', au pas de 0,1 puis de 0,01, montre où '+fx+' dépasse '+K+'. Tout encadrement d’amplitude 0,01 ou plus petite est accepté.</p>'
-    +'<div class="tg-line asg-line"><span>Un encadrement de α d’amplitude 0,01 :</span> '+txInp('efb-e8')+' <span>&lt; α &lt;</span> '+txInp('efb-e9')+'</div>';
   /* 5. l'équation différentielle — la grille du 8.1.1, la dérivée déjà connue */
   const C=(id,cls,nom)=>'<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>';
   const Lt=(id,nom)=>C(id,'edv-let',nom);
@@ -21148,7 +21153,7 @@ function checkEFB(live){
   if(live) return;
   const fb=$('efbFeedback');
   const avertTerme=(D1.groups.s3TermeEntier||D2.groups.s3TermeEntier)
-    ? '<br>⚠ Dans les lignes développées (B 1. a) et 3. a)), e<sup>2<i>x</i></sup> est déjà écrit APRÈS chaque case : écris seulement le COEFFICIENT dans la case.'
+    ? '<br>⚠ Dans les lignes développées (B 1. a) et 4. a)), e<sup>2<i>x</i></sup> est déjà écrit APRÈS chaque case : écris seulement le COEFFICIENT dans la case.'
     : '';
   if(!anyFilled){
     fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback';
@@ -21192,8 +21197,8 @@ function efbConseilCtx(){
    +'Partie A (lecture graphique) : 1. variations et abscisse du point B où la tangente est horizontale ; 2. signes de f′('+A.p1+') et f′('+A.p2+') d’après le sens de variation ; '
    +'3. limites en −∞ et +∞ et leur interprétation (asymptote) ; 4. abscisse conjecturée du point d’inflexion. '
    +'Partie B : 1. a) DÉMONTRER f′(x) = ('+s1ExprText(A.dp,A.dq)+')e^(2x) par (u·v)′ = u′v + uv′ avec (e^(2x))′ = 2e^(2x) ; b) signe de f′ ; c) tableau de variations et minimum exact ; '
-   +'2. tangente en A d’abscisse 0 : y = f′(0)(x − 0) + f(0) ; 3. a) DÉMONTRER f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')e^(2x) en dérivant f′ ; b) convexité et point d’inflexion ; '
-   +'4. f(x) = '+q.k+' admet une unique solution α sur ['+eavFracTxt(A.x0F)+' ; +∞[ (continuité, stricte monotonie, TVI), encadrement d’amplitude 0,01 (ou plus précis) trouvé par l’élève À LA CALCULATRICE (tableau de valeurs au pas de 0,1 puis 0,01) ; '
+   +'2. f(x) = '+q.k+' admet une unique solution α sur ['+eavFracTxt(A.x0F)+' ; +∞[ (continuité, stricte monotonie, TVI), encadrement d’amplitude 0,01 (ou plus précis) trouvé par l’élève À LA CALCULATRICE (tableau de valeurs au pas de 0,1 puis 0,01) ; '
+   +'3. tangente en A d’abscisse 0 : y = f′(0)(x − 0) + f(0) ; 4. a) DÉMONTRER f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')e^(2x) en dérivant f′ ; b) convexité et point d’inflexion ; '
    +'5. vérifier que f est solution de y′ = 2y + '+q.a+'e^(2x) en remplaçant y par f. '
    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les révèle jamais, même si l’élève insiste : minimum en x = '+eavFracTxt(A.x0F)+', valeur '+numFmt(A.mC)+'e^('+A.mE+') ; '
    +'limite 0 en −∞ (asymptote y = 0), +∞ en +∞ ; tangente en 0 : y = '+s1ExprText(A.fp0,A.f0)+' ; f″ s’annule en x = '+eavFracTxt(A.xIF)+', concave avant, convexe après ; '
@@ -37481,7 +37486,7 @@ function checkESX(live){
   fb.insertAdjacentHTML('afterbegin', guide?esgBilanHTML(q):esxBilanHTML(q,libre));
   const nc=esxNomsCorr(q);
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:(test.kind==='ebc'?'Espace — exercice de bac, partie 5 sur 5 ('+EBC_TITRES[5]+') : ':(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : ')))+esxPlain(q),
+    q:(test.kind==='ebc'?'Espace — exercice de bac, partie '+(test.idx+1)+' sur '+test.questions.length+' ('+EBC_TITRES[5]+') : ':(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : ')))+esxPlain(q),
     answer:'L, 𝒟 = (LK), section '+esxCfg(q).morceaux.map(m=>'['+nc.nom(m.P)+nc.nom(m.Q)+']').join(' '),
     given:b.filter(z=>z.ok).length+(guide?' étape':' élément')+(b.filter(z=>z.ok).length>1?'s':'')+' sur '+b.length, correct:ok, type:test.kind}));
   const last=test.idx===test.questions.length-1;
@@ -37660,7 +37665,8 @@ function eslConseilCtx(){
    en prenant la méthode avec des cases à remplir plutôt qu'une version
    rédigée si elle existe ; dans l'espace on présentera comme dans
    l'exercice 7.1.14 ».
-   LE SUJET, EN CINQ PARTIES (une séance, cinq écrans, la même figure) :
+   LE SUJET, EN CINQ PARTIES — QUATRE DEPUIS v519, la partie 4 supprimée (voir
+   EBC_PARTIES) — une séance, un écran par partie, la même figure :
      1 — Partie A, 1. et 2. : les coordonnées de quatre sommets et de I, J, K
          (comme au 7.1.6) ; IK⃗ en colonne « K − I » puis une représentation
          paramétrique de (IK), point et vecteur au choix de l'élève (7.1.9 d).
@@ -37694,7 +37700,13 @@ function eslConseilCtx(){
    LE DESSIN : celui du 7.1.14 (B en bas à gauche de la face avant, A caché
    derrière B, ESX_CO), le repère restant (A ; AB⃗ ; AD⃗ ; AE⃗) — ebcR passe
    des coordonnées du dessin à celles du repère. */
-const EBC_NBQ=5;
+/* QUATRE PARTIES, PLUS CINQ (Turquet, novembre 2026 : « mettre aussi I, J, K
+   sur la figure de la partie C1 », puis, devant le choix, « dessiner et
+   supprimer C1 ») : I, J, K étant dessinés d'office, « placer I, J et K » n'a
+   plus rien à demander. Les parties tirées sont 1, 2, 3 et 5 (q.p garde son
+   sens) ; le code de la partie 4 reste pour un brouillon d'avant. */
+const EBC_PARTIES=[1,2,3,5];
+const EBC_NBQ=EBC_PARTIES.length;
 const EBC_TITRES=['','Partie A — coordonnées, la droite (IK)','Partie A — un point de (IK), une autre représentation','Partie B — positions relatives de deux droites','Partie C — placer I, J et K','Partie C — la section du cube'];
 function ebcRd(x){ const r=Math.round(x*1e9)/1e9; return r===0?0:r; }
 function ebcQuart(x){ return Math.abs(x*4-Math.round(x*4))<1e-9; }
@@ -37762,7 +37774,7 @@ function ebcGen(){
 }
 function ebcGenSession(){
   const f=ebcGen();
-  return distinctes(EBC_NBQ, function(u,i){ const q=JSON.parse(JSON.stringify(f)); q.p=i+1; if(q.p===4) q.place={}; if(q.p===5) q.cons=[]; return q; });
+  return distinctes(EBC_NBQ, function(u,i){ const q=JSON.parse(JSON.stringify(f)); q.p=EBC_PARTIES[i]; if(q.p===4) q.place={}; if(q.p===5) q.cons=[]; return q; });
 }
 /* ---- les écritures ---- */
 function ebcPtHTML(q,n){ return '<span class="edp-nw"><i>'+n+'</i>('+ebcPt(q,n).map(numFmt).join(' ; ')+')</span>'; }
@@ -38014,12 +38026,19 @@ function ebcSVG(q){
       if(sc>bs){ bs=sc; best=cc; } }
     h+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="2.6" class="esx-pt"/><text x="'+f(best[0])+'" y="'+f(best[1]+5.5)+'" text-anchor="middle" class="esx-ls">'+L+'</text>';
   });
+  /* l'étiquette d'un point de I, J, K : la place la plus dégagée parmi seize, loin des arêtes et des sommets */
+  const som=ESX_SOM.map(L=>X(ESX_CO[L]));
+  const place=function(m){ let best=null, bs=-Infinity;
+    for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+16*Math.cos(an), m[1]+16*Math.sin(an)];
+      const sc=Math.min(12,Math.min(...traits.map(z=>esxDist2(cc,z[0],z[1]))))+Math.min(14,Math.min(...som.map(z=>Math.hypot(z[0]-cc[0],z[1]-cc[1])))-6);
+      if(sc>bs){ bs=sc; best=cc; } }
+    return best; };
+  /* I, J ET K SUR TOUS LES DESSINS — la partie C, 1. comprise, puis supprimée (voir EBC_PARTIES). (Turquet, novembre 2026 : « il faut placer
+     les points I, J, K sur le cube aussi pour tous les dessins ») */
+  ['I','J','K'].forEach(function(L){ const m=X(g[L]), t=place(m);
+    h+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="3.6" class="esx-pt"/><text x="'+f(t[0])+'" y="'+f(t[1]+5.5)+'" text-anchor="middle" class="esx-ls">'+L+'</text>'; });
   if(q.p===4){
-    const som=ESX_SOM.map(L=>X(ESX_CO[L]));
-    const marque=function(L,P,cl,pts){ const m=X(P); let best=null, bs=-Infinity;
-      for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+16*Math.cos(an), m[1]+16*Math.sin(an)];
-        const sc=Math.min(12,Math.min(...traits.map(z=>esxDist2(cc,z[0],z[1]))))+Math.min(14,Math.min(...som.map(z=>Math.hypot(z[0]-cc[0],z[1]-cc[1])))-6);
-        if(sc>bs){ bs=sc; best=cc; } }
+    const marque=function(L,P,cl,pts){ const m=X(P), best=place(m);
       return '<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="'+L+'"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
         +'<text x="'+f(best[0])+'" y="'+f(best[1]+6)+'" text-anchor="middle" class="ebc-lbl">'+L+'</text></g>'; };
     ['I','J','K'].forEach(function(L){
@@ -38030,7 +38049,7 @@ function ebcSVG(q){
     });
     if(ebcSurvol && !test.locked) h+=marque(ebcActif,ebcSurvol,'ecb-fant',false);
   }
-  return '<svg class="esx-svg ebc-svg" id="ebcSvg" viewBox="'+f(c.x0)+' '+f(c.y0)+' '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH'+(q.p===4?', où placer les points I, J et K':'')+'">'+h+'</svg>';
+  return '<svg class="esx-svg ebc-svg" id="ebcSvg" viewBox="'+f(c.x0)+' '+f(c.y0)+' '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH et les points I, J et K">'+h+'</svg>';
 }
 function ebcBoutons(){
   const q=test.questions[test.idx]; if(!q || q.p!==4) return;
@@ -38168,7 +38187,7 @@ function checkEBC(live){
   ebcMaj();
   ebcDessiner();
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:'Espace — exercice de bac, partie '+q.p+' sur 5 ('+EBC_TITRES[q.p]+') : '+ebcPlain(q), answer:ebcRepPlain(q),
+    q:'Espace — exercice de bac, partie '+(test.idx+1)+' sur '+test.questions.length+' ('+EBC_TITRES[q.p]+') : '+ebcPlain(q), answer:ebcRepPlain(q),
     given:allOk?'✓':'incomplet', correct:allOk, type:'ebc'}));
   const last=test.idx===test.questions.length-1;
   $('ebcActions').innerHTML='<button class="btn btn-primary" onclick="nextEBC()">'+(last?'Voir mes résultats':'Partie suivante')+'</button>';
@@ -38183,15 +38202,15 @@ function ebcRepPlain(q){
 function nextEBC(){ if(test.idx<test.questions.length-1){ test.idx++; renderEBC(); } else finishTest(); }
 /* la partie C, 2. — l'énoncé de la section, sur l'écran du 7.1.14 */
 function ebcSectionPromptHTML(q){
-  return ebcEnonce(q)+'<br><b>Partie C – Section du cube.</b> Les points <i>I</i>, <i>J</i> et <i>K</i> sont placés sur la figure.'
-    +'<br>2. Construire la section du cube par le plan (<i>IJK</i>), en laissant les traits de construction.'
+  return ebcEnonce(q)+'<br><b>Partie C – Section du cube.</b> '
+    +'<br>Construire la section du cube par le plan (<i>IJK</i>), en laissant les traits de construction.'
     +'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Segment rouge parallèle »), il passe en rouge dès qu’il est juste.</span>';
 }
 /* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
    secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
 function ebcConseilCtx(){
   const q=test.questions[test.idx];
-  if(q.p===5) return eslConseilCtx()+' (C’est la dernière partie d’un exercice de bac en cinq parties : la partie C, question 2.)';
+  if(q.p===5) return eslConseilCtx()+' (C’est la dernière partie d’un exercice de bac en quatre parties : la partie C, la section.)';
   const cases=ebcCases(q, q.p===2?ebcChoix():null);
   const etat=cases.map(function(x){
     if(x.type==='plc'){ const P=(q.place||{})[x.id.slice(-1)]; return x.nom+' = '+(Array.isArray(P)?'placé':'(pas encore placé)'); }
@@ -38201,7 +38220,7 @@ function ebcConseilCtx(){
     'la représentation de (IK) est imposée ; 3. vérifier que P est sur (IK) : on écrit les trois équations x_point + coefficient × t = x_P, on fait passer le nombre de l’autre côté, on divise : t = …/… ; les trois valeurs de t sont égales ; 4. montrer que Δ est une autre représentation de (IK) : on vérifie que Δ passe par deux points de (IK) (au choix parmi I, K et P), avec la même rédaction ; deux points distincts définissent une seule droite : les droites sont confondues',
     'Partie B. 1. (IK) et (d) parallèles ? la propriété (vecteurs directeurs colinéaires), u de (IK) et v de (d) lus sur les coefficients de t et t′, les trois quotients « fin / début » (fraction simplifiée ou valeur approchée au dixième, dans le sens qu’on veut), la conclusion ; 2. sécantes ? on égale les équations ligne à ligne (①, ②, ③), on isole t dans l’équation où il est seul, on le remplace dans une autre, on trouve t′ puis t, on vérifie dans la dernière équation : elle est fausse, t et t′ ne sont pas solutions des trois équations, les droites ne sont pas sécantes ; conclusion générale : non parallèles, non sécantes, donc non coplanaires',
     'Partie C. 1. placer I, J et K sur la figure, sur leur arête, au quart, au milieu ou aux trois quarts'];
-  return 'Exercice de Terminale (géométrie dans l’espace, exercice de bac en cinq parties, partie '+q.p+' sur 5) : '+ebcPlain(q)+'. Questions de cette partie : '+parties[q.p]+'. '
+  return 'Exercice de Terminale (géométrie dans l’espace, exercice de bac en '+test.questions.length+' parties, partie '+(test.idx+1)+' sur '+test.questions.length+') : '+ebcPlain(q)+'. Questions de cette partie : '+parties[q.p]+'. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+ebcAff(x); }).join(' ; ')+' ('+ebcRepPlain(q)+'). '
     +'Les menus valent : est / nest = « est / n’est pas », conf = « confondues », col = « colinéaires », sont / nsp = « sont / ne sont pas parallèles », oui / non = « vérifiée / fausse », sol / nsol = « sont / ne sont pas solutions », sec / nsec = « sécantes / non sécantes », par / npar = « parallèles / non parallèles », cop / ncop = « coplanaires / non coplanaires ». '
