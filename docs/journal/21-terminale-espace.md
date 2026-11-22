@@ -1546,7 +1546,7 @@ reprendre un brouillon d'avant. Les textes qui disaient « partie … sur 5 »
 lisent la place dans la séance. L'énoncé de la section ne numérote plus sa
 question.
 
-#### « Segment rouge parallèle » montre son geste (v520)
+#### « Segment rouge parallèle » montre son geste (v521)
 
 Turquet, novembre 2026 : « j'ai une élève qui n'a pas compris comment utiliser
 le bouton parallèle à un segment rouge ; peut-être avec un dessin ou une
