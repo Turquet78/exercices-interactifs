@@ -7776,6 +7776,77 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quinquagies. LE 4.5.1 : L'EXERCICE DE BAC SUR (ax + b)e^(2x) =====
+       Ce que jsdom ne voit pas : les deux chaînes du 2.1 (e^(2x), v′ = 2e^(2x))
+       relues par un vrai MathLive, la grille de l'équation différentielle,
+       le tableau de variations DESSINÉ, et le dessin plus haut que large. La
+       copie de la page, remplie depuis son attendu, doit être toute juste,
+       sur deux visages (x₀ = 1/2, puis b = 0 : A à l'origine). */
+    titre('6 quinquagies. LE 4.5.1 : L\'EXERCICE DE BAC SUR (ax + b)e^(2x) — LA COPIE ENTIÈRE, LE DESSIN');
+    if(!P.etudeFonctionBac){
+      ['le 4.5.1 : la copie remplie est toute juste, sur deux visages',
+       'le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
+       'le 4.5.1 : le dessin n\'est pas écrasé en hauteur',
+       'le 4.5.1 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'exercice de bac sur les fonctions'));
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 1000 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.etudeFonctionBac.exercice);
+      await s.page.waitForTimeout(400);
+      await prendreMode(s.page, 'train');
+      await s.page.waitForTimeout(700);
+      const epingler = q => s.page.evaluate(q => { test.questions = [q]; test.idx = 0; test.score = 0; test.answers = []; test.locked = false; test.maxScore = efbMax(q); renderEFB(); }, q);
+      const mesurer = () => s.page.evaluate(() => {
+        const oks = document.querySelectorAll('#efbForm .ok').length, bads = [...document.querySelectorAll('#efbForm .bad')].map(e => e.id);
+        const sols = document.querySelectorAll('#efbForm .sol').length;
+        const ov = document.getElementById('efb-var-ov');
+        const fleches = ov ? [...ov.querySelectorAll('path,line,polygon')].filter(e => { try { const r = e.getBBox(); return r.width > 4 || r.height > 4; } catch (err) { return false; } }).length : 0;
+        const g = document.querySelector('#efbForm .efb-svg').getBoundingClientRect();
+        const page = document.documentElement.scrollWidth > document.documentElement.clientWidth + 1;
+        return { oks, bads, sols, score: test.score, max: test.maxScore, locked: test.locked, fleches, gW: Math.round(g.width), gH: Math.round(g.height), page };
+      });
+      const copie = async () => {
+        await s.page.evaluate(() => {
+          const q = test.questions[0];
+          const sol1 = asgDerVerdicts(q, efbDer1(q)).sol, sol2 = asgDerVerdicts(q, efbDer2(q)).sol;
+          efbCases(q).forEach(x => { const el = document.getElementById(x.id); if (!el) return;
+            const val = (x.type === 'der') ? ((x.grp === 2) ? sol2 : sol1)[x.id] : String(efbVal(q, x));
+            if (el.tagName === 'MATH-FIELD') el.setValue(x.type === 'fn' ? val : asgML(val));
+            else el.value = val; });
+          efbArrowChange();
+        });
+        await s.page.click('#efbActions .btn-primary');
+        await s.page.waitForTimeout(400);
+        return mesurer();
+      };
+      await epingler({ a: 2, b: -2, k: 3 });
+      await s.page.waitForTimeout(400);
+      const v1 = await copie();
+      await epingler({ a: 4, b: 0, k: 1 });
+      await s.page.waitForTimeout(400);
+      const v2 = await copie();
+      await epingler({ a: 2, b: -3, k: 5 });
+      await s.page.waitForTimeout(400);
+      await s.page.evaluate(() => document.getElementById('efb-a5').value = '1');   /* une seule case, juste : le reste vide se corrige */
+      await s.page.click('#efbActions .btn-primary');
+      await s.page.waitForTimeout(400);
+      const v3 = await mesurer();
+      const juste = v => v.oks === v.max && v.bads.length === 0 && v.score === v.max && v.max > 100 && v.locked;
+      verifier('le 4.5.1 : la copie remplie est toute juste, sur deux visages',
+        juste(v1) && juste(v2),
+        [v1, v2].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — '));
+      verifier('le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
+        v3.bads.length === 0 && v3.oks === 1 && v3.score === 1 && v3.locked && v3.sols > 60,
+        v3.oks + ' ok, ' + v3.sols + ' corrections, rouges ' + JSON.stringify(v3.bads.slice(0, 4)));
+      verifier('le 4.5.1 : le dessin n\'est pas écrasé en hauteur, et les flèches du tableau sont dessinées',
+        v1.gH > 0.8 * v1.gW && v1.gW > 400 && v1.fleches >= 2,
+        'dessin ' + v1.gW + '×' + v1.gH + ' px, ' + v1.fleches + ' flèche(s)');
+      verifier('le 4.5.1 : la page ne déborde pas', !v1.page && !v2.page, 'la page défile horizontalement');
+      verifier('l\'exercice de bac sur les fonctions ne lève aucune erreur JavaScript',
+        s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 vicies octies. LA SYNTHÈSE DES POURCENTAGES RÉDIGÉE =====
        Le 2.5.2 : le 2.5.1 posé sur le moteur rédigé du 2.2.10. Deux choses ne
        se voient QUE dans un vrai navigateur, et elles portent l'exercice.
