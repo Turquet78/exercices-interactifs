@@ -24763,9 +24763,13 @@ function clavierUnites(w, P){
     if(!regles.length) pbs.push('aucune règle --keycap-width : le contrôle ne mesure rien');
     regles.forEach(v => {
       if(/^\d+px$/.test(v)) return;   /* la fenêtre flottante de l'ordinateur : une largeur fixe, rangées centrées */
-      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0)
+      /* la couche des lettres a sa propre largeur (--keycap-lettres), qui lit SON compte d'unités (--kb-unites-lettres) */
+      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0 && v.indexOf('--keycap-lettres') < 0)
         pbs.push('une règle de largeur garde un compte d\'unités en dur : « ' + v + ' »');
     });
+    const lettresW = /--keycap-lettres\s*:\s*([^;}]+)/.exec(src);
+    if(regles.some(v => v.indexOf('--keycap-lettres') >= 0) && (!lettresW || lettresW[1].indexOf('--kb-unites-lettres') < 0))
+      pbs.push('--keycap-lettres ne lit pas --kb-unites-lettres : « ' + (lettresW ? lettresW[1].trim() : 'introuvable') + ' »');
     const auto = /--keycap-auto\s*:\s*([^;}]+)/.exec(src);
     if(!auto) pbs.push('--keycap-auto est introuvable : rien ne calcule la largeur d\'une touche');
     else if(auto[1].indexOf('--kb-unites') < 0) pbs.push('--keycap-auto ne lit pas --kb-unites : « ' + auto[1].trim() + ' »');

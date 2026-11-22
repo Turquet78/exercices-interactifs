@@ -1937,3 +1937,14 @@ case du pavé, « abc » touchable, puis le pavé refermé, `inputmode="text"`, 
 focus gardé. Ce qu'aucun banc ne voit : que le clavier du SYSTÈME s'ouvre
 vraiment sur la tablette réelle après « abc » (Chromium sans écran n'en a
 pas) — à regarder en ligne.
+
+La touche ⇧ a eu un prix, et il s'est vu au banc navigateur : la rangée du
+bas de la couche des lettres passait à 13 unités, et `kbUnites` — qui
+prenait la rangée la plus large de TOUTES les couches — rétrécissait aussi
+les touches du clavier A ; sur un téléphone, l'étiquette « clavier B » ne
+tenait plus dans sa touche de 48 px. La couche des lettres compte donc ses
+unités à part (`kbUnitesLettres`, posée en `--kb-unites-lettres`), et sa
+largeur se lit dans `--keycap-lettres`, réglée par les règles
+`.MLK__layer[id$="-lettres"]` : les autres couches gardent la taille de
+leurs touches. Le contrôle « la largeur des touches suit la rangée la plus
+large » accepte cette largeur à condition qu'elle lise SON compte d'unités.
