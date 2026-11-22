@@ -7215,3 +7215,36 @@ nombre de cases. Le badge de correction reste à côté de la dernière case.
 
 **Le banc** : une copie écrite se recopie dans les deux autres ; la case
 jugée bleuit, ses copies prennent `vdf-m-ok` sans être des réponses.
+
+### Puis les deux points réécrits, et la fraction à recopier en deux cases (Seconde v716)
+
+Demande de Turquet, novembre 2026 : « avant le calcul d'un vecteur, réécrire
+les coordonnées des deux points concernés. Quand on doit rentrer une fraction,
+mettre deux cases pour la fraction dans la première colonne comme dans les
+colonnes d'après. »
+
+**Les deux points** : au-dessus de chaque bloc « fin − début », une ligne
+`.vdf-rap` écrit le début puis la fin (`vdfPtHTML`), par exemple
+« A(−5/2 ; −2) et D(−1/2 ; −8/3) » avant AD⃗. Rien à saisir : l'élève n'a plus
+à remonter jusqu'à l'énoncé. Les blocs d'une somme (e) et du système (c, e)
+n'en ont pas : ils ne calculent pas un vecteur à partir de deux points.
+
+**La fraction en deux cases** : dans la première colonne, un terme attendu
+qui est une fraction (`vdfFrT`) prend un numérateur et un dénominateur
+empilés (`…-an`/`…-ad`, `…-bn`/`…-bd`, enveloppe `…-a-fr`), comme les
+fractions des colonnes du même dénominateur. Chaque case est une case de la
+note (`vdfIdsT` dans `vdfIdsCh`, le barème suit) ; elles sont justes ensemble
+si la fraction lue (`vdfLitT`, le quotient des deux) vaut le terme — 2/4 pour
+1/2, ou 1 sur −2 pour −1/2 —, sinon chacune sur son nombre. La correction
+écrit la fraction entière, une fois, à droite de l'enveloppe. Une somme écrite
+dans l'autre ordre reste juste : un entier s'écrit sur 1. Les lignes qui ont
+une fraction dans la première colonne prennent la hauteur haute
+(`vdfRangs`), même sans étape du même dénominateur. Les cases du système, du
+produit en croix et des résultats restent d'une seule case (la touche / y pose
+le trait).
+
+**Le banc** : sur la question e, les lignes `.vdf-rap` rendent les points de
+chaque vecteur ; une fraction de la première colonne a ses deux cases et
+aucune case simple ; numérateur juste et dénominateur faux donnent une case
+bleue, une rouge, une seule correction et une case de moins au score ; une
+fraction égale écrite autrement est juste.

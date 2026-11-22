@@ -16408,7 +16408,7 @@ function coordonneesDevoirFractions(w, P){
           set(i+'-N1',String(A[0]*D/A[1])); set(i+'-N2','('+(B[0]*D/B[1])+')'); set(i+'-D',String(D)); };
         if(vdfMilieu(c.t1,c.t2)) mil(c.t1,c.t2);
         const r=vdfRes(c); set(i+'-r','\\\\frac{'+(3*r[0])+'}{'+(3*r[1])+'}');
-        if(c.op==='+'){ set(i+'-a',vdfLatex(c.t2)); set(i+'-b',vdfLatex(c.t1));
+        if(c.op==='+'){ vdfEcrireT(c,'a',c.t2); vdfEcrireT(c,'b',c.t1);
           if(vdfMilieu(c.t1,c.t2)) mil(c.t2,c.t1); }
       });
       if(el('vdf-k-a1')){ const P2=vdfPlan(q), u=vdfVec(q.Z,P2.vec[0][0],P2.vec[0][1]), v=vdfVec(q.Z,P2.vec[1][0],P2.vec[1][1]);
@@ -16462,7 +16462,7 @@ function coordonneesDevoirFractions(w, P){
         TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=[0,1,3][j]; renderVdf();
         const q=test.questions[test.idx]; choisir(s.split(''));
         const tot=test.questions.reduce(function(n,qq){ return n+vdfCases(qq).length; },0);
-        if(!q.vc || q.vc.join('')!==s || el('vdfCalc').style.display==='none' || !el('vdf-ux-a') || test.maxScore!==tot || vdfPlan(q).vec.map(function(v){ return v.join(''); }).join('')!==s || !el('vdf-v1a').disabled) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas retenue');
+        if(!q.vc || q.vc.join('')!==s || el('vdfCalc').style.display==='none' || !document.querySelector('#vdfCalc [id^="vdf-ux-a"]') || test.maxScore!==tot || vdfPlan(q).vec.map(function(v){ return v.join(''); }).join('')!==s || !el('vdf-v1a').disabled) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas retenue');
       });
     });
     /* LE RÉSULTAT D'UNE LIGNE SANS ÉTAPE, DANS CHAQUE COLONNE QUI SUIT : une copie écrite se recopie dans les deux autres ;
@@ -16484,16 +16484,42 @@ function coordonneesDevoirFractions(w, P){
     /* les vecteurs en colonne : les abscisses en haut, les ordonnées en bas, dans les mêmes parenthèses */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     const col=document.querySelector('#vdfHost .vdf-col3');
-    if(!col || !col.querySelector('#vdf-ux-a') || !col.querySelector('#vdf-uy-a') || document.querySelector('#vdfHost .vdf-lab')) vus.push('8.4.15 : les vecteurs ne sont pas en colonne');
+    if(!col || !col.querySelector('[id^="vdf-ux-a"]') || !col.querySelector('[id^="vdf-uy-a"]') || document.querySelector('#vdfHost .vdf-lab')) vus.push('8.4.15 : les vecteurs ne sont pas en colonne');
+    /* les deux points réécrits avant chaque vecteur ; une fraction à recopier dans deux cases, jugées chacune (question e : trois vecteurs ou sommes, sans choix) */
+    (function(){
+      for(let t=0;t<12;t++){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=4; renderVdf(); clearTimeout(test.fbTimer);
+        const q=test.questions[4], P2=vdfPlan(q), raps=[].map.call(document.querySelectorAll('#vdfCalc .vdf-rap'),function(e){ return e.textContent.replace(/\s+/g,''); });
+        const attendu=P2.vec.map(function(v){ const t=document.createElement('div'); t.innerHTML=vdfPtHTML(v[0],q.Z[v[0]])+'et'+vdfPtHTML(v[1],q.Z[v[1]]); return t.textContent.replace(/\s+/g,''); });
+        if(raps.length!==P2.vec.length || raps.some(function(r,k){ return r!==attendu[k]; }) || P2.vec.some(function(v){ return !/[A-F]/.test(v[0]); })) vus.push('8.4.15 : les deux points ne sont pas réécrits avant chaque vecteur ('+raps.join(' | ')+' / '+attendu.join(' | ')+')');
+        const c=P2.ch.find(function(c){ return !c.som&&!c.sys&&c.t1[1]>1; }); if(!c) continue;
+        const i='vdf-'+c.id;
+        if(el(i+'-a') || !el(i+'-an') || !el(i+'-ad') || vdfIdsCh(c).indexOf(c.id+'-an')<0 || vdfCasesDe(q).indexOf(i+'-a')>=0) vus.push('8.4.15 : une fraction de la première colonne n’a pas deux cases');
+        /* le numérateur juste, le dénominateur faux : l'un bleu, l'autre rouge, la fraction entière en correction, une fois */
+        vdfJuge(q).forEach(function(s){ if(s.el&&!s.choix) s.el.value=vdfLatex(s.bon); });
+        el(i+'-ad').value=String(c.t1[1]+1);
+        checkVdf(); clearTimeout(test.fbTimer);
+        const fr=el(i+'-a-fr');
+        if(classe(el(i+'-an'))!=='ok' || classe(el(i+'-ad'))!=='bad' || !fr || fr.querySelectorAll(':scope > .mf-cor').length!==1 || test.score!==vdfCasesDe(q).length-1) vus.push('8.4.15 : une fraction en deux cases ne se juge pas case par case (score '+test.score+' / '+vdfCasesDe(q).length+')');
+        /* la même fraction, écrite autrement (2/4 pour 1/2) : les deux cases justes */
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=4; renderVdf(); clearTimeout(test.fbTimer);
+        const q3=test.questions[4], c3=vdfPlan(q3).ch.find(function(x){ return x.id===c.id; });
+        vdfEcrireT(c3,'a',c3.t1); el(i+'-an').value=String(2*c3.t1[0]); el(i+'-ad').value=String(2*c3.t1[1]);
+        const sj=vdfJuge(q3).filter(function(s){ return s.id===i+'-an'||s.id===i+'-ad'; });
+        if(sj.length!==2 || !sj.every(function(s){ return s.ok; })) vus.push('8.4.15 : une fraction égale, écrite autrement, n’est pas juste');
+        return;
+      }
+      vus.push('8.4.15 : aucune fraction dans la première colonne en douze tirages — le contrôle ne mesure rien');
+    })();
     /* le soutien : sans paire, rien ne se juge ; puis la juste en bleu, la fausse en rouge, la vide neutre, rien ne se révèle */
     currentMode='soutien'; TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     checkVdf(); clearTimeout(test.fbTimer);
     if(test.locked || el('vdfFeedback').textContent.indexOf('Choisis d’abord')<0) vus.push('8.4.15 : en soutien, Vérifier sans paire choisie');
     choisir(['A','D','C','B']);
     const q2=test.questions[0], c2=vdfPlan(q2).ch[0];
-    set('vdf-'+c2.id+'-a',vdfLatex(c2.t1)); set('vdf-'+c2.id+'-b','\\\\frac{1}{7}');
+    vdfEcrireT(c2,'a',c2.t1); vdfEcrireT(c2,'b',[1,7]);
     checkVdf(); clearTimeout(test.fbTimer);
-    if(classe(el('vdf-'+c2.id+'-a'))!=='ok' || classe(el('vdf-'+c2.id+'-b'))!=='bad' || classe(el('vdf-'+c2.id+'-r'))!=='rien' || test.locked || document.querySelector('#vdfHost .mf-cor')) vus.push('8.4.15 : le soutien');
+    if(vdfIdsT(c2,'a').some(function(id){ return classe(el('vdf-'+id))!=='ok'; }) || classe(el('vdf-'+vdfIdsT(c2,'b').slice(-1)[0]))!=='bad' || classe(el('vdf-'+c2.id+'-r'))!=='rien' || test.locked || document.querySelector('#vdfHost .mf-cor')) vus.push('8.4.15 : le soutien');
     currentMode='train';
     /* la reprise d'une pause, sur la question c */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
