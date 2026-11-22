@@ -4696,7 +4696,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=516;
+const APP_VERSION=517;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -28970,7 +28970,7 @@ function aptPlan(q){
     B.titre(Q('4.', 'Calculer la variance <i>V</i>(<i>X</i>).'+(aptExact(A.V,0.01)?'':' (Donner la valeur exacte, ou une valeur approchée à 10<sup>−2</sup>&nbsp;près.)')));
     B.va('var');
     B.titre(Q('5.', 'Estimer le bénéfice total que '+V.qui+' peut espérer sur un lot de '+aptMil(A.lot)+' '+V.uns+'.'));
-    B.calc(aptMil(A.lot)+' × '+Ex+' =', {v:aptR(A.lot*A.E), corr:aptMil(A.lot)+' × '+fE+' = '+aptMil(apfNb(aptR(A.lot*A.E))), tex:A.lot+'\\times '+aptTexN(A.E)+'='+aptTexN(aptR(A.lot*A.E))}, 'bénéfice espéré sur le lot');
+    B.calc('Bénéfice total espéré :', {v:aptR(A.lot*A.E), corr:aptMil(A.lot)+' × '+fE+' = '+aptMil(apfNb(aptR(A.lot*A.E))), tex:A.lot+'\\times '+aptTexN(A.E)+'='+aptTexN(aptR(A.lot*A.E))}, 'bénéfice espéré sur le lot');
   }
   return P;
 }
