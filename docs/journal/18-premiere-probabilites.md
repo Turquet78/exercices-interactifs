@@ -1029,3 +1029,51 @@ faux rougit sans débloquer ; deux cases trouvées, pas de suite ; la
 troisième ouvre « Question suivante » ; P(A ∪ B) juste, séance 8 / 8 ;
 pause au milieu puis après les trois cases, reprises justes ; aucun
 débordement, aucune erreur JavaScript.
+
+## {frequences-probabilites-pouce} (3.13, v460) : la fiche du 3.11, P(A ∪ D), et un coup de pouce devant chaque question
+
+Demande de Turquet (novembre 2026) : « créer un exercice exactement comme le
+3.11 en rajoutant une question dans la partie A, à la fin, sur P(A ∪ B) ;
+mettre un bouton coup de pouce devant chaque question ; si l'élève clique
+dessus, il a la présentation de la question comme dans l'exercice 3.10 avec
+des cases à remplir, et il a aussi les noms des cases en gris dans le
+tableau comme dans l'exercice 3.10 ». Ajouté EN DERNIER dans `THEMES` : rien
+n'est renuméroté.
+
+**Le moteur du 3.11** (`fpbSeance(3)` : contextes `FPB2_CTX`, `q.fpb = 2` ;
+démarreur `startFPB3`). `fpbSeul()` couvre les deux identités ; `fpbPouce()`
+dit la troisième. La partie A compte six questions (`fpbNbA()`, lu par
+`fpbNum`, la page et le contexte du modèle ; `FPB_NB_A` reste 5 pour les deux
+autres fiches) : la sixième, `fpbunion`, « Calcule la probabilité que le
+bagage voyage avec la compagnie A ou présente un dommage (c'est-à-dire
+P(A ∪ D)). » Sans coup de pouce, sa ligne est celle du 3.11 :
+« P(A ∪ D) = □/□ », effectif de A + effectif de D − effectif de A ∩ D sur le
+total, toute fraction égale juste.
+
+**Le coup de pouce** (`fpbCoupDePouce(i)`, bouton `.fpb-pouce` devant le
+numéro de chaque question, tableau compris) range `q.pouce` dans la
+question — la reprise après pause le retrouve — et la ligne de CETTE
+question devient celle du 3.10 (`fpbSeulQ(q)` remplace `fpbSeul()` dans
+`fpbLigne`, `fpbAttLigne`, `fpbAttNom`) : nom à composer ou écrit, fraction
+en lettres, puis effectifs. Pour P(A ∪ D), la ligne sur deux rangées de la
+v405 revient (`fpbLigneUnion`, `fpbOp`) : « P(A ∪ D) = P(…) + P(…) − P(…) »,
+puis « = □/□ + □/□ − □/□ = □/□ » (paires `pb-x`, `pb-y`, `pb-i`, `pb-n` :
+une fraction égale est juste) ; P(D) + P(A) vaut P(A) + P(D), les attendus
+suivent l'ordre choisi. Seule la ligne se redessine : les autres questions et
+le tableau gardent leurs saisies, et la fraction déjà tapée dans la ligne est
+remise en place. Le tableau écrit toujours le nom gris de ses cases au
+3.13, caché par `.fpb-sans-noms` jusqu'au premier coup de pouce
+(`fpbNomsVus()`). Après « Vérifier », les boutons se désactivent. Le coup de
+pouce ne retire aucun point ; le contexte du modèle dit où il a été pris.
+
+**Le reste du branchement** : `TESTS`, `THEMES` (3.13), « Recommencer »,
+`RAP_FPB3` (le rappel du 3.10, plus la réunion et le coup de pouce),
+`QIA_SUGG`.
+
+Vérifié dans Chromium (1280 × 900 et 390 × 844, entraînement et soutien) :
+coups de pouce pris sur la question 4 et sur P(A ∪ D) avec un 7 déjà tapé,
+gardé ; noms gris apparus ; copie juste, P(D) + P(A) à l'envers et résultat
+simplifié, 9 / 9 ; une pause puis « Continuer » retrouve le coup de pouce,
+le choix et la saisie. À 390 px la première rangée de P(A ∪ D) débordait de
+93 px : les deux rangées se replient entre deux groupes « signe case »
+(`fpb-sol-b`).
