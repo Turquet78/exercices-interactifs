@@ -1534,3 +1534,14 @@ arêtes et des sommets). Seule la partie C, 1. garde un cube vide : c'est
 l'élève qui y place les trois points, et les y dessiner donnerait la réponse.
 La section (partie 5) les montrait déjà. Exécuté dans Chromium : copie juste
 menée jusqu'à 10 / 10, I, J, K vus à leur place sur la figure de la partie 1.
+
+**Puis I, J et K aussi à la partie C, 1. — qui disparaît (Turquet, novembre
+2026, v519 : « mettre aussi I, J, K sur la figure de la partie C1 » ; devant
+le choix — les dessiner et supprimer C1, les dessiner et garder le clic, ou les
+montrer après « Vérifier » —, « dessiner et supprimer C1 »).** Les points étant
+sur la figure, « placer I, J et K » n'avait plus rien à demander : la séance
+tire les parties 1, 2, 3 et 5 (`EBC_PARTIES`), quatre écrans, la section en
+« Partie 4 / 4 ». `q.p` garde son sens ; le code de la partie 4 reste, pour
+reprendre un brouillon d'avant. Les textes qui disaient « partie … sur 5 »
+lisent la place dans la séance. L'énoncé de la section ne numérote plus sa
+question.
