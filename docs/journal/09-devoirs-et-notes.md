@@ -2144,3 +2144,50 @@ retombe sur un nouvel énoncé, envoyé de nouveau. Banc navigateur, 6 sexies
 ter : les deux bords (sans l'option, aucun bouton), l'option gardée par
 `ensureDevoir`, le même énoncé retrouvé sans envoi, des valeurs sans rouge ni
 bouton, l'état rendu, et un vrai PDF de correction.
+
+**Puis les PDF du DM n°13 ont montré quatre défauts de MISE EN PAGE — trois
+dans la photo elle-même, un dans l'écran** (Terminale v522, signalé par
+Turquet, novembre 2026 : « il faut que ces erreurs ne se reproduisent plus
+dans les prochains PDF d'énoncé ou de correction »). Chacun s'est reproduit
+dans un vrai Chromium, PAR html2canvas (le rendu de l'écran par Chrome ne
+montrait pas le troisième), avant d'être corrigé.
+* *La formule en tête de ligne manquait* (exercices de bac en probabilités,
+  « = P(M) × P_M(R) = … » sans « P(M ∩ R) ») : l'écriture de la probabilité
+  se CHOISIT dans un petit menu, et la case est un `<button class="apc-slot">`.
+  La photo retire tous les boutons. `dmCorrigeQ` imprime désormais tout
+  bouton que la page a JUGÉ (`ok`, `sol`) comme une valeur ; un bouton rouge
+  part, sa correction est à côté (`.mf-cor`).
+* *Les ⟺ ne tombaient plus l'un sous l'autre* (la vérification d'une équation
+  différentielle, au 8.1.1 comme dans l'exercice de bac sur les fonctions) :
+  la grille `début | gauche | = | droite | après` a une cellule « après » VIDE
+  sur ses premières rangées, et le ménage des cadres vides la retirait —
+  chaque cellule suivante glissait d'un rang. `dmeMarquerCellules` marque,
+  sur l'écran affiché avant le clonage, chaque enfant d'une grille avec le
+  numéro de sa rangée ; `dmeViderCadres` garde une cellule vide, et ne retire
+  qu'une rangée ENTIÈREMENT vidée (sans quoi l'énoncé papier du 8.1.1
+  gagnait une bande blanche par question — mesuré : 719 px → 839 px, puis
+  revenu à 719). Dans l'énoncé, une cellule qui porte une case se VIDE au lieu
+  de partir. Premier essai du numéro de rangée par `offsetTop` : faux, une
+  rangée centrée a des cellules de hauteurs différentes ; c'est le retour à
+  gauche d'une cellule qui ouvre la rangée suivante.
+* *L'accolade d'un système n'embrassait que sa première ligne* (cube de bac,
+  énoncé et correction) : avant html2canvas, chaque svg devient une IMAGE
+  (`dmePdfSvgEnImages`), et l'accolade `.edp-acc` tenait sa place — colonne
+  1, rangées 1 à 3 — par sa CLASSE. L'image, sans classe, se plaçait d'office
+  dans la première cellule libre : la rangée x prenait toute la hauteur de
+  l'accolade, y et z tombaient dessous. L'image reçoit maintenant la place
+  calculée du dessin dans sa grille ou sa rangée (`grid-row`, `grid-column`,
+  `align-self`, `justify-self`, `order`, `flex`).
+* *Les « = » de la résolution de ℓ* ({suite-bac-evolution}, partie B) :
+  chaque ligne partait du bord, le « = » tombait où la gauche finissait —
+  à l'écran comme sur la photo. Les quatre lignes sont devenues une grille
+  `gauche | = | droite` (`.sbe-res`), la gauche calée à droite.
+*Comparé* : l'énoncé papier des 87 exercices de la Terminale, avant et après,
+sur un tirage figé (`Math.random` semé) — textes identiques ; seuls six
+exercices à grille changent de structure, et leurs PDF gardent la même
+hauteur. Banc navigateur, 6 sexies ter : des écrans FABRIQUÉS (une grille à
+cellules vides et une rangée à vider, une case-menu jugée, un système rendu
+comme pour le PDF) — ce qui vaut pour eux vaut pour tout exercice de la même
+forme, sans rien déclarer — et les quatre « = » de {suite-bac-evolution} au même aplomb.
+**Ce qu'aucun banc ne voit** : un alignement voulu mais jamais écrit (deux
+lignes d'égalités hors de toute grille) ; il se voit en ouvrant le PDF.
