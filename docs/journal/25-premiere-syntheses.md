@@ -101,4 +101,4 @@ ne compare plus rien — rouge les deux fois. Au banc navigateur (essai
 manuel), les douze questions ouvertes dans un vrai Chromium, une copie juste
 et une fausse tapées dans MathLive pour chacune, le coup de pouce répondu
 (Q1, Q5 avec le miroir, Q7, Q12) en entraînement et en soutien.
-`APP_VERSION` 461.
+`APP_VERSION` 462.
