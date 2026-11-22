@@ -1313,7 +1313,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-efb,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -1867,6 +1867,15 @@ section.screen svg{-webkit-user-select:none;user-select:none}
   .ec-graph.eav-graph{max-width:520px;margin:10px auto}
   .eav-note{color:var(--ink-soft);margin:6px 0}
   .eav-e{white-space:nowrap}
+  /* 4.5.1 : les deux parties du sujet, le dessin haut, les tableaux de valeurs en ligne */
+  .efb-partie{margin:22px 0 4px;padding-bottom:3px;font-size:1.08rem;border-bottom:2px solid var(--grid)}
+  .efb-graph{max-width:560px;margin:8px auto}
+  .efb-graph .sv-svg{max-width:560px}
+  .efb-valwrap{overflow-x:auto;margin:6px 0 4px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+  .efb-val{border-collapse:collapse;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .efb-val th{background:#eef2fb;padding:5px 10px;font-family:"Fredoka";font-weight:600;border-right:1.5px solid var(--line)}
+  .efb-val td{padding:5px 9px;text-align:center;border-right:1px solid var(--line)}
+  .efb-val tr:first-child td,.efb-val tr:first-child th{border-bottom:1px solid var(--line)}
   .eav-tabla-wrap{max-height:300px;max-width:340px;margin-left:auto;margin-right:auto}
   .vfcell .cvx-val{position:absolute;transform:translate(-50%,-50%);z-index:3;box-shadow:0 0 0 3px var(--surface)}
   /* ---- {convexite-qcm} : le tableau de variations de f′ de l'exercice 4, DONNÉ
@@ -3597,6 +3606,19 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="ecvActions"></div>
     </div>
   </section>
+  <!-- 4.5.1 ÉTUDE DE FONCTION — un exercice de bac : (ax + b)e^(2x), lecture graphique puis étude analytique -->
+  <section class="screen" id="scr-efb">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="efbModeTag"></span><span class="q-idx" id="efbQIdx">Question 1 / 1</span></span>
+      <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="efbLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="enonce" id="efbPrompt"></p>
+      <div id="efbForm"></div>
+      <div class="mp-feedback" id="efbFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="efbActions"></div>
+    </div>
+  </section>
   <!-- 2.2.4 ÉTUDE, ALGORITHME ET CONVEXITÉ — la fiche « Prépa DS 2 » : la courbe
        et sa tangente lues, f′ démontrée en littéral, le tableau de variations,
        le TVI, l'algorithme de balayage et son tableau de valeurs, f″ et la
@@ -4696,7 +4718,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=515;
+const APP_VERSION=517;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4903,6 +4925,7 @@ const TESTS={
   'signe-derivee-qcm': { name:'Signe de f\u2009\u2032, variations de f et QCM', icon:'\u2705', desc:'La fiche « QCM » : on te donne la courbe de f\u2009\u2032. Complète le tableau de signes de f\u2009\u2032 avec les variations de f sur la ligne suivante, puis choisis la SEULE affirmation vraie parmi quatre — minimum ou maximum de f, sens de variation sur un intervalle. Les pièges de {variations-depuis-derivee} y sont : le sommet de f\u2009\u2032 pris pour un extremum de f, l\u2019intervalle qui enjambe un zéro.', start:()=>startSdq() },
   'convexite-trois-courbes': { name:'Convexit\u00e9 \u2014 lire f, f\u2009\u2032 et f\u2009\u2033 sur trois courbes', icon:'\u222a', desc:'La fiche \u00ab convexit\u00e9 \u00bb : on te donne les courbes de f, de f\u2009\u2032 et de f\u2009\u2033. Compl\u00e8te deux tableaux \u2014 le premier pour f\u2009\u2032 (son z\u00e9ro, son signe, les variations de f), le second pour f\u2009\u2033 (son z\u00e9ro, son signe, les variations de f\u2009\u2032 avec la valeur de son extremum lue sur l\u2019\u00e9cran de la calculatrice, la convexit\u00e9 de f). Tant\u00f4t f\u2009\u2032 s\u2019annule, tant\u00f4t jamais (f est alors monotone).', start:()=>startCvx() },
   'etude-exponentielle': { name:'Étude complète — (ax+b)e\u207b\u02e3', icon:'\ud83d\udccb', desc:'L\u2019étude de la fiche, de bout en bout : les points d\u2019intersection avec les axes, la dérivée rédigée comme dans {derivee-exp-2}, le tableau de variations comme dans {etude-fonction}, l\u2019extremum, puis la tangente en x = 1 comme dans {tangente-exp}.', start:()=>startEC() },
+  'etude-fonction-bac': { name:'Étude de fonction \u2014 un exercice de bac', icon:'\ud83c\udf93', desc:'Le modèle d\u2019un sujet de bac blanc, sur f(x) = (ax + b)e\u00b2\u02e3\u00a0: d\u2019abord la lecture graphique (variations, signe de f\u2009\u2032, limites et asymptote, point d\u2019inflexion conjecturé), puis l\u2019étude\u00a0: f\u2009\u2032 démontrée comme au {derivee-exp}, le tableau de variations, la tangente en 0, f\u2009\u2033 et la convexité comme au {etude-convexite}, f(x) = k par le TVI et l\u2019encadrement de α à 0,01, puis f solution d\u2019une équation différentielle comme au {equadiff-verifier-solution}.', start:()=>startEFB() },
   'etude-convexite': { name:'Étude de fonction et convexité', icon:'\u222a', desc:'La fiche 5, de bout en bout : les axes et les limites comme dans {tvi-alpha-signe}, f\u2009\u2032 démontrée comme dans {derivee-exp}, le tableau de variations comme dans {etude-fonction}, l\u2019unique solution de f(x) = k par le TVI, la tangente en 0 comme dans {equation-tangente}, puis f\u2009\u2033, son signe et la convexité, le point d\u2019inflexion, et la courbe sous sa tangente.', start:()=>startECV() },
   'convexite-qcm': { name:'Convexit\u00e9 \u2014 QCM vari\u00e9s', icon:'\u2611\ufe0f', desc:'La fiche \u00ab QCM convexit\u00e9 \u00bb, six visages par s\u00e9ance : la courbe de f\u2009\u2032, son tableau de variations, ou la courbe de f\u2009\u2033 \u2014 et \u00e0 chaque fois quatre affirmations dont UNE SEULE est vraie : f convexe ou concave sur un intervalle, extremum de f, tangente horizontale, point d\u2019inflexion, signe de f\u2009\u2033, extremum de f\u2009\u2032. Les pi\u00e8ges de la fiche y sont : l\u2019intervalle qui enjambe le point d\u2019inflexion, le z\u00e9ro de f\u2009\u2032 pris pour un point d\u2019inflexion, le sommet de f\u2009\u2032 pris pour un extremum de f \u2014 comme au {signe-derivee-qcm}.', start:()=>startCvq() },
   'associer-derivee-seconde': { name:'Associer f, f\u2009\u2032 et f\u2009\u2033', icon:'\ud83d\udd17', desc:'Le pendant d\u2019{associer-derivee} pour la convexit\u00e9, sans aucune formule : les courbes de trois fonctions f, g et h, et six courbes en d\u00e9sordre \u2014 leurs d\u00e9riv\u00e9es et leurs d\u00e9riv\u00e9es secondes. Reconstitue les trois triplets : la d\u00e9riv\u00e9e se lit sur le sens de variation, la d\u00e9riv\u00e9e seconde sur la convexit\u00e9.', start:()=>startAfd() },
@@ -4953,6 +4976,7 @@ const TESTS={
   'arbre-probabilites-bac': { name:'Probabilités \u2014 arbre : un exercice de bac', icon:'\ud83e\uddea', desc:'Un énoncé en phrases, comme au bac : choisis l\u2019événement des premières branches, complète l\u2019arbre, puis, pour chaque question posée en phrase, choisis la bonne écriture \u2014 P(A), P(A \u2229 B) ou P_A(B)\u2026 \u2014 avant d\u2019écrire le calcul \u2014 jusqu\u2019à poser P(A) = x et résoudre l\u2019équation.', start:()=>startAPC() },
   'arbre-probabilites-bac-types': { name:'Probabilités \u2014 arbre : sept exercices de bac', icon:'\ud83c\udf93', desc:'Choisis d\u2019abord ton exercice de bac, de 1 à 7 : chacun reprend les questions d\u2019un sujet, dans le même ordre, sur un autre thème et avec d\u2019autres nombres \u2014 l\u2019arbre, l\u2019écriture de chaque probabilité avant son calcul, et, pour une branche inconnue, x et 1 \u2212 x jusqu\u2019à l\u2019équation.', start:()=>startAPT(), papierChoix:()=>aptChoixHTML('dmeChoisir'), papierTirer:ty=>aptChoisirType(ty) },
   'suite-bac-evolution': { name:'Suites \u2014 un exercice de bac', icon:'\ud83c\udf93', desc:'Le modèle d\u2019un sujet de bac blanc, sur d\u2019autres situations\u00a0: une quantité perd un pourcentage et en gagne une part fixe à chaque étape. Justifier uₙ₊₁ = q uₙ + r, calculer et interpréter u₁ et u₂, construire les termes en escalier et conjecturer\u00a0; démontrer l\u2019encadrement par récurrence, la convergence et la limite\u00a0; la suite auxiliaire géométrique, la formule explicite, puis le seuil avec un programme Python à compléter. Chaque question reprend l\u2019exercice qui la traite déjà.', start:()=>startSBE() },
+  'probabilites-variable-aleatoire-bac': { name:'Probabilités et variable aléatoire \u2014 un exercice de bac', icon:'\ud83d\udce6', desc:'Un exercice de bac en deux parties. A : l\u2019arbre pondéré, une intersection, une branche x retrouvée par les probabilités totales, la réunion P(A \u222a B), puis une probabilité qui « remonte » l\u2019arbre. B : le bénéfice X, sa loi, son espérance et son interprétation, sa variance, et le bénéfice espéré sur un lot. Plusieurs situations, d\u2019autres nombres à chaque fois.', start:()=>startAPV() },
   'variable-aleatoire': { name:'Variable aléatoire \u2014 loi, espérance, écart type', icon:'\ud83c\udfb2', desc:'Un jeu en deux tirages avec remise, une mise et des gains : complète l\u2019arbre, donne la loi du gain X, calcule l\u2019espérance, la variance et l\u2019écart type, puis choisis la phrase qui les interprète. Plusieurs situations, d\u2019autres nombres à chaque fois ; les fractions sont acceptées.', start:()=>startVAE() },
   'proba-suite': { name:'Probabilités et suites \u2014 un exercice de bac', icon:'\ud83d\udd01', desc:'Un même arbre qui se répète d\u2019un jour à l\u2019autre, comme au bac : l\u2019arbre des deux premiers rangs, une probabilité qui « remonte » l\u2019arbre, puis l\u2019arbre aux rangs n et n + 1 et la relation aₙ₊₁ = q aₙ + r ; la formule explicite par récurrence ou par une suite auxiliaire, la limite et le seuil, chacun interprété. Plusieurs situations, d\u2019autres nombres à chaque fois.', start:()=>startAPS() },
   'espace-coordonnees': { name:'Espace \u2014 coordonn\u00e9es, milieu, vecteur et longueur', icon:'\ud83e\uddca', desc:'Un rep\u00e8re de l\u2019espace dessin\u00e9 en perspective et deux points A et B\u00a0: lis leurs coordonn\u00e9es, puis calcule le milieu de [AB], les coordonn\u00e9es du vecteur AB et la longueur AB, en compl\u00e9tant les formules comme sur la fiche.', start:()=>startEPC() },
@@ -5001,7 +5025,13 @@ const THEMES=[
          point d'inflexion imposé, la convexité sur ℝ par le discriminant de
          f″ — ferme la partie : 4.3.7. */
       { num:3, nom:'Convexité',             ids:['convexite-trois-courbes','etude-convexite','convexite-qcm','etude-algo-convexite','associer-derivee-seconde','convexite-tangente','convexite-parametre'] },
-      { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] }
+      { num:4, nom:'Étude complète de fonction', ids:['etude-fonction','etude-exponentielle'] },
+      /* Cinquième partie (demande de Turquet, novembre 2026 : « pour les
+         fonctions, faire un exercice comme l'exercice 1 » du bac blanc — une
+         fonction (ax + b)e^(2x), la lecture graphique puis l'étude, chaque
+         question prise à l'exercice qui la traite déjà) : {etude-fonction-bac},
+         le pendant du 5.7. */
+      { num:5, nom:'Exercice de bac',        ids:['etude-fonction-bac'] }
     ] },
   /* Le thème des Suites est découpé en PARTIES (demande de Turquet, septembre
      2026) — le motif de la Seconde et de la Première, porté. Le découpage suit
@@ -5054,7 +5084,7 @@ const THEMES=[
       /* Troisième partie (demande de Turquet, novembre 2026 : « créer un
          sous-thème variable aléatoire et faire un exercice comme le pdf » —
          la fiche « espérance ») : {variable-aleatoire}, 6.3.1. */
-      { num:3, nom:'Variable aléatoire', ids:['variable-aleatoire'] }
+      { num:3, nom:'Variable aléatoire', ids:['variable-aleatoire','probabilites-variable-aleatoire-bac'] }
     ] },
   /* Le thème de la Géométrie dans l'espace (demande de Turquet, octobre 2026 :
      « créer un thème espace et un sous-thème vecteurs et droites de
@@ -5322,7 +5352,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv'];
+  const ECRANS_TEST=['scr-test','scr-efb','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5774,7 +5804,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='apb' && test.questions && test.questions[test.idx]){ c=apbConseilCtx(); }
   else if(test && test.kind==='apf' && test.questions && test.questions[test.idx]){ c=apfConseilCtx(); }
   else if(test && test.kind==='apc' && test.questions && test.questions[test.idx]){ c=apcConseilCtx(); }
-  else if(test && test.kind==='apt' && test.questions && test.questions[test.idx] && test.questions[test.idx].ty){ c=aptConseilCtx(); }
+  else if(test && (test.kind==='apt' || test.kind==='apv') && test.questions && test.questions[test.idx] && test.questions[test.idx].ty){ c=aptConseilCtx(); }
   else if(test && test.kind==='aps' && test.questions && test.questions[test.idx]){ c=apsConseilCtx(); }
   else if(test && test.kind==='sbe' && test.questions && test.questions[test.idx]){ c=sbeConseilCtx(); }
   else if(test && test.kind==='vae' && test.questions && test.questions[test.idx]){ c=vaeConseilCtx(); }
@@ -5818,6 +5848,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='rl' && test.questions && test.questions[test.idx]){ c=rlConseilCtx(); }
   else if(test && test.kind==='asg' && test.questions && test.questions[test.idx]){ c=asgConseilCtx(); }
   else if(test && test.kind==='ecv' && test.questions && test.questions[test.idx]){ c=ecvConseilCtx(); }
+  else if(test && test.kind==='efb' && test.questions && test.questions[test.idx]){ c=efbConseilCtx(); }
   else if(test && test.kind==='eav' && test.questions && test.questions[test.idx]){ c=eavConseilCtx(); }
   else if(test && test.kind==='rr' && test.questions && test.questions[test.idx]){ c=rrConseilCtx(); }
   else if(test && test.kind==='sar' && test.questions && test.questions[test.idx]){ c=sarConseilCtx(); }
@@ -7271,7 +7302,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7299,7 +7330,7 @@ async function resumeTest(mode){
   restoreBoxes(draft);   // et on recolore les cases déjà complètes
   if(test.kind==='apc'){ apcPreparer(test.questions[test.idx]);   /* les étapes de la résolution suivent la ligne P(B) remise en place */
     document.querySelectorAll('#scr-apc .apf-in').forEach(sa2Ajuster); }   /* les cases des arbres reprennent la largeur de leur saisie */
-  if(test.kind==='apt'){ aptPreparer(test.questions[test.idx]); document.querySelectorAll('#scr-apt .apf-in').forEach(sa2Ajuster); }   /* le 6.1.5, de même */
+  if(test.kind==='apt' || test.kind==='apv'){ aptPreparer(test.questions[test.idx]); document.querySelectorAll('#scr-apt .apf-in, #scr-apt input.sa2-in').forEach(sa2Ajuster); }   /* le 6.1.5, de même */
   if(test.kind==='aps'){ document.querySelectorAll('#scr-aps .apf-in').forEach(sa2Ajuster); aptTraits('apq'); aptTraits('apr'); }   /* le 6.2.1, de même */
   if(test.kind==='sbe') sbeAjusterTout();   /* le 5.7.1 : les cases reprennent la largeur de leur saisie (l'escalier, lui, est dans la question) */
   if(test.kind==='vae') vaeRestaurer();   /* le 6.3.1 : les phrases choisies, les cases à leur largeur */
@@ -7403,7 +7434,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['efb','cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -12618,7 +12649,7 @@ function dexpNeedParens(s, first){
   const neg=/^[\-\u2212]/.test(t);
   return inner || (neg && !first);
 }
-const DEXP_FIRSTS=['dexp-s2a','dq-s2a','asg-bs2a','ecv-cs2a','ecv-gs2a','eav-abs2a','eav-cas2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
+const DEXP_FIRSTS=['dexp-s2a','efb-cs2a','efb-gs2a','dq-s2a','asg-bs2a','ecv-cs2a','ecv-gs2a','eav-abs2a','eav-cas2a']; window.DEXP_FIRSTS=DEXP_FIRSTS;   /* cases qui ouvrent leur ligne (exposé au module MathLive) */
 function dexpRender(ce){
   const st=dexpState(ce);
   let html=dexpEsc(st.base);
@@ -13119,6 +13150,10 @@ function dexpLiveCheck(id){
   }
   if(test && test.kind==='ecv'){   /* les c) et g) du 2.2.2 : même route, vers checkECV */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkECV(true); },0);
+    return;
+  }
+  if(test && test.kind==='efb'){   /* les chaînes et la grille du 4.5.1 : même route, vers checkEFB */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkEFB(true); },0);
     return;
   }
   if(test && test.kind==='eav'){   /* le A b) et le C a) du 2.2.4 : même route, vers checkEAV */
@@ -20210,7 +20245,7 @@ function asgDerVerdicts(q, D){
   verdicts[I.fac]=checkExprFn(lit(dexpCellValue(I.fac)), x=>DP*x+DQ);
   /* les valeurs que la correction écrit, dans l'ordre u/v RETENU */
   const T=D.T||{};
-  const polyT=T.poly||dexpPoly1(P,Q), dpolyT=T.dpoly||numFmt(P), expT=T.exp||'e^(−x)', dexpT=(K<0?'−':'')+expT;
+  const polyT=T.poly||dexpPoly1(P,Q), dpolyT=T.dpoly||numFmt(P), expT=T.exp||'e^(−x)', dexpT=T.dexp||((K<0?'−':'')+expT);   /* T.dexp : v′ écrit tel quel quand k ≠ ±1 (le 4.5.1 : 2e^(2x)) */
   const sol={};
   if(order===2){ sol[I.u]=expT; sol[I.du]=dexpT; sol[I.v]=polyT; sol[I.dv]=dpolyT;
     sol[I.S2[0]]=dexpT; sol[I.S2[1]]=polyT; sol[I.S2[2]]=expT; sol[I.S2[3]]=dpolyT; }
@@ -20716,6 +20751,460 @@ function ecvConseilCtx(){
    +'la courbe est '+(A.pos==='dessous'?'en dessous':'au-dessus')+' de Δ sur ]−∞ ; '+numFmt(A.xI)+']. '
    +'Méthode à faire appliquer : e^(−x) est toujours strictement positif, donc f′ et f″ ont le signe de leur facteur affine ; f est convexe là où f″ ≥ 0, concave là où f″ ≤ 0 ; le point d’inflexion est là où f″ s’annule en changeant de signe ; une fonction concave a sa courbe SOUS ses tangentes, une fonction convexe AU-DESSUS. '
    +'Saisies de l’élève : limite en +∞ '+lu('ecv-la')+', limite en −∞ '+lu('ecv-lb')+', dérivée '+lu('ecv-cfac')+', racine de f′ '+lu('ecv-d2')+', dérivée seconde '+lu('ecv-gfac')+', abscisse du point d’inflexion '+lu('ecv-i1')+'. '
+   +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
+}
+
+/* ====================== TEST : Étude de fonction — un exercice de bac (kind 'efb') ====================== */
+/* Demande de Turquet (novembre 2026), avec le sujet du bac blanc 1 du
+   2 décembre 2026 (exercice 1 : f(x) = (x − 1)e^(−x) + 2, lecture graphique
+   puis étude analytique) : « en terminale, pour les fonctions, faire un
+   exercice comme l'exercice 1 du pdf ; la fonction sera de la forme
+   (ax + b)e^(2x) avec a positif ; le dessin sera moins écrasé en hauteur que
+   sur le pdf pour bien voir les variations ; pour chaque question on fera
+   comme les exercices du site qui traitent du même type de question, en
+   prenant la méthode avec des cases à remplir plutôt qu'une version rédigée ».
+   Une cinquième partie du thème 4, « Exercice de bac » (le pendant du 5.7).
+   Les questions sont celles du sujet, dans son ordre :
+   A1 — les variations lues et l'abscisse de la tangente horizontale (listes et
+        cases) ; A2 — le signe de f′ en deux points, par le sens de variation ;
+   A3 — les limites et l'asymptote, les lignes du b) du {etude-convexite} ;
+   A4 — l'abscisse du point d'inflexion conjecturée (à un quart près), et la
+        courbure de part et d'autre ;
+   B1 — f′ démontrée par la chaîne du {derivee-exp} (asgDerBlocHTML,
+        asgDerVerdicts avec k = 2 : v = e^(2x), v′ = 2e^(2x)), son signe, et le
+        tableau de variations du {etude-algo-convexite} (lg2Geo : les flèches
+        choisies portent les limites et l'extremum), puis le minimum EXACT
+        comme au d) du {etude-convexite} ;
+   B2 — la tangente en A (abscisse 0), les étapes du f) du {etude-convexite} ;
+   B3 — f″ par la même chaîne, le tableau du h) du {etude-convexite}, le point
+        d'inflexion du i) ;
+   B4 — f(x) = k admet une unique solution α sur [x₀ ; +∞[ (les mots du
+        {tvi}), puis l'encadrement d'amplitude 0,01 par deux tableaux de
+        valeurs de la calculatrice, au pas de 0,1 puis de 0,01 (le tableau du
+        {etude-algo-convexite}) ;
+   B5 — f est solution de y′ = 2y + a e^(2x), la grille du
+        {equadiff-verifier-solution} (famille b : la dérivée est déjà connue).
+   f(x) = (ax + b)e^(2x), a ∈ {2, 4, 6} — pair, pour que le minimum
+   −(a/2)e^(2x₀) ait un coefficient ENTIER. Tout se lit sur la forme :
+   f′(x) = (2ax + a + 2b)e^(2x), racine x₀ = −1/2 − b/a ; f(x₀) = −(a/2)e^(2x₀) ;
+   f″(x) = (4ax + 4a + 4b)e^(2x), racine x₁ = x₀ − 1/2 ; f(x₁) = −a·e^(2x₁).
+   x₀ ∈ {−1/2, 1/2, 1, 3/2} (jamais 0 : A et B seraient le même point, et la
+   tangente en A horizontale), lisibles sur un quadrillage au demi.
+   LE DESSIN n'est PAS orthonormé : l'échelle verticale se cale sur le creux
+   (de 1,35 fois le minimum à 1,5 fois sa valeur absolue), l'horizontale sur
+   quatre unités et demie — le creux et l'inflexion occupent la hauteur.
+   La question ne range que (a, b, k) ; efbAns() recalcule tout. La note compte
+   les CASES, comme au 2.2.2. */
+const EFB_AB=[[2,0],[4,0],[6,0],[2,-2],[4,-4],[6,-6],[2,-3],[4,-6],[2,-4]];
+function efbR2(v){ return Math.round(v*100)/100; }
+function efbAns(q){
+  const a=q.a, b=q.b, k=q.k, A={a:a, b:b, k:k};
+  A.f=x=>(a*x+b)*Math.exp(2*x);
+  A.dp=2*a; A.dq=a+2*b;                        /* f′(x) = (dp·x + dq)·e^(2x) */
+  A.ddp=4*a; A.ddq=4*a+4*b;                    /* f″(x) = (ddp·x + ddq)·e^(2x) */
+  A.x0F=eavFrac(-(a+2*b), 2*a); A.x0=A.x0F.v;  /* le minimum */
+  A.mC=-a/2; A.mE=Math.round(2*A.x0); A.m=A.f(A.x0);
+  A.xIF=eavFrac(-(a+b), a); A.xI=A.xIF.v;      /* l'inflexion */
+  A.cI=-a; A.eI=Math.round(2*A.xI);
+  A.z=-b/a;                                    /* le zéro de f */
+  A.f0=b; A.fp0=a+2*b;                         /* la tangente en A(0 ; b) : y = fp0·x + f0 */
+  A.p1=Math.floor(A.x0)-1; A.p2=Math.floor(A.x0)+1;   /* les deux points du A2 */
+  /* α : f(x) = k sur [x₀ ; +∞[, par dichotomie */
+  let lo=A.x0, hi=A.x0+8;
+  for(let i=0;i<200;i++){ const mi=(lo+hi)/2; if(A.f(mi)<k) lo=mi; else hi=mi; }
+  A.al=(lo+hi)/2;
+  A.b1=Math.floor(A.al*10+1e-9)/10; A.b1=Math.round(A.b1*10)/10;        /* au pas de 0,1 */
+  A.c1=Math.round((A.b1+0.1)*10)/10;
+  A.b2=efbR2(Math.floor(A.al*100+1e-9)/100); A.c2=efbR2(A.b2+0.01);     /* au pas de 0,01 */
+  return A;
+}
+function genEFBCase(){
+  for(let t=0;t<400;t++){
+    const ab=pick(EFB_AB), a=ab[0], b=ab[1];
+    const m=-(a/2)*Math.exp(-(a+2*b)/a);
+    const kmax=Math.max(2, Math.min(9, Math.round(-m*1.5)));
+    const k=rand(1,kmax), q={a:a, b:b, k:k}, A=efbAns(q);
+    /* α loin des pas : les deux tableaux tranchent sans ambiguïté à trois décimales */
+    const d2=Math.abs(A.al*100-Math.round(A.al*100)), d1=Math.abs(A.al*10-Math.round(A.al*10));
+    if(d2<0.15 || d1<0.02) continue;
+    if(Math.abs(A.f(A.b2)-k)<0.002 || Math.abs(A.f(A.c2)-k)<0.002) continue;
+    return q;
+  }
+  return {a:2, b:-2, k:3};
+}
+/* ---- le dessin : non orthonormé, le creux et l'inflexion en grand ---- */
+function efbGraphSVG(q){
+  const A=efbAns(q);
+  const ymin0=A.m*1.35, ymax0=Math.max(-A.m*1.5, A.f0*1.2, 0.5);
+  let st=0.1; for(const s of [0.1,0.2,0.25,0.5,1,2,2.5,5,10]){ st=s; if((ymax0-ymin0)/s<=12) break; }
+  const ymin=Math.floor(ymin0/st)*st, ymax=Math.ceil(ymax0/st)*st;
+  const lo=Math.floor(A.x0)-3;
+  let xr=A.x0; while(A.f(xr)<ymax && xr<A.x0+6) xr+=0.01;
+  const hi=Math.max(Math.ceil(xr*2)/2, 1);
+  const L=40, R=392, T=14, Bm=336;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(Bm-T);
+  /* la courbe longe l'axe des abscisses par en dessous à gauche de son
+     zéro : posées sous l'axe, les graduations « −1,5 », « −1 » étaient
+     barrées par elle (vu sur la première capture) */
+  let grid='', lab='';
+  for(let i=0; lo+i*0.5<=hi+1e-9; i++){ const gx=lo+i*0.5, X=sx(gx).toFixed(1), entier=Math.abs(gx-Math.round(gx))<1e-9;
+    grid+='<line x1="'+X+'" y1="'+T+'" x2="'+X+'" y2="'+Bm+'" stroke="var(--grid)" stroke-width="1" opacity="'+(entier?'.7':'.4')+'"/>'; }
+  const ny=Math.round((ymax-ymin)/st);
+  for(let j=0;j<=ny;j++){ const gy=ymin+j*st, Y=sy(gy).toFixed(1);
+    grid+='<line x1="'+L+'" y1="'+Y+'" x2="'+R+'" y2="'+Y+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>'; }
+  const y0=sy(0), x0=sx(0);
+  const axes='<line x1="'+L+'" y1="'+y0.toFixed(1)+'" x2="'+(R+4)+'" y2="'+y0.toFixed(1)+'" stroke="var(--ink-soft)" stroke-width="1.4"/>'
+    +'<line x1="'+x0.toFixed(1)+'" y1="'+(Bm)+'" x2="'+x0.toFixed(1)+'" y2="'+(T-4)+'" stroke="var(--ink-soft)" stroke-width="1.4"/>'
+    +'<text x="'+(R-4)+'" y="'+(y0-6).toFixed(1)+'" class="sv-ax" text-anchor="end"><tspan font-family="KaTeX_Math" font-style="italic">x</tspan></text>'
+    +'<text x="'+(x0+6).toFixed(1)+'" y="'+(T+6)+'" class="sv-ax"><tspan font-family="KaTeX_Math" font-style="italic">y</tspan></text>';
+  for(let i=1; lo+i*0.5<hi-1e-9; i++){ const gx=lo+i*0.5; if(Math.abs(gx)<1e-9) continue;
+    const dessus=gx<A.z-0.25;   /* à gauche du zéro de f la courbe est SOUS l'axe : la graduation monte au-dessus */
+    const auZero=Math.abs(gx-A.z)<1e-9;   /* la courbe coupe l'axe ici : la graduation s'écarte à gauche */
+    lab+='<text x="'+(sx(gx)-(auZero?5:0)).toFixed(1)+'" y="'+(dessus?y0-5:Math.min(y0+14,Bm-3)).toFixed(1)+'" class="sv-ax" text-anchor="'+(auZero?'end':'middle')+'" font-size="10">'+numFmt(Math.round(gx*10)/10)+'</text>'; }
+  for(let j=1;j<ny;j++){ const gy=Math.round((ymin+j*st)*100)/100; if(Math.abs(gy)<1e-9) continue;
+    /* b = 0 : la courbe descend sous l'axe juste à gauche de l'origine — les
+       graduations négatives passent à droite de l'axe, où la courbe est au-dessus */
+    const adroite=(A.z===0 && gy<0);
+    lab+='<text x="'+(x0+(adroite?5:-5)).toFixed(1)+'" y="'+(sy(gy)+4).toFixed(1)+'" class="sv-ax" text-anchor="'+(adroite?'start':'end')+'" font-size="10">'+numFmt(gy)+'</text>'; }
+  lab+='<text x="'+(x0-5).toFixed(1)+'" y="'+Math.min(y0+14,Bm-3).toFixed(1)+'" class="sv-ax" text-anchor="end" font-size="10">0</text>';
+  const path=svPath({f:A.f, xmin:lo, xmax:hi}, sx, sy, ymin, ymax);
+  const pt=(x,y,nom,dx,dy)=>'<circle class="ef-pt" cx="'+sx(x).toFixed(1)+'" cy="'+sy(y).toFixed(1)+'" r="4"/>'
+    +'<text class="eav-lblA" x="'+(sx(x)+dx).toFixed(1)+'" y="'+(sy(y)+dy).toFixed(1)+'">'+nom+'</text>';
+  /* A en haut à droite quand la courbe y descend (b < 0), en bas à droite
+     quand elle y monte (b = 0, A à l'origine) : jamais sur les graduations
+     de l'axe des ordonnées, à gauche (vu sur la première capture) */
+  const pts=pt(0,A.f0,'A',8,(A.x0<0?18:-8))+pt(A.x0,A.m,'B',-5,20);
+  const cf='<text x="'+(L+14)+'" y="'+(T+22)+'" class="sv-cf">C<tspan dy="3" font-size="11" font-style="normal">f</tspan></text>';
+  return '<svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg" class="sv-svg efb-svg" role="img" aria-label="courbe de la fonction f">'+grid+axes+'<path class="sv-curve" d="'+path+'"/>'+lab+pts+cf+'</svg>';
+}
+const EFB_C=asgDerIds('efb-c'), EFB_G=asgDerIds('efb-g');
+const EFB_DER1=asgDerTous(EFB_C), EFB_DER2=asgDerTous(EFB_G);
+const EFB_EX={tex:'e^{2x}', html:'<span class="eav-e">e<sup>2<i>x</i></sup></span>'};
+function efbDer1(q){ const A=efbAns(q);
+  return {pre:'efb-c', p:q.a, q:q.b, k:2, c:0, T:{exp:'e^(2x)', dexp:'2e^(2x)'}}; }
+function efbDer2(q){ const A=efbAns(q);
+  return {pre:'efb-g', p:A.dp, q:A.dq, k:2, c:0, T:{exp:'e^(2x)', dexp:'2e^(2x)'}}; }
+/* Toutes les cases, et la bonne réponse de chacune — UNE seule liste,
+   parcourue par le rendu (les ids), la vérification, la correction et le
+   barème. Les cases 'der' se jugent en GROUPE par asgDerVerdicts. */
+function efbCases(q){
+  const A=efbAns(q), out=[];
+  const N=(id,good,F)=>out.push({id:id, type:'num', good:good, F:F||null});
+  const S=(id,good)=>out.push({id:id, type:'sel', good:good});
+  const Lm=(id,lim)=>out.push({id:id, type:'lim', lim:lim});
+  /* A1 les variations lues */
+  S('efb-a1','décroissante'); N('efb-a2',A.x0,A.x0F); S('efb-a3','croissante'); N('efb-a4',A.x0,A.x0F); N('efb-a5',A.x0,A.x0F);
+  /* A2 le signe de f′ en deux points */
+  S('efb-a6','décroissante'); S('efb-a7','neg'); S('efb-a8','croissante'); S('efb-a9','pos');
+  /* A3 les limites et l'asymptote (le b) du 2.2.2) */
+  Lm('efb-la',0); S('efb-lat','ah'); N('efb-lae',0);
+  Lm('efb-lb','+∞'); S('efb-lbt','rien');
+  /* A4 le point d'inflexion conjecturé */
+  out.push({id:'efb-a10', type:'approx', good:A.xI, tol:0.25, F:A.xIF}); S('efb-a11','concave'); S('efb-a12','convexe');
+  /* B1 a) f′ — la chaîne du 2.1 */
+  EFB_DER1.forEach(id=>out.push({id:id, type:'der', grp:1}));
+  /* B1 b) le signe */
+  S('efb-s0','pos'); N('efb-s1',-A.dq); N('efb-s2',A.x0,A.x0F);
+  /* B1 c) le tableau (le 2.2.4), puis le minimum exact (le d) du 2.2.2) */
+  N('efb-tx',A.x0,A.x0F);
+  S('efb-te0','+'); S('efb-te1','+'); S('efb-tf0','−'); S('efb-tf1','+');
+  S('efb-ta0','down'); S('efb-ta1','up');
+  Lm('efb-tv0',0); out.push({id:'efb-tv1', type:'tabnum', good:Math.round(A.m*10)/10, vrai:A.m}); Lm('efb-tv2','+∞');
+  N('efb-m1',A.x0,A.x0F); N('efb-m2',A.x0,A.x0F); N('efb-m3',A.x0,A.x0F);
+  out.push({id:'efb-m4', type:'coef', good:A.mC, avec:'efb-m5'}); N('efb-m5',A.mE);
+  /* B2 la tangente en A (le f) du 2.2.2) */
+  N('efb-f1',0); N('efb-f2',0); N('efb-f3',A.f0);
+  N('efb-f4',0); N('efb-f5',0); N('efb-f6',A.fp0);
+  N('efb-f7',0); N('efb-f8',0); N('efb-f9',0);
+  N('efb-f10',A.fp0); N('efb-f11',0); N('efb-f12',A.f0);
+  N('efb-f13',A.fp0); N('efb-f14',A.f0);
+  /* B3 a) f″ — la même chaîne, appliquée à f′ */
+  EFB_DER2.forEach(id=>out.push({id:id, type:'der', grp:2}));
+  /* B3 b) le signe de f″, la convexité (le h) du 2.2.2), le point d'inflexion (le i) */
+  N('efb-h0',A.xI,A.xIF);
+  S('efb-h1','−'); S('efb-h2','+'); S('efb-h3','+'); S('efb-h4','+'); S('efb-h5','−'); S('efb-h6','+');
+  S('efb-h7','concave'); S('efb-h8','convexe');
+  N('efb-i1',A.xI,A.xIF); N('efb-i2',A.xI,A.xIF); N('efb-i3',A.xI,A.xIF); N('efb-i4',A.xI,A.xIF); N('efb-i5',A.cI); N('efb-i6',A.eI);
+  N('efb-i7',A.xI,A.xIF); N('efb-i8',A.cI); N('efb-i9',A.eI);
+  /* B4 le TVI, puis l'encadrement */
+  S('efb-e1','continue'); S('efb-e2','croissante'); Lm('efb-e3','+∞'); S('efb-e4','TVI'); S('efb-e5','unique');
+  N('efb-e6',A.b1); N('efb-e7',A.c1); N('efb-e8',A.b2); N('efb-e9',A.c2);
+  /* B5 l'équation différentielle (la grille du 8.1.1) */
+  out.push({id:'efb-y1', type:'nom'}); out.push({id:'efb-y2', type:'nom'});
+  out.push({id:'efb-y3', type:'fn', f:x=>(A.dp*x+A.dq)*Math.exp(2*x), tex:'\\left('+edvPolyTex([A.dq,A.dp])+'\\right)e^{2x}'});
+  out.push({id:'efb-y4', type:'fn', f:A.f, tex:'\\left('+edvPolyTex([q.b,q.a])+'\\right)e^{2x}'});
+  out.push({id:'efb-y5', type:'fn', f:x=>A.dp*x+A.dq, tex:edvPolyTex([A.dq,A.dp])});
+  out.push({id:'efb-y6', type:'fn', f:x=>A.dp*x+A.dq, tex:edvPolyTex([A.dq,A.dp])});
+  S('efb-y7','vrai');
+  return out;
+}
+function efbMax(q){ return efbCases(q).length; }
+function efbOkCase(q,x,raw){
+  const t=String(raw==null?'':raw).trim();
+  if(t==='') return false;
+  if(x.type==='num'){ const v=efParse(t); return v!=null && Math.abs(v-x.good)<1e-9; }
+  if(x.type==='approx'){ const v=efParse(t); return v!=null && Math.abs(v-x.good)<=x.tol+1e-9; }
+  if(x.type==='tabnum'){ const v=efParse(t); return v!=null && Math.abs(v-x.vrai)<0.1; }   /* au dixième près */
+  if(x.type==='nom') return t.toLowerCase()==='f';
+  if(x.type==='fn') return edvEgal(t, x.f, {kk:false});
+  return asgOkCase(q,x,t);
+}
+function efbVal(q,x){
+  if(x.type==='num'||x.type==='approx') return x.F?eavFracTxt(x.F):numFmt(x.good);
+  if(x.type==='tabnum') return numFmt(x.good);
+  if(x.type==='nom') return 'f';
+  if(x.type==='fn') return x.tex;
+  return asgVal(q,x);
+}
+/* ---- affichage ---- */
+function efbSel(id, opts){ return '<select class="tvi-sel" id="'+id+'" style="width:auto"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>'; }
+function efbSelVar(id){ return efbSel(id,[['croissante','croissante'],['décroissante','décroissante']]); }
+function efbFx(q){ return '('+txAX(q.a)+txB(q.b)+') '+EFB_EX.html; }
+function efbE2(id){ return '<span class="tx-e">e</span><sup>2 × '+txInp(id,'tx-se')+'</sup>'; }
+function efbEsup(id){ return '<span class="tx-e">e</span><sup>'+txInp(id,'tx-se')+'</sup>'; }
+function efbCoefE(c,E){ return ecvCoefE(c,E); }
+/* le tableau de variations : la géométrie du 3.3 (lg2Geo), comme au 2.2.4 */
+function efbTvTab(){ return { xs:[{t:'−∞'},{t:''},{t:'+∞'}], fleches:['',''], vals:[{k:'n',j:0},{k:'n',j:1},{k:'n',j:2}] }; }
+function efbTableVarHTML(){
+  const n=3, innerW=n*LG2WN+(n-1)*LG2WS;
+  const xrow='<td class="vlab" style="width:'+LG2WL+'px"><i>x</i></td><td class="vnx" style="width:'+LG2WN+'px">−∞</td><td class="vax" style="width:'+LG2WS+'px"></td>'
+    +'<td class="vnx" style="width:'+LG2WN+'px">'+s1Box('efb-tx',1)+'</td><td class="vax" style="width:'+LG2WS+'px"></td><td class="vnx" style="width:'+LG2WN+'px">+∞</td>';
+  const ligne=(lab,pre,zero)=>'<tr class="vt-xr"><td class="vlab">'+lab+'</td><td></td><td>'+efSign(pre+'0')+'</td><td class="ef-node">'+(zero?'<b>0</b>':'')+'</td><td>'+efSign(pre+'1')+'</td><td></td></tr>';
+  let inner='<svg class="vt-overlay" id="efb-var-ov" viewBox="0 0 '+innerW+' '+LG2H+'" preserveAspectRatio="none"></svg>';
+  for(let i=0;i<2;i++){ const x=i*(LG2WN+LG2WS)+LG2WN+LG2WS/2;
+    inner+='<select id="efb-ta'+i+'" class="vt-sel2" onchange="efbArrowChange()" style="left:'+x+'px;top:'+(LG2H/2)+'px"><option value="">—</option><option value="up">↗</option><option value="down">↘</option></select>'; }
+  inner+=limHTML('efb-tv0','lg2-vin','left:'+lg2ncx(0)+'px;top:'+(LG2H/2)+'px');
+  inner+='<input type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" class="s1-in sm eav-vin" id="efb-tv1" title="valeur du minimum, au dixième près" style="left:'+lg2ncx(1)+'px;top:'+(LG2H/2)+'px">';
+  inner+=limHTML('efb-tv2','lg2-vin','left:'+lg2ncx(2)+'px;top:'+(LG2H/2)+'px');
+  return '<div class="lv-tblwrap"><table class="lv-vartbl2" style="width:'+(LG2WL+innerW)+'px"><tbody>'
+    +'<tr class="vt-xr">'+xrow+'</tr>'
+    +ligne('Signe de '+EFB_EX.html,'efb-te',false)
+    +ligne('Signe de <i>f</i> ′(<i>x</i>)','efb-tf',true)
+    +'<tr class="vt-fr"><td class="vlab">Variations de <i>f</i></td><td class="vfcell" colspan="5" style="height:'+LG2H+'px">'+inner+'</td></tr>'
+    +'</tbody></table></div>';
+}
+function efbArrowChange(){
+  if(test.kind!=='efb') return;
+  const ov=$('efb-var-ov'); if(!ov) return;
+  const dirs=[0,1].map(i=>String(($('efb-ta'+i)||{}).value||''));
+  const geo=lg2Geo(efbTvTab(),dirs);
+  let g=''; geo.arr.forEach(a2=>{ g+=svArrowSVG(a2.xg,a2.y0,a2.xd,a2.y1); });
+  ov.innerHTML=g;
+  ['efb-tv0','efb-tv1','efb-tv2'].forEach((id,k)=>{ const el=$(id); if(!el) return; el.style.top=geo.ys[k]+'px';
+    const b=el.nextElementSibling; if(b&&b.classList&&b.classList.contains('mf-cor')) b.style.top=el.style.top; });
+}
+/* le tableau de valeurs de la calculatrice, en ligne : départ d, pas p, onze valeurs */
+function efbValeursHTML(q, d, p, dec){
+  const A=efbAns(q);
+  let hx='<th><i>x</i></th>', hf='<th><i>f</i>(<i>x</i>)</th>';
+  for(let i=0;i<=10;i++){
+    const x=Math.round((d+i*p)*1000)/1000;
+    let v=Math.round(A.f(x)*Math.pow(10,dec))/Math.pow(10,dec); if(Object.is(v,-0)) v=0;
+    hx+='<td>'+numFmt(x)+'</td>'; hf+='<td>'+numFmt(v)+'</td>';
+  }
+  return '<div class="efb-valwrap"><table class="efb-val"><tbody><tr>'+hx+'</tr><tr>'+hf+'</tr></tbody></table></div>';
+}
+function efbPromptHTML(q){
+  return 'On considère la fonction <i>f</i> définie sur ℝ par <i>f</i>(<i>x</i>) = '+efbFx(q)+'. On note C<sub><i>f</i></sub> sa courbe représentative. On admet que <i>f</i> est deux fois dérivable sur ℝ.';
+}
+function efbFormHTML(q){
+  const A=efbAns(q), f='<i>f</i>', fp='<i>f</i> ′', fs='<i>f</i> ″', fx=f+'(<i>x</i>)';
+  const aff=s1ExprHTML(A.dp,A.dq), aff2=s1ExprHTML(A.ddp,A.ddq), X0=eavFracHTML(A.x0F), K=numFmt(q.k);
+  const P1=numFmt(A.p1), P2=numFmt(A.p2);
+  let h='';
+  /* ======== Partie A ======== */
+  h+='<h3 class="efb-partie">Partie A — Lecture graphique</h3>'
+    +'<p class="eav-note">La courbe C<sub><i>f</i></sub> est représentée ci-dessous. Les réponses sont données avec la précision permise par le graphique.</p>'
+    +'<div class="efb-graph">'+efbGraphSVG(q)+'</div>';
+  h+='<p class="tx-part">1. Décrire les variations de '+f+' et donner l’abscisse du point où la tangente semble horizontale.</p>'
+    +'<div class="tg-line asg-line"><span>'+f+' semble strictement</span> '+efbSelVar('efb-a1')+' <span>sur ]−∞ ;</span> '+txInp('efb-a2')+'<span>], puis strictement</span> '+efbSelVar('efb-a3')+' <span>sur [</span>'+txInp('efb-a4')+'<span> ; +∞[.</span></div>'
+    +'<div class="tg-line asg-line"><span>La tangente semble horizontale au point B d’abscisse</span> '+tEq('<span class="tg-eq"><i>x</i> =</span> ', txInp('efb-a5'))+'</div>';
+  const sgn=id=>efbSel(id,[['pos','strictement positif'],['neg','strictement négatif'],['nul','nul']]);
+  h+='<p class="tx-part">2. Déterminer les signes de '+fp+'('+P1+') et de '+fp+'('+P2+').</p>'
+    +'<div class="tg-line asg-line"><span>Autour de <i>x</i> = '+P1+', '+f+' est</span> '+efbSelVar('efb-a6')+'<span>, donc '+fp+'('+P1+') est</span> '+sgn('efb-a7')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line"><span>Autour de <i>x</i> = '+P2+', '+f+' est</span> '+efbSelVar('efb-a8')+'<span>, donc '+fp+'('+P2+') est</span> '+sgn('efb-a9')+'<span>.</span></div>';
+  h+='<p class="tx-part">3. Conjecturer la limite de '+fx+' en −∞ et en +∞ ; interpréter géométriquement ces deux limites.</p>'
+    +'<div class="tg-line asg-line">Quand <i>x</i> → −∞ : '+fx+' → '+asgLim('efb-la')
+    +' <span>— il y a donc</span> '+asgSelTyp('efb-lat')+'<span>, d’équation <i>y</i> =</span> '+txInp('efb-lae')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line">Quand <i>x</i> → +∞ : '+fx+' → '+asgLim('efb-lb')
+    +' <span>— il y a donc</span> '+asgSelTyp('efb-lbt')+'<span>.</span></div>';
+  h+='<p class="tx-part">4. Conjecturer l’abscisse d’un éventuel point d’inflexion de C<sub><i>f</i></sub>.</p>'
+    +'<div class="tg-line asg-line"><span>La courbe semble</span> '+ecvSelCv('efb-a11')+' <span>à gauche de ce point et</span> '+ecvSelCv('efb-a12')+' <span>à droite ; son abscisse vaut environ</span> '+tEq('<span class="tg-eq"><i>x</i> ≈</span> ', txInp('efb-a10'))+'</div>';
+  /* ======== Partie B ======== */
+  h+='<h3 class="efb-partie">Partie B — Étude analytique</h3>';
+  h+='<p class="tx-part">1. a) Montrer que, pour tout <i>x</i> réel, '+fp+'(<i>x</i>) = ('+aff+') '+EFB_EX.html+'.</p>'
+    +'<p class="eav-note">Rappel : (e<sup><i>kx</i></sup>)′ = <i>k</i> e<sup><i>kx</i></sup>.</p>'
+    +asgDerBlocHTML('efb-c', {tex:"f\\;{}'(x)", html:fp+'(x)'}, EFB_EX);
+  h+='<p class="tx-part">b) Étudier son signe.</p>'
+    +'<div class="tg-line asg-line"><span>Pour tout <i>x</i> réel, '+EFB_EX.html+' est</span> '+efbSel('efb-s0',[['pos','strictement positif'],['zero','nul en 0'],['neg','strictement négatif']])+'<span> : '+fp+'(<i>x</i>) a donc le signe de '+aff+'.</span></div>'
+    +'<div class="tg-line asg-line">'+aff+' = 0 <span class="tg-eq">⟺</span> '+s1ExprHTML(A.dp,0)+' = '+txInp('efb-s1')+' <span class="tg-eq">⟺</span> '+tEq('<i>x</i> = ', txInp('efb-s2'))+' <span class="dexp-hint">(une fraction s’écrit 1/2)</span></div>';
+  h+='<p class="tx-part">c) En déduire le tableau complet de variations de '+f+'.</p>'
+    +efbTableVarHTML()
+    +'<p class="dexp-hint">Dans le tableau, la valeur du minimum s’écrit au dixième ; sa valeur exacte se calcule ci-dessous.</p>'
+    +'<div class="tg-line"><span>Ce minimum vaut</span> <span class="tg-eq">'+f+'(</span> '+txInp('efb-m1')+' <span class="tg-eq">) =</span> '
+    +txSubst(q.a,q.b,txInp('efb-m2'))+' '+efbE2('efb-m3')
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-m4'))+' '+efbEsup('efb-m5')+'</div>';
+  h+='<p class="tx-part">2. Déterminer l’équation de la tangente à C<sub><i>f</i></sub> au point A d’abscisse 0.</p>'
+    +'<div class="tg-line tx-avec">y = '+fp+'(a)(<i>x</i> − a) + '+f+'(a), avec a = 0. On calcule d’abord '+f+'(0) et '+fp+'(0) :</div>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'(0) =</span> '+txSubst(q.a,q.b,txInp('efb-f1'))+' '+efbE2('efb-f2')+' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-f3'))+'</div>'
+    +'<div class="tg-line"><span class="tg-eq">'+fp+'(0) =</span> '+txSubst(A.dp,A.dq,txInp('efb-f4'))+' '+efbE2('efb-f5')+' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-f6'))+'</div>'
+    +'<div class="tg-line"><span class="tg-eq">y =</span> '+fp+'( '+txInp('efb-f7')+' )( <i>x</i> − '+txInp('efb-f8')+' ) + '+f+'( '+txInp('efb-f9')+' )</div>'
+    +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('efb-f10')+' ( <i>x</i> − '+txInp('efb-f11')+' ) + '+txInp('efb-f12')+'</div>'
+    +'<div class="tg-line"><span class="tg-imp">⟺</span> <span class="tg-eq">y =</span> '+txInp('efb-f13')+' <i>x</i> '+txInp('efb-f14')+' <span class="dexp-hint">(la constante s’écrit avec son signe'+(A.f0===0?' ; ici elle vaut 0':'')+')</span></div>';
+  h+='<p class="tx-part">3. a) Montrer que, pour tout <i>x</i> réel, '+fs+'(<i>x</i>) = ('+aff2+') '+EFB_EX.html+'.</p>'
+    +'<div class="tg-line tx-avec">On dérive '+fp+'(<i>x</i>) = ('+aff+') '+EFB_EX.html+' : c’est encore un produit.</div>'
+    +asgDerBlocHTML('efb-g', {tex:"f\\;{}''(x)", html:fs+'(x)'}, EFB_EX);
+  h+='<p class="tx-part">b) Étudier la convexité de '+f+' et déterminer les coordonnées exactes du point d’inflexion.</p>'
+    +'<table class="sv-tbl s1-tbl ecv-tbl"><tbody>'
+    +'<tr><td class="lab"><i>x</i></td><td class="bnd s1-bl">−∞</td><td>'+s1Box('efb-h0')+'</td><td class="bnd s1-br">+∞</td></tr>'
+    +'<tr><td class="lab">Signe de '+aff2+'</td><td>'+asgSelPM('efb-h1')+'</td><td class="sv-zero s-rootcol"><span>0</span></td><td>'+asgSelPM('efb-h2')+'</td></tr>'
+    +'<tr><td class="lab">Signe de '+EFB_EX.html+'</td><td>'+asgSelPM('efb-h3')+'</td><td class="sv-zero s-rootcol"></td><td>'+asgSelPM('efb-h4')+'</td></tr>'
+    +'<tr><td class="lab">Signe de '+fs+'(<i>x</i>)</td><td>'+asgSelPM('efb-h5')+'</td><td class="sv-zero s-rootcol"><span>0</span></td><td>'+asgSelPM('efb-h6')+'</td></tr>'
+    +'<tr><td class="lab">Convexité de '+f+'</td><td>'+ecvSelCv('efb-h7')+'</td><td class="sv-zero s-rootcol"></td><td>'+ecvSelCv('efb-h8')+'</td></tr>'
+    +'</tbody></table>'
+    +'<div class="tg-line asg-line"><span>Le point d’inflexion se situe en <i>x</i> =</span> '+txInp('efb-i1')+' <span>(là où '+fs+' s’annule en changeant de signe), et</span></div>'
+    +'<div class="tg-line"><span class="tg-eq">'+f+'(</span> '+txInp('efb-i2')+' <span class="tg-eq">) =</span> '+txSubst(q.a,q.b,txInp('efb-i3'))+' '+efbE2('efb-i4')
+    +' '+tEq('<span class="tg-eq">=</span> ', txInp('efb-i5'))+' '+efbEsup('efb-i6')+'</div>'
+    +'<div class="tg-line"><span>Donc le point d’inflexion a pour coordonnées</span> <span class="tg-eq">(</span> '+txInp('efb-i7')+' <span class="tg-eq">;</span> '+txInp('efb-i8')+' '+efbEsup('efb-i9')+' <span class="tg-eq">)</span></div>';
+  h+='<p class="tx-part">4. Montrer que l’équation '+fx+' = '+K+' admet une unique solution α sur ['+X0+' ; +∞[. En donner un encadrement d’amplitude 0,01.</p>'
+    +'<div class="tg-line asg-line"><span>Sur ['+X0+' ; +∞[, '+f+' est</span> '+asgSelMot('efb-e1')+' <span>et strictement</span> '+asgSelMot('efb-e2')
+    +'<span>, elle varie de '+efbCoefE(A.mC,A.mE)+' à</span> '+asgLim('efb-e3')+'<span>.</span></div>'
+    +'<div class="tg-line asg-line"><span>'+K+' est compris entre ces deux valeurs : d’après le</span> '+asgSelMot('efb-e4')
+    +'<span>, l’équation '+fx+' = '+K+' admet une</span> '+asgSelMot('efb-e5')+' <span>solution α sur cet intervalle.</span></div>'
+    +'<p class="apf-astuce aide-ecran">Le tableau de valeurs de la calculatrice, d’abord au pas de 0,1 :</p>'
+    +efbValeursHTML(q, Math.floor(A.al), 0.1, 3)
+    +'<div class="tg-line asg-line"><span>Au pas de 0,1 :</span> '+txInp('efb-e6')+' <span>&lt; α &lt;</span> '+txInp('efb-e7')+'</div>'
+    +'<p class="apf-astuce aide-ecran">Puis au pas de 0,01, en partant de la borne de gauche :</p>'
+    +efbValeursHTML(q, A.b1, 0.01, 3)
+    +'<div class="tg-line asg-line"><span>Au pas de 0,01 :</span> '+txInp('efb-e8')+' <span>&lt; α &lt;</span> '+txInp('efb-e9')+'</div>';
+  /* 5. l'équation différentielle — la grille du 8.1.1, la dérivée déjà connue */
+  const C=(id,cls,nom)=>'<math-field class="dexp-mf edv-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>';
+  const Lt=(id,nom)=>C(id,'edv-let',nom);
+  const Pa=x=>'<span class="edv-p">(</span>'+x+'<span class="edv-p">)</span>';
+  const ae=(q.a===1?'':String(q.a))+'e^{2x}';
+  const row=(lead,g,d,apres)=>'<div class="edv-lead">'+lead+'</div><div class="edv-g">'+g+'</div><div class="edv-eq">=</div><div class="edv-d">'+d+'</div><div class="edv-apres">'+(apres||'')+'</div>';
+  const eqv='<span class="edv-iff">⟺</span>';
+  h+='<p class="tx-part">5. Vérifier que '+f+' est solution de l’équation différentielle (<i>E</i>) : '+edvT("y'=2y+"+ae)+'.</p>'
+    +'<div class="edv-verif"><div class="edv-grille">'
+    +row('<span>Vérification : </span>'+edvT("y'(x)=2y(x)+"+ae)+eqv, Lt('efb-y1','nom de la fonction dérivée')+edvT("'(x)"), edvT('2')+Lt('efb-y2','nom de la fonction')+edvT('(x)+'+ae))
+    +row(eqv, C('efb-y3','dexp-mf-wide','la dérivée, déjà calculée'), edvT('2')+Pa(C('efb-y4','dexp-mf-wide','expression de la fonction'))+edvT('+'+ae))
+    +row(eqv, edvT('e^{2x}')+Pa(C('efb-y5','dexp-mf-wide','facteur de e^{2x} à gauche')), edvT('e^{2x}')+Pa(C('efb-y6','dexp-mf-wide','facteur de e^{2x} à droite, réduit')),
+         '<span>ce qui est</span><select class="tvi-sel edv-sel" id="efb-y7" aria-label="la dernière égalité est-elle vraie ?"><option value="">…</option><option value="vrai">vrai</option><option value="faux">faux</option></select>')
+    +'</div></div>'
+    +'<p class="dexp-hint">Toute écriture égale est acceptée. Au clavier : <b>^</b> pour un exposant, <b>*</b> pour une multiplication.</p>';
+  return h;
+}
+async function startEFB(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='etude-fonction-bac'; test.kind='efb';
+  test.questions=[genEFBCase()];   /* un exercice de bac : forme fixe, la coupe seule agit */
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=efbMax(test.questions[0]);   /* la note compte les cases, comme au 2.2.2 */
+  show('efb'); renderEFB();
+}
+function renderEFB(){
+  const q=test.questions[test.idx]; test.locked=false;
+  $('efbQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('efbModeTag').innerHTML=modeTagHTML();
+  $('efbLiveScore').textContent=test.score;
+  $('efbFeedback').textContent=''; $('efbFeedback').className='mp-feedback';
+  $('efbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEFB()">Vérifier</button>';
+  $('efbPrompt').innerHTML=efbPromptHTML(q);
+  $('efbForm').innerHTML=efbFormHTML(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('efbForm'));   /* les chaînes de f′ et f″ et la grille du 5. sont des math-field */
+  setTimeout(efbArrowChange,0);
+  if(isSoutien()){
+    $('efbForm').querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkEFB(true)); });
+    /* les math-field ne se colorent qu'à la SORTIE de la case : la greffe
+       appelle dexpLiveCheck sur focusout, qui route vers checkEFB(true) */
+  }
+}
+function checkEFB(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=efbCases(q), A=efbAns(q);
+  const D1=asgDerVerdicts(q, efbDer1(q));
+  const D2=asgDerVerdicts(q, efbDer2(q));   /* f″ : on dérive f′ */
+  const dis=(el,on)=>{ if(el.tagName==='MATH-FIELD') el.readOnly=on; else el.disabled=on; };
+  let nOk=0, vides=0, anyFilled=false;
+  const etats={};
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=(el.tagName==='MATH-FIELD')?dexpCellValue(x.id):String(el.value==null?'':el.value);
+    let vide=raw.trim()==='', ok;
+    if(x.type==='der'){
+      const D=(x.grp===2)?D2:D1, I=(x.grp===2)?EFB_G:EFB_C;
+      ok=!vide && !!D.verdicts[x.id];
+      /* la convention du 2.1 : une case vide dans une LIGNE juste est le facteur 1 omis */
+      if(vide && ((I.S2.indexOf(x.id)>=0 && D.groups.s2) || (I.S3.indexOf(x.id)>=0 && D.groups.s3))){ vide=false; ok=true; }
+    } else {
+      ok=!vide && efbOkCase(q,x,raw);
+      if(vide && coefUnOmis(x, cases)){ vide=false; ok=true; }
+    }
+    etats[x.id]={ok:ok,vide:vide};
+    if(!vide) anyFilled=true;
+    if(vide) vides++; else if(ok) nOk++;
+    el.classList.remove('ok','bad');
+    if(!vide) el.classList.add(ok?'ok':'bad');   /* une case VIDE ne reçoit jamais de couleur */
+  });
+  const nTot=cases.length, allOk=(nOk===nTot);
+  if(live) return;
+  const fb=$('efbFeedback');
+  const avertTerme=(D1.groups.s3TermeEntier||D2.groups.s3TermeEntier)
+    ? '<br>⚠ Dans les lignes développées (B 1. a) et 3. a)), e<sup>2<i>x</i></sup> est déjà écrit APRÈS chaque case : écris seulement le COEFFICIENT dans la case.'
+    : '';
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback';
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.')+avertTerme;
+    fb.className='mp-feedback bad';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return; dis(el, !!(etats[x.id] && etats[x.id].ok)); });
+    $('efbActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEFB()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  test.score=nOk; $('efbLiveScore').textContent=test.score;
+  if(allOk){
+    fb.textContent=pick(['Parfait, exercice complet !','Excellent !','Bravo, tout y est !']);
+    fb.className='mp-feedback good';
+    cases.forEach(x=>{ const el=$(x.id); if(el) dis(el,true); });
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+nOk+' cases justes sur '+nTot+'.'+avertTerme;
+    fb.className='mp-feedback bad';
+    cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
+      const el=$(x.id); if(!el) return;
+      if(x.type==='fn'||x.type==='nom'){ edvCorr(x.id, x.type==='nom'?'f':x.tex, e.ok); return; }   /* la correction de la grille du 8.1.1 */
+      const val=(x.type==='der')?((x.grp===2)?D2:D1).sol[x.id]:efbVal(q,x);
+      if(el.tagName==='MATH-FIELD') rfReveal(x.id, asgML(val), val, e.ok, e.vide);
+      else corrCase(x.id, val, e.ok);
+    });
+    EFB_C.S2.concat(EFB_G.S2).forEach(id=>{ const el=$(id), w=el&&el.closest&&el.closest('.dexp-pwrap');
+      if(w) w.classList.toggle('show-paren', dexpNeedParens(dexpCellValue(id), DEXP_FIRSTS.indexOf(id)>=0)); });
+    efbArrowChange();   /* les flèches complétées en vert se redessinent */
+  }
+  test.answers.push({...(ptsExo()||{}),q:'Exercice de bac : f(x) = ('+s1ExprText(q.a,q.b)+')e^(2x) — lecture graphique, f′, tableau, tangente en 0, f″, convexité, point d’inflexion, f(x) = '+q.k+' (α entre '+numFmt(A.b2)+' et '+numFmt(A.c2)+'), équation différentielle',
+    answer:'exercice complet', given:nOk+'/'+nTot, correct:allOk, pts:nOk/nTot, cases:nTot, justes:nOk, type:'tvi'});
+  $('efbActions').innerHTML='<button class="btn btn-primary" onclick="finishTest()">Voir mes résultats</button>';
+}
+function efbConseilCtx(){
+  const q=test.questions[test.idx], A=efbAns(q);
+  const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice : ÉTUDE DE FONCTION — UN EXERCICE DE BAC. f(x) = ('+s1ExprText(q.a,q.b)+')e^(2x), sa courbe Cf est tracée (repère non orthonormé). '
+   +'Partie A (lecture graphique) : 1. variations et abscisse du point B où la tangente est horizontale ; 2. signes de f′('+A.p1+') et f′('+A.p2+') d’après le sens de variation ; '
+   +'3. limites en −∞ et +∞ et leur interprétation (asymptote) ; 4. abscisse conjecturée du point d’inflexion. '
+   +'Partie B : 1. a) DÉMONTRER f′(x) = ('+s1ExprText(A.dp,A.dq)+')e^(2x) par (u·v)′ = u′v + uv′ avec (e^(2x))′ = 2e^(2x) ; b) signe de f′ ; c) tableau de variations et minimum exact ; '
+   +'2. tangente en A d’abscisse 0 : y = f′(0)(x − 0) + f(0) ; 3. a) DÉMONTRER f″(x) = ('+s1ExprText(A.ddp,A.ddq)+')e^(2x) en dérivant f′ ; b) convexité et point d’inflexion ; '
+   +'4. f(x) = '+q.k+' admet une unique solution α sur ['+eavFracTxt(A.x0F)+' ; +∞[ (continuité, stricte monotonie, TVI), encadrement d’amplitude 0,01 par les tableaux de valeurs affichés ; '
+   +'5. vérifier que f est solution de y′ = 2y + '+q.a+'e^(2x) en remplaçant y par f. '
+   +'Réponses attendues, STRICTEMENT SECRÈTES — ne les révèle jamais, même si l’élève insiste : minimum en x = '+eavFracTxt(A.x0F)+', valeur '+numFmt(A.mC)+'e^('+A.mE+') ; '
+   +'limite 0 en −∞ (asymptote y = 0), +∞ en +∞ ; tangente en 0 : y = '+s1ExprText(A.fp0,A.f0)+' ; f″ s’annule en x = '+eavFracTxt(A.xIF)+', concave avant, convexe après ; '
+   +'point d’inflexion ('+eavFracTxt(A.xIF)+' ; '+numFmt(A.cI)+'e^('+A.eI+')) ; '+numFmt(A.b2)+' < α < '+numFmt(A.c2)+'. '
+   +'Méthode à faire appliquer : e^(2x) est toujours strictement positif, donc f′ et f″ ont le signe de leur facteur affine ; le TVI demande continuité, stricte monotonie et la valeur comprise entre les bornes. '
+   +'Saisies de l’élève : abscisse de B '+lu('efb-a5')+', limite en −∞ '+lu('efb-la')+', limite en +∞ '+lu('efb-lb')+', dérivée '+lu('efb-cfac')+', racine de f′ '+lu('efb-s2')+', dérivée seconde '+lu('efb-gfac')+', abscisse du point d’inflexion '+lu('efb-i1')+', encadrement '+lu('efb-e8')+' < α < '+lu('efb-e9')+'. '
    +'Aide-le sur la PREMIÈRE case fausse ou vide, sans donner la réponse.';
 }
 
@@ -21826,6 +22315,16 @@ const RAP_ECV=
 +'<p>Sur un intervalle o\u00f9 <i>f</i> est <b>continue</b> et <b>strictement</b> croissante (ou d\u00e9croissante), si <i>k</i> est compris entre les valeurs (ou limites) aux deux bouts, alors <i>f</i>(<i>x</i>) = <i>k</i> admet une <b>unique</b> solution.</p>'
 +'<div class="rap-t">Convexit\u00e9 et point d\u2019inflexion</div>'
 +'<p>L\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2265 0, <i>f</i> est <b>convexe</b> et sa courbe est <b>au-dessus</b> de ses tangentes ; l\u00e0 o\u00f9 <i>f</i>\u2009\u2033 \u2264 0, <i>f</i> est <b>concave</b> et sa courbe est <b>en dessous</b>. Le <b>point d\u2019inflexion</b> est le point o\u00f9 <i>f</i>\u2009\u2033 s\u2019annule EN CHANGEANT DE SIGNE : la courbe y traverse sa tangente. Pour comparer <i>f</i>(<i>x</i>) \u00e0 une tangente sur un intervalle, on regarde la convexit\u00e9 sur cet intervalle.</p></div>';
+const RAP_EFB=
+ '<div class="rap"><h4>🎓 Rappel — un exercice de bac sur l’étude d’une fonction</h4>'
++'<div class="rap-t">Lire sur la courbe</div>'
++'<p>Quand la courbe <b>monte</b>, <i>f</i> est croissante et <i>f</i> ′ ≥ 0 ; quand elle <b>descend</b>, <i>f</i> est décroissante et <i>f</i> ′ ≤ 0. Au creux (ou au sommet), la tangente est <b>horizontale</b> : <i>f</i> ′ s’y annule. Quand la courbe se rapproche de l’axe des abscisses, <i>f</i>(<i>x</i>) → 0 : la droite <i>y</i> = 0 est une <b>asymptote horizontale</b>. Au point d’inflexion, la courbe passe de « tournée vers le bas » (concave) à « tournée vers le haut » (convexe).</p>'
++'<div class="rap-t">Dériver (<i>ax</i> + <i>b</i>)e<sup>2<i>x</i></sup></div>'
++'<p>(<i>u</i>·<i>v</i>)′ = <i>u</i>′<i>v</i> + <i>u</i><i>v</i>′ avec (e<sup><i>kx</i></sup>)′ = <i>k</i>e<sup><i>kx</i></sup> : (e<sup>2<i>x</i></sup>)′ = 2e<sup>2<i>x</i></sup>. On factorise par e<sup>2<i>x</i></sup>, TOUJOURS strictement positif : <i>f</i> ′ et <i>f</i> ″ ont le signe de leur facteur affine.</p>'
++'<div class="rap-t">Tangente, convexité, TVI</div>'
++'<p>Tangente en <i>a</i> : <i>y</i> = <i>f</i> ′(<i>a</i>)(<i>x</i> − <i>a</i>) + <i>f</i>(<i>a</i>), et e<sup>0</sup> = 1. Là où <i>f</i> ″ ≥ 0, <i>f</i> est <b>convexe</b> ; où <i>f</i> ″ ≤ 0, <b>concave</b> ; le point d’inflexion est là où <i>f</i> ″ s’annule en changeant de signe. Si <i>f</i> est <b>continue</b> et <b>strictement</b> monotone sur un intervalle, et <i>k</i> compris entre les valeurs aux bornes, <i>f</i>(<i>x</i>) = <i>k</i> y a une <b>unique</b> solution α ; on l’encadre dans un tableau de valeurs, là où <i>f</i>(<i>x</i>) passe au-dessus de <i>k</i>.</p>'
++'<div class="rap-t">Solution d’une équation différentielle</div>'
++'<p>On remplace <i>y</i> par <i>f</i> et <i>y</i>′ par <i>f</i> ′ dans les deux membres, on factorise par e<sup>2<i>x</i></sup> et on vérifie que les deux membres sont égaux pour tout réel <i>x</i>.</p></div>';
 const RAP_EAV=
  '<div class="rap"><h4>\ud83d\udcbb Rappel \u2014 \u00e9tude, algorithme et convexit\u00e9</h4>'
 +'<p><b>1. Lire sur la courbe</b> : <i>f</i>(<i>a</i>) est l\u2019ordonn\u00e9e du point d\u2019abscisse <i>a</i> ; <i>f</i>\u2009\u2032(<i>a</i>) est le <b>coefficient directeur de la tangente</b> en ce point \u2014 on compte les carreaux : mont\u00e9e \u00f7 avanc\u00e9e.</p>'
@@ -22228,6 +22727,15 @@ const RAP_SAP=`<b>Approcher une limite avec un algorithme</b><br>
 • <b>La boucle <code>while</code></b> tourne TANT QUE sa condition est vraie : ici, tant qu’on est encore trop loin, <code>while abs(u - l) &gt;= 0.001:</code>. Elle s’arrête au premier rang où l’écart passe sous 10<sup>−3</sup>.<br>
 • <b>10<sup>−3</sup> en Python</b> : <code>0.001</code>, ou <code>10**-3</code>, ou <code>1e-3</code> — un point, jamais une virgule.<br>
 • <b>Pourquoi la boucle s’arrête</b> : la suite CONVERGE vers ℓ, donc l’écart |U<sub><i>n</i></sub> − ℓ| finit par devenir aussi petit qu’on veut. Pour une suite qui ne convergerait pas, le programme pourrait tourner sans fin.`;
+/* 6.3.2 : l'arbre et ses calculs (le 6.1.5), la réunion, puis la variable aléatoire à deux valeurs */
+const RAP_APV=`<b>Arbre pondéré, réunion, variable aléatoire</b><br>
+• <b>L’arbre</b> : les branches qui partent d’un même nœud ont pour somme 1 ; on <b>multiplie</b> le long d’un chemin : \\( P(A\\cap R)=P(A)\\times P_A(R) \\).<br>
+• <b>Probabilités totales</b> : \\( P(R)=P(A\\cap R)+P(\\overline{A}\\cap R) \\). Si une branche est inconnue (<i>x</i>), cette égalité donne une équation en <i>x</i>.<br>
+• <b>Réunion</b> (« ou ») : \\( P(A\\cup R)=P(A)+P(R)-P(A\\cap R) \\) — on retire l’intersection, comptée deux fois.<br>
+• <b>Remonter l’arbre</b> : \\( P_R(\\overline{A})=\\frac{P(\\overline{A}\\cap R)}{P(R)} \\).<br>
+• <b>Variable aléatoire</b> : on écrit ses valeurs dans l’ordre croissant, et la probabilité de chacune (total 1).<br>
+• <b>Espérance</b> : \\( E(X)=p_1x_1+p_2x_2 \\), la valeur MOYENNE de <i>X</i> sur un grand nombre d’épreuves ; sur un lot de <i>N</i>, on peut espérer environ \\( N\\times E(X) \\).<br>
+• <b>Variance</b> : \\( V(X)=p_1\\left(x_1-E(X)\\right)^2+p_2\\left(x_2-E(X)\\right)^2 \\).`;
 const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Arbre avec remise</b> : on remet l’objet tiré, donc la probabilité de chaque couleur est la MÊME au second tirage. La probabilité d’une issue est le PRODUIT des probabilités le long de son chemin : \\( P(JJ)=\\frac{3}{5}\\times\\frac{3}{5}=\\frac{9}{25} \\).<br>
 • <b>Le gain d’une issue</b> : on ajoute les gains des deux tirages et l’on retire la mise. Plusieurs issues peuvent donner le même gain : on les <b>regroupe</b> et on ADDITIONNE leurs probabilités.<br>
@@ -22235,8 +22743,8 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
-  tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+  tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, efb:RAP_EFB, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
@@ -28500,6 +29008,45 @@ const APT_TYPES=[null,
         sp:{A:'loue un audioguide',B:'ne loue pas d’audioguide',E:'suive la visite guidée',F:'ne suive pas la visite guidée'},
         i:{A:'le visiteur loue un audioguide',B:'le visiteur ne loue pas d’audioguide',E:'le visiteur suit la visite guidée',F:'le visiteur ne suit pas la visite guidée'},
         pop:'des visiteurs', rel:{B:'ne louent pas d’audioguide',E:'suivent la visite guidée'}, adj:{B:'qui ne louent pas d’audioguide',E:'qui suivent la visite guidée'} }
+    ] },
+  /* 8 — {probabilites-variable-aleatoire-bac} (6.3.2) : PAS un type du 6.1.5 (horsChoix), mais son
+     exercice à lui (demande de Turquet, novembre 2026, avec l'exercice 4 d'un bac blanc : deux usines,
+     P_B(D) = p à retrouver, P(A ∩ D), P(A ∪ D), P_D(B), puis le bénéfice X sur un composant). Le
+     second événement du premier niveau est le contraire du premier (Ā), comme Turquet le propose.
+     va : les prix (vente, coût, pénalité), tirés avec la question ; p, x : les pourcentages
+     P_A(E) et P_Ā(E) permis par la scène. */
+  { nom:'Probabilités et variable aléatoire', horsChoix:true,
+    th:[
+      { L:{A:'A',B:'-A',E:'R',F:'-R'}, qui:'il',
+        intro:d=>'Une plateforme de vente en ligne confie ses colis à deux transporteurs : le transporteur Alizé achemine '+aptPct(d.a)+' des colis, le transporteur Boréal achemine les autres. Parmi les colis acheminés par Alizé, '+aptPct(d.p)+' arrivent en retard. Au total, '+aptPct(d.c)+' des colis arrivent en retard.<br>On choisit au hasard un colis expédié par la plateforme. On note :',
+        def:{A:'le colis est acheminé par le transporteur Alizé',E:'le colis arrive en retard'},
+        fam:['le transporteur qui achemine le colis','le colis arrive en retard, ou à l’heure'],
+        s:{A:'le colis soit acheminé par Alizé',B:'le colis soit acheminé par Boréal',E:'le colis arrive en retard',F:'le colis arrive à l’heure'},
+        sp:{A:'soit acheminé par Alizé',B:'soit acheminé par Boréal',E:'arrive en retard',F:'arrive à l’heure'},
+        i:{A:'le colis est acheminé par Alizé',B:'le colis est acheminé par Boréal',E:'le colis arrive en retard',F:'le colis arrive à l’heure'},
+        p:[3,8], x:[9,15],
+        va:{s:[7,8,9], co:[3,4], re:[5,6,8], qui:'la plateforme', un:'colis', uns:'colis', chaque:'chaque colis', lot:20000,
+          txt:d=>'La plateforme facture '+d.s+' € la livraison de chaque colis ; cette livraison lui coûte '+d.co+' €. Lorsqu’un colis arrive en retard, elle rembourse '+d.re+' € au client.' } },
+      { L:{A:'L',B:'-L',E:'G',F:'-G'}, qui:'il',
+        intro:d=>'Une boutique vend des smartphones reconditionnés par deux ateliers : '+aptPct(d.a)+' des smartphones viennent de l’atelier de Lyon, les autres de l’atelier de Nantes. Parmi les smartphones de l’atelier de Lyon, '+aptPct(d.p)+' tombent en panne pendant la garantie. Au total, '+aptPct(d.c)+' des smartphones vendus tombent en panne pendant la garantie.<br>On choisit au hasard un smartphone vendu par la boutique. On note :',
+        def:{A:'le smartphone vient de l’atelier de Lyon',E:'le smartphone tombe en panne pendant la garantie'},
+        fam:['l’atelier qui a reconditionné le smartphone','le smartphone tombe en panne pendant la garantie, ou non'],
+        s:{A:'le smartphone vienne de l’atelier de Lyon',B:'le smartphone vienne de l’atelier de Nantes',E:'le smartphone tombe en panne pendant la garantie',F:'le smartphone ne tombe pas en panne pendant la garantie'},
+        sp:{A:'vienne de l’atelier de Lyon',B:'vienne de l’atelier de Nantes',E:'tombe en panne pendant la garantie',F:'ne tombe pas en panne pendant la garantie'},
+        i:{A:'le smartphone vient de l’atelier de Lyon',B:'le smartphone vient de l’atelier de Nantes',E:'le smartphone tombe en panne pendant la garantie',F:'le smartphone ne tombe pas en panne pendant la garantie'},
+        p:[2,6], x:[7,12],
+        va:{s:[240,260,280], co:[170,180,190], re:[60,80,90], qui:'la boutique', un:'smartphone', uns:'smartphones', chaque:'chaque smartphone', lot:2000,
+          txt:d=>'La boutique vend chaque smartphone '+d.s+' € ; il lui a coûté '+d.co+' €, achat et reconditionnement compris. Lorsqu’un smartphone tombe en panne pendant la garantie, la réparation lui coûte '+d.re+' €.' } },
+      { L:{A:'M',B:'-M',E:'R',F:'-R'}, qui:'elle',
+        intro:d=>'Une agence de location de vacances propose des logements à la mer et à la montagne : '+aptPct(d.a)+' des réservations concernent un logement à la mer, les autres un logement à la montagne. Parmi les réservations à la mer, '+aptPct(d.p)+' donnent lieu à une réclamation. Au total, '+aptPct(d.c)+' des réservations donnent lieu à une réclamation.<br>On choisit au hasard une réservation de l’agence. On note :',
+        def:{A:'la réservation concerne un logement à la mer',E:'la réservation donne lieu à une réclamation'},
+        fam:['le lieu du logement : la mer ou la montagne','la réservation donne lieu à une réclamation, ou non'],
+        s:{A:'la réservation concerne un logement à la mer',B:'la réservation concerne un logement à la montagne',E:'la réservation donne lieu à une réclamation',F:'la réservation ne donne lieu à aucune réclamation'},
+        sp:{A:'concerne un logement à la mer',B:'concerne un logement à la montagne',E:'donne lieu à une réclamation',F:'ne donne lieu à aucune réclamation'},
+        i:{A:'la réservation concerne un logement à la mer',B:'la réservation concerne un logement à la montagne',E:'la réservation donne lieu à une réclamation',F:'la réservation ne donne lieu à aucune réclamation'},
+        p:[4,9], x:[10,16],
+        va:{s:[90,100,120], co:[30,40], re:[50,60,70], qui:'l’agence', un:'réservation', uns:'réservations', chaque:'chaque réservation', lot:800,
+          txt:d=>'Sur chaque réservation, l’agence perçoit une commission de '+d.s+' € ; ses frais de gestion s’élèvent à '+d.co+' € par réservation. Lorsqu’une réservation donne lieu à une réclamation, l’agence offre un geste commercial de '+d.re+' € au client.' } }
     ] }
 ];
 /* un pourcentage de l'énoncé, à partir de dix-millièmes : 3375 → « 33,75 % » */
@@ -28535,7 +29082,15 @@ function aptCandidats(ty){
   }
   return aptCands[ty]=c;
 }
-function aptGenD(ty){
+function aptGenD(ty, c){
+  if(ty===8){
+    /* P(A) de 55 à 80 %, P_A(E) et P_Ā(E) = x entiers en % dans les bornes de la scène ; P(E) avec au plus une décimale en %,
+       comme les 5,8 % du sujet ; les prix tirés dans ceux de la scène */
+    const th=APT_TYPES[8].th[c], V=th.va;
+    for(;;){ const a=rand(11,16)*5, p=rand(th.p[0],th.p[1]), x=rand(th.x[0],th.x[1]);
+      if(x<=p || (a*p+(100-a)*x)%10) continue;
+      return {a:a*100, p:p*100, x:x*100, c:a*p+(100-a)*x, s:pick(V.s), co:pick(V.co), re:pick(V.re)}; }
+  }
   if(ty===1 || ty===4){ const vrai=Math.random()<0.5?1:0, t=aptCandidats(ty).filter(function(x){ return x.vrai===vrai; }); const d=Object.assign({}, pick(t)); if(ty===1) d.c=(d.a*d.p+(10000-d.a)*d.q)/10000; return d; }
   if(ty===2){
     for(;;){ const a=rand(8,13)*5, b=rand(2,5)*5, pa=rand(80,97), pb=rand(80,97), pc=rand(80,97);
@@ -28580,6 +29135,7 @@ function aptT(q){
     case 4: return {n1:['A','B'], n2:{A:['E','F'],B:['E','F','G']}, p1:{A:d.m,B:c(d.m)}, p2:{A:{E:d.b1,F:c(d.b1)},B:{E:d.b2,F:d.r2,G:10000-d.b2-d.r2}}, inc:['B-F','B-G'], ajout:{br:['B-F','B-G'], int:'B-F'}};
     case 5: { const x=(d.pj*10000-d.r*d.j)/(10000-d.r); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.r,B:c(d.r)}, p2:{A:{E:d.j,F:c(d.j)},B:{E:x,F:c(x)}}, inc:['B-E','B-F'], fin:'E'}; }
     case 6: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.f,B:c(d.f)}, p2:{A:{E:d.pf,F:c(d.pf)},B:{E:d.pg,F:c(d.pg)}}, inc:[]};
+    case 8: return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.a,B:c(d.a)}, p2:{A:{E:d.p,F:c(d.p)},B:{E:d.x,F:c(d.x)}}, inc:[], fixe:{'B-E':'x'}, fin:'E'};
     default: { const x=(d.c*10000-d.v*d.pv)/(10000-d.v); return {n1:['A','B'], n2:{A:D2,B:D2}, p1:{A:d.v,B:c(d.v)}, p2:{A:{E:d.pv,F:c(d.pv)},B:{E:x,F:c(x)}}, inc:['B-E','B-F'], fin:'E'}; }
   }
 }
@@ -28592,10 +29148,12 @@ function aptEvT(q,k){ const L=aptTh(q).L[k]; return L.charAt(0)==='-' ? L.slice(
 function aptP(q,e){ return '<i>P</i>('+aptEv(q,e)+')'; }
 function aptPc(q,c,e){ return '<i>P</i><sub>'+aptEv(q,c)+'</sub>('+aptEv(q,e)+')'; }
 function aptPi(q,a,b){ const o=aptOrd(a,b); return '<i>P</i>('+aptEv(q,o[0])+' ∩ '+aptEv(q,o[1])+')'; }
-/* une écriture : ['p', e] = P(e) ; ['c', c, e] = P_c(e) ; ['i', a, b] = P(a ∩ b) */
-function aptW(q,w){ return w[0]==='p' ? aptP(q,w[1]) : w[0]==='c' ? aptPc(q,w[1],w[2]) : aptPi(q,w[1],w[2]); }
+function aptPu(q,a,b){ const o=aptOrd(a,b); return '<i>P</i>('+aptEv(q,o[0])+' ∪ '+aptEv(q,o[1])+')'; }
+/* une écriture : ['p', e] = P(e) ; ['c', c, e] = P_c(e) ; ['i', a, b] = P(a ∩ b) ; ['u', a, b] = P(a ∪ b) (6.3.2) */
+function aptW(q,w){ return w[0]==='p' ? aptP(q,w[1]) : w[0]==='c' ? aptPc(q,w[1],w[2]) : w[0]==='u' ? aptPu(q,w[1],w[2]) : aptPi(q,w[1],w[2]); }
 function aptWT(q,w){
   if(w[0]==='p') return 'P('+aptEvT(q,w[1])+')';
+  if(w[0]==='u'){ const o=aptOrd(w[1],w[2]); return 'P('+aptEvT(q,o[0])+' ∪ '+aptEvT(q,o[1])+')'; }
   if(w[0]==='c') return 'P_'+aptEvT(q,w[1])+'('+aptEvT(q,w[2])+')';
   const o=aptOrd(w[1],w[2]); return 'P('+aptEvT(q,o[0])+' ∩ '+aptEvT(q,o[1])+')';
 }
@@ -28606,7 +29164,7 @@ function aptVi(q,a,b){ const o=aptOrd(a,b); return aptR(aptV1(q,o[0])*aptV2(q,o[
 function aptParents(q,e){ const T=aptT(q); return T.n1.filter(function(k){ return T.n2[k].indexOf(e)>=0; }); }
 function aptVp(q,e){ return aptNiv1(e) ? aptV1(q,e) : aptR(aptParents(q,e).reduce(function(s,k){ return s+aptVi(q,k,e); },0)); }
 function aptVc(q,c,e){ return (aptNiv1(c) && !aptNiv1(e)) ? aptV2(q,c,e) : aptVi(q,c,e)/aptVp(q,c); }
-function aptVal(q,w){ return w[0]==='p' ? aptVp(q,w[1]) : w[0]==='c' ? aptVc(q,w[1],w[2]) : aptVi(q,w[1],w[2]); }
+function aptVal(q,w){ return w[0]==='p' ? aptVp(q,w[1]) : w[0]==='c' ? aptVc(q,w[1],w[2]) : w[0]==='u' ? aptR(aptVp(q,w[1])+aptVp(q,w[2])-aptVi(q,w[1],w[2])) : aptVi(q,w[1],w[2]); }
 /* ---- les phrases ---- */
 const aptS=(q,k)=>aptTh(q).s[k], aptI=(q,k)=>aptTh(q).i[k];
 function aptQp(q,e){ return 'la probabilité '+apcQue(aptS(q,e)); }
@@ -28624,11 +29182,13 @@ function aptArrN(v,tol){ return aptExact(v,tol) ? apfNb(v) : v.toFixed(aptDec(to
 function aptDev(q,w){
   if(w[0]==='p') return aptNiv1(w[1]) ? '' : aptParents(q,w[1]).map(function(k){ return aptPi(q,k,w[1]); }).join(' + ');
   if(w[0]==='i'){ const o=aptOrd(w[1],w[2]); return aptP(q,o[0])+' × '+aptPc(q,o[0],o[1]); }
+  if(w[0]==='u'){ const o=aptOrd(w[1],w[2]); return aptP(q,o[0])+' + '+aptP(q,o[1])+' − '+aptPi(q,o[0],o[1]); }
   return apcFr(aptPi(q,w[1],w[2]), aptP(q,w[1]));
 }
 /* les écritures proposées à côté de la bonne : les confusions de la fiche 4 */
 function aptPieges(q,w){
   if(w[0]==='i') return [['c',w[1],w[2]], ['c',w[2],w[1]], ['p',w[2]]];
+  if(w[0]==='u') return [['i',w[1],w[2]], ['c',w[1],w[2]], ['p',w[2]]];
   if(w[0]==='p'){ const k=aptParents(q,w[1])[0]; return [['i',k,w[1]], ['c',k,w[1]], ['c',w[1],k]]; }
   return [['c',w[2],w[1]], ['i',w[1],w[2]], ['p',w[2]]];
 }
@@ -28651,6 +29211,84 @@ function aptLigneQ(num, den, v, tol, unMoins){
     corr:n+' ÷ (1 − '+aptN(unMoins)+') = '+n+' ÷ '+d+aptArr(v,tol), tex:aptFr(n,'1-'+aptN(unMoins))+'='+aptFr(n,d)+aptArr(v,tol,true)};
   return {v:v, tol:tol, corr:n+' ÷ '+d+aptArr(v,tol), tex:aptFr(n,d)+aptArr(v,tol,true)};
 }
+/* ---- 6.3.2 : la réunion, et la variable aléatoire de la partie B ---- */
+function aptQu(q,a,b){ const o=aptOrd(a,b); return 'la probabilité '+apcQue(aptS(q,o[0]))+' ou '+apcQue(aptTh(q).qui+' '+aptTh(q).sp[o[1]]); }
+function aptLigneU(q,a,b){   /* P(A ∪ E) = P(A) + P(E) − P(A ∩ E) */
+  const o=aptOrd(a,b), x=aptVp(q,o[0]), y=aptVp(q,o[1]), z=aptVi(q,o[0],o[1]), v=aptR(x+y-z);
+  return {v:v, corr:aptN(x)+' + '+aptN(y)+' − '+aptN(z)+' = '+aptN(v), tex:aptN(x)+'+'+aptN(y)+'-'+aptN(z)+'='+aptN(v)};
+}
+function aptMil(n){ const t=String(n).split(','); t[0]=t[0].replace(/\B(?=(\d{3})+(?!\d))/g,' '); return t.join(','); }
+function aptTexN(v){ return apfNb(v).replace('−','-'); }
+/* les nombres de la partie B : P(E), les deux bénéfices (v1 < v0), E(X) et V(X), exacts */
+function aptVa(q){
+  const d=q.d, V=aptTh(q).va, pd=d.c/1e4, v0=d.s-d.co, v1=v0-d.re;
+  return {pd:pd, nd:aptR(1-pd), v0:v0, v1:v1, E:aptR((v0*1e4-d.re*d.c)/1e4), V:aptR(d.re*d.re*d.c*(1e4-d.c)/1e8), lot:V.lot, V0:V};
+}
+function aptVaVcorr(v){ return Math.abs(v*1e4-Math.round(v*1e4))<1e-6 ? apfNb(v) : aptArrN(v,0.01); }
+/* les cases de la loi, de E(X) et de V(X) : {id, v, corr, tol, lab} — les valeurs dans l'ordre croissant */
+function aptVaCases(q){
+  const A=aptVa(q), L=[], xs=[A.v1, A.v0], ps=[A.pd, A.nd], tolV=aptExact(A.V,0.01) ? 0 : 0.01;
+  const c=(id,v,lab,tol)=>L.push({id:id, v:v, corr:id==='apv-v' ? aptVaVcorr(v) : apfNb(v), tol:tol||0, lab:lab});
+  [0,1].forEach(function(i){ c('apv-x'+(i+1), xs[i], 'loi : valeur x'+(i+1)+' de X (ordre croissant)'); });
+  [0,1].forEach(function(i){ c('apv-p'+(i+1), ps[i], 'loi : P(X = x'+(i+1)+')'); });
+  [0,1].forEach(function(i){ c('apv-e-p'+(i+1), ps[i], 'E(X), terme '+(i+1)+' : probabilité'); c('apv-e-x'+(i+1), xs[i], 'E(X), terme '+(i+1)+' : valeur'); });
+  c('apv-e', A.E, 'E(X)');
+  [0,1].forEach(function(i){ c('apv-v-p'+(i+1), ps[i], 'V(X), terme '+(i+1)+' : probabilité'); c('apv-v-x'+(i+1), xs[i], 'V(X), terme '+(i+1)+' : valeur'); c('apv-v-m'+(i+1), A.E, 'V(X), terme '+(i+1)+' : E(X)'); });
+  c('apv-v', A.V, 'V(X)', tolV);
+  return L;
+}
+function aptVaJuste(c, raw){
+  const v=vaeLire(raw);
+  if(!isFinite(v)) return apcJugeVal(c.v, raw);   /* « 5,8 % », ou « 1 − 0,058 » */
+  return Math.abs(v-c.v)<1e-9 || (!!c.tol && Math.abs(v-c.v)<=c.tol+1e-12);
+}
+/* LES TERMES DANS L'ORDRE QU'ON VEUT, comme au 6.3.1 (vaeCasesJugees) : les
+   deux termes de E(X) et de V(X) dans un sens ou dans l'autre, et chaque
+   produit de E(X) p × x ou x × p. L'affectation qui rend juste le plus de
+   cases l'emporte ; à égalité, l'ordre de la loi. La correction suit. */
+function aptVaAff(q){
+  const L=aptVaCases(q), par={}; L.forEach(function(c){ par[c.id]=c; });
+  const lu=id=>apcLire($(id)), aff={};
+  function meilleur(pre, sens){
+    let best=null, bs=-1;
+    [[0,1],[1,0]].forEach(function(P){ (sens?[0,1,2,3]:[0]).forEach(function(m){
+      let sc=0; const a={};
+      [0,1].forEach(function(i){
+        const inv=sens && (m>>i)&1, pc=par[pre+'p'+(P[i]+1)], xc=par[pre+'x'+(P[i]+1)];
+        a[pre+'p'+(i+1)]=inv?xc:pc; a[pre+'x'+(i+1)]=inv?pc:xc;
+        if(!sens) a[pre+'m'+(i+1)]=par[pre+'m'+(i+1)];
+        ['p','x'].forEach(function(t){ const id=pre+t+(i+1), r=lu(id); if(r.trim()!=='' && aptVaJuste(a[id], r)) sc++; });
+      });
+      if(sc>bs){ bs=sc; best=a; }
+    }); });
+    return best;
+  }
+  Object.assign(aff, meilleur('apv-e-', true), meilleur('apv-v-', false));
+  L.forEach(function(c){ if(!aff[c.id]) aff[c.id]=c; });
+  return aff;
+}
+function aptVaIds(k){
+  return k==='loi' ? ['apv-x1','apv-x2','apv-p1','apv-p2']
+    : k==='esp' ? ['apv-e-p1','apv-e-x1','apv-e-p2','apv-e-x2','apv-e']
+    : ['apv-v-p1','apv-v-x1','apv-v-m1','apv-v-p2','apv-v-x2','apv-v-m2','apv-v'];
+}
+function aptVaHTML(q, k){
+  const mf=id=>'<math-field class="dexp-mf vae-mf" id="'+id+'" aria-label="'+id+'"></math-field>', E='<i>E</i>(<i>X</i>)';
+  if(k==='loi') return '<div class="vae-tab-defile"><table class="vae-tab"><tbody>'
+    +'<tr><th><i>x</i><sub><i>i</i></sub></th><td>'+sa2In('apv-x1')+'</td><td>'+sa2In('apv-x2')+'</td></tr>'
+    +'<tr><th><i>P</i>(<i>X</i> = <i>x</i><sub><i>i</i></sub>)</th><td>'+mf('apv-p1')+'</td><td>'+mf('apv-p2')+'</td></tr>'
+    +'</tbody></table></div>';
+  if(k==='esp') return '<div class="sa2-ladder vae-ladder">'
+    +'<div class="sa2-row vae-formule"><span class="sa2-t">'+E+' = <i>p</i><sub>1</sub> × <i>x</i><sub>1</sub> + <i>p</i><sub>2</sub> × <i>x</i><sub>2</sub></span></div>'
+    +'<div class="sa2-row"><span class="sa2-t">'+E+' =</span>'+mf('apv-e-p1')+'<span class="sa2-t">×</span>'+mf('apv-e-x1')+'<span class="sa2-t">+</span>'+mf('apv-e-p2')+'<span class="sa2-t">×</span>'+mf('apv-e-x2')+'</div>'
+    +'<div class="sa2-row"><span class="sa2-t">'+E+' =</span>'+mf('apv-e')+'</div></div>';
+  const po='<span class="vae-par">(</span>', pf='<span class="vae-par">)</span>';
+  return '<div class="sa2-ladder vae-ladder">'
+    +'<div class="sa2-row vae-formule"><span class="sa2-t"><i>V</i>(<i>X</i>) = '+[1,2].map(function(i){ return (i>1?' + ':'')+'<i>p</i><sub>'+i+'</sub> × '+po+'<i>x</i><sub>'+i+'</sub> − '+E+pf+'²'; }).join('')+'</span></div>'
+    +'<div class="sa2-row vae-ligne-v"><span class="sa2-t"><i>V</i>(<i>X</i>) =</span>'
+    +[1,2].map(function(i){ return (i>1?'<span class="sa2-t">+</span>':'')+mf('apv-v-p'+i)+'<span class="sa2-t">×</span>'+po+mf('apv-v-x'+i)+'<span class="sa2-t">−</span>'+mf('apv-v-m'+i)+pf+'<span class="sa2-t vae-carre">²</span>'; }).join('')
+    +'</div><div class="sa2-row"><span class="sa2-t"><i>V</i>(<i>X</i>) =</span>'+mf('apv-v')+'</div></div>';
+}
 /* ---- LE PLAN : chaque exercice écrit ses questions dans l'ordre de son modèle ---- */
 function aptPlan(q){
   const P=[]; let ns=0, nc=0, ng=0;
@@ -28668,9 +29306,14 @@ function aptPlan(q){
     /* une valeur à reporter dans une case AJOUTÉE à l'arbre du haut (type 4) : id la case de l'arbre */
     place:function(id, html){ P.push({k:'place', id:id, html:html}); },
     /* la branche intérieure retrouvée en posant x : u le nœud, e la branche, f sa contraire */
-    x:function(o){ if(o.pose){ ns++; o.s='s'+ns; } nc++; o.c='apt-c'+nc; P.push(Object.assign({k:'x'}, o)); }
+    x:function(o){ if(o.pose){ ns++; o.s='s'+ns; } nc++; o.c='apt-c'+nc; P.push(Object.assign({k:'x'}, o)); },
+    /* une ligne de calcul sans écriture à choisir (6.3.2) : lab devant le champ, l ce que vaut le calcul, nom pour le modèle */
+    calc:function(lab, l, nom){ nc++; P.push({k:'calc', c:'apt-c'+nc, lab:lab, l:l, nom:nom}); },
+    /* la loi, E(X), V(X) de la variable aléatoire (6.3.2) : k = 'loi', 'esp' ou 'var' */
+    va:function(k){ P.push({k:'va', va:k}); }
   };
   const th=aptTh(q), T=aptT(q), tq=APT_TYPES[q.ty], Q=(n,t)=>'<b>'+n+'</b> '+t;
+  if(q.ty===8) B.titre('<b>Partie A — Probabilités conditionnelles</b>');
   if(q.ty!==7) B.titre(Q('1.', 'Représenter la situation à l’aide d’un arbre pondéré.'));
   if(q.ty===7){
     B.titre(Q('1. a)', 'Donner '+aptQp(q,'E')+'.'));
@@ -28788,6 +29431,45 @@ function aptPlan(q){
     B.cartes([env+pc+' % '+th.pop+' '+th.adj.B+' '+th.rel.E+'.', env+pc+' % '+th.pop+' '+th.rel.B+' et '+th.rel.E+'.', env+pc+' % '+th.pop+' '+th.adj.E+' '+th.rel.B+'.'],
       'C’est une probabilité conditionnelle : on se place parmi '+th.pop.replace(/^des /,'les ')+' '+th.adj.B+' (ce que l’on SAIT), et l’on regarde la part '+th.pop+' '+th.adj.E+'.');
   }
+  if(q.ty===8){
+    /* l'exercice 4 du bac blanc, question par question, chacune à la manière de l'exercice qui la traite déjà */
+    B.titre(Q('2.', 'Calculer '+aptQi(q,'A','E')+'.'));
+    B.ligne(['i','A','E'], aptLigneI(q,'A','E'));
+    B.titre(Q('3.', 'En utilisant la formule des probabilités totales, montrer que <i>x</i> = '+aptN(aptV2(q,'B','E'))+'.'));
+    B.x({u:'B', e:'E', f:'F', pose:false, arbre:false});
+    B.titre(Q('4.', 'Calculer '+aptQu(q,'A','E')+'.'));
+    B.aide('Rappel : pour deux événements '+aptEv(q,'A')+' et '+aptEv(q,'E')+', '+aptPu(q,'A','E')+' = '+aptP(q,'A')+' + '+aptP(q,'E')+' − '+aptPi(q,'A','E')+'.');
+    B.ligne(['u','A','E'], aptLigneU(q,'A','E'));
+    const pE=aptVp(q,'E'), iB=aptVi(q,'B','E'), v=iB/pE;
+    B.titre(Q('5.', 'Sachant '+apcQue(aptI(q,'E'))+', calculer '+aptQp(q,'B')+'. '+(aptExact(v,0.001)?'':aptPrec(0.001))));
+    const l=aptLigneQ(iB, pE, v, 0.001);
+    l.corr=aptN(aptV1(q,'B'))+' × '+aptN(aptV2(q,'B','E'))+' ÷ '+aptN(pE)+' = '+l.corr;
+    l.tex=aptFr(aptN(aptV1(q,'B'))+'\\times '+aptN(aptV2(q,'B','E')), aptN(pE))+'='+l.tex;
+    B.ligne(['c','E','B'], l);
+    /* PARTIE B : le bénéfice X réalisé sur un individu, ses deux valeurs, sa loi, E(X), V(X), puis un lot */
+    const A=aptVa(q), V=A.V0, d=q.d, ind=(V.un==='réservation'?'une ':'un ')+V.un, Ex='<i>E</i>(<i>X</i>)', fE=apfNb(A.E);
+    B.titre('<b>Partie B — Variable aléatoire</b>');
+    B.texte(V.txt(d)+' On note <i>X</i> la variable aléatoire égale au bénéfice, en euros, réalisé par '+V.qui+' sur '+ind+' choisi'+(V.un==='réservation'?'e':'')+' au hasard.');
+    B.titre(Q('1.', 'Déterminer les valeurs possibles de <i>X</i>.'));
+    B.aide('Calcule le bénéfice dans chacun des deux cas :');
+    B.calc('Si '+aptI(q,'F')+' : <i>X</i> =', {v:A.v0, lit:true, corr:d.s+' − '+d.co+' = '+apfNb(A.v0), tex:d.s+'-'+d.co+'='+aptTexN(A.v0)}, 'valeur de X si '+aptI(q,'F'));
+    B.calc('Si '+aptI(q,'E')+' : <i>X</i> =', {v:A.v1, lit:true, corr:d.s+' − '+d.co+' − '+d.re+' = '+apfNb(A.v1), tex:d.s+'-'+d.co+'-'+d.re+'='+aptTexN(A.v1)}, 'valeur de X si '+aptI(q,'E'));
+    B.titre(Q('2.', 'Déterminer la loi de probabilité de <i>X</i> et la présenter dans un tableau.'));
+    B.aide('Les valeurs de <i>X</i> <b>dans l’ordre croissant</b>, puis leurs probabilités (en décimal ou en fraction) :');
+    B.va('loi');
+    B.titre(Q('3.', 'Calculer l’espérance '+Ex+' et interpréter le résultat dans le contexte de l’exercice.'));
+    B.va('esp');
+    B.aide('Interprétation :');
+    B.cartes(['Sur un grand nombre de '+V.uns+', '+V.qui+' réalise en moyenne un bénéfice de '+fE+' € par '+V.un+'.',
+      'Sur '+V.chaque+', '+V.qui+' réalise un bénéfice d’exactement '+fE+' €.',
+      'La moitié des '+V.uns+' rapportent plus de '+fE+' € à '+V.qui+'.',
+      'Sur un grand nombre de '+V.uns+', '+V.qui+' perd en moyenne '+fE+' € par '+V.un+'.'],
+      'L’espérance est un bénéfice MOYEN, sur un grand nombre de '+V.uns+' : <i>X</i> ne vaut que '+apfNb(A.v1)+' ou '+apfNb(A.v0)+', jamais exactement '+fE+' ; et '+Ex+' > 0 est un bénéfice, pas une perte.');
+    B.titre(Q('4.', 'Calculer la variance <i>V</i>(<i>X</i>).'+(aptExact(A.V,0.01)?'':' (Donner la valeur exacte, ou une valeur approchée à 10<sup>−2</sup>&nbsp;près.)')));
+    B.va('var');
+    B.titre(Q('5.', 'Estimer le bénéfice total que '+V.qui+' peut espérer sur un lot de '+aptMil(A.lot)+' '+V.uns+'.'));
+    B.calc(aptMil(A.lot)+' × '+Ex+' =', {v:aptR(A.lot*A.E), corr:aptMil(A.lot)+' × '+fE+' = '+aptMil(apfNb(aptR(A.lot*A.E))), tex:A.lot+'\\times '+aptTexN(A.E)+'='+aptTexN(aptR(A.lot*A.E))}, 'bénéfice espéré sur le lot');
+  }
   return P;
 }
 /* ---- les parts du plan ---- */
@@ -28796,7 +29478,7 @@ function aptXPart(q){ return aptPlan(q).find(function(p){ return p.k==='x'; }); 
 function aptGroupes(q){ const g=['ev']; aptPlan(q).forEach(function(p){ if(p.s) g.push(p.s); if(p.g) g.push(p.g); }); return g; }
 /* ---- le tirage d'une question, puis d'une séance ---- */
 function aptGen(ty, c){
-  const q={ty:ty, c:c, d:aptGenD(ty), ch:{}, perm:{}};
+  const q={ty:ty, c:c, d:aptGenD(ty, c), ch:{}, perm:{}};
   q.evp=apcMelange([0,1]);
   aptPlan(q).forEach(function(p){
     if(p.s) q.perm[p.s]=apcMelange(p.k==='x' ? [0,1,2,3] : p.opts.map(function(u,i){ return i; }));
@@ -29074,7 +29756,8 @@ function aptJugeChaine(raw, l){
 function aptIds(q){
   let ids=aptArbreIds(q, aptSens(q));
   aptPlan(q).forEach(function(p){
-    if(p.k==='ligne') ids.push(p.c);
+    if(p.k==='ligne' || p.k==='calc') ids.push(p.c);
+    if(p.k==='va') ids=ids.concat(aptVaIds(p.va));
     if(p.k==='place') ids.push(p.id);
     if(p.k==='x'){ if(p.arbre) ids=ids.concat(aptArbreXIds(q)); ids.push(p.c); ids=ids.concat(APT_RES); }
   });
@@ -29085,17 +29768,20 @@ function aptJuger(q, id, raw){
   if(/^apt-t-/.test(id)) return {ok:q.ch.ev===0 && aptJugeCase(q, 'apt', id.slice(6), raw)};   /* un arbre écrit dans le mauvais sens n'a aucune case juste */
   if(/^apy-t-/.test(id)) return {ok:aptJugeCase(q, 'apy', id.slice(6), raw)};
   if(/^apt-r/.test(id)) return aptJugeResolCase(q, id, raw);
+  if(/^apv-/.test(id)) return {ok:aptVaJuste(aptVaAff(q)[id], raw)};
   const l=aptLigneDe(q, id);
   return l.t==='demo' ? apfJugeDemo(raw, l) : aptJugeChaine(raw, l);
 }
 function aptCorr(q, id){
   if(/^ap[ty]-t-/.test(id)) return aptCaseCorr(q, id.slice(0,3), id.slice(6));
   if(/^apt-r/.test(id)) return aptResolCorr(q, id, false);
+  if(/^apv-/.test(id)) return aptVaAff(q)[id].corr;
   return aptLigneDe(q, id).corr;
 }
 function aptCorrTex(q, id){
   if(/^ap[ty]-t-/.test(id)) return aptCorr(q, id);
   if(/^apt-r/.test(id)) return aptResolCorr(q, id, true);
+  if(/^apv-/.test(id)) return aptVaAff(q)[id].corr.replace(/−/g,'-');
   const l=aptLigneDe(q, id); return l.tex || l.corr;
 }
 /* ---- les choix : l'événement des premières branches, les écritures, les cartes ---- */
@@ -29153,6 +29839,7 @@ function aptSlotPeindre(q, s){
 }
 function aptPourquoiW(q, w){
   if(w[0]==='p') return 'Aucune condition dans la phrase : c’est la probabilité de '+aptEv(q,w[1])+' seul, '+aptP(q,w[1])+(aptNiv1(w[1])?', lue sur une première branche.':'. Elle se calcule par les probabilités totales : on additionne les chemins qui mènent à '+aptEv(q,w[1])+'.');
+  if(w[0]==='u') return '« ou » : l’un, l’autre, ou les deux — une réunion, '+aptW(q,w)+'. On ajoute les deux probabilités et l’on retire l’intersection, comptée deux fois.';
   if(w[0]==='i') return '« et », sans rien savoir d’avance : les deux à la fois, une intersection, '+aptPi(q,w[1],w[2])+'. On multiplie le long du chemin.';
   return 'Ce que l’on SAIT (« sachant que… ») se met en indice : on sait '+aptEv(q,w[1])+', on cherche '+aptEv(q,w[2])+', donc '+aptPc(q,w[1],w[2])+'.';
 }
@@ -29254,6 +29941,8 @@ function aptPartHTML(q, p){
   if(p.k==='arbre') return '<p class="apf-cons aide-ecran">Quel événement places-tu sur les premières branches, celles qui partent de Ω ?</p>'
     +aptCartesHTML(q, 'ev', aptEvOpts(q), q.evp)+'<div id="aptArbreSuite"></div>';
   if(p.k==='cartes') return aptCartesHTML(q, p.g, p.opts, q.perm[p.g]);
+  if(p.k==='calc') return '<div class="apf-row"><span class="apf-lab">'+p.lab+'</span>'+aptChamp(p.c, p.l.lit ? 'valeur, ou calcul = résultat' : 'calcul = résultat')+'</div>';
+  if(p.k==='va') return aptVaHTML(q, p.va);
   if(p.k==='ligne') return (p.intro ? '<p class="apc-etape aide-ecran">'+p.intro+'</p>' : '')
     +'<div class="apf-row">'+aptSlotHTML(p.s)+'<span class="apc-dev" id="apt-dv-'+p.s+'"></span><span class="apf-lab">=</span>'+aptChamp(p.c, p.l.lit ? 'valeur lue dans l’énoncé' : 'calcul = résultat')+'</div>'
     +'<p class="apc-pourquoi" id="apt-h-'+p.s+'"></p>';
@@ -29283,13 +29972,14 @@ function aptEnonceHTML(q){
     +'<ul class="apc-donnees">'+keys.map(function(k){ return '<li>'+aptEv(q,k)+' l’événement « '+def(k)+' » ;</li>'; }).join('')+'</ul>';
   if(keys.length<Object.keys(L).length) h+='Pour un événement <i>X</i> quelconque, on note <i class="apb-nb">X</i> son événement contraire.';
   if(q.ty===3) h+='<br>On note <i>x</i> '+aptQc(q,'C','E')+', c’est-à-dire <i>x</i> = '+aptPc(q,'C','E')+'.';
+  if(q.ty===8) h+='<br>On note <i>x</i> '+aptQc(q,'B','E')+', c’est-à-dire <i>x</i> = '+aptPc(q,'B','E')+'.';
   return h+'<span class="apf-mode">Dans les lignes de calcul, écris l’opération avec les nombres, puis le résultat, séparés par « = » (« ≈ » pour une valeur approchée) — '
     +'directement, sans étape intermédiaire si tu n’en as pas besoin. Une division s’écrit en fraction : touche « / » du clavier, ou le bouton « fraction » de la barre « Insérer ».</span>';
 }
 /* ---- le choix de l'exercice (1 à 7), puis le cycle de vie ---- */
 function aptChoixHTML(fn){
   return '<p class="apf-cons">Choisis ton exercice de bac : chacun reprend les questions d’un sujet, dans le même ordre, sur un autre thème et avec d’autres nombres.</p>'
-    +'<div class="apt-types">'+APT_TYPES.map(function(t,i){ return !t ? '' :
+    +'<div class="apt-types">'+APT_TYPES.map(function(t,i){ return !t || t.horsChoix ? '' :
       '<button type="button" class="apc-carte apt-type" onclick="'+(fn||'aptChoisirType')+'('+i+')"><b>Type '+i+'</b> <span>'+t.nom+'</span></button>'; }).join('')+'</div>';
 }
 async function startAPT(){
@@ -29306,7 +29996,7 @@ async function startAPT(){
   show('apt');
 }
 function aptChoisirType(ty){
-  if(!APT_TYPES[ty]) return;
+  if(!APT_TYPES[ty] || APT_TYPES[ty].horsChoix) return;
   recoveryRowId=null; recoveryClosed=false;
   test.kind='apt';
   test.questions=aptGenSession(ty);
@@ -29314,13 +30004,24 @@ function aptChoisirType(ty){
   test.maxScore=test.questions.length;
   renderAPT();
 }
+/* 6.3.2 {probabilites-variable-aleatoire-bac} : le type 8, sans choix — le tirage se fait au démarrage (kind 'apv', l'écran du 6.1.5) */
+async function startAPV(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='probabilites-variable-aleatoire-bac'; test.kind='apv';
+  test.questions=aptGenSession(8);
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('apt'); renderAPT();
+}
 function renderAPT(){
   const q=test.questions && test.questions[test.idx];
-  if(!q || !APT_TYPES[q.ty]){ startAPT(); return; }   /* une séance qui n'est pas la sienne : retour au choix */
+  if(!q || !APT_TYPES[q.ty] || (q.ty===8)!==(test.kind==='apv')){ if(test.kind==='apv') startAPV(); else startAPT(); return; }   /* une séance qui n'est pas la sienne : retour au départ */
   test.locked=false;
   if(!q.ch) q.ch={};
   $('aptChoix').hidden=true; $('aptCarte').hidden=false;
-  $('aptQIdx').textContent='Exercice de bac type '+q.ty+(test.questions.length>1 ? ' — '+(test.idx+1)+' / '+test.questions.length : '');
+  $('aptQIdx').textContent=(q.ty===8 ? 'Exercice de bac' : 'Exercice de bac type '+q.ty)+(test.questions.length>1 ? ' — '+(test.idx+1)+' / '+test.questions.length : '');
   $('aptModeTag').innerHTML=modeTagHTML();
   $('aptLiveScore').textContent=test.score;
   $('aptFeedback').textContent=''; $('aptFeedback').className='mp-feedback';
@@ -29329,6 +30030,7 @@ function renderAPT(){
   const plan=aptPlan(q);
   $('aptCorps').innerHTML=plan.map(function(p){ return aptPartHTML(q,p); }).join('')+apfJetonsHTML(q, true, true);
   $('aptCorps').querySelectorAll('input, math-field').forEach(aptBrancher);
+  $('aptCorps').querySelectorAll('input.sa2-in').forEach(sa2Ajuster);   /* la largeur au repos, posée tout de suite (les valeurs de X au 6.3.2) */
   if($('apyGrille')){ aptArbreXIds(q).forEach(function(id){ const el=$(id); if(el) sa2Ajuster(el); }); aptSuivreTraits('apy'); }
   if(window.mlDexp) window.mlDexp.upgrade($('aptCorps'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
@@ -29419,8 +30121,9 @@ function aptNomCase(q, id){
     const lab=k==='fin' ? 'P('+aptEvT(q, pre==='apt' ? aptT(q).fin : aptXPart(q).e)+')' : m.length===1 ? 'P('+aptEvT(q,k)+')' : 'P_'+aptEvT(q,m[0])+'('+aptEvT(q,m[1])+')';
     return (pre==='apy' ? 'arbre en x ' : 'arbre ')+lab;
   }
+  if(/^apv-/.test(id)){ const c=aptVaCases(q).find(function(z){ return z.id===id; }); return c ? c.lab : id; }
   if(/^apt-r/.test(id)) return {'apt-r1':'résolution : opération faite sur les deux membres', 'apt-r2':'résolution : second membre après l’opération', 'apt-r3n':'résolution : numérateur de la fraction qui donne x', 'apt-r3d':'résolution : dénominateur de la fraction qui donne x', 'apt-r3':'résolution : valeur de x', 'apt-r4':'phrase réponse : la probabilité trouvée'}[id];
-  const p=aptPart(q, id); return p.k==='x' ? 'démonstration de la forme réduite en x' : 'ligne de calcul de '+aptWT(q, p.w);
+  const p=aptPart(q, id); return p.k==='x' ? 'démonstration de la forme réduite en x' : p.k==='calc' ? 'ligne de calcul : '+p.nom : 'ligne de calcul de '+aptWT(q, p.w);
 }
 function aptReponseTxt(q){
   const ch=aptGroupes(q).filter(function(g){ return g!=='ev'; }).map(function(g){
@@ -29432,13 +30135,14 @@ function aptPlain(q){
   const t=document.createElement('div'); t.innerHTML=aptEnonceHTML(q).replace(/<\/li>|<br>/g,' $&');
   const m=t.querySelector('.apf-mode'); if(m) m.remove();
   const qs=aptPlan(q).filter(function(p){ return p.k==='titre' || p.k==='texte' || p.k==='place'; }).map(function(p){ const d=document.createElement('div'); d.innerHTML=p.html; return d.textContent; });
-  return 'Exercice de bac, type '+q.ty+'. '+t.textContent.replace(/\s+/g,' ').trim()+' Questions : '+qs.join(' ');
+  return (q.ty===8 ? 'Exercice de bac, probabilités et variable aléatoire. ' : 'Exercice de bac, type '+q.ty+'. ')+t.textContent.replace(/\s+/g,' ').trim()+' Questions : '+qs.join(' ');
 }
 function aptConseilCtx(){
   const q=test.questions[test.idx], ids=aptIds(q).filter(function(id){ return $(id); });
   const choix=aptGroupes(q).map(function(g){ const ch=q.ch[g];
     return (g==='ev'?'événement des premières branches':/^s/.test(g)?'écriture '+g:'cartes '+g)+' : '+(ch===undefined?'(pas encore choisi)':ch===0?'choix juste':'choix faux'); }).join(' ; ');
-  return 'Exercice de Terminale, type bac (sujet de type '+q.ty+' sur 7) : arbre pondéré à partir d’un énoncé en phrases. '+aptPlain(q)+' '
+  const va=q.ty===8 ? 'Partie B (variable aléatoire X, le bénéfice) : l’élève écrit les deux valeurs de X (un nombre, ou le calcul puis le résultat), la loi de X dans un tableau (valeurs dans l’ordre croissant, probabilités en décimal ou en fraction), E(X) = p1 × x1 + p2 × x2 terme par terme puis sa valeur, choisit l’interprétation de E(X) sur des cartes, calcule V(X) = p1(x1 − E(X))² + p2(x2 − E(X))² terme par terme puis sa valeur, et enfin le bénéfice espéré sur un lot (effectif × E(X)). Les termes de E(X) et de V(X) s’écrivent dans n’importe quel ordre, et les produits de E(X) dans un sens ou dans l’autre. La réunion se calcule par P(A ∪ B) = P(A) + P(B) − P(A ∩ B), formule rappelée à l’écran. ' : '';
+  return 'Exercice de Terminale, type bac '+(q.ty===8 ? '(probabilités conditionnelles puis variable aléatoire, sur le modèle d’un bac blanc)' : '(sujet de type '+q.ty+' sur 7)')+' : arbre pondéré à partir d’un énoncé en phrases. '+aptPlain(q)+' '+va
     +'L’élève choisit l’événement des premières branches, puis complète l’arbre avec les données et leurs contraires. Pour chaque question, il choisit dans une case étroite l’écriture littérale de la probabilité cherchée (P(A), P(A ∩ B), P_A(B)…) parmi quatre propositions, la formule qui la calcule s’écrit, puis il écrit le calcul : opération puis résultat, séparés par « = », les divisions en fraction ; aucune étape intermédiaire n’est exigée. '
     +'Une branche intérieure retrouvée à partir d’une probabilité totale passe par x : on pose P_U(E) = x, on complète un second arbre avec x et 1 − x et la probabilité totale au bout de l’accolade, on démontre que P(E) est égale à la forme réduite en x que la consigne donne (elle est affichée : elle n’est pas secrète), puis on résout l’équation (étape par étape, ou directement la valeur de x) et on répond par une phrase. '
     +'Une interprétation, ou une affirmation à vérifier, se choisit sur des cartes. Une valeur approchée est demandée à 10^-2 ou 10^-3 près : toute valeur décimale à cette précision de la valeur exacte est juste, l’arrondi comme la troncature. '
@@ -42694,6 +43398,7 @@ const QIA_SUGG={
   rl:["Faire un rappel de cours pour cet exercice.","Comment place-t-on la formule de U\u2099 dans la r\u00e9currence ?","Pourquoi 0,2 \u00d7 0,2\u207f donne-t-il 0,2\u207f\u207a\u00b9 ?","Pourquoi 0,2\u207f tend-il vers 0 ?","Comment en d\u00e9duire la limite de U\u2099 ?"],
   rf:["Comment calculer la formule au rang 0 ?","Comment utiliser l\u2019hypoth\u00e8se de r\u00e9currence dans le calcul ?","Pourquoi 0,5 \u00d7 0,5\u207f donne-t-il 0,5\u207f\u207a\u00b9 ?","Comment conclure une r\u00e9currence ?"],
   eav:["Comment lire f\u2009\u2032(0) sur la tangente ?","Comment dériver (ax + b)e^(\u2212x) avec les lettres a et b ?","Pourquoi le programme renvoie-t-il x quand la condition du while devient fausse ?","Comment déduire la convexité du signe de f\u2009\u2033 ?"],
+  efb:["Faire un rappel de cours pour cet exercice.","Comment lire le signe de f\u2032 sur la courbe ?","Quelle est la dérivée de e^(2x) ?","Comment trouver le point d\u2019inflexion ?","Comment encadrer α à 0,01 près ?","Comment vérifier qu\u2019une fonction est solution d\u2019une équation différentielle ?"],
   ecv:["Comment savoir si f est convexe ou concave ?","C\u2019est quoi, un point d\u2019inflexion ?","Pourquoi la courbe est-elle sous ses tangentes quand f est concave ?","Comment trouver l\u2019\u00e9quation de la tangente en 0 ?"],
   asg:["Comment conjecturer une limite sur la courbe ?","Pourquoi e\u207b\u02e3 est-il toujours strictement positif ?","Pourquoi la solution \u03b1 est-elle unique ?","Comment d\u00e9duire le signe de f \u00e0 partir de \u03b1 ?"],
   rr:["Faire un rappel de cours pour cet exercice.","Comment r\u00e9dige-t-on une r\u00e9currence ?","Que faut-il \u00e9crire dans l\u2019initialisation ?","Quelle diff\u00e9rence entre \u00ab on suppose \u00bb et \u00ab on montre \u00bb ?","Pourquoi faut-il justifier que f est croissante ?"],
@@ -42737,6 +43442,7 @@ const QIA_SUGG={
   sbe:["Faire un rappel de cours pour cet exercice.","Pourquoi multiplie-t-on par 0,8 quand on perd 20 % ?","Comment construire les termes en escalier ?","Comment rédiger l’hérédité de la récurrence ?","Comment justifier qu’une suite converge ?","Comment calculer la limite ℓ ?","Comment montrer que (vₙ) est géométrique ?","Comment écrire la condition du while ?"],
   vae:["Faire un rappel de cours pour cet exercice.","Pourquoi les probabilités sont-elles les mêmes au second tirage ?","Comment calculer le gain d’une issue ?","Comment regrouper les issues qui donnent le même gain ?","Comment calculer l’espérance E(X) ?","Comment calculer la variance V(X) sans se tromper de signe ?","Que veut dire l’écart type ?"],
   aps:["Faire un rappel de cours pour cet exercice.","Comment compléter l’arbre aux rangs n et n + 1 ?","Pourquoi a(n+1) s’écrit-il avec a(n) et 1 − a(n) ?","Comment choisir l’écriture de la probabilité à calculer ?","Comment rédiger l’hérédité de la récurrence ?","Comment montrer qu’une suite auxiliaire est géométrique ?","Comment justifier la limite de qⁿ ?","Comment trouver le seuil avec la calculatrice ?"],
+  apv:["Faire un rappel de cours pour cet exercice.","Comment compléter l’arbre quand une branche vaut x ?","Comment montrer que x vaut la valeur donnée avec les probabilités totales ?","Comment calculer la probabilité d’une réunion « ou » ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Comment trouver les valeurs possibles du bénéfice X ?","Comment interpréter l’espérance E(X) ?","Comment calculer la variance V(X) ?"],
   apt:["Faire un rappel de cours pour cet exercice.","Quel événement dois-je placer sur les premières branches ?","Comment transformer un pourcentage de l’énoncé en probabilité ?","Comment savoir quelle formule choisir ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer une probabilité « sachant que » qui n’est pas sur l’arbre ?","Que veut dire « poser P(A) = x » ?","Comment résoudre l’équation pour trouver x ?"],
   apb:["Faire un rappel de cours pour cet exercice.","Que vaut la somme des branches issues d’un même nœud ?","Comment calculer la probabilité d’une intersection sur un arbre ?","Comment calculer P(B) avec la formule des probabilités totales ?","Comment calculer P sachant B de A ?","Comment retrouver une branche quand on connaît P(B) ?"],
   epc:["Faire un rappel de cours pour cet exercice.","Comment lire la cote z d’un point sur le dessin ?","Comment trouver x et y avec le pied du point ?","Comment calculer les coordonnées du milieu ?","Pourquoi fait-on B − A pour le vecteur AB ?","Comment calculer la longueur AB ?"],
@@ -43484,7 +44190,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
+  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEFB','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
@@ -44130,7 +44836,7 @@ function kbVarsFor(id){
   /* 2.2.4 : la dérivée se démontre EN LITTÉRAL (u = ax + b) — les lettres a et b sur le clavier A */
   if(id === 'etude-algo-convexite') return [{latex:"f"},{latex:"x"},{latex:"a"},{latex:"b"}];
   /* 6.1.2 et 6.1.3 : les lignes de calcul sont des champs MathLive — x (l'inconnue) et ≈ (la valeur approchée) sur le clavier A */
-  if(id === 'arbre-probabilites-fiche' || id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
+  if(id === 'arbre-probabilites-fiche' || id === 'arbre-probabilites-bac' || id === 'arbre-probabilites-bac-types' || id === 'probabilites-variable-aleatoire-bac') return [{latex:"x"},{latex:"\\approx",tooltip:"environ égal"}];
   /* 6.2.1 : la suite aₙ et le rang n (les suites), ≈ (la valeur approchée) */
   if(id === 'proba-suite') return [{latex:"a_{n}",tooltip:"a indice n"},KB_N,{latex:"\\approx",tooltip:"environ égal"}];
   /* 5.7.1 : la suite uₙ et le rang n */

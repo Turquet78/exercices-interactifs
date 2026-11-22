@@ -1142,3 +1142,17 @@ Ce qui a été fait, point par point :
 - **Le radical.** Un √ dessiné en SVG, étiré sur la hauteur, dont le trait rejoint la barre posée sur V(X). Le glyphe √ suivi d'une bordure laissait un jour entre les deux.
 
 Mesure : dans le pire tirage, la ligne de V(X) fait 945 px sur 986 à 1280 px de large. Exécuté : une copie aux termes permutés et aux facteurs inversés, sans autre erreur, est notée juste partout, sauf la case laissée vide exprès.
+
+## 6.3.2 — Probabilités et variable aléatoire, un exercice de bac ({probabilites-variable-aleatoire-bac}, kind `apv`)
+
+Demande de Turquet (novembre 2026), avec un bac blanc (exercice 4 : deux usines A et B, P_A(D) = 0,04, P(D) = 5,8 %, p = P_B(D) à retrouver ; P(A ∩ D), P_B(D) = 0,10 par les probabilités totales, P(A ∪ D), P_D(B) à 10⁻³ ; puis le bénéfice X sur un composant, sa loi, E(X), V(X), un lot de 15 000) : « faire un exercice comme l'exercice 4, données et thème différents ; l'arbre présenté comme dans les exercices du site ; chaque question comme l'exercice du site qui traite la même question, la version à cases plutôt que rédigée ; pour l'union, rappeler P(A ∪ B) = P(A) + P(B) − P(A ∩ B) avec les lettres des événements ; on peut prendre Ā comme second événement ».
+
+**Le moteur du 6.1.5, un type 8 qui n'est pas au choix.** `APT_TYPES[8]` porte `horsChoix` : les cartes du 6.1.5 ne le montrent pas, `aptChoisirType(8)` le refuse. L'exercice a son identifiant et son kind (`apv`), son démarreur (`startAPV`, qui tire tout de suite), son rappel (`RAP_APV`) et ses questions proposées ; il partage l'écran `scr-apt` et `renderAPT`/`checkAPT` (DISPATCH `apv:['apt',renderAPT]`, comme `esg` sur l'écran du 7.1.12). `renderAPT` renvoie au bon démarreur une séance qui n'est pas la sienne.
+
+**Partie A, question par question** : l'arbre (choix de l'événement, Ā en second — `L:{A:'L',B:'-L',…}`), x écrit sur la branche Ā → E comme au type 3, l'élève y met 1 − x ; P(A ∩ E) par la ligne à écriture choisie ; « montrer que x = … » par la démonstration en x et la résolution à quatre lignes du 6.1.3 ; la RÉUNION : une écriture `['u', a, b]` (`aptPu`, sa formule P(A) + P(E) − P(A ∩ E) derrière la case étroite, ses pièges : l'intersection, la conditionnelle, P(E)), précédée du rappel écrit avec les lettres de la situation ; puis P_E(Ā) à 10⁻³.
+
+**Partie B, en cases** : les deux valeurs de X (une ligne de calcul `calc` chacune, le nombre seul accepté), la loi dans le tableau du 6.3.1 (valeurs dans l'ordre croissant), E(X) = □ × □ + □ × □ puis E(X) = □, l'interprétation sur des cartes (la moyenne sur un grand nombre, contre « exactement », « la moitié », « perd »), V(X) terme par terme puis sa valeur (exacte, ou à 10⁻² près si elle a plus de deux décimales), enfin « N × E(X) = [calcul] ». L'ordre libre du 6.3.1 est repris pour deux termes (`aptVaAff` : 2 ordres × 4 sens des produits pour E, 2 ordres pour V).
+
+**Trois situations** : colis et transporteurs (retard, remboursement — X peut être négatif), smartphones reconditionnés (panne sous garantie), locations de vacances (réclamation, geste commercial). P(A) de 55 à 80 %, P_A(E) < x, P(E) à une décimale en % comme le sujet ; E(X) > 0 toujours.
+
+Essayé dans Chromium à 1280 et 390 px : une copie faite des corrections est parfaite (35 cases sur 35), une copie vide reçoit ses 35 corrections en vert, aucun défilement horizontal, aucune erreur de page. Terminale v516 (la v515 avait été prise par le 7.1.15 pendant les contrôles).
