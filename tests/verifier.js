@@ -8691,6 +8691,13 @@ function troisFractionsPpcm(w, P){
     if(document.querySelectorAll('#tsfHost .tsf-dmir').length!==4 || [].some.call(document.querySelectorAll('#tsfHost .tsf-dmir'), function(m){ return m.textContent!=='8'; }))
       vus.push('les dénominateurs de la ligne de la somme n’écrivent pas le dénominateur commun');
     if(seIds('tsf').length) vus.push('9/8 ne se simplifie pas, et une simplification est proposée');
+    /* le multiplicateur s'écrit en haut ET en bas en même temps (novembre 2026) */
+    tape('tsf-a2',4); if(($('tsf-b2')||{}).value!=='4') vus.push('× 4 écrit au numérateur ne s’écrit pas au dénominateur');
+    tape('tsf-b3',2); if(($('tsf-a3')||{}).value!=='2') vus.push('× 2 écrit au dénominateur ne s’écrit pas au numérateur');
+    /* les deux lignes du calcul sont UNE grille : chaque fraction sous son produit, les signes l'un sous l'autre */
+    (function(){ const g=document.querySelector('#tsfHost .pt-row.tsf-fiche'); if(!g){ vus.push('pas de grille du calcul'); return; }
+      const k=[].map.call(g.children, function(c){ return c.classList.contains('spf-eq')?'=':c.classList.contains('spf-op')?'s':c.classList.contains('sf-prod')?'P':c.id==='tsfFin'?'F':c.classList.contains('f-frac-input')?'f':c.classList.contains('tsf-vide')?'_':'?'; }).join('');
+      if(k!=='=PsPsP_=fsfsfF') vus.push('la grille n’a pas sept colonnes alignées (produits, puis fractions sous eux) : '+k); })();
     pose();
     if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
     if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
