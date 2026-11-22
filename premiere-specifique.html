@@ -2449,7 +2449,19 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
     dénominateur commun suivies de leur somme, sur une seule ligne. */
  #tsfHost .tsf-dc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin:4px 0 14px;font-size:calc(var(--fx-base,1.45rem) * var(--tab-nb,1))}
  #tsfHost .tsf-dc .tsf-dc-t{font-family:Nunito,system-ui,sans-serif;font-size:.72em;font-weight:700;color:var(--fx-encre,inherit)}
+ /* LES DEUX LIGNES DU CALCUL EN COLONNES (novembre 2026, demande de
+    Turquet) : chaque fraction de la ligne de la somme est CENTRÉE sous le
+    produit qu'elle calcule, et les signes + et − tombent l'un sous l'autre.
+    Sept colonnes : « A = » / « = », terme 1, signe, terme 2, signe, terme 3,
+    puis la somme et sa simplification (#tsfFin) sur la seconde ligne. */
+ #tsfHost .pt-row.tsf-fiche{display:grid;grid-template-columns:repeat(7,max-content);justify-content:safe center;align-items:center;justify-items:center;column-gap:10px;row-gap:14px}
  #tsfHost .pt-row.tsf-fiche>.spf-eq{justify-self:end;white-space:nowrap}
+ #tsfHost .pt-row.tsf-fiche>#tsfFin{justify-self:start}
+ /* sur un téléphone, la grille et sa simplification peuvent dépasser l'écran :
+    c'est la grille du calcul qui défile, jamais la page ni la ligne du
+    dénominateur commun (et « safe center » garde le début visible) */
+ #tsfHost .pt-row.tsf-fiche{max-width:100%;overflow-x:auto;padding-bottom:2px}
+ @media(max-width:520px){ #tsfHost .pt-row.tsf-fiche{column-gap:5px;row-gap:10px} #tsfHost .pt-row.tsf-se-row{gap:5px} }
  #tsfHost .tsf-dmir{min-width:1ch;text-align:center}
  /* la ligne de la somme est aussi la rangée où la simplification du 4.1
     (SE_CFG.tsf) s'accroche, sur la même ligne */
@@ -4154,7 +4166,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=455;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=457;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -24479,6 +24491,18 @@ function tsfMiroirs(){
 }
 function tsfEntree(){
   const h=$('tsfHost'); if(!h) return;
+  /* LE MULTIPLICATEUR S'ÉCRIT EN HAUT ET EN BAS EN MÊME TEMPS (novembre 2026,
+     demande de Turquet) : « × m » tapé au numérateur apparaît au
+     dénominateur, et l'inverse — on multiplie en haut ET en bas par le MÊME
+     nombre. Les deux cases restent modifiables, chacune recopie l'autre. */
+  if(!h.__jumeaux){ h.__jumeaux=true;
+    h.addEventListener('input', function(e){
+      if(!test || test.kind!=='tsf' || !test.ppcm) return;
+      const m=/^tsf-([ab])([123])$/.exec((e.target && e.target.id) || ''); if(!m) return;
+      const jum=$('tsf-'+(m[1]==='a'?'b':'a')+m[2]); if(!jum || jum.disabled) return;
+      const v=String(e.target.value==null?'':e.target.value);
+      if(String(jum.value)!==v){ jum.value=v; jum.classList.remove('ok','bad'); }
+    }, true); }
   if(!h.__entree){ h.__entree=true;
     h.addEventListener('keydown', function(e){
       if(e.key!=='Enter' || !test || test.kind!=='tsf' || !test.ppcm || test.redac && test.questions[test.idx] && test.questions[test.idx].redac) return;
@@ -24494,9 +24518,9 @@ function tsfFicheHTML(q, op, op2){
   return '<div class="pt-step">'
      +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span><span class="f-whole">'+q.D+'</span></div>'
      +'<div class="pt-row tsf-fiche">'
-       +'<span class="f-eq spf-eq">A&nbsp;=</span><span class="lg-c">'+lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3')+'</span>'
-       +spfEq()+'<span class="lg-c" id="tsfFin"><span class="pt-row tsf-se-row">'+sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')
-         +fEq(sur('tsf-fn','numérateur de la somme','tsf-fdm'))+'</span></span>'
+       +'<span class="f-eq spf-eq">A&nbsp;=</span>'+lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3')+'<span class="tsf-vide"></span>'
+       +spfEq()+sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')
+         +'<span id="tsfFin"><span class="pt-row tsf-se-row">'+fEq(sur('tsf-fn','numérateur de la somme','tsf-fdm'))+'</span></span>'
      +'</div></div>';
 }
 function tsfOp(q){ return q.op==='−' ? '−' : '+'; }
@@ -27287,8 +27311,8 @@ async function startFPB2(){ if(!currentEleve){ accueil(); return; } pbDemarrer('
    - P(A ∪ D) (q.t = 'rup') : une fraction, toute fraction égale est juste
      (pb-n1 / pb-n2, pbFracJuger).
    Le tableau est COMPLET (aucune case à trouver), ses lignes A et Ā, ses
-   colonnes D et D̄, comme au 3.10. Les effectifs : quatre multiples de 5
-   différents, de 10 à 95. Contextes : RU_CTX (q.ru = 1, lu par pbCtx). */
+   colonnes D et D̄, comme au 3.10. Les effectifs : quatre multiples de 10
+   différents, de 10 à 90, sans retenue (v457, ruSeance). Contextes : RU_CTX (q.ru = 1, lu par pbCtx). */
 const RU_CTX=[
   /* f : le nom est féminin (« toutes celles »). lA, lnA : en tête des lignes ;
      lB, lnB : en tête des colonnes. A, B : les évènements, à l'indicatif ;
@@ -27336,12 +27360,17 @@ function ruRappel(C){
 /* « les élèves qui font partie de l'association sportive et qui sont externes » */
 function ruDecrit(C, c){ const p=c.split('.'); return 'les '+C.pl+' '+C['p'+p[0]]+' et '+C['p'+p[1]]; }
 function ruSeance(){
-  const ci=rand(0,RU_CTX.length-1); let m=null;
-  for(let e=0;e<500 && !m;e++){
-    const t=[0,0,0,0].map(()=>5*rand(2,19));
-    if(new Set(t).size===4) m=t;
+  /* v457 (demande de Turquet) : les quatre cases du milieu sont des
+     multiples de 10 différents, plus petits que 100 (10 à 90), et aucun
+     calcul ne demande de retenue — la somme des trois cases de A ∪ D (la
+     question 5) reste sous 100, et chaque total de ligne ou de colonne
+     aussi ; seul le total général peut dépasser, il est donné. */
+  const ci=rand(0,RU_CTX.length-1), jeux=[];
+  for(let a=1;a<=9;a++) for(let b=1;b<=9;b++) for(let c=1;c<=9;c++) for(let d=1;d<=9;d++){
+    if(new Set([a,b,c,d]).size<4 || a+b+c>9 || b+d>9 || c+d>9) continue;
+    jeux.push([a,b,c,d].map(x=>10*x));
   }
-  if(!m) m=[35,20,45,15];
+  const m=jeux.length ? pick(jeux) : [30,20,40,10];
   const qs=[], pose=o=>qs.push(distincte(qs, ()=>Object.assign(o, { ru:1, n:m.slice(), ci:ci, rep:{} })));
   RU_CASES.forEach(c=>pose({ t:'rucase', c:c }));
   pose({ t:'runb' });
@@ -34711,8 +34740,8 @@ Chaque calcul que tu écris doit être juste : une égalité fausse suffit à re
 const RAP_RU=`<b>La réunion de deux évènements</b><br>
 <b>Ce que veut dire A ∪ D.</b> \\(A\\cup D\\) (on lit « A union D ») désigne toutes les personnes (ou tous les objets) qui sont dans le groupe qui réunit toutes celles qui sont dans \\(A\\) avec toutes celles qui sont dans \\(D\\) : on y est dès qu’on est dans \\(A\\), ou dans \\(D\\), ou dans les deux.<br>
 <b>Case par case.</b> Une case du tableau fait partie de \\(A\\cup D\\) si elle fait partie de \\(A\\) OU de \\(D\\). Sur les quatre cases du milieu, trois en font partie : \\(A\\cap D\\), \\(A\\cap\\overline{D}\\) et \\(\\overline{A}\\cap D\\). Seule \\(\\overline{A}\\cap\\overline{D}\\) (ni dans \\(A\\), ni dans \\(D\\)) n’en fait pas partie.<br>
-<b>Le nombre d’éléments.</b> On additionne les trois cases : par exemple 30 + 25 + 40 = 95.<br>
-<b>La probabilité.</b> On choisit au hasard parmi tous : \\(P(A\\cup D)=\\dfrac{\\text{nombre d’éléments de } A\\cup D}{\\text{effectif total}}\\), par exemple \\(\\dfrac{95}{120}\\).<br>
+<b>Le nombre d’éléments.</b> On additionne les trois cases : par exemple 30 + 20 + 40 = 90.<br>
+<b>La probabilité.</b> On choisit au hasard parmi tous : \\(P(A\\cup D)=\\dfrac{\\text{nombre d’éléments de } A\\cup D}{\\text{effectif total}}\\), par exemple \\(\\dfrac{90}{100}\\).<br>
 Piège classique : compter deux fois la case \\(A\\cap D\\) en additionnant le total de \\(A\\) et le total de \\(D\\).`;
 const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }

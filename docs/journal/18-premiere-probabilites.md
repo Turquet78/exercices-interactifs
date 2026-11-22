@@ -982,3 +982,17 @@ la case ne se colorie qu'à la validation (en soutien, après « Revérifier »
 juste) ; les trois cases de A ∪ D coloriées à la question 5, Ā ∩ D̄ jamais ;
 le nombre et la fraction justes, la séance menée à l'écran de fin ; aucun
 débordement horizontal, aucune erreur JavaScript.
+
+**Puis des dizaines, et aucune retenue (v457 ; la 4.11 avait pris la v456 le même jour).** Demande de Turquet, le
+lendemain : « dans cet exercice ne donner que des multiples de 10 et des
+calculs qui ne nécessitent pas d'utiliser une retenue ; chaque case
+intérieure du tableau doit être plus petite que 100 ». `ruSeance` tire
+désormais les quatre cases du milieu parmi les multiples de 10 de 10 à 90,
+toutes différentes, dans les jeux où la somme des trois cases de A ∪ D (la
+question 5) reste sous 100 — aucune retenue, ni sur la première addition ni
+sur la seconde — et où chaque total de ligne et de colonne reste aussi sous
+100. Seul le total général peut dépasser : il est donné, l'élève ne le
+calcule pas. 106 jeux possibles. L'exemple du rappel suit (30 + 20 + 40 =
+90, puis 90/100). Vérifié dans Chromium : 300 tirages, aucun hors des règles,
+99 tableaux différents ; une séance menée à sa fin en entraînement et en
+soutien, à 1280 et à 390 px, sans erreur JavaScript.
