@@ -4713,7 +4713,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=518;
+const APP_VERSION=519;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4962,7 +4962,7 @@ const TESTS={
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'espace-section-cube': { name:'Espace \u2014 section d\u2019un cube par un plan', icon:'\ud83e\uddca', desc:'La fiche \u00ab section espace \u00bb\u00a0: un cube, trois points I, J, K sur ses ar\u00eates. Construire sur la figure le point L, l\u2019intersection de deux plans, puis la section du cube par le plan (IJK) \u2014 droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESX() },
   'espace-section-cube-guidee': { name:'Espace \u2014 section d\u2019un cube, \u00e9tape par \u00e9tape', icon:'\ud83e\uddca', desc:'La section d\u2019un cube par le plan (IJK), construite en suivant les \u00e9tapes\u00a0: trace la droite (IJ), place le point d\u2019intersection L, trace le segment, trace la parall\u00e8le passant par un point\u2026 Chaque \u00e9tape se coche quand elle est faite. Deux figures.', start:()=>startESG() },
-  'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 placer I, J, K puis construire la section du cube par le plan (IJK).', start:()=>startEBC() },
+  'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 construire la section du cube par le plan (IJK).', start:()=>startEBC() },
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
@@ -37481,7 +37481,7 @@ function checkESX(live){
   fb.insertAdjacentHTML('afterbegin', guide?esgBilanHTML(q):esxBilanHTML(q,libre));
   const nc=esxNomsCorr(q);
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:(test.kind==='ebc'?'Espace — exercice de bac, partie 5 sur 5 ('+EBC_TITRES[5]+') : ':(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : ')))+esxPlain(q),
+    q:(test.kind==='ebc'?'Espace — exercice de bac, partie '+(test.idx+1)+' sur '+test.questions.length+' ('+EBC_TITRES[5]+') : ':(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : ')))+esxPlain(q),
     answer:'L, 𝒟 = (LK), section '+esxCfg(q).morceaux.map(m=>'['+nc.nom(m.P)+nc.nom(m.Q)+']').join(' '),
     given:b.filter(z=>z.ok).length+(guide?' étape':' élément')+(b.filter(z=>z.ok).length>1?'s':'')+' sur '+b.length, correct:ok, type:test.kind}));
   const last=test.idx===test.questions.length-1;
@@ -37660,7 +37660,8 @@ function eslConseilCtx(){
    en prenant la méthode avec des cases à remplir plutôt qu'une version
    rédigée si elle existe ; dans l'espace on présentera comme dans
    l'exercice 7.1.14 ».
-   LE SUJET, EN CINQ PARTIES (une séance, cinq écrans, la même figure) :
+   LE SUJET, EN CINQ PARTIES — QUATRE DEPUIS v519, la partie 4 supprimée (voir
+   EBC_PARTIES) — une séance, un écran par partie, la même figure :
      1 — Partie A, 1. et 2. : les coordonnées de quatre sommets et de I, J, K
          (comme au 7.1.6) ; IK⃗ en colonne « K − I » puis une représentation
          paramétrique de (IK), point et vecteur au choix de l'élève (7.1.9 d).
@@ -37694,7 +37695,13 @@ function eslConseilCtx(){
    LE DESSIN : celui du 7.1.14 (B en bas à gauche de la face avant, A caché
    derrière B, ESX_CO), le repère restant (A ; AB⃗ ; AD⃗ ; AE⃗) — ebcR passe
    des coordonnées du dessin à celles du repère. */
-const EBC_NBQ=5;
+/* QUATRE PARTIES, PLUS CINQ (Turquet, novembre 2026 : « mettre aussi I, J, K
+   sur la figure de la partie C1 », puis, devant le choix, « dessiner et
+   supprimer C1 ») : I, J, K étant dessinés d'office, « placer I, J et K » n'a
+   plus rien à demander. Les parties tirées sont 1, 2, 3 et 5 (q.p garde son
+   sens) ; le code de la partie 4 reste pour un brouillon d'avant. */
+const EBC_PARTIES=[1,2,3,5];
+const EBC_NBQ=EBC_PARTIES.length;
 const EBC_TITRES=['','Partie A — coordonnées, la droite (IK)','Partie A — un point de (IK), une autre représentation','Partie B — positions relatives de deux droites','Partie C — placer I, J et K','Partie C — la section du cube'];
 function ebcRd(x){ const r=Math.round(x*1e9)/1e9; return r===0?0:r; }
 function ebcQuart(x){ return Math.abs(x*4-Math.round(x*4))<1e-9; }
@@ -37762,7 +37769,7 @@ function ebcGen(){
 }
 function ebcGenSession(){
   const f=ebcGen();
-  return distinctes(EBC_NBQ, function(u,i){ const q=JSON.parse(JSON.stringify(f)); q.p=i+1; if(q.p===4) q.place={}; if(q.p===5) q.cons=[]; return q; });
+  return distinctes(EBC_NBQ, function(u,i){ const q=JSON.parse(JSON.stringify(f)); q.p=EBC_PARTIES[i]; if(q.p===4) q.place={}; if(q.p===5) q.cons=[]; return q; });
 }
 /* ---- les écritures ---- */
 function ebcPtHTML(q,n){ return '<span class="edp-nw"><i>'+n+'</i>('+ebcPt(q,n).map(numFmt).join(' ; ')+')</span>'; }
@@ -38014,12 +38021,19 @@ function ebcSVG(q){
       if(sc>bs){ bs=sc; best=cc; } }
     h+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="2.6" class="esx-pt"/><text x="'+f(best[0])+'" y="'+f(best[1]+5.5)+'" text-anchor="middle" class="esx-ls">'+L+'</text>';
   });
+  /* l'étiquette d'un point de I, J, K : la place la plus dégagée parmi seize, loin des arêtes et des sommets */
+  const som=ESX_SOM.map(L=>X(ESX_CO[L]));
+  const place=function(m){ let best=null, bs=-Infinity;
+    for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+16*Math.cos(an), m[1]+16*Math.sin(an)];
+      const sc=Math.min(12,Math.min(...traits.map(z=>esxDist2(cc,z[0],z[1]))))+Math.min(14,Math.min(...som.map(z=>Math.hypot(z[0]-cc[0],z[1]-cc[1])))-6);
+      if(sc>bs){ bs=sc; best=cc; } }
+    return best; };
+  /* I, J ET K SUR TOUS LES DESSINS — la partie C, 1. comprise, puis supprimée (voir EBC_PARTIES). (Turquet, novembre 2026 : « il faut placer
+     les points I, J, K sur le cube aussi pour tous les dessins ») */
+  ['I','J','K'].forEach(function(L){ const m=X(g[L]), t=place(m);
+    h+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="3.6" class="esx-pt"/><text x="'+f(t[0])+'" y="'+f(t[1]+5.5)+'" text-anchor="middle" class="esx-ls">'+L+'</text>'; });
   if(q.p===4){
-    const som=ESX_SOM.map(L=>X(ESX_CO[L]));
-    const marque=function(L,P,cl,pts){ const m=X(P); let best=null, bs=-Infinity;
-      for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+16*Math.cos(an), m[1]+16*Math.sin(an)];
-        const sc=Math.min(12,Math.min(...traits.map(z=>esxDist2(cc,z[0],z[1]))))+Math.min(14,Math.min(...som.map(z=>Math.hypot(z[0]-cc[0],z[1]-cc[1])))-6);
-        if(sc>bs){ bs=sc; best=cc; } }
+    const marque=function(L,P,cl,pts){ const m=X(P), best=place(m);
       return '<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="'+L+'"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
         +'<text x="'+f(best[0])+'" y="'+f(best[1]+6)+'" text-anchor="middle" class="ebc-lbl">'+L+'</text></g>'; };
     ['I','J','K'].forEach(function(L){
@@ -38030,7 +38044,7 @@ function ebcSVG(q){
     });
     if(ebcSurvol && !test.locked) h+=marque(ebcActif,ebcSurvol,'ecb-fant',false);
   }
-  return '<svg class="esx-svg ebc-svg" id="ebcSvg" viewBox="'+f(c.x0)+' '+f(c.y0)+' '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH'+(q.p===4?', où placer les points I, J et K':'')+'">'+h+'</svg>';
+  return '<svg class="esx-svg ebc-svg" id="ebcSvg" viewBox="'+f(c.x0)+' '+f(c.y0)+' '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH et les points I, J et K">'+h+'</svg>';
 }
 function ebcBoutons(){
   const q=test.questions[test.idx]; if(!q || q.p!==4) return;
@@ -38168,7 +38182,7 @@ function checkEBC(live){
   ebcMaj();
   ebcDessiner();
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:'Espace — exercice de bac, partie '+q.p+' sur 5 ('+EBC_TITRES[q.p]+') : '+ebcPlain(q), answer:ebcRepPlain(q),
+    q:'Espace — exercice de bac, partie '+(test.idx+1)+' sur '+test.questions.length+' ('+EBC_TITRES[q.p]+') : '+ebcPlain(q), answer:ebcRepPlain(q),
     given:allOk?'✓':'incomplet', correct:allOk, type:'ebc'}));
   const last=test.idx===test.questions.length-1;
   $('ebcActions').innerHTML='<button class="btn btn-primary" onclick="nextEBC()">'+(last?'Voir mes résultats':'Partie suivante')+'</button>';
@@ -38183,15 +38197,15 @@ function ebcRepPlain(q){
 function nextEBC(){ if(test.idx<test.questions.length-1){ test.idx++; renderEBC(); } else finishTest(); }
 /* la partie C, 2. — l'énoncé de la section, sur l'écran du 7.1.14 */
 function ebcSectionPromptHTML(q){
-  return ebcEnonce(q)+'<br><b>Partie C – Section du cube.</b> Les points <i>I</i>, <i>J</i> et <i>K</i> sont placés sur la figure.'
-    +'<br>2. Construire la section du cube par le plan (<i>IJK</i>), en laissant les traits de construction.'
+  return ebcEnonce(q)+'<br><b>Partie C – Section du cube.</b> '
+    +'<br>Construire la section du cube par le plan (<i>IJK</i>), en laissant les traits de construction.'
     +'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Segment rouge parallèle »), il passe en rouge dès qu’il est juste.</span>';
 }
 /* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
    secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
 function ebcConseilCtx(){
   const q=test.questions[test.idx];
-  if(q.p===5) return eslConseilCtx()+' (C’est la dernière partie d’un exercice de bac en cinq parties : la partie C, question 2.)';
+  if(q.p===5) return eslConseilCtx()+' (C’est la dernière partie d’un exercice de bac en quatre parties : la partie C, la section.)';
   const cases=ebcCases(q, q.p===2?ebcChoix():null);
   const etat=cases.map(function(x){
     if(x.type==='plc'){ const P=(q.place||{})[x.id.slice(-1)]; return x.nom+' = '+(Array.isArray(P)?'placé':'(pas encore placé)'); }
@@ -38201,7 +38215,7 @@ function ebcConseilCtx(){
     'la représentation de (IK) est imposée ; 3. vérifier que P est sur (IK) : on écrit les trois équations x_point + coefficient × t = x_P, on fait passer le nombre de l’autre côté, on divise : t = …/… ; les trois valeurs de t sont égales ; 4. montrer que Δ est une autre représentation de (IK) : on vérifie que Δ passe par deux points de (IK) (au choix parmi I, K et P), avec la même rédaction ; deux points distincts définissent une seule droite : les droites sont confondues',
     'Partie B. 1. (IK) et (d) parallèles ? la propriété (vecteurs directeurs colinéaires), u de (IK) et v de (d) lus sur les coefficients de t et t′, les trois quotients « fin / début » (fraction simplifiée ou valeur approchée au dixième, dans le sens qu’on veut), la conclusion ; 2. sécantes ? on égale les équations ligne à ligne (①, ②, ③), on isole t dans l’équation où il est seul, on le remplace dans une autre, on trouve t′ puis t, on vérifie dans la dernière équation : elle est fausse, t et t′ ne sont pas solutions des trois équations, les droites ne sont pas sécantes ; conclusion générale : non parallèles, non sécantes, donc non coplanaires',
     'Partie C. 1. placer I, J et K sur la figure, sur leur arête, au quart, au milieu ou aux trois quarts'];
-  return 'Exercice de Terminale (géométrie dans l’espace, exercice de bac en cinq parties, partie '+q.p+' sur 5) : '+ebcPlain(q)+'. Questions de cette partie : '+parties[q.p]+'. '
+  return 'Exercice de Terminale (géométrie dans l’espace, exercice de bac en '+test.questions.length+' parties, partie '+(test.idx+1)+' sur '+test.questions.length+') : '+ebcPlain(q)+'. Questions de cette partie : '+parties[q.p]+'. '
     +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
     +cases.map(function(x){ return x.nom+' = '+ebcAff(x); }).join(' ; ')+' ('+ebcRepPlain(q)+'). '
     +'Les menus valent : est / nest = « est / n’est pas », conf = « confondues », col = « colinéaires », sont / nsp = « sont / ne sont pas parallèles », oui / non = « vérifiée / fausse », sol / nsol = « sont / ne sont pas solutions », sec / nsec = « sécantes / non sécantes », par / npar = « parallèles / non parallèles », cop / ncop = « coplanaires / non coplanaires ». '
