@@ -946,6 +946,9 @@
   .svr-cel.sbe-etape{margin-top:6px;font-style:italic;color:var(--ink-soft)}   /* l'étape annoncée, au-dessus de sa ligne */
   .sbe-pgrp .sbe-paren{width:13px;min-height:2.6em}   /* les grandes parenthèses de la partie C : un peu plus larges et plus hautes que la ligne */
   #scr-sbe math-field.sbe-mfn{min-width:70px}
+  .sbe-res{display:grid;grid-template-columns:repeat(3,max-content);justify-content:start;align-items:center;gap:8px 6px;font-size:1.25rem}
+  .sbe-res>span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .sbe-res>.sbe-rg{justify-content:flex-end}
   .sbe-graphe{max-width:580px;margin:4px 0 8px}
   #sbeGraph .svr-svg{max-width:580px}
   .sbe-retrait select{max-width:100%}   /* une phrase de l'énoncé dans une liste : tronquée à l'écran, entière dans le menu */
@@ -6559,10 +6562,12 @@ function dmEnonceQ(section){
   /* les blocs d'aide de l'écran (formule rappelée, pistes en italique) ne
      comptent pas comme lignes : DME_AIDES les retire de toute façon */
   dmeResteDe(section).forEach(function(l){ l.setAttribute('data-dme-ligne',''); marques.push(l); });
+  const cel=dmeMarquerCellules(section);
   const c=section.cloneNode(true);
+  cel.forEach(function(e){ e.removeAttribute('data-dme-cel'); });
   marques.forEach(function(l){ l.removeAttribute('data-dme-ligne'); });
   section.querySelectorAll('[data-dme-boite]').forEach(function(e){ e.removeAttribute('data-dme-boite'); });
-  c.querySelectorAll('[data-dme-ligne]').forEach(function(e){ e.remove(); });
+  c.querySelectorAll('[data-dme-ligne]').forEach(function(e){ if(e.hasAttribute('data-dme-cel')){ e.innerHTML=''; e.removeAttribute('data-dme-ligne'); } else e.remove(); });   /* une cellule de grille se vide, elle tient sa colonne */
   /* les conteneurs mixtes, du plus profond au plus large : ce qu'il en reste
      sans case ne garde sa place que s'il pose une question (même règle que
      dmeResteDe) ; une case cochable y reste une proposition */
@@ -6591,11 +6596,46 @@ function dmEnonceQ(section){
     e.replaceWith(b); });
   dmeNettoyerClone(c);
   /* ce que le ménage a vidé (un cadre qui ne portait que des lignes à
-     compléter) part aussi : un cadre vide imprime une boîte blanche */
+     compléter) part aussi : un cadre vide imprime une boîte blanche —
+     sauf une CELLULE de grille (dmeViderCadres) */
+  dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank');
+  return c.innerHTML;
+}
+/* LES CELLULES D'UNE GRILLE GARDENT LEUR PLACE. Une photo retire les cadres
+   qu'elle a vidés ; mais dans une grille (la vérification d'une équation
+   différentielle : début | gauche | = | droite | « ce qui est vrai »), une
+   cellule vide TIENT une colonne. Retirée, chaque cellule suivante glissait
+   d'un rang : les ⟺ tombaient au bout de la ligne d'avant, rien ne
+   s'alignait plus (signalé par Turquet, novembre 2026, DM n°13). Le clone
+   n'a pas de style calculé : on marque sur l'écran affiché, avant de
+   cloner, chaque enfant d'une grille. */
+function dmeMarquerCellules(scr){
+  const l=[];
+  scr.querySelectorAll('*').forEach(function(p){
+    if(p.closest('svg') || !p.children.length || !/grid$/.test(getComputedStyle(p).display)) return;
+    /* la valeur : le numéro de la RANGÉE — une nouvelle rangée commence
+       quand une cellule revient à gauche de la précédente (le haut ne dit
+       rien : une rangée centrée a des cellules de hauteurs différentes) ;
+       une rangée entièrement vidée part toute, sans quoi elle imprimerait
+       une bande blanche */
+    let rang=0, avant=-Infinity;
+    Array.prototype.forEach.call(p.children, function(e){
+      const x=e.getBoundingClientRect().left; if(x<=avant) rang++; avant=x;
+      e.setAttribute('data-dme-cel', String(rang)); l.push(e); });
+  });
+  return l;
+}
+function dmeViderCadres(c, garde){
+  const vide=function(e){ return !(e.textContent||'').trim() && !e.querySelector(garde) && !e.matches(garde); };
+  const rangs=new Map();
+  c.querySelectorAll('[data-dme-cel]').forEach(function(e){
+    const k=e.parentElement, r=e.getAttribute('data-dme-cel');
+    if(!rangs.has(k)) rangs.set(k, {}); (rangs.get(k)[r]=rangs.get(k)[r]||[]).push(e); });
+  rangs.forEach(function(rs){ Object.keys(rs).forEach(function(r){ if(rs[r].every(vide)) rs[r].forEach(function(e){ e.remove(); }); }); });
   for(let tour=0; tour<4; tour++)
     c.querySelectorAll('div,p,section,ul,ol,li').forEach(function(e){
-      if(!(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank')) e.remove(); });
-  return c.innerHTML;
+      if(!e.hasAttribute('data-dme-cel') && !(e.textContent||'').trim() && !e.querySelector(garde)) e.remove(); });
+  c.querySelectorAll('[data-dme-cel]').forEach(function(e){ e.removeAttribute('data-dme-cel'); });
 }
 /* CE QUE TOUTE PHOTO D'UN ÉCRAN RETIRE — l'énoncé papier comme la
    correction : le cadre au marqueur mesuré pour l'écran, et les id (renommés
@@ -6903,7 +6943,9 @@ function dmCorrigeQ(scr){
   const vraies=Array.prototype.slice.call(scr.querySelectorAll(DMC_SAISIES));
   const BADGES='.sol:not(input):not(select):not(math-field):not(textarea),.mf-cor';
   const badgesV=Array.prototype.slice.call(scr.querySelectorAll(BADGES));
+  const cel=dmeMarquerCellules(scr);
   const c=scr.cloneNode(true);
+  cel.forEach(function(e){ e.removeAttribute('data-dme-cel'); });
   const badgesC=Array.prototype.slice.call(c.querySelectorAll(BADGES));
   Array.prototype.slice.call(c.querySelectorAll(DMC_SAISIES)).forEach(function(e,k){
     const v=vraies[k];
@@ -6942,6 +6984,16 @@ function dmCorrigeQ(scr){
     }
     e.replaceWith(r);
   });
+  /* UN BOUTON QUE LA PAGE A JUGÉ EST UNE CASE : l'écriture de la
+     probabilité que l'élève choisit dans un petit menu (.apc-slot du 6.1.x,
+     « P(A ∩ V) » devant « = P(A) × P_A(V) ») est un bouton, et la photo
+     retirait tous les boutons — la ligne de la correction commençait par
+     « = » (signalé par Turquet, novembre 2026, DM n°13). Ce que la page y a
+     écrit, juste (ok) ou corrigé (sol), devient sa valeur ; un bouton rouge
+     part, la correction est à côté (.mf-cor). */
+  c.querySelectorAll('button.ok,button.sol').forEach(function(b){
+    if(!(b.textContent||'').trim()) return;
+    const r=document.createElement('span'); r.className='dmc-val'; r.innerHTML=b.innerHTML; b.replaceWith(r); });
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.tvi-actions,.mp-feedback,[id$="Feedback"],#esxMsg,.iafb,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,.ia-row,.score-tag,.papier-seul,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
   /* une copie d'essai n'est pas une copie : rien n'y est rouge, et ce que la
@@ -6949,9 +7001,7 @@ function dmCorrigeQ(scr){
   c.querySelectorAll('.bad').forEach(function(e){ e.classList.remove('bad'); });
   c.querySelectorAll('.ok').forEach(function(e){ e.classList.remove('ok'); e.classList.add('sol'); });
   dmeNettoyerClone(c);
-  for(let tour=0; tour<4; tour++)
-    c.querySelectorAll('div,p,section,ul,ol,li').forEach(function(e){
-      if(!(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank,.dmc-val')) e.remove(); });
+  dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank,.dmc-val');
   return c.innerHTML;
 }
 /* Une question : les tours de la correction (voir l'en-tête). */
@@ -7129,7 +7179,14 @@ async function dmePdfSvgEnImages(hote){
     const im=hote.ownerDocument.createElement('img');
     im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new vue.XMLSerializer().serializeToString(k));
     im.style.cssText='width:'+r.width+'px;height:'+r.height+'px;display:'+(cs.display==='inline'?'inline-block':cs.display)
-      +';vertical-align:'+cs.verticalAlign+';position:'+cs.position+';left:'+cs.left+';top:'+cs.top+';margin:'+cs.margin;
+      +';vertical-align:'+cs.verticalAlign+';position:'+cs.position+';left:'+cs.left+';top:'+cs.top+';margin:'+cs.margin
+    /* SA PLACE DANS UNE GRILLE : l'accolade d'un système (.edp-acc) est
+       posée par sa CLASSE en colonne 1, lignes 1 à 3. L'image, sans classe,
+       se plaçait d'office dans la première cellule libre : la ligne x = …
+       prenait la hauteur de l'accolade, y et z tombaient dessous, hors
+       d'elle (signalé par Turquet, novembre 2026, DM n°13). */
+      +';grid-row:'+cs.gridRowStart+' / '+cs.gridRowEnd+';grid-column:'+cs.gridColumnStart+' / '+cs.gridColumnEnd
+      +';align-self:'+cs.alignSelf+';justify-self:'+cs.justifySelf+';order:'+cs.order+';flex:'+cs.flex+';z-index:'+cs.zIndex;
     attente.push(new Promise(function(ok){ im.onload=ok; im.onerror=ok; }));
     g.replaceWith(im);
   });
@@ -31863,10 +31920,15 @@ function sbeCorpsHTML(q){
       +sbeT(', elle est')+sbeSel('sbe-t-conv',[['convergente','convergente'],['divergente','divergente'],['constante','constante']])+sbeT('. On note ℓ sa limite.')+'</div>'
     +'<div class="sa2-row">'+lim+sbeT(SBE_UN+' =')+sbeSel('sbe-t-l1',optL)+sbeT('et')+lim+sbeT(SBE_UN1+' =')+sbeSel('sbe-t-l2',optL)+'</div>'
     +'<div class="sa2-row">'+sbeT('Par passage à la limite dans '+rel+' :')+'</div>'
-    +'<div class="sa2-row">'+sbeSel('sbe-t-p1',optP)+sbeT('= '+Q)+sbeSel('sbe-t-p2',optP)+sbeT('+ '+N(q.r))+'</div>'
-    +'<div class="sa2-row">'+sbeT('ℓ −')+sbeMfN('sbe-t-s1')+sbeT('ℓ =')+sbeMfN('sbe-t-s2')+'</div>'
-    +'<div class="sa2-row">'+sbeMfN('sbe-t-s3')+sbeT('ℓ =')+sbeMfN('sbe-t-s4')+'</div>'
-    +'<div class="sa2-row">'+sbeT('ℓ =')+sbeMfN('sbe-t-s5')+'</div></div>'
+    /* LA RÉSOLUTION EN GRILLE : gauche | = | droite — les « = » l'un sous
+       l'autre, à l'écran comme sur la correction en PDF (signalé par
+       Turquet, novembre 2026, DM n°13 : chaque ligne partait du bord, et ses
+       « = » tombaient où la gauche finissait) */
+    +'<div class="sbe-res">'+[[sbeSel('sbe-t-p1',optP), sbeT(Q)+sbeSel('sbe-t-p2',optP)+sbeT('+ '+N(q.r))],
+        [sbeT('ℓ −')+sbeMfN('sbe-t-s1')+sbeT('ℓ'), sbeMfN('sbe-t-s2')],
+        [sbeMfN('sbe-t-s3')+sbeT('ℓ'), sbeMfN('sbe-t-s4')],
+        [sbeT('ℓ'), sbeMfN('sbe-t-s5')]].map(function(r){
+        return '<span class="sbe-rg">'+r[0]+'</span><span class="sbe-req">=</span><span class="sbe-rd">'+r[1]+'</span>'; }).join('')+'</div></div>'
     +'<p class="dexp-hint">Une division peut s’écrire en fraction : touche « / ».</p>';
   /* ---------- Partie C ---------- */
   const EQ='<span class="rf-eq">=</span>';
