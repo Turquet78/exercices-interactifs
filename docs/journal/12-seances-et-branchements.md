@@ -293,7 +293,7 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
 
 **Le bouton « retour » du navigateur vaut « Sortie » pendant un exercice — et
 ramène en arrière sur le site partout ailleurs** (demande de Turquet, novembre
-2026 ; Seconde v716, Première v458, Terminale v517). Bloc
+2026 ; Seconde v716, Première v458, Terminale v518). Bloc
 `#retour-navigateur`, juste avant `#sortie-reprise-css`, les trois fichiers.
 Tant que `#sortieLien` se montre, une entrée de garde (`{exoGarde:1}`, même
 adresse) est poussée dans l'historique ; « retour » (bouton, geste de la
