@@ -24280,8 +24280,10 @@ function clavierCouches(w, P){
    · « clavier C » est sur A ET sur B, et y MÈNE (une touche qui mènerait
      ailleurs se verrait ici, pas sur l'écran) ;
    · le jeu des couches A et B ne perd RIEN : seule « clavier C » s'y ajoute ;
-   · le bord opposé : sans rédaction, AUCUNE couche C — elle ne fuit pas sur
-     les exercices qui n'en ont pas l'usage ;
+   · le drapeau baissé, AUCUNE couche C (buildKbTerm ne l'invente pas) ; et
+     depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+     clavier »), kbLettres le LÈVE sur tout écran d'exercice à champ
+     mathématique, rédaction ou non — chaque lettre avec sa majuscule sous ⇧ ;
    · applyKbLayout PASSE le drapeau (la moitié morte d'un correctif), kbLettres
      ne répond que pour l'exercice COURANT, et la feuille de rédaction POSE la
      classe que kbLettres cherche.
@@ -24315,6 +24317,12 @@ function clavierLettres(w, P){
         if(t.indexOf(c) < 0 && !touchesC.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier C (' + quelle + ')');
       });
       if(C.effacer && t.indexOf(C.effacer) < 0) pbs.push('le clavier C (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+      /* les MAJUSCULES (novembre 2026) : chaque lettre a sa majuscule sous ⇧, et la touche ⇧ est là */
+      'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c => {
+        const k = touchesC.find(x => x && x.key === c);
+        if(k && !(k.shift && k.shift.key === c.toUpperCase())) pbs.push('la lettre « ' + c + ' » n\'a pas sa majuscule sous ⇧ (clavier C, ' + quelle + ')');
+      });
+      if(!touchesC.some(k => k === '[shift]' || (k && k.label === '[shift]'))) pbs.push('le clavier C (' + quelle + ') n\'a pas de touche ⇧ : aucune majuscule ne s\'écrit');
       if(!touchesC.some(k => String(k.label || '') === C.entree && JSON.stringify(k.command || '').indexOf('commit') >= 0))
         pbs.push('le clavier C (' + quelle + ') n\'a pas de touche « ' + C.entree + ' » qui valide');
       if(!touchesC.some(k => mene(k, ca[0].id) && String(k.label || '') === C.versA))
@@ -24356,7 +24364,12 @@ function clavierLettres(w, P){
     if(non !== 2) pbs.push('applyKbLayout pose ' + non + ' couche(s) hors rédaction');
     let kl = null;
     const champ = { vu: true };
-    const doc = { querySelector: q => (/math-field\.mf-mots/.test(q) && champ.vu) ? {} : null };
+    /* depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+       clavier »), les lettres viennent sur TOUT écran d'exercice qui porte un
+       champ mathématique, rédaction ou non : le faux document ne répond qu'à
+       une requête de champ MathLive SANS exiger mf-mots — un kbLettres qui
+       redeviendrait réservé à la rédaction rougit ici */
+    const doc = { querySelector: q => (/math-field/.test(q) && !/mf-mots/.test(q) && champ.vu) ? {} : null };
     try{ kl = cur => new Function('document', 'currentTestId', 'return (' + fL.texte + ')')(doc, cur); }
     catch(e){ pbs.push('kbLettres ne s\'évalue pas : ' + e.message); }
     if(kl){
@@ -24439,6 +24452,12 @@ function clavierLettresPremiere(w, P){
       if(cB.indexOf(c) < 0 && !tB.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier B (' + quelle + ')');
     });
     if(C.effacer && cB.indexOf(C.effacer) < 0) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+    /* les MAJUSCULES (novembre 2026) : chaque lettre a sa majuscule sous ⇧, et la touche ⇧ est là */
+    'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c => {
+      const k = tB.find(x => x && x.key === c);
+      if(k && !(k.shift && k.shift.key === c.toUpperCase())) pbs.push('la lettre « ' + c + ' » n\'a pas sa majuscule sous ⇧ (clavier B, ' + quelle + ')');
+    });
+    if(!tB.some(k => k === '[shift]' || (k && k.label === '[shift]'))) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche ⇧ : aucune majuscule ne s\'écrit');
     if(!tB.some(k => String(k.label || '') === C.entree && commit(k))) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.entree + ' » qui valide');
     if(!tB.some(k => mene(k, A.id) && String(k.label || '') === C.versA)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.versA + ' » qui ramène au clavier A');
     if(!tB.some(k => k.key === ' ' && String(k.label || '') === C.espace)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.espace + ' » qui frappe une espace');
@@ -24462,36 +24481,51 @@ function clavierLettresPremiere(w, P){
   /* applyKbLayout PASSE le drapeau et POSE --kb-unites ; kbLettres ne répond que pour l'exercice COURANT */
   const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact'),
         fT = fns.find(o => o.nom === 'kbPortraitTablette'), fL = fns.find(o => o.nom === 'kbLettres'),
-        fU = fns.find(o => o.nom === 'kbUnites');
-  if(!fA || !fC || !fT || !fL || !fU) pbs.push('applyKbLayout, kbCompact, kbPortraitTablette, kbLettres ou kbUnites est introuvable dans la source');
+        fU = fns.find(o => o.nom === 'kbUnites'), fUL = fns.find(o => o.nom === 'kbUnitesLettres');
+  if(!fA || !fC || !fT || !fL || !fU || !fUL) pbs.push('applyKbLayout, kbCompact, kbPortraitTablette, kbLettres, kbUnites ou kbUnitesLettres est introuvable dans la source');
   else if(bk){
-    let ku = null;
+    let ku = null, kul = null;
     try{ ku = new Function('return (' + fU.texte + ')')(); }catch(e){ pbs.push('kbUnites ne s\'évalue pas : ' + e.message); }
+    try{ kul = new Function('return (' + fUL.texte + ')')(); }catch(e){ pbs.push('kbUnitesLettres ne s\'évalue pas : ' + e.message); }
     const installe = lettres => {
       const vk = { layouts: null }, poses = [];
       const win = { __kbFloating: false, mathVirtualKeyboard: vk, matchMedia: fauxEcran(false, true),
                     document: { documentElement: { style: { setProperty(n, v){ poses.push([n, v]); } } } } };
       try{
-        new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'buildKbTerm', 'JSON',
+        new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'kbUnitesLettres', 'buildKbTerm', 'JSON',
           'let __kbVarsKey = null;\n' + fC.texte + '\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
-            win, win.matchMedia, win.document, 'x', () => [], () => lettres, ku || (() => 7), bk, JSON)();
+            win, win.matchMedia, win.document, 'x', () => [], () => lettres, ku || (() => 7), kul || (() => 12), bk, JSON)();
         return { couches: (vk.layouts && vk.layouts[0] && vk.layouts[0].layers.length) || -1, dispo: vk.layouts && vk.layouts[0], poses };
       }catch(e){ pbs.push('applyKbLayout ne s\'évalue pas : ' + e.message); return { couches: -1, poses: [] }; }
     };
     const oui = installe(true), non = installe(false);
     if(oui.couches !== 2) pbs.push('applyKbLayout ne demande pas le clavier B : ' + oui.couches + ' couche(s) sur un écran de rédaction');
     if(non.couches !== 1) pbs.push('applyKbLayout pose ' + non.couches + ' couche(s) hors rédaction');
-    /* --kb-unites : posée, et égale à la rangée la plus large RECOMPTÉE ici */
+    /* --kb-unites : posée, et égale à la rangée la plus large RECOMPTÉE ici —
+       sur le clavier A ; la couche des lettres a la sienne (--kb-unites-lettres,
+       novembre 2026 : venue sur tout écran à champ mathématique, sa rangée de
+       treize ne rétrécit plus le clavier A) */
     [[oui, 'avec les lettres'], [non, 'sans les lettres']].forEach(([r, quand]) => {
       const pose = r.poses.find(p => p[0] === '--kb-unites');
-      let max = 0;
-      ((r.dispo && r.dispo.layers) || []).forEach(l => (l.rows || []).forEach(row => { const u = unites(row); if(u > max) max = u; }));
+      let max = 0, maxL = 0;
+      ((r.dispo && r.dispo.layers) || []).forEach(l => (l.rows || []).forEach(row => { const u = unites(row);
+        if(/-lettres$/.test(l.id || '')){ if(u > maxL) maxL = u; } else if(u > max) max = u; }));
       if(!pose) pbs.push('applyKbLayout ne pose pas --kb-unites ' + quand + ' : la feuille de styles garderait son compte de repli');
-      else if(+pose[1] !== max) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' ' + quand + ', la rangée la plus large en fait ' + max);
+      else if(+pose[1] !== max) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' ' + quand + ', la rangée la plus large du clavier A en fait ' + max);
+      const poseL = r.poses.find(p => p[0] === '--kb-unites-lettres');
+      if(maxL && (!poseL || +poseL[1] !== maxL)) pbs.push('applyKbLayout pose --kb-unites-lettres à ' + (poseL ? poseL[1] : 'rien') + ' ' + quand + ', la rangée la plus large des lettres en fait ' + maxL);
     });
+    /* et la feuille de styles donne à la couche des lettres SA largeur */
+    if(!/\.MLK__layer\[id\$="-lettres"\]\{--keycap-width:[^}]*--keycap-lettres/.test(src)) pbs.push('aucune règle ne donne sa largeur à la couche des lettres (.MLK__layer[id$="-lettres"] → --keycap-lettres)');
+    else if(!/--keycap-lettres\s*:[^;]*--kb-unites-lettres/.test(src)) pbs.push('--keycap-lettres ne lit pas --kb-unites-lettres');
     let kl = null;
     const champ = { vu: true };
-    const doc = { querySelector: q => (/math-field\.mf-mots/.test(q) && champ.vu) ? {} : null };
+    /* depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+       clavier »), les lettres viennent sur TOUT écran d'exercice qui porte un
+       champ mathématique, rédaction ou non : le faux document ne répond qu'à
+       une requête de champ MathLive SANS exiger mf-mots — un kbLettres qui
+       redeviendrait réservé à la rédaction rougit ici */
+    const doc = { querySelector: q => (/math-field/.test(q) && !/mf-mots/.test(q) && champ.vu) ? {} : null };
     try{ kl = cur => new Function('document', 'currentTestId', 'return (' + fL.texte + ')')(doc, cur); }
     catch(e){ pbs.push('kbLettres ne s\'évalue pas : ' + e.message); }
     if(kl){
@@ -24741,9 +24775,13 @@ function clavierUnites(w, P){
     if(!regles.length) pbs.push('aucune règle --keycap-width : le contrôle ne mesure rien');
     regles.forEach(v => {
       if(/^\d+px$/.test(v)) return;   /* la fenêtre flottante de l'ordinateur : une largeur fixe, rangées centrées */
-      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0)
+      /* la couche des lettres a sa propre largeur (--keycap-lettres), qui lit SON compte d'unités (--kb-unites-lettres) */
+      if(v.indexOf('--keycap-auto') < 0 && v.indexOf('--kb-unites') < 0 && v.indexOf('--keycap-lettres') < 0)
         pbs.push('une règle de largeur garde un compte d\'unités en dur : « ' + v + ' »');
     });
+    const lettresW = /--keycap-lettres\s*:\s*([^;}]+)/.exec(src);
+    if(regles.some(v => v.indexOf('--keycap-lettres') >= 0) && (!lettresW || lettresW[1].indexOf('--kb-unites-lettres') < 0))
+      pbs.push('--keycap-lettres ne lit pas --kb-unites-lettres : « ' + (lettresW ? lettresW[1].trim() : 'introuvable') + ' »');
     const auto = /--keycap-auto\s*:\s*([^;}]+)/.exec(src);
     if(!auto) pbs.push('--keycap-auto est introuvable : rien ne calcule la largeur d\'une touche');
     else if(auto[1].indexOf('--kb-unites') < 0) pbs.push('--keycap-auto ne lit pas --kb-unites : « ' + auto[1].trim() + ' »');
