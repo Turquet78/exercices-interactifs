@@ -16414,7 +16414,7 @@ function coordonneesDevoirFractions(w, P){
       });
       /* les étapes suivantes, sur le dénominateur retenu ; un résultat entier écrit en fraction */
       vdfJuge(q).forEach(function(s){ if(s.el&&/-(R[nd]|J[ab]|r|r[nd])$/.test(s.id)) s.el.value=vdfLatex(s.bon); });
-      vdfPlan(q).ch.forEach(function(c){ const e=el('vdf-'+c.id+'-r'); if(e){ const r=vdfRes(c); e.value='\\frac{'+(3*r[0])+'}{'+(3*r[1])+'}'; } });
+      vdfPlan(q).ch.forEach(function(c){ const E=vdfEtapes(c), n=el('vdf-'+c.id+'-rn'), m=el('vdf-'+c.id+'-rd'); if(E[E.length-1]==='fin0'&&n&&m){ const r=vdfRes(c); n.value=String(3*r[0]); m.value=String(3*r[1]); } });
       if(el('vdf-k-a1')){ const P2=vdfPlan(q), u=vdfVec(q.Z,P2.vec[0][0],P2.vec[0][1]), v=vdfVec(q.Z,P2.vec[1][0],P2.vec[1][1]);
         set('vdf-k-a1',vdfLatex(u[1])); set('vdf-k-b1',vdfLatex(v[0])); set('vdf-k-r1',vdfLatex(vdfMul(u[1],v[0])));
         set('vdf-k-a2',vdfLatex(v[1])); set('vdf-k-b2',vdfLatex(u[0])); set('vdf-k-r2',vdfLatex(vdfMul(u[0],v[1]))); }
