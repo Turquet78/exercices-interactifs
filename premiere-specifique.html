@@ -1959,7 +1959,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .ru-tab td.ru-faux{animation:ruFaux .9s ease}
 @keyframes ruFaux{0%,60%{background:var(--red-soft);box-shadow:inset 0 0 0 3px var(--red)}100%{background:transparent;box-shadow:none}}
 .ru-compte{font-weight:800;color:var(--blue-dark)}
-/* la consigne du clic (v460) : en gras et en grand, au-dessus du tableau */
+/* la consigne du clic (v461) : en gras et en grand, au-dessus du tableau */
 .ru-consigne{font-family:"Nunito";font-weight:900;font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.3;color:var(--blue-dark);text-align:center;
   background:#FFF3D6;border:2px solid #F2C35E;border-radius:14px;padding:10px 14px;margin:4px auto 12px;max-width:760px}
 .ru-consigne i{font-size:1.05em}
@@ -1967,6 +1967,15 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .ru-partie{font-weight:800;color:var(--blue-dark)}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
 #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 10px}
+/* {frequences-probabilites-pouce} (3.13) : le nom des cases écrit, caché
+   jusqu'au premier coup de pouce ; le bouton devant chaque question ; la
+   ligne de P(A ∪ D) sur deux rangées. */
+#pbHost .fpb-tab.fpb-sans-noms .pb-cl{display:none}
+.fpb-pouce{font-family:"Nunito";font-weight:800;font-size:calc(.85rem * var(--tab-nb,1));color:var(--blue-dark);background:#FFF7E3;border:1.5px solid #F2D08A;border-radius:999px;padding:2px 10px;margin-right:8px;cursor:pointer;white-space:nowrap;vertical-align:middle}
+.fpb-pouce:hover:not(:disabled){background:#FFE9B8}
+.fpb-pouce:disabled{opacity:.55;cursor:default}
+.fpb-lignes{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-left:auto;max-width:100%}
+@media(max-width:560px){ .fpb-lignes{align-items:center;margin:0 auto} }
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 4px} }
 @media(max-width:560px){
   .pbf-2col{grid-template-columns:1fr}
@@ -4179,7 +4188,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=460;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=461;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4800,6 +4809,8 @@ const TESTS={
   'frequences-probabilites': { name:'Fréquences et probabilités : la fiche', icon:'\ud83c\udfed', desc:'Une production du jour sur deux machines, deux ateliers, deux fours… et ses pièces avec ou sans défaut. Complète le tableau d’effectifs (des centaines, de tête), puis, Partie A, trois probabilités : P(A ∩ D) posée en mots, P<sub>D</sub>(A)… ; Partie B, les mêmes calculs dits en fréquences : une fréquence (proportion) globale, celle d’une intersection et une fréquence conditionnelle. Toutes les questions sur une page, chaque réponse sur sa ligne, en écriture fractionnaire.', start:()=>startFPB() },
   /* 3.11 (novembre 2026) : la même fiche, d'autres énoncés, et seulement la fraction à écrire */
   'frequences-probabilites-direct': { name:'Fréquences et probabilités : la fiche, fractions seules', icon:'\ud83e\uddee', desc:'La fiche du {frequences-probabilites} avec d’autres énoncés (contrôle technique, aéroport, jouets, vigneron, photos, chocolaterie), et sur chaque ligne seulement la fraction à écrire avec les effectifs du tableau : ni fraction en lettres, ni nom à composer. Partie A en probabilités, partie B en fréquences.', start:()=>startFPB2() },
+  /* 3.13 (novembre 2026) : la fiche du 3.11, P(A ∪ D) en fin de partie A, et un coup de pouce devant chaque question */
+  'frequences-probabilites-pouce': { name:'Fréquences et probabilités : la fiche, avec coups de pouce', icon:'\ud83d\udc4d', desc:'La fiche du {frequences-probabilites-direct} — seulement la fraction à écrire avec les effectifs du tableau —, et la partie A finit sur P(A ∪ D). Bloqué sur une question ? Le bouton « Coup de pouce » devant elle la présente comme au {frequences-probabilites}, avec la formule à compléter, et écrit en gris le nom des cases du tableau.', start:()=>startFPB3() },
   'reunion-probabilites': { name:'La réunion A ∪ D dans un tableau', icon:'\ud83d\udd17', desc:'Le tableau d’effectifs est complet. Case par case : fait-elle partie de A ? de D ? du groupe qui réunit A avec D, la réunion A ∪ D ? Chaque case validée de A ∪ D se colorie ; puis tu comptes les éléments de A ∪ D et tu calcules P(A ∪ D), en écriture fractionnaire. Seconde partie, une nouvelle situation : clique les trois cases de A ∪ B, puis calcule P(A ∪ B).', start:()=>startRU() },
   /* Demande de Turquet, novembre 2026 : la fiche « Exercice augmentation
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
@@ -4855,7 +4866,9 @@ const THEMES=[
        probabilités (3.10), ajoutée EN DERNIER : elle ne renumérote rien. */
     'frequences-probabilites','frequences-probabilites-direct',
     /* Puis (novembre 2026) la réunion A ∪ D case par case (3.12), EN DERNIER. */
-    'reunion-probabilites'] },
+    'reunion-probabilites',
+    /* Puis (novembre 2026) la fiche du 3.11 avec P(A ∪ D) et ses coups de pouce (3.13), EN DERNIER. */
+    'frequences-probabilites-pouce'] },
   /* Demande de Turquet, octobre 2026 : « mettre l'exercice de seconde 5.11 en
      première dans un nouveau thème fraction ». Ajouté EN DERNIER, il ne
      renumérote rien. {somme-fractions} reste dans le calcul mental : un
@@ -5055,7 +5068,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'frequences-probabilites-pouce':startFPB3,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -26300,6 +26313,7 @@ function checkPBFiche(){
   }
   test.locked=true;
   ids.forEach(id=>{ const el=$(id); if(el) el.disabled=true; });
+  document.querySelectorAll('#pbHost .fpb-pouce').forEach(b=>{ b.disabled=true; });
   const dit=v=>((PB_EVTS.indexOf(v)>=0 || v==='0') ? pbTxt(v) : v);
   test.answers=[]; test.score=0;
   qs.forEach((q,i)=>{
@@ -27075,7 +27089,8 @@ function fpbTableau(){
    fréquences ensuite (partie B). Les tirages se font hors de la fabrique
    passée à distincte(), qui peut la rappeler. */
 function fpbSeance(variante){
-  const v=(variante===2 ? 2 : 1), CTX=(v===2 ? FPB2_CTX : FPB_CTX);
+  /* le 3.13 (variante 3) reprend les contextes du 3.11 (q.fpb = 2) */
+  const v3=(variante===3), v=(variante===2 || v3 ? 2 : 1), CTX=(v===2 ? FPB2_CTX : FPB_CTX);
   const t=fpbTableau(), ci=rand(0,CTX.length-1), qs=[], conds=qdMelanger(PB_CONDS.map(c=>c.slice())).slice(0,3);
   const simples=qdMelanger(PB_SIMPLES.slice()).slice(0,2), simple=simples[0], inters=qdMelanger(PB_INTER.slice()).slice(0,2);
   const pose=(o)=>qs.push(distincte(qs, ()=>Object.assign(o, { fpb:v, n:t.n.slice(), k:t.k.slice(), ci:ci, rep:{} })));
@@ -27084,6 +27099,8 @@ function fpbSeance(variante){
   pose({ t:'fpbinter', ev:[inters[1],'T'] });
   pose({ t:'fpbsach', ev:conds[1] });
   pose({ t:'fpbnom', ev:conds[2] });
+  /* 3.13 : la partie A finit sur P(A ∪ D) */
+  if(v3) pose({ t:'fpbunion', ev:['A.B','T'] });
   pose({ t:'fpbfreq', ev:[simple,'T'] });
   pose({ t:'fpbfint', ev:[inters[0],'T'] });
   pose({ t:'fpbcond', ev:conds[0] });
@@ -27092,11 +27109,23 @@ function fpbSeance(variante){
 /* Le numéro d'une question sur la fiche : A1 à A5 (le tableau, puis les
    quatre probabilités), B1 à B3 (les trois fréquences). */
 const FPB_NB_A=5;
-/* Le 3.11 : seulement la fraction des effectifs sur chaque ligne. */
-function fpbSeul(){ return typeof test!=='undefined' && test.qId==='frequences-probabilites-direct'; }
-/* Les deux fiches du moteur : leur page, leur juge, leur contexte. */
-function fpbEstFiche(){ return typeof test!=='undefined' && (test.qId==='frequences-probabilites' || test.qId==='frequences-probabilites-direct'); }
-function fpbNum(i){ return i<FPB_NB_A ? 'A'+(i+1) : 'B'+(i-FPB_NB_A+1); }
+/* 3.13 : la partie A compte une question de plus, P(A ∪ D) */
+function fpbNbA(){ return fpbPouce() ? FPB_NB_A+1 : FPB_NB_A; }
+/* Le 3.11, et le 3.13 : seulement la fraction des effectifs sur chaque ligne. */
+function fpbSeul(){ return typeof test!=='undefined' && (test.qId==='frequences-probabilites-direct' || test.qId==='frequences-probabilites-pouce'); }
+/* 3.13 {frequences-probabilites-pouce} : un « Coup de pouce » devant chaque
+   question. */
+function fpbPouce(){ return typeof test!=='undefined' && test.qId==='frequences-probabilites-pouce'; }
+/* La ligne d'UNE question : fractions seules, sauf si l'élève a pris son coup
+   de pouce (q.pouce, rangé dans la question : la reprise le retrouve) — elle
+   devient alors celle du 3.10, formule en lettres comprise. */
+function fpbSeulQ(q){ return fpbSeul() && !(fpbPouce() && q && q.pouce); }
+/* Les noms gris des cases du tableau : au 3.10 toujours, au 3.11 jamais, au
+   3.13 dès le premier coup de pouce pris. */
+function fpbNomsVus(){ return !fpbSeul() || (fpbPouce() && (test.questions||[]).some(q=>q.pouce)); }
+/* Les trois fiches du moteur : leur page, leur juge, leur contexte. */
+function fpbEstFiche(){ return typeof test!=='undefined' && (test.qId==='frequences-probabilites' || test.qId==='frequences-probabilites-direct' || test.qId==='frequences-probabilites-pouce'); }
+function fpbNum(i){ const nA=fpbNbA(); return i<nA ? 'A'+(i+1) : 'B'+(i-nA+1); }
 /* Le tableau TRANSPOSÉ : les provenances en lignes, le défaut en colonnes.
    Les cases à trouver sont des cases à remplir, suffixées « -0 » : le
    tableau est la question 0 de la fiche, et pbQDe les lui rattache. */
@@ -27105,13 +27134,13 @@ function fpbTableHTML(q){
   const cel=i=>{
     /* Le 3.11 (fractions seules) n'écrit pas le nom des cases (v448) :
        l'élève lit le tableau par ses en-têtes, comme sur la fiche. */
-    const lab=fpbSeul() ? '' : '<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span>';
+    const lab=(fpbSeul() && !fpbPouce()) ? '' : '<span class="pb-cl">'+(noms[i] ? pbHTML(noms[i]) : '&nbsp;')+'</span>';
     const dedans=(q.k.indexOf(i)<0)
       ? pbMf('pb-c'+i+'-0', 'effectif'+(noms[i] ? ' de '+pbTxt(noms[i]) : ' total'))
       : '<span class="pb-v">'+fpbNombre(v[i])+'</span>';
     return '<td>'+lab+dedans+'</td>';
   };
-  return '<table class="pb-tab fpb-tab'+(fpbSeul() ? ' fpb-sans-noms' : '')+'">'
+  return '<table class="pb-tab fpb-tab'+(fpbNomsVus() ? '' : ' fpb-sans-noms')+'" id="fpbTab">'
     +'<tr><th></th><th>'+esc(C.Pl+' avec '+C.dc)+' '+pbHTML('B')+'</th><th>'+esc(C.Pl+' sans '+C.dc)+' '+pbHTML('nB')+'</th><th>Total</th></tr>'
     +'<tr><th>'+esc(C.cA)+'</th>'+cel(0)+cel(3)+cel(6)+'</tr>'
     +'<tr><th>'+esc(C.cnA)+'</th>'+cel(1)+cel(4)+cel(7)+'</tr>'
@@ -27132,6 +27161,7 @@ function fpbTxt(q){
     case 'fpbinter': { const p=y.split('.'); return 'Calcule la probabilité que '+esc(C.le+' '+fpbMot(C,p[0],'s')+' et '+fpbMot(C,p[1],'s'))+'.'; }
     case 'fpbsach': return 'Calcule la probabilité que '+esc(C.le+' '+fpbMot(C,y,'s'))+' sachant qu’'+esc(C.pr+' '+fpbMot(C,x,''))+' (c’est-à-dire '+pbNomPetit(y,x)+').';
     case 'fpbnom': return 'Calcule '+pbNomPetit(y,x)+'.';
+    case 'fpbunion': return 'Calcule la probabilité que '+esc(C.le+' '+fpbMot(C,'A','s')+' ou '+fpbMot(C,'B','s'))+' (c’est-à-dire '+fpbUnionHTML(true)+').';
   }
   return '';
 }
@@ -27155,11 +27185,41 @@ function fpbLigneSeule(q, i, nom){
          +'<span class="f-fbar"></span>'+pbMf('pb-n2-'+i, lab+'dénominateur, un effectif du tableau')+'</span>')
     +'</div>';
 }
+/* P(A ∪ D) : petit dans le texte, à la taille de la ligne sur la ligne */
+function fpbUnionHTML(petit){
+  return petit ? '<span class="pb-nomp"><i>P</i>('+pbHTML('A')+' ∪ '+pbHTML('B')+')</span>'
+    : '<span class="pb-nom"><i class="pb-P">P</i>('+pbHTML('A')+' ∪ '+pbHTML('B')+' )</span>';
+}
+/* Un « + » ou un « − » et ce qui le suit, groupés comme le « = » de fEq :
+   la ligne ne se replie jamais entre un signe et sa fraction. */
+function fpbOp(sg, boite){ return '<span class="f-grp"><span class="f-eq">'+sg+'</span>'+boite+'</span>'; }
+/* La ligne du coup de pouce de P(A ∪ D) (3.13), sur deux rangées :
+   P(A ∪ D) = P(…) + P(…) − P(…), les trois évènements choisis dans des
+   listes ; puis = fraction + fraction − fraction = fraction, les paires
+   nommées de PB_FRAC_PAIRES (une fraction égale est juste). */
+function fpbLigneUnion(q, i){
+  const opts=PB_EVTS.filter(e=>e!=='T').map(e=>({ v:e, t:pbTxt(e) })), lab='question '+fpbNum(i)+' : ';
+  const P=(b,l)=>'<span class="pb-nom"><i class="pb-P">P</i><span class="pb-par">(</span>'+pbSel(q,b+'-'+i,opts,lab+l,'pb-lettres')+' <span class="pb-par">)</span></span>';
+  const fr=(a,b,l)=>'<span class="f-frac-input">'+pbMf(a+'-'+i, lab+l+', numérateur')+'<span class="f-fbar"></span>'+pbMf(b+'-'+i, lab+l+', dénominateur')+'</span>';
+  return '<div class="fpb-lignes">'
+    +'<div class="pbf-sol fpb-sol-b">'+fpbUnionHTML(false)+fEq(P('pb-u1','premier évènement'))+fpbOp('+',P('pb-u2','deuxième évènement'))+fpbOp('−',P('pb-u3','évènement retranché'))+'</div>'
+    +'<div class="pbf-sol fpb-sol-b">'+fEq(fr('pb-x1','pb-x2','première probabilité'))+fpbOp('+',fr('pb-y1','pb-y2','deuxième probabilité'))
+      +fpbOp('−',fr('pb-i1','pb-i2','probabilité retranchée'))+fEq(fr('pb-n1','pb-n2','résultat'))+'</div>'
+    +'</div>';
+}
+/* Le bouton « Coup de pouce » devant une question du 3.13. */
+function fpbPouceHTML(q, i){
+  if(!fpbPouce()) return '';
+  return '<button type="button" class="fpb-pouce" id="fpbPouce'+i+'"'+(q.pouce ? ' disabled aria-pressed="true"' : '')
+    +' onclick="fpbCoupDePouce('+i+')" title="Afficher la présentation détaillée de cette question et le nom des cases du tableau">'
+    +'\ud83d\udc4d Coup de pouce</button>';
+}
 function fpbLigne(q, i){
   const y=q.ev && q.ev[0], x=q.ev && q.ev[1];
   if(q.t==='fpbtab') return '';
   const mot=m=>'<span class="fpb-mot">'+m+'</span>';
-  if(fpbSeul()){
+  if(q.t==='fpbunion') return fpbSeulQ(q) ? fpbLigneSeule(q, i, fpbUnionHTML(false)) : fpbLigneUnion(q, i);
+  if(fpbSeulQ(q)){
     const nom = q.t==='fpbnom' ? pbNomHTML(y,x)
       : (q.t==='fpbsimple' || q.t==='fpbinter' || q.t==='fpbsach') ? mot('probabilité') : mot('fréquence');
     return fpbLigneSeule(q, i, nom);
@@ -27182,12 +27242,12 @@ function fpbLigne(q, i){
 function fpbAttLigne(q){
   const y=q.ev[0], x=q.ev[1], s=pbInter(y,x), eff={ 'pb-n1':String(pbEff(q,s)), 'pb-n2':String(pbEff(q,x)) };
   /* au 3.11, la fraction des effectifs est la seule case de la ligne */
-  return fpbSeul() ? eff : Object.assign({ 'pb-s6':s, 'pb-s7':x }, eff);
+  return fpbSeulQ(q) ? eff : Object.assign({ 'pb-s6':s, 'pb-s7':x }, eff);
 }
 /* Le nom à composer (indice : la condition, ou « tout » ; évènement) des
    questions en mots sans nom écrit — partie A sans condition, et toute la
    partie B depuis la v441 — au 3.10 seulement. */
-function fpbAttNom(q){ return fpbSeul() ? fpbAttLigne(q) : Object.assign({ 'pb-px':(q.ev[1]==='T' ? '0' : q.ev[1]), 'pb-py':q.ev[0] }, fpbAttLigne(q)); }
+function fpbAttNom(q){ return fpbSeulQ(q) ? fpbAttLigne(q) : Object.assign({ 'pb-px':(q.ev[1]==='T' ? '0' : q.ev[1]), 'pb-py':q.ev[0] }, fpbAttLigne(q)); }
 /* Un exemple de case trouvée de tête : la première ligne où il n'en manque
    qu'une — « 2 000 − 1 400 = 600 ». */
 function fpbExemple(q){
@@ -27268,6 +27328,52 @@ PBX.fpbnom={
   label(q){ return pbNomTxt(q.ev[0],q.ev[1]); },
   ctx(q){ return fpbCtxCommun(q)+'La page écrit '+pbNomTxt(q.ev[0],q.ev[1])+'. '; }
 };
+/* 3.13 : P(A ∪ D) = P(A) + P(D) − P(A ∩ D). L'ordre des deux premiers
+   évènements est libre : les attendus suivent celui que l'élève a choisi
+   (P(D) + P(A) vaut P(A) + P(D)), la correction verte aussi. */
+function fpbUnionEff(q){ return pbEff(q,'A')+pbEff(q,'B')-pbEff(q,'A.B'); }
+PBX.fpbunion={
+  att(q){
+    const T=String(pbEff(q,'T')), res={ 'pb-n1':String(fpbUnionEff(q)), 'pb-n2':T };
+    if(fpbSeulQ(q)) return res;
+    const inv=(q.rep['pb-u1']==='B' || (q.rep['pb-u2']==='A' && q.rep['pb-u1']!=='A')), e1=inv?'B':'A', e2=inv?'A':'B';
+    return Object.assign({ 'pb-u1':e1, 'pb-u2':e2, 'pb-u3':'A.B',
+      'pb-x1':String(pbEff(q,e1)), 'pb-x2':T, 'pb-y1':String(pbEff(q,e2)), 'pb-y2':T, 'pb-i1':String(pbEff(q,'A.B')), 'pb-i2':T }, res);
+  },
+  render(){ renderFPBFiche(); },
+  pourquoi(q){ const a=pbEff(q,'A'), b=pbEff(q,'B'), ab=pbEff(q,'A.B'), T=pbEff(q,'T');
+    return '« Ou » : c’est la réunion '+pbHTML('A')+' ∪ '+pbHTML('B')+', choisie parmi TOUTE la production. '+fpbUnionHTML(true)+' = '+pbNomPetit('A','T')+' + '+pbNomPetit('B','T')+' − '+pbNomPetit('A.B','T')
+      +' : on retire '+pbHTML('A.B')+', comptée deux fois — '+fpbNombre(a)+' + '+fpbNombre(b)+' − '+fpbNombre(ab)+' = '+fpbNombre(a+b-ab)+' sur '+fpbNombre(T)+'.'; },
+  label(){ return 'P('+pbTxt('A')+' ∪ '+pbTxt('B')+'), posée en mots'; },
+  ctx(q){ return fpbCtxCommun(q)+'La question est posée en mots (« … ou … ») : c’est P('+pbTxt('A')+' ∪ '+pbTxt('B')+') = P('+pbTxt('A')+') + P('+pbTxt('B')+') − P('+pbTxt('A.B')+'). '; }
+};
+/* LE COUP DE POUCE (3.13) : la ligne de la question devient celle du 3.10
+   (le nom à composer, la fraction en lettres, puis celle des effectifs ; pour
+   P(A ∪ D), la formule P(A) + P(D) − P(A ∩ D)), et le tableau montre le nom
+   gris de ses cases. Seule la ligne est redessinée : les autres questions et
+   le tableau gardent ce que l'élève y a écrit, et la fraction déjà tapée dans
+   la ligne est remise à sa place. Le choix est rangé dans la question
+   (q.pouce) : la reprise après une pause redessine la même ligne. */
+function fpbCoupDePouce(i){
+  if(test.locked || !fpbPouce()) return;
+  const q=test.questions[i]; if(!q || q.pouce) return;
+  const li=$('pbf-q'+i); if(!li) return;
+  q.pouce=true;
+  const garde={};
+  li.querySelectorAll('math-field[id]').forEach(el=>{ garde[el.id]={ v:el.value, c:el.className, d:el.disabled }; });
+  const old=li.querySelector('.pbf-sol, .fpb-lignes');
+  if(old){
+    const tmp=document.createElement('div'); tmp.innerHTML=fpbLigne(q,i);
+    const neu=tmp.firstElementChild;
+    if(neu) old.replaceWith(neu);
+    Object.keys(garde).forEach(id=>{ const el=$(id), g=garde[id]; if(!el) return; if(g.v) el.value=g.v; el.className=g.c; el.disabled=g.d; });
+    try{ li.querySelectorAll('math-field.pm-mf').forEach(pmAdapter); }catch(e){}
+  }
+  const tab=$('fpbTab'); if(tab) tab.classList.remove('fpb-sans-noms');
+  const b=$('fpbPouce'+i); if(b){ b.disabled=true; b.setAttribute('aria-pressed','true'); }
+  pbAffMaj();
+  autoSave();
+}
 /* La page : le tableau à compléter collé en haut, puis « Partie A »
    (l'énoncé des évènements, le tableau et trois probabilités) et « Partie
    B » (trois fréquences), chaque question numérotée comme sur la fiche
@@ -27282,17 +27388,19 @@ function renderFPBFiche(){
   $('pbFeedback').textContent=''; $('pbFeedback').className='mp-feedback';
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
   $('pbPrompt').innerHTML=esc(C.intro)+' '+fpbNombre(T)+' '+esc(C.pl+' '+C.srcs)+'. Complète le tableau, puis réponds à toutes les questions, chacune sur sa ligne'
-    +(fpbSeul() ? ' — chaque réponse est une fraction écrite avec les effectifs du tableau —' : '')+', et vérifie la fiche à la fin.';
-  const li=(q,i)=>'<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt"><span class="pbf-num">'+fpbNum(i).slice(1)+'.</span>'+fpbTxt(q)+'</div>'+fpbLigne(q,i)+'</li>';
+    +(fpbSeul() ? ' — chaque réponse est une fraction écrite avec les effectifs du tableau —' : '')+', et vérifie la fiche à la fin.'
+    +(fpbPouce() ? ' Bloqué sur une question ? Le bouton « Coup de pouce » devant elle détaille le calcul.' : '');
+  const nA=fpbNbA();
+  const li=(q,i)=>'<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt">'+fpbPouceHTML(q,i)+'<span class="pbf-num">'+fpbNum(i).slice(1)+'.</span>'+fpbTxt(q)+'</div>'+fpbLigne(q,i)+'</li>';
   $('pbHost').innerHTML=
     '<div class="pbf-tete">'+fpbTableHTML(qs[0])+'</div>'
    +'<h3 class="fpb-partie">Partie A</h3>'
    +'<p class="fpb-intro">On choisit au hasard '+esc(C.un)+' parmi '+esc(C.tot)+'. On considère les évènements : '
      +pbHTML('A')+' : « '+esc(C.le+' '+C.A)+' » et '+pbHTML('B')+' : « '+esc(C.le+' '+fpbMot(C,'B',''))+' ». '
      +'<span class="fpb-note">Dans cet exercice, les probabilités seront données en écriture fractionnaire.</span></p>'
-   +'<ol class="pbf-liste">'+qs.slice(0,FPB_NB_A).map(li).join('')+'</ol>'
+   +'<ol class="pbf-liste">'+qs.slice(0,nA).map(li).join('')+'</ol>'
    +'<h3 class="fpb-partie">Partie B</h3>'
-   +'<ol class="pbf-liste">'+qs.slice(FPB_NB_A).map((q,j)=>li(q,j+FPB_NB_A)).join('')+'</ol>';
+   +'<ol class="pbf-liste">'+qs.slice(nA).map((q,j)=>li(q,j+nA)).join('')+'</ol>';
   pbAffMaj();
 }
 /* Le contexte envoyé au modèle : le tableau, puis toute la fiche. */
@@ -27302,17 +27410,21 @@ function fpbCtxTexte(){
   return 'FICHE en deux parties, toutes les questions à l’écran ensemble, le tableau collé en haut. '+fpbCtxCommun(qs[0])
     +'Cases données : '+qs[0].k.map(i=>pbValeurs(qs[0].n)[i]).join(', ')+' ; les quatre autres sont à trouver, de tête (des centaines). '
     +'Partie A, en PROBABILITÉS — on choisit '+pbCtx(qs[0]).un+' au hasard, '+pbTxt('A')+' = « '+pbCtx(qs[0]).le+' '+pbCtx(qs[0]).A+' », '+pbTxt('B')+' = « '+pbCtx(qs[0]).le+' '+fpbMot(pbCtx(qs[0]),'B','')+' » : '
-    +qs.slice(0,FPB_NB_A).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
-    +'Partie B, en FRÉQUENCES — la ligne s’écrit « fréquence = P…(…) = … », l’élève compose le nom de P comme en partie A (pas d’indice sans « parmi », la condition en indice pour « parmi ») : '+qs.slice(FPB_NB_A).map((q,j)=>fpbNum(j+FPB_NB_A)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +qs.slice(0,fpbNbA()).map((q,i)=>fpbNum(i)+') '+net(fpbTxt(q))).join(' ; ')+'. '
+    +'Partie B, en FRÉQUENCES — la ligne s’écrit « fréquence = P…(…) = … », l’élève compose le nom de P comme en partie A (pas d’indice sans « parmi », la condition en indice pour « parmi ») : '+qs.slice(fpbNbA()).map((q,j)=>fpbNum(j+fpbNbA())+') '+net(fpbTxt(q))).join(' ; ')+'. '
     +(fpbSeul()
       ? 'Chaque réponse est SEULEMENT la fraction des EFFECTIFS du tableau, sans formule avant (une fraction égale, simplifiée ou non, est acceptée). '
       : 'Chaque réponse s’écrit sur une ligne : fraction en lettres ('+PB_EVTS.map(pbTxt).join(', ')+') = fraction des EFFECTIFS du tableau (une fraction égale, simplifiée ou non, est acceptée). ')
     +'Fréquence globale = effectif de l’évènement / effectif total ; fréquence d’une intersection « … et … » = effectif de l’intersection / effectif total ; fréquence conditionnelle de Y parmi X = effectif de X∩Y / effectif de X ; en probabilités, P sans indice divise par tout, P_X(Y) se restreint à X. '
+    +(fpbPouce() ? 'Devant chaque question, un bouton « Coup de pouce » remplace la ligne par la présentation détaillée (nom de P à composer, fraction en lettres, puis effectifs ; pour P('+pbTxt('A')+' ∪ '+pbTxt('B')+') : P('+pbTxt('A')+') + P('+pbTxt('B')+') − P('+pbTxt('A.B')+') puis les trois fractions et le résultat) et montre le nom des cases du tableau'
+        +((test.questions||[]).some(q=>q.pouce) ? ' ; l’élève l’a pris aux questions '+qs.map((q,i)=>q.pouce ? fpbNum(i) : '').filter(Boolean).join(', ') : ' ; il ne l’a pris nulle part')+'. '
+        +'P('+pbTxt('A')+' ∪ '+pbTxt('B')+') = P('+pbTxt('A')+') + P('+pbTxt('B')+') − P('+pbTxt('A.B')+') : on retire l’intersection comptée deux fois. ' : '')
     +'Les réponses attendues sont STRICTEMENT SECRÈTES. '+pbMethodeTxt()
     +'L’erreur classique est de diviser par le total dans une fréquence conditionnelle ou une probabilité conditionnelle.';
 }
 async function startFPB(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-probabilites', fpbSeance(1)); }
 async function startFPB2(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-probabilites-direct', fpbSeance(2)); }
+async function startFPB3(){ if(!currentEleve){ accueil(); return; } pbDemarrer('frequences-probabilites-pouce', fpbSeance(3)); }
 /* ---------- 3.12 {reunion-probabilites} : LA RÉUNION A ∪ D, CASE PAR CASE ----------
    Demande de Turquet (novembre 2026) : « faire un exercice comme le 3.10, où
    le tableau est déjà complété et qui demande de déterminer la probabilité de
@@ -27552,7 +27664,7 @@ PBX.ruclic={
   att(){ return {}; },
   render(q){
     const C=pbCtx(q);
-    /* v460 (demande de Turquet) : la consigne en GRAS et en GRAND, au-dessus
+    /* v461 (demande de Turquet) : la consigne en GRAS et en GRAND, au-dessus
        du tableau — c'est la première chose que l'élève lit */
     $('pbHost').innerHTML='<p class="ru-consigne">Clique sur les 3 cases du tableau qui représentent '+ruUnion()+'</p>'
       +ruRendreTete(q, 'Clique sur les trois cases du tableau qui représentent '+ruUnion()+'.')
@@ -34870,7 +34982,10 @@ const RAP_RU=`<b>La réunion de deux évènements</b><br>
 <b>Le nombre d’éléments.</b> On additionne les trois cases : par exemple 30 + 20 + 40 = 90.<br>
 <b>La probabilité.</b> On choisit au hasard parmi tous : \\(P(A\\cup D)=\\dfrac{\\text{nombre d’éléments de } A\\cup D}{\\text{effectif total}}\\), par exemple \\(\\dfrac{90}{100}\\).<br>
 Piège classique : compter deux fois la case \\(A\\cap D\\) en additionnant le total de \\(A\\) et le total de \\(D\\).`;
-const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+/* {frequences-probabilites-pouce} (3.13) : la fiche, plus la réunion et le coup de pouce. */
+const RAP_FPB3=RAP_FPB+`<br><br><b>La réunion.</b> « Provienne de A OU présente un défaut » : c’est \\(A\\cup D\\), tous ceux qui sont dans \\(A\\), dans \\(D\\), ou dans les deux. \\(P(A\\cup D)=P(A)+P(D)-P(A\\cap D)\\) : on retire \\(A\\cap D\\), comptée deux fois — par exemple \\(\\dfrac{800}{2000}+\\dfrac{600}{2000}-\\dfrac{200}{2000}=\\dfrac{1200}{2000}\\).<br>
+<b>Le coup de pouce.</b> Le bouton devant une question remplace sa ligne par la présentation détaillée : le nom de la probabilité, la fraction en lettres, puis les effectifs ; et le tableau écrit en gris le nom de chaque case.`;
+const RAPPELS_ID={ 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'frequences-probabilites-pouce':RAP_FPB3, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -34977,6 +35092,7 @@ const QIA_SUGG={
   'frequences-arrondies':["Comment arrondir un pourcentage à l’unité ?","Comment transformer une fraction en pourcentage ?","Quelle différence entre « … % des garçons ont des lunettes » et « … % des personnes à lunettes sont des garçons » ?","Que dit l’indice sous P ?"],
   'independance':["Que veut dire « indépendants » ?","Pourquoi compare-t-on P(A ∩ B) et P(A) × P(B) ?","Comment multiplier deux fractions ?","Comment mettre deux fractions sur le même dénominateur ?","Deux évènements indépendants peuvent-ils arriver ensemble ?"],
   'automatismes-probabilites':["Comment lire un arbre pondéré ?","Pourquoi multiplie-t-on le long d’une branche ?","Comment calculer P(B) avec un arbre ?","Pourquoi une probabilité est-elle entre 0 et 1 ?"],
+  'frequences-probabilites-pouce':["Comment calculer P(A ∪ D) ?","Pourquoi retire-t-on P(A ∩ D) dans P(A ∪ D) ?","Par quoi divise-t-on dans une probabilité « sachant que » ?","Comment trouver une case qui manque dans le tableau ?"],
   'frequences-probabilites':["Quelle différence entre une fréquence et une probabilité ?","Quelle différence entre la fréquence de « A et D » et la fréquence de A parmi D ?","Pourquoi P_D(A) ne se divise-t-elle pas par le total ?","Comment trouver une case qui manque dans le tableau ?"],
   'frequences-probabilites-direct':["Quelle différence entre une fréquence et une probabilité ?","Par quoi divise-t-on dans une probabilité « sachant que » ?","Pourquoi le dénominateur n’est-il pas toujours le total ?","Comment trouver une case qui manque dans le tableau ?"],
   'reunion-probabilites':["Que veut dire A ∪ D ?","Pourquoi la case A ∩ D fait-elle partie de A ∪ D ?","Pourquoi ne pas additionner le total de A et le total de D ?","Quelle différence entre A ∩ D et A ∪ D ?"],
@@ -37494,6 +37610,55 @@ function choisirReprise(mode){
   repriseBoite.hidden=false;
   try{ repriseBoite.querySelector('#crContinuer').focus(); }catch(x){}
 }
+</script>
+<script id="retour-navigateur">
+/* LE BOUTON « RETOUR » DU NAVIGATEUR VAUT « SORTIE » PENDANT UN EXERCICE
+   (demande de Turquet, novembre 2026 : « quand on fait retour en arrière sur
+   la page web, que cela corresponde à la fonction sortie d'un exercice ou
+   revenir en arrière sur le site »).
+   · Tant que le lien « Sortie » (#sortieLien) se montre, une entrée de garde
+     ({exoGarde:1}, même adresse) est posée dans l'historique. « Retour »
+     (bouton, geste de la tablette, touche du téléphone) la retire : la page
+     appelle sortirExercice() — le brouillon est gardé, l'élève revient à
+     l'écran d'où il avait lancé l'exercice.
+   · Hors exercice, rien n'est posé : « Retour » ramène à la page précédente
+     du site, comme avant.
+   · Le lien se cache par un autre chemin (« Sortie » cliqué, exercice fini) :
+     la garde devenue inutile est retirée par un history.back() que la page
+     ignore — sans quoi le « retour » suivant ne ferait rien de visible.
+   · Rien à déclarer : la garde suit l'attribut hidden du lien, que show()
+     règle pour chaque exercice. Banc : tests/sortie.js. */
+(function(){
+  const lien=document.getElementById('sortieLien');
+  if(!lien || !window.history || !history.pushState) return;
+  let garde=false, ignorer=0;
+  const estGarde=s=>!!(s && s.exoGarde);
+  function accorder(){
+    const visible=!lien.hidden;
+    if(visible && !garde){
+      if(!estGarde(history.state)){ try{ history.pushState({exoGarde:1}, ''); }catch(e){ return; } }
+      garde=true;
+    } else if(!visible && garde){
+      garde=false;
+      if(estGarde(history.state)){ ignorer++; history.back(); }
+    }
+  }
+  new MutationObserver(accorder).observe(lien, {attributes:true, attributeFilter:['hidden']});
+  window.addEventListener('popstate', function(e){
+    if(ignorer>0){ ignorer--; return; }
+    if(estGarde(e.state)){
+      /* « Avancer » vers une garde laissée derrière : en exercice elle redevient
+         la garde, ailleurs on la saute */
+      if(!lien.hidden) garde=true; else { ignorer++; history.back(); }
+      return;
+    }
+    if(garde){
+      garde=false;
+      if(!lien.hidden && typeof sortirExercice==='function') sortirExercice();
+    }
+  });
+  accorder();
+})();
 </script>
 <style id="sortie-reprise-css">
 /* le lien « Sortie », en haut à droite de l'en-tête, et la boîte
