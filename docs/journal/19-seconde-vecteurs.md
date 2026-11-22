@@ -7215,3 +7215,87 @@ nombre de cases. Le badge de correction reste à côté de la dernière case.
 
 **Le banc** : une copie écrite se recopie dans les deux autres ; la case
 jugée bleuit, ses copies prennent `vdf-m-ok` sans être des réponses.
+
+### Puis les deux points réécrits, et la fraction à recopier en deux cases (Seconde v716)
+
+Demande de Turquet, novembre 2026 : « avant le calcul d'un vecteur, réécrire
+les coordonnées des deux points concernés. Quand on doit rentrer une fraction,
+mettre deux cases pour la fraction dans la première colonne comme dans les
+colonnes d'après. »
+
+**Les deux points** : au-dessus de chaque bloc « fin − début », une ligne
+`.vdf-rap` écrit le début puis la fin (`vdfPtHTML`), par exemple
+« A(−5/2 ; −2) et D(−1/2 ; −8/3) » avant AD⃗. Rien à saisir : l'élève n'a plus
+à remonter jusqu'à l'énoncé. Les blocs d'une somme (e) et du système (c, e)
+n'en ont pas : ils ne calculent pas un vecteur à partir de deux points.
+
+**La fraction en deux cases** : dans la première colonne, un terme attendu
+qui est une fraction (`vdfFrT`) prend un numérateur et un dénominateur
+empilés (`…-an`/`…-ad`, `…-bn`/`…-bd`, enveloppe `…-a-fr`), comme les
+fractions des colonnes du même dénominateur. Chaque case est une case de la
+note (`vdfIdsT` dans `vdfIdsCh`, le barème suit) ; elles sont justes ensemble
+si la fraction lue (`vdfLitT`, le quotient des deux) vaut le terme — 2/4 pour
+1/2, ou 1 sur −2 pour −1/2 —, sinon chacune sur son nombre. La correction
+écrit la fraction entière, une fois, à droite de l'enveloppe. Une somme écrite
+dans l'autre ordre reste juste : un entier s'écrit sur 1. Les lignes qui ont
+une fraction dans la première colonne prennent la hauteur haute
+(`vdfRangs`), même sans étape du même dénominateur. Les cases du système, du
+produit en croix et des résultats restent d'une seule case (la touche / y pose
+le trait).
+
+**Le banc** : sur la question e, les lignes `.vdf-rap` rendent les points de
+chaque vecteur ; une fraction de la première colonne a ses deux cases et
+aucune case simple ; numérateur juste et dénominateur faux donnent une case
+bleue, une rouge, une seule correction et une case de moins au score ; une
+fraction égale écrite autrement est juste.
+
+### Puis le « + », la fraction voisine d'un entier, le résultat simplifié, les quatre propositions (Seconde v717)
+
+Demande de Turquet, novembre 2026 : « quand on soustrait un nombre négatif,
+mettre un + dans les colonnes suivantes ; quand il y a 1 au dénominateur dans
+une mise au même dénominateur, ne pas mettre les × 1 sur la fraction d'à
+côté ; pour donner le résultat, si c'est une fraction, mettre deux cases pour
+la fraction, et rajouter une colonne avec une seule case si le résultat est un
+entier ; si le résultat peut se simplifier en une fraction non entière, donner
+la division et mettre deux cases dans la colonne d'après pour la
+simplification ; si le calcul de la deuxième coordonnée est déjà fini,
+recopier son résultat dans ces colonnes. » Puis : « pour les propositions
+entre les deux vecteurs à la fin de la question, mettre les 4 propositions
+comme dans les exercices précédents. »
+
+**Les étapes d'une ligne** (`vdfEtapes`) : `prod` (chaque fraction
+multipliée en haut et en bas), `nd` (les numérateurs sur le dénominateur
+commun), `raw` (la fraction obtenue, deux cases `Rn`/`Rd`), puis `int`
+(l'entier, une case `r`) ou `div` (la fraction obtenue divisée en haut et en
+bas, `Ja`/`Jb`, ses nombres recopiés) et `fin` (la fraction simplifiée,
+`rn`/`rd`) ; `fin0` quand la fraction obtenue est déjà irréductible : elle est
+le résultat (`rn`/`rd`). Une ligne d'entiers n'a que `int` ; une ligne de
+fractions au même dénominateur commence à `raw` (pas d'étape du même
+dénominateur, la demande de la v715). Le tracé se fait sur le plus petit
+dénominateur commun ; un élève qui en prend un autre est jugé sur le sien.
+
+**Le « + »** (`vdfPlus`) : dans les colonnes `prod` et `nd`, « a − (−b) »
+s'écrit « a + b » ; le second nombre recopié change de signe, le second
+numérateur attendu est positif.
+
+**La fraction voisine d'un entier** (`vdfFixe`) : elle a déjà le
+dénominateur commun ; elle se recopie sans multiplicateur (`vdfFige`), et le
+dénominateur commun est le sien — l'entier seul est multiplié.
+
+**Les copies** (`vdfCopie`) : chaque colonne après la fin d'une ligne porte
+une copie de son résultat (une case ou deux), écrite dans les deux sens
+(`vdfRSync`, `vdfSource`, `vdfCopiesDe`). La case jugée est celle où la ligne
+finit — plus la dernière colonne comme en v715.
+
+**Les quatre propositions** : « sont égaux », « ne sont pas égaux », « sont
+colinéaires », « ne sont pas colinéaires » (`VCL_QUATRE`, les listes du 8.4.13
+et du 8.4.14), sur les conclusions de a), b) et d). Une proposition vraie qui
+ne conclut pas (« sont colinéaires » pour le parallélogramme) est fausse, et
+la phrase le dit.
+
+**Le banc** : sur chaque question du parcours, le nombre de copies, les cases
+de chaque étape, le « + », l'absence de multiplicateur sur la fraction
+voisine d'un entier, la suite des étapes selon la fraction obtenue, les quatre
+propositions ; la copie juste par d'autres routes (dénominateur double,
+somme dans l'autre ordre, entier écrit en fraction) ; une copie écrite se
+recopie ; la proposition vraie qui ne conclut pas.
