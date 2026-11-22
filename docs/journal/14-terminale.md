@@ -3530,3 +3530,67 @@ n'a pas atteints s'écrivent en vert. Le tirage exige désormais quatre écarts
 entre les rails (u₄ − u₃ compris) d'au moins 34 unités du dessin : mesuré sur
 2 000 tirages, aucun échec. Essayé dans Chromium : sept clics décalés de 20
 unités posent les sept points exacts ; copie juste 88 cases sur 88.
+
+## {etude-fonction-bac} (4.5.1, v517 — v515 et v516 venaient d'être pris par le 7.1.15 et le 6.3.2, fusionnés avant) : un exercice de bac sur l'étude de (ax + b)e^(2x)
+
+Demande de Turquet (novembre 2026), avec le sujet du bac blanc 1 du 2 décembre
+2026 (exercice 1 : f(x) = (x − 1)e^(−x) + 2, lecture graphique puis étude
+analytique) : « en terminale, pour les fonctions, faire un exercice comme
+l'exercice 1 du pdf ; la fonction sera de la forme (ax + b)e^(2x) avec a
+positif ; le dessin sera moins écrasé en hauteur que sur le pdf pour bien voir
+les variations ; pour chaque question on fera comme les exercices du site qui
+traitent du même type de question, en prenant la méthode avec des cases à
+remplir plutôt qu'une version rédigée ». Une cinquième partie du thème 4,
+« Exercice de bac » — le pendant du 5.7.
+
+**Les questions sont celles du sujet, dans son ordre**, chacune prise à
+l'exercice qui la traite déjà :
+
+* A1 — les variations lues (deux listes, deux bornes) et l'abscisse de la
+  tangente horizontale ; A2 — le signe de f′ en deux points entiers, par le
+  sens de variation « autour » du point ;
+* A3 — les limites et l'asymptote, les lignes du b) du {etude-convexite}
+  (asgLim, asgSelTyp) ; A4 — l'abscisse du point d'inflexion CONJECTURÉE,
+  juste à un quart près (`approx`), et la courbure de part et d'autre ;
+* B1 — f′ par la chaîne du {derivee-exp} (asgDerBlocHTML, asgDerVerdicts) avec
+  k = 2 : le juge savait déjà dériver e^(kx + c) depuis le 2.2.4, il lui
+  manquait d'ÉCRIRE v′ = 2e^(2x) dans la correction (`T.dexp`, une option de
+  plus ; sans elle il écrivait « e^(2x) ») ; le signe (e^(2x) > 0, la racine
+  en deux cases), le tableau de variations du {etude-algo-convexite} (lg2Geo :
+  les limites et le minimum au dixième suivent les flèches choisies), puis le
+  minimum EXACT comme au d) du {etude-convexite} ;
+* B2 — la tangente en A (abscisse 0), les étapes du f) du {etude-convexite},
+  « e^(2 × [ ]) » dans les substitutions ;
+* B3 — f″ par la même chaîne appliquée à f′, le tableau du h), le point
+  d'inflexion du i) ;
+* B4 — f(x) = k admet une unique solution α sur [x₀ ; +∞[ (les mots du {tvi}),
+  puis l'encadrement d'amplitude 0,01 en deux temps, au pas de 0,1 puis de
+  0,01, lus dans deux tableaux de valeurs de la calculatrice EN LIGNE (onze
+  colonnes, défilant dans leur cadre sur un téléphone) ;
+* B5 — f solution de y′ = 2y + a e^(2x), la grille du
+  {equadiff-verifier-solution} (famille b, ses juges `edvEgal` et sa
+  correction `edvCorr`) — la dérivée, déjà démontrée au B1, n'est pas
+  redemandée.
+
+**Le tirage** : a ∈ {2, 4, 6} — PAIR, pour que le minimum −(a/2)e^(2x₀) ait un
+coefficient entier —, x₀ ∈ {−1/2, 1/2, 1, 3/2} (`EFB_AB`, neuf couples). x₀ = 0
+est exclu : A et B seraient le même point et la tangente en A horizontale.
+Tout se lit sur la forme : x₀ = −1/2 − b/a, x₁ = x₀ − 1/2, f(x₁) = −a·e^(2x₁),
+f(0) = b, f′(0) = a + 2b. k entier, α à plus de 0,0015 d'un centième et les
+deux bornes du tableau au centième à plus de 0,002 de k.
+
+**Le dessin n'est pas orthonormé** (`efbGraphSVG`, 400 × 350) : l'échelle
+verticale se cale sur le creux (de 1,35 fois le minimum à 1,5 fois sa valeur
+absolue, pas « rond » de 0,1 à 10), l'horizontale sur quatre unités et demie
+quadrillées au demi — x₀ et x₁ s'y lisent. Vu sur la première capture : sous
+l'axe, les graduations « −1,5 », « −1 » étaient barrées par la courbe, qui
+longe l'axe par en dessous à gauche de son zéro ; elles montent au-dessus de
+l'axe à gauche du zéro, celle du zéro s'écarte à gauche, et pour b = 0 les
+graduations négatives de l'axe des ordonnées passent à sa droite. Un liseré
+blanc (`paint-order`) a d'abord été essayé : il ne se voyait pas.
+
+**Essayé dans Chromium** sur quatre visages ((2, −2), (4, 0), (2, −4), (6, −6)) :
+la copie faite des corrections de la page est parfaite (107 cases sur 107) ;
+une copie où une seule case est remplie reçoit ses 106 corrections en vert,
+aucune case rouge ; la page ne déborde pas. Le banc navigateur le rejoue
+(« 6 quinquagies »).
