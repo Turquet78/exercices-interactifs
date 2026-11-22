@@ -7785,6 +7785,7 @@ if(require.main === module) (async () => {
     titre('6 quinquagies. LE 4.5.1 : L\'EXERCICE DE BAC SUR (ax + b)e^(2x) — LA COPIE ENTIÈRE, LE DESSIN');
     if(!P.etudeFonctionBac){
       ['le 4.5.1 : la copie remplie est toute juste, sur deux visages',
+       'le 4.5.1 : l\'encadrement de α à la calculatrice — plus précis juste, trop large ou à côté faux',
        'le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
        'le 4.5.1 : le dessin n\'est pas écrasé en hauteur',
        'le 4.5.1 : la page ne déborde pas'].forEach(n => ignorer(n, 'ce niveau n\'a pas l\'exercice de bac sur les fonctions'));
@@ -7825,6 +7826,16 @@ if(require.main === module) (async () => {
       await epingler({ a: 4, b: 0, k: 1 });
       await s.page.waitForTimeout(400);
       const v2 = await copie();
+      /* l'encadrement de α se cherche à la calculatrice : plus précis, il est
+         juste ; trop large, ou du mauvais côté, il est faux */
+      const enc = await s.page.evaluate(() => {
+        const q = test.questions[0], A = efbAns(q), cs = efbCases(q), c8 = cs.find(x => x.id === 'efb-e8'), c9 = cs.find(x => x.id === 'efb-e9');
+        const essai = (lo, hi) => { document.getElementById('efb-e8').value = lo; document.getElementById('efb-e9').value = hi;
+          return efbOkCase(q, c8, lo) && efbOkCase(q, c9, hi); };
+        const f3 = v => String(v.toFixed(3)).replace('.', ',');
+        const lo3 = Math.floor(A.al * 1000) / 1000;
+        return { fin: essai(f3(lo3), f3(lo3 + 0.001)), large: essai(f3(A.b2 - 0.01), f3(A.c2)), cote: essai(f3(A.c2), f3(A.c2 + 0.01)) };
+      });
       await epingler({ a: 2, b: -3, k: 5 });
       await s.page.waitForTimeout(400);
       await s.page.evaluate(() => document.getElementById('efb-a5').value = '1');   /* une seule case, juste : le reste vide se corrige */
@@ -7835,6 +7846,8 @@ if(require.main === module) (async () => {
       verifier('le 4.5.1 : la copie remplie est toute juste, sur deux visages',
         juste(v1) && juste(v2),
         [v1, v2].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — '));
+      verifier('le 4.5.1 : l\'encadrement de α à la calculatrice — plus précis juste, trop large ou à côté faux',
+        enc.fin === true && enc.large === false && enc.cote === false, JSON.stringify(enc));
       verifier('le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
         v3.bads.length === 0 && v3.oks === 1 && v3.score === 1 && v3.locked && v3.sols > 60,
         v3.oks + ' ok, ' + v3.sols + ' corrections, rouges ' + JSON.stringify(v3.bads.slice(0, 4)));
