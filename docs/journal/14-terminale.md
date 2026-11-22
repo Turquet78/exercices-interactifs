@@ -3531,7 +3531,7 @@ entre les rails (u₄ − u₃ compris) d'au moins 34 unités du dessin : mesur�
 2 000 tirages, aucun échec. Essayé dans Chromium : sept clics décalés de 20
 unités posent les sept points exacts ; copie juste 88 cases sur 88.
 
-## {etude-fonction-bac} (4.5.1, v516 — v515 venait d'être pris par le 7.1.15, fusionné avant) : un exercice de bac sur l'étude de (ax + b)e^(2x)
+## {etude-fonction-bac} (4.5.1, v517 — v515 et v516 venaient d'être pris par le 7.1.15 et le 6.3.2, fusionnés avant) : un exercice de bac sur l'étude de (ax + b)e^(2x)
 
 Demande de Turquet (novembre 2026), avec le sujet du bac blanc 1 du 2 décembre
 2026 (exercice 1 : f(x) = (x − 1)e^(−x) + 2, lecture graphique puis étude
