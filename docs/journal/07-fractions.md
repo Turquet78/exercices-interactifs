@@ -2545,3 +2545,31 @@ vrais évènements « input » : la simplification s'ouvre à la somme écrite, 
 nombres divisés recopient 4/6, le diviseur se recopie en bas, 2/3 vaut le
 point, 4/6 laissé tel quel ne le vaut pas et la correction écrit le diviseur ;
 9/8 n'ouvre aucune simplification.
+
+**Puis le multiplicateur s'est écrit en haut et en bas, et le calcul s'est
+aligné en colonnes (novembre 2026, Première v456).** Demande de Turquet :
+« quand un élève choisit une multiplication pour la première ligne, qu'elle
+apparaisse aussi au numérateur et au dénominateur en même temps ; sur la
+deuxième ligne, les fractions centrées en dessous des multiplications de la
+première ligne, et donc les signes + ou − alignés verticalement ».
+
+* **Les deux cases d'une paire « × m » se recopient** (`tsfEntree`, un
+  écouteur « input » sur l'hôte, une fois) : l'une ou l'autre, la jumelle
+  reçoit la valeur et perd sa couleur. Les deux restent modifiables.
+* **Les deux lignes ne sont plus qu'UNE grille de sept colonnes**
+  (`.pt-row.tsf-fiche`) : « A = » / « = », terme, signe, terme, signe, terme,
+  puis la somme et sa simplification (`#tsfFin`, qui reste l'hôte de
+  `SE_CFG.tsf`) sur la seconde ligne seulement (`.tsf-vide` sur la première).
+  `justify-items:center` centre chaque fraction sous son produit. Mesuré dans
+  Chromium à 1280 et à 390 px : centres égaux au pixel, signes l'un sous
+  l'autre.
+* **Sur un téléphone, la grille déborde** (avec la simplification, plus large
+  que 338 px) : centrée naïvement, elle perdait son début à gauche, hors
+  d'atteinte, puis la PAGE défilait. `justify-content:safe center`, des
+  colonnes resserrées sous 520 px, et la grille seule défile
+  (`overflow-x:auto`) — ni la page, ni la ligne du dénominateur commun.
+
+Contrôle (`troisFractionsPpcm`) : × 4 tapé en haut s'écrit en bas, × 2 tapé
+en bas s'écrit en haut ; la grille porte ses quatorze morceaux dans l'ordre
+des sept colonnes. L'alignement lui-même ne se mesure que dans un navigateur :
+l'essai l'a mesuré, aucun banc ne le tient.
