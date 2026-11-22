@@ -4166,7 +4166,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=456;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=457;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -27312,7 +27312,7 @@ async function startFPB2(){ if(!currentEleve){ accueil(); return; } pbDemarrer('
      (pb-n1 / pb-n2, pbFracJuger).
    Le tableau est COMPLET (aucune case à trouver), ses lignes A et Ā, ses
    colonnes D et D̄, comme au 3.10. Les effectifs : quatre multiples de 10
-   différents, de 10 à 90, sans retenue (v456, ruSeance). Contextes : RU_CTX (q.ru = 1, lu par pbCtx). */
+   différents, de 10 à 90, sans retenue (v457, ruSeance). Contextes : RU_CTX (q.ru = 1, lu par pbCtx). */
 const RU_CTX=[
   /* f : le nom est féminin (« toutes celles »). lA, lnA : en tête des lignes ;
      lB, lnB : en tête des colonnes. A, B : les évènements, à l'indicatif ;
@@ -27360,7 +27360,7 @@ function ruRappel(C){
 /* « les élèves qui font partie de l'association sportive et qui sont externes » */
 function ruDecrit(C, c){ const p=c.split('.'); return 'les '+C.pl+' '+C['p'+p[0]]+' et '+C['p'+p[1]]; }
 function ruSeance(){
-  /* v456 (demande de Turquet) : les quatre cases du milieu sont des
+  /* v457 (demande de Turquet) : les quatre cases du milieu sont des
      multiples de 10 différents, plus petits que 100 (10 à 90), et aucun
      calcul ne demande de retenue — la somme des trois cases de A ∪ D (la
      question 5) reste sous 100, et chaque total de ligne ou de colonne

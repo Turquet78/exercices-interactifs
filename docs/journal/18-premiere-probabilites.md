@@ -983,7 +983,7 @@ juste) ; les trois cases de A ∪ D coloriées à la question 5, Ā ∩ D̄ jama
 le nombre et la fraction justes, la séance menée à l'écran de fin ; aucun
 débordement horizontal, aucune erreur JavaScript.
 
-**Puis des dizaines, et aucune retenue (v456).** Demande de Turquet, le
+**Puis des dizaines, et aucune retenue (v457 ; la 4.11 avait pris la v456 le même jour).** Demande de Turquet, le
 lendemain : « dans cet exercice ne donner que des multiples de 10 et des
 calculs qui ne nécessitent pas d'utiliser une retenue ; chaque case
 intérieure du tableau doit être plus petite que 100 ». `ruSeance` tire
