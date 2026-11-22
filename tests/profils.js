@@ -3037,6 +3037,10 @@ module.exports = {
        b tapés dans un vrai MathLive —, puis la copie entière remplie et
        vérifiée d'un clic sur deux visages, e^(−x) et e^(x−1). */
     etudeAlgoConvexite: { exercice: 'etude-algo-convexite' },
+    /* Le 4.5.1 (l'exercice de bac sur (ax + b)e^(2x)) : la copie entière
+       remplie puis vérifiée d'un clic sur deux visages, une copie presque vide
+       toute corrigée, le dessin plus haut que large. */
+    etudeFonctionBac: { exercice: 'etude-fonction-bac' },
     /* L'étiquette « Cf′ » du dessin partagé des dérivées (afGraphSVG) se pose
        À CÔTÉ de la courbe, jamais dessus : le banc navigateur mesure la boîte
        RENDUE (getBBox) contre le chemin RENDU (getPointAtLength) sur chacun
