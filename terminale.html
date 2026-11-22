@@ -1313,7 +1313,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2347,6 +2347,29 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
   #ecdForm .ecd-lsys,#ecdForm .ecd-quo{overflow-x:auto}
 }
 #scr-ecd .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
+/* ---- 7.1.15 l'espace : un exercice de bac — le cube, deux droites, la section ---- */
+#ebcPrompt .edp-nw{margin-right:6px}
+#ebcForm .tg-line{gap:8px 12px;margin-top:8px}
+#ebcForm .tg-sub{margin:16px 0 4px}
+#ebcForm .tg-in{width:56px}
+#ebcForm .epa-fd{color:#64748b;font-style:italic;font-size:.85em}
+#ebcForm .epa-fd .elg-fn{border-bottom-width:1.5px;border-color:#94a3b8}
+.ebc-partie{font-weight:800;margin:6px 0 2px;color:var(--ink)}
+.esx-fig.ebc-fig{max-width:380px}
+.esx-fig.ebc-fig.ebc-fig-c{max-width:560px}
+.ebc-sysl{display:block;margin:6px 0 0;max-width:100%;overflow-x:auto;padding-bottom:16px}
+@media (max-width:560px){ #scr-ebc .ecd-imp{column-gap:30px} #scr-ebc .edp-lab{font-size:.7rem} }
+.ebc-lbl{font-size:17px;font-weight:800;font-style:italic;font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
+.ebc-fig .esx-svg{cursor:default}
+.ebc-fig.ebc-fig-c .esx-svg{cursor:crosshair}
+#ebcForm .ebc-lsys,#ebcForm .eds-lsys,#ebcForm .epa-quo{overflow-x:auto}
+@media (max-width:560px){
+  #ebcForm .tg-in{width:40px;padding:4px 1px}
+  #ebcForm .tg-line{gap:8px 8px}
+  #ebcForm .elg-par{padding:3px 5px;gap:3px}
+  #ebcForm .edp-sys{column-gap:3px}
+}
+#scr-ebc .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* 7.1.10 — reconnaître une équation paramétrique de droite */
 #erpPrompt .edp-nw{margin-left:4px}
 #erpForm .tg-line{gap:8px 10px;margin-top:14px}
@@ -3686,6 +3709,19 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="ecdActions"></div>
     </div>
   </section>
+  <!-- 7.1.15 L'ESPACE — un exercice de bac : le cube, deux droites, la section (la partie C, 2. passe sur l'écran du 7.1.14) -->
+  <section class="screen" id="scr-ebc">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ebcModeTag"></span><span class="q-idx" id="ebcQIdx">Partie 1 / 5</span></span>
+      <span class="score-tag"><span class="score-lbl">Parties parfaites</span>&nbsp;<b id="ebcLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card s1-card">
+      <p class="enonce" id="ebcPrompt"></p>
+      <div id="ebcForm"></div>
+      <div class="mp-feedback" id="ebcFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="ebcActions"></div>
+    </div>
+  </section>
   <!-- 7.1.10 L'ESPACE — reconnaître une équation paramétrique de droite (fiche « vecteur 10 ») -->
   <section class="screen" id="scr-erp">
     <div class="test-top">
@@ -4660,7 +4696,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=515;
+const APP_VERSION=516;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4908,6 +4944,7 @@ const TESTS={
   'espace-points-alignes': { name:'Espace \u2014 trois points align\u00e9s, ou un plan\u00a0?', icon:'\ud83e\uddca', desc:'La fiche \u00ab vecteur 9 \u00bb\u00a0: d\u00e9montrer que trois points sont align\u00e9s, ou qu\u2019ils d\u00e9finissent un plan. La propri\u00e9t\u00e9, les vecteurs calcul\u00e9s \u00ab\u00a0arriv\u00e9e \u2212 d\u00e9part\u00a0\u00bb, les trois quotients \u00ab\u00a0fin / d\u00e9but\u00a0\u00bb (fraction simplifi\u00e9e ou valeur approch\u00e9e), puis les conclusions. Trois questions.', start:()=>startEAL() },
   'espace-section-cube': { name:'Espace \u2014 section d\u2019un cube par un plan', icon:'\ud83e\uddca', desc:'La fiche \u00ab section espace \u00bb\u00a0: un cube, trois points I, J, K sur ses ar\u00eates. Construire sur la figure le point L, l\u2019intersection de deux plans, puis la section du cube par le plan (IJK) \u2014 droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESX() },
   'espace-section-cube-guidee': { name:'Espace \u2014 section d\u2019un cube, \u00e9tape par \u00e9tape', icon:'\ud83e\uddca', desc:'La section d\u2019un cube par le plan (IJK), construite en suivant les \u00e9tapes\u00a0: trace la droite (IJ), place le point d\u2019intersection L, trace le segment, trace la parall\u00e8le passant par un point\u2026 Chaque \u00e9tape se coche quand elle est faite. Deux figures.', start:()=>startESG() },
+  'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 placer I, J, K puis construire la section du cube par le plan (IJK).', start:()=>startEBC() },
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
@@ -5046,7 +5083,7 @@ const THEMES=[
      le même soir dans deux sessions ; les notes portent l'IDENTIFIANT, pas le
      numéro : rien de ce qui est enregistré ne bouge. */
   { num:7, nom:'Géométrie dans l’espace', sous:[
-      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes','espace-section-cube','espace-section-cube-guidee','espace-section-cube-libre'] }
+      { num:1, nom:'Vecteurs et droites de l’espace', ids:['espace-coordonnees','espace-milieu-longueurs','espace-droite-parametrique','espace-droites-paralleles','espace-droites-secantes','espace-cube','espace-positions-droites','espace-coplanaires','espace-cube-droites','espace-reconnaitre-parametrique','espace-points-alignes','espace-section-cube','espace-section-cube-guidee','espace-section-cube-libre','espace-bac-cube'] }
     ] },
   /* Le thème des Équations différentielles (demande de Turquet, novembre
      2026 : « créer un exercice comme le pdf dans le nouveau thème équation
@@ -5286,7 +5323,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-edv'];
+  const ECRANS_TEST=['scr-test','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5757,6 +5794,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='esx' && test.questions && test.questions[test.idx]){ c=esxConseilCtx(); }
   else if(test && test.kind==='esg' && test.questions && test.questions[test.idx]){ c=esgConseilCtx(); }
   else if(test && test.kind==='esl' && test.questions && test.questions[test.idx]){ c=eslConseilCtx(); }
+  else if(test && test.kind==='ebc' && test.questions && test.questions[test.idx]){ c=ebcConseilCtx(); }
   else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
@@ -7234,7 +7272,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7366,7 +7404,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -22122,6 +22160,13 @@ const RAP_ERP=`<b>Reconnaître une équation paramétrique de droite</b><br>
 • <b>2<sup>e</sup> méthode</b> : deux points distincts définissent une droite. On vérifie que <i>d</i> passe par <i>A</i> <b>et</b> par <i>B</i>.<br>
 • <b>Un point est-il sur <i>d</i> ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées ; on passe le nombre seul de l’autre côté (son signe change) ; on divise par le coefficient de <i>t</i> — s’il vaut 1, il n’y a rien à diviser. Trois valeurs de <i>t</i> égales : le point est sur <i>d</i>.<br>
 • <b>Exemple</b> : <i>A</i>(2 ; 2 ; −5), <i>d</i> : <i>x</i> = −2 + 4<i>t</i>, <i>y</i> = 1 + 1<i>t</i>, <i>z</i> = −3 − 2<i>t</i>. −2 + 4<i>t</i> = 2 ⟺ 4<i>t</i> = 2 + 2 ⟺ <i>t</i> = \\(\\frac{4}{4}\\) = 1 ; 1 + 1<i>t</i> = 2 ⟺ <i>t</i> = 1 ; −3 − 2<i>t</i> = −5 ⟺ −2<i>t</i> = −5 + 3 ⟺ <i>t</i> = \\(\\frac{-2}{-2}\\) = 1 : <i>A</i> ∈ <i>d</i>.`;
+const RAP_EBC=`<b>Un exercice de bac : le cube, deux droites, la section</b><br>
+• <b>Coordonnées</b> dans le repère (<i>A</i> ; <span class="elg-vec">AB</span> ; <span class="elg-vec">AD</span> ; <span class="elg-vec">AE</span>) : on compte depuis <i>A</i> les pas de <span class="elg-vec">AB</span> (<i>x</i>), de <span class="elg-vec">AD</span> (<i>y</i>), de <span class="elg-vec">AE</span> (<i>z</i>). Le point au quart de [<i>AB</i>] en partant de <i>A</i> : (0,25 ; 0 ; 0).<br>
+• <b>Un vecteur</b> : « arrivée − départ ». <b>Une représentation paramétrique</b> : <i>x</i> = (un point de la droite) + (un vecteur de la droite) <i>t</i>, ligne par ligne.<br>
+• <b>Un point est-il sur la droite ?</b> On remplace <i>x</i>, <i>y</i>, <i>z</i> par ses coordonnées, on passe le nombre seul de l’autre côté, on divise par le coefficient de <i>t</i> : trois valeurs de <i>t</i> égales, le point est sur la droite.<br>
+• <b>Une autre représentation de la même droite</b> : elle passe par deux points distincts de la droite — deux points définissent une seule droite.<br>
+• <b>Parallèles</b> : vecteurs directeurs colinéaires (les trois quotients « fin / début » égaux). <b>Sécantes</b> : on « colle » les équations, on résout avec deux d’entre elles, et on vérifie la troisième ; fausse, les droites ne sont pas sécantes. Ni parallèles ni sécantes : <b>non coplanaires</b>.<br>
+• <b>La section</b> : deux points du plan sur une même face donnent un morceau ; deux faces parallèles sont coupées selon des segments parallèles ; une droite du plan prolongée jusqu’à une arête prolongée donne un point d’une autre face.`;
 const RAP_EDV=`<b>Vérifier qu’une fonction est solution d’une équation différentielle</b><br>
 • <b>Une équation différentielle</b> relie une fonction inconnue <i>y</i> et sa dérivée <i>y</i>′, par exemple (<i>E</i>) : <i>y</i>′ = <i>y</i> + <i>x</i>.<br>
 • <b>Une solution</b> est une fonction <i>f</i>, dérivable, telle que <i>f</i>′(<i>x</i>) = <i>f</i>(<i>x</i>) + <i>x</i> pour tout réel <i>x</i>.<br>
@@ -22200,7 +22245,7 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -36397,7 +36442,7 @@ function esxEtendue(q,A,B){
      « ce ne vaut que pour le 7.1.14 ») : au 7.1.12 et au 7.1.13, une droite
      couvre L et les points de la section qu'elle porte, et ses intersections
      avec les autres droites tracées. */
-  if(test.kind!=='esl'){
+  if(!esxLibre()){
     [g.L].concat(g.pts).forEach(P=>{ if(esxSurDroite(P,A,B)) ts.push(tDe(P)); });
     esxObjets(q).forEach(function(o){
       if(o.t!=='d') return;
@@ -36478,7 +36523,7 @@ function esxSVG(q){
     const o=ob.find(z=>z.id==='a'+e), hl=(esxSel&&esxSel.o===o.id)||(esxSurvol&&esxSurvol.o===o.id);
     h+=ln(a,b,'esx-ar'+(e.indexOf('A')>=0?' esx-cache':'')+(hl?' esx-hl':'')); });   /* A est le sommet caché */
   /* la correction : ce qui manque, en vert */
-  if(corr && !(test.kind==='esl' && esxSectionFaite(q))){   /* au 7.1.14, la construction par L ne se montre que si la section manque */
+  if(corr && !(esxLibre() && esxSectionFaite(q))){   /* au 7.1.14, la construction par L ne se montre que si la section manque */
     const vus=bil.find(z=>z.cle==='L');
     const dr=function(A,B){ const t=tDroite(A,B); return trait(A,B,t[0],t[1],'esx-cor esx-cor-dr'); };
     if(!vus.ok){
@@ -36655,7 +36700,9 @@ function esxCible(q,p){
   if(esxOutil==='p') return !esxSel ? (pt()||ob()) : (esxSel.p ? ob() : pt());
   return null;
 }
-function esxActif(){ return test.kind==='esx'||test.kind==='esg'||test.kind==='esl'; }
+function esxActif(){ return test.kind==='esx'||test.kind==='esg'||test.kind==='esl'||test.kind==='ebc'; }
+/* la section sans indication : le 7.1.14, et la partie C, 2. de l'exercice de bac du 7.1.15 */
+function esxLibre(){ return test.kind==='esl'||test.kind==='ebc'; }
 /* LE POINT D'INTERSECTION EN UN CLIC (demande de Turquet, novembre 2026 : « peut-on
    mettre un point d'intersection directement sans avoir à choisir les deux droites
    au préalable ? dans les deux exercices »). Avec l'outil « Point d'intersection »,
@@ -36858,7 +36905,7 @@ function esxSuivi(){
   const el=$('esxSuivi'); if(!el) return;
   if(!isSoutien()||test.locked||test.kind==='esg'){ el.innerHTML=''; return; }   /* le 7.1.13 montre ses étapes cochées */
   const q=test.questions[test.idx], b=esxBilan(q), m=b.filter(z=>z.m), n=m.filter(z=>z.ok).length;
-  if(test.kind==='esl'){ el.innerHTML='Où j’en suis : '+n+' morceau'+(n>1?'x':'')+' de la section en rouge sur '+m.length+'.'; return; }
+  if(esxLibre()){ el.innerHTML='Où j’en suis : '+n+' morceau'+(n>1?'x':'')+' de la section en rouge sur '+m.length+'.'; return; }
   el.innerHTML='Où j’en suis : le point <i>L</i> '+(b[0].ok?'✓':'…')+' — la droite 𝒟 '+(b[1].ok?'✓':'…')+' — la section : '+n+' morceau'+(n>1?'x':'')+' rouge'+(n>1?'s':'')+' sur '+m.length+'.';
 }
 /* ---- la correction expliquée ---- */
@@ -36871,7 +36918,7 @@ function esxRetiens(q){
     else if(e.t==='2') l.push(seg(e.P,e.Q)+' : <i>'+N(e.P)+'</i> et <i>'+N(e.Q)+'</i> sont sur la même face '+fc(e.fi)+'.');
     else { const m=g.morceaux.find(z=>z.fi===e.ref); l.push('Les faces '+fc(e.fi)+' et '+fc(e.ref)+' sont parallèles : le plan les coupe selon deux segments parallèles. Par <i>'+N(e.P)+'</i>, la parallèle à '+seg(m.P,m.Q)+' coupe [<i>'+ar+'</i>] en <i>'+N(e.Q)+'</i>.'); }
   });
-  return 'La clé : '+(test.kind==='esl'?'appelons <i>'+N(g.L)+'</i> le point d’intersection des droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>), qui sont dans le même plan ('+fc(ESX_FACES.findIndex(f=>esxSurFace(g.I,f)&&esxSurFace(g.J,f)))+'). ':'')+l.join(' ');
+  return 'La clé : '+(esxLibre()?'appelons <i>'+N(g.L)+'</i> le point d’intersection des droites (<i>IJ</i>) et (<i>'+R.C+R.G+'</i>), qui sont dans le même plan ('+fc(ESX_FACES.findIndex(f=>esxSurFace(g.I,f)&&esxSurFace(g.J,f)))+'). ':'')+l.join(' ');
 }
 function esxBilanHTML(q,libre){
   const nc=esxNomsCorr(q), N=nc.nom;
@@ -36894,20 +36941,21 @@ function renderESX(){
   const q=test.questions[test.idx]; test.locked=false;
   if(!Array.isArray(q.cons)) q.cons=[];
   esxOutil=null; esxSel=null; esxSurvol=null;
-  $('esxQIdx').textContent='Figure '+(test.idx+1)+' / '+test.questions.length;
+  $('esxQIdx').textContent=(test.kind==='ebc'?'Partie ':'Figure ')+(test.idx+1)+' / '+test.questions.length;
+  { const lb=document.querySelector('#scr-esx .score-lbl'); if(lb) lb.textContent=test.kind==='ebc'?'Parties parfaites':'Figures parfaites'; }
   $('esxModeTag').innerHTML=modeTagHTML();
   $('esxLiveScore').textContent=test.score;
   $('esxFeedback').textContent=''; $('esxFeedback').className='mp-feedback';
   $('esxActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkESX()">Vérifier</button>';
   const guide=test.kind==='esg';
-  $('esxPrompt').innerHTML=guide?esgPromptHTML(q):(test.kind==='esl'?eslPromptHTML(q):esxPromptHTML(q));
+  $('esxPrompt').innerHTML=guide?esgPromptHTML(q):(test.kind==='ebc'?ebcSectionPromptHTML(q):(test.kind==='esl'?eslPromptHTML(q):esxPromptHTML(q)));
   $('esxForm').innerHTML=esxFormHTML(q);
   esxDire(guide?esgProchaine(q):'Choisis un outil.');
   esxBrancher(); esxDessiner();
 }
 function checkESX(live){
   if(test.locked && !live) return;
-  const q=test.questions[test.idx], guide=test.kind==='esg', libre=test.kind==='esl', b=guide?esgBilan(q):(libre?esxBilan(q).filter(z=>z.m):esxBilan(q)), ok=b.every(z=>z.ok);
+  const q=test.questions[test.idx], guide=test.kind==='esg', libre=esxLibre(), b=guide?esgBilan(q):(libre?esxBilan(q).filter(z=>z.m):esxBilan(q)), ok=b.every(z=>z.ok);
   if(live){ esxSuivi(); return; }
   const fb=$('esxFeedback');
   if(!ok && isSoutien() && guide){
@@ -36940,13 +36988,13 @@ function checkESX(live){
   fb.insertAdjacentHTML('afterbegin', guide?esgBilanHTML(q):esxBilanHTML(q,libre));
   const nc=esxNomsCorr(q);
   test.answers.push(Object.assign({}, ptsExo()||{}, {
-    q:(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : '))+esxPlain(q),
+    q:(test.kind==='ebc'?'Espace — exercice de bac, partie 5 sur 5 ('+EBC_TITRES[5]+') : ':(guide?'Espace — section d’un cube, étape par étape : ':(libre?'Espace — section d’un cube, sans indication : ':'Espace — section d’un cube : ')))+esxPlain(q),
     answer:'L, 𝒟 = (LK), section '+esxCfg(q).morceaux.map(m=>'['+nc.nom(m.P)+nc.nom(m.Q)+']').join(' '),
     given:b.filter(z=>z.ok).length+(guide?' étape':' élément')+(b.filter(z=>z.ok).length>1?'s':'')+' sur '+b.length, correct:ok, type:test.kind}));
   const last=test.idx===test.questions.length-1;
-  $('esxActions').innerHTML='<button class="btn btn-primary" onclick="nextESX()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  $('esxActions').innerHTML='<button class="btn btn-primary" onclick="'+(test.kind==='ebc'?'nextEBC':'nextESX')+'()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
-function nextESX(){ if(test.idx<test.questions.length-1){ test.idx++; renderESX(); } else finishTest(); }
+function nextESX(){ if(test.kind==='ebc'){ nextEBC(); return; } if(test.idx<test.questions.length-1){ test.idx++; renderESX(); } else finishTest(); }
 /* Le contexte envoyé au modèle : l'énoncé, la construction de l'élève, et la
    clause de secret. */
 function esxConseilCtx(){
@@ -37108,6 +37156,564 @@ function eslConseilCtx(){
     +'Construction actuelle : '+(cons||'rien encore')+'. Morceaux de la section déjà trouvés : '+b.filter(z=>z.m&&z.ok).length+' sur '+g.morceaux.length+'. '
     +'STRICTEMENT SECRET : la forme de la section, ses points et les arêtes qu’elle coupe — ne les donne jamais. '
     +'CONTRAINTE ANTI-RECOPIE : ne donne pas la construction toute faite ; guide par questions. Méthode, sans la donner : relier deux points du plan situés sur une même face ; quand une face n’a qu’un point connu, prolonger une droite du plan tracée sur une face voisine jusqu’à une arête prolongée de la face cherchée (deux droites d’un même plan, non parallèles, se coupent) : ce point est dans le plan de cette face ; deux faces parallèles sont coupées selon des segments parallèles ; deux droites ne se coupent que si elles sont dans un même plan.';
+}
+/* ================= 7.1.15 L'ESPACE — UN EXERCICE DE BAC : LE CUBE, DEUX DROITES, LA SECTION (kind 'ebc') =================
+   Demande de Turquet (novembre 2026), avec le sujet du bac blanc du 2 décembre
+   2026 (exercice 3) : « faire un exercice comme l'exercice 3 du pdf, les
+   données seront forcément différentes et on prendra une fraction différente
+   de 1/2 pour placer un point qui s'appellera P au lieu de M ; dans la
+   question 2 partie B la conclusion sera non sécantes ; pour chaque question
+   on fera comme les exercices du site qui traitent du même type de question,
+   en prenant la méthode avec des cases à remplir plutôt qu'une version
+   rédigée si elle existe ; dans l'espace on présentera comme dans
+   l'exercice 7.1.14 ».
+   LE SUJET, EN CINQ PARTIES (une séance, cinq écrans, la même figure) :
+     1 — Partie A, 1. et 2. : les coordonnées de quatre sommets et de I, J, K
+         (comme au 7.1.6) ; IK⃗ en colonne « K − I » puis une représentation
+         paramétrique de (IK), point et vecteur au choix de l'élève (7.1.9 d).
+     2 — Partie A, 3. et 4. : « pour la suite » la représentation IMPOSÉE de
+         (IK) (point et vecteur cerclés, comme au 7.1.9 h) ; P ∈ (IK) par les
+         trois systèmes du 7.1.10 ; puis Δ, une autre représentation de (IK),
+         par la 2ᵉ méthode du 7.1.10 (Δ passe par deux points de (IK), au
+         choix parmi I, K et P).
+     3 — Partie B : (IK) et (d) parallèles ? le 7.1.4 tel quel (epaFormHTML) ;
+         puis sécantes ? le 7.1.8 b) tel quel (edsFormHTML, fin 'concl') —
+         TOUJOURS non sécantes, comme demandé ; puis la conclusion générale du
+         7.1.9 i) : non parallèles, non sécantes, donc non coplanaires.
+     4 — Partie C, 1. : placer I, J, K au clic sur la figure (le geste du
+         7.1.6 c), calé sur les quarts d'arête).
+     5 — Partie C, 2. : la section du cube par (IJK), avec le moteur du
+         7.1.14 (son écran, ses outils, son indice) — esxLibre() vaut pour
+         'ebc' comme pour 'esl'.
+   POURQUOI (IK) ET PAS (IJ). Le tirage est celui des sections (esxListe) :
+   I, J, K sur trois arêtes qui se suivent (I et J sur une même face, J et K
+   sur une autre). Sur le sujet, (IJ) est dans une face : une coordonnée de IJ⃗
+   est nulle (z = 0), et la méthode des quotients du 7.1.4 n'a plus de sens
+   (0/0) — le journal du 7.1.11 l'écarte pour cette raison. I et K sont sur
+   deux arêtes NON coplanaires : IK⃗ n'a aucune coordonnée nulle, et l'une
+   vaut ±1 — le « t tout seul » du 7.1.5. La représentation imposée part de I
+   avec IK⃗, ou de K avec KI⃗, celle où ce coefficient vaut +1.
+   LES NOMBRES : I, J, K au milieu, au quart ou aux trois quarts de leur arête
+   (les tiers des sections sont écartés : 1/3 n'a pas d'écriture décimale) ;
+   toutes les valeurs des calculs sont des multiples de 0,25. P a au moins une
+   coordonnée en quarts (« une fraction différente de 1/2 »), écrite en
+   fraction dans l'énoncé.
+   LE DESSIN : celui du 7.1.14 (B en bas à gauche de la face avant, A caché
+   derrière B, ESX_CO), le repère restant (A ; AB⃗ ; AD⃗ ; AE⃗) — ebcR passe
+   des coordonnées du dessin à celles du repère. */
+const EBC_NBQ=5;
+const EBC_TITRES=['','Partie A — coordonnées, la droite (IK)','Partie A — un point de (IK), une autre représentation','Partie B — positions relatives de deux droites','Partie C — placer I, J et K','Partie C — la section du cube'];
+function ebcRd(x){ const r=Math.round(x*1e9)/1e9; return r===0?0:r; }
+function ebcQuart(x){ return Math.abs(x*4-Math.round(x*4))<1e-9; }
+/* du dessin (ESX_CO : B origine, C à droite, A derrière B, F au-dessus de B) au
+   repère (A ; AB⃗ ; AD⃗ ; AE⃗) : AB⃗ = (0 ; −1 ; 0), AD⃗ = (1 ; 0 ; 0), AE⃗ = (0 ; 0 ; 1) */
+function ebcR(P){ return [ebcRd(1-P[1]), ebcRd(P[0]), ebcRd(P[2])]; }
+function ebcPt(q,n){
+  const g=esxCfg(q);
+  if(n==='I'||n==='J'||n==='K') return ebcR(g[n]);
+  if(n==='P'){ const S=ebcPt(q,q.dep), u=ebcU(q); return S.map((x,k)=>ebcRd(x+q.tP*u[k])); }
+  return ebcR(ESX_CO[n]);
+}
+function ebcIK(q){ const I=ebcPt(q,'I'), K=ebcPt(q,'K'); return K.map((x,k)=>ebcRd(x-I[k])); }
+function ebcAutre(n){ return n==='I'?'K':'I'; }
+/* le vecteur de la représentation imposée : IK⃗ depuis I, KI⃗ depuis K */
+function ebcU(q){ const v=ebcIK(q); return q.dep==='I'?v:v.map(x=>ebcRd(-x)); }
+function ebcW(q){ return ebcU(q).map(x=>ebcRd(q.m*x)); }
+/* les sommets des trois arêtes de I, J et K, dans l'ordre alphabétique */
+function ebcSom(q){ const R=esxCfg(q).R; return [R.B,R.C,R.D,R.F].sort(); }
+/* ---- le tirage ---- */
+let EBC_LISTE=null;
+function ebcListe(){ if(!EBC_LISTE) EBC_LISTE=esxListe().filter(x=>[x.a,x.b,x.c].every(f=>f[1]===2||f[1]===4)); return EBC_LISTE; }
+function ebcGenDe(x){
+  const q={sym:x.sym, a:x.a.slice(), b:x.b.slice(), c:x.c.slice()};
+  const IK=ebcIK(q), s=IK.findIndex(c=>Math.abs(Math.abs(c)-1)<1e-9);
+  if(s<0 || IK.some(c=>c===0)) return null;
+  q.dep=IK[s]>0?'I':'K';
+  const u=ebcU(q), S=ebcPt(q,q.dep);
+  /* P = S + tP u⃗ : des quarts, au moins une coordonnée qui n'est ni entière ni une demie */
+  const tps=[-2,-1,2,3,0.5,1.5,-0.5].filter(function(t){ const P=S.map((c,k)=>ebcRd(c+t*u[k]));
+    return P.every(ebcQuart) && P.every(c=>Math.abs(c)<=3) && P.some(c=>Math.round(Math.abs(c*4))%2===1); });
+  if(!tps.length) return null;
+  q.tP=pick(tps);
+  q.m=(Math.random()<0.5?-1:1)*(u.every(c=>Number.isInteger(ebcRd(2*c)))?2:4);   /* Δ : un vecteur aux coordonnées entières */
+  q.q0=pick([ebcAutre(q.dep),'P']);
+  /* la partie B : (d) passe par B, de vecteur v⃗ (entier) ; non coplanaire avec (IK) */
+  for(let essai=0; essai<600; essai++){
+    const autres=[0,1,2].filter(k=>k!==s); if(Math.random()<0.5) autres.reverse();
+    const r=autres[0], w=autres[1];
+    let v;
+    if(Math.random()<0.4){ v=ebcW(q).slice(); v[rand(0,2)]=edpNz(-3,3); }   /* deux quotients égaux, le troisième non : le piège du 7.1.4 */
+    else v=[edpNz(-3,3),edpNz(-3,3),edpNz(-3,3)];
+    if(v.some(c=>c===0||Math.abs(c)>4) || epaColin(u,v)) continue;
+    const t=edpNz(-3,3), tp=edpNz(-3,3);
+    const B=S.map((c,k)=>ebcRd(c+u[k]*t-v[k]*tp));
+    B[w]=ebcRd(B[w]+pick([-2,-1,1,2]));   /* l'équation w n'est plus vérifiée : aucun point commun */
+    if(B.some(b=>b===0||Math.abs(b)>6) || !B.every(ebcQuart)) continue;
+    if(ebcRd(B[s]-S[s])===0 || ebcRd(u[r]*v[s]-v[r])===0) continue;
+    const e={A:S.slice(), u:u.slice(), B:B, v:v, s:s, r:r, w:w, t:t, tp:tp, sorte:'nc', par:false};
+    const V=edsVal(e), nb=[V.a1,V.c0,V.e0,V.e1,V.k0,V.g0,V.g1,V.h0,V.h1,V.m1,V.m2,V.vw,V.vwr];
+    if(!nb.every(ebcQuart) || nb.some(c=>Math.abs(c)>30)) continue;
+    if(Math.abs(V.h0/V.h1-tp)>1e-9 || Math.abs(V.vw-V.vwr)<1e-9) continue;
+    return Object.assign(q,e);
+  }
+  return null;
+}
+function ebcGen(){
+  const T=ebcListe(); if(!T.length) return null;
+  for(let essai=0; essai<300; essai++){
+    const forme=Math.random()<0.5?5:6, L=T.filter(x=>x.n===forme).length?T.filter(x=>x.n===forme):T;
+    const q=ebcGenDe(pick(L)); if(q) return q;
+  }
+  for(const x of T){ const q=ebcGenDe(x); if(q) return q; }   /* repli : la première figure qui convient */
+  return null;
+}
+function ebcGenSession(){
+  const f=ebcGen();
+  return distinctes(EBC_NBQ, function(u,i){ const q=JSON.parse(JSON.stringify(f)); q.p=i+1; if(q.p===4) q.place={}; if(q.p===5) q.cons=[]; return q; });
+}
+/* ---- les écritures ---- */
+function ebcPtHTML(q,n){ return '<span class="edp-nw"><i>'+n+'</i>('+ebcPt(q,n).map(numFmt).join(' ; ')+')</span>'; }
+/* un nombre en fraction (P : « une fraction différente de 1/2 ») */
+function ebcFrac(x){
+  if(Number.isInteger(x)) return numFmt(x);
+  const n=Math.round(Math.abs(x)*4), g=n%2===0?2:1;
+  return (x<0?'−':'')+'<span class="esx-fr"><span>'+(n/g)+'</span><span>'+(4/g)+'</span></span>';
+}
+function ebcPtFrac(q,n){ return '<span class="edp-nw"><i>'+n+'</i>('+ebcPt(q,n).map(ebcFrac).join(' ; ')+')</span>'; }
+function ebcVec(n){ return elgVec(n); }
+function ebcMb(a,c,p){ return numFmt(a)+(c<0?' − ':' + ')+numFmt(Math.abs(c))+'<i>'+p+'</i>'; }
+function ebcSysPlain(A,u,p){ return [0,1,2].map(k=>EDP_CO[k]+' = '+numFmt(A[k])+(u[k]<0?' − ':' + ')+numFmt(Math.abs(u[k]))+p).join(' ; '); }
+/* un système x = a + c t, les colonnes du point et du vecteur cerclées (7.1.9 h) */
+function ebcSysImp(A,c,p,lp,lv){
+  const T=h=>'<span>'+h+'</span>';
+  const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:3"></span><span class="edp-cad" style="grid-row:1/4;grid-column:5"></span>'
+    +'<span class="edp-lab" style="grid-row:4;grid-column:3">'+lp+'</span><span class="edp-lab" style="grid-row:4;grid-column:5">'+lv+'</span>';
+  return edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),T(numFmt(A[k])),T(c[k]<0?'−':'+'),T(numFmt(Math.abs(c[k]))),T('<i>'+p+'</i>')]), ['e','m','m p','m','s tt'], cad, 'edp-sys-a ecd-imp');
+}
+function ebcImpHTML(q){
+  const d=q.dep, o=ebcAutre(d);
+  return '<span class="edp-nw">(<i>IK</i>)&nbsp;:'+ebcSysImp(ebcPt(q,d),ebcU(q),'t','Le point '+d+'<br>de la droite','Le vecteur '+ebcVec(d+o)+'<br>de la droite')+'</span>';
+}
+function ebcDelta(q){ return '<span class="edp-nw">Δ&nbsp;:'+epaSysHTML(ebcPt(q,q.q0),ebcW(q),'')+'</span>'; }
+function ebcDHTML(q){ return '<span class="edp-nw">(<i>d</i>)&nbsp;:'+epaSysHTML(q.B,q.v,'′')+'</span>'; }
+/* le 7.1.4 et le 7.1.5 nomment leurs droites d et d′ : ici (IK) et (d) */
+function ebcRenomme(h){ return String(h).split('<i>d</i>′').join('\u0001').split('<i>d</i>').join('(<i>IK</i>)').split('\u0001').join('(<i>d</i>)'); }
+function ebcEnonce(q){
+  return 'On considère le cube <i>ABCDEFGH</i> représenté ci-dessous et le repère (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+'). '
+    +esxDonnee(q,'I','BF',q.a)+' '+esxDonnee(q,'J','BC',q.b)+' '+esxDonnee(q,'K','CD',q.c);
+}
+function ebcPromptHTML(q){
+  let h=ebcEnonce(q);
+  if(q.p===2) h+='<br>À la partie précédente, on a trouvé '+ebcPtHTML(q,'I')+' et '+ebcPtHTML(q,'K')+', donc <span class="edp-nw">'+elgVec('IK')+'('+ebcIK(q).map(numFmt).join(' ; ')+')</span>.';
+  if(q.p===3) h+='<br><b>Partie B – Positions relatives de deux droites.</b> On considère la droite (<i>d</i>) définie par&nbsp;:<span class="ebc-sysl">'+ebcDHTML(q)+'</span>'
+    +'<span class="ebc-sysl">et la représentation paramétrique de la droite (<i>IK</i>) choisie à la partie A&nbsp;:</span><span class="ebc-sysl">'+ebcImpHTML(q)+'</span>';
+  if(q.p===4) h+='<br><b>Partie C – Section du cube.</b>';
+  return h;
+}
+function ebcPlain(q){
+  const g=esxCfg(q), R=g.R, t=(P,o,fr)=>P+(fr[0]===1&&fr[1]===2?' milieu de ['+R[o[0]]+R[o[1]]+']':' sur ['+R[o[0]]+R[o[1]]+'] avec '+R[o[0]]+P+' = '+fr[0]+'/'+fr[1]+' '+R[o[0]]+R[o[1]]);
+  return 'cube ABCDEFGH, repère (A ; AB, AD, AE), dessiné face avant BCGF, B en bas à gauche, A caché derrière B ; '+t('I','BF',q.a)+', '+t('J','BC',q.b)+', '+t('K','CD',q.c)
+    +' ; I('+ebcPt(q,'I').map(numFmt).join(' ; ')+'), J('+ebcPt(q,'J').map(numFmt).join(' ; ')+'), K('+ebcPt(q,'K').map(numFmt).join(' ; ')+')'
+    +(q.p>=2&&q.p<=3?' ; représentation imposée de (IK) : { '+ebcSysPlain(ebcPt(q,q.dep),ebcU(q),'t')+' }':'')
+    +(q.p===2?' ; P('+ebcPt(q,'P').map(numFmt).join(' ; ')+') ; Δ : { '+ebcSysPlain(ebcPt(q,q.q0),ebcW(q),'t')+' }':'')
+    +(q.p===3?' ; (d) : { '+ebcSysPlain(q.B,q.v,'t′')+' }':'');
+}
+/* ---- les cases ---- */
+/* Q4 : les deux points de (IK) par lesquels l'élève vérifie que Δ passe —
+   deux parmi I, K et P (P est sur (IK), on vient de le montrer). Le menu ;
+   un menu vide ou en double prend le premier point qui reste. */
+const EBC_PTS4=['I','K','P'];
+function ebcChoix(lire){
+  lire=lire||function(id){ const el=$(id); return el?el.value:''; };
+  const s=id=>String(lire(id)==null?'':lire(id)).trim(), ok=v=>EBC_PTS4.indexOf(v)>=0;
+  const v0=s('ebc-pp0'), v1=s('ebc-pp1');
+  const p0=ok(v0)?v0:EBC_PTS4.find(x=>x!==(ok(v1)?v1:''));
+  const p1=(ok(v1)&&v1!==p0)?v1:EBC_PTS4.find(x=>x!==p0);
+  return [p0,p1];
+}
+/* l'appartenance d'un point X à la droite {D + c t} : les trois systèmes du 7.1.10 */
+function ebcEtude(X,pre,D,c,P,nom,lab){
+  [0,1,2].forEach(function(k){ const co=EDP_CO[k], d=ebcRd(P[k]-D[k]);
+    X(pre+'e'+k,'num',P[k],co+nom+' dans le 1er système ('+lab+')');
+    X(pre+'f'+k+'a','num',P[k],co+nom+' dans le 2e système ('+lab+')');
+    X(pre+'f'+k+'b','num',ebcRd(-D[k]),'−'+co+' du point de départ (avec son signe) dans le 2e système ('+lab+')',{aff:edpSigne(ebcRd(-D[k]))});
+    if(c[k]!==1){
+      X(pre+'h'+k+'n','num',d,'numérateur de t pour '+co+' ('+lab+')',{fr:pre+'h'+k});
+      X(pre+'h'+k+'d','num',c[k],'dénominateur de t pour '+co+' ('+lab+')',{fr:pre+'h'+k});
+    }
+    X(pre+'h'+k+'q','num',ebcRd(d/c[k]),'valeur de t pour '+co+' ('+lab+')',{aff:ecdQ([d,c[k]])});
+  });
+}
+function ebcCases(q, ch){
+  const out=[], X=(id,type,good,nom,o)=>out.push(Object.assign({id:id,type:type,good:good,nom:nom},o||{}));
+  if(q.p===1){
+    ebcSom(q).concat(['I','J','K']).forEach(function(n){ const P=ebcPt(q,n);
+      EDP_CO.forEach(function(co,k){ X('ebc-a-'+n+k,'num',P[k],co+' de '+n); }); });
+    const I=ebcPt(q,'I'), K=ebcPt(q,'K'), IK=ebcIK(q);
+    EDP_CO.forEach(function(co,k){
+      X('ebc-v-'+k+'y','num',K[k],co+'K (premier terme de la différence pour IK)');
+      X('ebc-v-'+k+'x','num',I[k],co+'I (terme soustrait pour IK)');
+    });
+    EDP_CO.forEach(function(co,k){ X('ebc-v-c'+k,'num',IK[k],'coordonnée '+co+' du vecteur IK'); });
+    EDP_CO.forEach(function(co,k){
+      X('ebc-s-'+k+'p','spt',I[k],'nombre seul (point de la droite) de la ligne '+co+' de (IK)',{grp:'sp',cands:[I,K]});
+      X('ebc-s-'+k+'u','svec',IK[k],'coefficient de t (vecteur de la droite) de la ligne '+co+' de (IK)',{grp:'su',cands:[IK,IK.map(c=>ebcRd(-c))]});
+    });
+  }
+  if(q.p===2){
+    ebcEtude(X,'ebc-p-',ebcPt(q,q.dep),ebcU(q),ebcPt(q,'P'),'P','P sur (IK)');
+    X('ebc-p-cc','sel','est','menu : conclusion, P est / n’est pas sur la droite (IK)');
+    ch=ch||ebcChoix();
+    X('ebc-pp0','sel',ch[0],'menu : Δ passe par… (premier point, I, K ou P)');
+    X('ebc-pp1','sel',ch[1],'menu : … et (second point)');
+    ch.forEach(function(n,j){
+      ebcEtude(X,'ebc-'+j+'-',ebcPt(q,q.q0),ebcW(q),ebcPt(q,n),n,n+' sur Δ');
+      X('ebc-'+j+'-cc','sel','est','menu : conclusion pour '+n+' (est / n’est pas sur Δ)');
+    });
+    X('ebc-fin','sel','conf','menu : les droites (IK) et Δ sont…');
+  }
+  if(q.p===3){
+    epaCases(q,'ebca').forEach(x=>out.push(Object.assign({},x,{via:'epa'})));
+    edsCases(q,'ebcb','concl').forEach(x=>out.push(Object.assign({},x,{via:'eds'})));
+    X('ebc-par','sel','npar','menu : (IK) et (d) sont parallèles ou non parallèles');
+    X('ebc-sec','sel','nsec','menu : (IK) et (d) sont sécantes ou non sécantes');
+    X('ebc-cop','sel','ncop','menu : (IK) et (d) sont coplanaires ou non coplanaires');
+  }
+  if(q.p===4) ['I','J','K'].forEach(n=>X('ebc-plc-'+n,'plc',ebcPt(q,n),'position du point '+n+' sur la figure'));
+  return out;
+}
+function ebcAff(x){ if(x.aff!=null) return x.aff; if(x.type==='plc') return '('+x.good.map(numFmt).join(' ; ')+')'; return x.type==='sel'?x.good:numFmt(x.good); }
+function ebcVerdicts(q, lire){
+  const val=id=>{ const r=lire(id); return String(r==null?'':r).trim(); }, eg=(a,b)=>a!=null && b!=null && Math.abs(a-b)<1e-9;
+  const cases=ebcCases(q, q.p===2?ebcChoix(lire):null), out={}, grp={}, fr={};
+  cases.forEach(function(x){
+    if(x.via) return;   /* la partie B : les juges du 7.1.4 et du 7.1.5, plus bas */
+    if(x.type==='plc'){ const g=esxCfg(q)[x.id.slice(-1)], P=(q.place||{})[x.id.slice(-1)];
+      out[x.id]={ok:Array.isArray(P)&&esxEq(P,g), rempli:Array.isArray(P), attendu:ebcAff(x)}; return; }
+    const t=val(x.id);
+    if(x.type==='sel'){ out[x.id]={ok:t===x.good, rempli:t!=='', attendu:x.good}; return; }
+    if(x.type==='spt'||x.type==='svec'){ (grp[x.grp]=grp[x.grp]||[]).push(x); return; }
+    const v=t===''?null:tgParseFrac(t);
+    out[x.id]={ok:eg(v,x.good), rempli:t!=='', attendu:ebcAff(x), v:v};
+    if(x.fr) (fr[x.fr]=fr[x.fr]||[]).push(x);
+  });
+  /* une fraction de t se juge à deux cases : n/d, ou bien (−n)/(−d) */
+  Object.keys(fr).forEach(function(k){ const n=fr[k][0], d=fr[k][1];
+    if(eg(out[n.id].v,-n.good) && eg(out[d.id].v,-d.good)){ out[n.id].ok=true; out[d.id].ok=true; } });
+  /* la représentation de (IK) : le point et le vecteur choisis par l'élève, lus sur ses colonnes (7.1.9) */
+  Object.keys(grp).forEach(function(g){
+    const xs=grp[g], cands=xs[0].cands, lu=x=>x.type==='spt'?tgParseFrac(val(x.id)):tgParseCoef(val(x.id));
+    let c=cands[0], bn=-1;
+    cands.forEach(function(cd){ const n=xs.filter((x,k)=>eg(lu(x),cd[k])).length; if(n>bn){ bn=n; c=cd; } });
+    xs.forEach(function(x,k){ const t=val(x.id); out[x.id]={ok:t!=='' && eg(lu(x),c[k]), rempli:t!=='', attendu:numFmt(c[k])}; });
+  });
+  if(q.p===3){ Object.assign(out, epaVerdicts(q, lire, 'ebca'), edsVerdicts(q, lire, 'ebcb', 'concl')); }
+  return out;
+}
+/* ---- le formulaire ---- */
+function ebcFormHTML(q){
+  const I=(id,plus)=>txInp(id,'',plus), T=h=>'<span>'+h+'</span>';
+  const L=(h,cls)=>'<div class="tg-line'+(cls?' '+cls:'')+'">'+h+'</div>';
+  const NW=h=>'<span class="ecb-nw">'+h+'</span>';
+  const P=x=>'<span class="elg-par">'+x+'</span>';
+  const col=rows=>P('<span class="elg-col">'+rows.map(r=>'<span class="elg-row">'+r+'</span>').join('')+'</span>');
+  const fr=(n,d)=>'<span class="elg-fr"><span class="elg-fn">'+n+'</span><span class="elg-fd">'+d+'</span></span>';
+  const sel=(id,opts)=>'<select class="tvi-sel ebc-sel" id="'+id+'"><option value="">…</option>'+opts.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select>';
+  const sub=(l,t)=>'<div class="tg-sub">'+l+'. '+t+'</div>';
+  const Ni=n=>'<i>'+n+'</i>', eqv='<span class="edp-eqv">⟺</span>';
+  let h='';
+  if(q.p<=4) h+='<div class="esx-fig ebc-fig'+(q.p===4?' ebc-fig-c':'')+'" id="ebcFig"></div>';
+  if(q.p===1){
+    h+='<div class="ebc-partie">Partie A – Coordonnées et droites</div>';
+    const pts=ebcSom(q).concat(['I','J','K']);
+    h+=sub('1','Donner les coordonnées de '+pts.map(Ni).join(', ').replace(/, ([^,]*)$/,' et $1')+'.');
+    for(let r=0;r<pts.length;r+=4) h+=L(pts.slice(r,r+4).map(n=>NW(T(Ni(n)+'&nbsp;(')+I('ebc-a-'+n+'0')+T(';')+I('ebc-a-'+n+'1')+T(';')+I('ebc-a-'+n+'2')+T(')'))).join(''), 'ebc-l');
+    h+=sub('2','Calculer les coordonnées de '+elgVec('IK')+' et donner une représentation paramétrique de la droite (<i>IK</i>).');
+    h+=L(NW(T(elgVec('IK'))+col([0,1,2].map(k=>I('ebc-v-'+k+'y')+T('−')+I('ebc-v-'+k+'x'))))
+      +NW(T('donc :&nbsp;')+T(elgVec('IK'))+col([0,1,2].map(k=>I('ebc-v-c'+k)))), 'ebc-l');
+    const cad='<span class="edp-cad" style="grid-row:1/4;grid-column:3"></span><span class="edp-cad" style="grid-row:1/4;grid-column:5"></span>'
+      +'<span class="edp-lab" style="grid-row:4;grid-column:3">un point<br>de la droite</span><span class="edp-lab" style="grid-row:4;grid-column:5">un vecteur<br>de la droite</span>';
+    h+=L(NW(T('(<i>IK</i>)&nbsp;:')+edpSys([0,1,2].map(k=>[T('<i>'+EDP_CO[k]+'</i> ='),I('ebc-s-'+k+'p'),T('+'),I('ebc-s-'+k+'u','+'),T('<i>t</i>')]), ['e','m','m p','m','s tt'], cad, 'edp-sys-a')), 'ebc-l ebc-lsys');
+    h+='<p class="dexp-hint">Le point peut être <i>I</i> ou <i>K</i>, et le vecteur '+elgVec('IK')+' ou '+elgVec('KI')+'. Un coefficient négatif s’écrit avec son signe dans la case du vecteur (par exemple −0,5). Les coordonnées s’écrivent en décimal (0,25) ou en fraction (1/4).</p>';
+  }
+  /* l'appartenance d'un point : les trois systèmes du 7.1.10, alignés en colonnes */
+  const etude=function(pre,nomD,D,c){
+    const dep=k=>T(numFmt(D[k])), ter=k=>T(epaTerme(c[k],'')), at=k=>T(numFmt(c[k])+'<i>t</i>');
+    const s1=edpSys([0,1,2].map(k=>[dep(k),ter(k),T('='),I(pre+'e'+k)]), ['e','s','m','s']);
+    const s2=edpSys([0,1,2].map(k=>[at(k),T('='),I(pre+'f'+k+'a')+I(pre+'f'+k+'b','+')]), ['e','m','s']);
+    const s3=edpSys([0,1,2].map(k=>c[k]===1
+      ? [T('<i>t</i>'),T('='),I(pre+'h'+k+'q')]
+      : [T('<i>t</i>'),T('='),'<span class="edp-dv">'+fr(I(pre+'h'+k+'n'),I(pre+'h'+k+'d'))+'</span>','<span class="edp-dv">=</span>',I(pre+'h'+k+'q')]), ['e','m','m','m','s']);
+    return L(NW(T(nomD+'&nbsp;:')+s1)+NW(eqv+s2)+NW(eqv+s3), 'ebc-lsys');
+  };
+  const mir=j=>'<span class="erp-mir ebc-mir" data-m="'+j+'">…</span>';
+  if(q.p===2){
+    h+='<div class="ebc-partie">Partie A – Coordonnées et droites (suite)</div>';
+    h+='<div class="tg-sub"><b>Pour la suite, on considère que l’on a pris la représentation paramétrique suivante :</b></div>';
+    h+=L(ebcImpHTML(q), 'ebc-l ebc-lsys');
+    h+=sub('3','Vérifier que le point '+ebcPtFrac(q,'P')+' appartient à la droite (<i>IK</i>).');
+    h+=etude('ebc-p-','(<i>IK</i>)',ebcPt(q,q.dep),ebcU(q));
+    h+=L(T('Donc le point <i>P</i>')+sel('ebc-p-cc',[['est','est'],['nest','n’est pas']])+T('sur la droite (<i>IK</i>).'));
+    h+=sub('4','Montrer que le système suivant est également une représentation paramétrique de (<i>IK</i>)&nbsp;: '+ebcDelta(q));
+    h+='<div class="erp-prop"><b>Méthode — les deux points.</b> On vérifie que Δ passe par deux points distincts de la droite (<i>IK</i>)&nbsp;: deux points distincts définissent une seule droite, donc Δ est la droite (<i>IK</i>).</div>';
+    const opts=EBC_PTS4.map(n=>[n,n]);
+    h+=L(T('On vérifie que la droite Δ passe par')+sel('ebc-pp0',opts)+T('et par')+sel('ebc-pp1',opts)+T(', deux points de (<i>IK</i>).'));
+    [0,1].forEach(function(j){
+      h+=L(T('On prend le point '+mir(j)+'.'));
+      h+=etude('ebc-'+j+'-','Δ',ebcPt(q,q.q0),ebcW(q));
+      h+=L(T('Donc le point '+mir(j))+sel('ebc-'+j+'-cc',[['est','est'],['nest','n’est pas']])+T('sur la droite Δ.'));
+    });
+    h+=L(T('Conclusion : les droites (<i>IK</i>) et Δ sont')+sel('ebc-fin',[['sec','sécantes'],['dist','parallèles et distinctes'],['conf','confondues']])+T(': Δ est bien une représentation paramétrique de (<i>IK</i>).'));
+    h+='<p class="dexp-hint">Chaque case est un <b>nombre</b> (décimal ou fraction). La case après la coordonnée du point porte le nombre qui change de membre, <b>avec son signe</b> (par exemple +0,5 ou −1).</p>';
+  }
+  if(q.p===3){
+    h+=sub('1','Les droites (<i>IK</i>) et (<i>d</i>) sont-elles parallèles&nbsp;? Justifier.');
+    h+='<div id="ebcaForm">'+ebcRenomme(epaFormHTML(q,'ebca'))+'</div>';
+    h+=sub('2','Étudier la position relative des droites (<i>IK</i>) et (<i>d</i>) dans l’espace. Justifier par un calcul.');
+    h+='<div id="ebcbForm">'+ebcRenomme(edsFormHTML(q,'ebcb','concl'))+'</div>';
+    h+='<div class="tg-sub"><b>Conclusion générale</b> : choisir les bonnes réponses.</div>';
+    const D2='(<i>IK</i>) et (<i>d</i>) sont :';
+    h+=L(T(D2)+sel('ebc-par',[['par','parallèles'],['npar','non parallèles']]), 'ebc-l');
+    h+=L(T(D2)+sel('ebc-sec',[['sec','sécantes'],['nsec','non sécantes']]), 'ebc-l');
+    h+=ECD_PROP;
+    h+=L(T(D2)+sel('ebc-cop',[['cop','coplanaires'],['ncop','non coplanaires']]), 'ebc-l');
+  }
+  if(q.p===4){
+    h=sub('1','Sur la figure, placer les points <i>I</i>, <i>J</i> et <i>K</i>.')
+      +L(T('Point à placer :')+['I','J','K'].map(n=>'<button type="button" class="ecb-bp" id="ebc-b-'+n+'" onclick="ebcChoisir(\''+n+'\')">'+n+'</button>').join(''), 'ebc-l')
+      +'<p class="ecb-aide">Choisis le point, puis clique sur la figure, à sa place sur son arête (le clic se cale sur le quart d’arête le plus proche). Un nouveau clic le déplace.</p>'+h;
+  }
+  return h;
+}
+/* ---- les miroirs et les signes ---- */
+function ebcMaj(){
+  const q=test.questions&&test.questions[test.idx]; if(!q || test.kind!=='ebc') return;
+  if(q.p===2){
+    document.querySelectorAll('#ebcForm .ebc-mir').forEach(function(m){
+      const el=$(['ebc-pp0','ebc-pp1'][+m.getAttribute('data-m')]), v=el?el.value:'';
+      m.innerHTML=v?'<i>'+esc(v)+'</i>':'…'; });
+  }
+  if(q.p===3){ epaSignes('ebca'); edsMiroirs(test.locked && test.ebcCorr===true, 'ebcb'); }
+}
+/* ---- la figure : le cube du 7.1.14 ---- */
+let ebcActif='I', ebcEtat={}, ebcSurvol=null;
+function ebcCadre(){
+  const pts=ESX_SOM.map(L=>esxProj(ESX_CO[L])), m=36;
+  const x0=Math.min(...pts.map(p=>p[0]))-m, y0=Math.min(...pts.map(p=>p[1]))-m;
+  return {x0:x0, y0:y0, W:Math.max(...pts.map(p=>p[0]))+m-x0, H:Math.max(...pts.map(p=>p[1]))+m-y0};
+}
+/* les places où le clic se cale : les quarts de chaque arête */
+function ebcCandidats(){
+  const o=[]; ESX_AR.forEach(e=>{ const A=ESX_CO[e[0]], B=ESX_CO[e[1]]; [0.25,0.5,0.75].forEach(l=>o.push(esxAdd(A,esxMul(esxSub(B,A),l)).map(ebcRd))); });
+  return o;
+}
+function ebcSVG(q){
+  const c=ebcCadre(), f=v=>v.toFixed(1), X=esxProj, g=esxCfg(q);
+  const ln=(a,b,cl)=>'<line x1="'+f(a[0])+'" y1="'+f(a[1])+'" x2="'+f(b[0])+'" y2="'+f(b[1])+'" class="'+cl+'"/>';
+  let h='';
+  const traits=ESX_AR.map(e=>[X(ESX_CO[e[0]]),X(ESX_CO[e[1]])]);
+  ESX_AR.forEach(function(e,i){ h+=ln(traits[i][0],traits[i][1],'esx-ar'+(e.indexOf('A')>=0?' esx-cache':'')); });   /* A est le sommet caché */
+  const ctr=X([0.5,0.5,0.5]);
+  ESX_SOM.forEach(function(L){
+    const m=X(ESX_CO[L]); let best=null, bs=-Infinity;
+    for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+15*Math.cos(an), m[1]+15*Math.sin(an)];
+      const sc=Math.min(12,Math.min(...traits.map(s=>esxDist2(cc,s[0],s[1]))))+0.02*Math.hypot(cc[0]-ctr[0],cc[1]-ctr[1]);
+      if(sc>bs){ bs=sc; best=cc; } }
+    h+='<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="2.6" class="esx-pt"/><text x="'+f(best[0])+'" y="'+f(best[1]+5.5)+'" text-anchor="middle" class="esx-ls">'+L+'</text>';
+  });
+  if(q.p===4){
+    const som=ESX_SOM.map(L=>X(ESX_CO[L]));
+    const marque=function(L,P,cl,pts){ const m=X(P); let best=null, bs=-Infinity;
+      for(let i=0;i<16;i++){ const an=i*Math.PI/8, cc=[m[0]+16*Math.cos(an), m[1]+16*Math.sin(an)];
+        const sc=Math.min(12,Math.min(...traits.map(z=>esxDist2(cc,z[0],z[1]))))+Math.min(14,Math.min(...som.map(z=>Math.hypot(z[0]-cc[0],z[1]-cc[1])))-6);
+        if(sc>bs){ bs=sc; best=cc; } }
+      return '<g class="ecb-pl'+(pts?' pts-case':'')+(cl?' '+cl:'')+'" data-p="'+L+'"><circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="5.5"/>'
+        +'<text x="'+f(best[0])+'" y="'+f(best[1]+6)+'" text-anchor="middle" class="ebc-lbl">'+L+'</text></g>'; };
+    ['I','J','K'].forEach(function(L){
+      const P=(q.place||{})[L], et=ebcEtat[L]||'';
+      if(Array.isArray(P)) h+=marque(L,P,et,!!et);
+      if(et==='bad' && test.locked) h+=marque(L,g[L],'ecb-cor',false);   /* la correction d'à côté ne compte pas */
+      if(!Array.isArray(P) && et==='sol') h+=marque(L,g[L],'sol',true);
+    });
+    if(ebcSurvol && !test.locked) h+=marque(ebcActif,ebcSurvol,'ecb-fant',false);
+  }
+  return '<svg class="esx-svg ebc-svg" id="ebcSvg" viewBox="'+f(c.x0)+' '+f(c.y0)+' '+f(c.W)+' '+f(c.H)+'" role="img" aria-label="Le cube ABCDEFGH'+(q.p===4?', où placer les points I, J et K':'')+'">'+h+'</svg>';
+}
+function ebcBoutons(){
+  const q=test.questions[test.idx]; if(!q || q.p!==4) return;
+  ['I','J','K'].forEach(function(L){ const b=$('ebc-b-'+L); if(!b) return;
+    b.classList.toggle('pose', Array.isArray((q.place||{})[L]));
+    b.classList.toggle('actif', L===ebcActif && !test.locked);
+    b.disabled=!!test.locked; });
+}
+function ebcDessiner(){ const q=test.questions[test.idx], h=$('ebcFig'); if(!q||!h) return; h.innerHTML=ebcSVG(q); ebcBoutons(); }
+function ebcChoisir(L){ if(test.locked) return; ebcActif=L; ebcDessiner(); }
+/* la pose, sans le clic : jsdom n'a pas de mise en page */
+function ebcPoser(L,P){
+  const q=test.questions[test.idx]; if(!q||test.locked||test.kind!=='ebc'||q.p!==4||!Array.isArray(P)) return false;
+  if(!q.place) q.place={};
+  q.place[L]=P.slice();
+  if(ebcEtat[L]==='bad'||ebcEtat[L]==='ok') ebcEtat[L]=null;
+  const suivant=['I','J','K'].find(n=>!Array.isArray(q.place[n]));
+  if(suivant) ebcActif=suivant;
+  if(isSoutien()) checkEBC(true);
+  ebcDessiner();
+  return true;
+}
+function ebcCaler(evt){
+  const svg=$('ebcSvg'); if(!svg||!svg.getScreenCTM) return null;
+  const mt=svg.getScreenCTM(); if(!mt) return null;
+  const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  const p=pt.matrixTransform(mt.inverse()); let best=null, bd=30;
+  ebcCandidats().forEach(function(P){ const m=esxProj(P), d=Math.hypot(m[0]-p.x,m[1]-p.y); if(d<bd){ bd=d; best=P; } });
+  return best;
+}
+function ebcBrancher(){
+  const h=$('ebcFig'), q=test.questions[test.idx]; if(!h||!q) return;
+  h.onclick=null; h.onpointermove=null; h.onpointerleave=null;
+  if(q.p!==4) return;
+  h.onclick=function(evt){ if(test.locked||test.kind!=='ebc') return; const P=ebcCaler(evt); if(P){ ebcSurvol=null; ebcPoser(ebcActif,P); } };
+  h.onpointermove=function(evt){ if(test.locked||test.kind!=='ebc'||evt.pointerType==='touch') return; const P=ebcCaler(evt);
+    if(String(P)!==String(ebcSurvol)){ ebcSurvol=P; ebcDessiner(); } };
+  h.onpointerleave=function(){ if(ebcSurvol){ ebcSurvol=null; ebcDessiner(); } };
+}
+/* ---- cycle de vie ---- */
+async function startEBC(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='espace-bac-cube'; test.kind='ebc';
+  test.questions=ebcGenSession();
+  test.idx=0; test.score=0; test.answers=[]; test.startTime=Date.now(); test.locked=false;
+  test.maxScore=test.questions.length;
+  show('ebc'); renderEBC();
+}
+function renderEBC(){
+  const q=test.questions[test.idx];
+  /* la partie C, 2. : la section, sur l'écran et avec les outils du 7.1.14 */
+  if(q.p===5){ if(!Array.isArray(q.cons)) q.cons=[]; show('esx'); renderESX(); return; }
+  if(!$('scr-ebc').classList.contains('on')) show('ebc');
+  test.locked=false; test.ebcCorr=false;
+  if(q.p===4 && !q.place) q.place={};
+  ebcEtat={}; ebcSurvol=null; ebcActif=['I','J','K'].find(n=>!Array.isArray((q.place||{})[n]))||'I';
+  $('ebcQIdx').textContent='Partie '+(test.idx+1)+' / '+test.questions.length;
+  $('ebcModeTag').innerHTML=modeTagHTML();
+  $('ebcLiveScore').textContent=test.score;
+  $('ebcFeedback').textContent=''; $('ebcFeedback').className='mp-feedback';
+  $('ebcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEBC()">Vérifier</button>';
+  $('ebcPrompt').innerHTML=ebcPromptHTML(q);
+  $('ebcForm').innerHTML=ebcFormHTML(q);
+  ebcBrancher(); ebcDessiner();
+  $('ebcForm').oninput=function(){ ebcMaj(); if(isSoutien()) checkEBC(true); };
+  $('ebcForm').onchange=function(){ ebcMaj(); if(isSoutien()) checkEBC(true); };
+  ebcMaj();
+  setTimeout(function(){ if(test.kind==='ebc' && test.questions[test.idx]===q) ebcMaj(); },0);   /* une reprise remet les saisies APRÈS le rendu (restoreBoxes) */
+}
+function ebcRetiens(q){
+  const N=n=>'<i>'+n+'</i>';
+  if(q.p===1) return 'La clé : dans le repère (<i>A</i> ; '+elgVec('AB')+' ; '+elgVec('AD')+' ; '+elgVec('AE')+'), on compte depuis <i>A</i> les pas de '+elgVec('AB')+' (<i>x</i>), de '+elgVec('AD')+' (<i>y</i>) et de '+elgVec('AE')+' (<i>z</i>). Un vecteur se calcule « arrivée − départ » : '
+    +'<span class="edp-nw">'+elgVec('IK')+'('+ebcIK(q).map(numFmt).join(' ; ')+')</span>. Une représentation paramétrique s’écrit <i>x</i> = <i>x</i><sub>point</sub> + <i>x</i><sub>vecteur</sub> <i>t</i>, ligne par ligne, avec le point <i>I</i> ou <i>K</i> et le vecteur '+elgVec('IK')+' ou '+elgVec('KI')+'.';
+  if(q.p===2){ const ch=ebcChoix(), W=ebcW(q), Q=ebcPt(q,q.q0);
+    const tde=n=>{ const X=ebcPt(q,n), k=[0,1,2].find(i=>W[i]!==0); return numFmt(ebcRd((X[k]-Q[k])/W[k])); };
+    return 'La clé : un point est sur une droite si les trois équations donnent la MÊME valeur de <i>t</i>. Pour <i>P</i>, <i>t</i> = '+numFmt(q.tP)+' trois fois : <i>P</i> est sur (<i>IK</i>). '
+      +'Pour Δ, on vérifie qu’elle passe par deux points de (<i>IK</i>) : '+ch.map(n=>N(n)+' (<i>t</i> = '+tde(n)+')').join(' et ')+'. Deux points distincts définissent une seule droite : Δ et (<i>IK</i>) sont <b>confondues</b>.'; }
+  if(q.p===3) return ebcRenomme(ecpRetiens(q));
+  if(q.p===4) return 'La clé : chaque point se place sur son arête, à la fraction donnée par l’énoncé, en partant du sommet nommé en premier : '+['I','J','K'].map(n=>ebcPtHTML(q,n)).join(', ')+'.';
+  return '';
+}
+function checkEBC(live){
+  const q=test.questions[test.idx];
+  if(q && q.p===5) return checkESX(live);
+  if(test.locked && !live) return;
+  const cases=ebcCases(q, q.p===2?ebcChoix():null);
+  const verd=ebcVerdicts(q, function(id){ const el=$(id); return el?el.value:''; });
+  let allOk=true, anyFilled=false, vides=0;
+  cases.forEach(function(x){
+    const v=verd[x.id]; if(!v) return;
+    if(v.rempli) anyFilled=true; else vides++;
+    if(!v.ok) allOk=false;
+    if(x.type==='plc'){ ebcEtat[x.id.slice(-1)]=v.rempli?(v.ok?'ok':'bad'):null; return; }
+    const el=$(x.id); if(!el) return;
+    el.classList.remove('ok','bad','sol');
+    /* UNE CASE VIDE NE REÇOIT AUCUNE COULEUR — en direct comme à la vérification */
+    if(v.rempli) el.classList.add(v.ok?'ok':'bad');
+    if(live) return;
+    el.disabled=!!(v.ok||!isSoutien());
+  });
+  if(live){ if(q.p===4) ebcDessiner(); return; }
+  const fb=$('ebcFeedback');
+  if(!anyFilled){
+    fb.textContent='Complète au moins une case avant de vérifier.';
+    fb.className='mp-feedback';
+    ebcEtat={};
+    cases.forEach(function(x){ const el=$(x.id); if(el){ el.classList.remove('ok','bad','sol'); el.disabled=false; } });
+    ebcDessiner();
+    return;
+  }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige ce qui est en rouge et revérifie.':'Presque ! Corrige ce qui est en rouge, puis revérifie.';
+    fb.className='mp-feedback bad';
+    $('ebcActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkEBC()">Revérifier</button>';
+    if(q.p===4) ebcDessiner();
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('ebcLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, tout est juste !']);
+    fb.className='mp-feedback good';
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0)+'<br>'+ebcRetiens(q);
+    fb.className='mp-feedback bad';
+    test.ebcCorr=true;
+    cases.forEach(function(x){
+      const v=verd[x.id]; if(!v) return;
+      if(x.type==='plc'){ ebcEtat[x.id.slice(-1)]=v.rempli?(v.ok?'ok':'bad'):'sol'; return; }
+      corrCase(x.id, v.attendu, v.ok===true);
+    });
+  }
+  ebcMaj();
+  ebcDessiner();
+  test.answers.push(Object.assign({}, ptsExo()||{}, {
+    q:'Espace — exercice de bac, partie '+q.p+' sur 5 ('+EBC_TITRES[q.p]+') : '+ebcPlain(q), answer:ebcRepPlain(q),
+    given:allOk?'✓':'incomplet', correct:allOk, type:'ebc'}));
+  const last=test.idx===test.questions.length-1;
+  $('ebcActions').innerHTML='<button class="btn btn-primary" onclick="nextEBC()">'+(last?'Voir mes résultats':'Partie suivante')+'</button>';
+}
+function ebcRepPlain(q){
+  if(q.p===1) return 'IK('+ebcIK(q).map(numFmt).join(' ; ')+') ; (IK) : { '+ebcSysPlain(ebcPt(q,'I'),ebcIK(q),'t')+' }';
+  if(q.p===2) return 'P sur (IK) avec t = '+numFmt(q.tP)+' ; Δ passe par deux points de (IK) : Δ = (IK)';
+  if(q.p===3){ const V=edsVal(q); return 'non parallèles ; t = '+numFmt(V.t)+', t′ = '+numFmt(V.tp)+' ; équation '+EDS_N[q.w]+' fausse ('+numFmt(V.vw)+' ≠ '+numFmt(V.vwr)+') : non sécantes, donc non coplanaires'; }
+  if(q.p===4) return ['I','J','K'].map(n=>n+'('+ebcPt(q,n).map(numFmt).join(' ; ')+')').join(', ');
+  return 'section du cube par le plan (IJK) : '+esxCfg(q).morceaux.length+' morceaux';
+}
+function nextEBC(){ if(test.idx<test.questions.length-1){ test.idx++; renderEBC(); } else finishTest(); }
+/* la partie C, 2. — l'énoncé de la section, sur l'écran du 7.1.14 */
+function ebcSectionPromptHTML(q){
+  return ebcEnonce(q)+'<br><b>Partie C – Section du cube.</b> Les points <i>I</i>, <i>J</i> et <i>K</i> sont placés sur la figure.'
+    +'<br>2. Construire la section du cube par le plan (<i>IJK</i>), en laissant les traits de construction.'
+    +'<span class="esx-consigne">La section se trace en <b>segments rouges sur le cube</b> : chaque morceau joint deux points des arêtes, sur une face ; avec l’outil « Segment rouge » (ou « Segment rouge parallèle »), il passe en rouge dès qu’il est juste.</span>';
+}
+/* Le contexte envoyé au modèle : l'énoncé, l'état des cases, et la clause de
+   secret — les réponses attendues sont STRICTEMENT SECRÈTES. */
+function ebcConseilCtx(){
+  const q=test.questions[test.idx];
+  if(q.p===5) return eslConseilCtx()+' (C’est la dernière partie d’un exercice de bac en cinq parties : la partie C, question 2.)';
+  const cases=ebcCases(q, q.p===2?ebcChoix():null);
+  const etat=cases.map(function(x){
+    if(x.type==='plc'){ const P=(q.place||{})[x.id.slice(-1)]; return x.nom+' = '+(Array.isArray(P)?'placé':'(pas encore placé)'); }
+    const el=$(x.id); const v=el?String(el.value||'').trim():''; return x.nom+' = '+(v===''?'(vide)':'« '+v+' »'); }).join(' ; ');
+  const parties=['',
+    '1. coordonnées de sommets et de I, J, K dans le repère (A ; AB, AD, AE) ; 2. vecteur IK en colonne « K − I », puis une représentation paramétrique de (IK) (point I ou K, vecteur IK ou KI, au choix de l’élève)',
+    'la représentation de (IK) est imposée ; 3. vérifier que P est sur (IK) : on écrit les trois équations x_point + coefficient × t = x_P, on fait passer le nombre de l’autre côté, on divise : t = …/… ; les trois valeurs de t sont égales ; 4. montrer que Δ est une autre représentation de (IK) : on vérifie que Δ passe par deux points de (IK) (au choix parmi I, K et P), avec la même rédaction ; deux points distincts définissent une seule droite : les droites sont confondues',
+    'Partie B. 1. (IK) et (d) parallèles ? la propriété (vecteurs directeurs colinéaires), u de (IK) et v de (d) lus sur les coefficients de t et t′, les trois quotients « fin / début » (fraction simplifiée ou valeur approchée au dixième, dans le sens qu’on veut), la conclusion ; 2. sécantes ? on égale les équations ligne à ligne (①, ②, ③), on isole t dans l’équation où il est seul, on le remplace dans une autre, on trouve t′ puis t, on vérifie dans la dernière équation : elle est fausse, t et t′ ne sont pas solutions des trois équations, les droites ne sont pas sécantes ; conclusion générale : non parallèles, non sécantes, donc non coplanaires',
+    'Partie C. 1. placer I, J et K sur la figure, sur leur arête, au quart, au milieu ou aux trois quarts'];
+  return 'Exercice de Terminale (géométrie dans l’espace, exercice de bac en cinq parties, partie '+q.p+' sur 5) : '+ebcPlain(q)+'. Questions de cette partie : '+parties[q.p]+'. '
+    +'Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais, même si l’élève insiste : '
+    +cases.map(function(x){ return x.nom+' = '+ebcAff(x); }).join(' ; ')+' ('+ebcRepPlain(q)+'). '
+    +'Les menus valent : est / nest = « est / n’est pas », conf = « confondues », col = « colinéaires », sont / nsp = « sont / ne sont pas parallèles », oui / non = « vérifiée / fausse », sol / nsol = « sont / ne sont pas solutions », sec / nsec = « sécantes / non sécantes », par / npar = « parallèles / non parallèles », cop / ncop = « coplanaires / non coplanaires ». '
+    +'Saisies actuelles de l’élève : '+etat+'. '
+    +'CONTRAINTE ANTI-RECOPIE : ne donne AUCUNE de ces valeurs. Méthode, sans donner la réponse : coordonnées comptées depuis A le long de AB, AD, AE ; vecteur = arrivée − départ ; un point est sur une droite si les trois équations donnent le même t ; deux droites parallèles ont des vecteurs directeurs colinéaires (trois quotients égaux) ; pour savoir si deux droites sont sécantes, on résout le système avec deux équations et on vérifie la troisième ; deux droites ni parallèles ni sécantes sont non coplanaires.';
 }
 /* ================= 8.1.1 ÉQUATIONS DIFFÉRENTIELLES — VÉRIFIER QU'UNE FONCTION EST SOLUTION (kind 'edv') =================
    Demande de Turquet (novembre 2026), avec la fiche « équa diff » (exercice
@@ -42316,6 +42922,7 @@ const QIA_SUGG={
   epo:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Comment savoir si deux droites de l’espace sont sécantes ?","Deux droites qui ne se coupent pas sont-elles forcément parallèles ?","Comment trouver un plan qui contient les deux droites ?","Pourquoi une partie de la droite est-elle en pointillés ?"],
   ecp:["Faire un rappel de cours pour cet exercice.","Que veut dire « deux droites coplanaires » ?","Pourquoi passer directement au c) quand les droites sont parallèles ?","Comment savoir si deux droites sont sécantes ?","Pourquoi vérifier dans la dernière équation ?","Deux droites qui ne sont pas parallèles sont-elles forcément sécantes ?"],
   erp:["Faire un rappel de cours pour cet exercice.","Pourquoi deux droites parallèles avec un point commun sont-elles confondues ?","Comment lire un vecteur directeur dans une équation paramétrique ?","Comment savoir si un point est sur la droite d ?","Pourquoi deux points suffisent-ils dans la 2e méthode ?","Faut-il prendre le point A ou le point B ?","Quelle différence entre les deux méthodes ?"],
+  ebc:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un point sur une arête ?","Comment écrire une représentation paramétrique d’une droite ?","Comment vérifier qu’un point est sur une droite ?","Comment savoir si deux droites sont sécantes ?","Que veut dire « non coplanaires » ?","Par où commencer la section ?"],
   esl:["Faire un rappel de cours pour cet exercice.","Par où commencer la section ?","Quels points du plan sont sur une même face ?","Comment atteindre une face qui n’a qu’un seul point ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?"],
   esg:["Faire un rappel de cours pour cet exercice.","Quel outil utiliser pour cette étape ?","Pourquoi L est-il dans les deux plans ?","Pourquoi la parallèle se trace-t-elle sur la face opposée ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?"],
   esx:["Faire un rappel de cours pour cet exercice.","Pourquoi L est-il dans les deux plans ?","Comment trouver l’intersection de deux plans ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?","Par où commencer la section ?"],

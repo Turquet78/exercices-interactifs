@@ -1155,4 +1155,4 @@ Demande de Turquet (novembre 2026), avec un bac blanc (exercice 4 : deux usines 
 
 **Trois situations** : colis et transporteurs (retard, remboursement — X peut être négatif), smartphones reconditionnés (panne sous garantie), locations de vacances (réclamation, geste commercial). P(A) de 55 à 80 %, P_A(E) < x, P(E) à une décimale en % comme le sujet ; E(X) > 0 toujours.
 
-Essayé dans Chromium à 1280 et 390 px : une copie faite des corrections est parfaite (35 cases sur 35), une copie vide reçoit ses 35 corrections en vert, aucun défilement horizontal, aucune erreur de page. Terminale v515.
+Essayé dans Chromium à 1280 et 390 px : une copie faite des corrections est parfaite (35 cases sur 35), une copie vide reçoit ses 35 corrections en vert, aucun défilement horizontal, aucune erreur de page. Terminale v516 (la v515 avait été prise par le 7.1.15 pendant les contrôles).

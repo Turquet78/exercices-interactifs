@@ -1467,3 +1467,61 @@ les demande. L'indice ne coûte rien à la note.
 76 du 7.1.12, sans jamais rester bloqué (824 gestes chacun) ; au 7.1.12, une
 section tracée sans L ni 𝒟 → (IJ), (CG), L, (LK), puis « La section est
 complète », bilan tout juste ; le bouton cliqué écrit son indice.
+
+## 7.1.15 — un exercice de bac : le cube, deux droites, la section (`espace-bac-cube`, kind `ebc`)
+
+Demande de Turquet (novembre 2026), avec le sujet du bac blanc du 2 décembre
+2026 (exercice 3, géométrie dans l'espace) : « faire un exercice comme
+l'exercice 3 du pdf ; les données seront forcément différentes et on prendra
+une fraction différente de 1/2 pour placer un point qui s'appellera P au lieu
+de M ; dans la question 2 partie B la conclusion sera non sécantes ; pour
+chaque question on fera comme les exercices du site qui traitent du même type
+de question, en prenant la méthode avec des cases à remplir plutôt qu'une
+version rédigée si elle existe ; dans l'espace on présentera comme dans
+l'exercice 7.1.14 ».
+
+**Le sujet en cinq parties**, une séance, la même figure, un point par partie
+parfaite (`EBC_NBQ`, comme les quatre parties du 7.1.9) :
+
+1. Partie A, 1. et 2. — les coordonnées des quatre sommets des arêtes de I, J,
+   K, et de I, J, K (le 7.1.6) ; IK⃗ en colonne « K − I » ; une représentation
+   de (IK), point (I ou K) et vecteur (IK⃗ ou KI⃗) au choix, lus sur les
+   colonnes (le 7.1.9 d).
+2. Partie A, 3. et 4. — « pour la suite » la représentation IMPOSÉE (cerclée,
+   le 7.1.9 h) ; P ∈ (IK) par les trois systèmes du 7.1.10 ; Δ, une autre
+   représentation de (IK), par la 2ᵉ méthode du 7.1.10 : Δ passe par deux
+   points de (IK), choisis parmi I, K et P.
+3. Partie B — (IK) et (d) parallèles ? : `epaFormHTML(q,'ebca')`, le 7.1.4
+   tel quel ; sécantes ? : `edsFormHTML(q,'ebcb','concl')`, le 7.1.8 b) tel
+   quel, et la conclusion générale du 7.1.9 i). Les deux rédactions nomment
+   leurs droites d et d′ : `ebcRenomme` les réécrit (IK) et (d). Le paramètre
+   de (d) est t′, celui des 7.1.5 et 7.1.8 (le sujet écrit s).
+4. Partie C, 1. — placer I, J, K au clic (le geste du 7.1.6 c), calé sur les
+   quarts d'arête ; `ebcPoser` pose sans clic.
+5. Partie C, 2. — la section, sur l'écran et avec le moteur du 7.1.14 :
+   `renderEBC` passe à `show('esx')`, et `esxLibre()` (nouveau) vaut pour
+   `ebc` comme pour `esl` ; `esxActif()` accepte `ebc`. Le bouton de fin
+   appelle `nextEBC`, l'en-tête dit « Partie 5 / 5 » et « Parties parfaites ».
+
+**Pourquoi (IK) et pas (IJ).** Le tirage est celui des sections (`esxListe`,
+filtrée aux milieux et aux quarts) : I, J, K sur trois arêtes qui se suivent.
+Sur le sujet, (IJ) est dans une face : une coordonnée de IJ⃗ est nulle, et les
+quotients du 7.1.4 n'ont plus de sens (0/0, la raison donnée au 7.1.11). I et K
+sont sur deux arêtes non coplanaires : IK⃗ n'a aucune coordonnée nulle, et l'une
+vaut ±1 — le « t tout seul » du 7.1.5. La représentation imposée part de I avec
+IK⃗, ou de K avec KI⃗ : celle où ce coefficient vaut +1.
+
+**Les nombres.** Les tiers des sections sont écartés : tout est multiple de
+0,25, jusqu'aux nombres intermédiaires de la résolution (`edsVal`). P = départ
++ tP u⃗, tP parmi −2, −1, 2, 3, ±0,5, 1,5, avec au moins une coordonnée en
+quarts, écrite en fraction dans l'énoncé (« une fraction différente de 1/2 »).
+Δ part de l'autre extrémité ou de P, de vecteur m u⃗ entier (m = ±2 ou ±4). (d)
+est tirée comme au 7.1.8 (non coplanaires : l'équation w décalée de 1 ou 2),
+v⃗ entier, le piège des deux quotients égaux quatre fois sur dix.
+
+**Exécuté** dans Chromium, à 1 280 et 390 px : une copie juste menée des cinq
+parties jusqu'à l'écran de fin (10 / 10, 36 + 54 + 43 + 3 cases et 6 morceaux
+de section) ; une copie fausse dans chaque partie (8,7 / 10, corrections en
+vert, crédit partiel compté) ; aucune erreur de page. À 390 px, le système
+imposé de l'énoncé de la partie B débordait de l'écran : il défile dans son
+cadre, colonnes resserrées.
