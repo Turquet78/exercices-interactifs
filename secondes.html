@@ -3331,6 +3331,10 @@
   #vdfHost math-field.vdf-k{width:2.2em;min-width:0}
   #vdfHost .sf-somme .sf-haut{gap:6px}
   #vdfHost .sf-somme math-field.f-num{width:2.8em}
+  #vdfHost .vdf-rmir-c{display:flex;justify-content:center;align-items:center;width:100%}
+  #vdfHost math-field.dexp-mf.vdf-m-ok{border-color:var(--blue);background:#EAF0FF}
+  #vdfHost math-field.dexp-mf.vdf-m-bad{border-color:var(--red);background:var(--red-soft)}
+  #vdfHost math-field.dexp-mf.vdf-m-sol{border-color:var(--green);background:var(--green-soft)}
   #vdfHost .vdf-mir{font-family:"Fredoka";font-weight:500;font-size:1.6rem;color:var(--ink);min-width:1.2em;text-align:center}
   #vdfHost #vdfVerif{text-align:center;margin:4px auto 6px;max-width:640px}
   #vdfHost .vdf-choix .vpg-vn .vcd-c .mf-cor{top:100%;left:50%;transform:translate(-50%,.25em)}
@@ -9622,7 +9626,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=714;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=715;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -74502,12 +74506,12 @@ function vdfColBloc(nom,ch,tete){
        nombres sont ceux que l'élève a écrits dans la première colonne,
        recopiés au fil de la frappe (vdfMiroirs) : la page ne les donne pas */
     h+=fEq('<span class="vco-par vdf-col vdf-col3 vdf-cmil" style="'+rg+'">'+ch.map(function(c,k){
-      if(!mil[k]) return '<span></span><span></span><span></span>';
+      if(!mil[k]) return vdfRMir(c,1);
       const i='vdf-'+c.id, f2=vdfProd(i,2,c.lab);
       return vdfProd(i,1,c.lab)+vdfOp(c.op)+(c.t2[0]<0?fParen(f2):f2); }).join('')+'</span>');
     /* ② les deux numérateurs sur le dénominateur commun */
     h+=fEq('<span class="vco-par vdf-col vdf-col1 vdf-cmil" style="'+rg+'">'+ch.map(function(c,k){
-      if(!mil[k]) return '<span></span>';
+      if(!mil[k]) return vdfRMir(c,2);
       const i='vdf-'+c.id;
       return '<span class="f-frac-input sf-somme"><span class="sf-haut">'+vdfMF(i+'-N1','le premier numérateur sur le dénominateur commun, '+c.lab,'f-num')+vdfOp(c.op)
         +vdfMF(i+'-N2','le second numérateur sur le dénominateur commun, '+c.lab,'f-num')+'</span><span class="f-fbar"></span>'+vdfMF(i+'-D','le dénominateur commun, '+c.lab,'f-den')+'</span>'; }).join('')+'</span>');
@@ -74516,6 +74520,35 @@ function vdfColBloc(nom,ch,tete){
   return h+'</div>';
 }
 function vdfVecH(P,Q){ return vepVecHTML(P,Q); }
+/* LE RÉSULTAT D'UNE LIGNE SANS ÉTAPE, DANS CHAQUE COLONNE QUI SUIT (demande
+   de Turquet, novembre 2026 : « quand il y a une soustraction ou une addition
+   sans mise au même dénominateur, mettre le résultat directement dans toutes
+   les colonnes suivantes ») : sur la ligne qui n'a pas d'étape du même
+   dénominateur, les colonnes du milieu portent une case du résultat — trois
+   cases, une par colonne, la même valeur : ce qui s'écrit dans l'une
+   s'écrit dans les deux autres (vdfRSync). Seule la case de la dernière
+   colonne (…-r) est jugée et comptée ; ses deux copies (…-r1, …-r2) sont
+   « hors-note » et prennent sa couleur par des classes à elles
+   (vdf-m-ok, -bad, -sol), que le compte des cases de ptsEcran ne lit pas. */
+function vdfRMir(c,k){
+  return '<span class="vdf-rmir-c" style="grid-column:1 / -1">'+vdfMF('vdf-'+c.id+'-r'+k,'le résultat, '+c.lab+' (le même dans chaque colonne)','vdf-mf vdf-rmir hors-note')+'</span>';
+}
+/* une des trois cases écrite : les deux autres la recopient ; après la vérification, elles prennent l'état de la case jugée */
+function vdfRSync(src){
+  const base=src&&src.id?src.id.replace(/-r[12]?$/,''):null;
+  const ids=base?[base+'-r',base+'-r1',base+'-r2']:null;
+  const groupes=ids?[ids]:[].map.call(document.querySelectorAll('#vdfHost .vdf-rmir'),function(e){ const b=e.id.replace(/-r[12]$/,''); return [b+'-r',b+'-r1',b+'-r2']; });
+  groupes.forEach(function(g){
+    const r=$(g[0]); if(!r) return;
+    const v=src&&g.indexOf(src.id)>=0?String(src.value==null?'':src.value):String(r.value==null?'':r.value);
+    g.forEach(function(id){ const e=$(id); if(!e||e===src) return; if(String(e.value==null?'':e.value)!==v){ e.__vdfSync=true; e.value=v; e.__vdfSync=false; } });
+    if(src) return;
+    [g[1],g[2]].forEach(function(id){ const e=$(id); if(!e) return;
+      e.classList.remove('vdf-m-ok','vdf-m-bad','vdf-m-sol');
+      ['ok','bad','sol'].forEach(function(c){ if(r.classList.contains(c)) e.classList.add('vdf-m-'+c); });
+      e.disabled=!!r.disabled; });
+  });
+}
 /* une fraction multipliée en haut ET en bas, comme au 5.3 : « n × [ ] » sur « d × [ ] » */
 function vdfProd(i,j,lab){
   const m=function(s,aria){ return vdfMF(i+'-k'+j+s,aria,'vdf-k'); };
@@ -74760,6 +74793,7 @@ function liveVdf(){
     else if(s.choix) corrChoix(s.el, s.bon, s.ok);
     else { s.el.classList.remove('ok','bad'); s.el.classList.add(s.ok?'ok':'bad'); }
   });
+  vdfRSync(null);
 }
 function renderVdf(){
   clearTimeout(test.fbTimer); clearTimeout(test.qTimer);
@@ -74787,7 +74821,9 @@ function vdfCalcMonter(q){
   const c=$('vdfCalc'); if(!c) return;
   c.innerHTML=vdfCalcHTML(q);
   pmUpgrade(c);
-  if(!c.__mir){ c.__mir=true; c.addEventListener('input', function(){ vdfMiroirs(); }, true); }
+  if(!c.__mir){ c.__mir=true; c.addEventListener('input', function(ev){ vdfMiroirs();
+    const t=ev.target; if(t&&t.id&&/-r[12]?$/.test(t.id)&&!t.__vdfSync){ vdfRSync(t); if(t.id.slice(-2)!=='-r'){ const r=$(t.id.replace(/[12]$/,'')); if(r) r.dispatchEvent(new Event('input',{bubbles:true})); } } }, true); }
+  setTimeout(function(){ vdfRSync(null); },0); setTimeout(function(){ vdfRSync(null); },300);
   setTimeout(vdfMiroirs,0); setTimeout(vdfMiroirs,300);
   vdfCasesDe(q).forEach(function(id){ const el=$(id); if(el) el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){
     clearTimeout(test.vdfSave); test.vdfSave=setTimeout(autoSave,1000); recoveryDirty=true;
@@ -74833,6 +74869,7 @@ function checkVdf(){
   if(n<subs.length && isSoutien()){
     const faux=subs.some(function(s){ return !s.ok&&!s.vide; });
     subs.forEach(function(s){ if(s.vide&&s.el){ s.el.classList.remove('ok','bad','sol'); return; } vdfMarque(s); });
+    vdfRSync(null);
     $('vdfFeedback').textContent=(faux?'Ce n’est pas encore ça : reprends ce qui est en rouge, puis revérifie. ':'Ce qui est écrit est juste. ')
       +'Il reste '+(subs.length-n)+' réponse(s) à trouver.';
     $('vdfFeedback').className='mp-feedback bad';
@@ -74844,7 +74881,7 @@ function checkVdf(){
   const pourquoi=vdfPourquoi(q,subs);
   const donne=subs.map(function(s){ const e=s.el; if(!e) return '?'; const v=String(e.value).trim(); if(!v) return '?'; return e.tagName==='SELECT'?e.options[e.selectedIndex].text:v; }).join(' ');
   subs.forEach(vdfMarque);
-  vdfMiroirs();
+  vdfMiroirs(); vdfRSync(null);
   test.score+=n;
   const fb=$('vdfFeedback');
   if(n===subs.length){ fb.textContent=pick(['Parfait !','Bravo, tout est juste !','Excellent !','Exactement !']); fb.className='mp-feedback good'; }
