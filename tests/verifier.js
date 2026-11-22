@@ -16465,6 +16465,22 @@ function coordonneesDevoirFractions(w, P){
         if(!q.vc || q.vc.join('')!==s || el('vdfCalc').style.display==='none' || !el('vdf-ux-a') || test.maxScore!==tot || vdfPlan(q).vec.map(function(v){ return v.join(''); }).join('')!==s || !el('vdf-v1a').disabled) vus.push('8.4.15 : '+ds+') la proposition '+s.slice(0,2)+', '+s.slice(2)+' n’est pas retenue');
       });
     });
+    /* LE RÉSULTAT D'UNE LIGNE SANS ÉTAPE, DANS CHAQUE COLONNE QUI SUIT : une copie écrite se recopie dans les deux autres ;
+       à la vérification, les copies prennent la couleur de la case jugée par leurs propres classes, et ne comptent pas */
+    (function(){
+      for(let essai=0;essai<12;essai++){
+        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=4; renderVdf();
+        const m=document.querySelector('#vdfHost .vdf-rmir'); if(!m) continue;
+        const b=m.id.replace(/-r[12]$/,''), c=vdfPlan(test.questions[4]).ch.find(function(x){ return 'vdf-'+x.id===b; });
+        if(!c || vdfMilieu(c.t1,c.t2) || !el(b+'-r1') || !el(b+'-r2') || !m.classList.contains('hors-note')) { vus.push('8.4.15 : les copies du résultat d’une ligne sans étape'); return; }
+        const r1=el(b+'-r1'); r1.value=vdfLatex(vdfRes(c)); r1.dispatchEvent(new Event('input',{bubbles:true}));
+        if(!vdfEq(vdfLit(el(b+'-r').value),vdfRes(c)) || !vdfEq(vdfLit(el(b+'-r2').value),vdfRes(c))) vus.push('8.4.15 : écrit dans une copie, le résultat ne se recopie pas ('+el(b+'-r').value+', '+el(b+'-r2').value+')');
+        checkVdf(); clearTimeout(test.fbTimer);
+        if(classe(el(b+'-r'))!=='ok' || classe(r1)!=='rien' || !r1.classList.contains('vdf-m-ok') || !el(b+'-r2').classList.contains('vdf-m-ok')) vus.push('8.4.15 : les copies du résultat ne prennent pas la couleur de la case jugée, ou la prennent comme une réponse');
+        return;
+      }
+      vus.push('8.4.15 : aucune ligne sans étape dans douze tirages de la question e — le contrôle ne mesure rien');
+    })();
     /* les vecteurs en colonne : les abscisses en haut, les ordonnées en bas, dans les mêmes parenthèses */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
     const col=document.querySelector('#vdfHost .vdf-col3');

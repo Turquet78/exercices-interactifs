@@ -7193,3 +7193,25 @@ en haut et en bas »), les numérateurs et le dénominateur sur le dénominateur
 commun retenu. Le banc éprouve la route par 2 × le plus petit, deux
 dénominateurs différents (le second rougit), un multiplicateur du haut
 différent de celui du bas (lui seul rougit), et la recopie dans les produits.
+
+### Puis le résultat d'une ligne sans étape, dans chaque colonne qui suit (Seconde v715)
+
+**La demande** (Turquet, novembre 2026, capture à l'appui : l'ordonnée de AD⃗,
+« −3 − (−2) », n'a pas d'étape du même dénominateur, et les deux colonnes du
+milieu restaient vides sur sa ligne) : « quand il y a une soustraction ou une
+addition sans mise au même dénominateur, mettre le résultat directement dans
+toutes les colonnes suivantes […] il y aurait donc trois cases, une par
+colonne ».
+
+**Trois cases, une valeur** (`vdfRMir`, `vdfRSync`) : sur la ligne sans étape,
+chaque colonne du milieu porte une case du résultat (`…-r1`, `…-r2`) ; ce qui
+s'écrit dans l'une s'écrit dans les deux autres, et la case de la dernière
+colonne (`…-r`) reçoit l'événement de saisie, pour la sauvegarde et le
+soutien. Seule celle-ci est jugée et comptée : les copies sont `hors-note`
+(la confirmation des cases vides les ignore) et prennent sa couleur par des
+classes à elles (`vdf-m-ok`, `-bad`, `-sol`) — le compte de `ptsEcran`, qui
+lit `ok`, `bad`, `sol`, ne les voit pas, et la question vaut toujours le même
+nombre de cases. Le badge de correction reste à côté de la dernière case.
+
+**Le banc** : une copie écrite se recopie dans les deux autres ; la case
+jugée bleuit, ses copies prennent `vdf-m-ok` sans être des réponses.
