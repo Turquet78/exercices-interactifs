@@ -2416,6 +2416,32 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .esx-cor-dr{stroke-width:1.4;stroke-dasharray:4 4}
 .esx-hl{stroke:#ea580c !important;stroke-width:4 !important}
 .esx-hlp{fill:none;stroke:#ea580c;stroke-width:2.5}
+/* « Segment rouge parallèle » : ce qui peut servir, entouré en orange qui pulse */
+.esx-cand{fill:none;stroke:#ea580c;stroke-width:2.2;stroke-dasharray:4 3;animation:esxPulse 1.1s ease-in-out infinite}
+.esx-cand-s{stroke:#ea580c;stroke-opacity:.35;stroke-width:11;stroke-linecap:round;animation:esxPulse 1.1s ease-in-out infinite}
+@keyframes esxPulse{0%,100%{opacity:1}50%{opacity:.35}}
+/* l'animation du geste de la parallèle */
+.esx-demo{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 18px;margin:4px auto 6px;padding:8px 12px;max-width:600px;border:1.5px dashed #fdba74;border-radius:12px;background:#fff7ed}
+.esx-demo svg{width:190px;height:auto;flex:none}
+.esx-demo ol{margin:0;padding-left:1.3em;font-size:.92rem;color:var(--ink)}
+.esx-demo li{margin:3px 0;opacity:.45;animation:esxEtape 7.5s infinite}
+.esx-demo li:nth-child(2){animation-delay:2.5s}
+.esx-demo li:nth-child(3){animation-delay:5s}
+@keyframes esxEtape{0%,30%{opacity:1;font-weight:800}34%,100%{opacity:.45;font-weight:400}}
+.esx-demo .d-ar{stroke:#1e293b;stroke-width:1.6;fill:none}
+.esx-demo .d-cache{stroke-dasharray:4 3}
+.esx-demo .d-rouge{stroke:#dc2626;stroke-width:3.4;stroke-linecap:round}
+.esx-demo .d-sel{stroke:#ea580c;stroke-width:6;stroke-opacity:0;stroke-linecap:round;animation:esxDemoSel 7.5s infinite}
+@keyframes esxDemoSel{0%,18%{stroke-opacity:0}22%,100%{stroke-opacity:.55}}
+.esx-demo .d-pt{fill:#1e293b}
+.esx-demo .d-ring{fill:none;stroke:#ea580c;stroke-width:2.4;opacity:0;animation:esxDemoRing 7.5s infinite}
+@keyframes esxDemoRing{0%,45%{opacity:0}49%,100%{opacity:1}}
+.esx-demo .d-par{stroke:#dc2626;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:90;stroke-dashoffset:90;animation:esxDemoPar 7.5s infinite}
+@keyframes esxDemoPar{0%,68%{stroke-dashoffset:90}82%,100%{stroke-dashoffset:0}}
+.esx-demo .d-main{animation:esxDemoMain 7.5s infinite}
+@keyframes esxDemoMain{0%{transform:translate(185px,150px)}16%,31%{transform:translate(108px,52px)}45%,100%{transform:translate(70px,160px)}}
+.esx-demo text{font:italic 800 13px KaTeX_Math,Georgia,serif;fill:#1e293b}
+@media (prefers-reduced-motion:reduce){.esx-demo li,.esx-demo .d-sel,.esx-demo .d-ring,.esx-demo .d-par,.esx-demo .d-main,.esx-cand,.esx-cand-s{animation:none}.esx-demo li{opacity:1}.esx-demo .d-par{stroke-dashoffset:0}.esx-demo .d-ring{opacity:1}.esx-demo .d-sel{stroke-opacity:.55}.esx-demo .d-main{transform:translate(70px,160px)}}
 .esx-pt{fill:var(--ink)}
 .esx-ptc{fill:var(--green)}
 .esx-ls{font-size:17px;font-weight:800;fill:var(--ink);font-style:italic;font-family:KaTeX_Math,Georgia,'Times New Roman',serif}
@@ -4713,7 +4739,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=519;
+const APP_VERSION=520;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -37031,8 +37057,10 @@ function esxSVG(q){
     }
     if(!bil.find(z=>z.cle==='D').ok) h+=dr(g.L,g.K);
   }
+  const cand=esxParCandidats(q);
   /* les droites et les segments de l'élève */
   ob.forEach(function(o){ if(o.t==='a') return;
+    if(cand.obj[o.id]){ if(o.t==='d'){ const t=tDroite(o.A,o.B), u=esxSub(o.B,o.A), a=X(esxAdd(o.A,esxMul(u,t[0]))), b=X(esxAdd(o.A,esxMul(u,t[1]))); h+=ln(a,b,'esx-cand-s'); } else h+=ln(X(o.A),X(o.B),'esx-cand-s'); }
     const hl=(esxSel&&esxSel.o===o.id)||(esxSurvol&&esxSurvol.o===o.id);
     if(o.t==='d'){ const t=tDroite(o.A,o.B); h+=trait(o.A,o.B,t[0],t[1],'esx-dr'+(hl?' esx-hl':'')); }
     else h+=trait(o.A,o.B,0,1,(o.rouge?'esx-rouge':'esx-sg')+(hl?' esx-hl':''));
@@ -37053,6 +37081,7 @@ function esxSVG(q){
     poses.push(best);
     const hl=(esxSel&&esxSel.p===p.n)||(esxSurvol&&esxSurvol.p===p.n);
     h+=(hl?'<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="9" class="esx-hlp"/>':'')
+      +(cand.pts[p.n]?'<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="11" class="esx-cand"/>':'')
       +'<circle cx="'+f(m[0])+'" cy="'+f(m[1])+'" r="'+(p.k==='som'?2.6:3.6)+'" class="esx-pt'+(p.k==='cor'?' esx-ptc':'')+'"/>'
       +'<text x="'+f(best[0])+'" y="'+f(best[1]+5.5)+'" text-anchor="middle" class="esx-ls'+(p.k==='cor'?' esx-lc':'')+'">'+p.n+'</text>';
   });
@@ -37083,12 +37112,57 @@ function esxFormHTML(q){
     +'<button type="button" class="btn btn-ghost esx-outil" onclick="esxAnnuler()">↶ Annuler</button>'
     +(test.kind==='esg'?'':'<button type="button" class="btn btn-ghost esx-outil esx-indice" onclick="esxIndice()">💡 Indice</button>')+'</div>'
     +'<div class="esx-msg" id="esxMsg" aria-live="polite"></div>'
+    +'<div class="esx-demo" id="esxDemo" hidden></div>'
     +'<div class="esx-fig" id="esxFig"></div>'
     +'<div class="esx-suivi" id="esxSuivi"></div>';
 }
 /* ---- les gestes ---- */
 const ESX_AIDE={d:'Droite : clique sur deux points.', s:'Segment rouge : clique sur deux points du cube — il passe en rouge s’il est un morceau de la section.', i:'Nommer un point d’intersection : clique directement là où deux traits se croisent — ou sur un trait, puis sur l’autre.', p:'Segment rouge parallèle : clique sur un point et sur un segment rouge d’une face parallèle (ou sur la droite qui porte ce morceau de la section, même s’il n’est pas encore tracé), dans l’ordre que tu veux — la parallèle se trace en segment rouge sur la face opposée.'};
 function esxDire(t,err){ esxMsg=t; esxMsgErr=!!err; const el=$('esxMsg'); if(el){ el.textContent=t; el.classList.toggle('esx-err',!!err); } }
+/* COMMENT SE SERT « SEGMENT ROUGE PARALLÈLE » (Turquet, novembre 2026 : « j'ai
+   une élève qui n'a pas compris comment utiliser le bouton parallèle à un
+   segment rouge ; peut-être avec un dessin ou une animation ? »). Deux aides,
+   tant que l'outil est choisi :
+     — une ANIMATION du geste, en boucle (7,5 s), à côté de trois étapes qui
+       s'allument tour à tour : clic sur le segment rouge, clic sur un point de
+       la face d'en face, la parallèle qui se trace en rouge ;
+     — SUR LA FIGURE de l'élève, ce qui peut servir pulse en orange : avant
+       tout clic, les segments rouges (ou les droites qui portent un morceau)
+       pour lesquels un point convient ; un segment choisi, les points qui
+       conviennent ; un point choisi, les segments qui conviennent
+       (esxParCandidats, qui essaie le geste à blanc). */
+const ESX_DEMO_SVG='<svg viewBox="0 0 200 180" aria-hidden="true">'
+  +'<path class="d-ar" d="M20 60H120V160H20Z M120 60L170 25V125L120 160 M20 60L70 25H170"/>'
+  +'<path class="d-ar d-cache" d="M70 25V125H170 M70 125L20 160"/>'
+  +'<line class="d-sel" x1="70" y1="60" x2="145" y2="42.5"/>'
+  +'<line class="d-rouge" x1="70" y1="60" x2="145" y2="42.5"/>'
+  +'<circle class="d-ring" cx="70" cy="160" r="8"/>'
+  +'<line class="d-par" x1="70" y1="160" x2="145" y2="142.5"/>'
+  +'<circle class="d-pt" cx="70" cy="160" r="3.2"/><text x="62" y="176">P</text>'
+  +'<g class="d-main"><path d="M0 0L0 15L4 11L7 18L10 17L7 10L12 10Z" fill="#fff" stroke="#1e293b" stroke-width="1.3" stroke-linejoin="round"/></g>'
+  +'</svg>';
+function esxDemoMaj(){
+  const el=$('esxDemo'); if(!el) return;
+  const voir=esxOutil==='p' && !test.locked;
+  if(voir && !el.innerHTML) el.innerHTML=ESX_DEMO_SVG+'<ol><li>Clique sur un <b style="color:#dc2626">segment rouge</b> (ou sur la droite qui le porte).</li><li>Clique sur un point de la <b>face d’en face</b> (la face parallèle).</li><li>La parallèle se trace toute seule, en rouge, sur cette face.</li></ol>';
+  el.hidden=!voir;
+}
+/* les objets ou les points qui donnent une parallèle, essayés à blanc */
+function esxParEssai(q,a,io){
+  const sv=q.cons, m=esxMsg, e=esxMsgErr; q.cons=sv.slice();
+  try{ esxParallele(q,a,io); return q.cons.length>sv.length; }
+  catch(x){ return false; }
+  finally{ q.cons=sv; esxDire(m,e); }
+}
+function esxParCandidats(q){
+  const o={pts:{},obj:{}}; if(esxOutil!=='p'||test.locked) return o;
+  const ob=esxObjets(q).filter(z=>z.t!=='a'), pts=esxPoints(q);
+  const sert=z=>z.rouge||esxCfg(q).morceaux.some(m=>esxSurDroite(m.P,z.A,z.B)&&esxSurDroite(m.Q,z.A,z.B));
+  if(esxSel&&esxSel.o){ pts.forEach(p=>{ if(esxParEssai(q,p.n,esxSel.o)) o.pts[p.n]=1; }); }
+  else if(esxSel&&esxSel.p){ ob.forEach(z=>{ if(sert(z)&&esxParEssai(q,esxSel.p,z.id)) o.obj[z.id]=1; }); }
+  else ob.forEach(z=>{ if(sert(z)&&pts.some(p=>esxParEssai(q,p.n,z.id))) o.obj[z.id]=1; });
+  return o;
+}
 function esxChoisir(o){
   if(test.locked) return;
   esxOutil=o; esxSel=null; esxSurvol=null;   /* recliquer l'outil actif repart de zéro, sans le quitter */
@@ -37108,7 +37182,7 @@ function esxAnnuler(){
    unité) quand le cadre s'élargit pour les points d'intersection lointains,
    sans dépasser la largeur de l'écran ni 80 % de sa hauteur. */
 function esxTailleFig(q,h){ const c=esxCadre(q); h.style.maxWidth='min('+Math.round(1.45*c.W)+'px, calc(80vh * '+(c.W/c.H).toFixed(3)+'))'; }
-function esxDessiner(){ const q=test.questions[test.idx], h=$('esxFig'); if(!q||!h) return; esxTailleFig(q,h); h.innerHTML=esxSVG(q); esxSuivi(); if(test.kind==='esg') esgMaj(q); }
+function esxDessiner(){ const q=test.questions[test.idx], h=$('esxFig'); if(!q||!h) return; esxTailleFig(q,h); h.innerHTML=esxSVG(q); esxDemoMaj(); esxSuivi(); if(test.kind==='esg') esgMaj(q); }
 /* UN INDICE : UNE ÉTAPE POSSIBLE POUR CONTINUER (Turquet, novembre 2026 :
    « dans le 7.1.12 et le 7.1.14, mettre un bouton indice qui donne une étape
    possible à faire pour l'élève pour continuer la section »). L'indice part

@@ -1545,3 +1545,30 @@ tire les parties 1, 2, 3 et 5 (`EBC_PARTIES`), quatre écrans, la section en
 reprendre un brouillon d'avant. Les textes qui disaient « partie … sur 5 »
 lisent la place dans la séance. L'énoncé de la section ne numérote plus sa
 question.
+
+#### « Segment rouge parallèle » montre son geste (v520)
+
+Turquet, novembre 2026 : « j'ai une élève qui n'a pas compris comment utiliser
+le bouton parallèle à un segment rouge ; peut-être avec un dessin ou une
+animation ? ». Tant que l'outil est choisi, aux 7.1.12, 7.1.13 et 7.1.14 :
+
+* **une animation du geste** (`#esxDemo`, `ESX_DEMO_SVG`, CSS seul, boucle de
+  7,5 s) : sur un petit cube, la main clique le segment rouge de la face du
+  haut (il s'entoure d'orange), puis le point P de la face du bas (un anneau),
+  et la parallèle se trace en rouge ; à côté, trois étapes s'allument tour à
+  tour. Elle disparaît dès qu'un autre outil est choisi ; sous
+  `prefers-reduced-motion`, l'image finale reste fixe ;
+* **sur la figure de l'élève, ce qui peut servir pulse en orange**
+  (`esxParCandidats`) : avant tout clic, les segments rouges — ou les droites
+  qui portent un morceau — pour lesquels un point convient ; un segment
+  choisi, les points qui conviennent ; un point choisi, les segments qui
+  conviennent. Chaque candidat est essayé à blanc : `esxParEssai` joue
+  `esxParallele` sur une copie de `q.cons` et rend le message d'avant — un
+  premier jet laissait le message d'erreur de l'essai affiché, repéré sur la
+  capture. Les repères disent ce que l'outil ACCEPTE, sommets compris, pas ce
+  qui construit la section : ils apprennent le geste sans donner la réponse.
+
+**Exécuté** dans Chromium (7.1.12) : [IJ] tracé, outil choisi → l'animation
+s'affiche et [IJ] pulse ; [IJ] choisi → seuls les points de la face opposée
+(C et H) sont entourés ; le message reste celui de l'outil ; « Droite »
+choisie → l'animation se cache.
