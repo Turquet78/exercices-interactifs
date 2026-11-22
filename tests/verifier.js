@@ -5027,6 +5027,7 @@ function exercices(suite){
     syntheseEvolutionsLibre(w, P);
     syntheseGeneraleLibre(w, P);
     devoirBlancPourcentages(w, P);
+    bacBlancAutomatismes(w, P);
     verificationAvecPropositions(w, P);
     teteCollee(w, P);
     poseSuitLEleve(w, P);
@@ -11771,6 +11772,122 @@ function syntheseGeneraleLibre(w, P){
       : !/test\s*:\s*'synthese-generale-libre'/.test(texte('finishSgl')) ? 'finishSgl n’enregistre plus sous son identifiant'
       : 'la synthèse s’est donné un juge, une règle ou un énoncé à elle : ' + propres.join(', '));
 }
+/* {bac-blanc-automatismes} (Première 8.1, novembre 2026) — les douze
+   automatismes du bac blanc de Turquet, RÉDIGÉS, chacun avec son « Coup de
+   pouce » qui montre la question en cases sur l'écran de l'exercice modèle.
+   Le contrôle tient :
+     · le TIRAGE (30 séances) : douze questions dans l'ordre du sujet, chacune
+       sur son moteur ; les valeurs de chaque exercice modèle — les paires du
+       2.5.4 en multiples de 10 (une hausse puis une baisse, la méthode
+       « partir de 100 » seule), les pourcentages et effectifs du 2.1.3 aux
+       DEUX étapes de la question 5, la même courbe pour les questions 7 et 8 ;
+     · les JUGES, sur des copies écrites comme la feuille les rend (toPlain) :
+       chaque copie juste acceptée, chaque copie fausse refusée — sans la
+       réponse dans la phrase ;
+     · le COUP DE POUCE et le retour : l'écran du moteur repris, le bouton de
+       retour, la feuille rédigée gardée ; le « suivant » de chaque moteur
+       repris rend la main au bac blanc (dbpSuite), la dernière question clôt ;
+     · l'IDENTITÉ : 8.1, le thème « Synthèses », « Recommencer », le rappel,
+       QIA_SUGG, le contexte de l'aide. */
+function bacBlancAutomatismes(w, P){
+  const nom = 'le bac blanc (8.1) : douze automatismes rédigés, leurs juges, le coup de pouce sur le moteur modèle et le retour, identité';
+  const present = evaluer(w, "typeof startBba==='function' && typeof bbaSpec==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas le bac blanc des automatismes'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[]; const ID='bac-blanc-automatismes';
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null; currentTestId=ID;
+    const ecran=function(){ const on=document.querySelector('section.screen.on'); return on?on.id:'(aucun)'; };
+    const MOTEURS=['voc','frac','evol','coef','prop','dim','img','ant','dec','pui','odg','rang'];
+    const POUCE={voc:'scr-voctest',frac:'scr-tsf',evol:'scr-esstest',coef:'scr-cktest',prop:'scr-bba',dim:'scr-ag2test',img:'scr-ima',ant:'scr-ima',dec:'scr-sdtest',pui:'scr-edstest',odg:'scr-vaptest',rang:'scr-rgctest'};
+    /* ---- 1. le tirage ---- */
+    for(let t=0;t<30 && vus.length<4;t++){
+      startBba();
+      if(test.kind!=='bba' || test.qId!==ID){ vus.push('identité du démarreur : '+test.kind+' / '+test.qId); break; }
+      const Q=test.questions;
+      if(Q.length!==12 || test.maxScore!==12){ vus.push('tirage '+t+' : '+Q.length+' questions, barème '+test.maxScore); break; }
+      Q.forEach(function(q,i){ if(q.moteur!==MOTEURS[i]) vus.push('tirage '+t+' q'+(i+1)+' : moteur '+q.moteur); if(q.aide!==false) vus.push('tirage '+t+' q'+(i+1)+' : aide '+q.aide); });
+      const e=Q[2];
+      if(e.s1!==1 || e.s2!==-1 || e.meth!=='cent' || e.methFixe!=='cent' || e.P1%10 || e.P2%10) vus.push('tirage '+t+' q3 : '+JSON.stringify([e.s1,e.s2,e.meth,e.methFixe,e.P1,e.P2]));
+      const p=Q[4];
+      if(PCT_PCTS.indexOf(p.P1)<0 || PCT_PCTS.indexOf(p.P2)<0 || PCT_VALEURS.indexOf(p.N)<0 || p.N<100 || !pctCoupleOk(p.P1,p.N) || p.r1!==p.P1*p.N/100 || !pctCoupleOk(p.P2,p.r1) || p.res!==p.P2*p.r1/100)
+        vus.push('tirage '+t+' q5 : hors des valeurs du 2.1.3 : '+JSON.stringify(p));
+      if(JSON.stringify(Q[6].pts)!==JSON.stringify(Q[7].pts) || Q[6].x0==null || Q[7].y0==null) vus.push('tirage '+t+' : les questions 7 et 8 ne portent pas sur la même courbe');
+      if(!Q[1].D || Q[1].N%Q[1].D===0 || Math.max(Q[1].N1,Q[1].N2,Q[1].N3,Q[1].N,Q[1].D)>TSF4_MAX) vus.push('tirage '+t+' q2 : hors des cas du 4.12');
+      if(Q[10].x==null || Q[10].y==null) vus.push('tirage '+t+' q11 : pas un produit x × y du 1.12');
+      if([4,5].indexOf(Q[11].niv)<0) vus.push('tirage '+t+' q12 : niveau '+Q[11].niv);
+    }
+    /* ---- 2. les juges, sur des copies au format de la feuille ---- */
+    startBba();
+    const Q=test.questions, D=function(x){ return String(x).replace(',','.'); };
+    const copies=function(q){
+      const m=q.moteur;
+      if(m==='voc'){ const L=voc2Ligne(q), e=L.et, ex=function(c){ return Array.isArray(c)?(c[0]==='x'?D(c[1])+'*'+c[2]:'('+D(c[1])+')/('+D(c[2])+')'):c; };
+        return [ex(e[0].calc)+'+'+ex(e[1].calc)+'='+D(vapStr(e[0].r,false))+'+'+D(vapStr(e[1].r,false))+'='+D(vapStr(e[2].r,false)), D(vapStr(e[2].r,false))]; }
+      if(m==='frac'){ const M=tsfrMath(q,bbaTx,''), tx=M.texte.replace(/ /g,''), o=function(c){ return c==='+'?'+':'-'; };
+        return [tx+'=('+q.N1+')/('+q.D+')'+o(q.op)+'('+q.N2+')/('+q.D+')'+o(q.op2)+'('+q.N3+')/('+q.D+')=('+q.N+')/('+q.D+')', tx+'=('+(q.N+1)+')/('+q.D+')']; }
+      if(m==='coef'){ const c=ckCoef(q); return ['1-('+q.P+')/(100)=1-'+D(pDecStr(q.P))+'='+D(ckStr(c)), D(ckStr(c))]; }
+      if(m==='prop') return ['('+q.P1+')/(100)*'+q.N+'='+q.r1+'\\n('+q.P2+')/(100)*'+q.r1+'='+q.res, '('+q.P1+')/(100)*'+q.N+'='+q.r1];
+      if(m==='dim'){ const c=salCouple(dbpEvoVueSal(q)); return [D(c.coefStr)+'*'+q.N+'='+D(c.finStr), D(c.coefStr)+'*'+q.N+'='+(q.fin+1)]; }
+      if(m==='img') return ['f('+q.x0+')='+imaY(q), 'f('+q.x0+')='+(imaY(q)+1)];
+      if(m==='ant'){ const n=imaAnts(q).length; return [q.y0+'a'+n+'antécédents', q.y0+'a'+(n+1)+'antécédents']; }
+      if(m==='dec'){ const F=sdFracDec(q.V), s=q.e+'+'+q.t.map(function(x){ return x.dec?D(sdDecStr(x.n*1000/x.d)):'('+x.n+')/('+x.d+')'; }).join('+');
+        return ['A = '+s+'='+D(sdDecStr(q.V))+'=('+F.n+')/('+F.d+')', 'A = '+s+'='+D(sdDecStr(q.V))]; }
+      if(m==='pui'){ const tx=q.termes.map(function(x){ return '10^('+(x.t==='p'?'-':'')+x.k+')'; }).join('+');
+        return ['A = '+tx+'='+q.termes.map(function(x){ return D(edsTermeDec(x)); }).join('+')+'='+D(edsResStr(q)), 'A = '+tx+'='+D(edsResStr(q))+'1']; }
+      if(m==='odg'){ const A=vapAttendus(q); return [q.x+'*'+q.y+'\\\\approx'+D(vapStr(A.fx,false))+'*'+D(vapStr(A.fy,false))+'='+D(vapStr(A.r,false)), q.x+'*'+q.y+'\\\\approx'+D(vapStr(A.r*10,false))]; }
+      if(m==='rang'){ const nb=rgcNombres(q); return [nb.filter(function(x){ return x.d; }).map(function(x){ return '('+x.n+')/('+x.d+')='+D(sdDecStr(x.v)); }).concat([rgcRanges(q).map(function(v){ return D(sdDecStr(v)); }).join('<')]).join('\\n'),
+        rgcRanges(q).slice().reverse().map(function(v){ return D(sdDecStr(v)); }).join('<')]; }
+      return null;
+    };
+    for(let s=0;s<6;s++){
+      startBba();
+      test.questions.forEach(function(q,i){
+        const c=copies(q); if(!c) return;
+        const S=bbaSpec(q), jj=S.juge(c[0]), jf=S.juge(c[1]);
+        if(!jj.sait || !jj.correct) vus.push('q'+(i+1)+' ('+q.moteur+') : la copie juste « '+c[0]+' » n\\'est pas acceptée par la page : '+JSON.stringify(jj));
+        if(!jf.sait || jf.correct) vus.push('q'+(i+1)+' ('+q.moteur+') : la copie fausse « '+c[1]+' » n\\'est pas refusée par la page : '+JSON.stringify(jf));
+        if(jf.sait && !jf.correct && S.resume && ['voc','coef','pui','odg'].indexOf(q.moteur)>=0 && String(jf.phrase).replace(/«[^»]*»/g,'').indexOf(String(S.resume.answer).replace(/\\s/g,''))>=0 && String(S.resume.answer).length>2)
+          vus.push('q'+(i+1)+' : le refus donne la réponse : '+jf.phrase);
+      });
+    }
+    /* ---- 3. le coup de pouce, le retour, l'enchaînement ---- */
+    startBba();
+    for(let i=0;i<12;i++){
+      test.idx=i; test.locked=false; renderBba();
+      const q=test.questions[i], red=(q.moteur==='evol')?'scr-esl':'scr-bba';
+      if(ecran()!==red) vus.push('q'+(i+1)+' : l\\'écran rédigé est '+ecran());
+      const fe=(q.moteur==='evol')?eslFeuille:bbaFeuille;
+      if(!document.querySelector('section.screen.on #bbaPouceBtn')) vus.push('q'+(i+1)+' : pas de bouton « Coup de pouce »');
+      bbaAide();
+      if(ecran()!==POUCE[q.moteur]) vus.push('q'+(i+1)+' : le coup de pouce ouvre '+ecran()+' au lieu de '+POUCE[q.moteur]);
+      if(!document.querySelector('section.screen.on #dbpRetour button')) vus.push('q'+(i+1)+' : pas de bouton de retour sur le coup de pouce');
+      bbaRevenir();
+      if(ecran()!==red) vus.push('q'+(i+1)+' : le retour mène à '+ecran());
+      if(((q.moteur==='evol')?eslFeuille:bbaFeuille)!==fe) vus.push('q'+(i+1)+' : le retour recrée la feuille rédigée');
+      if(q.aide!==false) vus.push('q'+(i+1)+' : après le retour, aide = '+q.aide);
+    }
+    ['nextVocQuestion','nextTsfQuestion','nextEssQuestion','nextCKQuestion','nextAG2Question','nextImaQuestion','nextSdQuestion','nextEdsQuestion','nextVapQuestion','nextRgcQuestion','nextEsl'].forEach(function(f){
+      startBba(); test.idx=0; test.locked=true; const avant=test.idx; try{ window[f](); }catch(e){ vus.push(f+' : '+e.message); } if(test.kind!=='bba' || test.idx!==avant+1) vus.push(f+' ne rend pas la main au bac blanc'); });
+    startBba(); test.idx=11; test.questions[11].aide=true; renderBba(); test.locked=true;
+    const vraie=window.finishBba; let clos=0; window.finishBba=function(){ clos++; };
+    try{ nextRgcQuestion(); } finally{ window.finishBba=vraie; }
+    if(clos!==1) vus.push('la dernière question, depuis le coup de pouce, ne clôt pas par finishBba ('+clos+')');
+    if(String(finishBba).indexOf("'bac-blanc-automatismes'")<0) vus.push('finishBba n\\'enregistre pas sous son identifiant');
+    /* ---- 4. l'identité ---- */
+    if(TEST_NUM[ID]!=='8.1') vus.push('numéro '+TEST_NUM[ID]+' au lieu de 8.1');
+    const th=THEMES.find(function(t){ return t.ids.indexOf(ID)>=0; });
+    if(!th || !/Synth/.test(th.nom)) vus.push('le thème n\\'est pas « Synthèses »');
+    if(String(restartCurrentTest).indexOf('startBba')<0) vus.push('« Recommencer » ne relance pas le bac blanc');
+    if(!RAPPELS_ID[ID]) vus.push('pas de rappel de cours');
+    if(!QIA_SUGG.bba) vus.push('pas de questions à l\\'IA');
+    startBba(); test.idx=0; renderBba();
+    if(conseilCtxCourant().indexOf('Bac blanc')<0) vus.push('le contexte de l\\'aide ne nomme pas le bac blanc');
+    bbaAide();
+    if(qiaSuggestions().indexOf(QIA_SUGG.voc ? QIA_SUGG.voc[0] : '')<0 && QIA_SUGG.voc) vus.push('sur le coup de pouce de la question 1, les questions à l\\'IA ne sont pas celles du 1.14');
+    return vus.slice(0,12).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
 /* {devoir-blanc-pourcentages} (2.5.8) — le devoir blanc (demande de Turquet,
    octobre 2026, en deux temps : « une question du 2.1.3, puis une question
    du 2.1.3 où il faut rédiger comme dans le 2.1.7 ; un bouton aide méthode
@@ -11907,7 +12024,9 @@ function devoirBlancPourcentages(w, P){
       const vraieFin=window.finishDbp; let clos=0; window.finishDbp=function(){ clos++; };
       try{ nextEssQuestion(); } finally{ window.finishDbp=vraieFin; }
       if(clos!==1) vus.push('depuis l\\'aide méthode de la question 9, la dernière question ne clôt pas par finishDbp ('+clos+')');
-      ['nextPQuestion','nextAG2Question','nextACQuestion','nextEssQuestion','nextEsl'].forEach(function(f){ if(String(window[f]).indexOf('nextDbp')<0) vus.push(f+' ne rend pas la main à nextDbp'); });
+      /* le crochet passe par dbpSuite() depuis le bac blanc (8.1), qui le partage : il doit, lui, nommer nextDbp */
+      const parSuite=typeof window.dbpSuite==='function' && String(window.dbpSuite).indexOf('nextDbp')>=0;
+      ['nextPQuestion','nextAG2Question','nextACQuestion','nextEssQuestion','nextEsl'].forEach(function(f){ const t=String(window[f]); if(t.indexOf('nextDbp')<0 && !(parSuite && t.indexOf('dbpSuite()')>=0)) vus.push(f+' ne rend pas la main à nextDbp'); });
     }
 
     /* ---- 3. le JUGE de la rédaction du 2.2.14, sans proposition ---- */
