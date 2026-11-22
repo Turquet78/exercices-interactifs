@@ -7195,7 +7195,19 @@ function devoirPapierClique(w, apres){
     await dmePapier();   /* second clic : rien ne repart */
     if(envois().length!==1) vus.push('un second clic envoie une seconde ligne ('+envois().length+')');
 
-    /* ---- 5. l'échec d'envoi se DIT, et ne se fait pas passer pour un succès ---- */
+    /* ---- 4 bis. REVENU SUR L'EXERCICE, L'ÉLÈVE RETROUVE SON ÉNONCÉ (novembre
+       2026, « avec correction ») : le même tirage, déjà envoyé — aucun nouvel
+       envoi possible, aucun nouveau tirage ---- */
+    await dmePapierOuvrir('dev-1','tangente-exp');
+    if(!dmeCtx||!dmeCtx.envoye) vus.push('revenu sur l\\'exercice, l\\'élève ne retrouve pas l\\'énoncé déjà envoyé');
+    if(document.querySelector('#dmeActions button[onclick*="dmePapier()"]')) vus.push('l\\'énoncé retrouvé propose de l\\'envoyer une seconde fois');
+    const retrouve=(test.questions||[]).map(function(q){ return q.a+'/'+q.b; }).join(';');
+    if(retrouve!==tirage) vus.push('l\\'énoncé retrouvé n\\'est pas le tirage envoyé ('+retrouve+' contre '+tirage+')');
+    if(envois().length!==1) vus.push('retrouver l\\'énoncé envoie une ligne ('+envois().length+')');
+
+    /* ---- 5. l'échec d'envoi se DIT, et ne se fait pas passer pour un succès ----
+       (la ligne déjà envoyée retirée : sans quoi l'énoncé est retrouvé, 4 bis) */
+    window.__faux.semer("signalements", []);
     await dmePapierOuvrir('dev-1','tangente-exp');
     ecouterToasts();
     window.__faux.panne=true;
