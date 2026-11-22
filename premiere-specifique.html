@@ -1959,6 +1959,11 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .ru-tab td.ru-faux{animation:ruFaux .9s ease}
 @keyframes ruFaux{0%,60%{background:var(--red-soft);box-shadow:inset 0 0 0 3px var(--red)}100%{background:transparent;box-shadow:none}}
 .ru-compte{font-weight:800;color:var(--blue-dark)}
+/* la consigne du clic (v461) : en gras et en grand, au-dessus du tableau */
+.ru-consigne{font-family:"Nunito";font-weight:900;font-size:calc(1.5rem * var(--tab-nb,1));line-height:1.3;color:var(--blue-dark);text-align:center;
+  background:#FFF3D6;border:2px solid #F2C35E;border-radius:14px;padding:10px 14px;margin:4px auto 12px;max-width:760px}
+.ru-consigne i{font-size:1.05em}
+@media(max-width:560px){ .ru-consigne{font-size:calc(1.22rem * var(--tab-nb,1));padding:8px 10px} }
 .ru-partie{font-weight:800;color:var(--blue-dark)}
 @media(max-width:560px){ #pbHost .pbf-tete .fpb-tab td{padding:11px 4px 2px} }
 #pbHost .pbf-tete .fpb-tab.fpb-sans-noms td{padding:6px 10px}
@@ -28320,7 +28325,10 @@ PBX.ruclic={
   att(){ return {}; },
   render(q){
     const C=pbCtx(q);
-    $('pbHost').innerHTML=ruRendreTete(q, 'Clique sur les trois cases du tableau qui représentent '+ruUnion()+'.')
+    /* v461 (demande de Turquet) : la consigne en GRAS et en GRAND, au-dessus
+       du tableau — c'est la première chose que l'élève lit */
+    $('pbHost').innerHTML='<p class="ru-consigne">Clique sur les 3 cases du tableau qui représentent '+ruUnion()+'</p>'
+      +ruRendreTete(q, 'Clique sur les trois cases du tableau qui représentent '+ruUnion()+'.')
       +'<p class="pb-def ru-compte" id="ruCompte">'+ruCompteTxt(q)+'</p>';
     pbPlacerEnonce(true);
     /* pas de « Vérifier » tant que les trois cases ne sont pas trouvées ;

@@ -3539,6 +3539,62 @@ if(require.main === module) (async () => {
           pc ? pc.nom + ' : ' + pc.octets + ' octets, ' + pc.pages + ' page(s)'
              : 'aucun téléchargement — la page dit « ' + await s.page.evaluate(() => document.getElementById('toast').textContent) + ' »');
       }
+      /* LA MISE EN PAGE SURVIT À LA PHOTO — trois défauts du DM n°13
+         (Turquet, novembre 2026), aucun propre à un exercice, tenus ici sur
+         des écrans FABRIQUÉS : ce qui vaut pour eux vaut pour tout exercice
+         qui en reprend la forme, sans rien déclarer.
+         1. une CELLULE vide d'une grille n'est pas retirée (la grille des ⟺
+            glissait d'un rang) ; une rangée entièrement vidée, elle, part ;
+         2. un BOUTON que la page a jugé (la case-menu « P(A ∩ V) ») est une
+            case : la correction l'imprime ;
+         3. l'ACCOLADE d'un système, devenue image pour html2canvas, garde sa
+            place dans la grille : x, y et z restent dans l'accolade. */
+      {
+        const mise = await s.page.evaluate(async () => {
+          const scr = document.createElement('section'); scr.className = 'screen on';
+          scr.innerHTML = '<div style="display:grid;grid-template-columns:repeat(3,auto)">'
+            + '<div>a) Montrer que A ⟺</div><div><button class="apc-slot sol">P(A ∩ V)</button> = 0,5</div><div></div>'
+            + '<div>b) Calculer x.</div><div>x = 1</div><div></div>'
+            + '<div></div><div><input value=""></div><div></div></div>';
+          document.body.appendChild(scr);
+          const h = dmCorrigeQ(scr), e = dmEnonceQ(scr);
+          scr.remove();
+          const d = document.createElement('div'); d.innerHTML = h;
+          const de = document.createElement('div'); de.innerHTML = e;
+          const g = d.firstElementChild, ge = de.firstElementChild;
+          /* le système, rendu comme pour le PDF */
+          await dmeChargerScript(DME_PDF_LIBS[0]);
+          const cadre = dmePdfCadre('<div class="dme-pdf"><p>Δ :' + epaSysHTML([1.5, -2, 2.25], [-1, 4, -3], '') + '</p></div>');
+          const hote = cadre.contentDocument.querySelector('.dme-pdf');
+          dmePdfStylerSVG(hote); await dmePdfSvgEnImages(hote);
+          const im = hote.querySelector('.edp-sys > img'), cs = [...hote.querySelectorAll('.edp-sys > .edp-c')];
+          const ri = im ? im.getBoundingClientRect() : null;
+          const dedans = !!ri && cs.length === 9 && cs.every(c => { const r = c.getBoundingClientRect(); return r.top >= ri.top - 2 && r.bottom <= ri.bottom + 2; });
+          cadre.remove();
+          return { cellules: g ? g.children.length : -1, cellulesE: ge ? ge.children.length : -1,
+                   slot: (d.querySelector('.dmc-val') || {}).textContent || '', dedans, image: !!im };
+        });
+        verifier('la correction garde chaque cellule d\'une grille (une cellule vide tient sa colonne), et retire une rangée vidée',
+          mise.cellules === 9, mise.cellules + ' cellule(s) sur 9 attendues (5 : les cellules vides sont parties)');
+        verifier('l\'énoncé papier garde les cellules d\'une grille, et retire la rangée qu\'il a vidée', mise.cellulesE === 6,
+          mise.cellulesE + ' cellule(s) sur 6 attendues');
+        verifier('un bouton que la page a jugé (la case-menu d\'une probabilité) s\'imprime dans la correction',
+          /P\(A ∩ V\)/.test(mise.slot), '« ' + mise.slot + ' »');
+        verifier('l\'accolade d\'un système garde sa place dans la grille du PDF : x, y et z restent dans l\'accolade',
+          mise.image && mise.dedans, JSON.stringify(mise));
+      }
+      /* et la résolution de ℓ de {suite-bac-evolution} : ses « = »
+         l'un sous l'autre, à l'écran — donc sur la photo */
+      if(await s.page.evaluate(() => !!TESTS['suite-bac-evolution'])){
+        const eg = await s.page.evaluate(async () => {
+          await TESTS['suite-bac-evolution'].start(); clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+          for(let i = 0; i < test.questions.length && !document.querySelector('.screen.on .sbe-req'); i++){ test.idx = i; afficherEcranDe(test.kind); }
+          const x = [...document.querySelectorAll('.screen.on .sbe-req')].map(e => Math.round(e.getBoundingClientRect().left));
+          test.idx = 0; return x;
+        });
+        verifier('dans l\'exercice de bac sur les suites, les « = » de la résolution de ℓ sont l\'un sous l\'autre',
+          eg.length === 4 && eg.every(x => x === eg[0]), JSON.stringify(eg));
+      }
       await s.nav.close(); s = null;
     }
 

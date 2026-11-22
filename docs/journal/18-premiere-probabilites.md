@@ -1030,6 +1030,16 @@ troisième ouvre « Question suivante » ; P(A ∪ B) juste, séance 8 / 8 ;
 pause au milieu puis après les trois cases, reprises justes ; aucun
 débordement, aucune erreur JavaScript.
 
+**Puis la consigne du clic en gras et en grand (v461 ; la 3.13 avait pris la v460 le même jour).** Demande de
+Turquet : « il faut que l'élève voie en gras et en plus gros qu'il doit
+cliquer sur les 3 cases qui représentent A ∪ B ». À la question 7
+(`ruclic`), une bannière `.ru-consigne` ouvre l'écran, AU-DESSUS du tableau :
+« Clique sur les 3 cases du tableau qui représentent A ∪ B », en Nunito 900,
+1,5 rem (1,22 rem sous 560 px), bleu nuit sur fond ambre clair — la couleur
+des cases coloriées, pas celle d'un verdict. L'énoncé encadré garde la même
+phrase à sa fin. Vérifié dans Chromium (1280 et 390 px) : la bannière tient
+sur deux lignes au téléphone, sans débordement ; le parcours reste 8 / 8.
+
 ## {frequences-probabilites-pouce} (3.13, v460) : la fiche du 3.11, P(A ∪ D), et un coup de pouce devant chaque question
 
 Demande de Turquet (novembre 2026) : « créer un exercice exactement comme le

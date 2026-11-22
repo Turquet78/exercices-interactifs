@@ -1546,7 +1546,7 @@ reprendre un brouillon d'avant. Les textes qui disaient « partie … sur 5 »
 lisent la place dans la séance. L'énoncé de la section ne numérote plus sa
 question.
 
-#### « Segment rouge parallèle » montre son geste (v521)
+#### « Segment rouge parallèle » montre son geste (v521, puis v522)
 
 Turquet, novembre 2026 : « j'ai une élève qui n'a pas compris comment utiliser
 le bouton parallèle à un segment rouge ; peut-être avec un dessin ou une
@@ -1572,3 +1572,8 @@ animation ? ». Tant que l'outil est choisi, aux 7.1.12, 7.1.13 et 7.1.14 :
 s'affiche et [IJ] pulse ; [IJ] choisi → seuls les points de la face opposée
 (C et H) sont entourés ; le message reste celui de l'outil ; « Droite »
 choisie → l'animation se cache.
+
+La v521 a été prise deux fois sur `main` le même jour (le bouton « retour »
+du navigateur, #1139, et cette aide, #1144, fusionnées à quelques minutes
+d'écart, sans conflit puisque la ligne était identique) : la Terminale passe en
+v522 pour qu'un numéro ne désigne qu'une version.
