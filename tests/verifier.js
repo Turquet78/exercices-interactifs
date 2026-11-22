@@ -16424,7 +16424,7 @@ function coordonneesDevoirFractions(w, P){
       if(el('vdfIdx').textContent.indexOf('Question '+q.ds+')')<0) vus.push('8.4.15 : l’en-tête de la question '+q.ds);
       if(el('vdfInstr').textContent.indexOf('On a les points A')<0 || document.querySelectorAll('#vdfInstr .vdf-pt').length!==(q.ds==='d'?6:5)) vus.push('8.4.15 : l’énoncé du devoir à la question '+q.ds);
       if(document.querySelector('#vdfInstr svg, #vdfHost svg, #scr-vdf .lv-graph')) vus.push('8.4.15 : un dessin à la question '+q.ds);
-      if(!vdfPlan(q).ch.some(function(c){ return el('vdf-'+c.id+'-k1b')&&el('vdf-'+c.id+'-D'); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
+      if(!vdfPlan(q).ch.some(function(c){ return vdfEtapes(c).indexOf('nd')>=0&&el('vdf-'+c.id+'-D')&&(el('vdf-'+c.id+'-k1b')||el('vdf-'+c.id+'-k2b')); })) vus.push('8.4.15 : aucune étape du même dénominateur à la question '+q.ds);
       /* chaque ligne finie se recopie jusqu'à la dernière colonne de son bloc ; un négatif soustrait devient « + » ; la fraction voisine d'un entier, sans « × 1 » */
       const chs=vdfPlan(q).ch, attendues=chs.reduce(function(n,c){ const sib=chs.find(function(x){ return x!==c&&x.id.slice(0,-1)===c.id.slice(0,-1); });
         return n+Math.max(0,(sib?vdfEtapes(sib).length:0)-vdfEtapes(c).length)*vdfFinIds(c).length; },0);
