@@ -4166,7 +4166,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=457;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=458;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4756,7 +4756,7 @@ const TESTS={
      suivie d'une rédigée (voir l'en-tête de pqdGen). Ajoutés en fin de thème. */
   'produit-difference-fractions': { name:'Un produit avec une diff\u00e9rence dedans', icon:'\u2716\ufe0f', desc:'a/b\u00d7(c/d\u2212e/f)\u00a0: la parenth\u00e8se se calcule D\u2019ABORD par des cases, puis le produit, comme en {multiplier-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdH() },
   'quotient-difference-fractions': { name:'Un quotient avec une diff\u00e9rence dedans', icon:'\u2797', desc:'Comme {produit-difference-fractions}, avec un maillon de plus\u00a0: diviser, c\u2019est multiplier par l\u2019inverse \u2014 comme en {diviser-fractions}. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startPqdI() },
-  'trois-fractions-ppcm': { name:'Trois fractions, le plus petit d\u00e9nominateur commun', icon:'\u2795', desc:'Trois fractions \u00e0 additionner \u2014 une soustraction peut s\u2019y glisser, le r\u00e9sultat reste positif\u00a0: trois d\u00e9nominateurs diff\u00e9rents, \u00e0 mettre sur le PLUS PETIT d\u00e9nominateur commun, par des cases. Le \u00ab\u00a0\u00d7\u00a01\u00a0\u00bb peut se laisser vide. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf3() },
+  'trois-fractions-ppcm': { name:'Trois fractions, le plus petit d\u00e9nominateur commun', icon:'\u2795', desc:'Trois fractions \u00e0 additionner \u2014 une soustraction peut s\u2019y glisser, le r\u00e9sultat reste positif\u00a0: trois d\u00e9nominateurs diff\u00e9rents, \u00e0 mettre sur le PLUS PETIT d\u00e9nominateur commun, par des cases, puis la somme et sa simplification. La fraction déjà sur ce dénominateur se recopie telle quelle.', start:()=>startTsf3() },
   'trois-fractions-ppcm-redige': { name:'Trois fractions \u00e0 r\u00e9diger', icon:'\u270d\ufe0f', desc:'Les m\u00eames calculs que {trois-fractions-ppcm}\u00a0: trois fractions, le plus petit d\u00e9nominateur commun \u2014 mais sans cases\u00a0: tu r\u00e9diges tout le calcul toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb, comme la question r\u00e9dig\u00e9e de {triple-somme-fractions}.', start:()=>startTsf4() },
   'triple-somme-fractions': { name:'La somme de trois fractions', icon:'\u2795', desc:'a/b+c/d\u2212e/f ou a/b\u2212c/d\u2212e/f\u00a0: trois fractions \u00e0 mettre au m\u00eame d\u00e9nominateur, le plus petit possible, par des cases \u2014 aucune priorit\u00e9 \u00e0 respecter ici, on calcule de gauche \u00e0 droite. Apr\u00e8s chaque calcul guid\u00e9, un second, sur la m\u00eame page\u00a0: tu le r\u00e9diges toi-m\u00eame, \u00e0 la suite du \u00ab\u00a0=\u00a0\u00bb.', start:()=>startTsf() },
   /* Le thème 5, Calcul littéral : les 7.8 à 7.10 de la Seconde, avec leur
@@ -24473,12 +24473,18 @@ function tsfBuildQuestions(){
   /* 4.12 : toutes les questions sont rédigées — huit par séance, le réglage
      « Questions » d'un devoir les compte une à une */
   if(test && test.toutRedac) return distinctes(dmNbQuestions(2*TSF_NB), tsf3Gen).map(function(q){ return Object.assign(q,{redac:true}); });
+  /* 4.11 : huit questions guidées, sans rédigée */
+  if(test && test.ppcm) return distinctes(dmNbQuestions(2*TSF_NB), tsf3Gen);
   return redPaires(TSF_NB, (test && test.ppcm) ? tsf3Gen : tsfGen); }
 function tsfCases(){
   /* 4.11 : la mise en page de la fiche — le dénominateur commun s'écrit EN
      PREMIER, sur sa ligne ; la somme n'a qu'un numérateur, sur ce dénominateur */
-  if(test && test.ppcm) return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-fn']
-    .concat(test.etapes && typeof seIds==='function' ? seIds('tsf') : []);
+  if(test && test.ppcm){
+    const q=test.questions && test.questions[test.idx];
+    const paires=[0,1,2].filter(function(i){ return !(q && tsfFac(q,i)); })
+      .reduce(function(l,i){ return l.concat(['tsf-a'+(i+1),'tsf-b'+(i+1)]); }, []);
+    return paires.concat(['tsf-n1','tsf-n2','tsf-n3','tsf-fn'])
+      .concat(test.etapes && typeof seIds==='function' ? seIds('tsf') : []); }
   return ['tsf-a1','tsf-b1','tsf-a2','tsf-b2','tsf-a3','tsf-b3','tsf-n1','tsf-n2','tsf-n3','tsf-d','tsf-fn','tsf-fd']; }
 /* Les dénominateurs de la ligne de la somme recopient le dénominateur commun
    écrit par l'élève (« … » tant qu'il est vide). */
@@ -24514,11 +24520,16 @@ function tsfEntree(){
   setTimeout(function(){ const el=$(tsfCases()[0]); if(el) el.focus(); },70);
 }
 function tsfFicheHTML(q, op, op2){
+  /* AUCUNE MULTIPLICATION PAR 1 N'EST ÉCRITE (novembre 2026, demande de
+     Turquet) : la fraction déjà sur le dénominateur commun se recopie telle
+     quelle sur la ligne des produits, sans cases « × ». Le juge, la
+     correction et la liste des cases savent qu'elle n'en a pas (tsfFac). */
+  const terme=function(i,n,d){ return tsfFac(q,i) ? sfTermeHTML(n,d) : lgProduit(n,d,'tsf-a'+(i+1),'tsf-b'+(i+1)); };
   const sur=function(id,lab,idD){ return '<span class="f-frac-input">'+lgMF(id,'f-num',lab)+'<span class="f-fbar"></span><span class="f-whole tsf-dmir"'+(idD?' id="'+idD+'"':'')+'>'+q.D+'</span></span>'; };
   return '<div class="pt-step">'
      +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span><span class="f-whole">'+q.D+'</span></div>'
      +'<div class="pt-row tsf-fiche">'
-       +'<span class="f-eq spf-eq">A&nbsp;=</span>'+lgProduit(q.a,q.b,'tsf-a1','tsf-b1')+lgOp(op)+lgProduit(q.c,q.d,'tsf-a2','tsf-b2')+lgOp(op2)+lgProduit(q.e,q.f,'tsf-a3','tsf-b3')+'<span class="tsf-vide"></span>'
+       +'<span class="f-eq spf-eq">A&nbsp;=</span>'+terme(0,q.a,q.b)+lgOp(op)+terme(1,q.c,q.d)+lgOp(op2)+terme(2,q.e,q.f)+'<span class="tsf-vide"></span>'
        +spfEq()+sur('tsf-n1','premier numérateur')+lgOp(op)+sur('tsf-n2','second numérateur')+lgOp(op2)+sur('tsf-n3','troisième numérateur')
          +'<span id="tsfFin"><span class="pt-row tsf-se-row">'+fEq(sur('tsf-fn','numérateur de la somme','tsf-fdm'))+'</span></span>'
      +'</div></div>';
@@ -24667,7 +24678,9 @@ async function startTsf(ppcm, toutRedac){
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'tsf', questions:qs, idx:0, score:0, maxScore:qs.length,
     answers:[], startTime:Date.now(), qTimer:null, fbTimer:null, locked:false});
-  test.redac=true;
+  /* 4.11 : PLUS DE QUESTION RÉDIGÉE (novembre 2026, demande de Turquet) —
+     le calcul rédigé vit au 4.12 */
+  test.redac = !(ppcm && !toutRedac);
   if(ppcm) test.ppcm=true;
   if(toutRedac) test.toutRedac=true;
   if(ppcm && !toutRedac) test.etapes=true;   /* 4.11 : la simplification du 4.1 */
@@ -33008,7 +33021,7 @@ Pas de priorité ici — que des + et des − — mais trois fractions au lieu d
 const RAP_TSF3=`<b>Trois fractions sur le PLUS PETIT dénominateur commun</b><br>
 <b>① On cherche le plus petit nombre que les trois dénominateurs divisent</b> : on essaie les multiples du plus grand. Avec 2, 3 et 4 : 4 ? 3 ne divise pas 4 ; 8 ? non plus ; 12 ? oui — c’est 12.<br>
 <b>② Chaque fraction se multiplie en haut ET en bas</b> par ce qu’il faut pour y arriver : \\(\\frac{1}{2}+\\frac{2}{3}-\\frac{3}{4}=\\frac{1\\times 6}{2\\times 6}+\\frac{2\\times 4}{3\\times 4}-\\frac{3\\times 3}{4\\times 3}=\\frac{6}{12}+\\frac{8}{12}-\\frac{9}{12}\\)<br>
-<b>Une fraction qui est déjà sur ce dénominateur</b> se multiplie par 1 : avec 2, 3 et 6, \\(\\frac{5}{6}\\) reste \\(\\frac{5}{6}\\) — écrire « × 1 » n’est pas obligatoire.<br>
+<b>Une fraction qui est déjà sur ce dénominateur</b> se recopie telle quelle : avec 2, 3 et 6, \\(\\frac{5}{6}\\) reste \\(\\frac{5}{6}\\) — on n’écrit pas « × 1 ».<br>
 <b>③ On calcule les numérateurs de gauche à droite</b>, jamais les dénominateurs : \\(\\frac{6+8-9}{12}=\\frac{5}{12}\\)<br>
 Piège : 2 × 3 × 4 = 24 est AUSSI un dénominateur commun, mais pas le plus petit — ici, il est compté faux.`;
 const RAP_SPF=`<b>Priorités des opérations, avec des fractions</b><br>
