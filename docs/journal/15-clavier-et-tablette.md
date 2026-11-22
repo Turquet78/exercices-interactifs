@@ -1886,3 +1886,54 @@ téléphone debout, sous `#paveNum:has(#paveSup .pave-plus[data-t="+"]:only-chil
 Le moteur du pavé ne change pas ; une case qui demande plusieurs touches
 garde la disposition d'avant. Contrôle au banc navigateur (`pave.plusSeul`) ;
 chronique au 7.1.3 (`docs/journal/21-terminale-espace.md`).
+
+**Puis les lettres sont venues PARTOUT, majuscules comprises, et le pavé a
+gagné « abc » (Turquet, novembre 2026 — Seconde v718, Première v460,
+Terminale v520).** Sur une capture du 8.1.1 : « une élève qui travaille sur
+tablette ou téléphone ne peut pas compléter avec la lettre g qui n'est pas
+sur son clavier virtuel. Réparer […] puis faire en sorte que les claviers
+aient toutes les touches nécessaires pour réaliser toutes les questions
+possibles d'un exercice que je pourrai créer ». La case du NOM de la
+fonction (« □′(x) = □(x) + … ») attend f ou g ; le clavier de la Terminale ne
+portait que f et x (le défaut de `kbVarsFor`), et la couche des lettres
+(clavier C) ne venait que sur une feuille de RÉDACTION (`kbLettres` cherchait
+`math-field.mf-mots`). La greffe coupant le clavier du système sur chaque
+champ MathLive, g était intapable — sans aucune erreur.
+Trois gestes. (1) Le 8.1.1 nomme ses touches : f, g, x, y sur le clavier B.
+(2) LA RÈGLE GÉNÉRALE : `kbLettres` répond « oui » sur tout écran de
+l'exercice COURANT qui porte un `math-field`, rédaction ou non, aux trois
+niveaux — une liste de lettres « utiles » ne tiendrait pas la promesse pour
+l'exercice de demain. La couche s'ajoute (une touche « clavier C »/« clavier
+B » et, hors Terminale, « espace » sur le clavier A), elle ne retire rien ; et
+elle gagne ses MAJUSCULES : chaque lettre porte `shift` (sa majuscule,
+`hide-shift`) et la rangée du bas la touche MathLive `[shift]` (⇧ : une
+frappe, une majuscule ; deux, le verrou). Treize unités sur la rangée du bas
+au lieu de douze en Terminale (le profil le dit, `unitesMax: 13`) : 51 px la
+touche la plus étroite sur une tablette debout de 768 px, mesuré. (3) LE PAVÉ :
+il ne porte que les chiffres et les touches que la case DÉCLARE
+(`data-pave-plus`) — une case qui oublie une lettre la rendait intapable. La
+touche « abc » (`paveClavierSysteme`, moteur commun aux trois niveaux) rend à
+la case le clavier de l'appareil : `inputmode="text"`, `data-pave` retiré,
+blur puis focus pour que le système relise le mode ; une case MathLive
+confiée au pavé reçoit le clavier mathématique complet. Elle a sa place dans
+chaque grille (Seconde et Première : à côté du 0 sur un téléphone debout, à
+côté de ⌫ sur une tablette debout, au milieu de la seconde rangée couchée ;
+Terminale : au bout de la rangée, à côté du 0 sur le rectangle) et se tait
+sur l'écran de connexion, où le code n'a que des chiffres (`pave-sans-abc`).
+Un piège de banc s'est montré : MathLive range la majuscule d'une touche
+dans un `span.MLK__shift` — le `textContent` de la touche « a » devient
+« aA », et les bancs qui cherchaient une touche par son texte ne trouvaient
+plus aucune lettre. Ils lisent désormais le libellé SANS ce span ; et une
+touche ⇧ se reconnaît à la CLASSE `shift`, pas à une expression régulière
+(`\bshift\b` reconnaissait `hide-shift`, et le banc cliquait « a » en
+croyant cliquer ⇧ : la case se relisait « gaa »). Après ⇧, MathLive
+redessine la touche « a » en « A ». Contrôles : banc principal — `kbLettres`
+éprouvé sur un faux document qui n'offre qu'un champ MathLive SANS mf-mots,
+la majuscule de chaque lettre et la touche ⇧ sur chaque forme ; banc
+navigateur « 11 duodevicies » — sur un écran de CALCUL de chaque niveau
+(8.1.1, 4.5 de la Seconde, 2.3.9 de la Première), les touches de l'exercice,
+la couche des lettres, « g » puis ⇧ « A » tapés au doigt et relus ; et sur la
+case du pavé, « abc » touchable, puis le pavé refermé, `inputmode="text"`, le
+focus gardé. Ce qu'aucun banc ne voit : que le clavier du SYSTÈME s'ouvre
+vraiment sur la tablette réelle après « abc » (Chromium sans écran n'en a
+pas) — à regarder en ligne.

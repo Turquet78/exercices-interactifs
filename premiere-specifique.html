@@ -407,7 +407,7 @@ section.screen svg{-webkit-user-select:none;user-select:none}
   background:#cacfd7;box-shadow:0 -5px 6px rgba(0,0,0,.08);
   /* TÉLÉPHONE DEBOUT : quatre rangées, comme le clavier mathématique */
   grid-template-columns:repeat(5,minmax(0,69px));
-  grid-template-areas:"s7 s8 s9 eff eff" "s4 s5 s6 moins moins" "s1 s2 s3 gauche droite" "s0 virg ent ent ent"}
+  grid-template-areas:"s7 s8 s9 eff eff" "s4 s5 s6 moins moins" "s1 s2 s3 gauche droite" "s0 virg abc ent ent"}
 #paveNum[hidden]{display:none}
 .pave-t{height:42px;min-width:0;border:none;border-radius:6px;background:#f0f0f0;color:#000;padding:0;
   font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:24px;font-weight:400;cursor:pointer;
@@ -430,13 +430,18 @@ section.screen svg{-webkit-user-select:none;user-select:none}
 #paveNum .pave-t[data-t="⏎"]{grid-area:ent}
 #paveNum .pave-t[data-t="←"]{grid-area:gauche}
 #paveNum .pave-t[data-t="→"]{grid-area:droite}
+/* « abc » : le clavier de l'appareil, quand le pavé ne suffit pas (moteur :
+   paveClavierSysteme) — une case de la grille dans chaque forme ; sur l'écran
+   de connexion elle se tait, sa case reste vide */
+#paveNum .pave-t[data-t="abc"]{grid-area:abc;font-size:18px;background:#a0a9b8;color:#060707}
+#paveNum.pave-sans-abc .pave-abc{visibility:hidden}
 /* TABLETTE DEBOUT (écran tactile d'au moins 600 px, la définition de la
    tablette dans toute la page) : trois rangées, les chiffres dans leurs
    colonnes — 7 8 9 / 4 5 6 / 1 2 3 —, et ⏎ haut de deux rangées, à droite,
    comme sur un pavé numérique. */
 @media (orientation:portrait) and (min-width:600px){
   #paveNum{grid-template-columns:repeat(6,minmax(0,69px));
-    grid-template-areas:"s7 s8 s9 moins eff eff" "s4 s5 s6 gauche droite ent" "s1 s2 s3 s0 virg ent"}
+    grid-template-areas:"s7 s8 s9 moins abc eff" "s4 s5 s6 gauche droite ent" "s1 s2 s3 s0 virg ent"}
   #paveNum .pave-t[data-t="⏎"]{height:auto}
 }
 /* COUCHÉ (tablette ou téléphone) : deux rangées — les chiffres de 1 à 0 avec
@@ -444,7 +449,7 @@ section.screen svg{-webkit-user-select:none;user-select:none}
    clavier mathématique. */
 @media (orientation:landscape){
   #paveNum{grid-template-columns:repeat(12,minmax(0,69px));
-    grid-template-areas:"s1 s2 s3 s4 s5 s6 s7 s8 s9 s0 virg eff" "moins moins moins gauche gauche gauche droite droite droite ent ent ent"}
+    grid-template-areas:"s1 s2 s3 s4 s5 s6 s7 s8 s9 s0 virg eff" "moins moins abc abc gauche gauche gauche droite droite droite ent ent"}
 }
 /* Les touches supplementaires d'une case (data-pave-plus) : une rangee DE
    PLUS, sous les autres, sur toute la largeur — elle n'existe que quand la
@@ -4174,7 +4179,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=459;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=460;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -31544,7 +31549,40 @@ const PAVE_MF='';
 function paveActif(){ return window.__paveForce===true || window.__paveManuel===true || (typeof matchMedia==='function' && matchMedia('(pointer: coarse)').matches); }
 function paveHTML(){
   return '<div id="paveNum" hidden>'+PAVE_TOUCHES.map(function(t){
-    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')+'<span id="paveSup"></span></div>';
+    return '<button type="button" class="pave-t'+(t==='⌫'?' pave-eff':'')+'" data-t="'+t+'">'+t+'</button>'; }).join('')
+    +'<button type="button" class="pave-t pave-abc" data-t="abc" aria-label="ouvrir le clavier de l\u2019appareil : toutes les lettres et tous les signes">abc</button>'
+    +'<span id="paveSup"></span></div>';
+}
+/* LA TOUCHE « abc » : LE CLAVIER DE L'APPAREIL, QUAND LE PAVÉ NE SUFFIT PAS
+   (demande de Turquet, novembre 2026 : « faire en sorte que [les claviers]
+   aient toutes les touches nécessaires pour réaliser toutes les questions
+   possibles d'un exercice que je pourrai créer »). Le pavé ne porte que les
+   chiffres et les touches que la case DÉCLARE (data-pave-plus) : une case
+   qui oublie de déclarer une lettre la rendait intapable au doigt, sans
+   aucune erreur. « abc » rend à la case le clavier du SYSTÈME (toutes les
+   lettres, majuscules, signes) — elle quitte le pavé jusqu'au rendu suivant,
+   et les filets de la case (× pour *, exposants, indices) restent posés
+   puisqu'ils écoutent « input ». Sur une case MathLive confiée au pavé
+   (PAVE_MF), c'est le clavier mathématique complet, lettres comprises, qui
+   s'ouvre. Aucune déclaration : la touche est sur le pavé de toute case
+   d'exercice ; elle se tait sur l'écran de connexion, où le code est fait
+   de chiffres. */
+function paveAbcVisible(el){
+  return !!(el && el.closest && el.closest('section.screen') && !el.closest('#scr-login'));
+}
+function paveClavierSysteme(el){
+  const pave=document.getElementById('paveNum');
+  if(el.tagName==='MATH-FIELD'){
+    try{ el.mathVirtualKeyboardPolicy='auto'; }catch(e){}
+    try{ if(window.mathVirtualKeyboard) window.mathVirtualKeyboard.show(); }catch(e){}
+    if(pave){ pave.hidden=true; paveCale(false); }
+    return;
+  }
+  el.removeAttribute('data-pave'); el.setAttribute('inputmode','text'); el.setAttribute('data-pave-abc','1');
+  if(pave){ pave.hidden=true; paveCale(false); }
+  /* le clavier du système relit inputmode quand la case reprend le focus */
+  try{ el.blur(); }catch(e){}
+  try{ el.focus(); }catch(e){}
 }
 /* LES TOUCHES QUE LA CASE DEMANDE EN PLUS (data-pave-plus, separees par une
    espace). Le pave porte les chiffres pour tout le monde ; une case qui attend
@@ -31748,7 +31786,7 @@ function paveMontrer(){
   const vk=window.mathVirtualKeyboard, plein=!!(vk && vk.visible);
   if(paveEstCible(a) && !plein){
     if(a.tagName==='MATH-FIELD'){ try{ a.mathVirtualKeyboardPolicy='manual'; }catch(e){} }
-    paveSup(a); pave.hidden=false; paveCale(true);
+    paveSup(a); pave.classList.toggle('pave-sans-abc', !paveAbcVisible(a)); pave.hidden=false; paveCale(true);
   } else if(!(a && pave.contains(a))){ pave.hidden=true; paveCale(false); }
 }
 function paveBrancher(){
@@ -31775,6 +31813,7 @@ function paveBrancher(){
       const el=document.activeElement;
       if(!paveEstCible(el)) return;
       const t=b.getAttribute('data-t');
+      if(t==='abc'){ paveClavierSysteme(el); return; }
       if(t==='⏎'){
         if(el.tagName==='MATH-FIELD'){ try{ el.executeCommand('commit'); }catch(er){} }
         else el.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
@@ -35773,7 +35812,10 @@ function buildKbTerm(vars, compact, portrait, lettres){
      trois rangees. Les lettres sont des FRAPPES (key), pas des symboles :
      elles s'ecrivent comme au clavier physique, liste blanche des raccourcis
      comprise (la feuille du 2.3.13 est en mode redaction). Sans redaction,
-     AUCUNE couche B : elle ne fuit pas sur les exercices de calcul. */
+     AUCUNE couche B — mais depuis novembre 2026, kbLettres
+     repond « oui » sur TOUT ecran d'exercice a champ mathematique (le 8.1.1
+     de la Terminale : « la lettre g n'est pas sur son clavier »), et chaque
+     lettre a sa majuscule sous ⇧. */
   const dispo = formeA();
   /* les touches de l'exercice (kbVarsFor) : une rangée en tête du clavier A,
      la même dans chaque forme */
@@ -35792,13 +35834,16 @@ function buildKbTerm(vars, compact, portrait, lettres){
   };
   ajouter(espace, "commit");          /* l'espace a cote de ⏎ */
   ajouter(versB, "deleteBackward");   /* « clavier B » a cote de ⌫ */
-  const L = c => ({label:c, key:c});
+  /* chaque lettre a sa MAJUSCULE sous la touche ⇧ (MathLive : « [shift] »,
+     une frappe en majuscule, deux le verrou) — un point A, une droite (AB) */
+  const L = c => (c.toUpperCase() !== c ? {label:c, key:c, class:"hide-shift", shift:{label:c.toUpperCase(), key:c.toUpperCase()}} : {label:c, key:c});
+  const maj = {label:"[shift]", width:1};
   dispo.layers.push({ id: "prem-lettres", rows: [
     "azertyuiopé".split("").map(L).concat([ {label:"⌫",class:"action",command:["performWithFeedback","deleteBackward"]} ]),
     "qsdfghjklmè".split("").map(L).concat([ {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]),
     /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
        (la lecon du clavier C de la Terminale, vue au banc navigateur) */
-    "wxcvbn".split("").map(L).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ])
+    [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ])
   ]});
   return dispo;
   /* Le clavier A, dans la forme demandee — la couche des lettres s'y ajoute
@@ -35896,9 +35941,21 @@ function kbUnites(dispo){
    redaction (mlFeuille, mode 'redaction', classe mf-mots) sur l'ecran de
    l'exercice COURANT. On exige l'exercice courant : sans cela, une feuille
    restee sur la page rendrait « vrai » pour n'importe quel identifiant. */
+/* PUIS LES LETTRES SUR TOUTE CASE MATHEMATIQUE (demande de Turquet, novembre
+   2026, sur le 8.1.1 de la Terminale : « une eleve qui travaille sur tablette
+   ou telephone ne peut pas completer avec la lettre g qui n'est pas sur son
+   clavier virtuel […] faire en sorte que les claviers aient toutes les
+   touches necessaires pour toutes les questions possibles d'un exercice que
+   je pourrai creer »). La greffe coupe le clavier du SYSTEME sur CHAQUE champ
+   mathematique (inputmode="none") : une lettre absente du clavier a l'ecran y
+   est intapable, et aucune liste de lettres « utiles » ne tient la promesse
+   pour l'exercice de demain. La couche des lettres — avec ses MAJUSCULES
+   (touche ⇧) — vient donc sur TOUT ecran d'exercice qui porte un champ
+   mathematique, redaction ou non ; elle s'AJOUTE (une touche de plus sur le
+   clavier A), elle ne retire rien. On exige toujours l'exercice COURANT. */
 function kbLettres(id){
   if(!id) return false;
-  try{ return id === currentTestId && !!document.querySelector('.screen.on math-field.mf-mots'); }catch(e){ return false; }
+  try{ return id === currentTestId && !!document.querySelector('.screen.on math-field'); }catch(e){ return false; }
 }
 
 function kbVarsFor(id){

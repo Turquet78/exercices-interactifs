@@ -630,7 +630,13 @@ module.exports = {
                                /* puis {synthese-evolutions-successives-libre} (2.5.6), la feuille du 2.2.14 sur le 2.5.4 */
                                /* et {synthese-generale-libre} (2.5.7), dont les deux écrans portent la feuille du 2.3.13 ;
                                   le 2.5.2 lui-même reste hors du clavier B : c'est le bord opposé */
-                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre', 'synthese-generale-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre', 'synthese-pourcentages-libre'] } },
+                               exercices: ['synthese-diminutions-libre-dix', 'synthese-augmentations-libre-dix', 'synthese-evolutions-successives-libre', 'synthese-generale-libre'], hors: ['synthese-diminutions-libre', 'synthese-augmentations-libre', 'synthese-pourcentages-libre'],
+                               /* PUIS LES LETTRES PARTOUT (novembre 2026, le 8.1.1 de la Terminale : « la
+                                  lettre g n'est pas sur son clavier ») : la couche vient sur TOUT écran
+                                  d'exercice qui porte un champ mathématique. « hors » ne dit plus que la
+                                  feuille reste de calcul ; ce témoin-ci, un écran de CALCUL, doit offrir
+                                  les lettres et leurs majuscules (banc navigateur, « 11 duodevicies »). */
+                               partout: { exercice: 'synthese-augmentations-libre', champ: '#salSheet math-field' } } },
     pave: { exercice: 'multiplication-posee', champ: '.mp-box', frappe: ['5'], attendu: '5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
             /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
@@ -1493,7 +1499,9 @@ module.exports = {
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
                                touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
                                exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide', 'synthese-pourcentages-redigee'],
-                               hors: ['somme-fractions-libre'] } },
+                               hors: ['somme-fractions-libre'],
+                               /* les lettres partout (novembre 2026) : le témoin d'un écran de CALCUL */
+                               partout: { exercice: 'somme-fractions-libre', champ: '#sflSheet math-field' } } },
     pave: { exercice: 'image-nombre', champ: '#img-c', frappe: ['5', ',', '5'], attendu: '5,5',
             touches: ['1','2','3','4','5','6','7','8','9','0',',','\u2212','\u232b','\u23ce','\u2190','\u2192'],
             /* LE PAVÉ A LA FORME DU CLAVIER MATHÉMATIQUE (demande de Turquet,
@@ -2829,7 +2837,7 @@ module.exports = {
                        unités par rangée au plus — plus, et toutes les touches du
                        téléphone rétréciraient encore. */
                     lettres: { versC: 'clavier C', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b',
-                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 12,
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 13,   /* 13 : la touche ⇧ des majuscules (novembre 2026) */
                                exercices: ['limites-redaction', 'tvi-redaction', 'tvi-contre-exemples'],
                                /* Les zones de rédaction du TVI (3.3, 3.4) sont devenues des
                                   feuilles de rédaction pour recevoir le clavier C (« mets aussi
@@ -2838,7 +2846,14 @@ module.exports = {
                                   relit la ligne par le chemin du juge. */
                                symboles: { 'tvi-redaction': ['#tvi2InfBtn', '#tvi2AlphaBtn', '#tvi2AppBtn'],
                                            'tvi-contre-exemples': ['#tvi3InfBtn', '#tvi3AlphaBtn', '#tvi3AppBtn'],
-                                           relu: '\u221e\u03b1\u2208' } },
+                                           relu: '\u221e\u03b1\u2208' },
+                               /* PUIS LES LETTRES PARTOUT (Turquet, novembre 2026, sur le 8.1.1 :
+                                  « la lettre g n'est pas sur son clavier ») : le clavier C vient sur
+                                  TOUT écran d'exercice qui porte un champ mathématique. Témoin : la
+                                  case du NOM de la fonction au 8.1.1 — f, g, x et y sur le clavier B
+                                  (kbVarsFor), puis « g » et ⇧ « A » tapés au clavier C (banc
+                                  navigateur, « 11 duodevicies »). */
+                               partout: { exercice: 'equadiff-verifier-solution', champ: '#scr-edv math-field.edv-let', variables: ['f', 'g', 'x', 'y'] } },
                     /* Et sur une TABLETTE, les touches sont légèrement réduites :
                        le banc navigateur ouvre l'exercice déclaré à la taille
                        d'une tablette et mesure la touche RENDUE contre ces

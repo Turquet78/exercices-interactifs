@@ -18845,7 +18845,7 @@ if(require.main === module) (async () => {
             const el = document.querySelector(champ), pave = document.getElementById('paveNum');
             const r = pave.getBoundingClientRect(), c = el.getBoundingClientRect();
             const vis = b => { const q = b.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
-            const ks = [...pave.querySelectorAll('.pave-t')].filter(vis).filter(b => !b.classList.contains('pave-plus'));
+            const ks = [...pave.querySelectorAll('.pave-t')].filter(vis).filter(b => !b.classList.contains('pave-plus') && !b.classList.contains('pave-abc'));
             const rects = ks.map(b => b.getBoundingClientRect());
             const tops = []; rects.forEach(q => { if(!tops.some(t => Math.abs(t - q.top) < 4)) tops.push(q.top); });
             const k = document.getElementById('testCtrls');
@@ -19768,7 +19768,9 @@ if(require.main === module) (async () => {
         const touche = async t => s.page.evaluate(t => {
           const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return null;
           const c = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
-            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2 && el.textContent.trim() === t; });
+            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2
+              /* le libellé SANS sa majuscule (span.MLK__shift, novembre 2026 : la touche ⇧) */
+              && [...el.childNodes].filter(n => !(n.classList && n.classList.contains('MLK__shift'))).map(n => n.textContent).join('').trim() === t; });
           if(!c) return null; const q = c.getBoundingClientRect();
           return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2), coupe: c.scrollWidth > c.clientWidth + 1 };
         }, t);
@@ -19967,7 +19969,9 @@ if(require.main === module) (async () => {
         const touche = async t => s.page.evaluate(t => {
           const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return null;
           const c = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
-            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2 && el.textContent.trim() === t; });
+            .find(el => { const q = el.getBoundingClientRect(); return q.width > 2 && q.height > 2
+              /* le libellé SANS sa majuscule (span.MLK__shift, novembre 2026 : la touche ⇧) */
+              && [...el.childNodes].filter(n => !(n.classList && n.classList.contains('MLK__shift'))).map(n => n.textContent).join('').trim() === t; });
           if(!c) return null; const q = c.getBoundingClientRect();
           return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) };
         }, t);
@@ -21122,6 +21126,132 @@ if(require.main === module) (async () => {
         verifier('au 6.5, la touche ⏎ du clavier à l\'écran (commit) ouvre la ligne suivante',
           ligne3, souci || 'aucune ligne 3 après le commit');
         verifier('l\'équation du 6.5 ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+    /* ---- 11 duodevicies. TOUTE case mathématique a les lettres, majuscules comprises ----
+       Signalé par Turquet (novembre 2026), sur le 8.1.1 de la Terminale : « une
+       élève qui travaille sur tablette ou téléphone ne peut pas compléter avec
+       la lettre g qui n'est pas sur son clavier virtuel […] faire en sorte que
+       les claviers aient toutes les touches nécessaires pour réaliser toutes les
+       questions possibles d'un exercice que je pourrai créer ». La greffe coupe
+       le clavier du système sur chaque champ MathLive : la couche des lettres
+       (clavier C en Terminale, B ailleurs) vient donc sur TOUT écran d'exercice
+       qui porte un champ mathématique, plus seulement là où l'on rédige. Le
+       banc jsdom tient la règle (kbLettres, la touche ⇧ et la majuscule de
+       chaque lettre) ; seul un navigateur sait si la couche se REND sur un écran
+       de CALCUL, et si « g » puis ⇧ « A » s'écrivent dans la case. Tablette
+       tactile debout, l'exercice témoin du profil (clavierEcran.lettres.partout),
+       sa case touchée, puis : (Terminale) les touches de l'exercice sur le
+       clavier B ; la couche des lettres ; « g », ⇧, « a » tapés au doigt ; la
+       case relue. Et le PAVÉ des cases en texte porte « abc », qui rend le
+       clavier de l'appareil (inputmode="text") à la case. */
+    titre('11 duodevicies. TOUTE CASE MATHÉMATIQUE A LES LETTRES, MAJUSCULES COMPRISES');
+    if(!(P.clavierEcran && P.clavierEcran.lettres && P.clavierEcran.lettres.partout)){
+      ignorer('sur un écran de calcul, le clavier à l\'écran porte les lettres et leurs majuscules', 'ce fichier ne déclare pas de témoin (clavierEcran.lettres.partout)');
+    } else {
+      const KL = P.clavierEcran.lettres, T = KL.partout;
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('sur un écran de calcul, le clavier à l\'écran porte les lettres et leurs majuscules', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), T.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        const aChamp = await s.page.evaluate(q => !!document.querySelector(q), T.champ);
+        const redaction = await s.page.evaluate(() => !!document.querySelector('.screen.on math-field.mf-mots'));
+        if(aChamp){
+          await s.page.click(T.champ); await s.page.waitForTimeout(700);
+          await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
+        }
+        const touche = async t => s.page.evaluate(t => {
+          const kb = document.querySelector('body > .ML__keyboard'); if(!kb) return null;
+          const c = [...kb.querySelectorAll('.MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+            .find(el => { const q = el.getBoundingClientRect(); if(q.width <= 2 || q.height <= 2) return false;
+              if(t === '⇧') return el.classList.contains('shift');
+              /* le libellé SANS la majuscule que MathLive range dans span.MLK__shift */
+              return [...el.childNodes].filter(n => !(n.classList && n.classList.contains('MLK__shift'))).map(n => n.textContent).join('').trim() === t; });
+          if(!c) return null; const q = c.getBoundingClientRect();
+          return { x: Math.round(q.left + q.width / 2), y: Math.round(q.top + q.height / 2) };
+        }, t);
+        const toucheRendue = async (noms, ms) => { const t0 = Date.now();
+          while(Date.now() - t0 < (ms || 3000)){ for(const n of noms){ const k = await touche(n); if(k) return k; } await s.page.waitForTimeout(150); }
+          return null; };
+        /* Terminale : les touches de l'exercice (kbVarsFor) sont sur le clavier B */
+        if(T.variables){
+          const vB = aChamp ? await toucheRendue([KL.versB || 'clavier B']) : null;
+          let vus = [];
+          if(vB){ await s.page.mouse.click(vB.x, vB.y); await s.page.waitForTimeout(400);
+            for(const v of T.variables) if(await touche(v)) vus.push(v); }
+          verifier('« ' + T.exercice + ' » : les touches ' + T.variables.join(', ') + ' de l\'exercice sont sur le clavier à l\'écran',
+            vus.length === T.variables.length,
+            !aChamp ? 'aucune case ' + T.champ + ' sur l\'écran' : !vB ? 'aucune touche « clavier B »' : 'trouvées : ' + (vus.join(', ') || 'aucune'));
+        }
+        const vc = aChamp ? await toucheRendue([KL.versC]) : null;
+        let lu = null, souci = '';
+        if(vc){
+          await s.page.mouse.click(vc.x, vc.y); await s.page.waitForTimeout(400);
+          await s.page.evaluate(q => { const mf = document.querySelector(q); try{ mf.setValue(''); }catch(e){} }, T.champ);
+          for(const t of ['g', '⇧', 'A']){
+            /* après ⇧, MathLive redessine la touche « a » en « A » */
+            const k = await toucheRendue([t], 1500); if(!k){ souci = 'touche « ' + t + ' » introuvable'; break; }
+            await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(200);
+          }
+          lu = await s.page.evaluate(q => { const mf = document.querySelector(q); return mf ? mf.getValue() : null; }, T.champ);
+        }
+        verifier('sur l\'écran de calcul de « ' + T.exercice + ' » (sans rédaction), « ' + KL.versC + ' » est là et mène aux lettres',
+          aChamp && !redaction && !!vc,
+          !aChamp ? 'aucune case ' + T.champ + ' sur l\'écran' : redaction ? 'le témoin porte une feuille de rédaction : il ne témoigne pas pour un écran de calcul'
+            : 'aucune touche « ' + KL.versC + ' » sur le clavier rendu');
+        verifier('au doigt, « g », puis ⇧ et « A », s\'écrivent dans la case : « gA »',
+          String(lu || '').replace(/\s+/g, '') === 'gA', souci || (lu === null ? 'rien n\'a pu être tapé' : 'la case se relit « ' + lu + ' »'));
+        verifier('les lettres sur un écran de calcul ne lèvent aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+    /* … et le PAVÉ des cases en texte porte « abc » : une case qui aurait oublié
+       de déclarer une lettre (data-pave-plus) n'est jamais intapable */
+    if(!(P.pave && P.pave.exercice)){
+      ignorer('le pavé porte « abc », qui rend à la case le clavier de l\'appareil', 'ce fichier ne déclare pas de pavé');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      if(await connecter(s.page) !== 'scr-space'){
+        ignorer('le pavé porte « abc », qui rend à la case le clavier de l\'appareil', 'connexion impossible');
+      } else {
+        await s.page.evaluate(i => openTest(i), P.pave.exercice);
+        await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => {
+          const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0);
+          if(b) b.click();
+        });
+        await s.page.waitForTimeout(900);
+        let r = null;
+        try{
+          await s.page.focus(P.pave.champ); await s.page.waitForTimeout(400);
+          const avant = await s.page.evaluate(q => { const b = document.querySelector('#paveNum .pave-abc'); const q2 = b && b.getBoundingClientRect();
+            return { pave: !document.getElementById('paveNum').hidden, abc: !!(q2 && q2.width > 30 && q2.height > 30 && getComputedStyle(b).visibility !== 'hidden'),
+                     dedans: !!(q2 && q2.right <= window.innerWidth + 1 && q2.left >= -1), mode: document.querySelector(q).getAttribute('inputmode') }; }, P.pave.champ);
+          if(avant.abc) await s.page.click('#paveNum .pave-abc');
+          await s.page.waitForTimeout(300);
+          const apres = await s.page.evaluate(q => { const el = document.querySelector(q);
+            return { pave: !document.getElementById('paveNum').hidden, mode: el.getAttribute('inputmode'), focus: document.activeElement === el }; }, P.pave.champ);
+          r = { avant, apres };
+        }catch(e){ r = { souci: e.message }; }
+        verifier('sur une case du pavé, la touche « abc » est là, touchable et dans l\'écran',
+          !!r && !r.souci && r.avant.pave && r.avant.abc && r.avant.dedans && r.avant.mode === 'none',
+          r && r.souci ? r.souci : JSON.stringify(r && r.avant));
+        /* la frappe elle-même n'est pas exigée : la case témoin peut filtrer
+           (une case d'opération posée n'accepte qu'un chiffre) — le clavier du
+           système, lui, n'a pas d'écran à mesurer ici */
+        verifier('« abc » rend à la case le clavier de l\'appareil : pavé refermé, inputmode="text", la case garde le focus',
+          !!r && !r.souci && !r.apres.pave && r.apres.mode === 'text' && r.apres.focus,
+          r && r.souci ? r.souci : JSON.stringify(r && r.apres));
+        /* le bord opposé : sur l'écran de connexion, le code n'a que des chiffres */
+        verifier('la touche « abc » du pavé ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
     }

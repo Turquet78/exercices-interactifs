@@ -24268,8 +24268,10 @@ function clavierCouches(w, P){
    · « clavier C » est sur A ET sur B, et y MÈNE (une touche qui mènerait
      ailleurs se verrait ici, pas sur l'écran) ;
    · le jeu des couches A et B ne perd RIEN : seule « clavier C » s'y ajoute ;
-   · le bord opposé : sans rédaction, AUCUNE couche C — elle ne fuit pas sur
-     les exercices qui n'en ont pas l'usage ;
+   · le drapeau baissé, AUCUNE couche C (buildKbTerm ne l'invente pas) ; et
+     depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+     clavier »), kbLettres le LÈVE sur tout écran d'exercice à champ
+     mathématique, rédaction ou non — chaque lettre avec sa majuscule sous ⇧ ;
    · applyKbLayout PASSE le drapeau (la moitié morte d'un correctif), kbLettres
      ne répond que pour l'exercice COURANT, et la feuille de rédaction POSE la
      classe que kbLettres cherche.
@@ -24303,6 +24305,12 @@ function clavierLettres(w, P){
         if(t.indexOf(c) < 0 && !touchesC.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier C (' + quelle + ')');
       });
       if(C.effacer && t.indexOf(C.effacer) < 0) pbs.push('le clavier C (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+      /* les MAJUSCULES (novembre 2026) : chaque lettre a sa majuscule sous ⇧, et la touche ⇧ est là */
+      'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c => {
+        const k = touchesC.find(x => x && x.key === c);
+        if(k && !(k.shift && k.shift.key === c.toUpperCase())) pbs.push('la lettre « ' + c + ' » n\'a pas sa majuscule sous ⇧ (clavier C, ' + quelle + ')');
+      });
+      if(!touchesC.some(k => k === '[shift]' || (k && k.label === '[shift]'))) pbs.push('le clavier C (' + quelle + ') n\'a pas de touche ⇧ : aucune majuscule ne s\'écrit');
       if(!touchesC.some(k => String(k.label || '') === C.entree && JSON.stringify(k.command || '').indexOf('commit') >= 0))
         pbs.push('le clavier C (' + quelle + ') n\'a pas de touche « ' + C.entree + ' » qui valide');
       if(!touchesC.some(k => mene(k, ca[0].id) && String(k.label || '') === C.versA))
@@ -24344,7 +24352,12 @@ function clavierLettres(w, P){
     if(non !== 2) pbs.push('applyKbLayout pose ' + non + ' couche(s) hors rédaction');
     let kl = null;
     const champ = { vu: true };
-    const doc = { querySelector: q => (/math-field\.mf-mots/.test(q) && champ.vu) ? {} : null };
+    /* depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+       clavier »), les lettres viennent sur TOUT écran d'exercice qui porte un
+       champ mathématique, rédaction ou non : le faux document ne répond qu'à
+       une requête de champ MathLive SANS exiger mf-mots — un kbLettres qui
+       redeviendrait réservé à la rédaction rougit ici */
+    const doc = { querySelector: q => (/math-field/.test(q) && !/mf-mots/.test(q) && champ.vu) ? {} : null };
     try{ kl = cur => new Function('document', 'currentTestId', 'return (' + fL.texte + ')')(doc, cur); }
     catch(e){ pbs.push('kbLettres ne s\'évalue pas : ' + e.message); }
     if(kl){
@@ -24427,6 +24440,12 @@ function clavierLettresPremiere(w, P){
       if(cB.indexOf(c) < 0 && !tB.some(k => String(k.label || '') === c)) pbs.push('la touche « ' + c + ' » manque au clavier B (' + quelle + ')');
     });
     if(C.effacer && cB.indexOf(C.effacer) < 0) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.effacer + ' »');
+    /* les MAJUSCULES (novembre 2026) : chaque lettre a sa majuscule sous ⇧, et la touche ⇧ est là */
+    'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c => {
+      const k = tB.find(x => x && x.key === c);
+      if(k && !(k.shift && k.shift.key === c.toUpperCase())) pbs.push('la lettre « ' + c + ' » n\'a pas sa majuscule sous ⇧ (clavier B, ' + quelle + ')');
+    });
+    if(!tB.some(k => k === '[shift]' || (k && k.label === '[shift]'))) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche ⇧ : aucune majuscule ne s\'écrit');
     if(!tB.some(k => String(k.label || '') === C.entree && commit(k))) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.entree + ' » qui valide');
     if(!tB.some(k => mene(k, A.id) && String(k.label || '') === C.versA)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.versA + ' » qui ramène au clavier A');
     if(!tB.some(k => k.key === ' ' && String(k.label || '') === C.espace)) pbs.push('le clavier B (' + quelle + ') n\'a pas de touche « ' + C.espace + ' » qui frappe une espace');
@@ -24479,7 +24498,12 @@ function clavierLettresPremiere(w, P){
     });
     let kl = null;
     const champ = { vu: true };
-    const doc = { querySelector: q => (/math-field\.mf-mots/.test(q) && champ.vu) ? {} : null };
+    /* depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
+       clavier »), les lettres viennent sur TOUT écran d'exercice qui porte un
+       champ mathématique, rédaction ou non : le faux document ne répond qu'à
+       une requête de champ MathLive SANS exiger mf-mots — un kbLettres qui
+       redeviendrait réservé à la rédaction rougit ici */
+    const doc = { querySelector: q => (/math-field/.test(q) && !/mf-mots/.test(q) && champ.vu) ? {} : null };
     try{ kl = cur => new Function('document', 'currentTestId', 'return (' + fL.texte + ')')(doc, cur); }
     catch(e){ pbs.push('kbLettres ne s\'évalue pas : ' + e.message); }
     if(kl){
