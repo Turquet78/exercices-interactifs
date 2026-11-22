@@ -16522,7 +16522,7 @@ function coordonneesDevoirFractions(w, P){
         const fr=el(i+'-a-fr');
         if(classe(el(i+'-an'))!=='ok' || classe(el(i+'-ad'))!=='bad' || !fr || fr.querySelectorAll(':scope > .mf-cor').length!==1 || test.score!==vdfCasesDe(q).length-1) vus.push('8.4.15 : une fraction en deux cases ne se juge pas case par case (score '+test.score+' / '+vdfCasesDe(q).length+')');
         /* la même fraction, écrite autrement (2/4 pour 1/2) : les deux cases justes */
-        TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.idx=4; renderVdf(); clearTimeout(test.fbTimer);
+        const memeQ=test.questions; TESTS[d.exercice].start(); clearTimeout(test.fbTimer); test.questions=memeQ; test.idx=4; renderVdf(); clearTimeout(test.fbTimer);
         const q3=test.questions[4], c3=vdfPlan(q3).ch.find(function(x){ return x.id===c.id; });
         vdfEcrireT(c3,'a',c3.t1); el(i+'-an').value=String(2*c3.t1[0]); el(i+'-ad').value=String(2*c3.t1[1]);
         const sj=vdfJuge(q3).filter(function(s){ return s.id===i+'-an'||s.id===i+'-ad'; });
