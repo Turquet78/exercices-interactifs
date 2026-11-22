@@ -997,7 +997,7 @@ calcule pas. 106 jeux possibles. L'exemple du rappel suit (30 + 20 + 40 =
 99 tableaux différents ; une séance menée à sa fin en entraînement et en
 soutien, à 1280 et à 390 px, sans erreur JavaScript.
 
-**Puis une seconde partie : cliquer les trois cases de A ∪ B (v458).**
+**Puis une seconde partie : cliquer les trois cases de A ∪ B (v459 ; la 4.11 avait pris la v458 le même jour).**
 Demande de Turquet : « fais la suite de cet exercice avec un nouveau tableau,
 un nouvel énoncé, où on demande de cliquer sur les 3 cases représentant
 A ∪ B ; quand c'est bien cliqué, mettre en couleur la case ; tant que les 3
