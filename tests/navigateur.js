@@ -3456,6 +3456,10 @@ if(require.main === module) (async () => {
         !!pe && pe.entete === '%PDF-' && pe.pages >= 1 && pe.octets > 20000 && /\.pdf$/.test(pe.nom),
         pe ? pe.nom + ' : ' + pe.octets + ' octets, en-tête « ' + pe.entete + ' », ' + pe.pages + ' page(s)'
            : 'aucun téléchargement — la page dit « ' + toastE + ' »');
+      /* le bord opposé de « avec correction » : ce devoir-ci ne l'a pas */
+      const sansOption = await s.page.evaluate(() => !!document.getElementById('dmcPdfBtn'));
+      verifier('sans l\'option « avec correction », l\'écran papier de l\'élève ne propose aucune correction', !sansOption,
+        'un bouton #dmcPdfBtn est là alors que le devoir n\'a pas l\'option');
       verifier('les bibliothèques du PDF ne se chargent qu\'au premier PDF, et sont bien chargées',
         servies.indexOf('html2canvas') >= 0 && servies.indexOf('jspdf') >= 0, 'servies : ' + (servies.join(', ') || 'aucune'));
       const ligne = await s.page.evaluate(() => {
@@ -3484,6 +3488,56 @@ if(require.main === module) (async () => {
           !!pp && pp.entete === '%PDF-' && !!pe && pp.pages === pe.pages,
           pp ? pp.pages + ' page(s) contre ' + (pe ? pe.pages : '?') + ' chez l\'élève' : 'aucun téléchargement côté professeur');
         await s.page.evaluate(() => { REJEU = false; });
+      }
+      /* « AVEC CORRECTION » (demande de Turquet, novembre 2026) : une option
+         du devoir ; l'élève qui fait un exercice sur papier télécharge aussi
+         sa correction — la photo de l'écran CORRIGÉ par la page, aux mêmes
+         étapes que l'exercice en ligne — et, revenu sur l'exercice, RETROUVE
+         son énoncé (le même tirage, aucun nouvel envoi) et sa correction.
+         Les DEUX BORDS : sans l'option, aucun bouton de correction ; avec
+         elle, le bouton, un vrai PDF, des valeurs écrites. Et la photo ne
+         laisse rien derrière elle : ni note, ni mode, ni tirage changés. */
+      {
+        const garde = await s.page.evaluate(() => ensureDevoir({ id:'x', correction:true }, 0).correction === true
+          && !('correction' in ensureDevoir({ id:'y' }, 0)));
+        verifier('l\'option « avec correction » survit au rechargement de la configuration (ensureDevoir)', garde,
+          'ensureDevoir efface le drapeau, ou l\'écrit quand il n\'est pas coché');
+        const ex = DP.exercice;
+        const avant = await s.page.evaluate(() => ({ corps: document.getElementById('dmeCorps').textContent,
+          envois: (window.__faux.journal || []).filter(j => j.op === 'insert' && j.table === TABLE_SIG).length }));
+        await s.page.evaluate(ex => { dmeRetour(); mesDevoirs = [{ id:'dm-pdf', num:4, actif:true, titre:'Devoir du banc', correction:true,
+          exercices:[{ id:ex, modes:['train'] }] }]; }, ex);
+        await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf', ex), ex);
+        await s.page.waitForTimeout(1200);
+        const retour = await s.page.evaluate(() => ({ ecran: (document.querySelector('.screen.on') || {}).id,
+          corps: document.getElementById('dmeCorps').textContent, bouton: !!document.getElementById('dmcPdfBtn'),
+          envois: (window.__faux.journal || []).filter(j => j.op === 'insert' && j.table === TABLE_SIG).length }));
+        verifier('revenu sur l\'exercice, l\'élève retrouve le MÊME énoncé, sans nouvel envoi au professeur',
+          retour.ecran === 'scr-dmenonce' && retour.corps === avant.corps && retour.envois === avant.envois,
+          'écran ' + retour.ecran + ', même énoncé : ' + (retour.corps === avant.corps) + ', envois ' + avant.envois + ' → ' + retour.envois);
+        verifier('avec l\'option, l\'écran retrouvé propose la correction en PDF', retour.bouton, 'aucun bouton #dmcPdfBtn');
+        const photo = await s.page.evaluate(async () => {
+          const q = JSON.stringify(test.questions), mode = currentMode, notes = (window.__faux.journal || []).filter(j => j.table === 'resultats').length;
+          const h = await dmCorrigeHTML();
+          const d = document.createElement('div'); d.innerHTML = h || '';
+          return { vals: d.querySelectorAll('.dmc-val').length, rouges: d.querySelectorAll('.bad').length,
+            boutons: d.querySelectorAll('button').length, memeTirage: JSON.stringify(test.questions) === q,
+            mode: currentMode === mode, rejeu: REJEU === false, ecran: (document.querySelector('.screen.on') || {}).id,
+            notes: (window.__faux.journal || []).filter(j => j.table === 'resultats').length - notes };
+        });
+        verifier('la correction écrit les valeurs dans les étapes de l\'exercice, sans rouge ni bouton',
+          photo.vals >= 3 && photo.rouges === 0 && photo.boutons === 0, JSON.stringify(photo));
+        verifier('la photo de la correction ne laisse rien derrière elle : ni note, ni mode, ni tirage changés',
+          photo.memeTirage && photo.mode && photo.rejeu && photo.notes === 0 && photo.ecran === 'scr-dmenonce', JSON.stringify(photo));
+        const [dlCor] = await Promise.all([
+          s.page.waitForEvent('download', { timeout: 90000 }).catch(() => null),
+          s.page.click('#dmcPdfBtn'),
+        ]);
+        const pc = await lirePdf(dlCor);
+        verifier('l\'élève télécharge un vrai PDF de la correction',
+          !!pc && pc.entete === '%PDF-' && pc.pages >= 1 && pc.octets > 20000 && /^correction-/.test(pc.nom),
+          pc ? pc.nom + ' : ' + pc.octets + ' octets, ' + pc.pages + ' page(s)'
+             : 'aucun téléchargement — la page dit « ' + await s.page.evaluate(() => document.getElementById('toast').textContent) + ' »');
       }
       await s.nav.close(); s = null;
     }

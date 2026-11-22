@@ -2085,3 +2085,62 @@ autre compte (le double refusant l'insertion tant que la session n'est pas
 celle de l'élève) n'empêche plus la note de partir, sans bandeau ; « Se
 déconnecter » oublie le code. La Seconde et la Terminale n'ont ni le filet ni
 la reconnexion.
+
+**Puis le devoir a reçu l'option « Avec correction » — et l'élève sur papier
+télécharge aussi sa correction, puis la RETROUVE** (Terminale v519, demande
+de Turquet, novembre 2026 : « une option "avec correction" quand je crée un
+devoir maison ; si l'élève demande la version papier en PDF, il peut avoir
+aussi accès à la correction en PDF de l'exercice, présentée avec les mêmes
+étapes que la version en ligne ; quand il revient sur ce devoir et sur cet
+exercice, il retrouve son PDF avec l'énoncé et le PDF de la correction
+associé »).
+*L'option* : une case de l'éditeur (`#dmCorrection`), rangée `correction:true`
+sur le devoir — et RECOPIÉE par `ensureDevoir`, sans quoi elle s'effaçait au
+premier rechargement (le piège du drapeau « bonus »). Le défaut ne s'écrit pas.
+*La correction est la photo de l'écran CORRIGÉ par la page* (`dmCorrigeHTML`,
+`dmCorrigeQ`) : chaque question est rejouée, vérifiée comme en entraînement,
+photographiée, chaque case devenue sa valeur à l'encre verte. Aucun exercice
+ne déclare sa correction : les étapes sont celles de l'écran, à la lettre.
+**Une vérification sur des cases vides ne corrige pas** — « Complète au moins
+une case », mesuré sur 76 exercices sur 84. La correction se fait donc écrire
+par TOURS : chaque case reçoit une réponse d'essai (« 0 », « 1 »… ; le choix
+suivant d'un menu), la page vérifie, ce qu'elle marque `ok`/`sol` est retenu ;
+au tour suivant l'écran est redessiné neuf, les réponses retenues posées, les
+autres réessayées ; un exercice à étapes (le nombre de racines, puis le
+tableau) passe ses étapes dans le même tour. Le tour retenu est corrigé
+(`test.locked`) et sans rouge, sinon le moins rouge. **Une réponse d'essai
+n'est jamais imprimée** : une case restée rouge devient un pointillé — ou
+cède sa PLACE au badge quand la page a écrit la correction À CÔTÉ (badge
+`.mf-cor` de `corrCase`, ou `.sol`, cherché jusqu'à trois niveaux
+d'enveloppe) : au premier essai le 7.1.1 imprimait un pointillé devant chaque
+badge, au second le 4.1.1 imprimait « ( ) e^(0,5x) » — la case retirée
+d'entre ses parenthèses, le badge resté dehors. Une photo où la page n'a
+RIEN corrigé (ni valeur, ni `sol`, ni `mf-cor`, ni trait `…-cor` d'une
+figure) n'est pas une correction : la question le dit (« se fait avec ton
+professeur ») au lieu de redire l'énoncé.
+**Rien ne reste derrière la photo** : `REJEU` (aucune note), le mode, la
+boîte des cases vides, `toast` (les réponses d'essai ne parlent pas à
+l'élève) et `sb.functions.invoke` — l'IA qu'appellent certaines
+vérifications, coupée : la page juge seule — sont rendus à la fin, et le
+tirage avec eux. Un voile (« Préparation de la correction… ») couvre les
+écrans rejoués.
+*Retrouver* : `dmePapierRetrouver` relit la ligne d'envoi de CET exercice de
+CE devoir dans les signalements (l'élève lit ses propres lignes, migration
+008 ; aucune migration) et `dmeRevoir` la remet en place par le même chemin
+que la vue du professeur (`dmeRestaurer`) : même tirage, aucun nouvel envoi,
+le bouton de l'énoncé et celui de la correction. Le professeur a lui aussi
+« 📥 PDF de la correction » sur l'énoncé d'un élève.
+**Mesuré sur les 83 exercices qui s'énoncent d'emblée sur papier** : 72
+écrivent leur correction. Restent sans correction, nommés : les rédactions que
+seule l'IA relit ({limites-redaction}, {tvi-redaction},
+{tvi-contre-exemples}, {suite-auxiliaire-redaction}, {recurrence-redaction}),
+le tableau de signes d'un produit et d'un quotient ({signe-produit},
+{signe-quotient-carre} : ils exigent TOUTES leurs cases avant de juger, même
+en entraînement), {tvi-lecture-graphique}, {etude-exponentielle} (sa feuille
+b), {suite-vocabulaire}, {arbre-probabilites} ; {espace-coplanaires} et
+{espace-bac-cube} ont une ou deux questions sans correction. **Ce qu'aucun banc ne voit** : si une ligne d'envoi est supprimée
+par le professeur (ou effacée par « J'ai lu » après une réponse), l'élève
+retombe sur un nouvel énoncé, envoyé de nouveau. Banc navigateur, 6 sexies
+ter : les deux bords (sans l'option, aucun bouton), l'option gardée par
+`ensureDevoir`, le même énoncé retrouvé sans envoi, des valeurs sans rouge ni
+bouton, l'état rendu, et un vrai PDF de correction.
