@@ -290,3 +290,25 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
   Et le banc navigateur choisit un mode par `prendreMode()` : une pause
   REMPLACE la carte de départ par « Reprendre », qui ouvre maintenant le
   choix — le banc y clique « Continuer », le geste qu'il supposait.
+
+**Le bouton « retour » du navigateur vaut « Sortie » pendant un exercice — et
+ramène en arrière sur le site partout ailleurs** (demande de Turquet, novembre
+2026 ; Seconde v716, Première v458, Terminale v517). Bloc
+`#retour-navigateur`, juste avant `#sortie-reprise-css`, les trois fichiers.
+Tant que `#sortieLien` se montre, une entrée de garde (`{exoGarde:1}`, même
+adresse) est poussée dans l'historique ; « retour » (bouton, geste de la
+tablette, touche du téléphone) la retire, et `popstate` appelle
+`sortirExercice()` : brouillon gardé, retour à l'écran d'avant l'exercice.
+Hors exercice, aucune garde : « retour » quitte la page comme avant.
+Rien à déclarer : la garde suit l'attribut `hidden` du lien
+(`MutationObserver`), que `show()` règle — un exercice ajouté demain est
+couvert. Le piège tenu : un lien caché par un AUTRE chemin (« Sortie »
+cliqué, exercice fini) laissait la garde au-dessus de l'historique, et le
+« retour » suivant n'aurait rien fait de visible ; elle est retirée par un
+`history.back()` que la page ignore (`ignorer`). Ce que le banc ne voit pas :
+Chrome saute au « retour » les entrées poussées sans geste de l'élève — la
+garde est posée juste après son clic sur un mode, et l'élève clique de
+nouveau dans l'exercice, ce qui la rend valable. Banc : `tests/sortie.js`
+(garde posée pendant l'exercice, retirée après « Sortie », `history.back()`
+ramène aux modes avec un brouillon de plus). Éprouvé par sabotage : la garde
+coupée, « retour » quittait la page et le banc rougit sur les trois fenêtres.
