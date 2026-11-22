@@ -2573,3 +2573,25 @@ Contrôle (`troisFractionsPpcm`) : × 4 tapé en haut s'écrit en bas, × 2 tap�
 en bas s'écrit en haut ; la grille porte ses quatorze morceaux dans l'ordre
 des sept colonnes. L'alignement lui-même ne se mesure que dans un navigateur :
 l'essai l'a mesuré, aucun banc ne le tient.
+
+**Puis aucune multiplication par 1, et plus de question rédigée au 4.11
+(novembre 2026, Première v458).** Demandes de Turquet : « ne pas écrire les
+multiplications quand c'est 1 pour mettre au même dénominateur » ; puis
+« enlever dans cet exercice la partie qui demande de rédiger le calcul de la
+somme de 3 fractions ».
+
+* **La fraction déjà sur le dénominateur commun se recopie telle quelle**
+  sur la ligne des produits (`sfTermeHTML`), sans cases « × » : la paire
+  facultative du « × 1 » n'existe plus. `tsfFicheHTML` choisit par `tsfFac`,
+  `tsfCases` ne liste que les paires dessinées ; le juge lit une paire absente
+  comme vide, et `tsfFac` la tient pour juste — rien d'autre n'a changé. La
+  grille garde ses sept colonnes : la fraction recopiée est centrée dans la
+  sienne, sa jumelle de la seconde ligne dessous.
+* **Le 4.11 n'a plus de rédigée** : `test.redac` faux, huit questions guidées
+  (`distinctes(dmNbQuestions(8), tsf3Gen)`), « Question suivante » juste après
+  la vérification. Le calcul rédigé reste au 4.12, sur les mêmes énoncés.
+
+Contrôle (`troisFractionsPpcm`) : la séance n'a aucune question rédigée ; 3/8
+(déjà sur 8) n'a pas de cases « × » et n'est pas dans la liste des cases, les
+deux autres en ont ; la copie juste sans « × 1 » vaut le point et le message ne
+dit pas qu'il manque des cases ; la grille se lit « =tsPsP_=fsfsfF ».

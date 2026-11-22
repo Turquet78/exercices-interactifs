@@ -8624,7 +8624,7 @@ function multiplierFractions(w, P){
      l'accepte pas d'office. Le 4.10, témoin, garde son dénominateur libre. */
 function troisFractionsPpcm(w, P){
   const R = P.troisFractionsPpcm;
-  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, le × 1 facultatif, la mise en page de la fiche, aucun nombre au-dessus de 20, la simplification du 4.1 ; {trois-fractions-ppcm-redige} tout rédigé';
+  const nom = '{trois-fractions-ppcm} : trois dénominateurs de la liste, le plus petit dénominateur commun exigé, aucune multiplication par 1 écrite, la mise en page de la fiche, aucun nombre au-dessus de 20, la simplification du 4.1 ; {trois-fractions-ppcm-redige} tout rédigé';
   if(!R){ ignorer(nom, 'exercice propre à la Première'); return; }
   verifierEval(w, nom, `(function(){
     const vus=[], id='trois-fractions-ppcm', LISTE=${JSON.stringify(R.denos)};
@@ -8637,13 +8637,13 @@ function troisFractionsPpcm(w, P){
     for(let t=0;t<200 && !faute;t++){
       currentTestId=id; TESTS[id].start();
       if(test.qId!==id){ faute='la note part sous « '+test.qId+' »'; break; }
-      if(!test.redac){ faute='pas de question rédigée'; break; }
+      /* plus de question rédigée au 4.11 (novembre 2026) : elle vit au 4.12 */
+      if(test.redac){ faute='le 4.11 pose encore une question rédigée'; break; }
       const qs=test.questions||[];
       qs.forEach(function(q,i){
         if(faute) return;
         const eti=q.a+'/'+q.b+' '+q.op+' '+q.c+'/'+q.d+' '+q.op2+' '+q.e+'/'+q.f;
-        if(!!q.redac!==(i%2===1)){ faute='la question '+(i+1)+' : les paires sont guidée PUIS rédigée'; return; }
-        if(i%2===1 && (q.op!==qs[i-1].op || q.op2!==qs[i-1].op2)){ faute='la paire '+i+'/'+(i+1)+' change de signes'; return; }
+        if(q.redac){ faute='la question '+(i+1)+' est rédigée'; return; }
         const t3=[q.b,q.d,q.f];
         if(new Set(t3).size!==3){ faute=eti+' : deux dénominateurs égaux'; return; }
         if(!LISTE.some(function(l){ return cle(l)===cle(t3); })){ faute=eti+' : le triplet '+cle(t3)+' n’est pas dans la liste'; return; }
@@ -8679,7 +8679,7 @@ function troisFractionsPpcm(w, P){
     const Q={a:3,b:8,c:1,d:2,e:1,f:4,op:'+',op2:'+',N1:3,N2:4,N3:2,D:8,N:9};
     const pose=function(){ test.questions=[Object.assign({},Q)]; test.idx=0; test.locked=false; test.answers=[]; renderTsfTest(); };
     const copie=function(m1,D){ const k=D/8;
-      if(m1!==null){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
+      if(m1!==null && $('tsf-a1')){ tape('tsf-a1',m1); tape('tsf-b1',m1); }
       tape('tsf-a2',4*k); tape('tsf-b2',4*k); tape('tsf-a3',2*k); tape('tsf-b3',2*k);
       tape('tsf-n1',3*k); tape('tsf-n2',4*k); tape('tsf-n3',2*k); tape('tsf-fn',9*k); };
     pose();
@@ -8696,20 +8696,19 @@ function troisFractionsPpcm(w, P){
     tape('tsf-b3',2); if(($('tsf-a3')||{}).value!=='2') vus.push('× 2 écrit au dénominateur ne s’écrit pas au numérateur');
     /* les deux lignes du calcul sont UNE grille : chaque fraction sous son produit, les signes l'un sous l'autre */
     (function(){ const g=document.querySelector('#tsfHost .pt-row.tsf-fiche'); if(!g){ vus.push('pas de grille du calcul'); return; }
-      const k=[].map.call(g.children, function(c){ return c.classList.contains('spf-eq')?'=':c.classList.contains('spf-op')?'s':c.classList.contains('sf-prod')?'P':c.id==='tsfFin'?'F':c.classList.contains('f-frac-input')?'f':c.classList.contains('tsf-vide')?'_':'?'; }).join('');
-      if(k!=='=PsPsP_=fsfsfF') vus.push('la grille n’a pas sept colonnes alignées (produits, puis fractions sous eux) : '+k); })();
+      const k=[].map.call(g.children, function(c){ return c.classList.contains('spf-eq')?'=':c.classList.contains('spf-op')?'s':c.classList.contains('sf-prod')?'P':c.id==='tsfFin'?'F':c.classList.contains('f-frac-input')?'f':c.classList.contains('f-frac')?'t':c.classList.contains('tsf-vide')?'_':'?'; }).join('');
+      /* 3/8 est déjà sur 8 : elle s'écrit telle quelle (t), sans « × 1 » */
+      if(k!=='=tsPsP_=fsfsfF') vus.push('la grille n’a pas sept colonnes alignées (produits, puis fractions sous eux) : '+k); })();
     pose();
-    if(!$('tsf-a1') || !$('tsf-a1').hasAttribute('data-facultatif')) vus.push('la case du × 1 n’est pas déclarée facultative (data-facultatif)');
-    if($('tsf-a2') && $('tsf-a2').hasAttribute('data-facultatif')) vus.push('une case qui n’est pas un × 1 est déclarée facultative');
+    /* AUCUNE MULTIPLICATION PAR 1 N'EST ÉCRITE (novembre 2026) : 3/8, déjà sur
+       8, n'a pas de cases « × » ; les deux autres fractions en ont */
+    if($('tsf-a1') || $('tsf-b1')) vus.push('la fraction déjà sur le dénominateur commun porte des cases « × 1 »');
+    if(!$('tsf-a2') || !$('tsf-b3')) vus.push('une fraction à multiplier n’a plus ses cases « × »');
+    if(tsfCases().indexOf('tsf-a1')>=0) vus.push('la liste des cases compte encore le « × 1 »');
     copie(null,8); checkTsfAnswer();
-    if(!der() || !der().correct) vus.push('le × 1 laissé vide est compté faux');
-    if(peint('tsf-a1')!=='rien' || peint('tsf-b1')!=='rien') vus.push('le × 1 laissé vide est peint ('+peint('tsf-a1')+')');
-    pose(); copie(1,8); checkTsfAnswer();
-    if(!der() || !der().correct) vus.push('la copie juste avec le × 1 écrit est comptée fausse');
-    pose(); copie(2,8); checkTsfAnswer();
-    if(der() && der().correct) vus.push('un × 2 à la place du × 1 est compté juste');
-    if(peint('tsf-a1')!=='faux') vus.push('un × 2 à la place du × 1 ne rougit pas ('+peint('tsf-a1')+')');
-    pose(); copie(2,16); checkTsfAnswer();
+    if(!der() || !der().correct) vus.push('la copie juste, sans « × 1 », est comptée fausse');
+    if(/manque/.test(($('tsfFeedback')||{}).textContent||'')) vus.push('le message dit qu’il manque des cases à une copie complète');
+    pose(); copie(null,16); checkTsfAnswer();
     if(der() && der().correct) vus.push('la copie sur 16 (pas le plus petit dénominateur commun) est comptée juste');
     /* la simplification du 4.1 : 1/2 + 1/3 − 1/6 = 3/6 + 2/6 − 1/6 = 4/6 = (4÷2)/(6÷2) = 2/3 */
     const Q2={a:1,b:2,c:1,d:3,e:1,f:6,op:'+',op2:'−',N1:3,N2:2,N3:1,D:6,N:4};
