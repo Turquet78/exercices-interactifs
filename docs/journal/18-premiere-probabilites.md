@@ -996,3 +996,36 @@ calcule pas. 106 jeux possibles. L'exemple du rappel suit (30 + 20 + 40 =
 90, puis 90/100). Vérifié dans Chromium : 300 tirages, aucun hors des règles,
 99 tableaux différents ; une séance menée à sa fin en entraînement et en
 soutien, à 1280 et à 390 px, sans erreur JavaScript.
+
+**Puis une seconde partie : cliquer les trois cases de A ∪ B (v458).**
+Demande de Turquet : « fais la suite de cet exercice avec un nouveau tableau,
+un nouvel énoncé, où on demande de cliquer sur les 3 cases représentant
+A ∪ B ; quand c'est bien cliqué, mettre en couleur la case ; tant que les 3
+cases ne sont pas trouvées, ne pas continuer ; ensuite demander la
+probabilité de A ∪ B ». La séance compte huit questions : les six de la
+première partie, puis :
+- `ruclic` (`q.ru = 2`) : un NOUVEAU tableau, tiré aux mêmes règles que le
+  premier (dizaines de 10 à 90, sans retenue) mais différent de lui, et un
+  NOUVEL énoncé (`RU2_CTX` : camping, cantine, magasin, peluches, cinéma),
+  les évènements nommés A et B. L'énoncé s'ouvre sur « Deuxième partie, une
+  nouvelle situation ». Les quatre cases du milieu se cliquent (au clavier
+  aussi : `role="button"`, Entrée ou Espace, `ruTouche`). Une case de A ∪ B
+  se colorie et reste ; une case fausse (Ā ∩ B̄) rougit un instant
+  (`ru-faux`, 0,9 s) et le message dit pourquoi. Aucun bouton « Vérifier »
+  tant que les trois ne sont pas trouvées : la troisième valide la question
+  (`checkPBAnswer`, aucune case à juger, elle compte juste) et fait paraître
+  « Question suivante ». Les cases trouvées vivent dans `q.rep.tr` ; la
+  validation passe AVANT la sauvegarde, si bien qu'une pause après la
+  troisième case reprend à la question suivante sans la recompter, et une
+  pause au milieu retrouve les cases déjà coloriées.
+- `rup` (`q.ru = 2`) : P(A ∪ B) sur le nouveau tableau, les trois cases
+  coloriées ; la page ne donne plus le nombre d'éléments (« Les trois cases
+  de A ∪ B sont coloriées dans le tableau ») — l'élève les additionne, la
+  correction écrit la somme.
+`pbLettre` lit désormais les lettres sur la question EN COURS quand elle
+porte `ru` : la seconde partie écrit B là où la première écrivait D.
+Vérifié dans Chromium (1280 et 390 px, entraînement et soutien) : un clic
+faux rougit sans débloquer ; deux cases trouvées, pas de suite ; la
+troisième ouvre « Question suivante » ; P(A ∪ B) juste, séance 8 / 8 ;
+pause au milieu puis après les trois cases, reprises justes ; aucun
+débordement, aucune erreur JavaScript.
