@@ -2087,7 +2087,7 @@ déconnecter » oublie le code. La Seconde et la Terminale n'ont ni le filet ni
 la reconnexion.
 
 **Puis le devoir a reçu l'option « Avec correction » — et l'élève sur papier
-télécharge aussi sa correction, puis la RETROUVE** (Terminale v519, demande
+télécharge aussi sa correction, puis la RETROUVE** (Terminale v520, demande
 de Turquet, novembre 2026 : « une option "avec correction" quand je crée un
 devoir maison ; si l'élève demande la version papier en PDF, il peut avoir
 aussi accès à la correction en PDF de l'exercice, présentée avec les mêmes
