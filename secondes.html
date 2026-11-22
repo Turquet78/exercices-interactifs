@@ -4930,7 +4930,12 @@ body > .ML__keyboard .MLK__toolbar{display:none !important;}
 :root{
   --keycap-auto:calc((100cqw - 8px - (var(--kb-unites,7) - 1) * 8px) / var(--kb-unites,7));
   --keycap-width:min(62px, 10cqw, var(--keycap-auto));
+  /* la couche des lettres compte SES unités (kbUnitesLettres) : sa rangée de
+     treize ne rétrécit plus le clavier A, venue sur tout écran à champ
+     mathématique (novembre 2026) */
+  --keycap-lettres:calc((100cqw - 8px - (var(--kb-unites-lettres,12) - 1) * 8px) / var(--kb-unites-lettres,12));
 }
+.ML__keyboard .MLK__layer[id$="-lettres"]{--keycap-width:min(62px, 10cqw, var(--keycap-lettres));}
 /* Les touches de bascule (« clavier A » / « clavier B ») : deux unités, le
    rembourrage ramené à 4 px (la leçon de la Terminale). */
 .ML__keyboard .MLK__rows > .MLK__row > .kb-couche{padding-left:4px;padding-right:4px;}
@@ -91987,13 +91992,28 @@ function buildKbTerm(vars, compact, portrait, lettres){
    dans le CSS : une rangee plus large que ce que la largeur prevoit se
    retrecirait SEULE, et l'eleve aurait deux tailles de touches sur le meme
    ecran (la lecon de la Terminale, reprise telle quelle). */
+/* LA COUCHE DES LETTRES A SA PROPRE LARGEUR (novembre 2026). Depuis qu'elle
+   vient sur TOUT ecran a champ mathematique (kbLettres), sa rangee de treize
+   unites aurait retreci TOUTES les touches des claviers A et B — sur un
+   telephone, « clavier B » coupe dans sa touche (48 px), mesure au banc
+   navigateur. kbUnites compte donc les couches A et B ; kbUnitesLettres la
+   couche des lettres, que la feuille de styles lit a part (--kb-unites-lettres,
+   sur .MLK__layer[id$="-lettres"]). */
 function kbUnites(dispo){
   let m = 0;
-  ((dispo && dispo.layers) || []).forEach(l => (l.rows || []).forEach(r => {
+  ((dispo && dispo.layers) || []).filter(l => !/-lettres$/.test(l.id || '')).forEach(l => (l.rows || []).forEach(r => {
     const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
     if(u > m) m = u;
   }));
   return m || 7;
+}
+function kbUnitesLettres(dispo){
+  let m = 0;
+  ((dispo && dispo.layers) || []).filter(l => /-lettres$/.test(l.id || '')).forEach(l => (l.rows || []).forEach(r => {
+    const u = (r || []).reduce((a, k) => a + ((k && k.width) || 1), 0);
+    if(u > m) m = u;
+  }));
+  return m || 12;
 }
 /* UN ECRAN OU L'ELEVE REDIGE EN MOTS ajoute le clavier B (les lettres). La page
    ne tient aucune liste : le clavier suit les CASES — une ligne de feuille de
@@ -92055,6 +92075,7 @@ function applyKbLayout(){
   /* la largeur des touches suit la rangee la plus large de la disposition qu'on
      vient d'installer — une source, jamais un compte recopie dans le CSS */
   try { if(dispo) document.documentElement.style.setProperty('--kb-unites', String(kbUnites(dispo))); } catch(e) {}
+  try { if(dispo) document.documentElement.style.setProperty('--kb-unites-lettres', String(kbUnitesLettres(dispo))); } catch(e) {}
 }
 
 const FIELD_FIX_CSS =

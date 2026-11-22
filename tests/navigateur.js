@@ -18702,7 +18702,9 @@ if(require.main === module) (async () => {
         const el = document.querySelector(champ), pave = document.getElementById('paveNum');
         if(!pave) return { absent: true };
         const r = pave.getBoundingClientRect(), c = el.getBoundingClientRect();
-        const touches = [...pave.querySelectorAll('.pave-t')];
+        /* une touche qui ne se montre pas n'est pas une touche : « abc » se tait
+           (display:none) sur l'écran de connexion */
+        const touches = [...pave.querySelectorAll('.pave-t')].filter(b => { const q = b.getBoundingClientRect(); return q.width > 0 && q.height > 0; });
         const rects = touches.map(b => b.getBoundingClientRect());
         const nommees = touches.filter(b => /^[0-9,−]$/.test(b.getAttribute('data-t'))).map(b => b.getBoundingClientRect());
         const distinct = (xs) => { const v = []; xs.forEach(x => { if(!v.some(y => Math.abs(y - x) < 4)) v.push(x); }); return v.length; };

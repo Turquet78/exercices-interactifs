@@ -24469,33 +24469,43 @@ function clavierLettresPremiere(w, P){
   /* applyKbLayout PASSE le drapeau et POSE --kb-unites ; kbLettres ne répond que pour l'exercice COURANT */
   const fA = fns.find(o => o.nom === 'applyKbLayout'), fC = fns.find(o => o.nom === 'kbCompact'),
         fT = fns.find(o => o.nom === 'kbPortraitTablette'), fL = fns.find(o => o.nom === 'kbLettres'),
-        fU = fns.find(o => o.nom === 'kbUnites');
-  if(!fA || !fC || !fT || !fL || !fU) pbs.push('applyKbLayout, kbCompact, kbPortraitTablette, kbLettres ou kbUnites est introuvable dans la source');
+        fU = fns.find(o => o.nom === 'kbUnites'), fUL = fns.find(o => o.nom === 'kbUnitesLettres');
+  if(!fA || !fC || !fT || !fL || !fU || !fUL) pbs.push('applyKbLayout, kbCompact, kbPortraitTablette, kbLettres, kbUnites ou kbUnitesLettres est introuvable dans la source');
   else if(bk){
-    let ku = null;
+    let ku = null, kul = null;
     try{ ku = new Function('return (' + fU.texte + ')')(); }catch(e){ pbs.push('kbUnites ne s\'évalue pas : ' + e.message); }
+    try{ kul = new Function('return (' + fUL.texte + ')')(); }catch(e){ pbs.push('kbUnitesLettres ne s\'évalue pas : ' + e.message); }
     const installe = lettres => {
       const vk = { layouts: null }, poses = [];
       const win = { __kbFloating: false, mathVirtualKeyboard: vk, matchMedia: fauxEcran(false, true),
                     document: { documentElement: { style: { setProperty(n, v){ poses.push([n, v]); } } } } };
       try{
-        new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'buildKbTerm', 'JSON',
+        new Function('window', 'matchMedia', 'document', 'currentTestId', 'kbVarsFor', 'kbLettres', 'kbUnites', 'kbUnitesLettres', 'buildKbTerm', 'JSON',
           'let __kbVarsKey = null;\n' + fC.texte + '\n' + fT.texte + '\n' + fA.texte + '\nreturn applyKbLayout;')(
-            win, win.matchMedia, win.document, 'x', () => [], () => lettres, ku || (() => 7), bk, JSON)();
+            win, win.matchMedia, win.document, 'x', () => [], () => lettres, ku || (() => 7), kul || (() => 12), bk, JSON)();
         return { couches: (vk.layouts && vk.layouts[0] && vk.layouts[0].layers.length) || -1, dispo: vk.layouts && vk.layouts[0], poses };
       }catch(e){ pbs.push('applyKbLayout ne s\'évalue pas : ' + e.message); return { couches: -1, poses: [] }; }
     };
     const oui = installe(true), non = installe(false);
     if(oui.couches !== 2) pbs.push('applyKbLayout ne demande pas le clavier B : ' + oui.couches + ' couche(s) sur un écran de rédaction');
     if(non.couches !== 1) pbs.push('applyKbLayout pose ' + non.couches + ' couche(s) hors rédaction');
-    /* --kb-unites : posée, et égale à la rangée la plus large RECOMPTÉE ici */
+    /* --kb-unites : posée, et égale à la rangée la plus large RECOMPTÉE ici —
+       sur le clavier A ; la couche des lettres a la sienne (--kb-unites-lettres,
+       novembre 2026 : venue sur tout écran à champ mathématique, sa rangée de
+       treize ne rétrécit plus le clavier A) */
     [[oui, 'avec les lettres'], [non, 'sans les lettres']].forEach(([r, quand]) => {
       const pose = r.poses.find(p => p[0] === '--kb-unites');
-      let max = 0;
-      ((r.dispo && r.dispo.layers) || []).forEach(l => (l.rows || []).forEach(row => { const u = unites(row); if(u > max) max = u; }));
+      let max = 0, maxL = 0;
+      ((r.dispo && r.dispo.layers) || []).forEach(l => (l.rows || []).forEach(row => { const u = unites(row);
+        if(/-lettres$/.test(l.id || '')){ if(u > maxL) maxL = u; } else if(u > max) max = u; }));
       if(!pose) pbs.push('applyKbLayout ne pose pas --kb-unites ' + quand + ' : la feuille de styles garderait son compte de repli');
-      else if(+pose[1] !== max) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' ' + quand + ', la rangée la plus large en fait ' + max);
+      else if(+pose[1] !== max) pbs.push('applyKbLayout pose --kb-unites à ' + pose[1] + ' ' + quand + ', la rangée la plus large du clavier A en fait ' + max);
+      const poseL = r.poses.find(p => p[0] === '--kb-unites-lettres');
+      if(maxL && (!poseL || +poseL[1] !== maxL)) pbs.push('applyKbLayout pose --kb-unites-lettres à ' + (poseL ? poseL[1] : 'rien') + ' ' + quand + ', la rangée la plus large des lettres en fait ' + maxL);
     });
+    /* et la feuille de styles donne à la couche des lettres SA largeur */
+    if(!/\.MLK__layer\[id\$="-lettres"\]\{--keycap-width:[^}]*--keycap-lettres/.test(src)) pbs.push('aucune règle ne donne sa largeur à la couche des lettres (.MLK__layer[id$="-lettres"] → --keycap-lettres)');
+    else if(!/--keycap-lettres\s*:[^;]*--kb-unites-lettres/.test(src)) pbs.push('--keycap-lettres ne lit pas --kb-unites-lettres');
     let kl = null;
     const champ = { vu: true };
     /* depuis novembre 2026 (le 8.1.1 : « la lettre g n'est pas sur son
