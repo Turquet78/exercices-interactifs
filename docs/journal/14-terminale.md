@@ -3594,3 +3594,17 @@ la copie faite des corrections de la page est parfaite (107 cases sur 107) ;
 une copie où une seule case est remplie reçoit ses 106 corrections en vert,
 aucune case rouge ; la page ne déborde pas. Le banc navigateur le rejoue
 (« 6 quinquagies »).
+
+### Puis l'encadrement de α à la calculatrice, et plus précis accepté (v518)
+
+Demande de Turquet (novembre 2026), après la mise en ligne : « demande à
+l'élève de le faire à la calculatrice et accepte tout encadrement plus précis
+aussi ». Les deux tableaux de valeurs (au pas de 0,1 puis de 0,01) sont
+retirés, et avec eux l'étape au pas de 0,1 : il reste UN encadrement,
+« [ ] < α < [ ] », comme dans le sujet, et une ligne d'aide qui dit comment
+s'y prendre à la calculatrice. Le juge (`enc`) ne compare plus à une réponse :
+une borne est juste si elle est du bon côté de α, à 0,01 au plus de lui, et si
+l'amplitude avec l'autre borne écrite ne dépasse pas 0,01 — 1,61 < α < 1,62
+comme 1,614 < α < 1,615 ; 1,60 < α < 1,62 (trop large) et 1,62 < α < 1,63 (à
+côté) sont faux. La correction écrit l'encadrement au centième. Le banc
+navigateur le tient (« 6 quinquagies »).
