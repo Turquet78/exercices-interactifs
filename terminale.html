@@ -29487,6 +29487,7 @@ function renderAPT(){
   const plan=aptPlan(q);
   $('aptCorps').innerHTML=plan.map(function(p){ return aptPartHTML(q,p); }).join('')+apfJetonsHTML(q, true, true);
   $('aptCorps').querySelectorAll('input, math-field').forEach(aptBrancher);
+  $('aptCorps').querySelectorAll('input.sa2-in').forEach(sa2Ajuster);   /* la largeur au repos, posée tout de suite (les valeurs de X au 6.3.2) */
   if($('apyGrille')){ aptArbreXIds(q).forEach(function(id){ const el=$(id); if(el) sa2Ajuster(el); }); aptSuivreTraits('apy'); }
   if(window.mlDexp) window.mlDexp.upgrade($('aptCorps'));   /* clavier de la Terminale, « * » → ×, correctifs communs */
   /* la reprise après une pause : les choix déjà faits se redessinent, et l'arbre qu'ouvrait le premier */
