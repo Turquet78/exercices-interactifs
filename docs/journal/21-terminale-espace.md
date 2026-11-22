@@ -1526,7 +1526,7 @@ vert, crédit partiel compté) ; aucune erreur de page. À 390 px, le système
 imposé de l'énoncé de la partie B débordait de l'écran : il défile dans son
 cadre, colonnes resserrées.
 
-**Puis I, J et K sur tous les dessins (Turquet, novembre 2026, v517 : « il
+**Puis I, J et K sur tous les dessins (Turquet, novembre 2026, v518 : « il
 faut placer les points I, J, K sur le cube aussi pour tous les dessins »).**
 Les figures des parties 1 à 3 ne montraient que le cube : I, J, K y sont
 maintenant posés, leur nom à la place la plus dégagée parmi seize (loin des
