@@ -66,6 +66,8 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
     await page.click('#sortieLien');
     await page.waitForTimeout(900);
     verifier('« Sortie » ramène à la page précédente (les modes)', await ecran(page) === 'scr-mode', await ecran(page));
+    verifier('après « Sortie », la garde du bouton « retour » est retirée de l\'historique',
+      await page.evaluate(() => !(history.state && history.state.exoGarde)));
     verifier('l\'exercice est gardé (un brouillon)', await brouillons(page) === 1, String(await brouillons(page)));
     const carte = await page.$('#modeChoices .resume');
     verifier('la carte « Reprendre » est proposée', !!carte);
@@ -86,6 +88,22 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
       verifier('« Recommencer » relance l\'exercice', s3 === scr, s3);
       verifier('…depuis le début', await page.evaluate(() => (test.idx || 0) === 0 && !(test.answers || []).length));
       verifier('…et l\'ancien brouillon est effacé', await brouillons(page) === 0, String(await brouillons(page)));
+      /* LE BOUTON « RETOUR » DU NAVIGATEUR (#retour-navigateur) : pendant
+         l'exercice, une garde est dans l'historique ; « retour » fait ce que
+         fait « Sortie » ; hors exercice, plus de garde — le retour suivant
+         quitte la page vers la page précédente du site. */
+      verifier('pendant l\'exercice, une garde est posée dans l\'historique',
+        await page.evaluate(() => !!(history.state && history.state.exoGarde)));
+      const avantR = await brouillons(page);
+      await page.evaluate(() => history.back()); await page.waitForTimeout(1200);
+      verifier('« retour » du navigateur ramène à la page des modes, comme « Sortie »', await ecran(page) === 'scr-mode', await ecran(page));
+      verifier('…et l\'exercice est gardé (un brouillon de plus)', await brouillons(page) === avantR + 1, avantR + ' → ' + await brouillons(page));
+      verifier('…et la page des modes n\'a plus de garde : « retour » y ramène en arrière sur le site',
+        await page.evaluate(() => !(history.state && history.state.exoGarde)) && await page.isHidden('#sortieLien'));
+      /* remet l'état attendu par la suite : aucun brouillon de cet exercice */
+      await page.click('#modeChoices .resume'); await page.waitForTimeout(300);
+      await page.click('#crRecommencer'); await page.waitForTimeout(1200);
+      await page.click('#sortieLien'); await page.waitForTimeout(900);
     }
     /* DANS UN DEVOIR : « Recommencer » repasse par la page des modes du devoir,
        et la séance neuve porte toujours le devoir */
