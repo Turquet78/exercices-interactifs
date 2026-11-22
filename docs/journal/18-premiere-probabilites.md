@@ -1030,7 +1030,7 @@ troisième ouvre « Question suivante » ; P(A ∪ B) juste, séance 8 / 8 ;
 pause au milieu puis après les trois cases, reprises justes ; aucun
 débordement, aucune erreur JavaScript.
 
-## {frequences-probabilites-pouce} (3.13, v460) : la fiche du 3.11, P(A ∪ D), et un coup de pouce devant chaque question
+## {frequences-probabilites-pouce} (3.13, v460 ; publiée en v461 : la sortie par le bouton « retour » avait pris la v460 le même jour) : la fiche du 3.11, P(A ∪ D), et un coup de pouce devant chaque question
 
 Demande de Turquet (novembre 2026) : « créer un exercice exactement comme le
 3.11 en rajoutant une question dans la partie A, à la fin, sur P(A ∪ B) ;
