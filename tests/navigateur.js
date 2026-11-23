@@ -21458,6 +21458,92 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
     }
+    /* ---- 11 vicies bis. Une touche à l'écran qui porte un exposant l'écrit en exposant ----
+       Signalé par Turquet sur le 5.3 de la Première (novembre 2026) : « sur
+       une tablette ou un téléphone, la touche x^2 du clavier virtuel affiche
+       x2 sans mettre le 2 en exposant ». La touche {latex:"x^2"} passe par
+       mf.insert, qui émet un beforeinput de donnée « x^2 » ; le filtre des
+       touches mortes de configureField (les trois niveaux) le prenait pour un
+       résidu « ^3 », retirait le ^ et tapait « x2 ». Un résidu commence
+       toujours par « ^ ». Trois mesures : insert("x^2") sur une case nue
+       (toute case, les trois niveaux) ; un résidu « ^3 » de touche morte
+       garde son remède (le 3 monte, sans « ^ » écrit) ; et, là où il existe,
+       le geste lui-même : la touche x² du clavier à l'écran, au doigt, dans
+       la feuille rédigée du 5.3 de la Première. Éprouvé à l'envers sur la
+       page d'avant : « x2 ». */
+    titre('11 vicies bis. UNE TOUCHE À L\'ÉCRAN QUI PORTE UN EXPOSANT L\'ÉCRIT EN EXPOSANT');
+    {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const vu = await s.page.evaluate(async () => {
+        const sc = document.querySelector('section.screen.on'); if(!sc) return null;
+        const d = document.createElement('div');
+        /* une case montée COMME LA PAGE les monte (classe dexp-mf, mlDexp.upgrade →
+           configureField) : une case nue n'a pas le filtre, et ne mesurerait rien */
+        d.innerHTML = '<math-field id="bancExp" class="dexp-mf" style="min-width:8em;display:inline-block"></math-field>';
+        sc.insertBefore(d, sc.firstChild);
+        const mf = document.getElementById('bancExp');
+        await new Promise(r => setTimeout(r, 300));
+        if(window.mlDexp) window.mlDexp.upgrade(d);
+        if(!mf._mlInit) return { monte: false };
+        mf.focus(); await new Promise(r => setTimeout(r, 200));
+        mf.value = ''; mf.insert('x^2'); const ins = mf.getValue();
+        mf.value = 'x';
+        try{ mf.executeCommand('moveToMathfieldEnd'); }catch(e){}
+        const ev = new InputEvent('beforeinput', { inputType: 'insertText', data: '^3', bubbles: true, cancelable: true, composed: true });
+        mf.dispatchEvent(ev);
+        await new Promise(r => setTimeout(r, 100));
+        return { monte: true, ins: ins, pris: ev.defaultPrevented, residu: mf.getValue() };
+      });
+      verifier('la case du contrôle est montée par configureField (sans quoi il ne mesurerait rien)',
+        !!vu && vu.monte, vu ? 'mlDexp.upgrade n\'a pas configuré la case' : 'aucun écran ouvert');
+      const net = v => String(v || '').replace(/\s+/g, '').replace(/\^\{(\d)\}/g, '^$1');
+      verifier('mf.insert("x^2") — la touche x² du clavier à l\'écran — écrit x², le 2 en exposant',
+        !!vu && net(vu.ins) === 'x^2', vu ? 'la case contient « ' + vu.ins + ' »' : 'aucun écran ouvert');
+      /* le filtre garde son rôle : le résidu est intercepté (annulé) et son 3
+         retapé. Ce que devient le 3 ensuite dépend du niveau — en Terminale un
+         chiffre après x monte de lui-même —, la case n'est donc pas relue. */
+      verifier('un résidu de touche morte « ^3 » est toujours pris par le filtre, et son 3 retapé',
+        !!vu && vu.pris === true && net(vu.residu).indexOf('3') >= 0,
+        vu ? 'intercepté : ' + vu.pris + ', la case contient « ' + vu.residu + ' »' : 'aucun écran ouvert');
+      await s.nav.close(); s = null;
+    }
+    {
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      const present = await s.page.evaluate(() => typeof TESTS !== 'undefined' && !!TESTS['developper-double']
+        && typeof RED_CFG !== 'undefined' && !!RED_CFG.dvd && typeof sfrMonte === 'function');
+      if(!present){
+        ignorer('au doigt, la touche x² du clavier à l\'écran écrit x² dans la rédigée du 5.3', 'ce niveau n\'a pas de rédigée sous le développement double');
+      } else if(await connecter(s.page) !== 'scr-space'){
+        ignorer('au doigt, la touche x² du clavier à l\'écran écrit x² dans la rédigée du 5.3', 'connexion impossible');
+      } else {
+        await s.page.evaluate(() => openTest('developper-double')); await s.page.waitForTimeout(300);
+        await s.page.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0); if(b) b.click(); });
+        await s.page.waitForTimeout(900);
+        await s.page.evaluate(() => { test.locked = true; sfrMonte(); });
+        await s.page.waitForTimeout(800);
+        const sel = '.screen.on .dexp2-sheet math-field';
+        const net = v => String(v || '').replace(/\s+/g, '').replace(/\^\{(\d)\}/g, '^$1');
+        let r = null;
+        try{
+          await s.page.click(sel); await s.page.waitForTimeout(700);
+          await s.page.evaluate(() => { const vk = window.mathVirtualKeyboard; if(vk && !vk.visible) vk.show(); });
+          await s.page.waitForTimeout(700);
+          const avant = await s.page.evaluate(q => document.querySelector(q).getValue(), sel);
+          const k = await s.page.evaluate(() => { const c = [...document.querySelectorAll('body > .ML__keyboard .MLK__layer.is-visible .MLK__rows > .MLK__row > *')]
+            .find(e => { const q = e.getBoundingClientRect(); return q.width > 2 && e.textContent.replace(/\s+/g, '') === 'x2'; });
+            if(!c) return null; const q = c.getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2 }; });
+          if(k){ await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(400); }
+          const apres = await s.page.evaluate(q => document.querySelector(q).getValue(), sel);
+          r = { touche: !!k, ajout: apres.replace(/\s+/g, '').slice(avant.replace(/\s+/g, '').length) };
+        }catch(e){ r = { souci: e.message }; }
+        verifier('au doigt, la touche x² du clavier à l\'écran écrit x² dans la rédigée du 5.3',
+          !!r && !r.souci && r.touche && net(r.ajout) === 'x^2',
+          !r ? 'rien mesuré' : r.souci ? r.souci : !r.touche ? 'aucune touche x² sur le clavier rendu' : 'la feuille a reçu « ' + r.ajout + ' »');
+      }
+      verifier('la touche x² ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
     /* ---- 11 undevicies. Au 6.8, le coup de pouce de chaque question, aller et retour ----
        Demande de Turquet (novembre 2026) : le 6.5, et sous chaque question
        présentée autrement qu'au 6.3 un bouton « Coup de pouce » qui la montre
