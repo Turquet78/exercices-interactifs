@@ -4765,7 +4765,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=527;
+const APP_VERSION=528;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -45110,6 +45110,12 @@ function paveBrancher(){
     el.setAttribute('data-pave','1');
     try{ el.mathVirtualKeyboardPolicy='manual'; }catch(e){}
   }); }
+  /* une case redessinée puis focalisée dans le même geste (Entrée qui ouvre
+     la ligne suivante, 6.7 et 6.9) a reçu le focus AVANT d'être convertie :
+     le focusin l'a trouvée hors du pavé et l'a refermé. Convertie, elle le
+     rouvre (signalé par Turquet, novembre 2026). */
+  const a=document.activeElement;
+  if(pave && pave.hidden && paveEstCible(a)) paveMontrer();
 }
 /* Les cases naissent et renaissent à chaque rendu : l'observateur les
    convertit au fil de l'eau, sans rien demander aux exercices. Il n'observe

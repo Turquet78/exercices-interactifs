@@ -897,3 +897,44 @@ de nouveau offert) ; cases justes (un point), retour qui reste après
 en rouge ; miroirs recopiés ; pause sur un coup de pouce entamé, reprise sur
 le coup de pouce, cases, miroirs et bouton de retour remis. Aucune erreur de
 page.
+
+### Le 6.9 accepte le résultat brut, et la tablette garde son pavé à la ligne suivante (v475)
+
+Signalé par Turquet (novembre 2026) : « en première dans le 6.9, on acceptera
+les résultats bruts dans la version rédigée ou avec peu d'étapes. Sur tablette
+il manque la touche "=" sur le clavier virtuel, et quand je passe à la ligne le
+clavier virtuel n'apparaît plus. »
+
+**Le résultat brut.** Au 6.9 seulement (`isdlPouceEx()`), la « fin » d'un bloc
+(`isdlSubs`) n'exige plus d'étape : « 3 », « f(1) = 3 », « 1 » pour 1², ou un
+calcul à une seule étape sont justes. La dernière ligne doit toujours finir par
+le résultat seul, et chaque ligne écrite doit valoir f(x). La consigne dit
+« Tu peux aussi écrire directement le résultat. », et le contexte envoyé au
+modèle le dit aussi. Le 6.7 garde son étape intermédiaire exigée (la demande ne
+portait que sur le 6.9).
+
+**La touche « = ».** Les lignes rédigées (6.7 et 6.9) déclarent `=` dans
+`data-pave-plus` : une ligne peut être une chaîne « 1 + 3 − 1 = 3 », et le
+pavé ne porte que ce que la case déclare.
+
+**Le pavé qui se refermait.** Entrée (ou ⏎ du pavé) dans la dernière ligne
+REDESSINE le bloc puis focalise la ligne neuve dans le même geste
+(`isdlRedessiner`). La case reçoit donc le focus AVANT que l'observateur du pavé
+(`paveObserver` → `paveBrancher`, un `MutationObserver`, donc asynchrone) ne la
+convertisse en case du pavé (`data-pave`) : le `focusin` la trouvait hors du
+pavé et le refermait, et plus rien ne le rouvrait. Remède dans le moteur, pas
+dans l'exercice : en fin de `paveBrancher`, si le pavé est fermé et que la case
+qui a le focus vient de devenir une case du pavé, `paveMontrer()`. Tout
+exercice qui redessine puis focalise est couvert, aux trois niveaux : le moteur
+du pavé doit être identique partout (« le pavé numérique est identique à celui
+de la Terminale », banc principal), d'où la Seconde v723 et la Terminale v528.
+
+**Exécuté** : banc navigateur, « 11 unvicies » (tablette tactile debout, 6.9) —
+la case touchée ouvre le pavé avec « = », ⏎ ouvre la ligne 2 et le pavé reste
+ouvert sur elle, « = » s'y écrit, « 1 » et « 1 » pour les carrés valent le point.
+
+**Puis les questions 4, 5 et 6 retirées** (même jour, « sinon supprimer les
+questions 4, 5 et 6 de cet exercice ») : le 6.9 pose les questions 1, 2, 3 et 7
+de `ISD_FICHE` (`ISDP_GARDEES`) — les carrés, f(1) et f(−1) pour x² + 3x − 1,
+puis f(−1) pour −3x² + 2x + 1. Le 6.6 et le 6.7 gardent toute la fiche. Une
+pause d'avant garde ses sept questions (elles sont rangées dans le brouillon).
