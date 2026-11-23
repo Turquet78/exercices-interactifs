@@ -217,3 +217,33 @@ fraction est une `.fr` du 1.11 (1,7 rem, 27,2 px) entre des `.f-whole`
 chiffres à 2 rem : 32 px mesurés au navigateur, comme « 10 » et « 0,09 ». Le
 1.11 lui-même ne change pas — la demande porte sur le coup de pouce. Le
 contrôle « le bac blanc (8.1) » exige la règle.
+
+---
+
+## Question 12 : le rangement en fractions, et la feuille d'une autre séance (Première, 8.1, v471, novembre 2026)
+
+Turquet, sur capture, en soutien : « 1/5 < 0.26 < 3/10 » refusé (« Ton
+rangement n'est pas le bon »), et il veut que les écritures fractionnaires
+soient acceptées dans la réponse rédigée.
+
+Le juge (`bbaJugeRang`) les acceptait déjà : la feuille rend
+`(1)/(5)<0.26<(3)/(10)`, lu en rationnels exacts — vérifié au navigateur.
+La capture disait autre chose : l'énoncé portait 0,26 ; 3/10 ; 1/5, et la
+correction écrite par la page 1/5 ; 0,21 ; 1/4. **La copie était jugée sur
+une autre question que celle affichée.** Reproduit au navigateur : une
+séance arrêtée sur le coup de pouce de la question 12, une AUTRE séance
+reprise elle aussi sur ce coup de pouce, puis « Revenir à la version
+rédigée » — `bbaRevenir` garde la feuille quand `bbaFeuilleIdx` vaut
+l'index courant, et l'index seul ne disait pas de quelle séance elle était :
+l'énoncé et la feuille de la séance d'avant restaient à l'écran.
+
+Le remède : chaque séance porte un jeton (`test.bbaSeance`, rangé avec la
+pause) ; `bbaSeanceVerifier()`, en tête de `renderBba` et de `bbaRevenir`,
+oublie une feuille d'un autre jeton, et l'écran se redessine. La consigne
+dit aussi désormais que chaque nombre peut s'écrire en fraction ou en
+décimal (« Tu peux écrire d'abord chaque fraction en nombre décimal… »).
+
+Contrôle « le bac blanc (8.1) » : le rangement écrit avec les fractions
+telles quelles est accepté, à l'envers il est refusé ; une autre séance
+reprise sur le coup de pouce de la question 12 montre SON énoncé après le
+retour.

@@ -18507,7 +18507,19 @@ function bbaTirage(n){
   }
   return qs;
 }
-let bbaFeuille=null, bbaFeuilleIdx=-1, bbaEslIdx=-1;
+let bbaFeuille=null, bbaFeuilleIdx=-1, bbaEslIdx=-1, bbaFeuilleSeance=null;
+/* LA FEUILLE GARDÉE APPARTIENT À UNE SÉANCE (Turquet, novembre 2026 : « 1/5 <
+   0.26 < 3/10 » refusé à la question 12). Revenir du coup de pouce garde la
+   feuille rédigée telle quelle si elle est celle de la question — mais l'index
+   seul ne le disait pas : une AUTRE séance reprise sur son coup de pouce, à la
+   même question, retrouvait l'énoncé et la feuille de la séance d'avant (0,26 ;
+   3/10 ; 1/5), et la copie était jugée sur ses nombres à elle (1/5 ; 0,21 ;
+   1/4). Chaque séance porte son jeton (test.bbaSeance, rangé avec la pause) ;
+   une feuille d'un autre jeton est oubliée, et l'écran se redessine. */
+function bbaSeanceVerifier(){
+  if(bbaFeuilleSeance===test.bbaSeance) return;
+  bbaFeuille=null; bbaFeuilleIdx=-1; bbaEslIdx=-1; bbaFeuilleSeance=test.bbaSeance;
+}
 async function startBba(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -18517,10 +18529,11 @@ async function startBba(){
      fractions (renderTsfTest, tsfCases, tsfJuge) : le plus petit dénominateur
      commun, la simplification en étapes, pas de rédigée sous les cases */
   Object.assign(test,{kind:'bba', qId:'bac-blanc-automatismes', ppcm:true, etapes:true, redac:false, toutRedac:false, rgcPouce:null, vocChoix:null});
+  test.bbaSeance=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
   test.questions=bbaTirage(dmNbQuestions(BBA_NB));
   test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
   test.maxScore=test.questions.length;test.bbaBusy=false;test.eslBusy=false;test.qTimer=null;test.fbTimer=null;
-  bbaFeuille=null; bbaFeuilleIdx=-1; bbaEslIdx=-1;
+  bbaFeuille=null; bbaFeuilleIdx=-1; bbaEslIdx=-1; bbaFeuilleSeance=test.bbaSeance;
   renderBba();
 }
 /* L'écran de la question courante : rédigé (le sien, ou celui du 2.5.6), ou
@@ -18535,6 +18548,7 @@ function bbaQiaCle(){
   return BBA_CLE_ECRAN[bbaEcran()]||'bba';
 }
 function renderBba(){
+  bbaSeanceVerifier();
   const e=bbaEcran(), q=test.questions[test.idx];
   /* un seul « Coup de pouce » dans la page : celui de l'écran rédigé se retire
      quand un autre écran prend la main (bbaRevenir le repose) */
@@ -18621,6 +18635,7 @@ function bbaAide(){
 function bbaRevenir(){
   const q=test.questions[test.idx];
   if(!q||q.aide!==true||q.rejeu) return;
+  bbaSeanceVerifier();
   clearTimeout(test.imaAnim);
   bbaRetourArreter();
   if(test.locked){
@@ -18906,8 +18921,8 @@ function bbaSpec(q){
   }
   /* rang */
   const txt=rgcNombres(q).map(x=>x.d?bbaFr(x.n,x.d):sdDecStr(x.v)).join(' &nbsp;;&nbsp; ');
-  return { prompt:'Range dans l’ordre croissant : '+txt+'.', lab:'rédige ta réponse — chaque fraction en nombre décimal, puis le rangement avec « < »',
-    hint:'Une ligne par fraction («&nbsp;2/5 = 0,4&nbsp;»), puis le rangement : «&nbsp;0,3 &lt; 0,39 &lt; 2/5&nbsp;». Le signe <b>&lt;</b> est sur le clavier. <b>Entrée</b> ajoute une ligne.',
+  return { prompt:'Range dans l’ordre croissant : '+txt+'.', lab:'rédige ta réponse — le rangement avec « < », chaque nombre en fraction ou en nombre décimal',
+    hint:'Tu peux écrire d’abord chaque fraction en nombre décimal, une ligne par fraction («&nbsp;2/5 = 0,4&nbsp;»), puis le rangement : «&nbsp;0,3 &lt; 0,39 &lt; 2/5&nbsp;» ou «&nbsp;0,3 &lt; 0,39 &lt; 0,4&nbsp;». Le signe <b>&lt;</b> est sur le clavier. <b>Entrée</b> ajoute une ligne.',
     mode:'lignes', juge:t=>bbaJugeRang(q,t),
     correction:'Correction : '+rgcNombres(q).filter(x=>x.d).map(x=>x.n+'/'+x.d+' = '+sdDecStr(x.v)).join(' ; ')+', donc '+rgcReponse(q)+'.', resume:{q:'ranger '+rgcTexte(q)+' (rédigé)', answer:rgcReponse(q)},
     ia:'L’élève doit ranger dans l’ordre croissant : '+rgcTexte(q)+'.', att:'Réponse : '+rgcReponse(q)+' (chaque nombre peut être écrit en fraction ou en décimal).' };

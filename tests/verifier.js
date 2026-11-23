@@ -11847,6 +11847,14 @@ function bacBlancAutomatismes(w, P){
         const S=bbaSpec(q), jj=S.juge(c[0]), jf=S.juge(c[1]);
         if(!jj.sait || !jj.correct) vus.push('q'+(i+1)+' ('+q.moteur+') : la copie juste « '+c[0]+' » n\\'est pas acceptée par la page : '+JSON.stringify(jj));
         if(!jf.sait || jf.correct) vus.push('q'+(i+1)+' ('+q.moteur+') : la copie fausse « '+c[1]+' » n\\'est pas refusée par la page : '+JSON.stringify(jf));
+        /* q12 : le rangement écrit avec les FRACTIONS telles quelles (« 1/5 < 0.26 < 3/10 »,
+           demande de Turquet, novembre 2026) est juste ; à l'envers, il est refusé */
+        if(q.moteur==='rang'){
+          const ecrit=rgcNombres(q).slice().sort(function(a,b){ return a.v-b.v; }).map(function(x){ return x.d?'('+x.n+')/('+x.d+')':D(sdDecStr(x.v)); });
+          const jr=S.juge(ecrit.join('<')), jv=S.juge(ecrit.slice().reverse().join('<'));
+          if(!jr.sait || !jr.correct) vus.push('q12 : le rangement écrit en fractions « '+ecrit.join('<')+' » n\\'est pas accepté : '+JSON.stringify(jr));
+          if(!jv.sait || jv.correct) vus.push('q12 : le rangement en fractions à l\\'envers n\\'est pas refusé : '+JSON.stringify(jv));
+        }
         if(jf.sait && !jf.correct && S.resume && ['voc','coef','pui','odg'].indexOf(q.moteur)>=0 && String(jf.phrase).replace(/«[^»]*»/g,'').indexOf(String(S.resume.answer).replace(/\\s/g,''))>=0 && String(S.resume.answer).length>2)
           vus.push('q'+(i+1)+' : le refus donne la réponse : '+jf.phrase);
       });
@@ -11871,6 +11879,17 @@ function bacBlancAutomatismes(w, P){
       if(((q.moteur==='evol')?eslFeuille:bbaFeuille)!==fe) vus.push('q'+(i+1)+' : le retour recrée la feuille rédigée');
       if(q.aide!==false) vus.push('q'+(i+1)+' : après le retour, aide = '+q.aide);
     }
+    /* UNE AUTRE SÉANCE REPRISE sur son coup de pouce, à la même question, ne
+       retrouve pas l'énoncé et la feuille de la séance d'avant (capture de
+       Turquet, novembre 2026 : l'énoncé « 0,26 ; 3/10 ; 1/5 », la copie jugée
+       sur 1/5 ; 0,21 ; 1/4) */
+    startBba(); test.idx=11; test.questions[11].aide=true;
+    const snapB=JSON.parse(JSON.stringify(snapshotTest()));
+    startBba(); test.idx=11; renderBba(); bbaAide();
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test, snapB);
+    afficherEcranDe('bba'); bbaRevenir();
+    const tmp=document.createElement('div'); tmp.innerHTML=bbaSpec(test.questions[11]).prompt;
+    if(ecran()!=='scr-bba' || $('bbaPrompt').innerHTML!==tmp.innerHTML) vus.push('une autre séance reprise sur le coup de pouce de la question 12 garde l\\'énoncé de la séance d\\'avant : « '+$('bbaPrompt').textContent+' » au lieu de « '+tmp.textContent+' »');
     /* le retour RESTE après la vérification des cases, et la rédaction qui suit ne compte pas deux fois */
     startBba();
     for(let i=0;i<12;i++){
