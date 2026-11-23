@@ -2191,3 +2191,33 @@ comme pour le PDF) — ce qui vaut pour eux vaut pour tout exercice de la même
 forme, sans rien déclarer — et les quatre « = » de {suite-bac-evolution} au même aplomb.
 **Ce qu'aucun banc ne voit** : un alignement voulu mais jamais écrit (deux
 lignes d'égalités hors de toute grille) ; il se voit en ouvrant le PDF.
+
+**Puis la correction des probabilités a perdu ses aides et ses arbres à
+trous — et tout arbre a retrouvé ses traits sur la page du PDF** (Terminale
+v524, demande de Turquet, novembre 2026, à la suite du DM n°13).
+* *Les phrases d'aide* : « « et », sans rien savoir d'avance… », « Ce que l'on
+  SAIT (« sachant que… ») se met en indice… » — les `.apc-pourquoi` que la
+  page écrit à la clôture — s'imprimaient dans la correction. Elles rejoignent
+  `DME_AIDES` (énoncé et correction, tous les exercices qui en portent : le
+  6.1.3, les exercices de bac, la partie probabilités et suites). La consigne
+  « La page a écrit les probabilités sur l'arbre. Complète-le… » devient
+  `aide-ecran`.
+* *Les « … » de l'arbre* ({arbre-probabilites-bac-types}) : les bouts de
+  chemin P(A ∩ V) et la branche encore inconnue (retrouvée à la question
+  suivante) ne sont pas des cases, et restaient « … » même à la clôture. Ils
+  portent `data-apt-v`, et `aptFeuillesCorr` les écrit à la clôture, à l'encre
+  de la correction (`.apt-cor`, sans classe de verdict : la note ne les voit
+  pas) ; dans l'arbre en x, le chemin qui passe par x s'écrit « 0,6x » ou
+  « 0,6(1 − x) ». À l'écran aussi : la correction de l'écran est celle du PDF.
+* *Les traits tombaient à côté* : branches, accolade et place des étiquettes
+  sont calculées en pixels sur l'écran (`aptTraits`, `apfTraits`) ; le PDF met
+  la grille en page à sa largeur, et l'accolade barrait « P(A ∩ S) = 0,368 ».
+  La photo garde le nom de chaque id en `data-dme-id`, et `dmePdfRetracer`
+  rappelle les mêmes fonctions DANS le cadre du PDF, chaque arbre dans sa
+  question (deux questions portent les mêmes noms), `$()` détourné le temps
+  de l'appel. Vaut pour tout arbre, énoncé et correction.
+Banc navigateur, 6 sexies ter, sur le type 1 (un arbre, puis l'arbre en x) :
+aucun « … », aucune phrase d'aide, et l'accolade à droite de chaque bout de
+chemin qu'elle embrasse — ce dernier éprouvé par sabotage (`dmePdfRetracer`
+neutralisé : l'accolade du premier arbre à 566 px, ses bouts finissant à
+578 px, rouge).
