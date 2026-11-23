@@ -4765,7 +4765,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=525;
+const APP_VERSION=526;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7598,11 +7598,16 @@ async function pauseTest(){
 }
 /* Le lien « Sortie » de l'en-tête (#sortieLien) : une pause, sans bouton
    « Pause » ni « Abandonner » — voir #sortie-reprise, fin de fichier. */
+let sortieSauteModes=false;
 async function sortirExercice(){
   const l=document.getElementById('sortieLien');
   if(l){ if(l.dataset.enCours==='1') return; l.dataset.enCours='1'; l.hidden=true; }
+  /* « Sortie » remonte d'UN cran de plus que la pause : pas à la page des
+     modes (entraînement / soutien), mais à l'écran d'où l'élève y était venu
+     (demande de Turquet, novembre 2026) — voir retourAvantExo */
+  sortieSauteModes=true;
   try{ await pauseTest(); }
-  finally{ if(l) delete l.dataset.enCours; }
+  finally{ sortieSauteModes=false; if(l) delete l.dataset.enCours; }
 }
 async function abandonTest(){
   if(!currentEleve) return;
@@ -7637,6 +7642,8 @@ async function abandonTest(){
 async function retourAvantExo(){
   const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
   ecranAvantExo=null; currentDM=null;
+  /* « Sortie » : l'écran d'avant la page des modes, comme son bouton « Retour » */
+  if(avant==='mode' && sortieSauteModes){ sortieSauteModes=false; currentDM=dm; return retourModes(); }
   if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoirModes(dm,id); return openTest(id); }
   if(avant && avant!=='mode'){ const r=rouvrirEcran(avant, dm); if(r!==false) return r; }
   if(dm){ return ouvrirDevoirDetail(dm); }   // devoir : retour au détail du devoir
