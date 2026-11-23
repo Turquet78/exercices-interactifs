@@ -925,7 +925,9 @@ convertisse en case du pavé (`data-pave`) : le `focusin` la trouvait hors du
 pavé et le refermait, et plus rien ne le rouvrait. Remède dans le moteur, pas
 dans l'exercice : en fin de `paveBrancher`, si le pavé est fermé et que la case
 qui a le focus vient de devenir une case du pavé, `paveMontrer()`. Tout
-exercice qui redessine puis focalise est couvert.
+exercice qui redessine puis focalise est couvert, aux trois niveaux : le moteur
+du pavé doit être identique partout (« le pavé numérique est identique à celui
+de la Terminale », banc principal), d'où la Seconde v721 et la Terminale v526.
 
 **Exécuté** : banc navigateur, « 11 unvicies » (tablette tactile debout, 6.9) —
 la case touchée ouvre le pavé avec « = », ⏎ ouvre la ligne 2 et le pavé reste
