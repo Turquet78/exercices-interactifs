@@ -803,7 +803,7 @@ commune de la case qu'on écrit) ; un calcul juste mais inachevé garde
 « Revérifier » et dit « Va jusqu'au bout » plutôt que « corrige les cases en
 rouge » devant un écran sans rouge.
 
-## 6.8 {tracer-droite-pouce} — le 6.5, et un coup de pouce sous chaque question rédigée autrement qu'au 6.3 (novembre 2026, Première v465)
+## 6.8 {tracer-droite-pouce} — le 6.5, et un coup de pouce sous chaque question rédigée autrement qu'au 6.3 (novembre 2026, Première v465, puis v466 : le bac blanc avait pris la v465 sur `main` pendant les contrôles)
 
 Demande de Turquet : « faire un exercice comme le 6.5 avec, quand c'est rédigé
 différemment dans le 6.3 pour la même question, un bouton coup de pouce qui
