@@ -11852,8 +11852,8 @@ function bacBlancAutomatismes(w, P){
         if(q.moteur==='rang'){
           const ecrit=rgcNombres(q).slice().sort(function(a,b){ return a.v-b.v; }).map(function(x){ return x.d?'('+x.n+')/('+x.d+')':D(sdDecStr(x.v)); });
           const jr=S.juge(ecrit.join('<')), jv=S.juge(ecrit.slice().reverse().join('<'));
-          if(!jr.sait || !jr.correct) vus.push('q12 : le rangement écrit en fractions « '+ecrit.join('<')+' » n\'est pas accepté : '+JSON.stringify(jr));
-          if(!jv.sait || jv.correct) vus.push('q12 : le rangement en fractions à l\'envers n\'est pas refusé : '+JSON.stringify(jv));
+          if(!jr.sait || !jr.correct) vus.push('q12 : le rangement écrit en fractions « '+ecrit.join('<')+' » n\\'est pas accepté : '+JSON.stringify(jr));
+          if(!jv.sait || jv.correct) vus.push('q12 : le rangement en fractions à l\\'envers n\\'est pas refusé : '+JSON.stringify(jv));
         }
         if(jf.sait && !jf.correct && S.resume && ['voc','coef','pui','odg'].indexOf(q.moteur)>=0 && String(jf.phrase).replace(/«[^»]*»/g,'').indexOf(String(S.resume.answer).replace(/\\s/g,''))>=0 && String(S.resume.answer).length>2)
           vus.push('q'+(i+1)+' : le refus donne la réponse : '+jf.phrase);
@@ -11889,7 +11889,7 @@ function bacBlancAutomatismes(w, P){
     Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test, snapB);
     afficherEcranDe('bba'); bbaRevenir();
     const tmp=document.createElement('div'); tmp.innerHTML=bbaSpec(test.questions[11]).prompt;
-    if(ecran()!=='scr-bba' || $('bbaPrompt').innerHTML!==tmp.innerHTML) vus.push('une autre séance reprise sur le coup de pouce de la question 12 garde l\'énoncé de la séance d\'avant : « '+$('bbaPrompt').textContent+' » au lieu de « '+tmp.textContent+' »');
+    if(ecran()!=='scr-bba' || $('bbaPrompt').innerHTML!==tmp.innerHTML) vus.push('une autre séance reprise sur le coup de pouce de la question 12 garde l\\'énoncé de la séance d\\'avant : « '+$('bbaPrompt').textContent+' » au lieu de « '+tmp.textContent+' »');
     /* le retour RESTE après la vérification des cases, et la rédaction qui suit ne compte pas deux fois */
     startBba();
     for(let i=0;i<12;i++){
