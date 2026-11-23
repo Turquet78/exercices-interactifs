@@ -4930,6 +4930,7 @@ function exercices(suite){
     serpentsHalloween(w, P);
     pythonInput(w, P);
     augmentationTableau(w, P);
+    augmentationPouce(w, P);
     retenueRedescend(w, P);
     pythonInputCalcul(w, P);
     pythonInputMoyenne(w, P);
@@ -38321,6 +38322,85 @@ function augmentationTableau(w, P){
     if(String(liveCheckCurrent).indexOf("checkSuiAnswer(true)")<0) vus.push("liveCheckCurrent ne route pas sui");
     if(String(restartCurrentTest).indexOf("startSui")<0) vus.push("Recommencer ne connaît pas sui");
     if(String(restoreBoxes).indexOf("suiMiroirs")<0) vus.push("restoreBoxes ne remet pas les miroirs");
+    return vus.join(" | ");
+  })()`, v => v === '');
+}
+
+/* {augmentation-tableau-pouce} (Première, 7.3, novembre 2026) : le 7.2, et un
+   « Coup de pouce » aux questions 2 et 3 qui montre la même question comme au
+   7.1 (son écran, ses cases), avec un retour à la version rédigée juste avant
+   « Vérifier », qui reste après la vérification. Le contrôle tient la place
+   au menu, le bouton (absent à la question 1 et au 7.2), l'aller et le retour
+   sans perdre la rédaction, la note comptée une fois (le retour après les
+   cases vérifiées n'est qu'un entraînement), le soutien, la reprise d'une
+   pause sur le coup de pouce, et les branchements. */
+function augmentationPouce(w, P){
+  const nom = '{augmentation-tableau-pouce} : le 7.2 avec un coup de pouce aux questions 2 et 3';
+  if(!P.augmentationTableau){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la fiche « augmentation tableau »'); return; }
+  verifierEval(w, nom + ' — place au menu, bouton, aller-retour, note comptée une fois, soutien, pause, branchements', `(function(){
+    const vus=[], ID="augmentation-tableau-pouce";
+    const on=function(e){ const s=document.querySelector(".screen.on"); return s?s.id==="scr-"+e:false; };
+    const vider=function(){ if(window.__viderObservateurs) window.__viderObservateurs(); };
+    if(TEST_NUM[ID]!=="7.3") vus.push("numéro "+TEST_NUM[ID]);
+    if(TEST_NUM["augmentation-tableau"]!=="7.1"||TEST_NUM["augmentation-tableau-libre"]!=="7.2") vus.push("le 7.1 ou le 7.2 a bougé");
+    if(!TESTS[ID]||typeof TESTS[ID].start!=="function") vus.push("pas d’entrée TESTS");
+    currentEleve={id:"test",prenom:"Test"}; currentMode="train"; currentDM=null; currentTestId=ID; window.confirmerCasesVides=false;
+    TESTS[ID].start();
+    if(test.kind!=="suil"||!test.pouce||test.qId!==ID) vus.push("démarrage : kind "+test.kind+", qId "+test.qId);
+    if(!on("suil")) vus.push("question 1 : pas sur l’écran du 7.2");
+    if($("suilPouceBtn")) vus.push("question 1 : un coup de pouce (le tableau est le même qu’au 7.1)");
+    nextSuil();
+    const q2=test.questions[1];
+    if(q2.part!==2||!on("suil")) vus.push("question 2 : pas sur l’écran rédigé");
+    if(!$("suilPouceBtn")) vus.push("question 2 : pas de bouton « Coup de pouce »");
+    suilFeuille.lignes[0].mf.value="mon brouillon 12";
+    suilPouce();
+    if(!on("sui")) vus.push("le coup de pouce n’ouvre pas l’écran du 7.1");
+    if(!$("sui-m1-"+suiVals(q2).n)||!$("sui-res")) vus.push("le coup de pouce n’a pas les cases du 7.1 (tableau de la méthode 1, phrases)");
+    const act=$("suiActions"), b0=act&&act.querySelector("button");
+    if(!b0||b0.id!=="suipRetourBtn") vus.push("le premier bouton de la rangée n’est pas le retour à la version rédigée");
+    else if(!b0.nextElementSibling||!/Vérifier/.test(b0.nextElementSibling.textContent)) vus.push("le retour n’est pas juste avant « Vérifier »");
+    if(document.querySelectorAll("#suipRetourBtn").length!==1) vus.push("plusieurs boutons de retour");
+    if(String(document.querySelector("#scr-sui .exo-title")?document.querySelector("#scr-sui .exo-title").textContent:"").indexOf("7.3")<0) vus.push("l’écran du coup de pouce ne porte pas le numéro 7.3");
+    suilRevenir();
+    if(!on("suil")||q2.aide!==false) vus.push("le retour ne ramène pas à la version rédigée");
+    if(!suilFeuille||suilFeuille.lignes[0].mf.value!=="mon brouillon 12") vus.push("le retour a perdu la rédaction");
+    if(!$("suilPouceBtn")) vus.push("après le retour, plus de coup de pouce");
+    suilPouce();
+    const avant=test.score, nA=test.answers.length;
+    suiCases(q2).forEach(function(c){ $(c.id).value=String(c.bon); $(c.id).dispatchEvent(new Event("input")); });
+    checkSuiAnswer(); vider();
+    if(test.score!==avant+1||test.answers.length!==nA+1) vus.push("la copie juste du coup de pouce ne compte pas son point (score "+test.score+")");
+    if(!$("suipRetourBtn")) vus.push("le retour a disparu après la vérification");
+    else if(!$("suiNext")||$("suipRetourBtn").nextElementSibling!==$("suiNext")) vus.push("après la vérification, le retour n’est pas juste avant « Question suivante »");
+    suilRevenir();
+    if(!on("suil")||!q2.rejeu) vus.push("le retour après la vérification ne pose pas l’entraînement (rejeu)");
+    if(!$("suilRejeuNote")) vus.push("rien ne dit que le point est déjà compté");
+    if($("suilPouceBtn")) vus.push("un coup de pouce offert sur une question déjà notée");
+    if(!$("suilNext")) vus.push("pas de « Question suivante » sur l’entraînement");
+    if(test.score!==avant+1||test.answers.length!==nA+1) vus.push("le retour a changé la note");
+    if(suiActif()) vus.push("suiActif reste vrai sur la version rédigée");
+    nextSuil();
+    const q3=test.questions[2];
+    if(q3.part!==3||!$("suilPouceBtn")) vus.push("question 3 : pas de coup de pouce");
+    suilPouce();
+    if(!on("sui")||!$("sui-e")) vus.push("question 3 : le coup de pouce n’a pas les phrases du 7.1");
+    /* la pause sur le coup de pouce : la reprise rouvre l’écran du 7.1 */
+    show("suil"); if(!afficherEcranDe("suil")||!on("sui")||!$("suipRetourBtn")) vus.push("la reprise d’une pause sur le coup de pouce ne rouvre pas l’écran du 7.1 avec son retour");
+    if(!/SECR/.test(ctxSuil(q3).contexte)||ctxSuil(q3).contexte.indexOf("Phrases à compléter")<0) vus.push("le contexte de l’IA ne décrit pas le coup de pouce");
+    /* le soutien : une case fausse ne verrouille pas, le retour reste */
+    currentMode="soutien"; TESTS[ID].start(); nextSuil(); suilPouce();
+    const qs=test.questions[1];
+    suiCases(qs).forEach(function(c){ $(c.id).value=String(c.id==="sui-res"?c.bon+1:c.bon); $(c.id).dispatchEvent(new Event("input")); });
+    checkSuiAnswer(); vider();
+    if(test.locked) vus.push("soutien : une case fausse verrouille la question");
+    if(!$("suipRetourBtn")) vus.push("soutien : le retour a disparu après « Revérifier »");
+    /* le 7.2 n’a pas de coup de pouce */
+    currentMode="train"; currentTestId="augmentation-tableau-libre"; startSuil(); nextSuil();
+    if($("suilPouceBtn")||test.pouce) vus.push("le 7.2 a reçu un coup de pouce");
+    if(String(restartCurrentTest).indexOf("startSuilPouce")<0) vus.push("Recommencer ne connaît pas le 7.3");
+    if(!RAPPELS_ID[ID]||!/Coup de pouce/.test(RAPPELS_ID[ID])) vus.push("rappel de cours");
+    if(String(nextSuiQuestion).indexOf("nextSuil")<0) vus.push("« Question suivante » du coup de pouce ne rend pas la main au 7.3");
     return vus.join(" | ");
   })()`, v => v === '');
 }
