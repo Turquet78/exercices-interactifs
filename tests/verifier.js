@@ -6446,7 +6446,7 @@ function recurrenceRedigee(w, apres){
     /* UNE FAUTE D'ORTHOGRAPHE SUR UN MOT DE STRUCTURE NE REFUSE PAS (la règle
        de la Première, étendue, octobre 2026) : « Initalisation », « Hérédiité »,
        « on supose », « croisante » se lisent — la copie reste acceptée, et la
-       remarque nomme les mots ; un mot trop déformé (« Initsation ») n'est ni
+       remarque nomme les mots ; un mot trop déformé (« Iniation ») n'est ni
        ✓ ni ✗ : la page s'abstient et le modèle reçoit le mot à relire ; un mot
        ABSENT reste un refus. */
     const FAUTES=PLEINE.replace('Initialisation','Initalisation').replace('Hérédité','Hérédiité').replace('on suppose','on supose').replace('croissante','croisante');
@@ -6454,10 +6454,13 @@ function recurrenceRedigee(w, apres){
     if(jFa.verdict!=='accepte') vus.push('la copie complète aux mots mal orthographiés n\\'est pas acceptée (verdict '+jFa.verdict+', manque : '+manquants(FAUTES).join(', ')+')');
     if(motsOrthNote(jFa.orth).indexOf('« initialisation »')<0 || motsOrthNote(jFa.orth).indexOf('« croissante »')<0) vus.push('la remarque d\\'orthographe ne nomme pas les mots rétablis : « '+motsOrthNote(jFa.orth)+' »');
     if(motsOrthNote(rrJuge(c0,PLEINE).orth)!=='') vus.push('une copie bien écrite reçoit une remarque d\\'orthographe');
-    const jDo=rrJuge(c0,PLEINE.replace('Initialisation','Initsation'));
+    /* de plus loin (novembre 2026, « accepter les erreurs d'orthographe ») : « Initsation », « Hérdité », « décroisant » se lisent */
+    const LOIN=PLEINE.replace('Initialisation','Initsation').replace('Hérédité','Hérdité');
+    if(rrJuge(c0,LOIN).verdict!=='accepte') vus.push('la copie aux mots plus déformés (« Initsation », « Hérdité ») n\\'est pas acceptée (verdict '+rrJuge(c0,LOIN).verdict+', manque : '+manquants(LOIN).join(', ')+')');
+    const jDo=rrJuge(c0,PLEINE.replace('Initialisation','Iniation'));
     const cDo=jDo.crit.filter(function(x){ return x.cle==='init'; })[0];
-    if(jDo.verdict!=='abstention' || !cDo || cDo.doute!=='initsation') vus.push('« Initsation » : la page devrait s\\'abstenir et confier le mot au modèle (verdict '+jDo.verdict+', doute « '+(cDo&&cDo.doute)+' »)');
-    else if(rrAttenduIA(c0,jDo).indexOf('MOTS À RELIRE')<0 || rrBilanHTML(jDo).indexOf('?\u00a0')<0) vus.push('« Initsation » : le mot à relire ne part pas au modèle, ou le bilan ne le marque pas « ? »');
+    if(jDo.verdict!=='abstention' || !cDo || cDo.doute!=='iniation') vus.push('« Iniation » : la page devrait s\\'abstenir et confier le mot au modèle (verdict '+jDo.verdict+', doute « '+(cDo&&cDo.doute)+' »)');
+    else if(rrAttenduIA(c0,jDo).indexOf('MOTS À RELIRE')<0 || rrBilanHTML(jDo).indexOf('?\u00a0')<0) vus.push('« Iniation » : le mot à relire ne part pas au modèle, ou le bilan ne le marque pas « ? »');
     if(rrJuge(c0,PLEINE.replace('Initialisation : ','')).verdict!=='refus') vus.push('le mot « initialisation » ABSENT ne fait plus refuser');
     if(rrJuge(c0,SANSIMG).verdict!=='abstention')
       vus.push('sans les images f(m) et f(M), la page devrait s\\'abstenir (verdict '+rrJuge(c0,SANSIMG).verdict+')');
@@ -11854,6 +11857,24 @@ function bacBlancAutomatismes(w, P){
           const jr=S.juge(ecrit.join('<')), jv=S.juge(ecrit.slice().reverse().join('<'));
           if(!jr.sait || !jr.correct) vus.push('q12 : le rangement écrit en fractions « '+ecrit.join('<')+' » n\\'est pas accepté : '+JSON.stringify(jr));
           if(!jv.sait || jv.correct) vus.push('q12 : le rangement en fractions à l\\'envers n\\'est pas refusé : '+JSON.stringify(jv));
+        }
+        /* q12 : la LISTE rangée sans « < » (Turquet, novembre 2026) est juste ; à l'envers, refusée */
+        if(q.moteur==='rang'){
+          const ecrit=rgcNombres(q).slice().sort(function(a,b){ return a.v-b.v; }).map(function(x){ return x.d?'('+x.n+')/('+x.d+')':D(sdDecStr(x.v)); });
+          [';', ',', 'et', ' '].forEach(function(sep){
+            const jl=S.juge(ecrit.join(sep)), jw=S.juge(ecrit.slice().reverse().join(sep));
+            if(!jl.sait || !jl.correct) vus.push('q12 : la liste rangée « '+ecrit.join(sep)+' » (sans « < ») n\\'est pas acceptée : '+JSON.stringify(jl));
+            if(!jw.sait || jw.correct) vus.push('q12 : la liste à l\\'envers « '+ecrit.slice().reverse().join(sep)+' » n\\'est pas refusée : '+JSON.stringify(jw));
+          });
+        }
+        /* q8 : « antécédents » mal écrit se lit (Turquet, novembre 2026 : « -2 a 2 enhéEdant ») */
+        if(q.moteur==='ant'){
+          const n=imaAnts(q).length;
+          ['enhéEdant', 'antécédant', 'antessedents'].forEach(function(w){
+            const jo=S.juge(q.y0+' a '+n+' '+w), jn=S.juge(q.y0+' a '+(n+1)+' '+w);
+            if(!jo.sait || !jo.correct) vus.push('q8 : « '+q.y0+' a '+n+' '+w+' » n\\'est pas accepté : '+JSON.stringify(jo));
+            if(!jn.sait || jn.correct) vus.push('q8 : « '+q.y0+' a '+(n+1)+' '+w+' » (mauvais nombre) n\\'est pas refusé : '+JSON.stringify(jn));
+          });
         }
         if(jf.sait && !jf.correct && S.resume && ['voc','coef','pui','odg'].indexOf(q.moteur)>=0 && String(jf.phrase).replace(/«[^»]*»/g,'').indexOf(String(S.resume.answer).replace(/\\s/g,''))>=0 && String(S.resume.answer).length>2)
           vus.push('q'+(i+1)+' : le refus donne la réponse : '+jf.phrase);
