@@ -291,6 +291,19 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
   REMPLACE la carte de départ par « Reprendre », qui ouvre maintenant le
   choix — le banc y clique « Continuer », le geste qu'il supposait.
 
+**Puis « Sortie » a remonté d'un cran de plus : l'écran d'AVANT la page des
+modes** (demande de Turquet, novembre 2026 : « ne pas revenir à la page
+entraînement soutien mais la page précédente encore » ; Seconde v721,
+Première v473, Terminale v526). `sortirExercice()` lève `sortieSauteModes`
+le temps de `pauseTest()` ; `retourAvantExo()`, quand l'exercice avait été
+lancé depuis la page des modes, fait alors ce que fait le bouton « Retour » de
+cette page (`retourModes()` : `ecranAvantModes`, sinon le devoir ou le
+sous-thème). La pause appelée par les bancs, elle, revient toujours aux modes.
+Le bouton « retour » du navigateur passe par `sortirExercice()` : il remonte
+du même cran. La carte « Reprendre » reste sur la page des modes, rouverte en
+cliquant l'exercice. Banc : `tests/sortie.js` part maintenant du sous-thème
+(et, en devoir, de l'écran du devoir) et exige d'y revenir.
+
 **Le bouton « retour » du navigateur vaut « Sortie » pendant un exercice — et
 ramène en arrière sur le site partout ailleurs** (demande de Turquet, novembre
 2026 ; Seconde v718, Première v460, Terminale v521). Bloc
