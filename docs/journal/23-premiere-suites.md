@@ -590,3 +590,54 @@ table de 10. Le jour de départ reste de 2 à 20. Le banc principal lit la
 même table (300 séances). Mesuré dans Chromium sur 4 000 questions : les six
 couples (5→8, 5→9, 6→8, 6→9, 6→10, 7→10) sortent chacun environ une fois sur
 six, tous les contextes en tirent, aucune heure, date ou valeur impossible.
+
+## 7.3 {augmentation-tableau-pouce} : le 7.2, et un coup de pouce qui montre la question du 7.1 (v465, novembre 2026)
+
+Demande de Turquet : « en première, faire un exercice comme le 7.2 avec, quand
+c'est rédigé différemment dans le 7.1 pour la même question, un bouton coup de
+pouce qui permet d'afficher la résolution de la question comme dans le 7.1. On
+pourra enlever le coup de pouce pour revenir à la version rédigée. »
+
+**Lecture.** Les questions « rédigées différemment » sont la 2 et la 3 : la 1
+est le même tableau dans les deux exercices (deux cases, depuis la v435), elle
+n'a pas de coup de pouce. Un point par question, que la réponse soit rédigée
+ou donnée dans les cases du coup de pouce — comme au bac blanc (8.1), aucune
+pénalité n'a été demandée.
+
+**Le motif du bac blanc, repris, sans rien recopier.** Kind `suil` (le moteur
+du 7.2), drapeau `test.pouce`, identifiant `augmentation-tableau-pouce`
+(`startSuilPouce`). Le coup de pouce pose `q.aide` — rangé dans la question,
+il tient à la reprise d'une pause — et montre la MÊME question sur l'écran du
+7.1 (`#scr-sui`, `renderSuiTest`, `checkSuiAnswer` : le tableau de la méthode 1,
+les phrases, les miroirs, les poses facultatives). Ce qui était réservé au kind
+`sui` (les miroirs, les poses et leurs deux portes, `restoreBoxes`) demande
+désormais `suiActif()`, vrai pour le 7.1 et pour le coup de pouce du 7.3.
+`afficherEcranDe` lit l'écran par `suilEcran()`, comme `bbaEcran()` ;
+`checkSuil` route vers `checkSuiAnswer` (la correction en direct du soutien
+passe par là) ; `nextSuiQuestion` rend la main à `nextSuil` ; `ctxSuil` envoie
+au modèle le contexte du 7.1 quand la question est sur son coup de pouce.
+
+**Le retour.** « ✍️ Revenir à la version rédigée », juste avant « Vérifier »,
+et qui reste après la vérification — la règle du 8.1 (v463), par le même moyen :
+un `MutationObserver` sur `#suiActions` (`suipRetourSuivre`), coupé à chaque
+changement de question. La rédaction tapée avant le coup de pouce est toujours
+là : la feuille reste sur son écran (`suilFeuilleIdx`). Revenir après la
+vérification des cases pose `q.rejeu` : la question est notée, la feuille sert
+à s'entraîner (« Vérifier ma rédaction », une phrase qui dit que le point est
+compté, « Question suivante » d'emblée), et ni le score ni les réponses ne
+bougent. Le rendu rédigé vide `#suiHost` : aucune case du 7.1 ne reste cachée
+derrière, ni dans la pause.
+
+**Ce que les contrôles tiennent.** `tests/verifier.js`, « {augmentation-tableau-pouce} » :
+la place (7.3, le 7.1 et le 7.2 immobiles), pas de bouton à la question 1 ni au
+7.2, le coup de pouce sur l'écran du 7.1 avec ses cases, le retour en tête de
+rangée juste avant « Vérifier », seul de son nom, puis toujours là avant
+« Question suivante » ; le retour qui garde la rédaction ; le point compté une
+fois ; l'entraînement après la vérification qui ne compte rien ; la question 3 ;
+la reprise d'une pause sur le coup de pouce ; le soutien (une case fausse ne
+verrouille pas, le retour reste) ; Recommencer, le rappel, le contexte de l'IA.
+Au navigateur (essai manuel, Chromium, entraînement et soutien), tout au
+clavier : la rédaction tapée, le coup de pouce, le retour qui la retrouve, les
+cases du 7.1 remplies (fausse puis corrigée en soutien, « Passer à la suite »
+présent), le retour après la vérification, une rédaction juste en
+entraînement qui ne change pas le score, la question 3.
