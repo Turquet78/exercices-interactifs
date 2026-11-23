@@ -3583,6 +3583,41 @@ if(require.main === module) (async () => {
         verifier('l\'accolade d\'un système garde sa place dans la grille du PDF : x, y et z restent dans l\'accolade',
           mise.image && mise.dedans, JSON.stringify(mise));
       }
+      /* L'ARBRE DE LA CORRECTION EST COMPLET, SANS AIDE, ET SES TRAITS
+         TOMBENT JUSTE SUR LA PAGE DU PDF (DM n°13, novembre 2026) : sur un
+         exercice de bac de probabilités ({arbre-probabilites-bac-types},
+         type 1 : un arbre, puis l'arbre en x), aucun « … » ne reste au bout
+         d'un chemin, aucune phrase « Ce que l'on SAIT… » n'est imprimée, et,
+         chaque arbre retracé dans le cadre du PDF, l'accolade passe À DROITE
+         de chaque « P(A ∩ V) = … » qu'elle embrasse. */
+      if(await s.page.evaluate(() => !!TESTS['arbre-probabilites-bac-types'])){
+        const arbre = await s.page.evaluate(async () => {
+          await TESTS['arbre-probabilites-bac-types'].start(); aptChoisirType(1);
+          clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+          const h = await dmCorrigeHTML(); if(!h) return { h: false };
+          const d = document.createElement('div'); d.innerHTML = h;
+          await dmeChargerScript(DME_PDF_LIBS[0]);
+          const cadre = dmePdfCadre('<div class="dme-pdf"><div class="dmc">' + h + '</div></div>');
+          const hote = cadre.contentDocument.querySelector('.dme-pdf');
+          if(cadre.contentDocument.fonts && cadre.contentDocument.fonts.ready) await cadre.contentDocument.fonts.ready;
+          dmePdfRetracer(hote);
+          const arbres = [...hote.querySelectorAll('svg.apf-traits')].map(t => {
+            const p = t.querySelector('path.apf-acc-p'), m = p ? /M\s*([\d.]+)/.exec(p.getAttribute('d')) : null;
+            const g = t.parentElement, G = g.getBoundingClientRect();
+            const dep = [...g.querySelectorAll('.apt-som')].map(e => (e.firstElementChild || e).getBoundingClientRect().right - G.left);
+            return { acc: m ? +m[1] : null, max: dep.length ? Math.max(...dep) : null };
+          });
+          cadre.remove();
+          return { h: true, pts: d.querySelectorAll('.apf-pts').length, cor: d.querySelectorAll('.apt-cor').length,
+                   pourquoi: /Ce que l.on SAIT|sans rien savoir d.avance/.test(d.textContent), arbres };
+        });
+        verifier('la correction d\'un exercice de bac de probabilités écrit chaque bout de l\'arbre (aucun « … »)',
+          arbre.h && arbre.pts === 0 && arbre.cor >= 8, JSON.stringify(arbre));
+        verifier('la correction n\'imprime pas les phrases d\'aide « Ce que l\'on SAIT… »', arbre.h && !arbre.pourquoi, JSON.stringify(arbre));
+        verifier('retracé sur la page du PDF, l\'accolade d\'un arbre passe à droite des « P(A ∩ V) = … » qu\'elle embrasse',
+          arbre.h && arbre.arbres.length >= 2 && arbre.arbres.every(a => a.acc != null && a.max != null && a.acc >= a.max),
+          JSON.stringify(arbre.arbres));
+      }
       /* et la résolution de ℓ de {suite-bac-evolution} : ses « = »
          l'un sous l'autre, à l'écran — donc sur la photo */
       if(await s.page.evaluate(() => !!TESTS['suite-bac-evolution'])){
