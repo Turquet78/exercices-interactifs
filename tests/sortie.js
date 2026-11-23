@@ -7,8 +7,9 @@
    Le VRAI geste de l'élève, dans un vrai Chromium, sur l'exercice témoin du
    profil (P.navigateur.exercice) : la page des modes, « M'entraîner », une
    question à l'écran ; plus de « Pause » ni d'« Abandonner » ; le lien
-   « Sortie » en haut à droite, cliqué : retour à la page des modes, la carte
-   « Reprendre » ; cliquée : la boîte demande ; « Continuer » rouvre la séance
+   « Sortie » en haut à droite, cliqué : retour à l'écran d'AVANT la page des
+   modes (le sous-thème, le devoir — demande de Turquet, novembre 2026) ; la
+   page des modes rouverte montre la carte « Reprendre » ; cliquée : la boîte demande ; « Continuer » rouvre la séance
    gardée (mêmes questions) ; on ressort, « Recommencer » efface le brouillon
    et relance une séance neuve. La base est le double en mémoire.
    Sortie 0 si tout passe, 1 sinon.
@@ -36,8 +37,13 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
     const espace = await connecter(page);
     verifier('l\'élève est connecté', espace === 'scr-space', espace);
     const id = P.navigateur.exercice;
-    await page.evaluate(i => openTest(i), id);
+    /* le chemin de l'élève : le sous-thème de l'exercice, puis sa page des modes */
+    await page.evaluate(async i => { await openTest(i); ecranAvantModes = null; await retourChoix(); }, id);
     await page.waitForTimeout(400);
+    const avantModes = await ecran(page);
+    verifier('l\'écran d\'avant les modes est un menu', avantModes && avantModes !== 'scr-mode' && avantModes !== 'scr-space', avantModes);
+    const rouvrirModes = async () => { await page.evaluate(i => openTest(i), id); await page.waitForTimeout(500); };
+    await rouvrirModes();
     verifier('hors exercice, « Sortie » ne se montre pas', await page.isHidden('#sortieLien'));
     await page.click('#modeChoices [onclick*="train"]');
     await page.waitForTimeout(800);
@@ -65,10 +71,11 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
     const q1 = await page.evaluate(() => JSON.stringify(test.questions));
     await page.click('#sortieLien');
     await page.waitForTimeout(900);
-    verifier('« Sortie » ramène à la page précédente (les modes)', await ecran(page) === 'scr-mode', await ecran(page));
+    verifier('« Sortie » ramène à l\'écran d\'avant la page des modes', await ecran(page) === avantModes, await ecran(page));
     verifier('après « Sortie », la garde du bouton « retour » est retirée de l\'historique',
       await page.evaluate(() => !(history.state && history.state.exoGarde)));
     verifier('l\'exercice est gardé (un brouillon)', await brouillons(page) === 1, String(await brouillons(page)));
+    await rouvrirModes();
     const carte = await page.$('#modeChoices .resume');
     verifier('la carte « Reprendre » est proposée', !!carte);
     if(carte){
@@ -82,6 +89,7 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
         && await page.evaluate(() => JSON.stringify(test.questions)) === q1, s2);
       await page.click('#sortieLien'); await page.waitForTimeout(900);
       verifier('ressorti : toujours un seul brouillon', await brouillons(page) === 1, String(await brouillons(page)));
+      await rouvrirModes();
       await page.click('#modeChoices .resume'); await page.waitForTimeout(300);
       await page.click('#crRecommencer'); await page.waitForTimeout(1200);
       const s3 = await ecran(page);
@@ -96,11 +104,12 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
         await page.evaluate(() => !!(history.state && history.state.exoGarde)));
       const avantR = await brouillons(page);
       await page.evaluate(() => history.back()); await page.waitForTimeout(1200);
-      verifier('« retour » du navigateur ramène à la page des modes, comme « Sortie »', await ecran(page) === 'scr-mode', await ecran(page));
+      verifier('« retour » du navigateur ramène, comme « Sortie », à l\'écran d\'avant les modes', await ecran(page) === avantModes, await ecran(page));
       verifier('…et l\'exercice est gardé (un brouillon de plus)', await brouillons(page) === avantR + 1, avantR + ' → ' + await brouillons(page));
-      verifier('…et la page des modes n\'a plus de garde : « retour » y ramène en arrière sur le site',
+      verifier('…et cet écran n\'a plus de garde : « retour » y ramène en arrière sur le site',
         await page.evaluate(() => !(history.state && history.state.exoGarde)) && await page.isHidden('#sortieLien'));
       /* remet l'état attendu par la suite : aucun brouillon de cet exercice */
+      await rouvrirModes();
       await page.click('#modeChoices .resume'); await page.waitForTimeout(300);
       await page.click('#crRecommencer'); await page.waitForTimeout(1200);
       await page.click('#sortieLien'); await page.waitForTimeout(900);
@@ -108,15 +117,20 @@ const brouillons = page => page.evaluate(t => (window.__faux && window.__faux.ta
     /* DANS UN DEVOIR : « Recommencer » repasse par la page des modes du devoir,
        et la séance neuve porte toujours le devoir */
     const DM = 'dm_controle_de_la_sortie';
-    await page.evaluate(a => { mesDevoirs = [{ id: a.DM, genre: 'dm', actif: true, num: 97, titre: 'Contrôle de la sortie',
-      exercices: [{ id: a.id, nbQ: 2, modes: ['train'] }] }]; }, { DM, id });
-    await page.evaluate(a => openTestDevoir(a.DM, a.id), { DM, id });
-    await page.waitForTimeout(600);
+    const modesDevoir = async () => {
+      await page.evaluate(a => { mesDevoirs = [{ id: a.DM, genre: 'dm', actif: true, num: 97, titre: 'Contrôle de la sortie',
+        exercices: [{ id: a.id, nbQ: 2, modes: ['train'] }] }]; }, { DM, id });
+      await page.evaluate(a => openTestDevoir(a.DM, a.id), { DM, id });
+      await page.waitForTimeout(600);
+    };
+    await page.evaluate(() => show('devoirs'));
+    await modesDevoir();
     await page.click('#modeChoices [onclick*="train"]'); await page.waitForTimeout(900);
     verifier('devoir : l\'exercice est ouvert, rattaché au devoir', await page.evaluate(d => currentDM === d, DM));
     await page.click('#sortieLien'); await page.waitForTimeout(900);
-    verifier('devoir : « Sortie » ramène à la page des modes du devoir', await ecran(page) === 'scr-mode', await ecran(page));
+    verifier('devoir : « Sortie » ramène au devoir, l\'écran d\'avant ses modes', await ecran(page) === 'scr-devoirs', await ecran(page));
     const avantD = await brouillons(page);
+    await modesDevoir();
     await page.click('#modeChoices .resume'); await page.waitForTimeout(300);
     await page.click('#crRecommencer'); await page.waitForTimeout(1200);
     verifier('devoir : « Recommencer » relance l\'exercice dans le devoir, depuis le début',
