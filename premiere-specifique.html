@@ -49,6 +49,10 @@
 .bba-fr-n{border-bottom:1.5px solid currentColor}
 /* une case écrite par la page (la valeur de départ 100, la nouvelle valeur recopiée) */
 math-field.bba-auto{background:#EEF2F8}
+/* question 9, coup de pouce (l'écran du 1.11) : les chiffres de la fraction à
+   la taille des nombres qui l'entourent (.f-whole, 2rem) — demande de Turquet,
+   novembre 2026 ; le 1.11 lui-même ne change pas */
+#scr-sdtest[data-exo="bac-blanc-automatismes"] #sdHost .fr .fn,#scr-sdtest[data-exo="bac-blanc-automatismes"] #sdHost .fr .fd{font-size:calc(2rem * var(--tab-nb,1))}
 </style>
 <!-- supabase-js à une VERSION EXACTE : le CDN la sert « immuable », gardée un an
      par le navigateur, quand « @2 » est revalidé chaque semaine — et une nouvelle
@@ -4231,7 +4235,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=465;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=466;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.

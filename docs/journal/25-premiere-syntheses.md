@@ -204,3 +204,16 @@ sur une valeur fausse, la valeur juste recopiée dans les deux cases ; les
 taille du 2.1.3 étendues au coup de pouce de la question 5. Au navigateur
 (essai manuel) : les mesures ci-dessus, la recopie au clavier, et une
 vérification où les cases écrites par la page sont bleues.
+
+---
+
+## Question 9, coup de pouce : la fraction à la taille des nombres voisins (Première, 8.1, v466, novembre 2026)
+
+Turquet, sur capture (« A = 10 + 3/10 + 0,09 = □ », l'écran du 1.11) : les
+chiffres de la fraction doivent avoir la taille des caractères autour. La
+fraction est une `.fr` du 1.11 (1,7 rem, 27,2 px) entre des `.f-whole`
+(2 rem, 32 px). Une règle portée par l'IDENTIFIANT de l'écran
+(`#scr-sdtest[data-exo="bac-blanc-automatismes"]`, posé par `show()`) met ses
+chiffres à 2 rem : 32 px mesurés au navigateur, comme « 10 » et « 0,09 ». Le
+1.11 lui-même ne change pas — la demande porte sur le coup de pouce. Le
+contrôle « le bac blanc (8.1) » exige la règle.
