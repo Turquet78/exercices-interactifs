@@ -21477,18 +21477,24 @@ if(require.main === module) (async () => {
       const vu = await s.page.evaluate(async () => {
         const sc = document.querySelector('section.screen.on'); if(!sc) return null;
         const d = document.createElement('div');
-        d.innerHTML = '<math-field id="bancExp" style="min-width:8em;display:inline-block"></math-field>';
+        /* une case montée COMME LA PAGE les monte (classe dexp-mf, mlDexp.upgrade →
+           configureField) : une case nue n'a pas le filtre, et ne mesurerait rien */
+        d.innerHTML = '<math-field id="bancExp" class="dexp-mf" style="min-width:8em;display:inline-block"></math-field>';
         sc.insertBefore(d, sc.firstChild);
         const mf = document.getElementById('bancExp');
         await new Promise(r => setTimeout(r, 300));
+        if(window.mlDexp) window.mlDexp.upgrade(d);
+        if(!mf._mlInit) return { monte: false };
         mf.focus(); await new Promise(r => setTimeout(r, 200));
         mf.value = ''; mf.insert('x^2'); const ins = mf.getValue();
         mf.value = 'x';
         try{ mf.executeCommand('moveToMathfieldEnd'); }catch(e){}
         mf.dispatchEvent(new InputEvent('beforeinput', { inputType: 'insertText', data: '^3', bubbles: true, cancelable: true, composed: true }));
         await new Promise(r => setTimeout(r, 100));
-        return { ins: ins, residu: mf.getValue() };
+        return { monte: true, ins: ins, residu: mf.getValue() };
       });
+      verifier('la case du contrôle est montée par configureField (sans quoi il ne mesurerait rien)',
+        !!vu && vu.monte, vu ? 'mlDexp.upgrade n\'a pas configuré la case' : 'aucun écran ouvert');
       const net = v => String(v || '').replace(/\s+/g, '').replace(/\^\{(\d)\}/g, '^$1');
       verifier('mf.insert("x^2") — la touche x² du clavier à l\'écran — écrit x², le 2 en exposant',
         !!vu && net(vu.ins) === 'x^2', vu ? 'la case contient « ' + vu.ins + ' »' : 'aucun écran ouvert');
