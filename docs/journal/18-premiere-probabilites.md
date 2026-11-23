@@ -1088,7 +1088,7 @@ le choix et la saisie. À 390 px la première rangée de P(A ∪ D) débordait d
 93 px : les deux rangées se replient entre deux groupes « signe case »
 (`fpb-sol-b`).
 
-**Puis le coup de pouce s’est retiré, et celui de P(A ∪ D) a colorié ses trois cases (v467 ; le 6.8 et le bac blanc avaient pris les v465 et v466 le même jour).**
+**Puis le coup de pouce s’est retiré, et celui de P(A ∪ D) a colorié ses trois cases (v470 ; les v465 à v467 avaient été prises le même jour par d’autres modifications — le numéro saute pour ne plus courir derrière elles).**
 Demande de Turquet, le lendemain : « si on reclique sur le coup de pouce, on
 peut le supprimer ; dans la question 6, le coup de pouce revient à colorier
 les 3 cases du tableau concernées et à écrire (… + … + …)/… = …/… avec des
