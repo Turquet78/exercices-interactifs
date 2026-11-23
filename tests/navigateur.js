@@ -21402,6 +21402,61 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
     }
+
+    /* ---- 11 vicies. La touche « < » d'un clavier AZERTY écrit « < » ----
+       Signalé par Turquet sur le 8.1 de la Première (novembre 2026) : « quand
+       je tape "<" juste après la fraction il affiche "\" ». Sur un clavier
+       français, « < » est la touche de code physique IntlBackslash, que
+       MathLive 0.110 lie, sur TOUTE disposition, à l'entrée en mode LaTeX
+       (le « \ » du clavier britannique) — dans TOUTE case, pas seulement après
+       une fraction. Le script #touche-inferieur (fin de fichier, les trois
+       niveaux) retire ce raccourci de chaque champ. Le geste est joué comme le
+       livre un vrai clavier français, par le protocole du navigateur :
+       code IntlBackslash, caractère « < » (« > » avec Maj). Éprouvé à
+       l'envers en retirant le script : la case reste en mode « latex », vide. */
+    titre('11 vicies. LA TOUCHE « < » D\'UN CLAVIER AZERTY ÉCRIT « < »');
+    {
+      s = await ouvrir(chromium, ml, {});
+      await connecter(s.page);
+      const pret = await s.page.evaluate(() => {
+        const sc = document.querySelector('section.screen.on'); if(!sc) return false;
+        const d = document.createElement('div');
+        d.innerHTML = '<math-field id="bancInf" style="min-width:8em;display:inline-block"></math-field>';
+        sc.insertBefore(d, sc.firstChild);
+        return true;
+      });
+      if(!pret){
+        verifier('la touche « < » d\'un clavier AZERTY écrit « < »', false, 'aucun écran ouvert');
+      } else {
+        await s.page.click('#bancInf');
+        await s.page.waitForTimeout(400);
+        const cdp = await s.page.context().newCDPSession(s.page);
+        const touche = async maj => {
+          const k = maj ? '>' : '<', m = maj ? 8 : 0;
+          await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', code: 'IntlBackslash', key: k, text: k, unmodifiedText: '<', windowsVirtualKeyCode: 226, modifiers: m });
+          await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', code: 'IntlBackslash', key: k, windowsVirtualKeyCode: 226, modifiers: m });
+          await s.page.waitForTimeout(80);
+        };
+        const cas = [
+          ['1/5 → <',  '\\frac{1}{5}<', async () => { await s.page.keyboard.type('1/5', { delay: 25 }); await s.page.keyboard.press('ArrowRight'); await touche(false); }],
+          ['2 < 3',    '2<3',           async () => { await s.page.keyboard.type('2'); await touche(false); await s.page.keyboard.type('3'); }],
+          ['2 > 3',    '2>3',           async () => { await s.page.keyboard.type('2'); await touche(true); await s.page.keyboard.type('3'); }],
+          ['2 <= 3',   '2\\le3',        async () => { await s.page.keyboard.type('2'); await touche(false); await s.page.keyboard.type('=3'); }]
+        ];
+        for(const [nom, attendu, gestes] of cas){
+          await s.page.evaluate(() => { const m = document.getElementById('bancInf'); m.value = ''; m.focus(); });
+          await s.page.waitForFunction(() => { const a = document.activeElement; return a && a.id === 'bancInf'; }, null, { timeout: 3000 }).catch(() => {});
+          await gestes();
+          await s.page.waitForTimeout(250);
+          const vu = await s.page.evaluate(() => { const m = document.getElementById('bancInf');
+            return { v: m.value.replace(/\s+/g, '').replace(/\\frac(\d)(\d)/g, '\\frac{$1}{$2}'), mode: m.mode }; });
+          verifier('« ' + nom + ' » tapé sur un clavier AZERTY s\'écrit ' + attendu + ', sans passer en mode LaTeX',
+            vu.v === attendu && vu.mode === 'math', 'la case contient « ' + vu.v + ' » (mode ' + vu.mode + ')');
+        }
+        verifier('la touche « < » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
     /* ---- 11 undevicies. Au 6.8, le coup de pouce de chaque question, aller et retour ----
        Demande de Turquet (novembre 2026) : le 6.5, et sous chaque question
        présentée autrement qu'au 6.3 un bouton « Coup de pouce » qui la montre
