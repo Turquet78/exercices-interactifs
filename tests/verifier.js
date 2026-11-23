@@ -11922,6 +11922,7 @@ function bacBlancAutomatismes(w, P){
     [[1,'q2'],[8,'q9'],[11,'q12']].forEach(function(c){ startBba(); test.idx=c[0]; renderBba();
       const pr=$('bbaPrompt'); if(!pr.querySelector('.bba-fr') || pr.querySelector('.fr, .f-frac')) vus.push(c[1]+' : les fractions de l\\'énoncé ne sont pas à la taille du texte (bbaFr)'); });
     const css=[].map.call(document.querySelectorAll('style'), function(st){ return st.textContent; }).join(' ');
+    if(css.indexOf('#scr-sdtest[data-exo="bac-blanc-automatismes"] #sdHost .fr .fn')<0) vus.push('q9 : la fraction du coup de pouce n\\'est pas à la taille des nombres qui l\\'entourent');
     if(css.indexOf('#bbaPouce math-field.pm-mf')<0 || css.indexOf('#bbaPouce .f-num')<0) vus.push('q5 : les cases du coup de pouce n\\'ont pas la taille de celles du 2.1.3');
     /* ---- 4. l'identité ---- */
     if(TEST_NUM[ID]!=='8.1') vus.push('numéro '+TEST_NUM[ID]+' au lieu de 8.1');
