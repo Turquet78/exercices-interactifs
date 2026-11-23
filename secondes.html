@@ -15121,11 +15121,16 @@ async function pauseTest(){
 }
 /* Le lien « Sortie » de l'en-tête (#sortieLien) : une pause, sans bouton
    « Pause » ni « Abandonner » — voir #sortie-reprise, fin de fichier. */
+let sortieSauteModes=false;
 async function sortirExercice(){
   const l=document.getElementById('sortieLien');
   if(l){ if(l.dataset.enCours==='1') return; l.dataset.enCours='1'; l.hidden=true; }
+  /* « Sortie » remonte d'UN cran de plus que la pause : pas à la page des
+     modes (entraînement / soutien), mais à l'écran d'où l'élève y était venu
+     (demande de Turquet, novembre 2026) — voir retourAvantExo */
+  sortieSauteModes=true;
   try{ await pauseTest(); }
-  finally{ if(l) delete l.dataset.enCours; }
+  finally{ sortieSauteModes=false; if(l) delete l.dataset.enCours; }
 }
 async function abandonTest(){
   if(!currentEleve) return;
@@ -15160,6 +15165,8 @@ async function abandonTest(){
 async function retourAvantExo(){
   const avant=ecranAvantExo, id=currentTestId, dm=currentDM;
   ecranAvantExo=null; currentDM=null;
+  /* « Sortie » : l'écran d'avant la page des modes, comme son bouton « Retour » */
+  if(avant==='mode' && sortieSauteModes){ sortieSauteModes=false; currentDM=dm; return retourModes(); }
   if(avant==='mode' && id && TESTS[id]){ if(dm && dm!==true) return openTestDevoir(dm,id); return openTest(id); }
   if(avant && avant!=='mode'){ const r=rouvrirEcran(avant, dm); if(r!==false) return r; }
   if(dm){ return ouvrirDevoirDetail(dm); }   // devoir : retour au détail du devoir
