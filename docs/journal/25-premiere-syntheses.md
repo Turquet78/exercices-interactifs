@@ -220,7 +220,7 @@ contrôle « le bac blanc (8.1) » exige la règle.
 
 ---
 
-## Question 12 : le rangement en fractions, et la feuille d'une autre séance (Première, 8.1, v471, novembre 2026)
+## Question 12 : le rangement en fractions, et la feuille d'une autre séance (Première, 8.1, v472, novembre 2026)
 
 Turquet, sur capture, en soutien : « 1/5 < 0.26 < 3/10 » refusé (« Ton
 rangement n'est pas le bon »), et il veut que les écritures fractionnaires
