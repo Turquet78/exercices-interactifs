@@ -4240,7 +4240,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=471;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=472;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4655,9 +4655,61 @@ function acquisDe(answers, parfaits, total, nbQuestions){
   const somme=(answers||[]).reduce((s,a)=>s+ptsRep(a),0);
   return Math.max(p, Math.min(total, somme));
 }
+/* LE COUP DE POUCE COÛTE UN QUART DE POINT — DANS LA FICHE DE TRAVAIL N° 13
+   SEULEMENT (demande de Turquet, novembre 2026 : « en première dans la fiche
+   de travail n° 13, quand on vérifie en mode coup de pouce une question, on ne
+   compte que les 3/4 des points de cette question »). Ailleurs — les autres
+   fiches, les devoirs, l'entraînement libre — la question vaut son point avec
+   ou sans coup de pouce (la lecture des 3.13, 6.8, 7.3 et 8.1). La fiche se
+   désigne par son genre et son numéro (POUCE_FICHES) : une fiche archivée
+   puis recréée sous un autre numéro sort de la règle.
+   Ce que « vérifiée en coup de pouce » veut dire, exercice par exercice —
+   l'état que la question garde APRÈS sa vérification, rangé dans la question
+   (la pause le garde) :
+   · 8.1 (bba) et 7.3 (suil) : q.aide === true. « Revenir à la version
+     rédigée » avant la vérification le remet à false ; après, il pose
+     q.rejeu et laisse aide — la question a bien été notée sur son coup de pouce.
+   · 3.13 (pb, la fiche) : q.pouce, figé à la vérification (les boutons sont
+     désactivés).
+   · 6.8 (trd) : la question entière (ses parties 1 à 5) vaut un point ; un
+     seul coup de pouce pris parmi elles au moment de la vérification la fait
+     compter 3/4 — submitTrd le range dans q.pouceVerif.
+   Une réponse par question, dans l'ordre (test.answers[i] ↔ questions[i]) :
+   c'est le cas des quatre moteurs, la rédaction d'entraînement d'après le coup
+   de pouce (q.rejeu) ne poussant rien. Le score entier reste celui des
+   questions parfaites ; la note (details.note) et le pourcentage portent la
+   retenue. */
+const POUCE_FICHES=[13];
+const POUCE_FACTEUR=0.75;
+function pouceRetenueActive(){
+  try{
+    if(typeof currentDM==='undefined' || !currentDM) return false;
+    const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+    return !!(dev && dev.genre==='fiche' && POUCE_FICHES.indexOf(dev.num)>=0);
+  }catch(e){ return false; }
+}
+function pouceDeQuestion(q){
+  if(!q || typeof test==='undefined') return false;
+  if(test.kind==='bba') return q.aide===true;
+  if(test.kind==='suil') return !!(test.pouce && q.part>1 && q.aide===true);
+  if(test.kind==='pb') return !!(typeof fpbPouce==='function' && fpbPouce() && q.pouce);
+  if(test.kind==='trd') return !!q.pouceVerif;
+  return false;
+}
+function pouceRetenue(answers){
+  if(!pouceRetenueActive()) return 0;
+  const qs=test.questions||[], partiel=creditPartielActif();
+  let r=0;
+  (answers||[]).forEach(function(a,i){
+    if(!pouceDeQuestion(qs[i])) return;
+    const v=partiel ? ptsRep(a) : (a&&a.correct ? 1 : 0);
+    r+=v*(1-POUCE_FACTEUR);
+  });
+  return r;
+}
 function noteFin(score, total, nbQuestions){
   const n=(typeof nbQuestions==='number')?nbQuestions:((test.questions||[]).length);
-  const acquis=acquisDe(test.answers, score, total, n);
+  const acquis=Math.max(0, acquisDe(test.answers, score, total, n)-pouceRetenue(test.answers));
   return { note:Math.round(acquis*100)/100, pct:total?Math.min(100,Math.round(acquis/total*100)):0 };
 }
 /* La note d'une ligne de résultats : details.note quand la fin l'a posée
@@ -35622,6 +35674,7 @@ function submitTrd(){
   trdCorriger(res.subs, true);
   trdMiroir();
   requestAnimationFrame(trdFleches);
+  q.pouceVerif=!!(trdPouceEx() && TRD_POUCE_Q.some(function(n){ return !trdLibreQ(n); }));   /* fiche n° 13 : la question compte 3/4 (pouceRetenue) */
   if(parfait) test.score++; $('trdLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
   if(parfait){ $('trdFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('trdFeedback').className='mp-feedback good'; }
   else {
@@ -35697,7 +35750,8 @@ function trdLibre(){ return typeof test!=='undefined' && (test.qId==='tracer-dro
    garde) ; ce que l'élève a écrit dans l'une ou l'autre version est rangé
    (test.trdE.saisies) avant chaque bascule et rendu après : rien ne se perd
    d'un aller-retour. Aucune pénalité n'a été demandée — la question vaut son
-   point, avec ou sans coup de pouce (la lecture du 8.1). Les boutons
+   point, avec ou sans coup de pouce (la lecture du 8.1) — SAUF dans la fiche
+   de travail n° 13, où elle en vaut 3/4 (pouceRetenue, près de noteFin). Les boutons
    disparaissent à la correction. */
 function trdPouceEx(){ return typeof test!=='undefined' && test.qId==='tracer-droite-pouce'; }
 /* la question n se montre-t-elle rédigée (6.5) ? — au 6.8, pas si son coup de pouce est pris */
