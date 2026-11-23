@@ -4240,7 +4240,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=472;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=473;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4660,7 +4660,7 @@ function acquisDe(answers, parfaits, total, nbQuestions){
    de travail n° 13, quand on vérifie en mode coup de pouce une question, on ne
    compte que les 3/4 des points de cette question »). Ailleurs — les autres
    fiches, les devoirs, l'entraînement libre — la question vaut son point avec
-   ou sans coup de pouce (la lecture des 3.13, 6.8, 7.3 et 8.1). La fiche se
+   ou sans coup de pouce (la lecture des 3.13, 6.8, 6.9, 7.3 et 8.1). La fiche se
    désigne par son genre et son numéro (POUCE_FICHES) : une fiche archivée
    puis recréée sous un autre numéro sort de la règle.
    Ce que « vérifiée en coup de pouce » veut dire, exercice par exercice —
@@ -4671,6 +4671,9 @@ function acquisDe(answers, parfaits, total, nbQuestions){
      q.rejeu et laisse aide — la question a bien été notée sur son coup de pouce.
    · 3.13 (pb, la fiche) : q.pouce, figé à la vérification (les boutons sont
      désactivés).
+   · 6.9 (isdl, qId ISDP_ID) : q.aide === true, ou q.rejeu — son retour à
+     la rédaction APRÈS la vérification remet aide à false et pose rejeu ;
+     avant, il ne remet qu'aide à false.
    · 6.8 (trd) : la question entière (ses parties 1 à 5) vaut un point ; un
      seul coup de pouce pris parmi elles au moment de la vérification la fait
      compter 3/4 — submitTrd le range dans q.pouceVerif.
@@ -4694,6 +4697,7 @@ function pouceDeQuestion(q){
   if(test.kind==='suil') return !!(test.pouce && q.part>1 && q.aide===true);
   if(test.kind==='pb') return !!(typeof fpbPouce==='function' && fpbPouce() && q.pouce);
   if(test.kind==='trd') return !!q.pouceVerif;
+  if(test.kind==='isdl') return !!(test.qId===ISDP_ID && (q.aide===true || q.rejeu===true));
   return false;
 }
 function pouceRetenue(answers){
