@@ -410,3 +410,15 @@ précédents du même banc (novembre 2026, PR 1015). `toucheRendue(noms, ms)`
 relit les touches toutes les 150 ms jusqu'à 3 s, et les trois endroits du bloc
 qui attendaient à l'aveugle passent par lui. Même famille que le piège
 précédent : un délai fixe mesure la machine, pas la page.
+
+## Un banc qui cherche un cas rare au hasard cherche assez longtemps — et dit quand il ne trouve pas (novembre 2026)
+
+Le contrôle du 8.4.15 de la Seconde cherchait, en 30 tirages, une question a)
+dont un calcul met deux fractions au même dénominateur sans entier, puis lisait
+`c0.id` sans vérifier qu'il l'avait trouvée. Mesuré sur 20 000 tirages dans
+Chromium : un dixième seulement des questions a) portent ce calcul, si bien que
+les 30 tirages échouaient tous environ une fois sur vingt-cinq — et le banc
+rougissait sur « Cannot read properties of undefined (reading 'id') », sur une
+PR qui ne touchait pas la Seconde (Turquet78/exercices-interactifs#1163). Les
+deux recherches (`c0`, `c0b`) passent à 400 tirages (échec ≈ 10⁻¹⁹), et une
+recherche vaine le dit en clair au lieu de lever.

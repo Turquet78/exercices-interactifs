@@ -16628,7 +16628,10 @@ function coordonneesDevoirFractions(w, P){
     if(test.score!==test.maxScore) vus.push('8.4.15 : '+test.score+' sur '+test.maxScore);
     /* deux dénominateurs différents : le second rougit, le premier reste juste */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
-    let c0=null; for(let t=0;t<30&&!c0;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&!vdfFixe(c); }); }
+    /* 400 tirages, pas 30 : un dixième seulement des questions a) porte un tel calcul (mesuré sur 20 000 tirages,
+       novembre 2026) — à 30, le banc ne trouvait rien une fois sur vingt-cinq et plantait sur « c0.id » */
+    let c0=null; for(let t=0;t<400&&!c0;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&!vdfFixe(c); }); }
+    if(!c0) return vus.concat('8.4.15 : en 400 tirages, aucune question a) ne met deux fractions au même dénominateur').join(' | ');
     const q0=test.questions[0], i0='vdf-'+c0.id, L0=vdfLcm(c0.t1[1],c0.t2[1]);
     juste(q0,false); set(i0+'-k2a',String(2*L0/c0.t2[1])); set(i0+'-k2b',String(2*L0/c0.t2[1]));
     checkVdf(); clearTimeout(test.fbTimer);
@@ -16636,7 +16639,8 @@ function coordonneesDevoirFractions(w, P){
     if(el('vdfFeedback').textContent.indexOf('MÊME dénominateur')<0) vus.push('8.4.15 : le message des deux dénominateurs : '+el('vdfFeedback').textContent.slice(0,120));
     /* le même nombre en haut et en bas : un multiplicateur du haut différent de celui du bas rougit, seul */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
-    let c0b=null; for(let t=0;t<30&&!c0b;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0b=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&vdfFixe(c)!==1; }); }
+    let c0b=null; for(let t=0;t<400&&!c0b;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0b=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&vdfFixe(c)!==1; }); }
+    if(!c0b) return vus.concat('8.4.15 : en 400 tirages, aucune question a) ne met au même dénominateur sans entier en premier').join(' | ');
     const q0b=test.questions[0], i0b='vdf-'+c0b.id, L0b=vdfLcm(c0b.t1[1],c0b.t2[1]);
     juste(q0b,false); set(i0b+'-k1a',String(L0b/c0b.t1[1]+1)); checkVdf(); clearTimeout(test.fbTimer);
     if(classe(el(i0b+'-k1a'))!=='bad' || classe(el(i0b+'-k1b'))!=='ok' || classe(el(i0b+'-N1'))!=='ok') vus.push('8.4.15 : un multiplicateur du haut différent de celui du bas ('+['k1a','k1b','N1'].map(function(s){ return classe(el(i0b+'-'+s)); }).join(', ')+')');
