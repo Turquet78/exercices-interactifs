@@ -1087,3 +1087,29 @@ simplifié, 9 / 9 ; une pause puis « Continuer » retrouve le coup de pouce,
 le choix et la saisie. À 390 px la première rangée de P(A ∪ D) débordait de
 93 px : les deux rangées se replient entre deux groupes « signe case »
 (`fpb-sol-b`).
+
+**Puis le coup de pouce s’est retiré, et celui de P(A ∪ D) a colorié ses trois cases (v470 ; les v465 à v467 avaient été prises le même jour par d’autres modifications — le numéro saute pour ne plus courir derrière elles).**
+Demande de Turquet, le lendemain : « si on reclique sur le coup de pouce, on
+peut le supprimer ; dans la question 6, le coup de pouce revient à colorier
+les 3 cases du tableau concernées et à écrire (… + … + …)/… = …/… avec des
+cases ».
+- Le bouton est un interrupteur (`aria-pressed`) : « Retirer le coup de
+  pouce » rend la ligne de fractions seules, la fraction des effectifs déjà
+  tapée gardée. Les noms gris se cachent quand plus aucune question n'a son
+  coup de pouce (`fpbNomsVus()`), et la méthode affichée sous la question
+  disparaît avec l'ancienne ligne. Après « Vérifier », tous les boutons se
+  désactivent.
+- Le coup de pouce de P(A ∪ D) n'écrit plus P(A) + P(D) − P(A ∩ D) :
+  `fpbLigneUnion` pose « P(A ∪ D) = (□ + □ + □)/□ = □/□ » (`pb-a1` à
+  `pb-a4`, puis `pb-n1` / `pb-n2`, une fraction égale juste). Les trois cases
+  de la réunion (`FPB_UNION_CASES` : A ∩ D, A ∩ D̄, Ā ∩ D) se colorient en
+  ambre dans le tableau (`td.fpb-union`, `data-c` sur chaque case,
+  `fpbUnionColorierMaj`), au rendu comme au clic, tant que ce coup de pouce
+  est pris. Les trois effectifs s'écrivent dans l'ordre qu'on veut : chaque
+  case tapée reçoit comme attendu l'effectif qu'elle porte s'il est de la
+  réunion et pas déjà pris, les autres reçoivent ceux qui restent, et la
+  correction verte suit. Le dénominateur attend le total.
+Vérifié dans Chromium (1280 et 390 px, entraînement et soutien) : pris,
+retiré, repris ; trois cases coloriées puis aucune ; 9 / 9 avec les trois
+effectifs écrits à l'envers ; une case de la somme fausse rougit seule, sa
+voisine juste reste bleue ; aucun débordement, aucune erreur JavaScript.

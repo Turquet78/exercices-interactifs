@@ -843,7 +843,7 @@ aux équations, la droite en couleurs de la 5, puis une copie juste mêlant
 cases et lignes, comptée 1 point, sans bouton après la correction. Éprouvé
 dans Chromium avant d'être écrit en contrôle.
 
-## 6.9 {image-second-degre-pouce} — le 6.7 précédé des carrés, chaque question avec son coup de pouce en cases (v468 — écrit comme le 6.8, il est devenu le 6.9 : le 6.8 {tracer-droite-pouce} est arrivé sur `main` pendant les contrôles, puis les v466 et v467 d’autres changements)
+## 6.9 {image-second-degre-pouce} — le 6.7 précédé des carrés, chaque question avec son coup de pouce en cases (v471 — écrit comme le 6.8, il est devenu le 6.9 : le 6.8 {tracer-droite-pouce} est arrivé sur `main` pendant les contrôles, puis les v466 à v470 d’autres changements)
 
 Demande de Turquet (novembre 2026) : « en première faire un exercice comme le
 6.7 en rajoutant la question 1 de l'exercice 6.6 en mode rédigé. Il faudra un

@@ -411,14 +411,13 @@ relit les touches toutes les 150 ms jusqu'à 3 s, et les trois endroits du bloc
 qui attendaient à l'aveugle passent par lui. Même famille que le piège
 précédent : un délai fixe mesure la machine, pas la page.
 
-## Un banc qui cherche un cas rare au hasard cherche assez longtemps — et dit quand il ne trouve pas (novembre 2026)
-
-Le contrôle du 8.4.15 de la Seconde cherchait, en 30 tirages, une question a)
-dont un calcul met deux fractions au même dénominateur sans entier, puis lisait
-`c0.id` sans vérifier qu'il l'avait trouvée. Mesuré sur 20 000 tirages dans
-Chromium : un dixième seulement des questions a) portent ce calcul, si bien que
-les 30 tirages échouaient tous environ une fois sur vingt-cinq — et le banc
-rougissait sur « Cannot read properties of undefined (reading 'id') », sur une
-PR qui ne touchait pas la Seconde (Turquet78/exercices-interactifs#1163). Les
-deux recherches (`c0`, `c0b`) passent à 400 tirages (échec ≈ 10⁻¹⁹), et une
-recherche vaine le dit en clair au lieu de lever.
+**Un contrôle qui cherche un cas rare par tirages doit en tirer assez — et le compte se mesure.**
+Le contrôle du 8.4.15 de la Seconde (`coordonneesDevoirFractions`,
+`tests/verifier.js`) tirait au plus 30 séances pour trouver, à la
+question a), une chaîne au même dénominateur sans entier, puis lisait
+`c0.id`. Mesuré sur 3 000 tirages dans Chromium : 89,7 % des questions a)
+n'en ont pas — 0,897³⁰ ≈ 3,8 % : une action « Contrôles » sur vingt-six
+rougissait au hasard sur « Cannot read properties of undefined (reading
+'id') », sur des pull requests qui ne touchaient pas la Seconde (la 3.13 de
+la Première, novembre 2026). 300 tirages : 0,897³⁰⁰ ≈ 10⁻¹⁴. La recherche
+voisine (`c0b`, 36 % de tirages sans) était déjà sûre à 30.
