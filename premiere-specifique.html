@@ -18823,8 +18823,8 @@ function bbaJugeRang(q, texte){
       const fa=bbaFauxDans(La); if(fa) return {sait:true, correct:false, phrase:fa}; }
     const vals=rgcRanges(q).map(v=>({n:v,d:1000}));
     if(LR.lus.length!==3) return {sait:true, correct:false, phrase:'Ton rangement doit contenir les trois nombres, du plus petit au plus grand.'};
-    if(LR.lus.every((x,k)=>salEgal(x,vals[k]))) return {sait:true, correct:true, phrase:'Bravo ! Les trois nombres sont bien rangés, du plus petit au plus grand. (Tu peux aussi les séparer par le signe « < ».)'};
-    if(LR.lus.every((x,k)=>salEgal(x,vals[2-k]))) return {sait:true, correct:false, phrase:'Dans l’ordre CROISSANT, on écrit du plus petit au plus grand.'};
+    if(LR.lus.every((x,k)=>salEgal(x.v,vals[k]))) return {sait:true, correct:true, phrase:'Bravo ! Les trois nombres sont bien rangés, du plus petit au plus grand. (Tu peux aussi les séparer par le signe « < ».)'};
+    if(LR.lus.every((x,k)=>salEgal(x.v,vals[2-k]))) return {sait:true, correct:false, phrase:'Dans l’ordre CROISSANT, on écrit du plus petit au plus grand.'};
     return {sait:true, correct:false, phrase:'Ton rangement n’est pas le bon : écris d’abord chaque fraction en nombre décimal, puis compare.'};
   }
   const L=bbaLignes(texte, /(=|<|>|≤|≥)/); if(!L || !L.length) return {sait:false};

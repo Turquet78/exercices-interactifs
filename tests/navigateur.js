@@ -6984,14 +6984,14 @@ if(require.main === module) (async () => {
       /* LES MOTS DE STRUCTURE MAL ORTHOGRAPHIÉS (octobre 2026) : la copie TAPÉE
          plus haut, ses mots retouchés dans les vrais champs MathLive — la page
          relit « Initalisation », « Hérédiité », « croisante » et accepte ;
-         « Initsation », trop loin, part au modèle (« ? » dans le bilan). Les
+         « Iniation », trop loin, part au modèle (« ? » dans le bilan). Les
          lignes sont restaurées ensuite. */
       const fautes = await s.page.evaluate(() => {
         const avant = rrFeuille.lignes.map(L => L.mf.getValue());
         const poser = f => rrFeuille.lignes.forEach((L, i) => L.mf.setValue(f(avant[i])));
         poser(v => v.replace('Initialisation', 'Initalisation').replace(/H(é|\\'e|e)r(é|\\'e|e)dit(é|\\'e|e)/, 'Hérédiité').replace('croissante', 'croisante'));
         const t1 = rrTexte(), j1 = rrJuge(test.questions[test.idx], t1);
-        poser(v => v.replace('Initialisation', 'Initsation'));
+        poser(v => v.replace('Initialisation', 'Iniation'));
         const t2 = rrTexte(), j2 = rrJuge(test.questions[test.idx], t2);
         poser(v => v);
         return { t1: t1.slice(0, 90), v1: j1.verdict, note: motsOrthNote(j1.orth), v2: j2.verdict, bilan2: rrBilanHTML(j2).indexOf('?\u00a0') >= 0,
@@ -6999,7 +6999,7 @@ if(require.main === module) (async () => {
       });
       verifier('les mots de structure mal orthographiés, dans les vrais champs, se lisent — et un mot trop déformé part au modèle',
         fautes.v1 === 'accepte' && /initialisation/.test(fautes.note) && fautes.v2 === 'abstention' && fautes.bilan2,
-        'mal orthographiée : ' + fautes.v1 + ' (manque ' + fautes.rate1 + ', lu ' + JSON.stringify(fautes.t1) + '), remarque « ' + fautes.note + ' » ; « Initsation » : ' + fautes.v2 + (fautes.bilan2 ? '' : ', sans « ? » au bilan'));
+        'mal orthographiée : ' + fautes.v1 + ' (manque ' + fautes.rate1 + ', lu ' + JSON.stringify(fautes.t1) + '), remarque « ' + fautes.note + ' » ; « Iniation » : ' + fautes.v2 + (fautes.bilan2 ? '' : ', sans « ? » au bilan'));
       /* LES TOUCHES ≤ ≥ < > DU CLAVIER À L'ÉCRAN (demande de Turquet, septembre
          2026), PLUS « = » (seconde demande du même mois — elle manquait aux
          trois claviers, et sur tablette le clavier du système est coupé) : une
