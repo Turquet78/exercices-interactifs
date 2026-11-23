@@ -211,3 +211,16 @@ prouve. Les quatre juges en profitent (`libreJuge`, `pfJuge` en Seconde,
 `spfrJuge` en Première), et le contrôle « le juge arithmétique des
 rédactions » rejoue la copie de la capture, un terme faux seul, et deux
 termes faux (où rien ne doit être désigné).
+
+**Puis la faute d'orthographe se lit de PLUS LOIN, sur toute rédaction jugée
+par la page (novembre 2026).** Turquet : « accepter les erreurs
+d'orthographe comme "-2 a 2 enhéEdant", appliquer à tous les exercices qui
+ont de la rédaction ». L'écart admis suit la longueur du mot : 1 lettre
+jusqu'à 6, 2 pour 7, 3 pour 8 et 9, 4 à partir de 10 (« enhéEdant » est à 4
+de « antecedent »). Première : `salTolMot`, `salMotsProches(t, mots)`
+(généralise `salMotsEvolution`, qui en devient un cas) ; Terminale : la même
+échelle dans `motsRacines`. Les mots courts restent à une lettre — « hausse »
+et « baisse » sont à deux lettres l'un de l'autre, « cause » à deux de
+« hausse » — et deux mots à égale distance ne sont jamais lus. La Seconde
+n'a aucun juge de MOTS local : sa rédaction part au modèle, dont la consigne
+dit déjà « même avec des fautes d'orthographe ».

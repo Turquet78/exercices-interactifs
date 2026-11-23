@@ -21343,7 +21343,8 @@ if(require.main === module) (async () => {
         if(vc){
           await s.page.mouse.click(vc.x, vc.y); await s.page.waitForTimeout(400);
           await s.page.evaluate(q => { const mf = document.querySelector(q); try{ mf.setValue(''); }catch(e){} }, T.champ);
-          for(const t of ['g', '⇧', 'A']){
+          /* puis « < » et « ≤ », de la rangée des signes (novembre 2026, le 8.1 de la Première : « pas la touche < ») */
+          for(const t of ['g', '⇧', 'A', '<', '≤']){
             /* après ⇧, MathLive redessine la touche « a » en « A » */
             const k = await toucheRendue([t], 1500); if(!k){ souci = 'touche « ' + t + ' » introuvable'; break; }
             await s.page.mouse.click(k.x, k.y); await s.page.waitForTimeout(200);
@@ -21354,8 +21355,8 @@ if(require.main === module) (async () => {
           aChamp && !redaction && !!vc,
           !aChamp ? 'aucune case ' + T.champ + ' sur l\'écran' : redaction ? 'le témoin porte une feuille de rédaction : il ne témoigne pas pour un écran de calcul'
             : 'aucune touche « ' + KL.versC + ' » sur le clavier rendu');
-        verifier('au doigt, « g », puis ⇧ et « A », s\'écrivent dans la case : « gA »',
-          String(lu || '').replace(/\s+/g, '') === 'gA', souci || (lu === null ? 'rien n\'a pu être tapé' : 'la case se relit « ' + lu + ' »'));
+        verifier('au doigt, « g », puis ⇧ et « A », puis « < » et « ≤ », s\'écrivent dans la case : « gA<≤ »',
+          /^gA<\\leq?$/.test(String(lu || '').replace(/\s+/g, '')), souci || (lu === null ? 'rien n\'a pu être tapé' : 'la case se relit « ' + lu + ' »'));
         verifier('les lettres sur un écran de calcul ne lèvent aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;

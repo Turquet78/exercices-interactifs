@@ -11855,6 +11855,24 @@ function bacBlancAutomatismes(w, P){
           if(!jr.sait || !jr.correct) vus.push('q12 : le rangement écrit en fractions « '+ecrit.join('<')+' » n\\'est pas accepté : '+JSON.stringify(jr));
           if(!jv.sait || jv.correct) vus.push('q12 : le rangement en fractions à l\\'envers n\\'est pas refusé : '+JSON.stringify(jv));
         }
+        /* q12 : la LISTE rangée sans « < » (Turquet, novembre 2026) est juste ; à l'envers, refusée */
+        if(q.moteur==='rang'){
+          const ecrit=rgcNombres(q).slice().sort(function(a,b){ return a.v-b.v; }).map(function(x){ return x.d?'('+x.n+')/('+x.d+')':D(sdDecStr(x.v)); });
+          [';', ',', 'et', ' '].forEach(function(sep){
+            const jl=S.juge(ecrit.join(sep)), jw=S.juge(ecrit.slice().reverse().join(sep));
+            if(!jl.sait || !jl.correct) vus.push('q12 : la liste rangée « '+ecrit.join(sep)+' » (sans « < ») n\\'est pas acceptée : '+JSON.stringify(jl));
+            if(!jw.sait || jw.correct) vus.push('q12 : la liste à l\\'envers « '+ecrit.slice().reverse().join(sep)+' » n\\'est pas refusée : '+JSON.stringify(jw));
+          });
+        }
+        /* q8 : « antécédents » mal écrit se lit (Turquet, novembre 2026 : « -2 a 2 enhéEdant ») */
+        if(q.moteur==='ant'){
+          const n=imaAnts(q).length;
+          ['enhéEdant', 'antécédant', 'antessedents'].forEach(function(w){
+            const jo=S.juge(q.y0+' a '+n+' '+w), jn=S.juge(q.y0+' a '+(n+1)+' '+w);
+            if(!jo.sait || !jo.correct) vus.push('q8 : « '+q.y0+' a '+n+' '+w+' » n\\'est pas accepté : '+JSON.stringify(jo));
+            if(!jn.sait || jn.correct) vus.push('q8 : « '+q.y0+' a '+(n+1)+' '+w+' » (mauvais nombre) n\\'est pas refusé : '+JSON.stringify(jn));
+          });
+        }
         if(jf.sait && !jf.correct && S.resume && ['voc','coef','pui','odg'].indexOf(q.moteur)>=0 && String(jf.phrase).replace(/«[^»]*»/g,'').indexOf(String(S.resume.answer).replace(/\\s/g,''))>=0 && String(S.resume.answer).length>2)
           vus.push('q'+(i+1)+' : le refus donne la réponse : '+jf.phrase);
       });

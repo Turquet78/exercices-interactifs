@@ -247,3 +247,17 @@ Contrôle « le bac blanc (8.1) » : le rangement écrit avec les fractions
 telles quelles est accepté, à l'envers il est refusé ; une autre séance
 reprise sur le coup de pouce de la question 12 montre SON énoncé après le
 retour.
+
+**La question 12 accepte une LISTE rangée sans « < », et la question 8 lit
+« antécédents » mal écrit (novembre 2026).** Turquet : « accepter une liste
+de nombres bien rangés sans le symbole < » et « -2 a 2 enhéEdant » doit
+compter. `bbaListeRang` : quand aucune ligne n'a de signe d'ordre, la
+dernière ligne sans « = » se lit comme une liste (séparateurs « ; », « , »,
+« et », espace ; la virgule décimale arrive déjà en « . » par `toPlain`) ;
+rangée, elle est juste ; à l'envers ou en désordre, refusée sans faire dire à
+l'élève un « < » qu'il n'a pas écrit. Les questions 7 et 8 passent leur texte
+par `salMotsProches(…, BBA_MOTS_LECTURE)` (« antecedent », « image » : chacun
+est l'autre bord de l'autre). Contrôle : banc principal, « le bac blanc
+(8.1) » — la liste rangée sous quatre séparateurs, à l'envers refusée ;
+« enhéEdant », « antécédant », « antessedents » acceptés avec le bon nombre,
+refusés avec un autre.
