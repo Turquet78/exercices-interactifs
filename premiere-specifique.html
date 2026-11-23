@@ -4217,7 +4217,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=462;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=463;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -17871,10 +17871,11 @@ async function checkEsl(){
     return;
   }
   test.locked=true; if(eslFeuille) eslFeuille.verrouiller();
-  if(correct){ test.score++; $('eslLiveScore').textContent=test.score; }
-  else if(currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc(eslCorrection(q))+'</p>');
+  const rejeu=bbaRejeu();   /* {bac-blanc-automatismes} : la question est déjà notée par son coup de pouce */
+  if(correct && !rejeu){ test.score++; $('eslLiveScore').textContent=test.score; }
+  else if(!correct && currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc(eslCorrection(q))+'</p>');
   const a=essAns(q), mot=s=>s>0?'hausse':'baisse';
-  test.answers.push({...(ptsExo()||{}), q:`une ${mot(q.s1)} de ${q.P1} % suivie d'une ${mot(q.s2)} de ${q.P2} %, rédigée`,
+  if(!rejeu) test.answers.push({...(ptsExo()||{}), q:`une ${mot(q.s1)} de ${q.P1} % suivie d'une ${mot(q.s2)} de ${q.P2} %, rédigée`,
     answer:`${mot(a.sens)} de ${a.pct} %`, given:rep, correct});
   const last=test.idx===test.questions.length-1;
   $('eslActions').innerHTML=`<button class="btn btn-primary" id="eslNext" onclick="nextEsl()">${last?'Voir mes résultats':'Calcul suivant'}</button>`;
@@ -18152,10 +18153,10 @@ function dbpRevenir(){
    d'une question rédigée (renderPTest, renderAG2Test et renderEssTest
    l'appellent ; vide partout ailleurs). */
 function dbpRetourHTML(){
-  const bba=test.kind==='bba';   /* {bac-blanc-automatismes} : le même bouton, après un coup de pouce */
-  const q=(test.kind==='dbp'||bba) && test.questions && test.questions[test.idx];
+  /* {bac-blanc-automatismes} : son bouton de retour vit dans la rangée de « Vérifier » (bbaRetourSuivre) */
+  const q=test.kind==='dbp' && test.questions && test.questions[test.idx];
   if(!q || q.aide!==true) return '';
-  return '<div class="row" style="justify-content:flex-end;margin:0 0 8px" id="dbpRetour"><button class="btn btn-ghost" onclick="'+(bba?'bbaRevenir()':'dbpRevenir()')+'">✍️ Revenir à la version rédigée</button></div>';
+  return '<div class="row" style="justify-content:flex-end;margin:0 0 8px" id="dbpRetour"><button class="btn btn-ghost" onclick="dbpRevenir()">✍️ Revenir à la version rédigée</button></div>';
 }
 /* La réponse est donnée dans les cases de l'aide méthode : plus de retour. */
 function dbpRetourRetirer(){ const rb=$('dbpRetour'); if(rb) rb.remove(); }
@@ -18485,7 +18486,7 @@ async function startBba(){
    celui du moteur du coup de pouce. La table d'afficherEcranDe le lit. */
 function bbaEcran(){
   const q=test.questions&&test.questions[test.idx]; if(!q) return 'bba';
-  if(q.aide) return BBA_ECRAN_POUCE[q.moteur]||'bba';
+  if(q.aide && !q.rejeu) return BBA_ECRAN_POUCE[q.moteur]||'bba';
   return q.moteur==='evol' ? 'esl' : 'bba';
 }
 function bbaQiaCle(){
@@ -18509,13 +18510,44 @@ function renderBba(){
   else if(e==='vaptest') renderVap();
   else if(e==='rgctest') renderRgc();
   else if(e==='esl'){ renderEsl(); bbaEslIdx=test.idx; }
-  else if(q && q.aide) renderBbaProp();
+  else if(q && q.aide && !q.rejeu) renderBbaProp();
   else renderBbaRed();
-  /* le bouton de retour, en tête de la carte du moteur repris — sauf où le
-     moteur le pose lui-même dans ses cases (le 2.2.2 / 2.3.2, le 2.5.4) */
-  if(q && q.aide && e!=='ag2test' && e!=='esstest' && !$('dbpRetour')){
-    const carte=document.querySelector('#scr-'+e+' .card'); if(carte) carte.insertAdjacentHTML('afterbegin', dbpRetourHTML());
-  }
+  if(q && q.rejeu) bbaRejeuDecor();
+  bbaRetourSuivre(e);
+}
+/* LE BOUTON DE RETOUR, JUSTE AVANT « VÉRIFIER » (demande de Turquet,
+   novembre 2026 : « pouvoir revenir à la version rédigée pour chaque question
+   avec un bouton », « à côté du bouton Vérifier, juste avant »). Chaque moteur
+   repris réécrit sa rangée de boutons à sa guise (Vérifier, Revérifier,
+   Question suivante, « Passer à la suite ») : un observateur sur CETTE rangée
+   y remet le bouton en tête tant que la question est sur son coup de pouce —
+   et il y RESTE après la vérification. */
+let bbaObs=null;
+function bbaRetourBouton(){ return '<button class="btn btn-ghost" type="button" id="bbaRetourBtn" onclick="bbaRevenir()">✍️ Revenir à la version rédigée</button>'; }
+function bbaRetourArreter(){ if(bbaObs){ bbaObs.disconnect(); bbaObs=null; } const b=$('bbaRetourBtn'); if(b) b.remove(); }
+function bbaRetourSuivre(e){
+  bbaRetourArreter();
+  const q=test.questions && test.questions[test.idx];
+  if(!q || !q.aide || q.rejeu) return;
+  const act=document.querySelector('#scr-'+e+' [id$="Actions"]'); if(!act) return;
+  const poser=function(){
+    const qq=test.kind==='bba' && test.questions && test.questions[test.idx];
+    if(qq!==q || !q.aide || q.rejeu || act.querySelector('#bbaRetourBtn')) return;
+    act.insertAdjacentHTML('afterbegin', bbaRetourBouton());
+  };
+  poser();
+  if(typeof MutationObserver==='function'){ bbaObs=new MutationObserver(poser); bbaObs.observe(act,{childList:true}); }
+}
+/* la question déjà notée par son coup de pouce, rédigée ensuite pour s'entraîner */
+function bbaRejeu(){ const q=test.kind==='bba' && test.questions && test.questions[test.idx]; return !!(q && q.rejeu); }
+function bbaRejeuNote(){ return '<p class="dexp-hint" id="bbaRejeuNote">Le point de cette question est déjà compté dans le coup de pouce. Rédige maintenant ta réponse pour t’entraîner : elle sera vérifiée, sans changer ta note.</p>'; }
+function bbaSuivantHTML(){ const last=test.idx===test.questions.length-1; return '<button class="btn btn-ghost" type="button" id="bbaSuivantRejeu" onclick="nextBba()">'+(last?'Voir mes résultats':'Question suivante')+'</button>'; }
+function bbaRejeuDecor(){
+  const q=test.questions[test.idx], esl=q.moteur==='evol';
+  const host=$(esl?'eslHost':'bbaHost'); if(host && !$('bbaRejeuNote')) host.insertAdjacentHTML('afterbegin', bbaRejeuNote());
+  if(host) host.querySelectorAll('.bba-bloque').forEach(function(b){ b.hidden=true; });   /* plus de coup de pouce à offrir */
+  const act=$(esl?'eslActions':'bbaActions');
+  if(act) act.innerHTML='<button class="btn btn-primary" type="button" onclick="'+(esl?'checkEsl()':'checkBba()')+'">Vérifier ma rédaction</button>'+bbaSuivantHTML();
 }
 function bbaPouceHTML(){ return '<button class="btn btn-ghost" id="bbaPouceBtn" type="button" onclick="bbaAide()">👍 Coup de pouce</button>'; }
 function bbaBoutons(lib){ $('bbaActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkBba()">'+lib+'</button>'+bbaPouceHTML(); }
@@ -18528,8 +18560,23 @@ function bbaAide(){
 }
 function bbaRevenir(){
   const q=test.questions[test.idx];
-  if(test.locked||!q||q.aide!==true) return;
+  if(!q||q.aide!==true||q.rejeu) return;
   clearTimeout(test.imaAnim);
+  bbaRetourArreter();
+  if(test.locked){
+    /* les cases sont déjà vérifiées : la question est notée. La feuille
+       revient pour s'entraîner à rédiger — q.rejeu, rangé dans la question,
+       tient aussi à la reprise d'une pause : rien ne se compte deux fois. */
+    q.rejeu=true;
+    const e=bbaEcran(); show(e);
+    const garde=(e==='esl') ? (eslFeuille && bbaEslIdx===test.idx && $('eslSheet')) : (bbaFeuille && bbaFeuilleIdx===test.idx && $('bbaSheet'));
+    if(!garde){ renderBba(); autoSave(); return; }
+    test.locked=false; test.eslBusy=false; test.bbaBusy=false;
+    if(e==='bba'){ $('bbaRed').hidden=false; $('bbaPouce').hidden=true; $('bbaPouce').innerHTML=''; $('bbaFeedback').textContent=''; $('bbaFeedback').className='mp-feedback'; }
+    else { $('eslFeedback').textContent=''; $('eslFeedback').className='mp-feedback'; }
+    bbaRejeuDecor();
+    autoSave(); return;
+  }
   q.aide=false;
   dbpRetourRetirer();
   const e=bbaEcran(); show(e);
@@ -18832,7 +18879,7 @@ function renderBbaRed(){
   $('bbaHost').innerHTML=numeros(
     `<div class="pt-step"><div class="pt-lab">${S.lab}</div>
        <div class="dexp2-sheet" id="bbaSheet"></div>
-       <p class="dexp-hint">${S.hint} Bloqué&nbsp;? Le bouton <b>Coup de pouce</b> montre la question en étapes.</p></div>`);
+       <p class="dexp-hint">${S.hint}<span class="bba-bloque"> Bloqué&nbsp;? Le bouton <b>Coup de pouce</b> montre la question en étapes.</span></p></div>`);
   if(S.mode==='calcul'){
     const p=S.prefixe||'', pt=S.prefixeTexte||'';
     bbaFeuille=mlFeuille({ conteneur:'bbaSheet', mode:'calcul', prefixes:{premiere:p,suite:'='}, prefixesTexte:{premiere:pt,suite:'='} });
@@ -18887,21 +18934,23 @@ async function checkBba(){
   } else {
     if(!res || res.error){
       fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
-      fb.className='mp-feedback bad'; bbaBoutons('Vérifier'); return;
+      fb.className='mp-feedback bad'; if(bbaRejeu()) bbaRejeuDecor(); else bbaBoutons('Vérifier'); return;
     }
     correct=res.correct===true; feedback=res.feedback||'';
   }
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(q.moteur==='dim') salPeindreLignes(bbaFeuille, dbpEvoVueSal(q));
   if(isSoutien() && !correct){
-    bbaBoutons('Revérifier');
+    if(bbaRejeu()) $('bbaActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkBba()">Revérifier</button>'+bbaSuivantHTML();
+    else bbaBoutons('Revérifier');
     if(bbaFeuille && bbaFeuille.lignes.length) bbaFeuille.lignes[bbaFeuille.lignes.length-1].mf.focus();
     return;
   }
   test.locked=true; if(bbaFeuille) bbaFeuille.verrouiller();
-  if(correct){ test.score++; $('bbaLiveScore').textContent=test.score; }
+  const rejeu=bbaRejeu();   /* déjà notée par son coup de pouce : la rédaction s'entraîne, sans compter */
+  if(correct && !rejeu){ test.score++; $('bbaLiveScore').textContent=test.score; }
   if(!correct && currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc(S.correction)+'</p>');
-  test.answers.push({correct:correct, q:S.resume.q, answer:S.resume.answer, given:rep});
+  if(!rejeu) test.answers.push({correct:correct, q:S.resume.q, answer:S.resume.answer, given:rep});
   const last=test.idx===test.questions.length-1;
   $('bbaActions').innerHTML=`<button class="btn btn-primary" id="bbaNext" type="button" onclick="nextBba()">${last?'Voir mes résultats':'Question suivante'}</button>`;
   const nb=$('bbaNext'); if(nb) nb.focus();
@@ -18923,7 +18972,7 @@ function renderBbaProp(){
   $('bbaActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkBbaProp()">Vérifier</button>';
   const frac=(n,d)=>`<span class="f-frac-input"><math-field class="dexp-mf pm-mf f-num" id="${n}" aria-label="numérateur"></math-field><span class="f-fbar"></span><math-field class="dexp-mf pm-mf f-den" id="${d}" aria-label="dénominateur"></math-field></span>`;
   const dec=id=>`<math-field class="dexp-mf pm-mf f-dec" id="${id}" aria-label="résultat"></math-field>`;
-  $('bbaPouce').innerHTML=dbpRetourHTML()+numeros(
+  $('bbaPouce').innerHTML=numeros(
     `<p class="mp-instr enonce-suite">${C.tout(q.N)}, ${q.P1} % ${C.a}, et parmi eux, ${q.P2} % ${C.b}. ${C.quoi}</p>`
     +`<div class="pt-step"><div class="pt-lab">Étape 1 — ${q.P1} % de ${q.N}&nbsp;: ① le % en fraction décimale&nbsp;· ② multiplier les fractions&nbsp;· ③ le résultat en écriture décimale</div>
        <div class="pt-row">${frac('ba1n','ba1d')}<span class="f-times">×</span><span class="f-whole">${q.N}</span>${fEq(frac('ba2n','ba2d'))}${fEq(dec('ba3'))}</div></div>`
@@ -18977,7 +19026,7 @@ function dbpSuite(){
   if(test.kind==='bba'){ nextBba(); return true; }
   return false;
 }
-function nextBba(){ clearTimeout(test.imaAnim); if(test.idx<test.questions.length-1){ test.idx++; renderBba(); autoSave(); } else finishBba(); }
+function nextBba(){ clearTimeout(test.imaAnim); bbaRetourArreter(); if(test.idx<test.questions.length-1){ test.idx++; renderBba(); autoSave(); } else finishBba(); }
 async function finishBba(){
   if(!debutFin()) return;
   recoveryClosed=true; recoveryDirty=false;
