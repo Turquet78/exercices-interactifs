@@ -16628,7 +16628,9 @@ function coordonneesDevoirFractions(w, P){
     if(test.score!==test.maxScore) vus.push('8.4.15 : '+test.score+' sur '+test.maxScore);
     /* deux dénominateurs différents : le second rougit, le premier reste juste */
     TESTS[d.exercice].start(); clearTimeout(test.fbTimer);
-    let c0=null; for(let t=0;t<30&&!c0;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&!vdfFixe(c); }); }
+    /* 300 tirages, pas 30 : neuf questions a) sur dix n'ont pas de chaîne au même dénominateur sans entier, et 30 tirages
+       laissaient c0 vide une fois sur 26 — le contrôle plantait sur « c0.id » (pull request de la 3.13, novembre 2026) */
+    let c0=null; for(let t=0;t<300&&!c0;t++){ TESTS[d.exercice].start(); clearTimeout(test.fbTimer); c0=vdfPlan(test.questions[0]).ch.find(function(c){ return vdfMilieu(c.t1,c.t2)&&!vdfFixe(c); }); }
     const q0=test.questions[0], i0='vdf-'+c0.id, L0=vdfLcm(c0.t1[1],c0.t2[1]);
     juste(q0,false); set(i0+'-k2a',String(2*L0/c0.t2[1])); set(i0+'-k2b',String(2*L0/c0.t2[1]));
     checkVdf(); clearTimeout(test.fbTimer);
