@@ -898,7 +898,7 @@ en rouge ; miroirs recopiés ; pause sur un coup de pouce entamé, reprise sur
 le coup de pouce, cases, miroirs et bouton de retour remis. Aucune erreur de
 page.
 
-### Le 6.9 accepte le résultat brut, et la tablette garde son pavé à la ligne suivante (v473)
+### Le 6.9 accepte le résultat brut, et la tablette garde son pavé à la ligne suivante (v474)
 
 Signalé par Turquet (novembre 2026) : « en première dans le 6.9, on acceptera
 les résultats bruts dans la version rédigée ou avec peu d'étapes. Sur tablette
@@ -927,7 +927,7 @@ dans l'exercice : en fin de `paveBrancher`, si le pavé est fermé et que la cas
 qui a le focus vient de devenir une case du pavé, `paveMontrer()`. Tout
 exercice qui redessine puis focalise est couvert, aux trois niveaux : le moteur
 du pavé doit être identique partout (« le pavé numérique est identique à celui
-de la Terminale », banc principal), d'où la Seconde v721 et la Terminale v526.
+de la Terminale », banc principal), d'où la Seconde v722 et la Terminale v527.
 
 **Exécuté** : banc navigateur, « 11 unvicies » (tablette tactile debout, 6.9) —
 la case touchée ouvre le pavé avec « = », ⏎ ouvre la ligne 2 et le pavé reste
