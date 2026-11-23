@@ -4870,6 +4870,7 @@ const TESTS={
      tableau », sans argent — thème 7, ajouté EN DERNIER : rien ne renumérote. */
   'augmentation-tableau': { name:'Augmentation r\u00e9guli\u00e8re : tableau et calculs', icon:'\ud83d\udcc8', desc:'Une quantit\u00e9 qui change toujours de la m\u00eame valeur : compl\u00e8te le tableau, calcule la valeur au bout de plusieurs ann\u00e9es (heures, jours), puis trouve quand un seuil est atteint. Des nombres ronds : tout se calcule de t\u00eate, et une donn\u00e9e \u00e9crite se recopie dans les cases suivantes.', start:()=>startSui() },
   'augmentation-tableau-libre': { name:'Augmentation r\u00e9guli\u00e8re : r\u00e9diger ses r\u00e9ponses', icon:'\u270d\ufe0f', desc:'Les m\u00eames questions que {augmentation-tableau}, mais apr\u00e8s le tableau, un seul champ par question : \u00e9cris ta r\u00e9ponse avec la m\u00e9thode qui te convient \u2014 la suite des valeurs, des phrases avec tes calculs, ou directement le r\u00e9sultat \u2014 et l\u2019IA la lit.', start:()=>startSuil() },
+  'augmentation-tableau-pouce': { name:'Augmentation r\u00e9guli\u00e8re : r\u00e9diger, avec un coup de pouce', icon:'\ud83d\udc4d', desc:'Les questions de {augmentation-tableau-libre} : tu r\u00e9diges ta r\u00e9ponse aux questions 2 et 3 \u2014 et si tu bloques, le bouton \u00ab Coup de pouce \u00bb affiche la m\u00eame question comme dans {augmentation-tableau}, le tableau et les phrases \u00e0 compl\u00e9ter. Tu peux revenir \u00e0 la version r\u00e9dig\u00e9e quand tu veux.', start:()=>startSuilPouce() },
 };
 /* Détail des 5 niveaux du parcours « Fractions décimales » */
 const FRAC_INFO={
@@ -4966,7 +4967,7 @@ const THEMES=[
      neuf, ajouté EN DERNIER : il ne renumérote rien. */
   /* Puis (novembre 2026) le même exercice RÉDIGÉ, un seul champ par question
      (7.2), ajouté EN DERNIER : il ne renumérote rien. */
-  { num:7, nom:'Suites', ids:['augmentation-tableau','augmentation-tableau-libre'] },
+  { num:7, nom:'Suites', ids:['augmentation-tableau','augmentation-tableau-libre','augmentation-tableau-pouce'] },
   /* Demande de Turquet, novembre 2026 : « en première dans un thème
      synthèses », un exercice qui reprend les questions d'automatismes de son
      bac blanc, rédigées, avec un coup de pouce en étapes. Un thème neuf,
@@ -5131,7 +5132,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='bba') startBba(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') startSuil(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdPouceEx()?startTrdPouce():trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'frequences-probabilites-pouce':startFPB3,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='bba') startBba(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') (test.pouce?startSuilPouce:startSuil)(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdPouceEx()?startTrdPouce():trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'frequences-probabilites-pouce':startFPB3,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -6256,7 +6257,7 @@ function afficherEcranDe(k){
     aug:['atest',renderATest], augq:['vtest',renderVTest], dim:['dtest',renderDTest],
     fp:['fptest',renderFPTest], pcol:['pcol',renderPctCol], ag2:['ag2test',renderAG2Test], ag2q:['a2qtest',renderWTest],
     syn:['syntest',renderSynTest], bs:['bstest',renderBSTest], lc:['lctest',renderLCTest], ck:['cktest',renderCKTest], ac:['actest',renderACTest], hs:['hstest',renderHSTest], hsc:['hsctest',renderHSCTest], evs:['evs',renderEvsTest], bsd:['bsd',renderBsdTest], ess:['esstest',renderEssTest], esl:['esl',renderEsl], sgl:[sglEcran(),renderSgl], dbp:[dbpEcran(),renderDbp], bba:[bbaEcran(),renderBba],
-    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], isd:['isd',renderIsdTest], isdl:['isdl',renderIsdl], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], suil:['suil',renderSuil], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], rgc:['rgctest',renderRgc], vap:['vaptest',renderVap], voc:['voctest',renderVoc], rlf:['rlftest',renderRlf]
+    sf:['sf',renderSFTest], pb:['pbtest',renderPBTest], rvf:['rvf',renderRvfTest], mlt:['mlt',renderMltTest], spf:['spf',renderSpfTest], pqd:['pqd',renderPqdTest], tsf:['tsf',renderTsfTest], rpd:['rpd',renderRpdTest], isd:['isd',renderIsdTest], isdl:['isdl',renderIsdl], dvl:['dvl',renderDvlTest], dvd:['dvd',renderDvdTest], trd:['trd',renderTrd], tsc:['tsc',renderTscTest], sui:['sui',renderSuiTest], suil:[suilEcran(),renderSuil], ima:['ima',renderIma], sdec:['sdtest',renderSdTest], rgc:['rgctest',renderRgc], vap:['vaptest',renderVap], voc:['voctest',renderVoc], rlf:['rlftest',renderRlf]
   };
   const e=table[k];
   if(!e) return false;
@@ -7301,7 +7302,7 @@ function restoreBoxes(boxes){
   /* {revision-fractions} : les nombres divisés recopient des cases qu'on vient de remplir */
   if(test.kind==='rvf') rvfMiroirs();
   /* {augmentation-tableau} : les cases suivantes d'une donnée recopient la case qu'on vient de remettre */
-  if(test.kind==='sui') suiMiroirs();
+  if(suiActif()) suiMiroirs();
   /* {trois-fractions-ppcm} : les dénominateurs recopient le dénominateur commun */
   if(test.kind==='tsf' && test.ppcm) tsfMiroirs();
   /* {image-second-degre} : les termes recopiés sur la ligne du dessous */
@@ -21937,7 +21938,7 @@ function suiTableauM1(q){
    la reprise d'une pause (restoreBoxes). Le miroir d'une case vide montre
    des points de suspension. */
 function suiMiroirs(){
-  if(!test || test.kind!=='sui') return;
+  if(!suiActif()) return;
   document.querySelectorAll('#suiHost .sui-mir').forEach(function(m){
     const src=$(m.dataset.de); const v=src?String(src.value==null?'':src.value).trim():'';
     m.textContent=v===''?'…':v; m.classList.toggle('sui-vide', v==='');
@@ -21987,7 +21988,7 @@ function suiPoseSpec(q, id){
 function suiPoseIds(q){ return suiCases(q).map(function(x){ return x.id; }).filter(function(id){ return /^sui-(t\d|m1-\d+|res|e)$/.test(id); }); }
 function suiPoseCacher(){ document.querySelectorAll('#suiPoses .sui-pose').forEach(function(p){ p.classList.add('step-hidden'); }); }
 function suiPoseMontrer(id){
-  if(!test||test.kind!=='sui'||test.locked) return;
+  if(!suiActif()||test.locked) return;
   const q=test.questions[test.idx], el=$(id), couche=$('suiPoses');
   if(!q||!el||!couche) return;
   suiPoseCacher();
@@ -22100,8 +22101,8 @@ function suiPoseJuger(){
    après) ; après la correction, ce qui est montré reste montré. */
 (function(){
   const dehors=function(t){ return !(t&&t.closest&&(t.closest('.sui-pose')||t.closest('.ML__keyboard')||t.closest('#paveNum')||t.closest('button'))); };
-  document.addEventListener('focusin', function(e){ if(!test||test.kind!=='sui'||test.locked) return; if(dehors(e.target)) suiPoseCacher(); }, true);
-  document.addEventListener('pointerdown', function(e){ if(!test||test.kind!=='sui'||test.locked) return; const t=e.target;
+  document.addEventListener('focusin', function(e){ if(!suiActif()||test.locked) return; if(dehors(e.target)) suiPoseCacher(); }, true);
+  document.addEventListener('pointerdown', function(e){ if(!suiActif()||test.locked) return; const t=e.target;
     if(t&&t.closest&&t.closest('#suiHost math-field')) return; if(dehors(t)) suiPoseCacher(); }, true);
 })();
 function renderSuiTest(){
@@ -22182,7 +22183,8 @@ function checkSuiAnswer(live){
   $('suiActions').innerHTML='<button class="btn btn-primary" id="suiNext" onclick="nextSuiQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('suiNext'); if(nb) nb.focus();
 }
-function nextSuiQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderSuiTest(); autoSave(); } else finishTest(); }
+function nextSuiQuestion(){ if(test.kind==='suil'){ nextSuil(); return; }   /* le coup de pouce du 7.3 rend la main au 7.3 */
+  if(test.idx<test.questions.length-1){ test.idx++; renderSuiTest(); autoSave(); } else finishTest(); }
 function startSui(){
   if(!currentEleve){ accueil(); return; }
   const qs=suiBuildQuestions(dmNbQuestions(SUI_NB*3));
@@ -22241,18 +22243,102 @@ function ctxSui(q){
    juge alors seul. Quand il sait, son verdict prime (le motif de checkEsl).
    Aucun refus n'écrit la réponse. Pas de correction en direct en soutien,
    comme toutes les rédigées : on revérifie. */
-let suilFeuille=null;
-function startSuil(){
+let suilFeuille=null, suilFeuilleIdx=-1;
+function startSuil(pouce){
   if(!currentEleve){ accueil(); return; }
+  pouce=pouce===true;
   const qs=suiBuildQuestions(dmNbQuestions(SUI_NB*3));
+  /* 7.3 : chaque question rédigée (2 et 3) part sans son coup de pouce */
+  if(pouce) qs.forEach(function(q){ if(q.part>1){ q.aide=false; q.rejeu=false; } });
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  suipRetourArreter();
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'suil', questions:qs, idx:0, score:0,
     maxScore:qs.length, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false, suilBusy:false});
-  test.qId='augmentation-tableau-libre';
+  if(pouce) test.pouce=true;
+  if(pouce) test.qId='augmentation-tableau-pouce'; else test.qId='augmentation-tableau-libre';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
+  suilFeuille=null; suilFeuilleIdx=-1;
   show('suil'); renderSuil();
+}
+/* ===== 7.3 {augmentation-tableau-pouce} : le 7.2, avec un coup de pouce =====
+   Demandé par Turquet en novembre 2026 : « faire un exercice comme le 7.2 avec,
+   quand c'est rédigé différemment dans le 7.1 pour la même question, un bouton
+   coup de pouce qui permet d'afficher la résolution de la question comme dans
+   le 7.1 ; on pourra enlever le coup de pouce pour revenir à la version
+   rédigée. » Les questions 2 et 3 (la 1 est le même tableau dans les deux).
+
+   LE MOTIF DU BAC BLANC (8.1), REPRIS : rien n'est recopié du 7.1. Le coup de
+   pouce pose q.aide (rangé dans la question : il tient à la reprise d'une
+   pause) et montre la MÊME question sur l'écran du 7.1 (#scr-sui, renderSuiTest,
+   checkSuiAnswer : le tableau de la méthode 1, les phrases, les miroirs, les
+   poses facultatives) ; le kind reste « suil », et suiActif() ouvre au 7.1 ce
+   qui lui était réservé. Son « Question suivante » rend la main au 7.3
+   (nextSuiQuestion → nextSuil). Le bouton « ✍️ Revenir à la version
+   rédigée » est juste avant « Vérifier », et il reste après la vérification
+   (un observateur sur la rangée, la règle du 8.1, v463) : la rédaction tapée
+   avant le coup de pouce est toujours là. Après la vérification des cases, la
+   question est notée : revenir pose q.rejeu, et la feuille sert à
+   s'entraîner, sans rien compter. Un point par question, comme au 7.2. */
+function startSuilPouce(){ startSuil(true); }
+/* l'écran du 7.1 est-il celui de la question en cours ? (le 7.1 lui-même, ou
+   le coup de pouce du 7.3) */
+function suiActif(){
+  if(!test) return false;
+  if(test.kind==='sui') return true;
+  const q=test.kind==='suil' && test.pouce && test.questions && test.questions[test.idx];
+  return !!(q && q.part>1 && q.aide && !q.rejeu);
+}
+function suilEcran(){ return suiActif()?'sui':'suil'; }
+function suilPouceDispo(){
+  const q=test.kind==='suil' && test.pouce && test.questions && test.questions[test.idx];
+  return !!(q && q.part>1 && q.aide===false && !q.rejeu);
+}
+function suilBoutons(lib){
+  $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">'+lib+'</button>'
+    +(suilPouceDispo()?'<button class="btn btn-ghost" id="suilPouceBtn" type="button" onclick="suilPouce()">👍 Coup de pouce</button>':'');
+}
+function suilSuivantHTML(cls){ const last=test.idx===test.questions.length-1;
+  return '<button class="btn '+(cls||'btn-primary')+'" type="button" id="suilNext" onclick="nextSuil()">'+(last?'Voir mes résultats':'Question suivante')+'</button>'; }
+function suilPouce(){
+  if(test.locked || test.suilBusy || !suilPouceDispo()) return;
+  test.questions[test.idx].aide=true;
+  renderSuil(); autoSave();
+}
+let suipObs=null;
+function suipRetourArreter(){ if(suipObs){ suipObs.disconnect(); suipObs=null; } const b=$('suipRetourBtn'); if(b) b.remove(); }
+function suipRetourSuivre(){
+  suipRetourArreter();
+  const q=test.questions && test.questions[test.idx], act=$('suiActions');
+  if(!act || !suiActif() || test.kind!=='suil') return;
+  const poser=function(){
+    if(test.kind!=='suil' || test.questions[test.idx]!==q || !suiActif() || act.querySelector('#suipRetourBtn')) return;
+    act.insertAdjacentHTML('afterbegin','<button class="btn btn-ghost" type="button" id="suipRetourBtn" onclick="suilRevenir()">✍️ Revenir à la version rédigée</button>');
+  };
+  poser();
+  if(typeof MutationObserver==='function'){ suipObs=new MutationObserver(poser); suipObs.observe(act,{childList:true}); }
+}
+function suilRejeuDecor(){
+  const host=$('suilHost');
+  if(host && !$('suilRejeuNote')) host.insertAdjacentHTML('afterbegin','<p class="dexp-hint" id="suilRejeuNote">Le point de cette question est déjà compté dans le coup de pouce. Rédige maintenant ta réponse pour t’entraîner : elle sera vérifiée, sans changer ta note.</p>');
+  $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Vérifier ma rédaction</button>'+suilSuivantHTML('btn-ghost');
+}
+function suilRevenir(){
+  const q=test.questions[test.idx];
+  if(!suiActif() || test.kind!=='suil') return;
+  suipRetourArreter(); suiPoseCacher();
+  if(test.locked) q.rejeu=true;   /* les cases sont vérifiées : la question est notée, la feuille sert à s'entraîner */
+  else q.aide=false;
+  const garde=suilFeuille && suilFeuilleIdx===test.idx && $('suilSheet');
+  if(!garde){ renderSuil(); autoSave(); return; }
+  /* la feuille de la question est restée sur son écran : la rédaction déjà écrite revient telle quelle */
+  test.locked=false; test.suilBusy=false;
+  show('suil');
+  $('suilFeedback').textContent=''; $('suilFeedback').className='mp-feedback';
+  if(q.rejeu) suilRejeuDecor(); else suilBoutons('Vérifier');
+  if(suilFeuille.lignes.length) suilFeuille.lignes[suilFeuille.lignes.length-1].mf.focus();
+  autoSave();
 }
 /* Le tableau de la question 1, ses deux lignes à trouver marquées « ? » —
    ou rempli, pour mémoire, à la question 3. */
@@ -22275,12 +22361,19 @@ const SUIL_AIDE={
 };
 function renderSuil(){
   const q=test.questions[test.idx]; test.locked=false; test.suilBusy=false;
+  suipRetourArreter();
+  if(test.pouce){
+    /* 7.3 : le coup de pouce montre la question sur l'écran du 7.1 */
+    if(suiActif()){ show('sui'); renderSuiTest(); suipRetourSuivre(); return; }
+    show('suil');
+    const sh=$('suiHost'); if(sh) sh.innerHTML='';   /* aucune case du 7.1 ne reste cachée derrière, ni dans la pause */
+  }
   const v=suiVals(q), c=v.c;
   $('suilIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagSuil').innerHTML=modeTagHTML();
   $('suilLiveScore').textContent=test.score;
   $('suilFeedback').textContent=''; $('suilFeedback').className='mp-feedback';
-  $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Vérifier</button>';
+  suilBoutons('Vérifier');
   $('suilPrompt').innerHTML=c.intro(suiFmt(v.u0), suiFmt(v.rAbs), suiMomentHTML(c,0,v.j0));
   let h='<div class="sui-q">'+q.part+'. '+suilQuestion(q)+'</div>';
   /* LA QUESTION 1 SE FAIT DANS LE TABLEAU (demande de Turquet, novembre
@@ -22302,7 +22395,9 @@ function renderSuil(){
   if(q.part===3) h+='<div class="sui-q sui-q-rappel">Le tableau de la question 1, pour mémoire :</div>'+suilTableau(q,true);
   $('suilHost').innerHTML=h;
   suilFeuille=mlFeuille({ conteneur:'suilSheet', mode:'redaction', prefixes:{premiere:'',suite:''}, prefixesTexte:{premiere:'',suite:''} });
+  suilFeuilleIdx=test.idx;
   salEspaces(suilFeuille,'suilSheet');
+  if(q.rejeu) suilRejeuDecor();
 }
 /* ---- Le juge ---- */
 /* La copie, prête à lire : « \% », « − », « * », « x » entre deux nombres, les
@@ -22451,6 +22546,7 @@ function checkSuilTableau(live){
   const nb=$('suilNext'); if(nb) nb.focus();
 }
 async function checkSuil(live){
+  if(suiActif()){ checkSuiAnswer(live); return; }   /* 7.3 : la question est sur son coup de pouce */
   if(test.locked || test.suilBusy) return;
   const q=test.questions[test.idx], fb=$('suilFeedback');
   if(q.part===1){ checkSuilTableau(live); return; }
@@ -22461,6 +22557,7 @@ async function checkSuil(live){
     if(suilFeuille && suilFeuille.lignes[0]) suilFeuille.lignes[0].mf.focus(); return; }
   const juge=suilJuge(q, rep);
   test.suilBusy=true;
+  const rejeu=!!q.rejeu;   /* 7.3 : déjà notée par son coup de pouce, rédigée pour s'entraîner */
   $('suilActions').innerHTML='<button class="btn btn-primary" type="button" disabled>Vérification…</button>';
   fb.textContent='Je lis ta réponse…'; fb.className='mp-feedback muted';
   let res=null;
@@ -22480,18 +22577,25 @@ async function checkSuil(live){
     if(!res || res.error){
       fb.textContent=(res&&res.error)||'Vérification indisponible pour le moment. Réessaie.';
       fb.className='mp-feedback bad';
-      $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Vérifier</button>';
+      if(rejeu) suilRejeuDecor(); else suilBoutons('Vérifier');
       return;
     }
     correct=res.correct===true; feedback=res.feedback||'';
   }
   fb.innerHTML=conseilHTML(feedback); fb.className='mp-feedback iafb '+(correct?'good':'bad');
   if(isSoutien() && !correct){
-    $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Revérifier</button>';
+    if(rejeu) $('suilActions').innerHTML='<button class="btn btn-primary" type="button" onclick="checkSuil()">Revérifier</button>'+suilSuivantHTML('btn-ghost');
+    else suilBoutons('Revérifier');
     if(suilFeuille && suilFeuille.lignes.length) suilFeuille.lignes[suilFeuille.lignes.length-1].mf.focus();
     return;
   }
   test.locked=true; if(suilFeuille) suilFeuille.verrouiller();
+  if(rejeu){   /* rien ne se compte deux fois : ni le score, ni les réponses */
+    if(!correct && currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc('Correction — '+suilCorrection(q))+'</p>');
+    $('suilActions').innerHTML=suilSuivantHTML();
+    const nr=$('suilNext'); if(nr) nr.focus();
+    return;
+  }
   if(correct){ test.score++; $('suilLiveScore').textContent=test.score; }
   else if(currentMode==='train') fb.insertAdjacentHTML('beforeend','<p class="esl-cor">'+esc('Correction — '+suilCorrection(q))+'</p>');
   const v=suiVals(q);
@@ -22509,9 +22613,10 @@ function suilCorrection(q){
   if(q.part===2) return 'La suite : '+lignes.join(' ; ')+'. Ou par le calcul : il y a '+v.n+' '+c.pass+', donc '+v.n+' × '+suiFmt(v.rAbs)+' = '+suiFmt(v.prod)+', et '+suiFmt(v.u0)+' '+sg+' '+suiFmt(v.prod)+' = '+suiFmt(v.res)+'.';
   return 'La suite : '+lignes.join(' ; ')+'. Ou par le calcul : l’écart est '+suiFmt(v.e)+', et '+suiFmt(v.e)+' = '+suiFmt(v.rAbs)+' × '+v.kk+' : il faut '+v.kk+' '+c.pass+', donc '+suiMoment(c,v.kk,v.j0)+'.';
 }
-function nextSuil(){ if(test.idx<test.questions.length-1){ test.idx++; renderSuil(); autoSave(); } else finishTest(); }
+function nextSuil(){ suipRetourArreter(); if(test.idx<test.questions.length-1){ test.idx++; renderSuil(); autoSave(); } else finishTest(); }
 /* Le contexte envoyé au modèle par l'aide : l'énoncé, la règle, et ce que l'élève a écrit. */
 function ctxSuil(q){
+  if(suiActif()) return ctxSui(q);   /* 7.3, sur son coup de pouce : les cases du 7.1 */
   let t=suilEnonceIA(q)+' '+suilAttenduIA(q,null).split('\n\nCONSIGNES')[0]+' ';
   if(typeof document!=='undefined' && $('suilSheet') && suilFeuille) t+='Ce que l’élève a écrit : '+((suilFeuille.lire()||'').trim()||'(vide)')+'.';
   return {nombre:'', contexte:t};
@@ -35901,6 +36006,9 @@ La question 1 se fait dans le <b>tableau</b>, comme dans {augmentation-tableau}.
 · <b>des phrases avec tes calculs</b> : « il y a 6 années donc 6 × 20 = 120 », puis « je fais 500 − 120 = 380 » ;<br>
 · ou <b>directement le résultat</b>, si tu l'as calculé de tête.<br>
 Chaque calcul que tu écris doit être juste : une égalité fausse suffit à rendre la réponse fausse.<br><br>`+RAP_SUI;
+/* 7.3 {augmentation-tableau-pouce} : la rédaction, et le coup de pouce du 7.1. */
+const RAP_SUIP=`<b>Rédiger, avec un coup de pouce</b><br>
+Aux questions 2 et 3, tu écris ta réponse <b>avec la méthode qui te convient</b>, comme dans {augmentation-tableau-libre}. Si tu bloques, le bouton <b>« 👍 Coup de pouce »</b> affiche la même question comme dans {augmentation-tableau} : le tableau à prolonger et les phrases à compléter. Le bouton <b>« ✍️ Revenir à la version rédigée »</b> te ramène à ta rédaction, telle que tu l’avais laissée.<br><br>`+RAP_SUIL;
 /* {reunion-probabilites} (3.12) : la réunion A ∪ D, case par case. */
 const RAP_RU=`<b>La réunion de deux évènements</b><br>
 <b>Ce que veut dire A ∪ D.</b> \\(A\\cup D\\) (on lit « A union D ») désigne toutes les personnes (ou tous les objets) qui sont dans le groupe qui réunit toutes celles qui sont dans \\(A\\) avec toutes celles qui sont dans \\(D\\) : on y est dès qu’on est dans \\(A\\), ou dans \\(D\\), ou dans les deux.<br>
@@ -35921,7 +36029,7 @@ const RAP_BBA=`<b>Bac blanc : les automatismes</b> — douze questions, chacune 
 <b>Écritures</b> : 7 + 0,04 + \\(\\frac{3}{10}\\) = 7,34 = \\(\\frac{734}{100}\\) ; 10² + 10⁻¹ = 100 + 0,1 = 100,1 ; 99 × 1001 ≈ 100 × 1000 = 100 000.<br>
 <b>Ranger</b> : chaque fraction en nombre décimal, puis du plus petit au plus grand avec « < ».<br>
 Bloqué ? Le bouton <b>Coup de pouce</b> montre la question en étapes ; un autre bouton te ramène à la version rédigée.`;
-const RAPPELS_ID={ 'bac-blanc-automatismes':RAP_BBA, 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'tracer-droite-pouce':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'frequences-probabilites-pouce':RAP_FPB3, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'bac-blanc-automatismes':RAP_BBA, 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'tracer-droite-pouce':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'augmentation-tableau-pouce':RAP_SUIP, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'frequences-probabilites-pouce':RAP_FPB3, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
@@ -37559,6 +37667,39 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
       P[nom]=function(){ const r=f.apply(this,arguments); bientot(this); return r; };
     });
   });
+})();
+</script>
+<script id="touche-inferieur">
+/* LA TOUCHE « < » D'UN CLAVIER AZERTY ÉCRIT « < » — dans TOUTE case MathLive,
+   les trois niveaux (signalé par Turquet sur le 8.1 de la Première, novembre
+   2026 : « quand je tape "<" juste après la fraction il affiche "\" »).
+   Sur un clavier français, « < » est la touche à droite de Maj gauche, dont
+   le code physique est « IntlBackslash ». MathLive 0.110 lie ce CODE, sur
+   TOUTE disposition, à l'entrée en mode LaTeX (« \ », pensé pour le clavier
+   britannique où cette touche porte la barre oblique inverse) : la première
+   frappe ouvrait un « \ » grisé au lieu d'écrire « < ». On retire ce seul
+   raccourci de chaque champ, à son premier focus — une porte sur le document,
+   rien à déclarer ; la touche écrit alors le caractère qu'elle porte (« < »,
+   « > » avec Maj), et « <= » devient toujours ≤. Les raccourcis propres à une
+   disposition (ifLayout, le « ^ » du Mac allemand) restent. Banc navigateur :
+   « 11 vicies ». */
+(function(){
+  function latexParIntl(k){
+    return k && k.key==='[IntlBackslash]' && !k.ifLayout
+      && Array.isArray(k.command) && k.command[0]==='switchMode';
+  }
+  function nettoyer(el){
+    if(!el || el.tagName!=='MATH-FIELD' || el.__sansIntl) return;
+    try{
+      const kb=el.keybindings;
+      if(!Array.isArray(kb)) return;
+      if(kb.some(latexParIntl)) el.keybindings=kb.filter(function(k){ return !latexParIntl(k); });
+      el.__sansIntl=true;
+    }catch(e){}                                   /* champ pas encore monté : le prochain focus */
+  }
+  window.toucheInferieurNettoyer=nettoyer;
+  document.addEventListener('focusin', function(e){ nettoyer(e.target); }, true);
+  document.addEventListener('keydown', function(e){ if(e.code==='IntlBackslash') nettoyer(e.target); }, true);
 })();
 </script>
 <script id="fraction-numworks">

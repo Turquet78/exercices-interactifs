@@ -1948,3 +1948,28 @@ largeur se lit dans `--keycap-lettres`, réglée par les règles
 `.MLK__layer[id$="-lettres"]` : les autres couches gardent la taille de
 leurs touches. Le contrôle « la largeur des touches suit la rangée la plus
 large » accepte cette largeur à condition qu'elle lise SON compte d'unités.
+
+**La touche « < » d'un clavier AZERTY ouvrait le mode LaTeX de MathLive — dans toute case, aux trois niveaux.**
+Signalé par Turquet sur le 8.1 de la Première, question 12 (novembre 2026) :
+« quand je tape "<" juste après la fraction il affiche "\" ; si je retape "<"
+il affiche bien "<" ». Sur un clavier français, « < » est la touche à droite
+de Maj gauche ; son code physique est `IntlBackslash`. MathLive 0.110 lie ce
+CODE, sans condition de disposition, à `switchMode latex` avec un « \ » — un
+raccourci pensé pour le clavier britannique, où cette touche porte la barre
+oblique inverse. La case passait donc en mode LaTeX, un « \ » grisé à la
+place du « < ». Ce n'était pas propre à la fraction : reproduit dans le
+banc, « 2 < 3 » laissait une case VIDE en mode `latex`, dans n'importe quelle
+case MathLive des trois pages. Le second « < » marchait parce qu'en mode
+LaTeX le raccourci (`ifMode: 'math'`) ne joue plus.
+Remède : `#touche-inferieur`, fin de fichier, les trois niveaux — au premier
+focus de chaque champ (et, par sûreté, au premier keydown `IntlBackslash`),
+on retire de `el.keybindings` ce seul raccourci (`[IntlBackslash]`, sans
+`ifLayout`, commande `switchMode`). La touche écrit alors le caractère
+qu'elle porte : « < », « > » avec Maj, et « <= » donne toujours ≤. Les
+raccourcis propres à une disposition (le « ^ » du Mac allemand) restent.
+Les élèves n'ont aucun usage du mode LaTeX.
+Contrôle : « 11 vicies » du banc navigateur, qui joue la frappe comme un
+vrai clavier français par le protocole du navigateur (`Input.dispatchKeyEvent`,
+code `IntlBackslash`, caractère « < ») — `keyboard.press` de Playwright
+suppose un clavier américain et n'aurait rien montré. Éprouvé à l'envers sur
+la version d'avant : `\frac15` puis mode `latex`, et « 2 < 3 » vide.
