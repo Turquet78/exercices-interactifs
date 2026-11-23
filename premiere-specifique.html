@@ -4899,7 +4899,7 @@ const TESTS={
   'image-second-degre': { name:'Image par une fonction du second degr\u00e9', icon:'\u2b07\ufe0f', desc:'La fiche, \u00e0 ses valeurs\u00a0: 1\u00b2 et (\u22121)\u00b2, puis l\u2019image de 1 et de \u22121 par x\u00b2 + 3x \u2212 1, 3x\u00b2 \u2212 2x + 1 et \u22123x\u00b2 + 2x + 1. Des fl\u00e8ches m\u00e8nent chaque terme de f(x) \u00e0 sa place, une accolade sous chaque terme donne sa valeur\u00a0; un terme recopi\u00e9 sur la ligne du dessous s\u2019y \u00e9crit tout seul.', start:()=>startIsd() },
   /* 6.7 : le 6.6 aux calculs rédigés — « f(1) = » devant la case, Entrée ouvre une ligne « = » alignée (demande de Turquet, novembre 2026) */
   'image-second-degre-libre': { name:'Image par une fonction du second degr\u00e9, calculs r\u00e9dig\u00e9s', icon:'\u270d\ufe0f', desc:'Les six images de {image-second-degre}, mais tu \u00e9cris toi-m\u00eame ton calcul\u00a0: \u00ab\u00a0f(1) =\u00a0\u00bb est \u00e9crit devant la case, la touche Entr\u00e9e ouvre la ligne suivante, son \u00ab\u00a0=\u00a0\u00bb sous le pr\u00e9c\u00e9dent. Tout calcul juste est accept\u00e9, avec au moins une \u00e9tape avant le r\u00e9sultat.', start:()=>startIsdl() },
-  'image-second-degre-pouce': { name:'Image par une fonction du second degr\u00e9, r\u00e9dig\u00e9e avec coups de pouce', icon:'\ud83d\udc4d', desc:'Les sept questions de {image-second-degre} \u2014 1\u00b2 et (\u22121)\u00b2, puis les six images \u2014, calculs r\u00e9dig\u00e9s comme au {image-second-degre-libre}. Bloqu\u00e9 sur une question\u00a0? Le bouton \u00ab\u00a0Coup de pouce\u00a0\u00bb la pr\u00e9sente en cases, avec les fl\u00e8ches et les accolades du {image-second-degre}\u00a0; \u00ab\u00a0Revenir \u00e0 la version r\u00e9dig\u00e9e\u00a0\u00bb te rend ta r\u00e9daction.', start:()=>startIsdp() },
+  'image-second-degre-pouce': { name:'Image par une fonction du second degr\u00e9, r\u00e9dig\u00e9e avec coups de pouce', icon:'\ud83d\udc4d', desc:'Quatre questions de {image-second-degre} \u2014 1\u00b2 et (\u22121)\u00b2, puis trois images \u2014, calculs r\u00e9dig\u00e9s comme au {image-second-degre-libre}. Bloqu\u00e9 sur une question\u00a0? Le bouton \u00ab\u00a0Coup de pouce\u00a0\u00bb la pr\u00e9sente en cases, avec les fl\u00e8ches et les accolades du {image-second-degre}\u00a0; \u00ab\u00a0Revenir \u00e0 la version r\u00e9dig\u00e9e\u00a0\u00bb te rend ta r\u00e9daction.', start:()=>startIsdp() },
   'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Six courbes, en trois paliers : d’abord la partie au-dessus de l’axe en ROUGE avec le signe +, en dessous en BLEU avec le signe −, un point vert sur chaque racine — place les signes ; puis sans les signes — écris aussi les racines et les zéros ; enfin la courbe nue — tout le tableau. À chaque fois, résous f (x) = 0.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
@@ -21397,7 +21397,7 @@ function ctxIsd(q){
      coup de pouce pour chaque question, qui affiche la résolution de la
      question comme dans le 6.6 ; on pourra enlever le coup de pouce pour
      revenir à la version rédigée ».
-     · LES SEPT QUESTIONS DE ISD_FICHE, carrés compris. Une question a un ou
+     · LES QUESTIONS 1, 2, 3 ET 7 DE ISD_FICHE (v475 : la 4, la 5 et la 6 retirées), carrés compris. Une question a un ou
        plusieurs BLOCS de calcul (isdlBlocs) : un pour une image, « f(1) = » ;
        deux pour les carrés, « 1² = » et « (−1)² = », chacun ses lignes et sa
        propre étape exigée (« 1 × 1 »). Entrée dans la dernière ligne vide
@@ -21509,7 +21509,7 @@ function isdlLigne(q, s, B){
   return {ok:ok, maillons:M, etape:M.some(function(m){ return !isdlNombreSeul(m); }), fin:isdlNombreSeul(M[M.length-1])};
 }
 function isdlIn(id, v, aria, i){
-  return '<input type="text" id="'+id+'" class="isdl-in isdl-lin" value="'+esc(v||'')+'" inputmode="numeric" data-pave-plus="× ÷ + ( ) ^"'
+  return '<input type="text" id="'+id+'" class="isdl-in isdl-lin" value="'+esc(v||'')+'" inputmode="numeric" data-pave-plus="× ÷ + ( ) ^ ="'
     +(i>0?' data-facultatif="1"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+esc(aria)+'">';
 }
 function isdlLignesHTML(q, b){
@@ -21538,9 +21538,9 @@ function renderIsdl(){
   $('isdlActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdlAnswer()">'+(q.rejeu?'Vérifier ma rédaction':'Vérifier')+'</button>'
     +(pouce?isdlPouceBtn():'')+(q.rejeu?isdlSuivantHTML():'');
   const consigne=q.t==='carres'
-    ? '<p class="isd-consigne">Calcule 1² et (−1)² : écris chaque calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante. Il faut au moins une étape avant le résultat.'
+    ? '<p class="isd-consigne">Calcule 1² et (−1)² : écris chaque calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante.'+(isdlPouceEx()?' Tu peux aussi écrire directement le résultat.':' Il faut au moins une étape avant le résultat.')
     : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+isdlFonction(q)
-      +'. Calcule l’image de <b>'+isdN(q.x)+'</b> : écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante. Il faut au moins une étape avant le résultat.';
+      +'. Calcule l’image de <b>'+isdN(q.x)+'</b> : écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante.'+(isdlPouceEx()?' Tu peux aussi écrire directement le résultat.':' Il faut au moins une étape avant le résultat.');
   $('isdlHost').innerHTML=consigne+(pouce?' Bloqué ? Le bouton « Coup de pouce » présente la question en cases.':'')+'</p>'
     +(q.rejeu?isdlRejeuNote():'')
     +isdlBlocs(q).map(function(B,b){ return '<div class="isdl-page"'+(b?' style="margin-top:14px"':'')+'><div class="isdl-calc" id="'+isdlBlocId(b)+'">'+isdlLignesHTML(q,b)+'</div></div>'; }).join('');
@@ -21623,7 +21623,10 @@ function isdlSubs(q){
       out.push({b:b, r:r, id:isdlId(b,r), el:$(isdlId(b,r)), ok:ok, vide:!s, lu:lu});
       if(s) der=lu;
     });
-    out.push({fin:true, b:b, ok:!!der && der.ok && der.fin && etape, vide:false, etape:etape, der:der});
+    /* au 6.9, le résultat brut (« 3 », « f(1) = 3 ») ou un calcul à peu
+       d'étapes est accepté : aucune étape n'est exigée (demande de Turquet,
+       novembre 2026) — le 6.7, lui, garde son étape intermédiaire */
+    out.push({fin:true, b:b, ok:!!der && der.ok && der.fin && (etape || isdlPouceEx()), vide:false, etape:etape, der:der});
   });
   return out;
 }
@@ -21791,17 +21794,21 @@ function isdlDemarrer(id, qs){
   show('isdl'); renderIsdl();
 }
 function startIsdl(){ isdlDemarrer('image-second-degre-libre', isdlBuildQuestions()); }
-/* le 6.9 : les sept questions de la fiche, carrés compris, chacune avec son
+/* le 6.9 : quatre questions de la fiche, carrés compris, chacune avec son
    coup de pouce (q.aide : false tant qu'il n'est pas ouvert) */
-function startIsdp(){ isdlDemarrer('image-second-degre-pouce', isdBuildQuestions().map(function(q){ q.aide=false; return q; })); }
+/* le 6.9 sans les questions 4, 5 et 6 de la fiche (demande de Turquet,
+   novembre 2026) : les carrés, f(1) et f(−1) pour x² + 3x − 1, puis f(−1)
+   pour −3x² + 2x + 1 — quatre questions */
+const ISDP_GARDEES=[0,1,2,6];
+function startIsdp(){ const qs=isdBuildQuestions(); isdlDemarrer('image-second-degre-pouce', ISDP_GARDEES.map(function(i){ const q=qs[i]; q.aide=false; return q; })); }
 function ctxIsdl(q){
   if(q.aide){ const c=ctxIsd(q); return {nombre:'', contexte:'L’élève a ouvert le « Coup de pouce » : la question est présentée en cases, comme au 6.6. '+c.contexte}; }
   const Bs=isdlBlocs(q);
   const ecrit=isdlSubs(q).filter(function(s){ return !s.fin && !s.vide; }).map(function(s){ return Bs[s.b].nom+', ligne '+(s.r+1)+' : « '+String(s.el?s.el.value:'').trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'); });
   const att=Bs.map(function(B){ return B.nom+' = '+B.modele+' = '+isdN(B.cible); }).join(' ; ');
   const c=(q.t==='carres'
-      ? 'L’élève calcule 1² et (−1)² en RÉDIGEANT chaque calcul : la page écrit « 1² = » devant la première case, puis « (−1)² = » devant celle du second calcul, et « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, avec au moins une étape intermédiaire (par exemple le produit du nombre par lui-même).'
-      : 'L’élève calcule l’image de '+isdN(q.x)+' par f(x) = '+isdF(q)+' en RÉDIGEANT son calcul : la page écrit « f('+isdN(q.x)+') = » devant la première case, puis « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, avec au moins une étape intermédiaire. Toute ligne qui vaut f('+isdN(q.x)+') est acceptée.')
+      ? 'L’élève calcule 1² et (−1)² en RÉDIGEANT chaque calcul : la page écrit « 1² = » devant la première case, puis « (−1)² = » devant celle du second calcul, et « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, '+(isdlPouceEx()?'le résultat écrit directement, sans étape, est accepté lui aussi.':'avec au moins une étape intermédiaire (par exemple le produit du nombre par lui-même).')
+      : 'L’élève calcule l’image de '+isdN(q.x)+' par f(x) = '+isdF(q)+' en RÉDIGEANT son calcul : la page écrit « f('+isdN(q.x)+') = » devant la première case, puis « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, '+(isdlPouceEx()?'le résultat écrit directement, sans étape, étant accepté lui aussi':'avec au moins une étape intermédiaire')+'. Toute ligne qui vaut f('+isdN(q.x)+') est acceptée.')
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
     +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste : '+att+'.'
     +(q.t==='carres'
@@ -33180,6 +33187,12 @@ function paveBrancher(){
     el.setAttribute('data-pave','1');
     try{ el.mathVirtualKeyboardPolicy='manual'; }catch(e){}
   }); }
+  /* une case redessinée puis focalisée dans le même geste (Entrée qui ouvre
+     la ligne suivante, 6.7 et 6.9) a reçu le focus AVANT d'être convertie :
+     le focusin l'a trouvée hors du pavé et l'a refermé. Convertie, elle le
+     rouvre (signalé par Turquet, novembre 2026). */
+  const a=document.activeElement;
+  if(pave && pave.hidden && paveEstCible(a)) paveMontrer();
 }
 /* Les cases naissent et renaissent à chaque rendu : l'observateur les
    convertit au fil de l'eau, sans rien demander aux exercices. Il n'observe

@@ -21616,6 +21616,57 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
     }
+    /* ---- 11 unvicies. Au 6.9, sur tablette : la touche « = », le pavé qui
+       revient à la ligne suivante, le résultat brut accepté ----
+       Signalé par Turquet (novembre 2026) : « sur tablette il manque la touche
+       "=" sur le clavier virtuel et quand je passe à la ligne le clavier
+       virtuel n'apparaît plus » ; « on acceptera les résultats bruts dans la
+       version rédigée ». La ligne ouverte par Entrée est REDESSINÉE puis
+       focalisée dans le même geste : elle recevait le focus avant que
+       l'observateur du pavé ne la convertisse, et le pavé se refermait. */
+    titre('11 unvicies. AU 6.9, SUR TABLETTE : LA TOUCHE « = », LE PAVÉ À LA LIGNE SUIVANTE, LE RÉSULTAT BRUT');
+    {
+      s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+      const present = await s.page.evaluate(() => typeof TESTS !== 'undefined' && !!TESTS['image-second-degre-pouce']);
+      if(!present){
+        ignorer('au 6.9, sur tablette, le pavé porte « = » et revient à la ligne suivante', 'ce niveau n\'a pas le 6.9 (Première)');
+      } else {
+        const p = s.page;
+        await connecter(p);
+        await p.evaluate(() => openTest('image-second-degre-pouce'));
+        await p.waitForTimeout(300);
+        await p.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0); if(b) b.click(); });
+        await p.waitForTimeout(900);
+        const etat = () => p.evaluate(() => { const v = document.getElementById('paveNum'), a = document.activeElement;
+          return { pave: !!v && !v.hidden && v.getBoundingClientRect().height > 20, id: a && a.id,
+            egal: !!document.querySelector('#paveNum .pave-plus[data-t="="]') }; });
+        let e1 = null, e2 = null, val = '', brut = null, souci = '';
+        try{
+          await p.tap('#isdl-l-0'); await p.waitForTimeout(400);
+          e1 = await etat();
+          for(const t of ['1', '×', '1']) { await p.tap('#paveNum button[data-t="' + t + '"]'); await p.waitForTimeout(120); }
+          await p.tap('#paveNum button[data-t="⏎"]'); await p.waitForTimeout(500);
+          e2 = await etat();
+          await p.tap('#paveNum .pave-plus[data-t="="]'); await p.waitForTimeout(150);
+          val = await p.evaluate(() => { const e = document.getElementById('isdl-l-1'); return e ? e.value : null; });
+          /* le résultat brut : « 1 » seul dans chaque bloc des carrés */
+          await p.evaluate(() => { test.isdlE.blocs = [['1'], ['1']]; renderIsdl(); });
+          await p.waitForTimeout(300);
+          await p.evaluate(() => checkIsdlAnswer());
+          await p.waitForTimeout(300);
+          brut = await p.evaluate(() => ({ score: test.score, juste: test.answers.length ? test.answers[test.answers.length - 1].correct : null }));
+        }catch(err){ souci = err.message; }
+        verifier('au 6.9, sur tablette, la case touchée ouvre le pavé, et le pavé porte la touche « = »',
+          !!e1 && e1.pave && e1.id === 'isdl-l-0' && e1.egal, souci || JSON.stringify(e1));
+        verifier('au 6.9, ⏎ ouvre la ligne suivante et le pavé reste ouvert sur elle',
+          !!e2 && e2.pave && e2.id === 'isdl-l-1', souci || JSON.stringify(e2));
+        verifier('au 6.9, la touche « = » du pavé s\'écrit dans la case', val === '=', souci || 'la ligne 2 se relit « ' + val + ' »');
+        verifier('au 6.9, le résultat brut, sans étape, est compté juste', !!brut && brut.juste === true && brut.score === 1,
+          souci || JSON.stringify(brut));
+        verifier('le 6.9 sur tablette ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

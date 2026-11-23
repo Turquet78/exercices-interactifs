@@ -91447,6 +91447,12 @@ function paveBrancher(){
     el.setAttribute('data-pave','1');
     try{ el.mathVirtualKeyboardPolicy='manual'; }catch(e){}
   }); }
+  /* une case redessinée puis focalisée dans le même geste (Entrée qui ouvre
+     la ligne suivante, 6.7 et 6.9) a reçu le focus AVANT d'être convertie :
+     le focusin l'a trouvée hors du pavé et l'a refermé. Convertie, elle le
+     rouvre (signalé par Turquet, novembre 2026). */
+  const a=document.activeElement;
+  if(pave && pave.hidden && paveEstCible(a)) paveMontrer();
 }
 /* Les cases naissent et renaissent à chaque rendu : l'observateur les
    convertit au fil de l'eau, sans rien demander aux exercices. Il n'observe
