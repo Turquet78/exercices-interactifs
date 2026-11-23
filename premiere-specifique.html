@@ -4217,7 +4217,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=463;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=464;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -25270,7 +25270,12 @@ function tsfFicheHTML(q, op, op2){
      Turquet) : la fraction déjà sur le dénominateur commun se recopie telle
      quelle sur la ligne des produits, sans cases « × ». Le juge, la
      correction et la liste des cases savent qu'elle n'en a pas (tsfFac). */
-  const terme=function(i,n,d){ return tsfFac(q,i) ? sfTermeHTML(n,d) : lgProduit(n,d,'tsf-a'+(i+1),'tsf-b'+(i+1)); };
+  /* … et elle s'écrit avec les CHIFFRES DU CALCUL (f-whole : même police,
+     même couleur, même taille que « 1 × » et « 2 × » à côté), pas avec la
+     petite fraction bleue de l'énoncé (sfTermeHTML) — signalé par Turquet
+     sur le 8.1, novembre 2026 */
+  const fixe=function(n,d){ return '<span class="f-frac-input sf-prod tsf-fixe"><span class="sf-l"><span class="f-whole">'+n+'</span></span><span class="f-fbar"></span><span class="sf-l"><span class="f-whole">'+d+'</span></span></span>'; };
+  const terme=function(i,n,d){ return tsfFac(q,i) ? fixe(n,d) : lgProduit(n,d,'tsf-a'+(i+1),'tsf-b'+(i+1)); };
   const sur=function(id,lab,idD){ return '<span class="f-frac-input">'+lgMF(id,'f-num',lab)+'<span class="f-fbar"></span><span class="f-whole tsf-dmir"'+(idD?' id="'+idD+'"':'')+'>'+q.D+'</span></span>'; };
   return '<div class="pt-step">'
      +'<div class="tsf-dc"><span class="tsf-dc-t">Mettre au même dénominateur commun</span><span class="f-whole">'+q.D+'</span></div>'
