@@ -4240,7 +4240,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=470;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=471;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -4843,6 +4843,7 @@ const TESTS={
   'image-second-degre': { name:'Image par une fonction du second degr\u00e9', icon:'\u2b07\ufe0f', desc:'La fiche, \u00e0 ses valeurs\u00a0: 1\u00b2 et (\u22121)\u00b2, puis l\u2019image de 1 et de \u22121 par x\u00b2 + 3x \u2212 1, 3x\u00b2 \u2212 2x + 1 et \u22123x\u00b2 + 2x + 1. Des fl\u00e8ches m\u00e8nent chaque terme de f(x) \u00e0 sa place, une accolade sous chaque terme donne sa valeur\u00a0; un terme recopi\u00e9 sur la ligne du dessous s\u2019y \u00e9crit tout seul.', start:()=>startIsd() },
   /* 6.7 : le 6.6 aux calculs rédigés — « f(1) = » devant la case, Entrée ouvre une ligne « = » alignée (demande de Turquet, novembre 2026) */
   'image-second-degre-libre': { name:'Image par une fonction du second degr\u00e9, calculs r\u00e9dig\u00e9s', icon:'\u270d\ufe0f', desc:'Les six images de {image-second-degre}, mais tu \u00e9cris toi-m\u00eame ton calcul\u00a0: \u00ab\u00a0f(1) =\u00a0\u00bb est \u00e9crit devant la case, la touche Entr\u00e9e ouvre la ligne suivante, son \u00ab\u00a0=\u00a0\u00bb sous le pr\u00e9c\u00e9dent. Tout calcul juste est accept\u00e9, avec au moins une \u00e9tape avant le r\u00e9sultat.', start:()=>startIsdl() },
+  'image-second-degre-pouce': { name:'Image par une fonction du second degr\u00e9, r\u00e9dig\u00e9e avec coups de pouce', icon:'\ud83d\udc4d', desc:'Les sept questions de {image-second-degre} \u2014 1\u00b2 et (\u22121)\u00b2, puis les six images \u2014, calculs r\u00e9dig\u00e9s comme au {image-second-degre-libre}. Bloqu\u00e9 sur une question\u00a0? Le bouton \u00ab\u00a0Coup de pouce\u00a0\u00bb la pr\u00e9sente en cases, avec les fl\u00e8ches et les accolades du {image-second-degre}\u00a0; \u00ab\u00a0Revenir \u00e0 la version r\u00e9dig\u00e9e\u00a0\u00bb te rend ta r\u00e9daction.', start:()=>startIsdp() },
   'tableau-signes-courbe': { name:'Tableau de signes sur une courbe', icon:'±', desc:'Six courbes, en trois paliers : d’abord la partie au-dessus de l’axe en ROUGE avec le signe +, en dessous en BLEU avec le signe −, un point vert sur chaque racine — place les signes ; puis sans les signes — écris aussi les racines et les zéros ; enfin la courbe nue — tout le tableau. À chaque fois, résous f (x) = 0.', start:()=>startTsc() },
   /* 6.2 : le 3.1.1 de la Seconde, avec le point rouge, le chemin en pointillés animé et le mot « image » — sans tableau de valeurs (demande de Turquet, novembre 2026) */
   'lire-image-animation': { name:'Image et ant\u00e9c\u00e9dents d\u2019un nombre', icon:'\ud83d\udccd', desc:'Onze questions en six temps\u00a0: l\u2019image avec le chemin en pointill\u00e9s anim\u00e9 (du point rouge sur l\u2019axe des abscisses jusqu\u2019\u00e0 la courbe, puis jusqu\u2019\u00e0 l\u2019axe des ordonn\u00e9es), l\u2019image sans chemin, les ant\u00e9c\u00e9dents avec le chemin inverse anim\u00e9, les ant\u00e9c\u00e9dents sans chemin, l\u2019image et les ant\u00e9c\u00e9dents sur le m\u00eame graphique, puis une derni\u00e8re fois sans aucun point rouge. L\u2019\u00e9criture f(\u2026) = \u2026 se demande sur les deux premi\u00e8res questions de chaque sorte.', start:()=>startIma() },
@@ -4961,7 +4962,11 @@ const THEMES=[
     /* Puis (novembre 2026) le 6.5 avec un coup de pouce sous chaque question
        rédigée autrement qu'au 6.3 (6.8), ajouté EN DERNIER : rien ne se
        renumérote. */
-    'tracer-droite-pouce'] },
+    'tracer-droite-pouce',
+    /* Puis (novembre 2026) le 6.7 précédé des carrés du 6.6, chaque question
+       avec son coup de pouce en cases (6.9), ajouté EN DERNIER : rien ne se
+       renumérote. */
+    'image-second-degre-pouce'] },
   /* Demande de Turquet, novembre 2026 : « en première faire un exercice comme
      le pdf joint » (la fiche « Exercice augmentation tableau »). Un thème
      neuf, ajouté EN DERNIER : il ne renumérote rien. */
@@ -5132,7 +5137,7 @@ function modeOf(r){ const d=r&&r.details; if(d&&!Array.isArray(d)&&d.mode) retur
 function isPaused(r){ const d=r&&r.details; return !!(d&&!Array.isArray(d)&&d.state==='paused'); }
 function modeName(m){ return m==='train'?'Entraînement':(m==='soutien'?'Soutien':'Évaluation'); }
 function testName(id){ return (TESTS[id]&&TESTS[id].name) || (FRAC_INFO[id]?('Fractions — '+FRAC_INFO[id].name):'Test'); }
-function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='bba') startBba(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') startIsdl(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') (test.pouce?startSuilPouce:startSuil)(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdPouceEx()?startTrdPouce():trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'frequences-probabilites-pouce':startFPB3,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
+function restartCurrentTest(){ if(test.kind==='asp') startAddSub(); else if(test.kind==='mp') startMultPosee(); else if(test.kind==='fracp') startFracParcours(); else if(test.kind==='pct') startPercent(); else if(test.kind==='pct10') startPct10(); else if(test.kind==='eds') startEds(); else if(test.kind==='pdc') startPdc(); else if(test.kind==='atd') startAtd(); else if(test.kind==='pdt') startPdt(); else if(test.kind==='adx') startAdx(); else if(test.kind==='ddt') startDdt(); else if(test.kind==='ddx') startDdx(); else if(test.kind==='pctq') (({'pourcentage-taux':startPctTaux,'pourcentage-synthese':startPctSynthese})[test.qId]||startPctDepart)(); else if(test.kind==='psl') startPctSyntheseLibre(); else if(test.kind==='sal') (({'synthese-diminutions-libre':startSynDimLibre,'synthese-diminutions-libre-dix':startSynDimLibreDix,'synthese-augmentations-libre-dix':startSynAugLibreDix,'synthese-pourcentages-libre':startSynLibre})[test.qId]||startSynAugLibre)(); else if(test.kind==='md') startMultDec(); else if(test.kind==='u') startU(); else if(test.kind==='aug') startAug(); else if(test.kind==='augq') (({'augmenter-taux':startAugTaux,'diminuer-depart':startDimDepart,'diminuer-taux':startDimTaux})[test.qId]||startAugDepart)(); else if(test.kind==='dim') startDim(); else if(test.kind==='fp') startFP(); else if(test.kind==='pcol') startPctCol(); else if(test.kind==='ag2') (test.qId==='diminuer-soustraction'?startDimSub():startAugAdd()); else if(test.kind==='ag2q') (({'diminuer-taux-soustraction':startDimTauxSub,'augmenter-taux-addition':startAugTauxAdd,'diminuer-depart-soustraction':startDimDepSub})[test.qId]||startAugDepAdd)(); else if(test.kind==='syn') (({'synthese-augmentations':startSynAug,'synthese-diminutions':startSynDim,'synthese-augmentations-dix':startSynAugDix,'synthese-diminutions-dix':startSynDimDix})[test.qId]||startSyn)(); else if(test.kind==='bs') startBaisses(); else if(test.kind==='lc') startLireCoef(); else if(test.kind==='ck') startReconnaitreCoef(); else if(test.kind==='ac') startAssocierCoef(); else if(test.kind==='hs') startHausses(); else if(test.kind==='hsc') startHaussesCent(); else if(test.kind==='evs') startEvolSucc(); else if(test.kind==='bsd') startBaissesDix(); else if(test.kind==='ess') startEss(); else if(test.kind==='esl') startEsl(); else if(test.kind==='sgl') startSgl(); else if(test.kind==='dbp') startDbp(); else if(test.kind==='bba') startBba(); else if(test.kind==='sf') restartSF(); else if(test.kind==='rvf') startRvf(); else if(test.kind==='mlt') (test.inv?startDiv:startMlt)(); else if(test.kind==='spf') startSpf(); else if(test.kind==='pqd') (test.inv?startPqdI():startPqdH()); else if(test.kind==='tsf') (test.toutRedac?startTsf4():(test.ppcm?startTsf3():startTsf())); else if(test.kind==='rpd') startRpd(); else if(test.kind==='dvl') startDvl(); else if(test.kind==='dvd') startDvd(); else if(test.kind==='tsc') startTsc(); else if(test.kind==='isd') startIsd(); else if(test.kind==='isdl') (test.qId===ISDP_ID?startIsdp:startIsdl)(); else if(test.kind==='sui') startSui(); else if(test.kind==='suil') (test.pouce?startSuilPouce:startSuil)(); else if(test.kind==='ima') (test.qId==='image-antecedents-libre'?startImaLibre:startIma)(); else if(test.kind==='trd') (trdPouceEx()?startTrdPouce():trdLibre()?startTrdLibre():startTrd()); else if(test.kind==='sdec') startSdec(); else if(test.kind==='rgc') startRgc(); else if(test.kind==='vap') startVap(); else if(test.kind==='voc') (test.qId==='vocabulaire-calcul-2'?startVoc2:startVoc)(); else if(test.kind==='rlf') startRlf(); else if(test.kind==='pb') (({'lire-probabilites':startLP,'probabilites-fiche':startPBF,'probabilites-ecriture':startPBE,'probabilites-sens':startPBSens,'tableau-trois-colonnes':startPB3,'frequences-arrondies':startPBFreq,'independance':startPBInd,'automatismes-probabilites':startPBAuto,'frequences-probabilites':startFPB,'frequences-probabilites-direct':startFPB2,'frequences-probabilites-pouce':startFPB3,'reunion-probabilites':startRU})[test.qId]||startPB)(); else if(test.kind==='tm') (test.tmId==='tables-multiplication-2'?startTM2():startTM()); else startTest(); }
 function isSoutien(){ return currentMode==='soutien'; }
 function soutienAgain(fbId, actionsId, fn, host){
   /* le message dit la vérité : une case laissée vide ne rougit plus, et
@@ -7306,7 +7311,7 @@ function restoreBoxes(boxes){
   /* {trois-fractions-ppcm} : les dénominateurs recopient le dénominateur commun */
   if(test.kind==='tsf' && test.ppcm) tsfMiroirs();
   /* {image-second-degre} : les termes recopiés sur la ligne du dessous */
-  if(test.kind==='isd') isdMiroirs();
+  if(test.kind==='isd' || test.kind==='isdl') isdMiroirs();
   /* la simplification par étapes du thème 4 : de même */
   if(test.etapes && SE_CFG[test.kind]) seMiroirs(test.kind);
 }
@@ -21031,8 +21036,8 @@ function isdCase(id, aria){
 }
 function isdMir(de){ return '<span class="isd-mir isd-vide" data-de="'+de+'" aria-hidden="true">…</span>'; }
 function isdMiroirs(){
-  if(!test || test.kind!=='isd') return;
-  document.querySelectorAll('#isdHost .isd-mir').forEach(function(m){
+  if(!test || (test.kind!=='isd' && test.kind!=='isdl')) return;   /* le 6.9 les montre dans son coup de pouce */
+  document.querySelectorAll('#isdHost .isd-mir, #isdlHost .isd-mir').forEach(function(m){
     const src=$(m.dataset.de); const v=src?String(src.value==null?'':src.value).trim():'';
     m.textContent=v===''?'…':v; m.classList.toggle('isd-vide', v==='');
   });
@@ -21115,7 +21120,7 @@ function isdSuivre(host){
     host.querySelectorAll('.isd-schema, .isd-in, .isd-mir').forEach(function(e){ isdObs.observe(e); });
   }
 }
-window.addEventListener('resize', function(){ if(document.querySelector('#scr-isd.on')) isdTrace(); });
+window.addEventListener('resize', function(){ if(document.querySelector('#scr-isd.on, #scr-isdl.on')) isdTrace(); });
 function renderIsdTest(){
   const q=test.questions[test.idx]; test.locked=false;
   $('isdIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
@@ -21127,6 +21132,7 @@ function renderIsdTest(){
     ? '<p class="isd-consigne">Calcule chaque carré.</p>'+isdCarresHTML()
     : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+(q.a===1?'':(q.a===-1?'−':isdN(q.a)))+'<i>x</i>² '+isdS(q.b)+'<i>x</i> '+isdS(q.c)+'. Calcule l’image de <b>'+isdN(q.x)+'</b> en suivant les flèches et les accolades. Quand un terme est positif, son signe <b>+</b> est déjà écrit devant sa case&nbsp;; un terme négatif s’écrit avec son signe&nbsp;: <b>−1</b>.</p>'
       +'<div class="isd-page">'+isdSchema(q)+'</div>';
+  const lh=$('isdlHost'); if(lh && lh.querySelector('.isd-in')) lh.innerHTML='';   /* le coup de pouce du 6.9 porte les mêmes identifiants */
   $('isdHost').innerHTML=h;
   isdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
     el.addEventListener('input', function(){ isdMiroirs(); if(isSoutien()) checkIsdAnswer(true);
@@ -21261,14 +21267,63 @@ function ctxIsd(q){
      reçoit en vert, sous ses lignes, ce qui manque (le calcul type et le
      résultat, ou le résultat seul). Une ligne ajoutée et laissée vide n'est
      pas une réponse (data-facultatif).
-   · LES LIGNES VIVENT DANS L'ÉTAT (test.isdlE = {idx, lignes}) : elles
-     partent avec la pause et reviennent avec elle. */
+   · LES LIGNES VIVENT DANS L'ÉTAT (test.isdlE = {idx, blocs}, une liste de
+     lignes par bloc) : elles partent avec la pause et reviennent avec elle.
+   · PUIS LE 6.9 (identifiant « image-second-degre-pouce », le MÊME kind
+     « isdl », distingué par test.qId — comme le 6.4 et le 6.2 sur « ima ») :
+     demande de Turquet (novembre 2026) : « faire un exercice comme le 6.7 en
+     rajoutant la question 1 de l'exercice 6.6 en mode rédigé ; un bouton
+     coup de pouce pour chaque question, qui affiche la résolution de la
+     question comme dans le 6.6 ; on pourra enlever le coup de pouce pour
+     revenir à la version rédigée ».
+     · LES SEPT QUESTIONS DE ISD_FICHE, carrés compris. Une question a un ou
+       plusieurs BLOCS de calcul (isdlBlocs) : un pour une image, « f(1) = » ;
+       deux pour les carrés, « 1² = » et « (−1)² = », chacun ses lignes et sa
+       propre étape exigée (« 1 × 1 »). Entrée dans la dernière ligne vide
+       d'un bloc passe au bloc suivant ; dans le dernier, vérifie.
+     · LE COUP DE POUCE pose q.aide (rangé dans la question : il tient à la
+       pause) et dessine la question du 6.6 SUR CET ÉCRAN — isdSchema ou
+       isdCarresHTML, ses flèches, ses accolades, ses miroirs, son juge
+       (isdCases, isdJuste, isdCorr, isdPourquoi). Les cases portent les
+       identifiants du 6.6 : #isdHost est vidé avant (et le 6.6 vide
+       #isdlHost), jamais deux cases du même nom dans la page.
+     · LE RETOUR, « Revenir à la version rédigée », juste avant « Vérifier »,
+       et qui reste après la vérification (la règle du 8.1, v463) : un
+       observateur sur la rangée le remet quand elle est réécrite. La
+       rédaction tapée avant le coup de pouce est toujours là (l'état). Après
+       la vérification des cases, la question est notée : le retour pose
+       q.rejeu, la feuille rédigée revient pour s'entraîner, « Vérifier ma
+       rédaction » corrige sans toucher ni au score ni aux réponses, et
+       « Question suivante » est offerte d'emblée.
+     · UN POINT PAR QUESTION, rédigée ou en cases (la lecture du 8.1). */
+const ISDP_ID='image-second-degre-pouce';
+function isdlPouceEx(){ return !!test && test.kind==='isdl' && test.qId===ISDP_ID; }
 function isdlBuildQuestions(){ return ISD_FICHE.filter(function(q){ return q.t==='img'; }).map(function(q){ return Object.assign({}, q); }); }
 function isdlFx(q){ return q.a*q.x*q.x+q.b*q.x+q.c; }
+/* les blocs de calcul d'une question : ce qu'écrit la page devant la première
+   ligne, la valeur visée, le calcul type, et l'en-tête recopié qu'on tolère */
+function isdlBlocs(q){
+  if(q.t==='carres') return [
+    {lab:'1²', nom:'1²', cible:1, modele:'1 × 1', tete:/^\(?1\)?\^2$/,
+      pq:'1² = 1 × 1 = 1 : le carré d’un nombre, c’est ce nombre multiplié par lui-même.'},
+    {lab:'(−1)²', nom:'(−1)²', cible:1, modele:'(−1) × (−1)', tete:/^\(-1\)\^2$/,
+      pq:'(−1)² = (−1) × (−1) = 1 : moins par moins donne plus, un carré n’est jamais négatif.'}];
+  const ax=isdN(q.x), sq=q.x*q.x, fx=isdlFx(q);
+  return [{lab:'<i>f</i>('+ax+')', nom:'f('+ax+')', cible:fx, modele:isdlModele(q), tete:/^f\(.*\)$/i,
+    pq:'Une ligne ne vaut pas f('+ax+') = '+isdN(fx)+'. On remplace x par '+ax+', entre parenthèses : ('+ax+')² = '+sq+(q.a!==1?', puis '+isdN(q.a)+' × '+sq+' = '+isdN(q.a*sq):'')+' ; '+isdN(q.b)+' × ('+ax+') = '+isdN(q.b*q.x)+'. Par exemple : f('+ax+') = '+isdlModele(q)+' = '+isdN(fx)+'.'}];
+}
 function isdlEtat(){
-  if(!test.isdlE || test.isdlE.idx!==test.idx) test.isdlE={idx:test.idx, lignes:['']};
+  const E=test.isdlE;
+  if(!E || E.idx!==test.idx){
+    const q=test.questions[test.idx];
+    test.isdlE={idx:test.idx, blocs:isdlBlocs(q).map(function(){ return ['']; })};
+  } else if(!Array.isArray(E.blocs)){ E.blocs=[Array.isArray(E.lignes)?E.lignes:['']]; delete E.lignes; }   /* une pause d'avant les blocs */
   return test.isdlE;
 }
+/* l'identifiant d'une ligne : « isdl-l-2 » au premier bloc (celui du 6.7),
+   « isdl-l1-2 » au second */
+function isdlId(b, r){ return (b ? 'isdl-l'+b+'-' : 'isdl-l-')+r; }
+function isdlBlocId(b){ return b ? 'isdlBloc'+b : 'isdlBloc'; }
 /* le calcul type : la substitution, puis les termes calculés */
 function isdlModele(q){
   const p='('+isdN(q.x)+')', sq=q.x*q.x;
@@ -21324,41 +21379,56 @@ function isdlVal(s){
   return (r!==null && i===t.length && isFinite(r)) ? r : null;
 }
 function isdlNombreSeul(s){ return /^-?(\d+(\.\d+)?|\.\d+)$/.test(isdlTexte(s)); }
-/* une ligne lue : ses maillons, juste si chacun vaut f(x) */
-function isdlLigne(q, s){
+/* une ligne lue : ses maillons, juste si chacun vaut la valeur du bloc */
+function isdlLigne(q, s, B){
+  B=B||isdlBlocs(q)[0];
   let M=String(s).split('=');
-  if(M.length>1 && /^f\(.*\)$/i.test(isdlTexte(M[0]))) M=M.slice(1);   /* « f(1) = … » recopié : toléré */
-  const fx=isdlFx(q);
-  const ok=M.every(function(m){ const v=isdlVal(m); return v!==null && Math.abs(v-fx)<1e-9; });
+  if(M.length>1 && B.tete.test(isdlTexte(M[0]))) M=M.slice(1);   /* « f(1) = … », « 1² = … » recopié : toléré */
+  const ok=M.every(function(m){ const v=isdlVal(m); return v!==null && Math.abs(v-B.cible)<1e-9; });
   return {ok:ok, maillons:M, etape:M.some(function(m){ return !isdlNombreSeul(m); }), fin:isdlNombreSeul(M[M.length-1])};
 }
 function isdlIn(id, v, aria, i){
   return '<input type="text" id="'+id+'" class="isdl-in isdl-lin" value="'+esc(v||'')+'" inputmode="numeric" data-pave-plus="× ÷ + ( ) ^"'
     +(i>0?' data-facultatif="1"':'')+' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+esc(aria)+'">';
 }
-function isdlLignesHTML(q){
-  const L=isdlEtat().lignes, fa='<i>f</i>('+isdN(q.x)+')';
+function isdlLignesHTML(q, b){
+  b=b||0;
+  const B=isdlBlocs(q)[b], L=isdlEtat().blocs[b];
   return L.map(function(v,r){
-    return '<span class="isdl-g">'+(r===0?fa:'')+'</span><span class="isdl-eg">=</span><span class="isdl-dr">'
-      +isdlIn('isdl-l-'+r, v, r===0?'le calcul de f('+isdN(q.x)+')':'ligne '+(r+1)+' du calcul de f('+isdN(q.x)+')', r)+'</span>';
+    return '<span class="isdl-g">'+(r===0?B.lab:'')+'</span><span class="isdl-eg">=</span><span class="isdl-dr">'
+      +isdlIn(isdlId(b,r), v, r===0?'le calcul de '+B.nom:'ligne '+(r+1)+' du calcul de '+B.nom, r)+'</span>';
   }).join('');
 }
+function isdlFonction(q){ return (q.a===1?'':(q.a===-1?'−':isdN(q.a)))+'<i>x</i>² '+isdS(q.b)+'<i>x</i> '+isdS(q.c); }
+const ISDL_PROMPT='Calcule l’image d’un nombre par une fonction du second degré en rédigeant ton calcul : une étape par ligne, jusqu’au résultat. La touche Entrée ouvre la ligne suivante, le « = » sous le précédent.';
 function renderIsdl(){
   const q=test.questions[test.idx]; test.locked=false;
-  isdlEtat();
+  isdlEtat(); isdlRetourArreter();
   $('isdlIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagIsdl').innerHTML=modeTagHTML();
   $('isdlLiveScore').textContent=test.score;
   $('isdlFeedback').textContent=''; $('isdlFeedback').className='mp-feedback';
-  $('isdlActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdlAnswer()">Vérifier</button>';
-  $('isdlHost').innerHTML='<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+(q.a===1?'':(q.a===-1?'−':isdN(q.a)))+'<i>x</i>² '+isdS(q.b)+'<i>x</i> '+isdS(q.c)
-    +'. Calcule l’image de <b>'+isdN(q.x)+'</b> : écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante. Il faut au moins une étape avant le résultat.</p>'
-    +'<div class="isdl-page"><div class="isdl-calc" id="isdlBloc">'+isdlLignesHTML(q)+'</div></div>';
+  if(q.aide){ isdlRenderPouce(q); return; }
+  const lh=$('isdlHost'); if(lh && lh.querySelector('.isd-schema, .isd-carres')) lh.innerHTML='';
+  $('isdlPrompt').textContent=q.t==='carres'
+    ? 'Calcule chaque carré en rédigeant ton calcul : une étape par ligne, jusqu’au résultat. La touche Entrée ouvre la ligne suivante, le « = » sous le précédent.'
+    : ISDL_PROMPT;
+  const pouce=isdlPouceEx() && !q.rejeu;
+  $('isdlActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdlAnswer()">'+(q.rejeu?'Vérifier ma rédaction':'Vérifier')+'</button>'
+    +(pouce?isdlPouceBtn():'')+(q.rejeu?isdlSuivantHTML():'');
+  const consigne=q.t==='carres'
+    ? '<p class="isd-consigne">Calcule 1² et (−1)² : écris chaque calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante. Il faut au moins une étape avant le résultat.'
+    : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+isdlFonction(q)
+      +'. Calcule l’image de <b>'+isdN(q.x)+'</b> : écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante. Il faut au moins une étape avant le résultat.';
+  $('isdlHost').innerHTML=consigne+(pouce?' Bloqué ? Le bouton « Coup de pouce » présente la question en cases.':'')+'</p>'
+    +(q.rejeu?isdlRejeuNote():'')
+    +isdlBlocs(q).map(function(B,b){ return '<div class="isdl-page"'+(b?' style="margin-top:14px"':'')+'><div class="isdl-calc" id="'+isdlBlocId(b)+'">'+isdlLignesHTML(q,b)+'</div></div>'; }).join('');
   isdlBrancher();
-  const f=$('isdl-l-'+(isdlEtat().lignes.length-1)); if(f) setTimeout(function(){ try{ if(!f.disabled) f.focus(); }catch(e){} },60);
+  const f=$(isdlId(0, isdlEtat().blocs[0].length-1)); if(f) setTimeout(function(){ try{ if(!f.disabled) f.focus(); }catch(e){} },60);
 }
-function isdlBrancher(){
-  $('isdlBloc').querySelectorAll('.isdl-lin').forEach(function(el){
+function isdlBrancher(b){
+  const sel=b==null ? '#isdlHost .isdl-lin' : '#'+isdlBlocId(b)+' .isdl-lin';
+  document.querySelectorAll(sel).forEach(function(el){
     isdlLargeur(el);
     el.addEventListener('input', function(){ isdlMoins(el); isdlLire(el); isdlLargeur(el); if(isSoutien()) checkIsdlAnswer(true);
       clearTimeout(test.isdlSave); test.isdlSave=setTimeout(autoSave,1000); });
@@ -21374,88 +21444,101 @@ function isdlMoins(el){
    case ne se relit pas (la règle des cases MathLive, ici pour une case en
    texte) — 13 caractères larges au moins, la largeur de l'écran au plus */
 function isdlLargeur(el){ if(el) el.style.width=Math.max(13, String(el.value||'').length*0.62+1.6)+'em'; }
-function isdlRang(el){ const m=/^isdl-l-(\d+)$/.exec(el && el.id || ''); return m ? +m[1] : -1; }
-function isdlLire(el){ const r=isdlRang(el), L=isdlEtat().lignes; if(r>=0 && r<L.length) L[r]=el.value; }
-function isdlRedessiner(focusR){
-  const q=test.questions[test.idx], b=$('isdlBloc'); if(!b) return;
-  b.innerHTML=isdlLignesHTML(q);
-  isdlBrancher();
+function isdlRang(el){ const m=/^isdl-l(\d*)-(\d+)$/.exec(el && el.id || ''); return m ? {b:m[1]?+m[1]:0, r:+m[2]} : null; }
+function isdlLire(el){ const p=isdlRang(el), E=isdlEtat(); if(p && E.blocs[p.b] && p.r<E.blocs[p.b].length) E.blocs[p.b][p.r]=el.value; }
+function isdlRedessiner(b, focusR){
+  const q=test.questions[test.idx], bl=$(isdlBlocId(b)); if(!bl) return;
+  bl.innerHTML=isdlLignesHTML(q, b);
+  isdlBrancher(b);
   if(isSoutien()) checkIsdlAnswer(true);
   /* le curseur va À L'INSTANT dans la ligne : une frappe rapide après Entrée
      ne se perd pas pendant le redessin */
-  const f=$('isdl-l-'+focusR);
+  const f=$(isdlId(b, focusR));
   if(f){ try{ f.focus(); const n=f.value.length; f.setSelectionRange(n,n); }catch(e){} }
   clearTimeout(test.isdlSave); test.isdlSave=setTimeout(autoSave,800);
 }
 function isdlTouche(el, e){
-  const r=isdlRang(el); if(r<0 || !test || test.kind!=='isdl') return;
-  const L=isdlEtat().lignes; isdlLire(el);
+  const p=isdlRang(el); if(!p || !test || test.kind!=='isdl') return;
+  const E=isdlEtat(), L=E.blocs[p.b], r=p.r; if(!L) return;
+  isdlLire(el);
   if(e.key==='Enter'){
     e.preventDefault(); e.stopImmediatePropagation();
     if(test.locked) return;
     const plein=String(L[r]).trim()!=='';
-    if(plein && r<L.length-1){ const n=$('isdl-l-'+(r+1)); if(n) n.focus(); return; }
-    if(plein){ L.push(''); isdlRedessiner(r+1); return; }
+    if(plein && r<L.length-1){ const n=$(isdlId(p.b, r+1)); if(n) n.focus(); return; }
+    if(plein){ L.push(''); isdlRedessiner(p.b, r+1); return; }
     /* une ligne vide : « j'ai fini » — la dernière ligne vide se retire, puis
-       on vérifie par le bouton (la porte #confirmer-vides le voit passer) */
-    if(r>0 && r===L.length-1){ L.pop(); isdlRedessiner(r-1); }
+       on passe au bloc suivant, ou l'on vérifie par le bouton (la porte
+       #confirmer-vides le voit passer) */
+    if(r>0 && r===L.length-1){ L.pop(); isdlRedessiner(p.b, r-1); }
+    if(p.b<E.blocs.length-1){
+      const n=$(isdlId(p.b+1, E.blocs[p.b+1].length-1));
+      if(n){ try{ n.focus(); const k=n.value.length; n.setSelectionRange(k,k); }catch(err){} }
+      return;
+    }
     const b=document.querySelector('#isdlActions .btn-primary'); if(b) setTimeout(function(){ b.click(); },0);
     return;
   }
   if(e.key==='Backspace' && !el.value && r>0 && r===L.length-1 && !test.locked){
-    e.preventDefault(); L.pop(); isdlRedessiner(r-1);
+    e.preventDefault(); L.pop(); isdlRedessiner(p.b, r-1);
   }
 }
 window.addEventListener('keydown', function(e){
   const t=e.target; if(!t || !t.classList || !t.classList.contains('isdl-lin')) return;
   if(e.key==='Enter' || e.key==='Backspace') isdlTouche(t, e);
 }, true);
-/* le juge : une entrée par ligne écrite, puis la « fin » (le calcul va au
-   bout, avec une étape au moins) — pas une case de l'écran, jamais vide */
+/* le juge : par bloc, une entrée par ligne écrite, puis la « fin » du bloc
+   (le calcul va au bout, avec une étape au moins) — pas une case de
+   l'écran, jamais vide */
 function isdlSubs(q){
-  const L=isdlEtat().lignes, out=[]; let der=null, etape=false;
-  L.forEach(function(v,r){
-    const s=String(v||'').trim(); if(!s && r>0) return;
-    const lu=s ? isdlLigne(q, s) : null, ok=!!lu && lu.ok;
-    if(ok && lu.etape) etape=true;
-    out.push({id:'isdl-l-'+r, el:$('isdl-l-'+r), ok:ok, vide:!s, lu:lu});
-    if(s) der=lu;
+  const E=isdlEtat(), out=[];
+  isdlBlocs(q).forEach(function(B,b){
+    const L=E.blocs[b]||[''];
+    let der=null, etape=false;
+    L.forEach(function(v,r){
+      const s=String(v||'').trim(); if(!s && r>0) return;
+      const lu=s ? isdlLigne(q, s, B) : null, ok=!!lu && lu.ok;
+      if(ok && lu.etape) etape=true;
+      out.push({b:b, r:r, id:isdlId(b,r), el:$(isdlId(b,r)), ok:ok, vide:!s, lu:lu});
+      if(s) der=lu;
+    });
+    out.push({fin:true, b:b, ok:!!der && der.ok && der.fin && etape, vide:false, etape:etape, der:der});
   });
-  const fin=!!der && der.ok && der.fin && etape;
-  out.push({fin:true, ok:fin, vide:false, etape:etape, der:der});
   return out;
 }
-function isdlAjoutSol(texte, aria){
-  const b=$('isdlBloc'); if(!b) return;
-  b.insertAdjacentHTML('beforeend','<span class="isdl-g"></span><span class="isdl-eg">=</span><span class="isdl-dr"><input type="text" class="isdl-in isdl-sol sol" value="'+esc(texte)+'" readonly disabled aria-label="'+esc(aria)+'"></span>');
-  const ss=b.querySelectorAll('.isdl-sol'); isdlLargeur(ss[ss.length-1]);
+function isdlAjoutSol(b, texte, aria){
+  const bl=$(isdlBlocId(b)); if(!bl) return;
+  bl.insertAdjacentHTML('beforeend','<span class="isdl-g"></span><span class="isdl-eg">=</span><span class="isdl-dr"><input type="text" class="isdl-in isdl-sol sol" value="'+esc(texte)+'" readonly disabled aria-label="'+esc(aria)+'"></span>');
+  const ss=bl.querySelectorAll('.isdl-sol'); isdlLargeur(ss[ss.length-1]);
 }
-function isdlPourquoi(q, subs){
-  const fx=isdlFx(q), ax=isdN(q.x), mod=isdlModele(q)+' = '+isdN(fx);
+function isdlPourquoi(q, subs, sout){
+  const Bs=isdlBlocs(q);
   const faux=subs.find(function(s){ return !s.fin && !s.ok && !s.vide; });
-  if(faux){
-    const sq=q.x*q.x;
-    return 'Une ligne ne vaut pas f('+ax+') = '+isdN(fx)+'. On remplace x par '+ax+', entre parenthèses : ('+ax+')² = '+sq+(q.a!==1?', puis '+isdN(q.a)+' × '+sq+' = '+isdN(q.a*sq):'')+' ; '+isdN(q.b)+' × ('+ax+') = '+isdN(q.b*q.x)+'. Par exemple : f('+ax+') = '+mod+'.';
-  }
-  const f=subs[subs.length-1];
-  if(!f.etape) return 'Le résultat est juste, mais il faut au moins une étape intermédiaire avant lui : par exemple f('+ax+') = '+mod+'.';
-  return 'Va jusqu’au bout : la dernière ligne doit être le résultat seul, f('+ax+') = '+isdN(fx)+'.';
+  if(faux) return Bs[faux.b].pq;
+  const f=subs.find(function(s){ return s.fin && !s.ok; }); if(!f) return '';
+  const B=Bs[f.b], mod=B.nom+' = '+B.modele+' = '+isdN(B.cible);
+  if(!f.der) return sout ? 'Écris aussi le calcul de '+B.nom+'.' : 'Le calcul de '+B.nom+' manquait — la correction l’a écrit en vert : '+mod+'.';
+  if(!f.etape) return 'Le résultat est juste, mais il faut au moins une étape intermédiaire avant lui : par exemple '+mod+'.';
+  return 'Va jusqu’au bout : la dernière ligne doit être le résultat seul, '+B.nom+' = '+isdN(B.cible)+'.';
 }
 function checkIsdlAnswer(live){
   if(test.locked) return;
-  const q=test.questions[test.idx], subs=isdlSubs(q), lignes=subs.filter(function(s){ return !s.fin; }), fin=subs[subs.length-1];
+  const q=test.questions[test.idx];
+  if(q.aide){ isdlPouceCheck(live); return; }
+  const subs=isdlSubs(q), lignes=subs.filter(function(s){ return !s.fin; }), fins=subs.filter(function(s){ return s.fin; });
   if(live){   /* soutien : chaque ligne écrite se colore à la frappe */
     if(!isSoutien()) return;
     lignes.forEach(function(s){ if(!s.el || s.el.disabled) return; s.el.classList.remove('ok','bad'); if(!s.vide) s.el.classList.add(s.ok?'ok':'bad'); });
     return;
   }
-  const sout=isSoutien(), fx=isdlFx(q);
-  const allOk=lignes.every(function(s){ return s.ok; }) && fin.ok;
-  const pourquoi=allOk?'':isdlPourquoi(q, subs);
+  const rejeu=!!q.rejeu, sout=isSoutien() && !rejeu, Bs=isdlBlocs(q);
+  const allOk=lignes.every(function(s){ return s.ok; }) && fins.every(function(s){ return s.ok; });
+  const rien=lignes.every(function(s){ return s.vide; });
+  const pourquoi=allOk?'':isdlPourquoi(q, subs, sout);
   lignes.forEach(function(s){
     if(!s.el) return;
     s.el.classList.remove('ok','bad','sol');
-    if(s.vide){ if(!sout){ s.el.value=isdlModele(q)+' = '+isdN(fx); s.el.classList.add('sol'); s.el.disabled=true; isdlLargeur(s.el); } return; }
+    if(s.vide){ if(!sout){ const B=Bs[s.b]; s.el.value=B.modele+' = '+isdN(B.cible); s.el.classList.add('sol'); s.el.disabled=true; isdlLargeur(s.el); } return; }
     s.el.classList.add(s.ok?'ok':'bad');
     if(!sout) s.el.disabled=true;
   });
@@ -21468,42 +21551,141 @@ function checkIsdlAnswer(live){
     soutienAgain('isdlFeedback','isdlActions','checkIsdlAnswer','isdlHost'); return;
   }
   test.locked=true;
-  if(!fin.ok && !lignes[0].vide){
-    if(!fin.etape) isdlAjoutSol(isdlModele(q)+' = '+isdN(fx), 'correction : le calcul de f('+isdN(q.x)+')');
-    else isdlAjoutSol(isdN(fx), 'correction : le résultat');
-  }
+  fins.forEach(function(f){
+    if(f.ok || !f.der) return;   /* un bloc vide a reçu le calcul type dans sa case */
+    const B=Bs[f.b];
+    if(!f.etape) isdlAjoutSol(f.b, B.modele+' = '+isdN(B.cible), 'correction : le calcul de '+B.nom);
+    else isdlAjoutSol(f.b, isdN(B.cible), 'correction : le résultat de '+B.nom);
+  });
   document.querySelectorAll('#isdlHost .isdl-lin').forEach(function(el){ el.disabled=true; });
-  if(allOk) test.score++; $('isdlLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
-  if(allOk){ $('isdlFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('isdlFeedback').className='mp-feedback good'; }
-  else { $('isdlFeedback').textContent=lignes[0].vide ? 'Tu n’as rien écrit — la correction a écrit le calcul en vert. '+pourquoi : pourquoi; $('isdlFeedback').className='mp-feedback bad'; }
-  test.answers.push({...(ptsExo()||{}),correct:allOk,
-    q:'f(x) = '+isdF(q)+' : image de '+isdN(q.x)+', calcul rédigé',
-    answer:'f('+isdN(q.x)+') = '+isdlModele(q)+' = '+isdN(fx),
-    given:lignes.map(function(s){ return s.el?String(s.el.value).trim()||'?':'?'; }).join(' = ')});
+  if(allOk && !rejeu) test.score++; $('isdlLiveScore').textContent=test.score;   /* Première : un point par question parfaite */
+  if(allOk){ $('isdlFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !'])+(rejeu?' (Entraînement : ta note ne change pas.)':''); $('isdlFeedback').className='mp-feedback good'; }
+  else { $('isdlFeedback').textContent=rien ? 'Tu n’as rien écrit — la correction a écrit le calcul en vert.' : pourquoi; $('isdlFeedback').className='mp-feedback bad'; }
+  if(!rejeu) test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q: q.t==='carres' ? '1² et (−1)², calculs rédigés' : 'f(x) = '+isdF(q)+' : image de '+isdN(q.x)+', calcul rédigé',
+    answer: Bs.map(function(B){ return B.nom+' = '+B.modele+' = '+isdN(B.cible); }).join(' ; '),
+    given: Bs.map(function(B,b){ return lignes.filter(function(s){ return s.b===b; }).map(function(s){ return s.el?String(s.el.value).trim()||'?':'?'; }).join(' = '); }).join(' ; ')});
   const last=test.idx===test.questions.length-1;
   $('isdlActions').innerHTML='<button class="btn btn-primary" id="isdlNext" onclick="nextIsdlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('isdlNext'); if(nb) nb.focus();
 }
-function nextIsdlQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderIsdl(); autoSave(); } else finishTest(); }
-function startIsdl(){
+/* ---- {image-second-degre-pouce} : le coup de pouce, la question du 6.6 ---- */
+function isdlPouceBtn(){ return '<button class="btn btn-ghost" id="isdlPouceBtn" type="button" onclick="isdlPouce()">👍 Coup de pouce</button>'; }
+function isdlSuivantHTML(){ const last=test.idx===test.questions.length-1; return '<button class="btn btn-ghost" type="button" id="isdlSuivantRejeu" onclick="nextIsdlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>'; }
+function isdlRejeuNote(){ return '<p class="dexp-hint" id="isdlRejeuNote">Le point de cette question est déjà compté dans le coup de pouce. Rédige maintenant ton calcul pour t’entraîner : il sera vérifié, sans changer ta note.</p>'; }
+function isdlPouce(){
+  const q=test.questions && test.questions[test.idx];
+  if(test.locked || !isdlPouceEx() || !q || q.aide || q.rejeu) return;
+  document.querySelectorAll('#isdlHost .isdl-lin').forEach(isdlLire);
+  q.aide=true; renderIsdl(); autoSave();
+}
+function isdlRevenir(){
+  const q=test.questions && test.questions[test.idx];
+  if(!q || !q.aide) return;
+  if(test.locked) q.rejeu=true;   /* la question est notée : la feuille revient pour s'entraîner */
+  q.aide=false; isdlRetourArreter();
+  renderIsdl(); autoSave();
+}
+function isdlRenderPouce(q){
+  const ih=$('isdHost'); if(ih) ih.innerHTML='';   /* les cases du 6.6 portent les mêmes identifiants */
+  $('isdlPrompt').innerHTML=q.t==='carres'
+    ? 'Coup de pouce : la question en cases. Calcule chaque carré.'
+    : 'Coup de pouce : la question en cases. Les flèches montrent où va chaque terme de <i>f</i>(<i>x</i>) : on remplace <i>x</i> par le nombre, entre parenthèses. Sous chaque accolade, écris la valeur du terme.';
+  $('isdlActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdlAnswer()">Vérifier</button>';
+  $('isdlHost').innerHTML=q.t==='carres'
+    ? '<p class="isd-consigne">Calcule chaque carré.</p>'+isdCarresHTML()
+    : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+isdlFonction(q)+'. Calcule l’image de <b>'+isdN(q.x)+'</b> en suivant les flèches et les accolades. Quand un terme est positif, son signe <b>+</b> est déjà écrit devant sa case&nbsp;; un terme négatif s’écrit avec son signe&nbsp;: <b>−1</b>.</p>'
+      +'<div class="isd-page">'+isdSchema(q)+'</div>';
+  const cs=isdCases(q), dern=cs[cs.length-1].id;
+  cs.forEach(function(c){ const el=$(c.id); if(!el) return;
+    el.addEventListener('input', function(){ isdMiroirs(); if(isSoutien()) checkIsdlAnswer(true);
+      clearTimeout(test.isdlSave); test.isdlSave=setTimeout(autoSave,1000); });
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter' && c.id===dern){ e.preventDefault(); checkIsdlAnswer(); } });
+  });
+  isdMiroirs();
+  if(q.t!=='carres') isdSuivre($('isdlHost'));
+  isdlRetourSuivre();
+}
+/* LE BOUTON DE RETOUR, JUSTE AVANT « VÉRIFIER », et qui reste : la rangée
+   se réécrit (Revérifier, « Passer à la suite », Question suivante), un
+   observateur y remet le bouton en tête tant que la question est sur son
+   coup de pouce — la règle du 8.1 (bbaRetourSuivre). */
+let isdlObs=null;
+function isdlRetourBouton(){ return '<button class="btn btn-ghost" type="button" id="isdlRetourBtn" onclick="isdlRevenir()">✍️ Revenir à la version rédigée</button>'; }
+function isdlRetourArreter(){ if(isdlObs){ isdlObs.disconnect(); isdlObs=null; } const b=$('isdlRetourBtn'); if(b) b.remove(); }
+function isdlRetourSuivre(){
+  isdlRetourArreter();
+  const q=test.questions && test.questions[test.idx], act=$('isdlActions');
+  if(!q || !q.aide || !act) return;
+  const poser=function(){
+    const qq=test.kind==='isdl' && test.questions && test.questions[test.idx];
+    if(qq!==q || !q.aide || act.querySelector('#isdlRetourBtn')) return;
+    act.insertAdjacentHTML('afterbegin', isdlRetourBouton());
+  };
+  poser();
+  if(typeof MutationObserver==='function'){ isdlObs=new MutationObserver(poser); isdlObs.observe(act,{childList:true}); }
+}
+/* le juge du coup de pouce : celui du 6.6, sur cet écran */
+function isdlPouceCheck(live){
+  const q=test.questions[test.idx], cases=isdCases(q);
+  if(live){
+    if(!isSoutien()) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+      el.classList.remove('ok','bad');
+      if(String(el.value).trim()==='') return;
+      el.classList.add(isdJuste(c,el)?'ok':'bad');
+    });
+    return;
+  }
+  const subs=cases.map(function(c){ const el=$(c.id);
+    return {c:c, el:el, ok:isdJuste(c,el), vide:!el || String(el.value).trim()===''}; });
+  const allOk=subs.every(function(s){ return s.ok; });
+  const pourquoi=isdPourquoi(q, subs);
+  const given=subs.map(function(s){ return s.el?String(s.el.value).trim()||'?':'?'; }).join(' ; ');
+  subs.forEach(function(s){ isdCorr(s.el, isdBon(s.c), s.ok); });
+  isdMiroirs();
+  if(!allOk && isSoutien()){ soutienAgain('isdlFeedback','isdlActions','checkIsdlAnswer','isdlHost'); return; }
+  test.locked=true;
+  if(allOk) test.score++; $('isdlLiveScore').textContent=test.score;   /* un point, comme une rédaction parfaite */
+  if(allOk){ $('isdlFeedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $('isdlFeedback').className='mp-feedback good'; }
+  else { $('isdlFeedback').textContent=msgAvecVides(subs, pourquoi); $('isdlFeedback').className='mp-feedback bad'; }
+  test.answers.push({...(ptsExo()||{}),correct:allOk,
+    q: (q.t==='carres' ? '1² et (−1)²' : 'f(x) = '+isdF(q)+' : image de '+isdN(q.x))+', coup de pouce en cases',
+    answer: q.t==='carres' ? '1² = 1 ; (−1)² = 1' : 'f('+isdN(q.x)+') = '+isdN(isdlFx(q)),
+    given: given});
+  const last=test.idx===test.questions.length-1;
+  $('isdlActions').innerHTML='<button class="btn btn-primary" id="isdlNext" onclick="nextIsdlQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+  const nb=$('isdlNext'); if(nb) nb.focus();
+}
+function nextIsdlQuestion(){ isdlRetourArreter(); if(test.idx<test.questions.length-1){ test.idx++; renderIsdl(); autoSave(); } else finishTest(); }
+function isdlDemarrer(id, qs){
   if(!currentEleve){ accueil(); return; }
-  const qs=isdlBuildQuestions();
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'isdl', questions:qs, idx:0, score:0,
     maxScore:qs.length, answers:[], startTime:Date.now(),
     qTimer:null, fbTimer:null, locked:false});
-  test.qId='image-second-degre-libre';
+  test.qId=id;
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('isdl'); renderIsdl();
 }
+function startIsdl(){ isdlDemarrer('image-second-degre-libre', isdlBuildQuestions()); }
+/* le 6.9 : les sept questions de la fiche, carrés compris, chacune avec son
+   coup de pouce (q.aide : false tant qu'il n'est pas ouvert) */
+function startIsdp(){ isdlDemarrer('image-second-degre-pouce', isdBuildQuestions().map(function(q){ q.aide=false; return q; })); }
 function ctxIsdl(q){
-  const fx=isdlFx(q), ax=isdN(q.x);
-  const ecrit=isdlSubs(q).filter(function(s){ return !s.fin && !s.vide; }).map(function(s,i){ return 'ligne '+(i+1)+' : « '+String(s.el?s.el.value:'').trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'); });
-  const c='L’élève calcule l’image de '+ax+' par f(x) = '+isdF(q)+' en RÉDIGEANT son calcul : la page écrit « f('+ax+') = » devant la première case, puis « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, avec au moins une étape intermédiaire. Toute ligne qui vaut f('+ax+') est acceptée.'
+  if(q.aide){ const c=ctxIsd(q); return {nombre:'', contexte:'L’élève a ouvert le « Coup de pouce » : la question est présentée en cases, comme au 6.6. '+c.contexte}; }
+  const Bs=isdlBlocs(q);
+  const ecrit=isdlSubs(q).filter(function(s){ return !s.fin && !s.vide; }).map(function(s){ return Bs[s.b].nom+', ligne '+(s.r+1)+' : « '+String(s.el?s.el.value:'').trim()+' » '+(s.ok?'(juste)':'(FAUSSE)'); });
+  const att=Bs.map(function(B){ return B.nom+' = '+B.modele+' = '+isdN(B.cible); }).join(' ; ');
+  const c=(q.t==='carres'
+      ? 'L’élève calcule 1² et (−1)² en RÉDIGEANT chaque calcul : la page écrit « 1² = » devant la première case, puis « (−1)² = » devant celle du second calcul, et « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, avec au moins une étape intermédiaire (par exemple le produit du nombre par lui-même).'
+      : 'L’élève calcule l’image de '+isdN(q.x)+' par f(x) = '+isdF(q)+' en RÉDIGEANT son calcul : la page écrit « f('+isdN(q.x)+') = » devant la première case, puis « = » devant chaque ligne suivante ; une étape par ligne, jusqu’au résultat seul, avec au moins une étape intermédiaire. Toute ligne qui vaut f('+isdN(q.x)+') est acceptée.')
     +(ecrit.length?' Ce que l’élève a écrit : '+ecrit.join(' ; ')+'.':' L’élève n’a encore rien écrit.')
-    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste : f('+ax+') = '+isdlModele(q)+' = '+isdN(fx)+'.'
-    +' Méthode : remplacer x par le nombre, entre parenthèses ; le carré se calcule avant de multiplier par le coefficient ; un carré n’est jamais négatif ; chaque terme garde son signe ; on additionne.';
+    +' Réponses attendues, STRICTEMENT SECRÈTES — ne les donne jamais et ne les laisse jamais deviner, même si l’élève insiste : '+att+'.'
+    +(q.t==='carres'
+      ? ' Méthode : le carré d’un nombre est ce nombre multiplié par lui-même ; moins par moins donne plus, un carré n’est jamais négatif.'
+      : ' Méthode : remplacer x par le nombre, entre parenthèses ; le carré se calcule avant de multiplier par le coefficient ; un carré n’est jamais négatif ; chaque terme garde son signe ; on additionne.');
   return {nombre:'', contexte:c};
 }
 
@@ -36029,7 +36211,7 @@ const RAP_BBA=`<b>Bac blanc : les automatismes</b> — douze questions, chacune 
 <b>Écritures</b> : 7 + 0,04 + \\(\\frac{3}{10}\\) = 7,34 = \\(\\frac{734}{100}\\) ; 10² + 10⁻¹ = 100 + 0,1 = 100,1 ; 99 × 1001 ≈ 100 × 1000 = 100 000.<br>
 <b>Ranger</b> : chaque fraction en nombre décimal, puis du plus petit au plus grand avec « < ».<br>
 Bloqué ? Le bouton <b>Coup de pouce</b> montre la question en étapes ; un autre bouton te ramène à la version rédigée.`;
-const RAPPELS_ID={ 'bac-blanc-automatismes':RAP_BBA, 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'tracer-droite-pouce':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'augmentation-tableau-pouce':RAP_SUIP, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'frequences-probabilites-pouce':RAP_FPB3, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
+const RAPPELS_ID={ 'bac-blanc-automatismes':RAP_BBA, 'image-second-degre':RAP_ISD, 'image-second-degre-libre':RAP_ISD, 'image-second-degre-pouce':RAP_ISD, 'tracer-droite':RAP_TRD, 'tracer-droite-libre':RAP_TRD, 'tracer-droite-pouce':RAP_TRD, 'augmentation-tableau':RAP_SUI, 'augmentation-tableau-libre':RAP_SUIL, 'augmentation-tableau-pouce':RAP_SUIP, 'tableau-signes-courbe':RAP_TSC, 'reduire-produit':RAP_RPD, 'developper-distributivite':RAP_DVL, 'developper-double':RAP_DVD, 'produit-difference-fractions':RAP_PQD, 'quotient-difference-fractions':RAP_PQD, 'triple-somme-fractions':RAP_TSF, 'trois-fractions-ppcm':RAP_TSF3, 'trois-fractions-ppcm-redige':RAP_TSF3, 'relier-fractions':RAP_RLF, 'probabilites-sens':RAP_SENS, 'tableau-trois-colonnes':RAP_TAB3, 'frequences-arrondies':RAP_FREQ, 'independance':RAP_IND, 'automatismes-probabilites':RAP_AUTO, 'frequences-probabilites':RAP_FPB, 'frequences-probabilites-direct':RAP_FPB, 'frequences-probabilites-pouce':RAP_FPB3, 'reunion-probabilites':RAP_RU, 'croiser-denominateurs':RAP_CRD, 'somme-fractions-2':RAP_SF2, 'diviser-fractions':RAP_DIV, 'lire-probabilites':RAP_LN, 'probabilites-ecriture':RAP_PB, 'probabilites-fiche':RAP_LP, 'devoir-blanc-pourcentages':RAP_DBP, 'synthese-generale-libre':RAP_SGL, 'synthese-evolutions-successives':RAP_ESS, 'synthese-evolutions-successives-libre':RAP_ESL, 'baisses-successives-dix':RAP_BSD, 'evolutions-successives':RAP_EVS, 'addition-soustraction':RAP_ADDSUB, 'diminuer-depart':RAP_DIMQ, 'diminuer-taux':RAP_DIMQ, 'diminuer-soustraction':RAP_DI2, 'pourcentage-synthese':RAP_SYN21, 'pourcentage-synthese-libre':RAP_PSL, 'synthese-augmentations-libre':RAP_SAL, 'synthese-diminutions-libre':RAP_SDL, 'synthese-diminutions-libre-dix':RAP_SDLD, 'synthese-augmentations-libre-dix':RAP_SALD, 'synthese-pourcentages-libre':RAP_SPL, 'reconnaitre-coefficient':RAP_CK, 'associer-coefficient':RAP_AC, 'pourcentage-dix':RAP_PCT10, 'pourcentage-dix-cascade':RAP_PDC, 'pourcentage-dix-taux':RAP_PDT, 'augmenter-taux-dix':RAP_ATD, 'augmenter-dix':RAP_ADX, 'diminuer-taux-dix':RAP_DDT, 'diminuer-dix':RAP_DDX, 'synthese-augmentations-dix':RAP_SAD, 'synthese-diminutions-dix':RAP_SDD };
 function rappelDispo(){ return !!(RAPPELS_ID[currentTestId] || (test && RAPPELS[test.kind])); }
 /* Le rappel de cours n'a PAS de bouton « explique-moi plus simplement », et
    c'est un arbitrage assumé (décision de Turquet, août 2026) : il n'y a plus
