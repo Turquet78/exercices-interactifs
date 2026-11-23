@@ -842,3 +842,58 @@ et après la droite, la question 1 basculée aller-retour-aller avec ce qui
 aux équations, la droite en couleurs de la 5, puis une copie juste mêlant
 cases et lignes, comptée 1 point, sans bouton après la correction. Éprouvé
 dans Chromium avant d'être écrit en contrôle.
+
+## 6.9 {image-second-degre-pouce} — le 6.7 précédé des carrés, chaque question avec son coup de pouce en cases (v466 — écrit comme le 6.8, il est devenu le 6.9 : le 6.8 {tracer-droite-pouce} est arrivé sur `main` pendant les contrôles)
+
+Demande de Turquet (novembre 2026) : « en première faire un exercice comme le
+6.7 en rajoutant la question 1 de l'exercice 6.6 en mode rédigé. Il faudra un
+bouton coup de pouce pour chaque question qui permet d'afficher la résolution
+de la question comme dans le 6.6. On pourra enlever le coup de pouce pour
+revenir à la version rédigée. »
+
+**Le même moteur que le 6.7, kind `isdl`**, distingué par `test.qId`
+(`ISDP_ID`, comme le 6.2 et le 6.4 sur `ima`) : `startIsdp()`, Recommencer
+lit le qId. Les sept questions de `ISD_FICHE`, dans l'ordre, carrés compris.
+
+**Les carrés rédigés : des BLOCS.** Une question a un ou plusieurs blocs de
+calcul (`isdlBlocs`) : un pour une image (« f(1) = »), deux pour les carrés
+(« 1² = » puis « (−1)² = »), chacun avec ses lignes, sa valeur, son calcul
+type (« 1 × 1 », « (−1) × (−1) ») et son étape exigée ; « 1² = 1 » recopié se
+lit comme « f(1) = 3 » : sans étape. L'état devient
+`test.isdlE = {idx, blocs}` (une pause d'avant, `{idx, lignes}`, est relue
+comme un bloc). Les lignes du premier bloc gardent les identifiants du 6.7
+(`isdl-l-2`), celles du second s'écrivent `isdl-l1-2`. Entrée dans la
+dernière ligne vide d'un bloc passe au bloc suivant ; dans le dernier,
+vérifie. Le 6.7 n'a qu'un bloc et ne change pas.
+
+**Le coup de pouce** pose `q.aide` (dans la question : il tient à la pause)
+et dessine la question du 6.6 SUR L'ÉCRAN DU 6.8 — `isdSchema` ou
+`isdCarresHTML`, flèches, accolades, miroirs, et le juge du 6.6 (`isdCases`,
+`isdJuste`, `isdCorr`, `isdPourquoi`) dans `isdlPouceCheck`. Les cases y
+portent les identifiants du 6.6 : `#isdHost` est vidé avant, et le 6.6 vide
+`#isdlHost` s'il porte un schéma — jamais deux `#isd-p1` dans la page.
+`isdMiroirs` et le retraçage au redimensionnement servent les deux écrans, et
+`restoreBoxes` recopie les miroirs à la reprise.
+
+**Le retour**, « ✍️ Revenir à la version rédigée », juste avant « Vérifier »
+et qui reste après la vérification — la règle du 8.1 (v463) : un
+`MutationObserver` sur `#isdlActions` le remet quand la rangée est réécrite
+(`isdlRetourSuivre`, coupé par `isdlRetourArreter` à chaque rendu et au
+passage à la question suivante). La rédaction tapée avant le coup de pouce
+est dans l'état : elle revient telle quelle. Après la vérification des
+cases, la question est notée ; le retour pose `q.rejeu`, la feuille revient
+pour s'entraîner (`#isdlRejeuNote`), « Vérifier ma rédaction » corrige sans
+toucher ni au score ni aux réponses enregistrées, et « Question suivante »
+est offerte d'emblée.
+
+**Un point par question**, rédigée ou en cases (la lecture du 8.1 : aucune
+pénalité demandée).
+
+**Exécuté** (Chromium, un script de scénario hors banc) : Q1 rédigée juste
+au clavier, Entrée qui passe du bloc 1² au bloc (−1)² ; coup de pouce avec
+flèches tracées, retour avant vérification (rédaction intacte, coup de pouce
+de nouveau offert) ; cases justes (un point), retour qui reste après
+« Vérifier », rejeu juste sans point ni réponse de plus ; rédaction fausse
+en rouge ; miroirs recopiés ; pause sur un coup de pouce entamé, reprise sur
+le coup de pouce, cases, miroirs et bouton de retour remis. Aucune erreur de
+page.
