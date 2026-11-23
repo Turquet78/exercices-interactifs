@@ -591,7 +591,7 @@ même table (300 séances). Mesuré dans Chromium sur 4 000 questions : les six
 couples (5→8, 5→9, 6→8, 6→9, 6→10, 7→10) sortent chacun environ une fois sur
 six, tous les contextes en tirent, aucune heure, date ou valeur impossible.
 
-## 7.3 {augmentation-tableau-pouce} : le 7.2, et un coup de pouce qui montre la question du 7.1 (v465, novembre 2026)
+## 7.3 {augmentation-tableau-pouce} : le 7.2, et un coup de pouce qui montre la question du 7.1 (v466, novembre 2026)
 
 Demande de Turquet : « en première, faire un exercice comme le 7.2 avec, quand
 c'est rédigé différemment dans le 7.1 pour la même question, un bouton coup de

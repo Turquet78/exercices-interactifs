@@ -163,3 +163,44 @@ mesuré au navigateur, 32 px, Fredoka, bleu nuit — à l'identique de « 1 × �
 elle vaut pour le 4.11 lui-même et pour chaque question 2 du bac blanc. Le
 contrôle « le bac blanc (8.1) » pose la question de la capture et exige les
 deux chiffres en `f-whole`, et plus aucune `.f-frac` dans la fiche.
+
+---
+
+## Cinq retouches de présentation, sur captures (Première, 8.1, v465, novembre 2026)
+
+Turquet, sur cinq captures du 8.1 en ligne :
+
+- **Question 2, coup de pouce : les signes + et − entre les fractions trop
+  petits.** La fiche du 4.11 ne prend ses tailles que sous le thème des
+  Fractions (`.screen[data-theme="Fractions"]`), et `show()` posait le thème
+  de l'exercice OUVERT — « Synthèses ». L'écran d'un coup de pouce porte
+  désormais le thème de son exercice MODÈLE (`BBA_MODELE`, lu par `show()`
+  quand `test.kind` vaut `'bba'`) : signes, chiffres et cases à la taille de
+  la fiche (mesuré : 23,2 px partout).
+- **Question 3, coup de pouce (partir de 100) : « mettre 100 dans la case au
+  début », puis « quand la première évolution est calculée, mettre le résultat
+  dans la case de la ligne du dessous ».** `bbaEssCent()` écrit 100 dans les
+  cases de la valeur de départ (× 100, puis 100 + …), en lecture seule ; dès
+  que la première nouvelle valeur est JUSTE, elle se recopie dans les cases
+  qui partent d'elle (× …, puis … − …), une valeur fausse ne recopie rien. Les
+  cases écrites par la page (`.bba-auto`, fond gris-bleu) sont jugées justes à
+  la vérification, comme une case remplie. Le 2.5.4 lui-même ne change pas.
+- **Question 5, coup de pouce : les chiffres tapés dans les cases trop petits
+  devant les nombres qui les entourent.** Les cases du 2.1.3 tiennent leur
+  taille de règles qui nomment ses écrans un par un (`#pHost …`) ; le coup de
+  pouce (`#bbaPouce`) y est ajouté — 30,4 px dans la case, 32 px autour,
+  comme au 2.1.3.
+- **Questions 9 et 12, énoncé : les chiffres des fractions plus grands que le
+  texte autour.** Les énoncés rédigés écrivent leurs fractions par `bbaFr()`
+  (`.bba-fr`) : la police, la taille et l'encre du texte, un trait à la
+  couleur du texte. La question 2 prend la même écriture, pour que les trois
+  énoncés à fractions se lisent pareil.
+
+Le contrôle « le bac blanc (8.1) » tient les cinq : le thème « Fractions » sur
+l'écran du coup de pouce de la question 2 ; à la question 3, 100 écrit
+d'emblée et en lecture seule, rien de recopié avant la nouvelle valeur ni
+sur une valeur fausse, la valeur juste recopiée dans les deux cases ; les
+énoncés 2, 9 et 12 en `bbaFr` sans fraction d'énoncé ancienne ; les règles de
+taille du 2.1.3 étendues au coup de pouce de la question 5. Au navigateur
+(essai manuel) : les mesures ci-dessus, la recopie au clavier, et une
+vérification où les cases écrites par la page sont bleues.
