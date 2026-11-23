@@ -37534,6 +37534,39 @@ customElements.whenDefined("math-field").then(()=>{ setupKeyboard(); });
   });
 })();
 </script>
+<script id="touche-inferieur">
+/* LA TOUCHE « < » D'UN CLAVIER AZERTY ÉCRIT « < » — dans TOUTE case MathLive,
+   les trois niveaux (signalé par Turquet sur le 8.1 de la Première, novembre
+   2026 : « quand je tape "<" juste après la fraction il affiche "\" »).
+   Sur un clavier français, « < » est la touche à droite de Maj gauche, dont
+   le code physique est « IntlBackslash ». MathLive 0.110 lie ce CODE, sur
+   TOUTE disposition, à l'entrée en mode LaTeX (« \ », pensé pour le clavier
+   britannique où cette touche porte la barre oblique inverse) : la première
+   frappe ouvrait un « \ » grisé au lieu d'écrire « < ». On retire ce seul
+   raccourci de chaque champ, à son premier focus — une porte sur le document,
+   rien à déclarer ; la touche écrit alors le caractère qu'elle porte (« < »,
+   « > » avec Maj), et « <= » devient toujours ≤. Les raccourcis propres à une
+   disposition (ifLayout, le « ^ » du Mac allemand) restent. Banc navigateur :
+   « 11 vicies ». */
+(function(){
+  function latexParIntl(k){
+    return k && k.key==='[IntlBackslash]' && !k.ifLayout
+      && Array.isArray(k.command) && k.command[0]==='switchMode';
+  }
+  function nettoyer(el){
+    if(!el || el.tagName!=='MATH-FIELD' || el.__sansIntl) return;
+    try{
+      const kb=el.keybindings;
+      if(!Array.isArray(kb)) return;
+      if(kb.some(latexParIntl)) el.keybindings=kb.filter(function(k){ return !latexParIntl(k); });
+      el.__sansIntl=true;
+    }catch(e){}                                   /* champ pas encore monté : le prochain focus */
+  }
+  window.toucheInferieurNettoyer=nettoyer;
+  document.addEventListener('focusin', function(e){ nettoyer(e.target); }, true);
+  document.addEventListener('keydown', function(e){ if(e.code==='IntlBackslash') nettoyer(e.target); }, true);
+})();
+</script>
 <script id="fraction-numworks">
 /* LE TRAIT DE FRACTION COUVRE LE PRODUIT QUI LE PRÉCÈDE — comme l'éditeur de
    la calculatrice NumWorks (demande de Turquet, octobre 2026 : « 3x4/2 qui
