@@ -930,6 +930,7 @@
   .apf-b.apf-bas{align-self:start;padding-top:6px}
   .apf-lab{white-space:nowrap}
   .apf-pts{color:var(--muted,#64748b)}
+  .apt-cor{color:var(--green);font-weight:700}   /* un bout de l'arbre écrit par la page à la clôture (aptFeuillesCorr) */
   .apf-acc{align-self:stretch;display:flex;align-items:center;justify-content:flex-end;font-weight:600}
   .apf-donnees{display:block;text-align:center;font-size:1.2rem;margin:10px 0 6px}
   .apf-mode{display:block;font-size:.92em;margin-top:6px;opacity:.85}
@@ -4764,7 +4765,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=523;
+const APP_VERSION=524;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -6468,7 +6469,7 @@ function dmEnonceMontrer(devoirId, testId){
    de la vue du professeur, qui lisent tous ce capteur. Une aide écrite AU
    MILIEU d'une phrase d'énoncé se marque d'un <span class="aide-ecran"> : la
    page la montre, le papier la tait. */
-const DME_AIDES='.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+const DME_AIDES='.apc-pourquoi,.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
 /* LE PAPIER NE GARDE QUE L'ÉNONCÉ (Turquet, octobre 2026, devant le PDF du
    5.6.1 : « il y a encore l'aide à la résolution de l'énoncé, je ne veux que
    les énoncés »). Sur l'écran, l'exercice GUIDE : « lim Uₙ = … car … », la
@@ -6680,6 +6681,7 @@ function dmeNettoyerClone(c){
      perdaient leurs pointes. Ils sont RENOMMÉS (suffixe unique), références
      comprises : aucun code de l'exercice ne les cherche sous ce nom. */
   c.querySelectorAll('svg').forEach(function(g){
+    if(g.id) g.setAttribute('data-dme-id', g.id);
     const n='-dme'+(++dmeIdsSvg), noms={};
     g.querySelectorAll('[id]').forEach(function(e){ noms[e.id]=e.id+n; e.id=e.id+n; });
     if(!Object.keys(noms).length) return;
@@ -6692,7 +6694,9 @@ function dmeNettoyerClone(c){
     });
     g.removeAttribute('id');
   });
-  c.querySelectorAll('[id]').forEach(function(e){ if(!e.closest('svg')) e.removeAttribute('id'); });
+  /* l'id part, son nom reste en data-dme-id : le PDF s'en sert pour retracer
+     un arbre sur SA mise en page (dmePdfRetracer) — un attribut sans effet */
+  c.querySelectorAll('[id]').forEach(function(e){ if(!e.closest('svg')){ e.setAttribute('data-dme-id', e.id); e.removeAttribute('id'); } });
 }
 function dmEnonceHTML(){
   const n=(test.questions||[]).length; if(!n) return null;
@@ -7258,6 +7262,27 @@ function dmePdfCoupe(cv, off, place){
   }
   return place;
 }
+/* LES TRAITS D'UN ARBRE SE RETRACENT SUR LA PAGE DU PDF. Les branches,
+   l'accolade et la place des étiquettes le long des branches sont calculées
+   par la page sur l'écran affiché (aptTraits, apfTraits), en pixels ; le
+   PDF met la grille en page à sa largeur, et les traits copiés tombaient à
+   côté : l'accolade barrait « P(A ∩ V) = 0,368 » (vu en corrigeant le DM
+   n°13, novembre 2026). Les mêmes fonctions retracent chaque arbre dans le
+   cadre du PDF, chacun dans sa question (les arbres de deux questions ont
+   les mêmes noms) : $() y cherche le nom gardé en data-dme-id. */
+function dmePdfRetracer(hote){
+  const avant=$, racine=document.documentElement.style.getPropertyValue('--apc-arbre-h');
+  hote.querySelectorAll('svg.apf-traits[data-dme-id$="Traits"]').forEach(function(t){
+    const pre=t.getAttribute('data-dme-id').slice(0,-6), zone=t.closest('.dme-q')||hote;
+    const g=zone.querySelector('[data-dme-id="'+pre+'Grille"]'); if(!g) return;
+    try{
+      $=function(id){ return zone.querySelector('[data-dme-id="'+id+'"]'); };
+      if(g.classList.contains('apt-arbre')) aptTraits(pre); else apfTraits(pre);
+    }catch(e){ console.warn('PDF : arbre '+pre+' non retracé', e); }
+    finally{ $=avant; }
+  });
+  if(racine) document.documentElement.style.setProperty('--apc-arbre-h', racine); else document.documentElement.style.removeProperty('--apc-arbre-h');
+}
 async function dmePdfFabriquer(corps, titre){
   for(const u of DME_PDF_LIBS) await dmeChargerScript(u);
   const i=dmePdfInfo;
@@ -7266,6 +7291,7 @@ async function dmePdfFabriquer(corps, titre){
   try{
     const cd=cadre.contentDocument, hote=cd.querySelector('.dme-pdf');
     if(cd.fonts&&cd.fonts.ready) await cd.fonts.ready;
+    dmePdfRetracer(hote);
     dmePdfStylerSVG(hote);
     await dmePdfSvgEnImages(hote);
     const doc=new window.jspdf.jsPDF({unit:'mm', format:'a4'});
@@ -30074,11 +30100,11 @@ function aptArbreHTML(q, sens){
     const lab=aptLab(q,kind,a,b), k=kind==='1'?a:a+'-'+b;
     const A=T.ajout;
     if(kind==='i' && A && A.int===k) return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', 'int', false, 'apt-ajout')+'</span>';
-    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts" data-apt-v="i:'+k+'">…</span></span>';
     if(kind==='f') return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', 'fin', false)+'</span>';
     if(A && A.br.indexOf(k)>=0) return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', k, false, 'apt-ajout')+'</span>';
     if(fixe[k]) return '<span class="apf-lab">'+lab+' = <i>'+fixe[k]+'</i></span>';
-    if(inc.indexOf(k)>=0) return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(inc.indexOf(k)>=0) return '<span class="apf-lab">'+lab+' = <span class="apf-pts" data-apt-v="b:'+k+'">…</span></span>';
     const avecX=kind==='2' && Object.keys(fixe).some(function(f){ return f.split('-')[0]===a; });
     return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apt', k, avecX)+'</span>'; }, T.fin);
 }
@@ -30086,7 +30112,7 @@ function aptArbreXHTML(q){
   const T=aptT(q), X=aptXPart(q);
   return aptGrilleHTML('apy', T, function(k){ return aptEv(q,k); }, function(kind,a,b){
     const lab=aptLab(q,kind,a,b);
-    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts">…</span></span>';
+    if(kind==='i') return '<span class="apf-lab">'+lab+' = <span class="apf-pts" data-apt-v="y:'+a+'-'+b+'">…</span></span>';
     if(kind==='f') return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', 'fin', false)+'</span>';
     return '<span class="apf-lab">'+lab+' = '+aptCaseIn('apy', kind==='1'?a:a+'-'+b, kind==='2' && a===X.u)+'</span>'; }, X.e);
 }
@@ -30307,7 +30333,7 @@ function aptReveler(q){
   const aj=aptAjouts(q); if(aj.length && $(aj[0])) zone.setAttribute('data-ajout', JSON.stringify(aj.map(function(id){ return $(id).value; })));
   zone.setAttribute('data-sens', sens);
   const T=aptT(q), fin=T.fin && sens==='0' ? ', puis, au bout de l’accolade, '+aptP(q,T.fin)+', que donne l’énoncé'+(q.ty===3||q.ty===5 ? ' un peu plus loin' : '')+' — même si la question suivante ne s’en sert pas' : '';
-  zone.innerHTML='<p class="apf-cons">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire'+fin+'.'
+  zone.innerHTML='<p class="apf-cons aide-ecran">La page a écrit les probabilités sur l’arbre. Complète-le avec les données de l’énoncé et les probabilités contraires que l’on peut en déduire'+fin+'.'
     +(T.ajout && sens==='0' ? ' Les cases encadrées en violet se complèteront à la question 2 b).' : '')+'</p>'+aptArbreHTML(q, sens);
   aptArbreIds(q, sens).filter(sansFin).forEach(function(id,i){ const el=$(id); if(el){ if(garde[i]) el.value=garde[i]; sa2Ajuster(el); aptBrancher(el); } });
   const f1=$('apt-t-fin'); if(f1){ if(!(test.locked && avant==='1')) f1.value=zone.getAttribute('data-fin')||''; sa2Ajuster(f1); aptBrancher(f1); }
@@ -30529,6 +30555,7 @@ function checkAPT(live){
   aptReveler(q);
   aptGroupes(q).forEach(function(g){ if(g==='ev' || /^g/.test(g)) aptPeindreCartes(q,g); else aptSlotPeindre(q,g); });
   aptPreparer(q);
+  aptFeuillesCorr(q);
   J=aptJugerTout(q, false);
   if(J.allOk){
     test.score++; $('aptLiveScore').textContent=test.score;
@@ -30548,6 +30575,31 @@ function checkAPT(live){
   const last=test.idx===test.questions.length-1;
   $('aptActions').innerHTML='<button class="btn btn-primary" onclick="nextAPT()">'+(last?'Voir mes résultats':'Exercice suivant')+'</button>';
   aptTraits('apt'); aptTraits('apy');
+}
+/* À LA CLÔTURE, L'ARBRE SE COMPLÈTE : les bouts de chemin P(A ∩ V) et la
+   branche encore inconnue (retrouvée plus loin) n'étaient que des « … » —
+   jamais des cases —, et la correction en PDF les imprimait tels quels, un
+   arbre à trous (signalé par Turquet, novembre 2026, DM n°13). Leur valeur
+   s'écrit à l'encre de la correction ; ce ne sont pas des réponses de
+   l'élève : aucune classe de verdict, la note ne les voit pas. */
+function aptFeuillesCorr(q){
+  document.querySelectorAll('#scr-apt [data-apt-v]').forEach(function(e){
+    const m=e.getAttribute('data-apt-v').split(':'), k=m[1].split('-');
+    let v=null, h=null;
+    try{
+      if(m[0]==='i') v=aptVi(q, k[0], k[1]);
+      else if(m[0]==='y'){
+        /* l'arbre en x : un chemin qui passe par x ou 1 − x s'écrit avec x */
+        const p=aptAttendu(q, 'apy', k[0]).v, c=aptAttendu(q, 'apy', m[1]);
+        if(c.v!==undefined) v=aptR(p*c.v);
+        else h=apfNb(p)+(c.a===1 ? '<i>x</i>' : '(1 − <i>x</i>)');
+      }
+      else { const a=aptAttendu(q, 'apt', m[1]); if(a && a.v!==undefined) v=a.v; }
+    }catch(err){ v=null; h=null; }
+    if(h==null && (v==null || !isFinite(v))) return;
+    if(h!=null) e.innerHTML=h; else e.textContent=apfNb(v);
+    e.className='apt-cor'; e.removeAttribute('data-apt-v');
+  });
 }
 function nextAPT(){ if(test.idx<test.questions.length-1){ test.idx++; renderAPT(); } else finishTest(); }
 /* ---- ce que voient l'enregistrement et le modèle ---- */
