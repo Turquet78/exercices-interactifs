@@ -102,3 +102,46 @@ manuel), les douze questions ouvertes dans un vrai Chromium, une copie juste
 et une fausse tapées dans MathLive pour chacune, le coup de pouce répondu
 (Q1, Q5 avec le miroir, Q7, Q12) en entraînement et en soutien.
 `APP_VERSION` 462.
+
+---
+
+## {bac-blanc-automatismes} — le retour à la version rédigée, juste avant « Vérifier », et qui reste (Première, 8.1, v463, novembre 2026)
+
+**D'où ça vient.** Turquet, le lendemain de la mise en ligne : « il faut
+pouvoir revenir à la version rédigée pour chaque question avec un bouton ».
+Le bouton existait (en tête de la carte du coup de pouce), mais il
+disparaissait dès la vérification des cases — la règle du 2.5.8. Question
+posée : « garder le bouton après Vérifier », « le placer à côté de
+Vérifier », ou les deux ? Réponse : les deux, « à côté du bouton Vérifier,
+juste avant ».
+
+**Où il vit.** Plus en tête de carte (`dbpRetourHTML()` ne sert plus que le
+devoir blanc) : dans la rangée des boutons du moteur affiché, en PREMIER,
+juste avant « Vérifier » (`bbaRetourSuivre`, `#bbaRetourBtn`). Chaque moteur
+repris réécrit cette rangée à sa guise — « Revérifier », « Passer à la suite
+(voir la correction) », « Question suivante » — : un `MutationObserver` posé
+sur CETTE rangée y remet le bouton tant que la question est sur son coup de
+pouce, et le coupe au changement de question (`bbaRetourArreter`, dans
+`nextBba` et `bbaRevenir`).
+
+**Après la vérification des cases.** Le bouton reste. La question est notée
+(le point des cases) : revenir pose `q.rejeu`, rangé dans la question — il
+tient donc aussi à la reprise d'une pause —, et la feuille rédigée revient
+pour S'ENTRAÎNER : une phrase le dit (`#bbaRejeuNote`), « Vérifier ma
+rédaction » juge la copie comme avant, mais ni le score ni les réponses
+enregistrées ne bougent (`bbaRejeu()`, lu par `checkBba` et par `checkEsl`
+pour la question 3), et « Question suivante » est offerte d'emblée. Plus de
+coup de pouce ni de retour sur cette feuille-là.
+
+**Ce que le contrôle tient de plus.** « le bac blanc (8.1) » : sur les douze
+coups de pouce, le bouton de retour est juste avant « Vérifier », seul de
+son nom ; après une vérification (la rangée réécrite comme le fait un
+moteur), il est toujours là ; le retour mène à la feuille, marque la question
+« déjà notée », dit que le point est compté, offre la suite, et ne compte
+rien. Éprouvé par sabotage : sans l'observateur, rouge sur les douze. Le
+banc jsdom livre l'observateur par `__viderObservateurs()`, comme le
+navigateur au retour de la main — sans quoi il lisait la rangée trop tôt
+(c'est la première exécution qui l'a montré). Au navigateur (essai manuel),
+les douze questions : le bouton visible avant « Vérifier », puis avant
+« Question suivante », le retour vers la feuille d'entraînement, et une
+rédaction juste qui ne change ni le score ni les réponses.

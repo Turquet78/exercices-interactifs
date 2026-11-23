@@ -11860,11 +11860,32 @@ function bacBlancAutomatismes(w, P){
       if(!document.querySelector('section.screen.on #bbaPouceBtn')) vus.push('q'+(i+1)+' : pas de bouton « Coup de pouce »');
       bbaAide();
       if(ecran()!==POUCE[q.moteur]) vus.push('q'+(i+1)+' : le coup de pouce ouvre '+ecran()+' au lieu de '+POUCE[q.moteur]);
-      if(!document.querySelector('section.screen.on #dbpRetour button')) vus.push('q'+(i+1)+' : pas de bouton de retour sur le coup de pouce');
+      /* le retour, JUSTE AVANT « Vérifier » (demande de Turquet, novembre 2026) */
+      const rb=document.querySelector('section.screen.on #bbaRetourBtn');
+      if(!rb) vus.push('q'+(i+1)+' : pas de bouton de retour sur le coup de pouce');
+      else if(!rb.nextElementSibling || !/Vérifier/.test(rb.nextElementSibling.textContent||'')) vus.push('q'+(i+1)+' : le bouton de retour n\\'est pas juste avant « Vérifier »');
+      if(document.querySelectorAll('#bbaRetourBtn').length>1) vus.push('q'+(i+1)+' : deux boutons de retour');
       bbaRevenir();
       if(ecran()!==red) vus.push('q'+(i+1)+' : le retour mène à '+ecran());
       if(((q.moteur==='evol')?eslFeuille:bbaFeuille)!==fe) vus.push('q'+(i+1)+' : le retour recrée la feuille rédigée');
       if(q.aide!==false) vus.push('q'+(i+1)+' : après le retour, aide = '+q.aide);
+    }
+    /* le retour RESTE après la vérification des cases, et la rédaction qui suit ne compte pas deux fois */
+    startBba();
+    for(let i=0;i<12;i++){
+      test.idx=i; test.locked=false; test.score=0; test.answers=[]; renderBba();
+      const q=test.questions[i]; bbaAide(); test.locked=true;
+      const act=document.querySelector('section.screen.on [id$="Actions"]');
+      if(act){ act.innerHTML='<button class="btn btn-primary" id="faux-suivant">Question suivante</button>'; }
+      if(typeof __viderObservateurs==='function') __viderObservateurs();   /* le navigateur livre l'observateur au retour de la main */
+      if(!document.querySelector('section.screen.on #bbaRetourBtn')) vus.push('q'+(i+1)+' : après la vérification, le bouton de retour a disparu');
+      bbaRevenir();
+      const red=(q.moteur==='evol')?'scr-esl':'scr-bba';
+      if(ecran()!==red) vus.push('q'+(i+1)+' : après la vérification, le retour mène à '+ecran());
+      if(q.rejeu!==true || bbaEcran()!==red.slice(4)) vus.push('q'+(i+1)+' : la question revenue n\\'est pas marquée « déjà notée » ('+q.rejeu+', '+bbaEcran()+')');
+      if(!document.getElementById('bbaRejeuNote') || !document.getElementById('bbaSuivantRejeu')) vus.push('q'+(i+1)+' : la feuille d\\'entraînement ne dit pas que le point est compté, ou n\\'offre pas la suite');
+      if(document.querySelector('section.screen.on #bbaRetourBtn') || document.querySelector('section.screen.on #bbaPouceBtn')) vus.push('q'+(i+1)+' : la feuille d\\'entraînement offre encore retour ou coup de pouce');
+      if(test.score!==0 || test.answers.length) vus.push('q'+(i+1)+' : le retour a compté quelque chose');
     }
     ['nextVocQuestion','nextTsfQuestion','nextEssQuestion','nextCKQuestion','nextAG2Question','nextImaQuestion','nextSdQuestion','nextEdsQuestion','nextVapQuestion','nextRgcQuestion','nextEsl'].forEach(function(f){
       startBba(); test.idx=0; test.locked=true; const avant=test.idx; try{ window[f](); }catch(e){ vus.push(f+' : '+e.message); } if(test.kind!=='bba' || test.idx!==avant+1) vus.push(f+' ne rend pas la main au bac blanc'); });
