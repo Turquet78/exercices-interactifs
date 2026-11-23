@@ -1973,3 +1973,20 @@ vrai clavier français par le protocole du navigateur (`Input.dispatchKeyEvent`,
 code `IntlBackslash`, caractère « < ») — `keyboard.press` de Playwright
 suppose un clavier américain et n'aurait rien montré. Éprouvé à l'envers sur
 la version d'avant : `\frac15` puis mode `latex`, et « 2 < 3 » vide.
+
+**Puis la RANGÉE DES SIGNES, sur la couche des lettres, aux trois niveaux (novembre 2026).**
+Turquet, au 8.1 de la Première, question 12 : « on n'a pas la touche "<" sur
+le clavier virtuel. Je pensais que tu avais essayé de repérer tous ces
+problèmes de clavier virtuel à qui il manque des touches. » Le correctif des
+lettres (« la lettre g n'est pas sur son clavier ») n'avait traité que
+l'alphabet : la promesse « aucun caractère n'est intapable » n'était tenue
+que pour les lettres. La couche des lettres (clavier B en Seconde et en
+Première, C en Terminale) gagne une quatrième rangée : `<`, `>`, `≤`, `≥`,
+`≠`, `;`, `[`, `]`, `à`, `ç`, `ê`, `?` — douze unités, la largeur des deux
+premières rangées. `<`, `>`, `;`, `[`, `]`, `?` sont des FRAPPES (comme au
+clavier physique : « <= » y fait toujours ≤) ; ≤, ≥, ≠ des symboles LaTeX.
+Contrôles : `touches` de `clavierEcran.lettres` (tests/profils.js) porte les
+douze, `rangees` passe à 4, aux trois niveaux ; et le banc navigateur
+(« 11 duodevicies ») tape au doigt « g », ⇧ « A », « < », « ≤ » sur l'écran
+de calcul témoin et relit `gA<\le`. Le juge du bac blanc (`bbaPrep`) lit
+`\le`/`\ge` comme ≤/≥.

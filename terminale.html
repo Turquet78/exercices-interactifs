@@ -4765,7 +4765,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=526;
+const APP_VERSION=527;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -18552,7 +18552,11 @@ function motsOsa(a,b){
 }
 function motsRacines(t, racines){
   const orth=[], doutes={};
-  const tol=r=>r.length>=9?2:1;
+  /* l'écart admis suit la longueur de la racine (Turquet, novembre 2026 :
+     « accepter les erreurs d'orthographe, appliquer à tous les exercices qui
+     ont de la rédaction ») : 1 lettre jusqu'à 6, 2 pour 7, 3 pour 8 et 9, 4 à
+     partir de 10 — la règle de la Première (salTolMot) */
+  const tol=r=>r.length>=10?4 : r.length>=8?3 : r.length>=7?2 : 1;
   const out=String(t==null?'':t).replace(/[a-z]+/g, function(w){
     if(w.length<4 || racines.some(r=>w.indexOf(r)>=0)) return w;        /* déjà juste : jamais retouché */
     let best=null, ex=false;
@@ -45275,7 +45279,16 @@ function buildKbTerm(vars, court, limites, lettres){
     /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
        (« l^(\\prime) » partait au juge — le banc navigateur l'a vu) */
     [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), {label:"espace",width:2,key:" "},
-      {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]} ])
+      {label:"clavier A",class:"action kb-couche",width:2,command:["switchKeyboardLayer","term-base"]} ]),
+    /* LA RANGEE DES SIGNES (Turquet, novembre 2026, le 8.1 de la Premiere,
+       question 12 : « on n'a pas la touche "<" sur le clavier virtuel »). Les
+       lettres ne suffisaient pas : un rangement (« 1/5 < 0,3 < 2/5 »), un
+       encadrement, un intervalle, une phrase en francais (« a », « ca »,
+       « etre ») restaient intapables au doigt. Les signes sont des FRAPPES,
+       comme au clavier physique (« <= » y fait toujours ≤) ; ≤, ≥ et ≠ des
+       symboles LaTeX. */
+    [ {label:"<",key:"<"}, {label:">",key:">"}, {label:"≤",latex:"\\le"}, {label:"≥",latex:"\\ge"}, {label:"≠",latex:"\\ne"},
+      {label:";",key:";"}, {label:"[",key:"["}, {label:"]",key:"]"}, L("à"), L("ç"), L("ê"), {label:"?",key:"?"} ]
   ]});
   return dispo;
   /* Les couches A et B, dans la forme demandee — le clavier C s'y ajoute
