@@ -802,3 +802,43 @@ avant son « = −3 ». En soutien, une ligne se colore une fois validée (la r�
 commune de la case qu'on écrit) ; un calcul juste mais inachevé garde
 « Revérifier » et dit « Va jusqu'au bout » plutôt que « corrige les cases en
 rouge » devant un écran sans rouge.
+
+## 6.8 {tracer-droite-pouce} — le 6.5, et un coup de pouce sous chaque question rédigée autrement qu'au 6.3 (novembre 2026, Première v465)
+
+Demande de Turquet : « faire un exercice comme le 6.5 avec, quand c'est rédigé
+différemment dans le 6.3 pour la même question, un bouton coup de pouce qui
+permet d'afficher la résolution de la question comme dans le 6.3 ; on pourra
+enlever le coup de pouce pour revenir à la version rédigée. »
+
+**Le moteur du 6.5, une troisième identité.** Kind `trd`, `test.qId =
+'tracer-droite-pouce'` ; `trdLibre()` est vrai pour le 6.5 ET le 6.8,
+`trdPouceEx()` ne l'est que pour le 6.8. Chaque endroit où le 6.5 différait
+du 6.3 lit désormais la question elle-même : `trdLibreQ(n)` — vrai au 6.5,
+faux au 6.3, et au 6.8 vrai tant que le coup de pouce de la question n n'est
+pas pris (`test.trdE.pouce[n]`). Le rendu (`renderTrd`), le chemin de
+l'antécédent (`trdGraphSVG`), les cases jugées (`trdCases`) et les lignes
+jugées (`trdLibreSubs`) le lisent : une question sur son coup de pouce se
+montre ET se juge comme au 6.3.
+
+**Les questions qui ont un bouton** : la 1 (les lignes rédigées / les trois
+lignes à cases, bulles du soutien comprises), la 3 (la consigne en mots / le
+chemin animé, son point rouge et « Revoir le chemin » — le chemin se déplie
+au moment où le coup de pouce est pris), la 4 (les équations rédigées /
+chaque ligne face à sa règle, les flèches de transposition) et la 5 (la
+droite seule / la droite en couleurs, ses signes et son point vert). La 2 est
+la même aux deux exercices : pas de bouton. Le bouton vit sous le titre de sa
+question (`trdPouceHTML`) ; pris, il devient « ↩ Enlever le coup de pouce ».
+
+**Rien ne se perd d'un aller-retour.** La bascule (`trdPouce(n)`) range les
+cases écrites (`test.trdE.saisies`, les deux versions s'y accumulent), redessine
+l'écran, et les rend ; les lignes rédigées et les listes vivaient déjà dans
+l'état. Tout part avec la pause. Les boutons disparaissent à la correction.
+Aucune pénalité n'a été demandée : la question vaut son point avec ou sans
+coup de pouce (la lecture du 8.1).
+
+**Contrôle** : banc navigateur, « 11 undevicies » — les boutons visibles avant
+et après la droite, la question 1 basculée aller-retour-aller avec ce qui
+était écrit des deux côtés, le chemin de la 3, les règles de la 4 et le retour
+aux équations, la droite en couleurs de la 5, puis une copie juste mêlant
+cases et lignes, comptée 1 point, sans bouton après la correction. Éprouvé
+dans Chromium avant d'être écrit en contrôle.

@@ -11903,6 +11903,26 @@ function bacBlancAutomatismes(w, P){
     const fx=document.querySelectorAll('#tsfHost .tsf-fixe .f-whole');
     if(fx.length!==2 || fx[0].textContent!=='1' || fx[1].textContent!=='10') vus.push('q2 : la fraction 1/10, déjà sur le dénominateur commun, n\\'est pas écrite avec les chiffres du calcul ('+fx.length+')');
     if(document.querySelector('#tsfHost .tsf-fiche .f-frac')) vus.push('q2 : une petite fraction d\\'énoncé reste dans la fiche du coup de pouce');
+    /* les retouches de Turquet (novembre 2026, v465) :
+       · l'écran d'un coup de pouce porte le THÈME de son exercice modèle (les
+         signes de la fiche du 4.11 n'ont leur taille que sous « Fractions ») ;
+       · question 3 : 100 écrit d'emblée dans les cases de la valeur de départ,
+         la première nouvelle valeur recopiée dès qu'elle est juste ;
+       · questions 2, 9, 12 : les fractions de l'énoncé à la taille du texte ;
+       · question 5 : les cases du coup de pouce à la taille du 2.1.3. */
+    if(($('scr-tsf')||{dataset:{}}).dataset.theme!=='Fractions') vus.push('q2 : l\\'écran du coup de pouce ne porte pas le thème des Fractions');
+    startBba(); test.idx=2; renderBba(); bbaAide();
+    const ess=test.questions[2], v1=essAns(ess).v1;
+    if(String(($('essc1m')||{}).value)!=='100' || String(($('essc1sa')||{}).value)!=='100' || !$('essc1m').readOnly) vus.push('q3 : 100 n\\'est pas écrit d\\'emblée dans les cases de la valeur de départ');
+    if(String(($('essc2m')||{}).value||'')!=='') vus.push('q3 : la seconde ligne est remplie avant que la première nouvelle valeur soit écrite');
+    $('essc1sr').value=String(v1+1); $('essc1sr').dispatchEvent(new Event('input'));
+    if(String(($('essc2m')||{}).value||'')!=='') vus.push('q3 : une première nouvelle valeur FAUSSE est recopiée');
+    $('essc1sr').value=String(v1); $('essc1sr').dispatchEvent(new Event('input'));
+    if(String(($('essc2m')||{}).value)!==String(v1) || String(($('essc2sa')||{}).value)!==String(v1)) vus.push('q3 : la première nouvelle valeur juste ('+v1+') n\\'est pas recopiée sur les lignes du dessous');
+    [[1,'q2'],[8,'q9'],[11,'q12']].forEach(function(c){ startBba(); test.idx=c[0]; renderBba();
+      const pr=$('bbaPrompt'); if(!pr.querySelector('.bba-fr') || pr.querySelector('.fr, .f-frac')) vus.push(c[1]+' : les fractions de l\\'énoncé ne sont pas à la taille du texte (bbaFr)'); });
+    const css=[].map.call(document.querySelectorAll('style'), function(st){ return st.textContent; }).join(' ');
+    if(css.indexOf('#bbaPouce math-field.pm-mf')<0 || css.indexOf('#bbaPouce .f-num')<0) vus.push('q5 : les cases du coup de pouce n\\'ont pas la taille de celles du 2.1.3');
     /* ---- 4. l'identité ---- */
     if(TEST_NUM[ID]!=='8.1') vus.push('numéro '+TEST_NUM[ID]+' au lieu de 8.1');
     const th=THEMES.find(function(t){ return t.ids.indexOf(ID)>=0; });
