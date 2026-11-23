@@ -15143,10 +15143,22 @@ function salLev(a,b){
     p=c; }
   return p[b.length];
 }
-function salMotsEvolution(t){
+/* PUIS LA FAUTE EST LUE DE PLUS LOIN, ET SUR TOUTE RÉDACTION (Turquet,
+   novembre 2026, au 8.1 : « -2 a 2 enhéEdant » pour « antécédents » —
+   « accepter les erreurs d'orthographe, appliquer à tous les exercices qui
+   ont de la rédaction »). L'écart admis suit la longueur du mot : 1 lettre
+   jusqu'à 6, 2 pour 7, 3 pour 8 et 9, 4 à partir de 10. Les mots courts
+   restent à une lettre : « hausse » et « baisse » sont à deux lettres l'un de
+   l'autre, et « cause » à deux de « hausse ». Le mot le plus proche gagne ;
+   deux mots à égale distance, rien n'est lu (le sens n'est pas écrit).
+   salMotsProches(t, mots) sert tout juge de mots ; salMotsEvolution en est le
+   cas des cinq mots d'évolution. */
+function salTolMot(w){ const L=w.length; return L>=10?4 : L>=8?3 : L>=7?2 : 1; }
+function salMotsEvolution(t){ return salMotsProches(t, SAL_MOTS_EVO, ['evolution']); }
+function salMotsProches(t, MOTS, gardesPlus){
   /* une ponctuation glissée DANS un mot (« haus;se », « bais.se ») n'en est pas une */
   t=String(t==null?'':t).replace(/([a-z])[;.,:!?'’`"*_\-]+(?=[a-z])/g,'$1');
-  const orth=[], tol=w=>w.length>=9?2:1, gardes=SAL_MOTS_EVO.concat(['evolution']);
+  const orth=[], tol=salTolMot, gardes=MOTS.concat(gardesPlus||[]);
   for(let tour=0;tour<6;tour++){
     const pris=new Array(t.length).fill(false);
     gardes.forEach(w=>{ let i=t.indexOf(w); while(i>=0){ for(let k=i;k<i+w.length;k++) pris[k]=true; i=t.indexOf(w,i+1); } });
@@ -15159,7 +15171,7 @@ function salMotsEvolution(t){
         if(!libre) break;
         const s=run.substr(i,L);
         let d0=99, mot=null, unique=true;
-        SAL_MOTS_EVO.forEach(w=>{ if(Math.abs(w.length-L)>tol(w)) return; const d=salLev(s,w); if(d>tol(w)) return;
+        MOTS.forEach(w=>{ if(Math.abs(w.length-L)>tol(w)) return; const d=salLev(s,w); if(d>tol(w)) return;
           if(d<d0){ d0=d; mot=w; unique=true; } else if(d===d0 && w!==mot) unique=false; });
         if(mot && d0>0) cands.push({ d:d0, L, at:pos+i, mot, unique });
       }
@@ -18741,7 +18753,7 @@ function bbaRat(x){ return (x && typeof x==='object') ? x : salRatDe(x); }
    en décimal, l'unité finale ôtée, « ≈ » et « < » en un seul caractère */
 function bbaPrep(s){
   return String(s==null?'':s)
-    .replace(/\\approx|≈|\\simeq/g,'≈').replace(/\\lt\b/g,'<').replace(/\\gt\b/g,'>')
+    .replace(/\\approx|≈|\\simeq/g,'≈').replace(/\\lt\b/g,'<').replace(/\\gt\b/g,'>').replace(/\\leq?\b/g,'≤').replace(/\\geq?\b/g,'≥')
     .replace(/10\s*\^\s*\(?\s*(-?)\s*(\d+)\s*\)?/g, function(_,m,k){ k=+k; return m ? '0,'+'0'.repeat(k-1)+'1' : '1'+'0'.repeat(k); });
 }
 function bbaLire(m){
@@ -18849,7 +18861,35 @@ function bbaJugeOdg(q, texte){
 }
 /* Q12 : une ligne « a < b < c » (fractions ou décimaux), les trois nombres
    dans l'ordre ; les autres lignes, des égalités vraies */
+/* UNE LISTE BIEN RANGÉE SANS « < » EST ACCEPTÉE (Turquet, novembre 2026 :
+   « accepter une liste de nombres bien rangés sans le symbole < »). Quand
+   aucune ligne n'écrit de signe d'ordre, la dernière ligne sans « = » est lue
+   comme une liste : les nombres séparés par « ; », « , », « et » ou une
+   espace (la virgule décimale arrive déjà en « . », toPlain). La liste
+   rangée est juste ; à l'envers ou dans le désordre, elle est refusée — sans
+   faire dire à l'élève un « < » qu'il n'a pas écrit. */
+function bbaListeRang(texte){
+  const lignes=String(texte).split('\n').map(l=>bbaPrep(l).trim()).filter(l=>l!=='');
+  if(!lignes.length || lignes.some(l=>/[<>≤≥]/.test(l))) return null;
+  let k=lignes.length-1; while(k>=0 && /[=≈]/.test(lignes[k])) k--;
+  if(k<0) return null;
+  const parts=lignes[k].replace(/\\(?:quad|qquad|;|:|,)/g,' ').split(/\s*(?:;|,|et|\s)+\s*/).filter(p=>p!=='');
+  if(parts.length<2) return null;
+  const lus=parts.map(bbaLire); if(lus.some(x=>!x)) return null;
+  const autres=lignes.filter((l,i)=>i!==k);
+  return { lus, autres };
+}
 function bbaJugeRang(q, texte){
+  const LR=bbaListeRang(texte);
+  if(LR){
+    if(LR.autres.length){ const La=bbaLignes(LR.autres.join('\n'), /(=)/); if(!La) return {sait:false};
+      const fa=bbaFauxDans(La); if(fa) return {sait:true, correct:false, phrase:fa}; }
+    const vals=rgcRanges(q).map(v=>({n:v,d:1000}));
+    if(LR.lus.length!==3) return {sait:true, correct:false, phrase:'Ton rangement doit contenir les trois nombres, du plus petit au plus grand.'};
+    if(LR.lus.every((x,k)=>salEgal(x.v,vals[k]))) return {sait:true, correct:true, phrase:'Bravo ! Les trois nombres sont bien rangés, du plus petit au plus grand. (Tu peux aussi les séparer par le signe « < ».)'};
+    if(LR.lus.every((x,k)=>salEgal(x.v,vals[2-k]))) return {sait:true, correct:false, phrase:'Dans l’ordre CROISSANT, on écrit du plus petit au plus grand.'};
+    return {sait:true, correct:false, phrase:'Ton rangement n’est pas le bon : écris d’abord chaque fraction en nombre décimal, puis compare.'};
+  }
   const L=bbaLignes(texte, /(=|<|>|≤|≥)/); if(!L || !L.length) return {sait:false};
   const f=bbaFauxDans(L); if(f) return {sait:true, correct:false, phrase:f};
   const vals=rgcRanges(q).map(v=>({n:v,d:1000}));
@@ -18865,9 +18905,11 @@ function bbaJugeRang(q, texte){
 }
 /* Q7 et Q8 : une lecture. On accepte « f(2) = 3 », « l’image de 2 est 3 »,
    « 3 a deux antécédents »… ; un nombre seul n'est pas rédigé. */
+/* les mots d'une LECTURE sur la courbe : chacun est l'autre bord de l'autre — « image » mal écrit ne devient jamais « antécédent » */
+const BBA_MOTS_LECTURE=['antecedent','image'];
 const BBA_MOTS_NB={aucun:0,zero:0,un:1,une:1,deux:2,trois:3,quatre:4};
 function bbaJugeImg(q, texte){
-  const t=String(texte), norm=salDixNorm(t);
+  const t=String(texte), norm=salMotsProches(salDixNorm(t), BBA_MOTS_LECTURE).t;   /* « imaje », « l'imgae » se lisent */
   const nbs=(t.replace(/−/g,'-').match(/-?\d+(?:[.,]\d+)?/g)||[]);
   if(!nbs.length) return {sait:true, correct:false, phrase:'Écris l’image que tu lis sur la courbe.'};
   if(!/f\(|image/.test(norm)) return {sait:true, correct:false, phrase:'Rédige ta réponse : « f('+numFmt(q.x0)+') = … » ou « l’image de '+numFmt(q.x0)+' est … ».'};
@@ -18877,7 +18919,8 @@ function bbaJugeImg(q, texte){
             : {sait:true, correct:false, phrase:'Ce n’est pas la bonne image : pars de '+numFmt(q.x0)+' sur l’axe des abscisses, va jusqu’à la courbe, puis lis la hauteur sur l’axe des ordonnées.'};
 }
 function bbaJugeAnt(q, texte){
-  const norm=salDixNorm(texte).replace(/−/g,'-');
+  /* « antécédant », « enhéEdant » (Turquet, novembre 2026) se lisent « antecedent » */
+  const norm=salMotsProches(salDixNorm(texte).replace(/−/g,'-'), BBA_MOTS_LECTURE).t;
   if(!/antecedent/.test(norm)) return {sait:true, correct:false, phrase:'Rédige ta réponse avec le mot « antécédent » : « '+numFmt(q.y0)+' a … antécédent(s) ».'};
   const m=/(\d+|aucun|zero|une|un|deux|trois|quatre)antecedent/.exec(norm);
   if(!m) return {sait:false};
@@ -18985,7 +19028,7 @@ function bbaSpec(q){
   /* rang */
   const txt=rgcNombres(q).map(x=>x.d?bbaFr(x.n,x.d):sdDecStr(x.v)).join(' &nbsp;;&nbsp; ');
   return { prompt:'Range dans l’ordre croissant : '+txt+'.', lab:'rédige ta réponse — le rangement avec « < », chaque nombre en fraction ou en nombre décimal',
-    hint:'Tu peux écrire d’abord chaque fraction en nombre décimal, une ligne par fraction («&nbsp;2/5 = 0,4&nbsp;»), puis le rangement : «&nbsp;0,3 &lt; 0,39 &lt; 2/5&nbsp;» ou «&nbsp;0,3 &lt; 0,39 &lt; 0,4&nbsp;». Le signe <b>&lt;</b> est sur le clavier. <b>Entrée</b> ajoute une ligne.',
+    hint:'Tu peux écrire d’abord chaque fraction en nombre décimal, une ligne par fraction («&nbsp;2/5 = 0,4&nbsp;»), puis le rangement : «&nbsp;0,3 &lt; 0,39 &lt; 2/5&nbsp;» ou «&nbsp;0,3 &lt; 0,39 &lt; 0,4&nbsp;». Le signe <b>&lt;</b> est sur le clavier (sur tablette : « clavier B »). <b>Entrée</b> ajoute une ligne.',
     mode:'lignes', juge:t=>bbaJugeRang(q,t),
     correction:'Correction : '+rgcNombres(q).filter(x=>x.d).map(x=>x.n+'/'+x.d+' = '+sdDecStr(x.v)).join(' ; ')+', donc '+rgcReponse(q)+'.', resume:{q:'ranger '+rgcTexte(q)+' (rédigé)', answer:rgcReponse(q)},
     ia:'L’élève doit ranger dans l’ordre croissant : '+rgcTexte(q)+'.', att:'Réponse : '+rgcReponse(q)+' (chaque nombre peut être écrit en fraction ou en décimal).' };
@@ -37246,7 +37289,16 @@ function buildKbTerm(vars, compact, portrait, lettres){
     "qsdfghjklmè".split("").map(L).concat([ {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]),
     /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
        (la lecon du clavier C de la Terminale, vue au banc navigateur) */
-    [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ])
+    [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ]),
+    /* LA RANGEE DES SIGNES (Turquet, novembre 2026, le 8.1 de la Premiere,
+       question 12 : « on n'a pas la touche "<" sur le clavier virtuel »). Les
+       lettres ne suffisaient pas : un rangement (« 1/5 < 0,3 < 2/5 »), un
+       encadrement, un intervalle, une phrase en francais (« a », « ca »,
+       « etre ») restaient intapables au doigt. Les signes sont des FRAPPES,
+       comme au clavier physique (« <= » y fait toujours ≤) ; ≤, ≥ et ≠ des
+       symboles LaTeX. */
+    [ {label:"<",key:"<"}, {label:">",key:">"}, {label:"≤",latex:"\\le"}, {label:"≥",latex:"\\ge"}, {label:"≠",latex:"\\ne"},
+      {label:";",key:";"}, {label:"[",key:"["}, {label:"]",key:"]"}, L("à"), L("ç"), L("ê"), {label:"?",key:"?"} ]
   ]});
   return dispo;
   /* Le clavier A, dans la forme demandee — la couche des lettres s'y ajoute

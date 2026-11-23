@@ -626,7 +626,7 @@ module.exports = {
                        « clavier B » ; au-delà, la largeur des touches suit
                        --kb-unites et TOUTES rétrécissent. */
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
-                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'", '<', '>', '\u2264', '\u2265', '\u2260', ';', '[', ']', '\u00e0', '\u00e7', '\u00ea', '?'], rangees: 4,   /* 4 : la rangée des signes (novembre 2026, le 8.1 de la Première : « pas la touche < ») */ unitesMax: 14,
                                /* puis {synthese-evolutions-successives-libre} (2.5.6), la feuille du 2.2.14 sur le 2.5.4 */
                                /* et {synthese-generale-libre} (2.5.7), dont les deux écrans portent la feuille du 2.3.13 ;
                                   le 2.5.2 lui-même reste hors du clavier B : c'est le bord opposé */
@@ -1497,7 +1497,7 @@ module.exports = {
                        qui lit sa copie par le même ppbTexte. Bord opposé : la
                        feuille des fractions du 4.5, qui reste de calcul. */
                     lettres: { versC: 'clavier B', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b', espace: 'espace',
-                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 14,
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'", '<', '>', '\u2264', '\u2265', '\u2260', ';', '[', ']', '\u00e0', '\u00e7', '\u00ea', '?'], rangees: 4,   /* 4 : la rangée des signes (novembre 2026, le 8.1 de la Première : « pas la touche < ») */ unitesMax: 14,
                                exercices: ['pourcentages-problemes', 'pourcentages-problemes-sans-aide', 'synthese-pourcentages-redigee'],
                                hors: ['somme-fractions-libre'],
                                /* les lettres partout (novembre 2026) : le témoin d'un écran de CALCUL */
@@ -2837,7 +2837,7 @@ module.exports = {
                        unités par rangée au plus — plus, et toutes les touches du
                        téléphone rétréciraient encore. */
                     lettres: { versC: 'clavier C', versA: 'clavier A', entree: '\u23ce', effacer: '\u232b',
-                               touches: [':', ' ', '\u00e9', '\u00e8', "'"], rangees: 3, unitesMax: 13,   /* 13 : la touche ⇧ des majuscules (novembre 2026) */
+                               touches: [':', ' ', '\u00e9', '\u00e8', "'", '<', '>', '\u2264', '\u2265', '\u2260', ';', '[', ']', '\u00e0', '\u00e7', '\u00ea', '?'], rangees: 4,   /* 4 : la rangée des signes (novembre 2026, le 8.1 de la Première : « pas la touche < ») */ unitesMax: 13,   /* 13 : la touche ⇧ des majuscules (novembre 2026) */
                                exercices: ['limites-redaction', 'tvi-redaction', 'tvi-contre-exemples'],
                                /* Les zones de rédaction du TVI (3.3, 3.4) sont devenues des
                                   feuilles de rédaction pour recevoir le clavier C (« mets aussi

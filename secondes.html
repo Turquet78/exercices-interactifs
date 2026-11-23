@@ -91912,7 +91912,16 @@ function buildKbTerm(vars, compact, portrait, lettres){
     "qsdfghjklmè".split("").map(L).concat([ {label:"⏎",class:"action",command:["performWithFeedback","commit"]} ]),
     /* l'apostrophe s'INSERE en texte : frappee, MathLive en fait un PRIME
        (la lecon du clavier C de la Terminale, vue au banc navigateur) */
-    [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ])
+    [ maj ].concat("wxcvbn".split("").map(L)).concat([ {label:"'",insert:"\\text{'}"}, L(":"), espace, versA ]),
+    /* LA RANGEE DES SIGNES (Turquet, novembre 2026, le 8.1 de la Premiere,
+       question 12 : « on n'a pas la touche "<" sur le clavier virtuel »). Les
+       lettres ne suffisaient pas : un rangement (« 1/5 < 0,3 < 2/5 »), un
+       encadrement, un intervalle, une phrase en francais (« a », « ca »,
+       « etre ») restaient intapables au doigt. Les signes sont des FRAPPES,
+       comme au clavier physique (« <= » y fait toujours ≤) ; ≤, ≥ et ≠ des
+       symboles LaTeX. */
+    [ {label:"<",key:"<"}, {label:">",key:">"}, {label:"≤",latex:"\\le"}, {label:"≥",latex:"\\ge"}, {label:"≠",latex:"\\ne"},
+      {label:";",key:";"}, {label:"[",key:"["}, {label:"]",key:"]"}, L("à"), L("ç"), L("ê"), {label:"?",key:"?"} ]
   ]});
   return dispo;
   /* Le clavier A, dans la forme demandee — la couche des lettres s'y ajoute
