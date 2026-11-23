@@ -1332,3 +1332,38 @@ quoi il ne mesurerait plus le piège), deux Entrée puis deux retours arrière :
 3 lignes, puis 2, puis 1 ; la première ligne, qui porte le calcul, ne part
 jamais. Éprouvé par sabotage : la page d'avant reste à 3 lignes sur les
 quatre familles (4.1, 4.2, 5.2, 5.3).
+
+## Puis la touche x² du clavier à l'écran a écrit x² — et le 5.3 a accepté le résultat brut (novembre 2026, Première v472, Seconde v721, Terminale v526)
+
+Demande de Turquet : « en première dans l'exercice 5.3, quand on doit rédiger
+un développement sur une tablette ou téléphone, la touche "x^2" du clavier
+virtuel affiche "x2" sans mettre le 2 en exposant. On acceptera sinon le
+résultat brut sans les étapes dans cet exercice pour les questions rédigées. »
+
+**La touche.** Elle est juste (`{latex:"x^2"}`, `kbVarsFor`) ; c'est un filtre
+de `configureField`, le même dans les TROIS fichiers, qui la défaisait. Il
+rattrape le résidu d'un « ^ » de touche morte (« ^3 », « ^x ») au
+`beforeinput`, retire le ^ et retape le reste. Il reconnaissait un résidu à
+« un ^, pas de \, quatre caractères au plus » — et `mf.insert('x^2')`, par où
+passe la touche du clavier à l'écran, émet ce même `beforeinput` avec la
+donnée « x^2 » : trois caractères, pas de « \ ». Le filtre retirait le ^ et
+tapait « x2 ». Reproduit dans Chromium avant de rien toucher : `insert` rend
+« x2 », `executeCommand(['insert','x^2'])` rend « x^2 ». Un résidu de touche
+morte COMMENCE toujours par « ^ » : c'est maintenant la condition
+(`d.charAt(0) !== "^"`). Corrigé aux trois niveaux, puisque le filtre y est
+le même — toute touche « x^2 », « e^x »… courte y était exposée.
+
+Contrôle : banc navigateur, « 11 vicies bis » — `insert("x^2")` sur une case
+nue écrit x² (les trois niveaux) ; un résidu « ^3 » garde son remède ; et, en
+Première, la touche x² TOUCHÉE au doigt sur le clavier rendu, dans la feuille
+rédigée du 5.3. Éprouvé à l'envers : la page d'avant écrit « x2 ».
+
+**Le résultat brut.** Au 5.3, `litrPose` rend `etape:false` : la forme réduite
+écrite directement à la suite du « = » est juste ; une étape juste — même
+celle qui garde ses parenthèses, « 4x(2x − 5) − 3(2x − 5) » — l'est aussi. Une
+égalité fausse reste refusée et nommée. La consigne dit que l'étape est
+permise, plus exigée ; la règle de décision envoyée au modèle le dit aussi
+(« Aucune étape intermédiaire n'est exigée »). La page F du 5.2 garde son étape
+exigée : la demande ne portait que sur le 5.3. Banc principal, « calcul
+littéral rédigé » : les deux copies qui étaient refusées sont comptées justes,
+un résultat brut faux est refusé.

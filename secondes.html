@@ -9642,7 +9642,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=720;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=721;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -92175,7 +92175,13 @@ function configureField(mf){
     const ty = ev.inputType || "";
     if(ty !== "insertText" && ty !== "insertCompositionText") return;
     const d = ev.data;
-    if(typeof d !== "string" || d.indexOf("^") === -1 || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
+    if(typeof d !== "string" || d.charAt(0) !== "^" || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
+    /* UN RESIDU DE TOUCHE MORTE COMMENCE PAR « ^ » (Turquet, novembre 2026, au
+       5.3 de la Premiere : « sur tablette, la touche x^2 du clavier virtuel
+       affiche x2 »). La touche ecran {latex:"x^2"} passe par mf.insert, qui
+       emet ce meme beforeinput avec la donnee « x^2 » : trois caracteres, pas
+       de « \ », le filtre la prenait pour un residu, retirait le ^ et tapait
+       « x2 ». Un residu, lui, est TOUJOURS le ^ suivi de ce qu'on a tape. */
     ev.preventDefault(); ev.stopImmediatePropagation();
     const rest = d.replace(/\^/g, "").replace(/[\\{}#$]/g, "");
     if(rest){

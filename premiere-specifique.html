@@ -4240,7 +4240,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=471;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=472;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -23924,7 +23924,7 @@ function ctxDvd(q){
      de la chaîne d'égalités doit valoir l'expression de départ ; le DERNIER
      doit être la forme RÉDUITE (redLit du 7.5 : chaque degré une seule fois,
      aucun coefficient nul, ni produit ni parenthèse). Là où la guidée fait
-     réduire — le 5.3, et la page F du 5.2 —, l'étape DÉVELOPPÉE est exigée :
+     réduire — la page F du 5.2 —, l’étape DÉVELOPPÉE est exigée (le 5.3 l’a perdue en v472 : le résultat brut y est accepté) :
      une ligne où les produits sont faits, avant le regroupement des termes,
      comme la mise au même dénominateur l'est pour une somme de fractions.
      Le modèle ne rédige que le commentaire ; une copie que le juge ne sait pas
@@ -24070,7 +24070,11 @@ function litrPose(q){
   const parL=function(f){ return '('+litLatexTerme(f[0])+(f[1].c<0?'-':'+')+Math.abs(f[1].c)+')'; };
   return { texte:par(q.f1,false)+' × '+par(q.f2,false), latex:parL(q.f1)+'\\times '+parL(q.f2),
     html:par(q.f1,true)+' <b>×</b> '+par(q.f2,true),
-    poly:prod(somme(P(q.f1[0]),P(q.f1[1])), somme(P(q.f2[0]),P(q.f2[1]))), etape:true };
+    poly:prod(somme(P(q.f1[0]),P(q.f1[1])), somme(P(q.f2[0]),P(q.f2[1]))), etape:false };
+  /* etape:false au 5.3 (Turquet, novembre 2026 : « on acceptera sinon le
+     résultat brut sans les étapes dans cet exercice pour les questions
+     rédigées ») : la forme réduite écrite directement est juste ; l'étape des
+     produits reste conseillée, jamais exigée. Le 5.2 (page F) garde la sienne. */
 }
 /* Le verdict dit au modèle, et la phrase de secours. */
 function litrVerdictIA(j, m){
@@ -24101,6 +24105,7 @@ function litrMath(q, ent){
     suite:'Donne le résultat sous forme réduite.',
     astuce:'Au clavier&nbsp;: <b>*</b> écrit ×, <b>^</b> met en exposant (x^2 pour <i>x</i>²), <b>barre d’espace</b> en sort.',
     consigne: L.etape ? 'Écris l’étape où chaque produit est calculé, puis réduis : les termes en <i>x</i>² ensemble, les termes en <i>x</i> ensemble, les nombres ensemble.'
+      : test.kind==='dvd' ? 'Tu peux écrire l’étape où chaque produit est calculé, ou donner directement le résultat réduit : les termes en <i>x</i>² ensemble, les termes en <i>x</i> ensemble, les nombres ensemble.'
       : 'Le facteur devant la parenthèse multiplie chaque terme de la parenthèse ; chaque terme garde son signe.',
     juge:function(rep){ return litJuge(rep, L.poly, L.etape); },
     verdictIA:function(j){ return litrVerdictIA(j, {texte:L.texte}); },
@@ -37457,7 +37462,13 @@ function configureField(mf){
     const ty = ev.inputType || "";
     if(ty !== "insertText" && ty !== "insertCompositionText") return;
     const d = ev.data;
-    if(typeof d !== "string" || d.indexOf("^") === -1 || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
+    if(typeof d !== "string" || d.charAt(0) !== "^" || d.indexOf("\\") !== -1 || d.length > 4) return;   /* residus de touche morte uniquement ("^3", "^x") : jamais une insertion LaTeX programmatique (touche ecran integrale, etc.) */
+    /* UN RESIDU DE TOUCHE MORTE COMMENCE PAR « ^ » (Turquet, novembre 2026, au
+       5.3 de la Premiere : « sur tablette, la touche x^2 du clavier virtuel
+       affiche x2 »). La touche ecran {latex:"x^2"} passe par mf.insert, qui
+       emet ce meme beforeinput avec la donnee « x^2 » : trois caracteres, pas
+       de « \ », le filtre la prenait pour un residu, retirait le ^ et tapait
+       « x2 ». Un residu, lui, est TOUJOURS le ^ suivi de ce qu'on a tape. */
     ev.preventDefault(); ev.stopImmediatePropagation();
     const rest = d.replace(/\^/g, "").replace(/[\\{}#$]/g, "");
     if(rest){

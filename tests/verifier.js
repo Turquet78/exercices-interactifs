@@ -9121,10 +9121,13 @@ function calculLitteralRedige(w, P){
     if(!(j.sait && j.correct)) vus.push('5.3 : la copie juste n’est pas comptée juste ('+JSON.stringify(j)+')');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=4x*2x+4x*(-5)+(-3)*2x+(-3)*(-5)=8x^2-26x+15');
     if(!(j.sait && j.correct)) vus.push('5.3 : les quatre produits écrits puis réduits ne sont pas comptés justes');
+    /* le résultat brut, sans étape, est accepté au 5.3 (Turquet, novembre 2026) */
     j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-26x+15');
-    if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.3 : la forme réduite sans l’étape développée est acceptée ('+JSON.stringify(j)+')');
+    if(!(j.sait && j.correct)) vus.push('5.3 : la forme réduite écrite directement, sans étape, n’est pas comptée juste ('+JSON.stringify(j)+')');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=4x(2x-5)-3(2x-5)=8x^2-26x+15');
-    if(!(j.sait && !j.correct && j.motif==='etape')) vus.push('5.3 : une étape qui garde ses parenthèses passe pour l’étape développée');
+    if(!(j.sait && j.correct)) vus.push('5.3 : une étape juste qui garde ses parenthèses, puis le résultat réduit, n’est pas comptée juste');
+    j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-26x-15');
+    if(!(j.sait && !j.correct && j.motif==='egalite')) vus.push('5.3 : un résultat brut faux est accepté');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-20x-6x-15=8x^2-26x-15');
     if(!(j.sait && !j.correct && j.motif==='egalite' && j.morceau==='8x^2-20x-6x-15')) vus.push('5.3 : l’égalité fausse (−15 pour (−3) × (−5)) n’est pas nommée ('+JSON.stringify(j)+')');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=8x^2-20x-6x+15');
