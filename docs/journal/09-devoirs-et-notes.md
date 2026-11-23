@@ -2221,3 +2221,24 @@ aucun « … », aucune phrase d'aide, et l'accolade à droite de chaque bout de
 chemin qu'elle embrasse — ce dernier éprouvé par sabotage (`dmePdfRetracer`
 neutralisé : l'accolade du premier arbre à 566 px, ses bouts finissant à
 578 px, rouge).
+
+**Dans la fiche de travail n° 13 (Première), une question vérifiée en coup de
+pouce ne compte que les 3/4 de son point** (demande de Turquet, novembre
+2026 : « quand on vérifie en mode coup de pouce une question, on ne compte que
+le 3/4 des points de cette question »). Cette fiche seule, désignée par son
+genre et son numéro (`POUCE_FICHES=[13]`, `pouceRetenueActive()`) : les autres
+fiches, les devoirs, l'entraînement libre gardent le point entier. La retenue
+se fait dans `noteFin()`, l'entonnoir des cinq exercices à coup de pouce
+(3.13, 6.8, 6.9, 7.3, 8.1) : `pouceRetenue()` retire ¼ de ce que vaut chaque
+question vérifiée en coup de pouce. Ce qui le dit vit dans la question
+(`pouceDeQuestion`) et tient à la pause : `q.aide` au 8.1 et au 7.3 (revenir à
+la rédaction AVANT la vérification le remet à false, APRÈS il pose `q.rejeu`
+et laisse `aide`), `q.pouce` au 3.13 (figé à la vérification), `q.aide` ou `q.rejeu` au 6.9 (son
+retour après la vérification remet `aide` à false et pose `rejeu`), `q.pouceVerif`
+au 6.8, posé par `submitTrd` — au 6.8 la question entière (parties 1 à 5) vaut
+un point, et un seul coup de pouce pris parmi elles la fait compter 3/4. Le
+score entier reste celui des questions parfaites ; `details.note` et le
+pourcentage portent la retenue, l'écran de fin la montre (« 7,5 / 10 »).
+Exécuté dans Chromium sur les cinq exercices (v473) : coup de pouce cliqué
+au vrai bouton, toutes les réponses justes, fiche n° 13 → n − ¼ par question
+aidée ; fiche n° 12 et devoir n° 13 → n.
