@@ -294,7 +294,7 @@ exercice arrêté, lui demander s'il veut continuer ou recommencer l'exercice. �
 **Puis « Sortie » a remonté d'un cran de plus : l'écran d'AVANT la page des
 modes** (demande de Turquet, novembre 2026 : « ne pas revenir à la page
 entraînement soutien mais la page précédente encore » ; Seconde v721,
-Première v472, Terminale v526). `sortirExercice()` lève `sortieSauteModes`
+Première v473, Terminale v526). `sortirExercice()` lève `sortieSauteModes`
 le temps de `pauseTest()` ; `retourAvantExo()`, quand l'exercice avait été
 lancé depuis la page des modes, fait alors ce que fait le bouton « Retour » de
 cette page (`retourModes()` : `ecranAvantModes`, sinon le devoir ou le
