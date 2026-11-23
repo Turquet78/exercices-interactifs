@@ -1333,7 +1333,7 @@ quoi il ne mesurerait plus le piège), deux Entrée puis deux retours arrière :
 jamais. Éprouvé par sabotage : la page d'avant reste à 3 lignes sur les
 quatre familles (4.1, 4.2, 5.2, 5.3).
 
-## Puis la touche x² du clavier à l'écran a écrit x² — et le 5.3 a accepté le résultat brut (novembre 2026, Première v474, Seconde v721, Terminale v526)
+## Puis la touche x² du clavier à l'écran a écrit x² — et le 5.3 a accepté le résultat brut (novembre 2026, Première v474, Seconde v722, Terminale v527)
 
 Demande de Turquet : « en première dans l'exercice 5.3, quand on doit rédiger
 un développement sur une tablette ou téléphone, la touche "x^2" du clavier
