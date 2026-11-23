@@ -1354,9 +1354,17 @@ morte COMMENCE toujours par « ^ » : c'est maintenant la condition
 le même — toute touche « x^2 », « e^x »… courte y était exposée.
 
 Contrôle : banc navigateur, « 11 vicies bis » — `insert("x^2")` sur une case
-nue écrit x² (les trois niveaux) ; un résidu « ^3 » garde son remède ; et, en
-Première, la touche x² TOUCHÉE au doigt sur le clavier rendu, dans la feuille
-rédigée du 5.3. Éprouvé à l'envers : la page d'avant écrit « x2 ».
+montée comme la page les monte (`dexp-mf`, `mlDexp.upgrade`) écrit x² (les
+trois niveaux) ; un résidu « ^3 » est toujours intercepté par le filtre ; et,
+en Première, la touche x² TOUCHÉE au doigt sur le clavier rendu, dans la
+feuille rédigée du 5.3. Éprouvé à l'envers : la page d'avant écrit « x2 ».
+Deux faux pas du contrôle lui-même, à la première exécution : une case créée à
+la volée n'est PAS passée par `configureField` — sans filtre, elle écrivait x²
+sur la page d'avant comme sur la nouvelle, et ne mesurait rien (le contrôle
+exige maintenant `_mlInit`) ; et relire la case après le résidu ne tranche
+rien en Terminale, où un chiffre tapé après x monte de lui-même en exposant
+(« x^3 ») — le contrôle lit donc l'interception (`defaultPrevented`). En
+Terminale, d'ailleurs, le défaut ne se voyait pas : « x2 » y remontait seul.
 
 **Le résultat brut.** Au 5.3, `litrPose` rend `etape:false` : la forme réduite
 écrite directement à la suite du « = » est juste ; une étape juste — même

@@ -21489,17 +21489,22 @@ if(require.main === module) (async () => {
         mf.value = ''; mf.insert('x^2'); const ins = mf.getValue();
         mf.value = 'x';
         try{ mf.executeCommand('moveToMathfieldEnd'); }catch(e){}
-        mf.dispatchEvent(new InputEvent('beforeinput', { inputType: 'insertText', data: '^3', bubbles: true, cancelable: true, composed: true }));
+        const ev = new InputEvent('beforeinput', { inputType: 'insertText', data: '^3', bubbles: true, cancelable: true, composed: true });
+        mf.dispatchEvent(ev);
         await new Promise(r => setTimeout(r, 100));
-        return { monte: true, ins: ins, residu: mf.getValue() };
+        return { monte: true, ins: ins, pris: ev.defaultPrevented, residu: mf.getValue() };
       });
       verifier('la case du contrôle est montée par configureField (sans quoi il ne mesurerait rien)',
         !!vu && vu.monte, vu ? 'mlDexp.upgrade n\'a pas configuré la case' : 'aucun écran ouvert');
       const net = v => String(v || '').replace(/\s+/g, '').replace(/\^\{(\d)\}/g, '^$1');
       verifier('mf.insert("x^2") — la touche x² du clavier à l\'écran — écrit x², le 2 en exposant',
         !!vu && net(vu.ins) === 'x^2', vu ? 'la case contient « ' + vu.ins + ' »' : 'aucun écran ouvert');
-      verifier('un résidu de touche morte « ^3 » ne s\'écrit pas « ^ » : seul le 3 est tapé',
-        !!vu && net(vu.residu).indexOf('^') < 0 && net(vu.residu).indexOf('3') >= 0, vu ? 'la case contient « ' + vu.residu + ' »' : 'aucun écran ouvert');
+      /* le filtre garde son rôle : le résidu est intercepté (annulé) et son 3
+         retapé. Ce que devient le 3 ensuite dépend du niveau — en Terminale un
+         chiffre après x monte de lui-même —, la case n'est donc pas relue. */
+      verifier('un résidu de touche morte « ^3 » est toujours pris par le filtre, et son 3 retapé',
+        !!vu && vu.pris === true && net(vu.residu).indexOf('3') >= 0,
+        vu ? 'intercepté : ' + vu.pris + ', la case contient « ' + vu.residu + ' »' : 'aucun écran ouvert');
       await s.nav.close(); s = null;
     }
     {
