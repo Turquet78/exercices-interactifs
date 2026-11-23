@@ -8709,8 +8709,8 @@ function troisFractionsPpcm(w, P){
     tape('tsf-b3',2); if(($('tsf-a3')||{}).value!=='2') vus.push('× 2 écrit au dénominateur ne s’écrit pas au numérateur');
     /* les deux lignes du calcul sont UNE grille : chaque fraction sous son produit, les signes l'un sous l'autre */
     (function(){ const g=document.querySelector('#tsfHost .pt-row.tsf-fiche'); if(!g){ vus.push('pas de grille du calcul'); return; }
-      const k=[].map.call(g.children, function(c){ return c.classList.contains('spf-eq')?'=':c.classList.contains('spf-op')?'s':c.classList.contains('sf-prod')?'P':c.id==='tsfFin'?'F':c.classList.contains('f-frac-input')?'f':c.classList.contains('f-frac')?'t':c.classList.contains('tsf-vide')?'_':'?'; }).join('');
-      /* 3/8 est déjà sur 8 : elle s'écrit telle quelle (t), sans « × 1 » */
+      const k=[].map.call(g.children, function(c){ return c.classList.contains('spf-eq')?'=':c.classList.contains('spf-op')?'s':c.classList.contains('tsf-fixe')?'t':c.classList.contains('sf-prod')?'P':c.id==='tsfFin'?'F':c.classList.contains('f-frac-input')?'f':c.classList.contains('f-frac')?'t':c.classList.contains('tsf-vide')?'_':'?'; }).join('');
+      /* 3/8 est déjà sur 8 : elle s'écrit telle quelle (t), sans « × 1 » — avec les chiffres du calcul (tsf-fixe), plus en fraction d'énoncé */
       if(k!=='=tsPsP_=fsfsfF') vus.push('la grille n’a pas sept colonnes alignées (produits, puis fractions sous eux) : '+k); })();
     pose();
     /* AUCUNE MULTIPLICATION PAR 1 N'EST ÉCRITE (novembre 2026) : 3/8, déjà sur
@@ -11894,6 +11894,15 @@ function bacBlancAutomatismes(w, P){
     try{ nextRgcQuestion(); } finally{ window.finishBba=vraie; }
     if(clos!==1) vus.push('la dernière question, depuis le coup de pouce, ne clôt pas par finishBba ('+clos+')');
     if(String(finishBba).indexOf("'bac-blanc-automatismes'")<0) vus.push('finishBba n\\'enregistre pas sous son identifiant');
+    /* la fraction déjà sur le dénominateur commun s'écrit avec les chiffres du
+       calcul (f-whole), jamais avec la petite fraction de l'énoncé (signalé par
+       Turquet, novembre 2026) — le moteur du 4.11, donc aussi le 4.11 */
+    startBba(); test.idx=1;
+    Object.assign(test.questions[1],{a:1,b:2,c:1,d:10,e:3,f:5,op:'+',op2:'+',N1:5,N2:1,N3:6,D:10,N:12});
+    renderBba(); bbaAide();
+    const fx=document.querySelectorAll('#tsfHost .tsf-fixe .f-whole');
+    if(fx.length!==2 || fx[0].textContent!=='1' || fx[1].textContent!=='10') vus.push('q2 : la fraction 1/10, déjà sur le dénominateur commun, n\\'est pas écrite avec les chiffres du calcul ('+fx.length+')');
+    if(document.querySelector('#tsfHost .tsf-fiche .f-frac')) vus.push('q2 : une petite fraction d\\'énoncé reste dans la fiche du coup de pouce');
     /* ---- 4. l'identité ---- */
     if(TEST_NUM[ID]!=='8.1') vus.push('numéro '+TEST_NUM[ID]+' au lieu de 8.1');
     const th=THEMES.find(function(t){ return t.ids.indexOf(ID)>=0; });

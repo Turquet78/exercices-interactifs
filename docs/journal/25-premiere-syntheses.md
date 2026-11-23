@@ -145,3 +145,21 @@ navigateur au retour de la main — sans quoi il lisait la rangée trop tôt
 les douze questions : le bouton visible avant « Vérifier », puis avant
 « Question suivante », le retour vers la feuille d'entraînement, et une
 rédaction juste qui ne change ni le score ni les réponses.
+
+---
+
+## La fraction déjà sur le dénominateur commun s'écrit comme le reste du calcul (Première, 4.11 et 8.1, v464, novembre 2026)
+
+Signalé par Turquet sur le coup de pouce de la question 2 (capture : « Calcule
+A = 1/2 + 1/10 + 3/5 », la fraction 1/10 petite et bleue au milieu de la
+ligne « A = 1 × □ / 2 × □ + … ») : « il faut que la fraction du milieu ait la
+même police, couleur et taille que le reste de l'exercice — le corriger dans
+toutes les questions ». La fraction qui n'a pas de « × » (`tsfFac`, novembre
+2026 : aucune multiplication par 1 écrite) était posée par `sfTermeHTML`, la
+fraction de l'ÉNONCÉ. Elle est désormais écrite comme ses voisines, avec les
+chiffres du calcul (`f-whole` dans un `.f-frac-input.sf-prod.tsf-fixe`) :
+mesuré au navigateur, 32 px, Fredoka, bleu nuit — à l'identique de « 1 × » et
+« 2 × » à côté. La correction est dans le moteur du 4.11 (`tsfFicheHTML`) :
+elle vaut pour le 4.11 lui-même et pour chaque question 2 du bac blanc. Le
+contrôle « le bac blanc (8.1) » pose la question de la capture et exige les
+deux chiffres en `f-whole`, et plus aucune `.f-frac` dans la fiche.
