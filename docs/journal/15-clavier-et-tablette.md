@@ -1968,7 +1968,7 @@ on retire de `el.keybindings` ce seul raccourci (`[IntlBackslash]`, sans
 qu'elle porte : « < », « > » avec Maj, et « <= » donne toujours ≤. Les
 raccourcis propres à une disposition (le « ^ » du Mac allemand) restent.
 Les élèves n'ont aucun usage du mode LaTeX.
-Contrôle : « 11 undevicies » du banc navigateur, qui joue la frappe comme un
+Contrôle : « 11 vicies » du banc navigateur, qui joue la frappe comme un
 vrai clavier français par le protocole du navigateur (`Input.dispatchKeyEvent`,
 code `IntlBackslash`, caractère « < ») — `keyboard.press` de Playwright
 suppose un clavier américain et n'aurait rien montré. Éprouvé à l'envers sur

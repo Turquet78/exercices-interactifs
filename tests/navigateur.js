@@ -3583,6 +3583,41 @@ if(require.main === module) (async () => {
         verifier('l\'accolade d\'un système garde sa place dans la grille du PDF : x, y et z restent dans l\'accolade',
           mise.image && mise.dedans, JSON.stringify(mise));
       }
+      /* L'ARBRE DE LA CORRECTION EST COMPLET, SANS AIDE, ET SES TRAITS
+         TOMBENT JUSTE SUR LA PAGE DU PDF (DM n°13, novembre 2026) : sur un
+         exercice de bac de probabilités ({arbre-probabilites-bac-types},
+         type 1 : un arbre, puis l'arbre en x), aucun « … » ne reste au bout
+         d'un chemin, aucune phrase « Ce que l'on SAIT… » n'est imprimée, et,
+         chaque arbre retracé dans le cadre du PDF, l'accolade passe À DROITE
+         de chaque « P(A ∩ V) = … » qu'elle embrasse. */
+      if(await s.page.evaluate(() => !!TESTS['arbre-probabilites-bac-types'])){
+        const arbre = await s.page.evaluate(async () => {
+          await TESTS['arbre-probabilites-bac-types'].start(); aptChoisirType(1);
+          clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+          const h = await dmCorrigeHTML(); if(!h) return { h: false };
+          const d = document.createElement('div'); d.innerHTML = h;
+          await dmeChargerScript(DME_PDF_LIBS[0]);
+          const cadre = dmePdfCadre('<div class="dme-pdf"><div class="dmc">' + h + '</div></div>');
+          const hote = cadre.contentDocument.querySelector('.dme-pdf');
+          if(cadre.contentDocument.fonts && cadre.contentDocument.fonts.ready) await cadre.contentDocument.fonts.ready;
+          dmePdfRetracer(hote);
+          const arbres = [...hote.querySelectorAll('svg.apf-traits')].map(t => {
+            const p = t.querySelector('path.apf-acc-p'), m = p ? /M\s*([\d.]+)/.exec(p.getAttribute('d')) : null;
+            const g = t.parentElement, G = g.getBoundingClientRect();
+            const dep = [...g.querySelectorAll('.apt-som')].map(e => (e.firstElementChild || e).getBoundingClientRect().right - G.left);
+            return { acc: m ? +m[1] : null, max: dep.length ? Math.max(...dep) : null };
+          });
+          cadre.remove();
+          return { h: true, pts: d.querySelectorAll('.apf-pts').length, cor: d.querySelectorAll('.apt-cor').length,
+                   pourquoi: /Ce que l.on SAIT|sans rien savoir d.avance/.test(d.textContent), arbres };
+        });
+        verifier('la correction d\'un exercice de bac de probabilités écrit chaque bout de l\'arbre (aucun « … »)',
+          arbre.h && arbre.pts === 0 && arbre.cor >= 8, JSON.stringify(arbre));
+        verifier('la correction n\'imprime pas les phrases d\'aide « Ce que l\'on SAIT… »', arbre.h && !arbre.pourquoi, JSON.stringify(arbre));
+        verifier('retracé sur la page du PDF, l\'accolade d\'un arbre passe à droite des « P(A ∩ V) = … » qu\'elle embrasse',
+          arbre.h && arbre.arbres.length >= 2 && arbre.arbres.every(a => a.acc != null && a.max != null && a.acc >= a.max),
+          JSON.stringify(arbre.arbres));
+      }
       /* et la résolution de ℓ de {suite-bac-evolution} : ses « = »
          l'un sous l'autre, à l'écran — donc sur la photo */
       if(await s.page.evaluate(() => !!TESTS['suite-bac-evolution'])){
@@ -21368,7 +21403,7 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
-    /* ---- 11 undevicies. La touche « < » d'un clavier AZERTY écrit « < » ----
+    /* ---- 11 vicies. La touche « < » d'un clavier AZERTY écrit « < » ----
        Signalé par Turquet sur le 8.1 de la Première (novembre 2026) : « quand
        je tape "<" juste après la fraction il affiche "\" ». Sur un clavier
        français, « < » est la touche de code physique IntlBackslash, que
@@ -21379,7 +21414,7 @@ if(require.main === module) (async () => {
        livre un vrai clavier français, par le protocole du navigateur :
        code IntlBackslash, caractère « < » (« > » avec Maj). Éprouvé à
        l'envers en retirant le script : la case reste en mode « latex », vide. */
-    titre('11 undevicies. LA TOUCHE « < » D\'UN CLAVIER AZERTY ÉCRIT « < »');
+    titre('11 vicies. LA TOUCHE « < » D\'UN CLAVIER AZERTY ÉCRIT « < »');
     {
       s = await ouvrir(chromium, ml, {});
       await connecter(s.page);
@@ -21419,6 +21454,78 @@ if(require.main === module) (async () => {
             vu.v === attendu && vu.mode === 'math', 'la case contient « ' + vu.v + ' » (mode ' + vu.mode + ')');
         }
         verifier('la touche « < » ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
+    /* ---- 11 undevicies. Au 6.8, le coup de pouce de chaque question, aller et retour ----
+       Demande de Turquet (novembre 2026) : le 6.5, et sous chaque question
+       présentée autrement qu'au 6.3 un bouton « Coup de pouce » qui la montre
+       comme au 6.3 ; « Enlever le coup de pouce » ramène la version rédigée.
+       Seul un navigateur dit ce qui se montre : on bascule chaque question,
+       on vérifie que ce que l'élève avait écrit survit à l'aller-retour, puis
+       qu'une copie juste — question 1 en cases, 4 rédigée — vaut son point. */
+    titre('11 undevicies. AU 6.8, LE COUP DE POUCE DE CHAQUE QUESTION, ALLER ET RETOUR');
+    {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      const present = await s.page.evaluate(() => typeof TESTS !== 'undefined' && !!TESTS['tracer-droite-pouce']);
+      if(!present){
+        ignorer('au 6.8, chaque question rédigée a son coup de pouce, et on en revient',
+          'ce niveau n\'a pas le 6.8 (Première)');
+      } else {
+        const p = s.page;
+        await connecter(p);
+        await p.evaluate(() => openTest('tracer-droite-pouce'));
+        await p.waitForTimeout(300);
+        await p.evaluate(() => { const b = [...document.querySelectorAll('#modeChoices button')].find(x => (x.getAttribute('onclick') || '').indexOf('train') >= 0); if(b) b.click(); });
+        await p.waitForTimeout(900);
+        const boutons = () => p.evaluate(() => [...document.querySelectorAll('#trdHost .trd-pouce')].filter(e => e.getClientRects().length).map(e => e.id.replace('trdPouce', '')).join(''));
+        const R = {}; let souci = '';
+        try{
+          R.avant = await boutons();
+          await p.click('#trd-l-i1-0'); await p.keyboard.type('2*3+1', { delay: 30 });
+          await p.click('#trdPouce1'); await p.waitForTimeout(250);
+          R.cases1 = await p.evaluate(() => !!document.getElementById('trd-x1') && !document.getElementById('trd-l-i1-0'));
+          await p.fill('#trd-x1', '7');
+          await p.click('#trdPouce1'); await p.waitForTimeout(250);
+          R.retour1 = await p.evaluate(() => { const l = document.getElementById('trd-l-i1-0'); return !!l && l.value === '2×3+1' && !document.getElementById('trd-x1'); });
+          await p.click('#trdPouce1'); await p.waitForTimeout(250);
+          R.garde1 = await p.evaluate(() => (document.getElementById('trd-x1') || {}).value === '7');
+          await p.evaluate(() => { const st = trdEtat(); st.etape = 'fin'; st.sels['trd-regle'] = 'droite'; renderTrd(); });
+          await p.waitForTimeout(250);
+          R.apres = await boutons();
+          R.sansChemin = await p.evaluate(() => document.querySelectorAll('#trdGraph .ima-chemin').length === 0);
+          await p.click('#trdPouce3'); await p.waitForTimeout(400);
+          R.chemin = await p.evaluate(() => document.querySelectorAll('#trdGraph .ima-chemin').length === 1 && !!document.getElementById('trdRejouer'));
+          await p.click('#trdPouce4'); await p.waitForTimeout(300);
+          R.regles = await p.evaluate(() => !!document.querySelector('#trdHost .trd-eq') && !!document.getElementById('trd-r1') && !document.getElementById('trd-l-eq-0-g'));
+          await p.click('#trdPouce4'); await p.waitForTimeout(300);
+          R.retour4 = await p.evaluate(() => !document.querySelector('#trdHost .trd-eq') && !!document.getElementById('trd-l-eq-0-g'));
+          await p.click('#trdPouce5'); await p.waitForTimeout(300);
+          R.couleurs = await p.evaluate(() => !!document.querySelector('#trdSignes .tsg-pos') && !document.querySelector('#trdSignes .trd-droite-nue'));
+          /* une copie juste : la 1 en cases, la 3, la 4 rédigée, la 5 en couleurs */
+          await p.evaluate(() => {
+            const q = test.questions[test.idx], st = trdEtat();
+            const set = (id, v) => { document.getElementById(id).value = String(v); };
+            set('trd-x1', q.x1); set('trd-p1', q.a * q.x1); set('trd-y1', trdF(q, q.x1));
+            set('trd-x2', q.x2); set('trd-p2', q.a * q.x2); set('trd-y2', trdF(q, q.x2));
+            set('trd-ag', trdXk(q)); set('trd-rac', String(trdRacine(q)).replace('.', ','));
+            st.lignes.eq = [['x', String(trdXk(q))]]; trdLibreRedessiner('eq');
+            ['trd-s0', 'trd-s1'].forEach((id, i) => { const v = (i === 0) === (q.a < 0) ? '+' : '-'; set(id, v); st.sels[id] = v; });
+          });
+          await p.waitForTimeout(500);
+          await p.evaluate(() => submitTrd()); await p.waitForTimeout(400);
+          R.point = await p.evaluate(() => test.score === 1 && document.querySelectorAll('#trdHost .trd-pouce').length === 0);
+        }catch(e){ souci = e.message; }
+        const dit = souci || JSON.stringify(R);
+        verifier('au 6.8, avant la droite, seule la question 1 porte un coup de pouce ; après, les questions 1, 3, 4 et 5 (pas la 2, la même qu\'au 6.3)',
+          R.avant === '1' && R.apres === '1345', dit);
+        verifier('au 6.8, le coup de pouce de la question 1 montre les cases du 6.3, et on en revient : ce qui était écrit des deux côtés reste écrit',
+          R.cases1 && R.retour1 && R.garde1, dit);
+        verifier('au 6.8, la question 3 se lit sans chemin, et son coup de pouce montre le chemin animé et « Revoir le chemin »', R.sansChemin && R.chemin, dit);
+        verifier('au 6.8, le coup de pouce de la question 4 montre l\'équation face à ses règles, et on revient aux équations rédigées', R.regles && R.retour4, dit);
+        verifier('au 6.8, le coup de pouce de la question 5 montre la droite en couleurs', R.couleurs, dit);
+        verifier('au 6.8, une copie juste, coups de pouce pris ou non, vaut son point, et les boutons disparaissent à la correction', R.point, dit);
+        verifier('les coups de pouce du 6.8 ne lèvent aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       }
       await s.nav.close(); s = null;
     }
