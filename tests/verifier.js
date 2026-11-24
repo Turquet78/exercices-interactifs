@@ -4808,6 +4808,7 @@ function exercices(suite){
     demontrerColineaires(w, P);
     demontrerEgaliteReels(w, P);
     sommeTroisVecteurs(w, P);
+    centreGraviteVecteurs(w, P);
     translationsSuccessives(w, P);
     regleParallelogramme(w, P);
     vecteursColineaires(w, P);
@@ -18489,6 +18490,137 @@ function sommeTroisVecteurs(w, P){
     test.questions[0]=fiche(true); test.idx=0; test.locked=false; renderStv();
     const ctx=conseilCtxCourant();
     if(ctx.indexOf('STRICTEMENT SECRÈTE')<0 || ctx.indexOf('vecteur nul')<0 || ctx.indexOf('w (')<0) vus.push('le contexte du modèle ne décrit pas l\\'exercice : '+ctx.slice(0,120));
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+
+/* {centre-gravite-vecteurs} (Seconde, 8.2.19 — demande de Turquet, novembre
+   2026, la fiche « G triangle ») : un triangle ABC sur un quadrillage sans
+   repère ; G se déplace jusqu'à GA⃗ + GB⃗ + GC⃗ = 0⃗, rouge tant qu'il n'y
+   est pas ; puis les trois flèches bout à bout. Le tirage est éprouvé par
+   sa propre arithmétique (chaque flèche d'au moins « long » carreaux, la
+   somme nulle au point attendu), jamais par cgvCentre ; le dessin est relu. */
+function centreGraviteVecteurs(w, P){
+  const nom = 'le point G tel que GA + GB + GC = 0 : la place, le tirage (au moins 6 carreaux par flèche), le dessin relu, G rouge puis bleu et figé, les flèches bout à bout, la correction, le soutien';
+  if(!P.centreGraviteVecteurs){
+    ignorer(nom, 'ce niveau n\'a pas l\'exercice du point G');
+    return;
+  }
+  verifierEval(w, nom, `(function(){
+    const vus=[], D=${JSON.stringify(P.centreGraviteVecteurs)};
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId=D.exercice;
+    if(TEST_NUM[D.exercice]!==D.numero) vus.push('l\\'exercice porte le numéro '+TEST_NUM[D.exercice]+' au lieu de '+D.numero);
+    if(TEST_NUM['somme-trois-vecteurs']!=='8.2.15' || TEST_NUM['regle-parallelogramme']!=='8.2.17') vus.push('un voisin du thème 8 a bougé');
+    if(TABLES_SANS.indexOf(D.exercice)<0) vus.push('le bouton des tables est proposé : on ne multiplie rien');
+    if(RAPPELS.cgv!==RAP_CGV || !QIA_SUGG.cgv) vus.push('le rappel ou les questions à l\\'IA manquent');
+    const el=function(id){ return document.getElementById(id); };
+    const classe=function(id){ const c=el(id)?el(id).className:'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const fb=function(){ return el('cgvFeedback').textContent; };
+    const eg=function(a,b){ return !!a&&!!b&&a[0]===b[0]&&a[1]===b[1]; };
+
+    /* 1. le tirage, sur 300 séances, par sa propre arithmétique */
+    const CLES='a,ap,b,bp,c,cp,g,g0';
+    TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    if(test.kind!=='cgv') vus.push('kind « '+test.kind+' » au lieu de cgv');
+    if(test.maxScore!==D.bareme) vus.push('barème '+test.maxScore+' au lieu de '+D.bareme);
+    if(test.questions.length!==D.nb) vus.push(test.questions.length+' questions au lieu de '+D.nb);
+    for(let s=0;s<300&&!vus.length;s++){
+      const qs=s?cgvBuildQuestions():test.questions, cles={};
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!==CLES) vus.push('la question range : '+Object.keys(q).sort().join(','));
+        const sx=q.a[0]+q.b[0]+q.c[0], sy=q.a[1]+q.b[1]+q.c[1];
+        if(sx%3||sy%3){ vus.push('le point G cherché n\\'est pas sur un nœud'); return; }
+        const G=[sx/3,sy/3];
+        [q.a,q.b,q.c].forEach(function(S){ const l=Math.hypot(S[0]-G[0],S[1]-G[1]);
+          if(l<D.long) vus.push('une flèche de '+l.toFixed(2)+' carreaux (moins de '+D.long+')');
+          if(S[0]<1||S[0]>CGV_W-1||S[1]<1||S[1]>CGV_H-1) vus.push('un sommet touche le bord'); });
+        if(Math.hypot(q.g0[0]-G[0],q.g0[1]-G[1])<4) vus.push('G part trop près de sa place');
+        if(q.g||q.ap||q.bp||q.cp) vus.push('la question part avec des gestes');
+        const cle=JSON.stringify([q.a,q.b,q.c]); if(cles[cle]) vus.push('deux fois le même triangle dans une séance'); cles[cle]=1;
+      });
+    }
+    if(vus.length) return vus.slice(0,4).join(' | ');
+
+    /* 2. la figure fixe, relue sur le DESSIN */
+    const fiche=function(){ return {a:[3,9], b:[13,14], c:[14,1], g0:[4,3], g:null, ap:null, bp:null, cp:null}; };
+    for(let k=0;k<D.nb;k++) test.questions[k]=fiche();
+    test.idx=0; test.locked=false; renderCgv();
+    const xs={}, ys={};
+    document.querySelectorAll('#cgvGraph line.vec-grid').forEach(function(l){ if(l.getAttribute('x1')===l.getAttribute('x2')) xs[+l.getAttribute('x1')]=1; else ys[+l.getAttribute('y1')]=1; });
+    if(Object.keys(xs).length!==CGV_W+1 || Object.keys(ys).length!==CGV_H+1) vus.push('le quadrillage dessiné a '+Object.keys(xs).length+' × '+Object.keys(ys).length+' lignes');
+    if(document.querySelector('#cgvGraph .vec-axe, #cgvGraph .vec-axis, #cgvGraph .axe')) vus.push('un repère est dessiné');
+    const poly=document.querySelector('#cgvGraph polygon.cgv-tri');
+    if(!poly || poly.getAttribute('points').trim().split(/\\s+/).length!==3) vus.push('le triangle n\\'est pas dessiné');
+    const lettres=Array.from(document.querySelectorAll('#cgvGraph text.cgv-lsom')).map(function(t){ return t.textContent; }).sort().join('');
+    if(lettres!=='ABC') vus.push('les sommets ne sont pas nommés A, B, C : '+lettres);
+    const noms=Array.from(document.querySelectorAll('#cgvFl text.svc-nom')).map(function(t){ return t.textContent; }).sort().join(',');
+    if(noms!=='GA,GB,GC') vus.push('les flèches ne s\\'appellent pas GA, GB, GC : '+noms);
+    if(!el('cgvInstr').classList.contains('enonce')) vus.push('l\\'énoncé n\\'est pas dans un élément .enonce');
+    if(!el('cgv-g').classList.contains('pts-case')||!el('cgv-ch').classList.contains('pts-case')) vus.push('les deux réponses ne sont pas des pts-case');
+    const gpt=function(){ const g=document.querySelector('#cgvPt .cgv-g'); return g?(g.classList.contains('cgv-g-faux')?'rouge':(g.classList.contains('cgv-g-juste')?'bleu':'?')):'absent'; };
+    if(gpt()!=='rouge') vus.push('au départ, G n\\'est pas rouge : '+gpt());
+    if(document.querySelectorAll('#cgvPrises .svc-prise').length || !document.querySelector('#cgvPrises .cgv-prise-g')) vus.push('au départ, les flèches se prennent, ou G ne se prend pas');
+    const verifierIci=function(){ const av=test.score; checkCgv(); clearTimeout(test.fbTimer); return test.score-av; };
+    const q0=test.questions[0];
+    if(cgvDeplacer(1,[3,9])) vus.push('une flèche glisse avant que G soit à sa place');
+    cgvPlacerG(9,8);
+    if(!eg(q0.g,[9,8]) || gpt()!=='rouge') vus.push('G porté à côté de sa place n\\'est pas rouge');
+    if(!/cgv-cours/.test(el('cgv-g').className) || !/cgv-attente/.test(el('cgv-ch').className)) vus.push('l\\'étape 1 n\\'est pas en cours, ou l\\'étape 2 n\\'attend pas');
+    cgvPlacerG(10,8);
+    if(gpt()!=='bleu') vus.push('G à sa place ne passe pas au bleu');
+    if(cgvPlacerG(5,5) || !eg(q0.g,[10,8])) vus.push('G à sa place bouge encore');
+    if(document.querySelectorAll('#cgvPrises .svc-prise').length!==3 || document.querySelector('#cgvPrises .cgv-prise-g')) vus.push('G à sa place : les flèches ne se prennent pas, ou G se prend encore');
+    if(!/cgv-fait/.test(el('cgv-g').className) || !/cgv-cours/.test(el('cgv-ch').className)) vus.push('G à sa place : l\\'étape 1 n\\'est pas faite ou l\\'étape 2 pas en cours');
+
+    /* 3. la copie juste : GB⃗ au bout de GA⃗, GC⃗ au bout de GB⃗ ; après le JSON de la pause */
+    cgvDeplacer(1,[3,9]);
+    if(el('cgvBilan').textContent) vus.push('deux flèches seulement, la page dit déjà la somme nulle');
+    cgvDeplacer(2,[6,15]);
+    if(!cgvChaine(q0) || el('cgvBilan').textContent.indexOf('revient')<0 || !/cgv-fait/.test(el('cgv-ch').className)) vus.push('bout à bout, la chaîne n\\'est pas reconnue ou pas dite');
+    if(document.querySelectorAll('#cgvTraces line.cgv-trace').length!==2) vus.push('les traces pâles des flèches déplacées ne restent pas');
+    const avant=JSON.stringify(q0);
+    test.questions[0]=JSON.parse(avant); renderCgv();
+    if(JSON.stringify(test.questions[0])!==avant || !cgvChaine(test.questions[0]) || gpt()!=='bleu') vus.push('la question ne se redessine pas après le JSON');
+    if(verifierIci()!==2 || classe('cgv-g')!=='ok' || classe('cgv-ch')!=='ok' || el('cgvCorr').children.length) vus.push('la copie juste vaut '+test.score+' : '+classe('cgv-g')+' '+classe('cgv-ch'));
+
+    /* 4. un autre ordre, ailleurs : GC⃗ puis GA⃗ puis GB⃗, depuis (5,13) */
+    nextCgv(); cgvPlacerG(10,8);
+    cgvDeplacer(1,[-1,6]);
+    const q1=test.questions[1];
+    if(!eg(q1.bp,[0,6])) vus.push('une flèche tirée hors du quadrillage n\\'y est pas retenue : '+JSON.stringify(q1.bp));
+    cgvDeplacer(2,[5,13]); cgvDeplacer(0,[9,6]); cgvDeplacer(1,[2,7]);
+    if(verifierIci()!==2) vus.push('GC, GA, GB bout à bout ailleurs : '+classe('cgv-g')+' '+classe('cgv-ch'));
+
+    /* 5. vérifier à vide : deux sol, G et la boucle en vert, rien de rouge */
+    nextCgv(); verifierIci();
+    if(classe('cgv-g')!=='sol' || classe('cgv-ch')!=='sol') vus.push('vérifier à vide : '+classe('cgv-g')+' et '+classe('cgv-ch')+' au lieu de sol');
+    if(!document.querySelector('#cgvCorr .cgv-g-sol') || document.querySelectorAll('#cgvCorr line.svc-s').length!==3) vus.push('la correction ne montre pas G et la boucle en vert');
+    if(fb().indexOf('Il te manquait 2 cases')<0) vus.push('le message ne dit pas « Il te manquait 2 cases » : '+fb().slice(0,90));
+
+    /* 6. G faux : rouge, nommé ; les flèches non touchées restent vides */
+    nextCgv(); cgvPlacerG(8,6); verifierIci();
+    if(classe('cgv-g')!=='bad' || classe('cgv-ch')!=='sol' || !/centre de gravité/.test(fb()) || !/fait/.test(fb())) vus.push('G faux : '+classe('cgv-g')+' '+classe('cgv-ch')+' — '+fb().slice(0,120));
+    if(gpt()!=='rouge') vus.push('G faux corrigé n\\'est plus rouge');
+
+    /* 7. le soutien : la chaîne fausse rougit dès deux flèches posées, la juste se fige */
+    currentMode='soutien'; TESTS[D.exercice].start(); clearTimeout(test.fbTimer);
+    test.questions[0]=fiche(); test.idx=0; renderCgv();
+    cgvPlacerG(10,8); cgvDeplacer(1,[3,9]);
+    if(classe('cgv-ch')!=='rien') vus.push('soutien : une seule flèche posée, l\\'étape 2 rougit déjà');
+    cgvDeplacer(2,[5,5]);
+    if(classe('cgv-ch')!=='bad') vus.push('soutien : deux flèches qui ne se suivent pas ne rougissent pas');
+    verifierIci();
+    if(test.locked || classe('cgv-g')!=='ok' || classe('cgv-ch')!=='bad' || el('cgvCorr').children.length) vus.push('soutien, chaîne fausse : '+classe('cgv-g')+' '+classe('cgv-ch')+(test.locked?' verrouillé':''));
+    cgvDeplacer(2,[6,15]); verifierIci();
+    if(!test.locked || classe('cgv-ch')!=='ok') vus.push('soutien, juste : '+classe('cgv-ch'));
+    currentMode='train';
+
+    /* 8. le contexte du modèle */
+    test.questions[0]=fiche(); test.idx=0; test.locked=false; renderCgv();
+    const ctx=conseilCtxCourant();
+    if(ctx.indexOf('STRICTEMENT SECRÈTE')<0 || ctx.indexOf('(10 ; 8)')<0 || ctx.indexOf('SANS repère')<0) vus.push('le contexte du modèle ne décrit pas l\\'exercice : '+ctx.slice(0,120));
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
