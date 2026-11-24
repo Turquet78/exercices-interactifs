@@ -32418,7 +32418,8 @@ function ordreDesFiches(w, apres){
     const trois=[{id:A,modes:['train']},{id:B,modes:['train']},{id:C,modes:['train']}];
     window.__faux.semer('${TABLE}',[{id:1,valeurs:{
       devoirs:[{id:'dm_o',num:1,actif:true,titre:'Devoir libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}],
-      fiches:[{id:'fc_o',num:1,actif:true,titre:'Fiche ordonnée',cours:'',exercices:JSON.parse(JSON.stringify(trois))}]
+      fiches:[{id:'fc_o',num:1,actif:true,titre:'Fiche ordonnée',cours:'',exercices:JSON.parse(JSON.stringify(trois))},
+              {id:'fc_l',num:13,actif:true,titre:'Fiche libre',cours:'',exercices:JSON.parse(JSON.stringify(trois))}]
     }}]);
     window.__faux.semer('${P.tableResultats||'resultats'}',[]);
     const ecran=function(){ return ([].slice.call(document.querySelectorAll('section.screen')).find(function(s){ return s.classList.contains('on'); })||{}).id; };
@@ -32469,6 +32470,25 @@ function ordreDesFiches(w, apres){
     const devL=(mesDevoirs||[]).find(function(d){ return d.id==='dm_o'; });
     if(dmVerrouille(devL,C)) vus.push('le verrou déborde sur les devoirs à la maison');
     if(document.querySelectorAll('#devoirsBody .choice.locked').length) vus.push('la page d\\'un devoir grise des cartes');
+
+    /* 4 ter. une fiche d'ORDRE LIBRE (ORDRE_LIBRE_FICHES — la fiche 13 de la
+       Première, demande de Turquet, novembre 2026) : aucun verrou, ni dans la
+       définition, ni sur l'écran, ni à la porte ; la fiche n°1 reste ordonnée
+       (étapes 1 à 3), le bord opposé. */
+    if(typeof ORDRE_LIBRE_FICHES!=='undefined' && ORDRE_LIBRE_FICHES.indexOf(13)>=0){
+      await ouvrirDevoirDetail('fc_l');
+      const fl=(mesDevoirs||[]).find(function(d){ return d.id==='fc_l'; });
+      if(!fl) vus.push('la fiche libre n\\'arrive pas chez l\\'élève');
+      else {
+        if(dmVerrouille(fl,B)||dmVerrouille(fl,C)) vus.push('la fiche 13 verrouille un exercice alors que son ordre est libre');
+        if(document.querySelectorAll('#devoirsBody .choice.locked').length) vus.push('la page de la fiche 13 grise des cartes');
+        if(document.getElementById('devoirsBody').textContent.indexOf('dans l\\u2019ordre')>=0) vus.push('la page de la fiche 13 dit qu\\'elle se fait dans l\\'ordre');
+        currentDM=null;
+        await openTestDevoir('fc_l',C);
+        if(ecran()!=='scr-mode') vus.push('la porte refuse le dernier exercice de la fiche 13');
+        currentDM=null;
+      }
+    }
 
     /* 5. l'éditeur fixe l'ordre, et l'enregistrement l'emporte */
     const lireValeurs=function(){ return (window.__faux.tables['${TABLE}']||[{}])[0].valeurs||{}; };

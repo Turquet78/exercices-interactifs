@@ -895,6 +895,21 @@ le rendu de l'éditeur dans l'écran visible duplique les ids, et
 `getElementById` répond la copie — la flèche semblait morte alors que la page
 était juste.
 
+**Puis la fiche 13 de la Première s'est faite dans l'ordre qu'on veut.**
+Demande de Turquet (novembre 2026) : « en première pour la fiche 13 de
+travail, faire en sorte que les élèves puissent faire les exercices dans
+l'ordre qu'ils veulent, donc aucun exercice ne doit être verrouillé ».
+La règle tient dans `dmOrdreImpose()`, l'entonnoir que lisent la carte, la
+porte (`dmVerrouille`) et la phrase de l'éditeur : une fiche dont le NUMÉRO
+est dans `ORDRE_LIBRE_FICHES` (`[13]`) n'impose pas d'ordre — par numéro,
+comme `POUCE_FICHES`, si bien que rien n'est à régler dans l'éditeur. Le ruban
+▲▼ reste : il règle l'AFFICHAGE, et sa phrase dit « aucun n'est verrouillé ».
+Le contrôle des fiches (`ordreDesFiches`) sème une fiche n°13 à côté de la
+fiche ordonnée et tient quatre bords — la définition, aucune carte grisée, la
+page qui ne dit plus « dans l'ordre », la porte qui ouvre le dernier
+exercice ; la fiche n°1 reste verrouillée, le bord opposé. Éprouvé par
+sabotage (la liste ignorée) : les quatre bords rougissent, chacun nommé.
+
 **Un devoir demande une fois chaque exercice, et tous sont ouverts.** Il a su
 un temps en demander plusieurs passages et en verrouiller un tant que les
 précédents n'étaient pas faits ; c'est retiré, éditeur compris (décision de

@@ -6884,7 +6884,13 @@ function exercicesDevoir(dev){
    que l'écran et la porte disent exactement la même chose. Les devoirs à la
    maison restent tous ouverts : la règle vit dans GENRE_DEVOIRS (ordre:true),
    comme toute différence entre les deux familles. */
-function dmOrdreImpose(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'].ordre); }
+/* SAUF LES FICHES D'ORDRE LIBRE (demande de Turquet, novembre 2026 : « pour
+   la fiche 13, les élèves font les exercices dans l'ordre qu'ils veulent,
+   aucun exercice verrouillé »). La liste porte des NUMÉROS de fiche, comme
+   POUCE_FICHES ; la carte, la porte et l'éditeur lisent tous dmOrdreImpose(). */
+const ORDRE_LIBRE_FICHES=[13];
+function dmOrdreImpose(dev){ return !!(dev && GENRE_DEVOIRS[dev.genre||'dm'].ordre
+  && !(dev.genre==='fiche' && ORDRE_LIBRE_FICHES.indexOf(Number(dev.num))>=0)); }
 function dmVerrouille(dev, testId){
   if(!dmOrdreImpose(dev)) return false;
   const exos=(dev.exercices||[]).filter(ex=>TESTS[ex.id]);
@@ -32088,7 +32094,9 @@ function renderDmEditor(){
     <div class="dm-pick-h" style="margin-top:14px">Ordre des exercices ${evalOrdre?'de l\u2019évaluation':'de la fiche'}</div>
     <p class="muted" style="font-size:.85rem;margin:0 0 12px">${evalOrdre
       ? 'Les élèves verront les exercices de l\u2019évaluation dans cet ordre, numérotés. Déplace un exercice avec ▲ et ▼.'
-      : 'Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.'}</p>
+      : (dmOrdreImpose(Object.assign({},d,{genre:'fiche'}))
+        ? 'Les élèves feront la fiche dans cet ordre : un exercice ne se débloque que lorsque le précédent est fait. Déplace un exercice avec ▲ et ▼.'
+        : 'Les élèves verront les exercices de cette fiche dans cet ordre, mais <b>aucun n\u2019est verrouillé</b> : ils les font dans l\u2019ordre qu\u2019ils veulent. Déplace un exercice avec ▲ et ▼.')}</p>
     <div id="dmOrdre">${exOrd.length?exOrd.map((ex,i)=>`<div class="dm-exo pick">
       <span class="dm-exo-num">${i+1}</span>
       <span class="dm-exo-name">${esc(testLabel(ex.id))}</span>
