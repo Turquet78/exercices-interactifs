@@ -921,6 +921,48 @@ dans la même case la réarme, avant la correction (capture). Nos propres
 retraits ne passent jamais pour une correction : `takeRecords()` les jette dans
 le même tour. Témoin dans le banc navigateur, « 11 septdecies » (le 6.5).
 
+**Puis, dans la fiche de travail n° 13 (Première), le rouge s'en va au CLIC,
+et le 3.13 rougit à la sortie de case** (Turquet, novembre 2026, v477 : « en
+mode soutien, je veux que les cases à compléter deviennent rouges après avoir
+validé cette case, par exemple quand on passe à la suivante ; si l'élève
+reclique sur la case rouge il faut enlever le rouge »). La fiche se désigne
+comme pour la retenue du coup de pouce, par son genre et son numéro
+(`ROUGE_RECLIC_FICHES=[13]`, `rougeSortieActive()`, soutien seulement). Une
+sonde dans Chromium sur les cinq exercices à coup de pouce (3.13, 6.8, 6.9,
+7.3, 8.1) a d'abord mesuré l'existant : la case quittée rougissait déjà
+partout — sauf au **3.13**, sans aucune correction en direct (`pb` est dans
+`soutienEnDirect.sans` : colorer une LISTE au moment du choix donnerait la
+bonne lettre par élimination) — et nulle part le rouge ne partait au clic.
+
+*Le 3.13* : `checkPBFicheLive()`, appelé par `checkPBAnswer(true)` dans cette
+fiche seulement (une ligne `pb` dans `liveCheckCurrent`, muette ailleurs).
+Les listes ne se colorent toujours pas ; une case vide non plus, ni une
+moitié de fraction dont l'autre moitié est vide (6 sur □ peut devenir 6/20,
+égale à 3/10). Rien n'est verrouillé ni compté : « Vérifier » note.
+
+*Le clic* : `pointerdown`, jamais le focus — après « Vérifier », la page pose
+elle-même le curseur dans la première case rouge, et ce rouge-là doit se
+voir (le premier jet levait le rouge au `focusin`, et la sonde l'a montré :
+la case focalisée par `soutienAgain` perdait son rouge sous les yeux de
+l'élève). Une case qui a déjà le curseur ne reçoit pas de `focusin` : la
+levée se fait au `pointerdown` et s'achève au `focusin` qui suit, après celui
+du garde. La case est alors surveillée comme une case vierge, la retenue
+(`couleurDifferee`) vaut « rouge » : quittée sans rien changer, elle
+rougit de nouveau (une case en texte ne se rejuge qu'à la frappe) ; une
+frappe périme ce rouge. Second piège, vu au vrai clic de souris sur le 6.8 :
+la correction de la ligne voisine qu'on vient de quitter repeint la case
+recliquée 17 ms après le clic, et le garde, qui rend la main à une couleur
+arrivée sans frappe, la laissait rouge — un observateur à part
+(`rougeReclicMarquer`) la lève de nouveau tant que la case a le curseur et
+qu'aucune frappe n'a eu lieu. Il vit HORS du bloc du garde, après
+l'enregistrement différé : ce bloc est le même texte dans les trois fichiers
+(banc principal, « le garde de la saisie est identique à celui de la
+Terminale »), et le premier jet, qui y avait glissé une exception, l'a fait
+rougir. La ligne de rédaction du 8.1 reste sans
+couleur avant « Vérifier » : elle est relue par le modèle, aucun juge local
+ne peut la colorer à la sortie. Témoin : banc navigateur, « 11 duovicies »
+(le 3.13 et le 6.8 ; la fiche n° 12 pour l'autre bord).
+
 **En soutien, une question bloquée se passe — dans TOUS les exercices**
 (Turquet, novembre 2026, les trois niveaux, v709 / v445 / v506). Né au 7.1.6
 de la Terminale : une élève, en devoir maison, ne trouvait pas où placer un
