@@ -1594,6 +1594,10 @@ i.pb-P{margin-right:.14em}
   .trd-eq .trd-d{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--ink-soft);font-size:.9rem}
   .trd-eq .trd-d .itv-sel.trd-sel{height:34px;font-size:.9rem;padding:0 6px;min-width:0}
   .trd-eq .trd-d b{color:var(--blue-dark)}
+  /* sur la page du PDF rien ne défile : la règle passe à la ligne au lieu
+     d'être coupée au bord (correction du DM n°4, novembre 2026) */
+  .dme-pdf .trd-eq{overflow:visible}
+  .dme-pdf .trd-eq .trd-d{white-space:normal;flex-wrap:wrap}
   .trd-cercle{display:inline-block;border:1.6px dotted var(--ink-soft);border-radius:999px;padding:0 6px;line-height:1.5}
   .trd-frac{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
   .trd-frac .trd-bar{display:block;width:100%;min-width:48px;height:2.4px;background:var(--ink)}
@@ -2641,6 +2645,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
    l'encre de la correction ; un voile couvre l'écran le temps de la photo. */
 .dmc-val{display:inline-block;color:var(--green);font-weight:700;text-align:center;padding:0 3px;vertical-align:middle}
 .dmc-val .lettre{margin-right:.45em}
+.dmc-val.dmc-cadre{border:1.5px solid var(--green);border-radius:8px;padding:1px 6px;background:#f2fbf4}
 #dmcVoile{position:fixed;inset:0;z-index:10000;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center}
 .dmc-voile-boite{font-weight:800;color:var(--ink);font-size:1.1rem}
 #dmeCorps[hidden]{display:none!important}
@@ -4279,7 +4284,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=480;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=481;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7723,9 +7728,41 @@ function dmeNettoyerClone(c){
      un arbre sur SA mise en page (dmePdfRetracer) — un attribut sans effet */
   c.querySelectorAll('[id]').forEach(function(e){ if(!e.closest('svg')){ e.setAttribute('data-dme-id', e.id); e.removeAttribute('id'); } });
 }
+/* UNE FICHE SUR UN SEUL ÉCRAN (le 3.13 : neuf questions, un seul tableau,
+   toutes les lignes à la fois) se photographiait neuf fois à l'identique,
+   à l'énoncé comme à la correction (vu sur le DM n°4, novembre 2026). Une
+   question dont la photo est celle de la précédente n'en est pas une
+   nouvelle : elle rejoint le même bloc. dmeGroupes() rend, pour chaque
+   question, le rang de la première question de son bloc. */
+function dmeGroupes(){
+  const n=(test.questions||[]).length, g=[]; let avant=null;
+  for(let i=0;i<n;i++){
+    test.idx=i;
+    if(!afficherEcranDe(test.kind)) return null;
+    const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
+    const h=dmEnonceQ(scr)+'\u0000'+dmeEcranTexte(scr);
+    g.push(h===avant&&i>0 ? g[i-1] : i); avant=h;
+  }
+  return g;
+}
+/* LE CONTENU DE TOUT L'ÉCRAN, sans son compteur (« Question 2 / 9 ») ni son
+   score : la photo d'énoncé ne suffit pas à dire « même question » — une
+   multiplication posée, une écriture décimale ont leurs NOMBRES dans les
+   rangées à cases, que l'énoncé papier retire, et dix questions distinctes
+   y avaient la même photo. Les valeurs des cases comptent aussi. */
+function dmeEcranTexte(scr){
+  const k=scr.cloneNode(true);
+  k.querySelectorAll('.test-top,[id$="Idx"],[id$="LiveScore"],.score-tag,[class*="mode-tag"],[id^="modeTag"]').forEach(function(e){ e.remove(); });
+  const vals=Array.prototype.map.call(scr.querySelectorAll('input,select,math-field'), function(e){ return e.value||''; }).join('|');
+  /* le HTML, pas le seul texte : la barre d'un contraire est une CLASSE
+     (.pb-bar) — « Ā ∩ B » et « Ā ∩ B̄ » avaient le même texte, et deux
+     questions de lire-probabilites se fusionnaient */
+  return (k.innerHTML||'').replace(/\s+/g,' ')+'|'+vals;
+}
 function dmEnonceHTML(){
   const n=(test.questions||[]).length; if(!n) return null;
-  let out='';
+  const blocs=[], cles=[];
   for(let i=0;i<n;i++){
     test.idx=i;
     if(!afficherEcranDe(test.kind)) return null;
@@ -7735,10 +7772,11 @@ function dmEnonceHTML(){
        suite, montrait un arbre sans branches — des étiquettes flottantes. On
        les pose AVANT la photo, l'écran étant affiché. */
     if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
-    out+='<div class="dme-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+'</div>':'')+dmEnonceQ(scr)+'</div>';
+    const h=dmEnonceQ(scr), cle=h+'\u0000'+dmeEcranTexte(scr);
+    if(!blocs.length || cles[cles.length-1]!==cle){ blocs.push(h); cles.push(cle); }
   }
   test.idx=0; afficherEcranDe(test.kind);
-  return out;
+  return blocs.map(function(h,k){ return '<div class="dme-q">'+(blocs.length>1?'<div class="dme-qnum">Question '+(k+1)+'</div>':'')+h+'</div>'; }).join('');
 }
 /* Quitter l'écran d'énoncé VIDE son hôte — la convention des hôtes partagés :
    un clone qui resterait dans le document est un écran fantôme de plus. */
@@ -8027,14 +8065,30 @@ function dmCorrigeQ(scr){
       r=document.createElement('span'); r.className='dme-blank';
       if(w>0){ r.style.width=w+'px'; r.style.minWidth='0'; }
       if(h>0) r.style.height=h+'px';
+    } else if(v.tagName==='SELECT' && /^rgba\(.*,\s*0\)$|^transparent$/.test(getComputedStyle(v).color)){
+      /* UN MENU À L'ENCRE TRANSPARENTE est montré par un AUTRE élément (le
+         .pb-aff du 3.13, qui écrit la barre d'un contraire) : sa valeur
+         imprimée doublait l'affichage. Il garde sa place, invisible, et ses
+         classes — l'affichage voisin prend l'encre de la correction. */
+      r=document.createElement('span');
+      r.className=v.className.replace(/\b(ok|bad)\b/g,'')+' sol';
+      r.style.cssText='display:inline-block;visibility:hidden;width:'+w+'px;height:'+h+'px';
     } else {
       r=document.createElement('span'); r.className='dmc-val';
       if(v.tagName==='MATH-FIELD'){
         const lx=dmcValeur(v), html=(window.mlDexp&&typeof mlDexp.tex==='function')?mlDexp.tex(lx):null;
-        if(html) r.innerHTML=html; else r.textContent=lx;
+        /* un NOMBRE s'écrit tel quel : le rendu LaTeX imprimait « 4, 82 » */
+        const nb=String(lx).replace(/\{,\}/g,',').replace(/\\[,;: ]/g,' ').trim();
+        if(/^[-\u2212]?\d[\d \u00a0]*(,\d+)?$/.test(nb)) r.textContent=nb.replace(/^-/,'\u2212');
+        else if(html) r.innerHTML=html; else r.textContent=lx;
       } else if(v.tagName==='SELECT'){ const o=v.options[v.selectedIndex]; r.textContent=o?o.textContent:''; }
       else r.textContent=dmcValeur(v);
       if(w>0) r.style.minWidth=Math.min(w,400)+'px';
+      /* LA VALEUR A LA TAILLE DE SA CASE, et l'encadré de la correction : une
+         réponse d'essai juste du premier coup s'imprimait en petit, sans
+         cadre, à côté des badges verts que la page écrit (DM n°4, novembre 2026) */
+      try{ const fs=getComputedStyle(v).fontSize; if(fs) r.style.fontSize=fs; }catch(x){}
+      r.classList.add('dmc-cadre');
     }
     e.replaceWith(r);
   });
@@ -8050,6 +8104,13 @@ function dmCorrigeQ(scr){
     const r=document.createElement('span'); r.className='dmc-val'; r.innerHTML=b.innerHTML; b.replaceWith(r); });
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.tvi-actions,.mp-feedback,[id$="Feedback"],#esxMsg,.iafb,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,.ia-row,.score-tag,.papier-seul,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
+  /* LA POSE FACULTATIVE n'est pas la correction : remplie de réponses
+     d'essai, elle imprimait « 0 − 0 » (DM n°4, novembre 2026) */
+  c.querySelectorAll('.pose-fac,.dexp-facblock,.pt-opt,.pbf-m').forEach(function(e){ e.remove(); });
+  /* la zone de rédaction ouverte sous une question GUIDÉE est celle de la
+     question suivante : vide, elle n'a rien à dire dans cette correction */
+  const qc=test.questions&&test.questions[test.idx];
+  if(!(qc&&qc.redac)) c.querySelectorAll('.sfr-prompt').forEach(function(p){ if(p.parentElement && p.parentElement!==c) p.parentElement.remove(); });
   /* UNE FRACTION À DEUX CASES CORRIGÉE D'UN SEUL BADGE (Première : la page
      écrit « 40/100 » après la fraction entière, pas après chaque case) : la
      recherche du badge s'arrête à l'enveloppe qui porte deux cases, et la
@@ -8081,12 +8142,94 @@ function dmcChoix(scr){
   return Array.prototype.filter.call(scr.querySelectorAll(DMC_CHOIX), function(b){ return dmcVisible(b) && !b.closest(DMC_HORS); });
 }
 function dmcChoixPris(b){ return b.classList.contains('sel')||b.classList.contains('ok')||b.classList.contains('sol')||b.classList.contains('bad'); }
-async function dmcQuestion(i, orig){
-  const connu={}, rang={};
+/* LA CORRECTION AUX ÉTAPES DES COUPS DE POUCE (demande de Turquet, novembre
+   2026, DM n°4 : « que la correction soit faite en utilisant les étapes des
+   coups de pouce »). Un exercice rédigé ne se corrige pas par tours — la
+   page ne sait pas écrire une rédaction à la place de l'élève — mais son
+   « Coup de pouce » montre la MÊME question en cases, que la page corrige.
+   Avant chaque tour, chaque bouton « Coup de pouce » de l'écran est pris
+   (jamais « Retirer » ni « Enlever ») : les tours remplissent ensuite les
+   étapes. Aucun exercice ne déclare rien : un bouton qui dit « Coup de
+   pouce » suffit. */
+function dmcPouceBoutons(scr){
+  return Array.prototype.filter.call(scr.querySelectorAll('button'), function(b){
+    const t=(b.textContent||'').replace(/\s+/g,' ');
+    return /coup de pouce/i.test(t) && !/retirer|enlever/i.test(t) && !b.disabled && dmcVisible(b) && !b.closest(DMC_HORS);
+  });
+}
+async function dmcPrendrePouces(scr){
+  const vus=new Set();
+  for(let k=0;k<12;k++){
+    const b=dmcPouceBoutons(scr).find(function(x){ return !vus.has(x.id||x.outerHTML); });
+    if(!b) break;
+    vus.add(b.id||b.outerHTML);
+    b.click();
+    for(let m=0;m<8;m++) await Promise.resolve();
+    scr=document.querySelector('section.screen.on')||scr;
+  }
+  return scr;
+}
+function dmcAPouces(){
+  const scr=document.querySelector('section.screen.on');
+  return !!scr && dmcPouceBoutons(scr).length>0;
+}
+/* LA CORRECTION ÉCRITE À CÔTÉ D'UNE CASE SE RELIT (DM n°4, novembre 2026).
+   Une case fausse garde sa réponse d'essai, et la page écrit la bonne valeur
+   dans un badge vert à côté (.mf-cor, .sol) : les tours ne l'apprenaient
+   pas, et les MIROIRS qui recopient la case (.sui-mir du 7.3 : « en … jours
+   elle lira … × … ») imprimaient la réponse d'essai, « 0 ». Le badge d'un
+   nombre est relu comme la réponse de la case au tour suivant : la page la
+   juge alors juste, et tout ce qui la recopie suit. */
+function dmcBadgeDe(v){
+  for(let x=v, k=0; x && k<3; x=x.parentElement, k++){
+    if(k && x.querySelectorAll(DMC_SAISIES).length>1) break;
+    const y=x.nextElementSibling;
+    if(y && (y.classList.contains('sol')||y.classList.contains('mf-cor')) && !y.matches(DMC_SAISIES) && !y.querySelector(DMC_SAISIES)) return y;
+  }
+  return null;
+}
+function dmcBadgeNombre(v){
+  const b=dmcBadgeDe(v); if(!b) return null;
+  const t=(b.textContent||'').replace(/[\s\u00a0\u202f]/g,'').replace(/\u2212/g,'-');
+  /* un MENU : l'option dont le texte est celui du badge */
+  if(v.tagName==='SELECT'){
+    /* la barre d'un contraire est dessinée par la feuille de styles dans le
+       badge (.pb-bar), écrite U+0305 dans l'option */
+    const k=b.cloneNode(true);
+    k.querySelectorAll('[class*="bar"]').forEach(function(e){ e.textContent=(e.textContent||'')+'\u0305'; });
+    const norm=function(x){ return (x||'').replace(/[\s\u00a0\u202f]/g,'').replace(/\u2212/g,'-').replace(/\u0304/g,'\u0305'); };
+    const tb=norm(k.textContent);
+    const o=Array.prototype.find.call(v.options, function(x){ return x.value!=='' && norm(x.textContent)===tb; });
+    return o ? o.value : null;
+  }
+  return /^[-+]?\d+(,\d+)?$/.test(t) ? t : null;
+}
+/* CE QUE LES TOURS APPRENNENT SE RANGE PAR LA CASE, PAS PAR SA PLACE : dans
+   un exercice dont les parties s'ouvrent une à une (le 6.8), la k-ième case
+   d'un tour n'est pas toujours celle du tour d'avant, et une valeur apprise
+   se posait dans une autre case (« x », « −5 »). L'identifiant de la case
+   (avec son rang parmi les cases du même nom), sinon sa place. */
+function dmcCles(list){
+  const vu={};
+  return list.map(function(e,k){
+    if(!e.id) return '#'+k;
+    vu[e.id]=(vu[e.id]||0)+1; return e.id+'@'+vu[e.id];
+  });
+}
+async function dmcQuestion(i, orig, pouce){
+  const connu={}, rang={}, vider={};
   let choixConnu=null, rangChoix=0;
   let photo=null, rouges=Infinity;
-  for(let tour=0; tour<6; tour++){
+  /* aux coups de pouce, plus de tours : un exercice en parties (le 6.8)
+     n'ouvre la suivante qu'une fois la précédente juste */
+  for(let tour=0; tour<(pouce?12:8); tour++){
     test.questions[i]=JSON.parse(orig[i]);
+    /* UNE QUESTION RÉDIGÉE (q.redac, le 5.3 et les exercices suivis d'une
+       question rédigée) n'a pas de coup de pouce : la page ne sait pas
+       écrire une rédaction. Ses données sont celles d'une question guidée —
+       la guidée de la même expression EST son coup de pouce : aux coups de
+       pouce, elle se corrige en cases, étape par étape. */
+    if(pouce && test.questions[i] && test.questions[i].redac && typeof RED_CFG!=='undefined' && RED_CFG[test.kind]) delete test.questions[i].redac;
     if(typeof rehydrateQuestions==='function') try{ rehydrateQuestions(); }catch(e){}
     test.idx=i; test.locked=false;
     clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
@@ -8094,6 +8237,7 @@ async function dmcQuestion(i, orig){
     let scr=document.querySelector('section.screen.on'); if(!scr) return null;
     let appris=false, avant=-1;
     for(let clic=0; clic<4; clic++){
+      if(pouce) scr=await dmcPrendrePouces(scr);
       const ch=dmcChoix(scr);
       if(ch.length && !ch.some(dmcChoixPris)){
         ch[choixConnu!=null ? choixConnu%ch.length : rangChoix%ch.length].click();
@@ -8101,9 +8245,10 @@ async function dmcQuestion(i, orig){
         scr=document.querySelector('section.screen.on')||scr;
       }
       const cs=dmcCases(scr);
-      cs.forEach(function(e,k){
+      const K_cs=dmcCles(cs); cs.forEach(function(e,j){ const k=K_cs[j];
         if(dmcJuge(e)) return;
         if(Object.prototype.hasOwnProperty.call(connu,k)){ dmcPoser(e, connu[k]); return; }
+        if(vider[k]===1) return;          /* laissée vide : la page y écrira peut-être sa correction */
         if(dmcCoche(e) || !dmcVide(e)) return;
         const v=dmcEssai(e, rang[k]||0); if(v!=null) dmcPoser(e, v);
       });
@@ -8116,9 +8261,12 @@ async function dmcQuestion(i, orig){
       const s2=document.querySelector('section.screen.on'); if(!s2) break;
       scr=s2;
       const apres=dmcCases(scr);
-      apres.forEach(function(e,k){
+      const K_apres=dmcCles(apres); apres.forEach(function(e,j){ const k=K_apres[j];
         if(dmcCoche(e)) return;
         if(dmcJuge(e) && !dmcVide(e)){ const v=dmcValeur(e); if(connu[k]!==v){ connu[k]=v; appris=true; } }
+        else if(e.classList.contains('bad') && !Object.prototype.hasOwnProperty.call(connu,k)){
+          const v=dmcBadgeNombre(e); if(v!=null){ connu[k]=v; appris=true; }
+        }
       });
       const kj=dmcChoix(scr).findIndex(dmcJuge);
       if(kj>=0 && choixConnu!==kj){ choixConnu=kj; appris=true; }
@@ -8130,18 +8278,37 @@ async function dmcQuestion(i, orig){
       avant=apres.length;
     }
     const cases=dmcCases(scr);
-    cases.forEach(function(e,k){ if(e.classList.contains('bad') && !Object.prototype.hasOwnProperty.call(connu,k)) rang[k]=(rang[k]||0)+1; });
+    /* UNE CASE FAUSSE SANS CORRECTION À CÔTÉ est laissée VIDE au tour
+       suivant : certaines vérifications n'écrivent leur correction que dans
+       une case vide (marqueFracDec : la fraction décimale du 8.1, le « x = »
+       du 6.8 — DM n°4, novembre 2026). Si la page n'y écrit rien non plus,
+       les essais reprennent. */
+    const K_cases=dmcCles(cases); cases.forEach(function(e,j){ const k=K_cases[j];
+      if(Object.prototype.hasOwnProperty.call(connu,k)) return;
+      if(vider[k]===1){ vider[k]=2; if(!dmcJuge(e)||dmcVide(e)){ rang[k]=(rang[k]||0); } return; }
+      if(e.classList.contains('bad')){
+        /* les essais D'ABORD : laissée vide trop tôt, une case que la page ne
+           juge pas vide arrêtait les tours (relier-fractions, la valeur
+           approchée) ; le vide est le dernier recours */
+        if((rang[k]||0)>=DMC_ESSAIS.length-1 && vider[k]==null && !dmcBadgeDe(e)) vider[k]=1;
+        else rang[k]=(rang[k]||0)+1;
+      }
+    });
     const choixFaux=dmcChoix(scr).some(function(c){ return c.classList.contains('bad'); });
     if(choixFaux && choixConnu==null) rangChoix++;
     const r=cases.filter(function(e){ return e.classList.contains('bad'); }).length+(choixFaux?1:0);
     /* une photo où la page n'a RIEN corrigé (une rédaction que seule l'IA
        relit, un tableau qui exige toutes ses cases) n'est pas une correction :
        elle redirait l'énoncé, et l'élève la croirait corrigée */
-    if(test.locked && r<rouges){
-      const h=dmCorrigeQ(scr);
-      if(/class="([^"]*\s)?(dmc-val|sol|mf-cor|[a-z0-9]+-cor)(\s|")/.test(h)){ rouges=r; photo=h; }
+    /* LA MEILLEURE PHOTO est celle qui imprime le moins de POINTILLÉS, puis
+       le moins de rouges : un tour tout faux peut être celui où la page écrit
+       la correction de toute la ligne (le calcul facultatif de
+       relier-fractions), et un tour sans rouge laisser des cases vides */
+    if(test.locked){
+      const h=dmCorrigeQ(scr), bl=(h.match(/dme-blank/g)||[]).length, cout=bl*100+r;
+      if(cout<rouges && /class="([^"]*\s)?(dmc-val|sol|mf-cor|[a-z0-9]+-cor)(\s|")/.test(h)){ rouges=cout; photo=h; }
     }
-    if(test.locked && r===0) break;
+    if(test.locked && r===0 && rouges===0) break;
     if(!appris && !choixFaux && !cases.some(function(e){ return e.classList.contains('bad'); }) && !test.locked) break;
   }
   return photo;
@@ -8154,7 +8321,11 @@ function dmcVoiler(on){
     document.body.appendChild(dmcVoile);
   } else if(!on && dmcVoile){ dmcVoile.remove(); dmcVoile=null; }
 }
-async function dmCorrigeHTML(){
+async function dmCorrigeHTML(pouce){
+  /* LES COUPS DE POUCE D'OFFICE (DM n°4, novembre 2026) : la correction de
+     l'élève suit les étapes du coup de pouce là où l'exercice en a un ;
+     false garde l'écran tel quel */
+  pouce=pouce!==false;
   const n=(test.questions||[]).length; if(!n) return null;
   const orig=[];   /* chaque question en JSON : le tirage, rendu intact à la fin */
   for(let k=0;k<n;k++) orig.push(JSON.stringify(test.questions[k]));
@@ -8167,11 +8338,15 @@ async function dmCorrigeHTML(){
     REJEU=true; currentMode='train'; window.confirmerCasesVides=false;
     toast=function(){};          /* les réponses d'essai ne parlent pas à l'élève */
     if(fx) fx.invoke=function(){ return Promise.resolve({data:null, error:{message:'correction papier : la page juge seule'}}); };
-    for(let i=0;i<n;i++){
+    let grp=null; try{ grp=dmeGroupes(); }catch(e){ grp=null; }
+    if(grp) for(let k=0;k<n;k++) test.questions[k]=JSON.parse(orig[k]);
+    const rangs=[]; for(let i=0;i<n;i++) if(!grp || grp[i]===i) rangs.push(i);
+    for(let r=0;r<rangs.length;r++){
+      const i=rangs[r];
       let h=null;
-      try{ h=await dmcQuestion(i, orig); }catch(e){ console.warn('correction papier, question '+(i+1), e); h=null; }
+      try{ h=await dmcQuestion(i, orig, !!pouce); }catch(e){ console.warn('correction papier, question '+(i+1), e); h=null; }
       if(h) faites++;
-      out+='<div class="dme-q dmc-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+'</div>':'')
+      out+='<div class="dme-q dmc-q">'+(rangs.length>1?'<div class="dme-qnum">Question '+(r+1)+'</div>':'')
         +(h||'<p class="muted">La correction de cette question n’a pas pu s’écrire automatiquement : elle se fait avec ton professeur.</p>')+'</div>';
     }
   } finally {
@@ -22651,7 +22826,7 @@ function renderIsdl(){
     ? '<p class="isd-consigne">Calcule 1² et (−1)² : écris chaque calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante.'+(isdlPouceEx()?' Tu peux aussi écrire directement le résultat.':' Il faut au moins une étape avant le résultat.')
     : '<p class="isd-consigne">Soit <i>f</i>(<i>x</i>) = '+isdlFonction(q)
       +'. Calcule l’image de <b>'+isdN(q.x)+'</b> : écris ton calcul, une étape par ligne, jusqu’au résultat — la touche Entrée ouvre la ligne suivante.'+(isdlPouceEx()?' Tu peux aussi écrire directement le résultat.':' Il faut au moins une étape avant le résultat.');
-  $('isdlHost').innerHTML=consigne+(pouce?' Bloqué ? Le bouton « Coup de pouce » présente la question en cases.':'')+'</p>'
+  $('isdlHost').innerHTML=consigne+(pouce?'<span class="aide-ecran"> Bloqué ? Le bouton « Coup de pouce » présente la question en cases.</span>':'')+'</p>'
     +(q.rejeu?isdlRejeuNote():'')
     +isdlBlocs(q).map(function(B,b){ return '<div class="isdl-page"'+(b?' style="margin-top:14px"':'')+'><div class="isdl-calc" id="'+isdlBlocId(b)+'">'+isdlLignesHTML(q,b)+'</div></div>'; }).join('');
   isdlBrancher();
@@ -22823,8 +22998,8 @@ function isdlRevenir(){
 function isdlRenderPouce(q){
   const ih=$('isdHost'); if(ih) ih.innerHTML='';   /* les cases du 6.6 portent les mêmes identifiants */
   $('isdlPrompt').innerHTML=q.t==='carres'
-    ? 'Coup de pouce : la question en cases. Calcule chaque carré.'
-    : 'Coup de pouce : la question en cases. Les flèches montrent où va chaque terme de <i>f</i>(<i>x</i>) : on remplace <i>x</i> par le nombre, entre parenthèses. Sous chaque accolade, écris la valeur du terme.';
+    ? '<span class="aide-ecran">Coup de pouce : la question en cases. </span>Calcule chaque carré.'
+    : '<span class="aide-ecran">Coup de pouce : la question en cases. </span>Les flèches montrent où va chaque terme de <i>f</i>(<i>x</i>) : on remplace <i>x</i> par le nombre, entre parenthèses. Sous chaque accolade, écris la valeur du terme.';
   $('isdlActions').innerHTML=sfBoutonsAide()+'<button class="btn btn-primary" type="button" onclick="checkIsdlAnswer()">Vérifier</button>';
   $('isdlHost').innerHTML=q.t==='carres'
     ? '<p class="isd-consigne">Calcule chaque carré.</p>'+isdCarresHTML()
@@ -29755,7 +29930,7 @@ function renderFPBFiche(){
   $('pbActions').innerHTML='<button class="btn btn-primary" onclick="checkPBAnswer()">Vérifier</button>';
   $('pbPrompt').innerHTML=esc(C.intro)+' '+fpbNombre(T)+' '+esc(C.pl+' '+C.srcs)+'. Complète le tableau, puis réponds à toutes les questions, chacune sur sa ligne'
     +(fpbSeul() ? ' — chaque réponse est une fraction écrite avec les effectifs du tableau —' : '')+', et vérifie la fiche à la fin.'
-    +(fpbPouce() ? ' Bloqué sur une question ? Le bouton « Coup de pouce » devant elle détaille le calcul.' : '');
+    +(fpbPouce() ? '<span class="aide-ecran"> Bloqué sur une question ? Le bouton « Coup de pouce » devant elle détaille le calcul.</span>' : '');
   const nA=fpbNbA();
   const li=(q,i)=>'<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt">'+fpbPouceHTML(q,i)+'<span class="pbf-num">'+fpbNum(i).slice(1)+'.</span>'+fpbTxt(q)+'</div>'+fpbLigne(q,i)+'</li>';
   $('pbHost').innerHTML=
@@ -36628,7 +36803,7 @@ function renderTrd(){
   $('modeTagTrd').innerHTML=modeTagHTML();
   $('trdLiveScore').textContent=test.score;
   $('trdInstr').innerHTML='On considère la fonction <i>f</i> définie sur ℝ par <i>f</i> (<i>x</i>) = '+trdExpr(q)+'. Traite les questions dans l’ordre : la suite s’ouvre quand la droite est tracée.'
-    +(trdPouceEx() ? ' Bloqué sur une question ? Le bouton « Coup de pouce » sous son titre la montre en étapes ; « Enlever le coup de pouce » ramène la version rédigée.' : '');
+    +(trdPouceEx() ? '<span class="aide-ecran"> Bloqué sur une question ? Le bouton « Coup de pouce » sous son titre la montre en étapes ; « Enlever le coup de pouce » ramène la version rédigée.</span>' : '');
   const fx=function(x){ return '<i>f</i> ('+trdNb(x)+')'; };
   const soutien=isSoutien();
   let h='';

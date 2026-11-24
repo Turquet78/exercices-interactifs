@@ -3580,6 +3580,32 @@ if(require.main === module) (async () => {
           envoiB === 1 && !!pb && pb.entete === '%PDF-' && /^correction-/.test(pb.nom),
           'envois ' + envoiB + ', ' + (pb ? pb.nom + ' ' + pb.octets + ' octets' : 'aucun téléchargement'));
       }
+      /* LA CORRECTION AUX ÉTAPES DES COUPS DE POUCE (Turquet, novembre 2026,
+         DM n°4) : chaque bouton « Coup de pouce » pris, une question rédigée
+         corrigée par sa guidée ; sur chaque exercice du devoir, aucune
+         question laissée « au professeur », aucun pointillé, aucun miroir
+         resté à la réponse d'essai, aucune phrase « Coup de pouce ». */
+      for(const ex of (DP.pouce || [])){
+        await s.page.evaluate(() => { dmeRetour(); window.__faux.semer(TABLE_SIG, []); });
+        await s.page.waitForTimeout(1200);
+        const r = await s.page.evaluate(async ex => {
+          mesDevoirs = [{ id:'dm-pouce', num:4, actif:true, correction:true, exercices:[{ id:ex, modes:['train'] }] }];
+          await dmePapierOuvrir('dm-pouce', ex);
+          const enonce = document.querySelectorAll('#dmeCorps .dme-q').length;
+          const h = await dmCorrigeHTML();
+          const d = document.createElement('div'); d.innerHTML = h || '';
+          const t = d.textContent.replace(/\s+/g, ' ');
+          return { enonce, blocs: d.querySelectorAll('.dmc-q').length, vals: d.querySelectorAll('.dmc-val,.sol,.mf-cor').length,
+            prof: (t.match(/avec ton professeur/g) || []).length, blancs: d.querySelectorAll('.dme-blank').length,
+            miroirs: [...d.querySelectorAll('.sui-mir,.isd-mir')].filter(m => /^(0|…)$/.test(m.textContent.trim())).length,
+            pouce: /coup de pouce/i.test(t) };
+        }, ex);
+        verifier('la correction de ' + ex + ' suit les coups de pouce : tout est corrigé, rien en pointillé',
+          r.blocs > 0 && r.vals > 0 && r.prof === 0 && r.blancs === 0 && r.miroirs === 0 && !r.pouce, JSON.stringify(r));
+        if(ex === DP.ficheUnEcran)
+          verifier('une fiche d\'un seul écran (' + ex + ') s\'imprime une fois, à l\'énoncé comme à la correction',
+            r.enonce === 1 && r.blocs === 1, JSON.stringify(r));
+      }
       /* LA MISE EN PAGE SURVIT À LA PHOTO — trois défauts du DM n°13
          (Turquet, novembre 2026), aucun propre à un exercice, tenus ici sur
          des écrans FABRIQUÉS : ce qui vaut pour eux vaut pour tout exercice
