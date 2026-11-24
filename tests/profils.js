@@ -194,7 +194,13 @@ module.exports = {
                     /* l'écran papier ne montre pas l'énoncé : les boutons seuls,
                        la correction proposée d'emblée (Turquet, novembre 2026, DM n°4) */
                     boutonsSeuls: true },
-    dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve', boutonsSeuls: true },
+    dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve', boutonsSeuls: true,
+             /* LA CORRECTION AUX ÉTAPES DES COUPS DE POUCE (Turquet, novembre
+                2026, DM n°4) : chaque question entièrement corrigée, aucun
+                pointillé ; la fiche d'un seul écran (le 3.13) en un seul bloc */
+             pouce: ['bac-blanc-automatismes', 'augmentation-tableau-pouce', 'tracer-droite-pouce',
+                     'image-second-degre-pouce', 'frequences-probabilites-pouce', 'developper-double'],
+             ficheUnEcran: 'frequences-probabilites-pouce' },
     /* UNE NOTE QUE LA BASE REFUSE NE SE PERD PAS (novembre 2026 : « new row
        violates row-level security policy for table resultats_1ere » sous
        l'écran de fin, et la fiche gardait l'exercice suivant verrouillé). Le
