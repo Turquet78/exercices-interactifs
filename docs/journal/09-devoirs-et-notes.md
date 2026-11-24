@@ -2259,7 +2259,7 @@ au vrai bouton, toutes les réponses justes, fiche n° 13 → n − ¼ par quest
 aidée ; fiche n° 12 et devoir n° 13 → n.
 
 **Puis la Première a reçu le devoir maison SUR PAPIER, « exactement comme en
-terminale »** (Première v478, demande de Turquet, novembre 2026). Le circuit
+terminale »** (Première v479, demande de Turquet, novembre 2026). Le circuit
 de la Terminale est recopié tel quel dans `premiere-specifique.html` (bloc
 « LE DEVOIR MAISON SUR PAPIER, porté de la Terminale ») : la carte « 📄 Le
 faire sur papier » de la page des modes, l'énoncé photographié sans aide ni
