@@ -7741,14 +7741,28 @@ function dmeGroupes(){
     if(!afficherEcranDe(test.kind)) return null;
     const scr=document.querySelector('.screen.on'); if(!scr) return null;
     if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
-    const h=dmEnonceQ(scr);
+    const h=dmEnonceQ(scr)+'\u0000'+dmeEcranTexte(scr);
     g.push(h===avant&&i>0 ? g[i-1] : i); avant=h;
   }
   return g;
 }
+/* LE CONTENU DE TOUT L'ÉCRAN, sans son compteur (« Question 2 / 9 ») ni son
+   score : la photo d'énoncé ne suffit pas à dire « même question » — une
+   multiplication posée, une écriture décimale ont leurs NOMBRES dans les
+   rangées à cases, que l'énoncé papier retire, et dix questions distinctes
+   y avaient la même photo. Les valeurs des cases comptent aussi. */
+function dmeEcranTexte(scr){
+  const k=scr.cloneNode(true);
+  k.querySelectorAll('.test-top,[id$="Idx"],[id$="LiveScore"],.score-tag,[class*="mode-tag"],[id^="modeTag"]').forEach(function(e){ e.remove(); });
+  const vals=Array.prototype.map.call(scr.querySelectorAll('input,select,math-field'), function(e){ return e.value||''; }).join('|');
+  /* le HTML, pas le seul texte : la barre d'un contraire est une CLASSE
+     (.pb-bar) — « Ā ∩ B » et « Ā ∩ B̄ » avaient le même texte, et deux
+     questions de lire-probabilites se fusionnaient */
+  return (k.innerHTML||'').replace(/\s+/g,' ')+'|'+vals;
+}
 function dmEnonceHTML(){
   const n=(test.questions||[]).length; if(!n) return null;
-  const blocs=[];
+  const blocs=[], cles=[];
   for(let i=0;i<n;i++){
     test.idx=i;
     if(!afficherEcranDe(test.kind)) return null;
@@ -7758,8 +7772,8 @@ function dmEnonceHTML(){
        suite, montrait un arbre sans branches — des étiquettes flottantes. On
        les pose AVANT la photo, l'écran étant affiché. */
     if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
-    const h=dmEnonceQ(scr);
-    if(!blocs.length || blocs[blocs.length-1]!==h) blocs.push(h);
+    const h=dmEnonceQ(scr), cle=h+'\u0000'+dmeEcranTexte(scr);
+    if(!blocs.length || cles[cles.length-1]!==cle){ blocs.push(h); cles.push(cle); }
   }
   test.idx=0; afficherEcranDe(test.kind);
   return blocs.map(function(h,k){ return '<div class="dme-q">'+(blocs.length>1?'<div class="dme-qnum">Question '+(k+1)+'</div>':'')+h+'</div>'; }).join('');
@@ -8208,7 +8222,7 @@ async function dmcQuestion(i, orig, pouce){
   let photo=null, rouges=Infinity;
   /* aux coups de pouce, plus de tours : un exercice en parties (le 6.8)
      n'ouvre la suivante qu'une fois la précédente juste */
-  for(let tour=0; tour<(pouce?12:6); tour++){
+  for(let tour=0; tour<(pouce?12:8); tour++){
     test.questions[i]=JSON.parse(orig[i]);
     /* UNE QUESTION RÉDIGÉE (q.redac, le 5.3 et les exercices suivis d'une
        question rédigée) n'a pas de coup de pouce : la page ne sait pas
@@ -8273,7 +8287,10 @@ async function dmcQuestion(i, orig, pouce){
       if(Object.prototype.hasOwnProperty.call(connu,k)) return;
       if(vider[k]===1){ vider[k]=2; if(!dmcJuge(e)||dmcVide(e)){ rang[k]=(rang[k]||0); } return; }
       if(e.classList.contains('bad')){
-        if(vider[k]==null && !dmcBadgeDe(e)) vider[k]=1;
+        /* les essais D'ABORD : laissée vide trop tôt, une case que la page ne
+           juge pas vide arrêtait les tours (relier-fractions, la valeur
+           approchée) ; le vide est le dernier recours */
+        if((rang[k]||0)>=DMC_ESSAIS.length-1 && vider[k]==null && !dmcBadgeDe(e)) vider[k]=1;
         else rang[k]=(rang[k]||0)+1;
       }
     });
@@ -8283,11 +8300,15 @@ async function dmcQuestion(i, orig, pouce){
     /* une photo où la page n'a RIEN corrigé (une rédaction que seule l'IA
        relit, un tableau qui exige toutes ses cases) n'est pas une correction :
        elle redirait l'énoncé, et l'élève la croirait corrigée */
-    if(test.locked && r<rouges){
-      const h=dmCorrigeQ(scr);
-      if(/class="([^"]*\s)?(dmc-val|sol|mf-cor|[a-z0-9]+-cor)(\s|")/.test(h)){ rouges=r; photo=h; }
+    /* LA MEILLEURE PHOTO est celle qui imprime le moins de POINTILLÉS, puis
+       le moins de rouges : un tour tout faux peut être celui où la page écrit
+       la correction de toute la ligne (le calcul facultatif de
+       relier-fractions), et un tour sans rouge laisser des cases vides */
+    if(test.locked){
+      const h=dmCorrigeQ(scr), bl=(h.match(/dme-blank/g)||[]).length, cout=bl*100+r;
+      if(cout<rouges && /class="([^"]*\s)?(dmc-val|sol|mf-cor|[a-z0-9]+-cor)(\s|")/.test(h)){ rouges=cout; photo=h; }
     }
-    if(test.locked && r===0) break;
+    if(test.locked && r===0 && rouges===0) break;
     if(!appris && !choixFaux && !cases.some(function(e){ return e.classList.contains('bad'); }) && !test.locked) break;
   }
   return photo;
