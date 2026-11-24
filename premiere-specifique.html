@@ -2643,6 +2643,7 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 .dmc-val .lettre{margin-right:.45em}
 #dmcVoile{position:fixed;inset:0;z-index:10000;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center}
 .dmc-voile-boite{font-weight:800;color:var(--ink);font-size:1.1rem}
+#dmeCorps[hidden]{display:none!important}
 .dme-corps .lv-tblwrap{overflow-x:auto}
 .papier-seul{display:none}
 .dme-corps .papier-seul,.dme-pdf .papier-seul{display:revert}
@@ -4278,7 +4279,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=479;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=480;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7367,7 +7368,7 @@ async function openTestDevoir(devoirId, testId){
      modes réglés, et en DERNIER. */
   if(dev && (dev.genre||'dm')==='dm')
     cards += cardHTML('📄','Le faire sur papier',
-      'Je recopie l’énoncé sur ma feuille. Tu verras l’énoncé complet, et tu confirmeras avant qu’il parte à ton professeur : c’est cette version-là qu’il corrigera.'
+      'Je télécharge l’énoncé en PDF et je rédige sur ma feuille. Tu confirmeras avant qu’il parte à ton professeur : c’est cette version-là qu’il corrigera.'
         +(dev.correction===true?' Sa correction en PDF t’est aussi proposée.':''),
       `dmePapierOuvrir('${escJS(devoirId)}','${escJS(testId)}')`);
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
@@ -7441,7 +7442,7 @@ async function dmEnonce(devoirId, testId){
     dmeCtx={devoirId:devoirId, testId:testId, envoye:false, choix:true};
     $('dmeTitre').innerHTML='📄 '+esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
     $('dmeIntro').textContent='Choisis d’abord ton exercice : son énoncé, en version papier, s’affichera ensuite.';
-    $('dmeCorps').innerHTML=t.papierChoix();
+    $('dmeCorps').innerHTML=t.papierChoix(); $('dmeCorps').hidden=false;
     $('dmeActions').innerHTML='<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
     show('dmenonce');
     return true;
@@ -7468,11 +7469,17 @@ function dmEnonceMontrer(devoirId, testId){
   const devNom=dev&&dev.num!=null?GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'Devoir';
   dmePdfPoser(devNom+' — '+testLabel(testId), (currentEleve&&currentEleve.prenom)||'');
   $('dmeTitre').innerHTML='📄 '+esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
-  $('dmeIntro').textContent='Voici ton énoncé, en version papier : l’énoncé et toutes les questions, à rédiger sur ta feuille. Télécharge-le en PDF pour l’imprimer : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.'
-    +(dmAvecCorrection(devoirId)?' Une fois l’énoncé téléchargé, tu pourras aussi télécharger sa correction.':'');
-  $('dmeCorps').innerHTML=corps;
+  /* L'ÉNONCÉ NE S'AFFICHE PLUS À L'ÉCRAN : juste après « Le faire sur
+     papier », les boutons de téléchargement seuls (demande de Turquet,
+     novembre 2026, DM n°4). La photo reste dans #dmeCorps, cachée : c'est
+     elle que le PDF met en page. */
+  const corr=dmAvecCorrection(devoirId);
+  $('dmeIntro').textContent='Télécharge ton énoncé en PDF pour l’imprimer, et rédige sur ta feuille : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.'
+    +(corr?' Tu peux aussi télécharger sa correction en PDF.':'');
+  $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=true;
   $('dmeActions').innerHTML=
     '<button class="btn btn-primary" id="dmePapierBtn" onclick="dmePapier()">📥 Télécharger mon énoncé en PDF</button>'
+   +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
    +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
   show('dmenonce');
   return true;
@@ -7741,16 +7748,26 @@ function dmeRetour(){
   if(!c){ retourSignalements(); return; }      /* vue professeur : retour aux signalements, au même endroit */
   currentDM=null; ouvrirDevoirDetail(c.devoirId);
 }
+/* Le bouton de l'énoncé : l'envoi (confirmé), puis le PDF de l'énoncé. */
 async function dmePapier(){
-  const c=dmeCtx; if(!c||c.envoye) return;
+  if(await dmeEnvoyer()) dmePdf();
+}
+/* L'envoi au professeur, une seule fois : par le bouton de l'énoncé OU par
+   celui de la correction — les deux sont proposés d'emblée, et une correction
+   téléchargée sans envoi laisserait au professeur une feuille dont il n'a
+   pas l'énoncé. Rend true quand l'énoncé est (ou était déjà) parti. */
+async function dmeEnvoyer(){
+  const c=dmeCtx; if(!c) return false; if(c.envoye) return true;
+  if(c.envoiEnCours) return false;
   /* L'ENVOI NE SE DÉFAIT PAS, ET C'EST TOUTE LA RAISON DE LA CONFIRMATION :
      le professeur reçoit une ligne que l'élève ne peut pas retirer, et un clic
      parti tout seul lui laisserait l'énoncé d'un devoir que personne ne rendra.
      confirm() est la convention du fichier pour un geste irréversible côté
      élève — c'est déjà celle de « Abandonner cet exercice ». */
-  if(!confirm('Télécharger ton énoncé en PDF ?\n\nTon professeur en recevra le même exemplaire, avec ton prénom : c’est cette version-là qu’il corrigera.')) return;
+  if(!confirm('Télécharger ton énoncé en PDF ?\n\nTon professeur en recevra le même exemplaire, avec ton prénom : c’est cette version-là qu’il corrigera.')) return false;
   const bp=$('dmePapierBtn');
   if(bp) bp.disabled=true;
+  c.envoiEnCours=true;
   const dev=(mesDevoirs||[]).find(function(d){ return d.id===c.devoirId; });
   const payload=signalementPayload('DM sur papier — '+((currentEleve&&currentEleve.prenom)||'élève')
     +(dev&&dev.num!=null?' — '+GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'')+' — '+testLabel(c.testId), null);
@@ -7762,8 +7779,8 @@ async function dmePapier(){
        laisserait l'élève rendre une feuille dont le professeur n'a pas
        l'énoncé — le refus muet, encore. */
     const {error}=await sb.from(TABLE_SIG).insert(payload);
-    if(error){ toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return; }
-    c.envoye=true;
+    if(error){ c.envoiEnCours=false; toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return false; }
+    c.envoye=true; c.envoiEnCours=false;
     const corr=dmAvecCorrection(c.devoirId);
     $('dmeIntro').textContent='Ton professeur a reçu cet énoncé, avec ton prénom. Imprime le PDF et réponds sur la feuille : c’est cette version-là qu’il corrigera.'
       +(corr?' Sa correction se télécharge aussi : tu la retrouveras ici chaque fois que tu reviendras sur cet exercice.':' Tu le retrouveras ici chaque fois que tu reviendras sur cet exercice.');
@@ -7772,10 +7789,10 @@ async function dmePapier(){
       +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
       +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
     toast('Énoncé envoyé au professeur','ok');
-    /* PAS d'await : le PDF se prépare (bibliothèques, rendu) pendant que
-       l'élève lit la confirmation, et son échec se dit par lui-même */
-    dmePdf();
-  }catch(e){ toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; }
+    /* l'appelant lance le PDF SANS await : il se prépare (bibliothèques,
+       rendu) pendant que l'élève lit la confirmation */
+    return true;
+  }catch(e){ c.envoiEnCours=false; toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; return false; }
 }
 /* UN REFUS DE LA BASE DEVANT UN ÉLÈVE SE NOMME. « new row violates
    row-level security policy for table "signalements" », lu tel quel, ne dit
@@ -7816,7 +7833,7 @@ function voirEnonceDM(id){
   dmeCtx=null;
   $('dmeTitre').textContent='📄 '+(r.prenom||'élève')+' — '+testLabel(r.exercice);
   $('dmeIntro').textContent='Voici l’énoncé exact que cet élève a reçu pour son devoir sur papier : c’est cette version-là qu’il traite sur sa feuille. Le PDF est celui qu’il a téléchargé.';
-  $('dmeCorps').innerHTML=corps;
+  $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=false;     /* le professeur, lui, le LIT */
   dmePdfPoser(String(r.message||'').replace(/^DM sur papier — [^—]*— /,'')||testLabel(r.exercice), r.prenom||'');
   $('dmeActions').innerHTML=dmePdfBouton('📥 Télécharger le PDF')
     +dmcPdfBouton('📥 PDF de la correction')
@@ -7906,9 +7923,9 @@ function dmeRevoir(r, devoirId){
   const corr=dmAvecCorrection(devoirId);
   let quand=''; try{ const t=new Date(r.created_at); if(!isNaN(t.getTime())) quand=' le '+t.toLocaleDateString('fr-FR'); }catch(e){}
   $('dmeTitre').innerHTML='📄 '+esc(testLabel(r.exercice))+(dmBonusCourant()?' '+dmBonusBadge():'');
-  $('dmeIntro').textContent='Voici l’énoncé que tu as reçu'+quand+' pour ce devoir sur papier : c’est cette version-là que ton professeur corrigera.'
+  $('dmeIntro').textContent='Ton énoncé de ce devoir sur papier'+(quand?', reçu'+quand:'')+', se télécharge en PDF : c’est cette version-là que ton professeur corrigera.'
     +(corr?' Sa correction se télécharge aussi.':'');
-  $('dmeCorps').innerHTML=corps;
+  $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=true;      /* les boutons seuls, comme au premier passage */
   $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé déjà envoyé au professeur</span>'
     +dmePdfBouton('📥 Télécharger mon énoncé en PDF')
     +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
@@ -8172,6 +8189,8 @@ async function dmCorrigeHTML(){
   return faites ? out : null;
 }
 async function dmcPdf(){
+  /* proposée avant l'envoi : l'élève passe d'abord par l'envoi confirmé */
+  if(dmeCtx && !dmeCtx.envoye && !(await dmeEnvoyer())) return;
   const i=dmePdfInfo; if(!i || i.corEnCours) return;
   if(i.corBlob){ dmeTelecharger(i.corBlob, dmePdfNom('correction')); return; }
   const bt=$('dmcPdfBtn'), lib=bt?bt.textContent:'';
