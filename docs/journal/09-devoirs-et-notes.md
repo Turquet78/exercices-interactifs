@@ -2370,17 +2370,28 @@ page corrige.
   est relu comme sa réponse au tour suivant (`dmcBadgeNombre` ; l'option d'un
   menu dont le texte est celui du badge, la barre d'un contraire comprise) :
   les MIROIRS qui recopient la case (`.sui-mir` du 7.3) imprimaient « 0 » ;
-* une case fausse SANS badge est laissée VIDE au tour suivant
-  (`marqueFracDec` n'écrit sa correction que dans une case vide : la fraction
-  décimale du 8.1 restait en pointillés) ;
+* une case fausse SANS badge, ses cinq essais épuisés, est laissée VIDE au
+  tour suivant (`marqueFracDec` n'écrit sa correction que dans une case
+  vide : la fraction décimale du 8.1 restait en pointillés) — les essais
+  D'ABORD : laissée vide trop tôt, une case que la page ne juge pas vide
+  arrêtait les tours (premier essai : relier-fractions 0 → 10 pointillés) ;
+* la photo retenue est celle qui imprime le moins de POINTILLÉS, puis le
+  moins de rouges : le tour tout faux de relier-fractions est celui où la
+  page écrit la correction de toute la ligne, calcul facultatif compris ;
+  8 tours au lieu de 6 ;
 * ce que les tours apprennent se range par l'IDENTIFIANT de la case
   (`dmcCles`), plus par sa place : au 6.8, dont les parties s'ouvrent une à
   une, une valeur apprise se posait dans une autre case (« x », « −5 ») ;
   12 tours aux coups de pouce au lieu de 6 ;
 * une FICHE D'UN SEUL ÉCRAN (le 3.13 : neuf questions, un tableau) se
   photographiait neuf fois, à l'énoncé comme à la correction : une question
-  dont la photo d'énoncé est celle de la précédente rejoint son bloc
-  (`dmeGroupes`) ;
+  dont l'écran ENTIER est celui de la précédente — son HTML sans le compteur
+  ni le score, et les valeurs de ses cases — rejoint son bloc (`dmeGroupes`,
+  `dmeEcranTexte`). La photo d'énoncé seule ne suffit pas (premier essai :
+  la multiplication posée, l'écriture décimale ont leurs NOMBRES dans les
+  rangées à cases, et dix questions distinctes s'y fondaient en une), ni le
+  texte seul (« Ā ∩ B » et « Ā ∩ B̄ » : la barre est une classe). Les fiches
+  des 3.2, 3.4, 3.10, 3.11 et 3.13 ne s'impriment plus sept à neuf fois ;
 * la photo perd la pose facultative (`.pose-fac`, `.pt-opt` : « 0 − 0 »), les
   pastilles ✓/✗ des réponses d'essai (`.pbf-m`), la zone de rédaction de la
   question suivante (`.sfr-prompt`), les phrases « Bloqué ? Le bouton Coup de
@@ -2389,7 +2400,10 @@ page corrige.
   valeur a la taille de sa case et l'encadré vert (`dmc-cadre`), un nombre
   s'écrit tel quel (« 4,82 », pas « 4, 82 ») ; la règle du 6.8 passe à la
   ligne sur la page au lieu d'y être coupée.
-Mesuré dans Chromium sur les six exercices du DM n°4 : toutes les questions
+*Mesuré sur les 86 exercices du menu*, `main` contre la branche, même tirage
+(`Math.random` semé) : les pointillés de la correction passent de 211 à 19,
+les questions « avec ton professeur » de 3 à 1, 41 exercices s'améliorent,
+aucun ne régresse. Mesuré dans Chromium sur les six exercices du DM n°4 : toutes les questions
 corrigées, aucun pointillé, aucun miroir à la réponse d'essai ; PDF relus page
 par page (le 3.13 tient sur deux pages au lieu de quatorze). Banc navigateur,
 6 sexies ter (`dmPdf.pouce`, `dmPdf.ficheUnEcran`).
