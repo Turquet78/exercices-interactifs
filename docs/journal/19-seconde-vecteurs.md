@@ -7299,3 +7299,60 @@ voisine d'un entier, la suite des étapes selon la fraction obtenue, les quatre
 propositions ; la copie juste par d'autres routes (dénominateur double,
 somme dans l'autre ordre, entier écrit en fraction) ; une copie écrite se
 recopie ; la proposition vraie qui ne conclut pas.
+
+## {centre-gravite-vecteurs} — le point G tel que GA⃗ + GB⃗ + GC⃗ = 0⃗ (8.2.19, Seconde v725)
+
+**La demande** (Turquet, novembre 2026, avec la fiche « G triangle ») : « en
+seconde créer un exercice dans somme de vecteurs, avec un triangle ABC sur un
+quadrillage sans repère, un point G que l'on peut déplacer, et les vecteurs
+GA, GB, GC qui sont tracés. Demander à l'élève de placer le point G pour que
+GA + GB + GC = 0 vectoriellement. Tant qu'il n'a pas réussi, mettre en rouge
+le point G. Quand il a réussi, lui demander de déplacer les trois vecteurs
+pour montrer que la somme fait 0. Faire en sorte que le triangle soit
+suffisamment grand pour que chaque vecteur GA, GB, GC ait au moins 6 carreaux
+de longueur. »
+
+**Deux étapes, deux réponses** (`cgvJuge`), sur le quadrillage des flèches du
+8.2.15 (`.svc-svg`, `svcFleche`) — mais sans repère, 22 × 16 carreaux :
+
+1. `cgv-g` — G se fait **glisser** (prise ronde, `cgv-prise-g`), ou un clic
+   sur un nœud l'y porte ; les trois flèches le suivent. G est **rouge dans
+   tous les modes** tant qu'il n'est pas à sa place (`cgv-g-faux` — la demande,
+   pas le rouge du soutien) ; à sa place, il passe au **bleu** et ne bouge
+   plus (le glisser s'arrête sous la main). L'étape 2 s'ouvre.
+2. `cgv-ch` — les trois flèches glissent comme au 8.2.15 (prise sur le trait,
+   nœud par nœud, retenues dans le quadrillage) ; une flèche peut rester où
+   elle est. Bout à bout dans l'ordre qu'on veut (`cgvChaine`), la troisième
+   revient au départ de la première : la page l'écrit (`#cgvBilan`) et
+   entoure ce point. Une trace pâle G→sommet reste pour chaque flèche
+   déplacée — la figure ne perd pas son triangle.
+
+**Le tirage** (`cgvGen`) : G entier, et GA⃗ + GB⃗ + GC⃗ = 0⃗ par
+construction ; chaque flèche fait de 6 à 10 carreaux ; le triangle n'est pas
+aplati (|GA⃗ × GB⃗| ≥ 30 — pour trois vecteurs de somme nulle, les trois
+produits vectoriels sont égaux, une seule condition suffit) ; les sommets à
+un carreau du bord ; la boucle verte de la correction (GB⃗ recopié en A,
+puis GC⃗ qui revient en G) tient dans le quadrillage ; G part à quatre
+carreaux au moins de sa place et à deux des sommets. On range la figure
+(`a`, `b`, `c`, `g0`) et les gestes (`g` — dans `CLE_HORS` —, `ap`, `bp`,
+`cp`), jamais la réponse : la place de G se recalcule (`cgvCentre`).
+
+**Le soutien** : le cadre de l'étape 2 ne rougit (`ROUGE_A_LA_POSE.cgv`)
+qu'à partir de DEUX flèches déplacées qui ne se suivent pas — une flèche
+posée au bout de GA⃗ n'est pas encore une erreur. G, lui, est déjà rouge par
+son dessin. **La correction** : G en vert à sa place s'il n'y était pas, et
+la boucle des trois flèches en vert pointillé.
+
+**Pas de barre « Je place »** : il n'y a ni `cgvPose` ni `cgvClic` — G est
+le seul point, un toucher l'y porte sans ambiguïté, et les flèches se
+glissent au doigt (`touch-action:none` sur les deux prises).
+
+**Les bancs** : `centreGraviteVecteurs` (banc principal) — 300 séances au
+tirage relu par sa propre arithmétique (au moins `long: 6` carreaux par
+flèche), le dessin relu (quadrillage sans repère, triangle, A, B, C, GA, GB,
+GC), G rouge puis bleu et figé, les flèches qui n'attendent pas G, la chaîne
+dans deux ordres, après le JSON de la pause, la copie vide en vert, G faux
+nommé, le soutien ; « 6 quadragies terdecies » (banc navigateur) — G glissé
+à la souris, rouge puis bleu aux encres rendues, GB⃗ et GC⃗ glissés au bout
+de GA⃗, la copie juste, G porté au clic sur un mauvais nœud et sa correction
+verte.
