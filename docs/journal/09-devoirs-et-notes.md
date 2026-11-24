@@ -2321,3 +2321,32 @@ bords propres à la Terminale (le 1.2 et son écran de niveau, le système
 d'équations) s'y déclarent. **Ce qu'aucun banc ne voit** : la mise en page de
 chaque PDF de la Première ; un exercice de la Première relu sur son PDF est
 le seul juge de ce que l'heuristique garde.
+
+**Puis l'écran papier de la Première n'a plus montré l'énoncé : les boutons
+seuls, la correction proposée d'emblée** (Première v480, demande de Turquet,
+novembre 2026, pour le DM n°4 : « que l'élève puisse télécharger le PDF de la
+correction comme dans le DM n°13 de Terminale ; que les boutons télécharger
+l'énoncé et télécharger la correction apparaissent sans voir l'énoncé à
+l'écran juste après avoir cliqué sur le faire sur papier »).
+*La correction d'un devoir* reste l'option « Avec correction » de l'éditeur :
+elle se coche sur le devoir lui-même (la base, pas la page), et aucun banc ne
+la coche à la place du professeur.
+*L'écran* : la photo de l'énoncé reste dans `#dmeCorps` — le PDF en est la
+mise en page (`dmePdfFabriquer` lit son `innerHTML`) — mais `hidden`, au
+premier passage (`dmEnonceMontrer`) comme au retour (`dmeRevoir`) ; la vue du
+professeur (`voirEnonceDM`) et les cartes d'un exercice à choix
+(`papierChoix`) le gardent visible. Le bouton de la correction vient dès
+l'ouverture quand le devoir a l'option.
+*La correction avant l'énoncé* : une correction téléchargée sans envoi
+laisserait au professeur une feuille dont il n'a pas l'énoncé. L'envoi
+confirmé devient `dmeEnvoyer()`, appelé par le bouton de l'énoncé
+(`dmePapier`, puis le PDF de l'énoncé) ET par celui de la correction
+(`dmcPdf`, puis le PDF de la correction) ; une seule ligne part, un second
+appel pendant l'envoi ne repart pas (`envoiEnCours`). La Terminale garde
+l'énoncé à l'écran (non demandé).
+Bancs : jsdom, « le devoir sur papier… » (profil `devoirPapier.boutonsSeuls`) —
+l'énoncé caché, aucun bouton de correction sans l'option, le bouton d'emblée
+avec elle, la correction refusée à la confirmation n'envoie rien ; navigateur,
+6 sexies ter (`dmPdf.boutonsSeuls`) — corps de hauteur nulle mais plein, les
+deux boutons visibles, la correction cliquée la première envoie l'énoncé puis
+télécharge un vrai PDF.

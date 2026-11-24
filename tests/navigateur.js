@@ -3549,6 +3549,37 @@ if(require.main === module) (async () => {
           pc ? pc.nom + ' : ' + pc.octets + ' octets, ' + pc.pages + ' page(s)'
              : 'aucun téléchargement — la page dit « ' + await s.page.evaluate(() => document.getElementById('toast').textContent) + ' »');
       }
+      /* LES BOUTONS SEULS (Première, Turquet, novembre 2026, DM n°4) : juste
+         après « Le faire sur papier », l'écran ne montre PAS l'énoncé — il
+         reste dans #dmeCorps, caché, pour le PDF — mais les deux boutons, et
+         la correction se télécharge AVANT l'énoncé : l'envoi confirmé d'abord. */
+      if(DP.boutonsSeuls){
+        await s.page.evaluate(() => { dmeRetour(); window.__faux.semer(TABLE_SIG, []); });
+        await s.page.waitForTimeout(1500);        /* dmeRetour recharge les devoirs en différé : on pose le nôtre APRÈS */
+        await s.page.evaluate(ex => {
+          mesDevoirs = [{ id:'dm-pdf-b', num:4, actif:true, titre:'Devoir du banc', correction:true, exercices:[{ id:ex, modes:['train'] }] }]; }, DP.exercice);
+        await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf-b', ex), DP.exercice);
+        await s.page.waitForTimeout(1200);
+        const vu = await s.page.evaluate(() => {
+          const c = document.getElementById('dmeCorps'), r = c.getBoundingClientRect();
+          const vis = id => { const b = document.getElementById(id); return !!b && b.getClientRects().length > 0; };
+          return { ecran: (document.querySelector('.screen.on') || {}).id, haut: r.height, plein: c.textContent.length,
+                   enonce: vis('dmePapierBtn'), corr: vis('dmcPdfBtn') };
+        });
+        verifier('juste après « Le faire sur papier », l\'énoncé ne s\'affiche pas : les boutons de l\'énoncé et de la correction seuls',
+          vu.ecran === 'scr-dmenonce' && vu.haut === 0 && vu.plein > 0 && vu.enonce && vu.corr, JSON.stringify(vu));
+        await s.page.screenshot({ path: path.join(require('os').tmpdir(), 'papier-boutons-seuls.png') }).catch(() => {});
+        const [dlB] = await Promise.all([
+          s.page.waitForEvent('download', { timeout: 90000 }).catch(() => null),
+          s.page.click('#dmcPdfBtn'),
+        ]);
+        const pb = await lirePdf(dlB);
+        const envoiB = await s.page.evaluate(() => (window.__faux.journal || []).filter(j => j.op === 'insert' && j.table === TABLE_SIG
+          && j.lignes[0].contexte && j.lignes[0].contexte.dm === 'dm-pdf-b').length);
+        verifier('la correction téléchargée avant l\'énoncé : l\'énoncé part d\'abord au professeur, puis un vrai PDF de correction',
+          envoiB === 1 && !!pb && pb.entete === '%PDF-' && /^correction-/.test(pb.nom),
+          'envois ' + envoiB + ', ' + (pb ? pb.nom + ' ' + pb.octets + ' octets' : 'aucun téléchargement'));
+      }
       /* LA MISE EN PAGE SURVIT À LA PHOTO — trois défauts du DM n°13
          (Turquet, novembre 2026), aucun propre à un exercice, tenus ici sur
          des écrans FABRIQUÉS : ce qui vaut pour eux vaut pour tout exercice

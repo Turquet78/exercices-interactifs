@@ -190,8 +190,11 @@ module.exports = {
        guidage de l'écran (« Choisis la valeur initiale ») qui part. Le papier
        n'est qu'un choix du DEVOIR MAISON : ni fiche, ni évaluation. */
     devoirPapier: { exercice: 'pourcentage-depart', questions: 4, texte: 'Retrouve',
-                    aide: 'Choisis la valeur initiale', sansPapier: ['fiche', 'eval'] },
-    dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve' },
+                    aide: 'Choisis la valeur initiale', sansPapier: ['fiche', 'eval'],
+                    /* l'écran papier ne montre pas l'énoncé : les boutons seuls,
+                       la correction proposée d'emblée (Turquet, novembre 2026, DM n°4) */
+                    boutonsSeuls: true },
+    dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve', boutonsSeuls: true },
     /* UNE NOTE QUE LA BASE REFUSE NE SE PERD PAS (novembre 2026 : « new row
        violates row-level security policy for table resultats_1ere » sous
        l'écran de fin, et la fiche gardait l'exercice suivant verrouillé). Le

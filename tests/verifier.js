@@ -7187,6 +7187,24 @@ function devoirPapierClique(w, apres){
       vus.push('la version papier propose encore de lancer l\\'exercice sur l\\'ordinateur — le choix vit sur la page des modes');
     if(!document.querySelector('#dmeActions button[onclick*="dmePapier()"]'))
       vus.push('la version papier ne propose pas l\\'envoi au professeur');
+    /* LES BOUTONS SEULS (Première, novembre 2026, DM n°4) : l'énoncé reste
+       dans #dmeCorps — le PDF en est la photo — mais caché ; et la correction
+       se propose d'emblée, avant l'envoi, quand le devoir l'a */
+    if(D.boutonsSeuls){
+      if(!document.getElementById('dmeCorps').hidden) vus.push('l\\'écran papier montre l\\'énoncé — il ne doit montrer que les boutons de téléchargement');
+      if(document.getElementById('dmcPdfBtn')) vus.push('sans l\\'option « avec correction », l\\'écran papier propose une correction');
+      const corrAvant=mesDevoirs[0].correction; mesDevoirs[0].correction=true;
+      await dmePapierOuvrir('dev-1',D.exercice);
+      if(!document.getElementById('dmcPdfBtn')) vus.push('avec l\\'option, le bouton de la correction n\\'est pas proposé dès l\\'ouverture du papier');
+      if(!document.getElementById('dmeCorps').hidden) vus.push('avec l\\'option, l\\'écran papier montre l\\'énoncé');
+      /* la correction avant l'envoi : l'envoi confirmé d'abord, refusé il n'y a rien */
+      repondOui=false; demandes=0;
+      await dmcPdf();
+      if(demandes!==1) vus.push('la correction demandée avant l\\'envoi ne passe pas par l\\'envoi confirmé ('+demandes+' demande(s))');
+      if(envois().length!==0) vus.push('la correction, confirmation refusée, envoie quand même l\\'énoncé');
+      if(corrAvant===undefined) delete mesDevoirs[0].correction; else mesDevoirs[0].correction=corrAvant;
+      await dmePapierOuvrir('dev-1',D.exercice);
+    }
 
     /* ---- 3. L'ENVOI SE CONFIRME — et refusée, la confirmation n'envoie RIEN ----
        C'est le bord qui compte : le professeur reçoit une ligne que l'élève ne
