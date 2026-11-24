@@ -21774,6 +21774,88 @@ if(require.main === module) (async () => {
       }
       await s.nav.close(); s = null;
     }
+    /* ---- 11 duovicies. Fiche de travail n° 13, en soutien : la case rougit
+       quand on la quitte, et le rouge s'en va quand on la reclique ----
+       Demande de Turquet (novembre 2026), pour la Première : « dans la fiche
+       de travail n° 13, en mode soutien, les cases à compléter deviennent
+       rouges après avoir validé cette case, par exemple quand on passe à la
+       suivante ; si l'élève reclique sur la case rouge il faut enlever le
+       rouge ». Témoins : le 3.13, qui n'avait AUCUNE correction en direct
+       (checkPBFicheLive, dans cette fiche seulement), et le 6.8, une case en
+       texte que la correction d'une voisine repeint juste après le clic.
+       Les deux bords : la fiche n° 12 garde le 3.13 sans couleur en direct, et
+       le rouge que « Vérifier » pose sous le curseur se voit. */
+    titre('11 duovicies. FICHE N° 13, SOUTIEN : LA CASE ROUGIT EN LA QUITTANT, ET LE CLIC LÈVE LE ROUGE');
+    {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1280, height: 900 } });
+      const present = await s.page.evaluate(() => typeof TESTS !== 'undefined' && !!TESTS['frequences-probabilites-pouce'] && !!TESTS['tracer-droite-pouce']);
+      if(!present){
+        ignorer('dans la fiche n° 13, en soutien, la case rougit quand on la quitte et le clic lève le rouge', 'ce niveau n\'a pas les 3.13 et 6.8 (Première)');
+      } else {
+        const p = s.page;
+        await connecter(p);
+        const fiche = num => p.evaluate(n => { window.confirmerCasesVides = false; mesDevoirs = [{ id: 'fiche_banc', genre: 'fiche', actif: true, num: n, titre: 'Fiche du banc',
+          exercices: [{ id: 'frequences-probabilites-pouce', nbQ: 2, smax: 5 }, { id: 'tracer-droite-pouce', nbQ: 2, smax: 5 }] }]; }, num);
+        const lancer = async id => { await p.evaluate(i => lancerDevoirExo('fiche_banc', i, 'soutien'), id); await p.waitForTimeout(1200); };
+        const rouge = id => p.$eval('#' + id, e => e.classList.contains('bad'));
+        const bleu = id => p.$eval('#' + id, e => e.classList.contains('ok'));
+        const taper = async (id, t) => { await p.click('#' + id);
+          await p.waitForFunction(i => document.activeElement && document.activeElement.id === i, id, { timeout: 3000 });
+          await p.keyboard.type(t, { delay: 20 }); await p.waitForTimeout(200);
+          return p.$eval('#' + id, e => String(e.value || '').replace(/\s/g, '')); };
+        const R = {}; let souci = '';
+        try{
+          await fiche(13); await lancer('frequences-probabilites-pouce');
+          const att = await p.evaluate(() => { const o = {}; test.questions.forEach((q, i) => Object.assign(o, pbfAttendus(q, i))); return o; });
+          const [c0, c1] = Object.keys(att).filter(k => /^pb-c/.test(k));
+          const faux = String(+att[c1] + 7);
+          R.tape0 = await taper(c0, String(att[c0])) === String(att[c0]);
+          R.tape1 = await taper(c1, faux) === faux;
+          R.pendant = await rouge(c1);
+          await p.click('#' + c0); await p.waitForTimeout(400);
+          R.juste = await bleu(c0); R.quittee = await rouge(c1);
+          await p.click('#' + c1); await p.waitForTimeout(400);
+          R.recliquee = await rouge(c1);
+          await p.click('#' + c0); await p.waitForTimeout(400);
+          R.requittee = await rouge(c1);
+          await p.click('#pbActions button'); await p.waitForTimeout(500);
+          R.verifieeSousCurseur = await p.evaluate(() => { const a = document.activeElement; return !!a && a.classList.contains('bad'); });
+          await p.click('#' + c1); await p.waitForTimeout(400);
+          R.recliqueeApres = await rouge(c1);
+          /* le 6.8 : une ligne rédigée en texte */
+          await lancer('tracer-droite-pouce');
+          await taper('trd-l-i1-0', '987'); await p.click('#trd-l-i2-0'); await p.waitForTimeout(400);
+          R.trdQuittee = await rouge('trd-l-i1-0');
+          await p.click('#trd-l-i1-0'); await p.waitForTimeout(400);
+          R.trdRecliquee = await rouge('trd-l-i1-0');
+          await p.click('#trd-l-i2-0'); await p.waitForTimeout(400);
+          R.trdRequittee = await rouge('trd-l-i1-0');
+          /* l'autre bord : une autre fiche ne change rien */
+          await fiche(12); await lancer('frequences-probabilites-pouce');
+          const att2 = await p.evaluate(() => { const o = {}; test.questions.forEach((q, i) => Object.assign(o, pbfAttendus(q, i))); return o; });
+          const [d0, d1] = Object.keys(att2).filter(k => /^pb-c/.test(k));
+          await taper(d1, String(+att2[d1] + 7)); await p.click('#' + d0); await p.waitForTimeout(400);
+          R.autreFiche = await rouge(d1);
+          await lancer('tracer-droite-pouce');
+          await taper('trd-l-i1-0', '987'); await p.click('#trd-l-i2-0'); await p.waitForTimeout(400);
+          await p.click('#trd-l-i1-0'); await p.waitForTimeout(400);
+          R.autreFicheTrd = await rouge('trd-l-i1-0');
+        }catch(e){ souci = e.message; }
+        const dit = souci || JSON.stringify(R);
+        verifier('fiche n° 13, soutien, 3.13 : rien ne rougit pendant la frappe ; la case quittée rougit, la case juste bleuit',
+          R.tape0 && R.tape1 && R.pendant === false && R.quittee === true && R.juste === true, dit);
+        verifier('fiche n° 13, soutien, 3.13 : recliquer la case rouge enlève le rouge, la quitter sans rien changer le remet',
+          R.recliquee === false && R.requittee === true, dit);
+        verifier('fiche n° 13, soutien, 3.13 : après « Vérifier », la case rouge où la page pose le curseur reste rouge ; un clic la lève',
+          R.verifieeSousCurseur === true && R.recliqueeApres === false, dit);
+        verifier('fiche n° 13, soutien, 6.8 : la ligne quittée rougit, le clic lève le rouge, la quitter le remet',
+          R.trdQuittee === true && R.trdRecliquee === false && R.trdRequittee === true, dit);
+        verifier('une autre fiche (n° 12) ne change rien : pas de correction en direct au 3.13, le rouge du 6.8 reste au clic',
+          R.autreFiche === false && R.autreFicheTrd === true, dit);
+        verifier('la fiche n° 13 en soutien ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      }
+      await s.nav.close(); s = null;
+    }
   } catch(e){
     verifier('le parcours se déroule sans incident', false, e.message);
   } finally {

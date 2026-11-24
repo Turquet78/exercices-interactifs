@@ -5485,6 +5485,7 @@ function liveCheckCurrent(){
   else if(k==='isdl') checkIsdlAnswer(true);
   else if(k==='sui') checkSuiAnswer(true);
   else if(k==='suil') checkSuil(true);
+  else if(k==='pb') checkPBAnswer(true);   /* ne colore qu'au 3.13 de la fiche n° 13 (checkPBFicheLive) */
   else if(k==='tsf') checkTsfAnswer(true);
   else if(k==='evs') checkEvsAnswer(true);
   else if(k==='bsd') checkBsdAnswer(true);
@@ -27325,8 +27326,10 @@ function pbFracJuger(att, verd, suf){
 }
 function checkPBAnswer(live){
   if(test.locked) return;
-  /* Rien à colorer pendant que l'élève choisit : voir l'en-tête du bloc. */
-  if(live) return;
+  /* Rien à colorer pendant que l'élève choisit : voir l'en-tête du bloc —
+     sauf au 3.13 dans la fiche de travail n° 13, où une case ÉCRITE se juge
+     quand l'élève la quitte (checkPBFicheLive). */
+  if(live){ if(fpbPouce() && rougeSortieActive()) checkPBFicheLive(); return; }
   if(pbEstFiche() || fpbEstFiche()){ checkPBFiche(); return; }
   const q=test.questions[test.idx], att=pbAttendus(q), ids=Object.keys(att), soutien=isSoutien();
   const verd={}; let allOk=true, vide=false;
@@ -27497,6 +27500,34 @@ function renderPBFiche(){
       : '<li class="pbf-q" id="pbf-q'+i+'"><div class="pbf-txt"><span class="pbf-num">'+(i+1)+'.</span>'+txt(q)+'</div>'+ligne(q,i)+'</li>').join('')
    +'</ol>';
   pbAffMaj();
+}
+/* LA FICHE DE TRAVAIL N° 13, EN SOUTIEN : une case écrite du 3.13 rougit
+   quand l'élève la QUITTE (demande de Turquet, novembre 2026 : « les cases à
+   compléter deviennent rouges après avoir validé cette case, par exemple quand
+   on passe à la suivante »). Ailleurs le 3.13 reste sans correction en direct
+   (soutienEnDirect.sans) : c'est la fiche qui le demande, pas l'exercice.
+   Les LISTES ne se colorent jamais en direct — la bonne lettre se trouverait
+   par élimination, la raison de la règle ; seules les cases où l'élève ÉCRIT
+   se jugent. Une case vide reste sans couleur, et une moitié de fraction dont
+   l'autre moitié est vide aussi : 6 sur □ peut devenir 6/20, égale à 3/10, et
+   « toute fraction égale est juste ». Rien n'est verrouillé ni compté : c'est
+   « Vérifier » qui note. Le garde (gardeSurveiller) retient la couleur de la
+   case qu'on écrit et la pose à la sortie. */
+function checkPBFicheLive(){
+  if(test.locked || !isSoutien()) return;
+  const qs=test.questions||[], att={};
+  qs.forEach((q,i)=>Object.assign(att, pbfAttendus(q,i)));
+  const verd={}, ids=Object.keys(att).filter(id=>{ const el=$(id); return el && el.tagName!=='SELECT' && !el.disabled && !el.classList.contains('sol'); });
+  ids.forEach(id=>{ verd[id]=(pbLu(id)===att[id]); });
+  qs.forEach((q,i)=>pbFracJuger(att, verd, '-'+i));
+  const moitie={};
+  qs.forEach((q,i)=>PB_FRAC_PAIRES.forEach(([a0,b0])=>{
+    const a=a0+'-'+i, b=b0+'-'+i;
+    if((a in att) && (b in att) && (pbLu(a)==='' || pbLu(b)==='')){ moitie[a]=1; moitie[b]=1; }
+  }));
+  ids.forEach(id=>{ const el=$(id);
+    if(pbLu(id)==='' || moitie[id]){ el.classList.remove('ok','bad'); return; }
+    el.classList.toggle('ok', !!verd[id]); el.classList.toggle('bad', !verd[id]); });
 }
 function checkPBFiche(){
   const qs=test.questions, soutien=isSoutien(), att={}, parQ=[];
@@ -32824,6 +32855,69 @@ document.addEventListener('input',e=>{
   if(!currentEleve||!(currentMode==='train'||currentMode==='soutien')||!t||t.tagName!=='INPUT'||!t.closest('.screen.on')) return;
   clearTimeout(_draftSaveTimer); _draftSaveTimer=setTimeout(autoSave,1200);
 });
+/* DANS LA FICHE DE TRAVAIL N° 13, EN SOUTIEN, LE ROUGE S'EN VA DÈS QU'ON
+   RECLIQUE LA CASE (demande de Turquet, novembre 2026 : « si l'élève reclique
+   sur la case rouge il faut enlever le rouge ») — pas à la première frappe
+   comme partout ailleurs. La case est alors surveillée comme une case vierge
+   (le garde de la saisie, plus haut, est déjà armé par son « focusin ») : rien ne se colore
+   tant qu'il écrit, et la couleur revient quand il la quitte — celle que la
+   correction en direct calcule, ou, s'il n'a rien changé et qu'aucune
+   correction ne la rejuge (une case en texte ne se juge qu'à la frappe), le
+   rouge qu'elle avait. Une frappe périme ce rouge-là : il parlait de
+   l'ancienne réponse. Les fiches concernées : ROUGE_RECLIC_FICHES, désignées
+   comme POUCE_FICHES par leur genre et leur numéro. */
+const ROUGE_RECLIC_FICHES=[13];
+function rougeSortieActive(){
+  try{
+    if(!isSoutien() || typeof currentDM==='undefined' || !currentDM) return false;
+    const dev=(mesDevoirs||[]).find(d=>d.id===currentDM);
+    return !!(dev && dev.genre==='fiche' && ROUGE_RECLIC_FICHES.indexOf(dev.num)>=0);
+  }catch(e){ return false; }
+}
+/* Le CLIC (ou le toucher) seulement, jamais le focus : après « Vérifier », la
+   page pose elle-même le curseur dans la première case rouge, et ce rouge-là
+   doit se voir. Une case qui a déjà le curseur ne reçoit pas de « focusin »
+   quand on la reclique : la levée se fait donc au « pointerdown », et se
+   termine au « focusin » qui suit si la case n'avait pas le curseur — après
+   celui du garde, qui l'arme. */
+/* La correction d'une case voisine qu'on vient de quitter repeint souvent la
+   case recliquée juste après le clic ; l'élève n'a rien tapé, et le garde rend
+   alors la main à cette couleur. Un observateur à part la lève de nouveau, tant
+   que la case a le curseur et qu'aucune frappe n'a eu lieu (le bloc du garde
+   est le même texte dans les trois fichiers : rien ne s'y ajoute). */
+let rougeReclicObs=null;
+function rougeReclicArret(){ if(rougeReclicObs){ rougeReclicObs.disconnect(); rougeReclicObs=null; } }
+function rougeReclicMarquer(el){
+  if(gardeCase!==el) gardeSurveiller(el);
+  if(el.classList.contains('bad')){ gardeMoi++; el.classList.remove('bad'); }
+  el.dataset.couleurDifferee='bad'; el.dataset.rougeReclic='1';
+  if(!rougeReclicObs && typeof MutationObserver==='function'){
+    rougeReclicObs=new MutationObserver(function(){
+      if(!el.dataset.rougeReclic || el!==document.activeElement || !rougeSortieActive() || test.locked){ rougeReclicArret(); return; }
+      if(el.classList.contains('bad')) rougeReclicMarquer(el);
+    });
+    rougeReclicObs.observe(el,{attributes:true, attributeFilter:['class']});
+  }
+}
+document.addEventListener('pointerdown', function(e){
+  const el=e.target && e.target.closest ? e.target.closest('input,math-field') : null;
+  if(!el || !rougeSortieActive() || test.locked || !caseQuiSeColore(el) || el.disabled
+     || el.classList.contains('sol') || !el.classList.contains('bad')) return;
+  if(el===document.activeElement) rougeReclicMarquer(el);
+  else { el.dataset.rougeAttente='1'; el.classList.remove('bad'); }
+}, true);
+document.addEventListener('focusin', function(e){
+  const el=e.target;
+  document.querySelectorAll('[data-rouge-attente]').forEach(x=>{ if(x!==el) delete x.dataset.rougeAttente; });
+  if(!el || !el.dataset || !el.dataset.rougeAttente) return;
+  delete el.dataset.rougeAttente;
+  if(rougeSortieActive() && !test.locked && caseQuiSeColore(el) && !el.classList.contains('sol')) rougeReclicMarquer(el);
+}, true);
+document.addEventListener('input', function(e){
+  const el=e.target;
+  if(el && el.dataset && el.dataset.rougeReclic){ delete el.dataset.rougeReclic; rougeReclicArret(); if(el.dataset.couleurDifferee==='bad') delete el.dataset.couleurDifferee; }
+}, true);
+document.addEventListener('focusout', function(e){ const el=e.target; if(el && el.dataset && el.dataset.rougeReclic){ delete el.dataset.rougeReclic; rougeReclicArret(); } }, true);
 /* Entrée dans le prénom (le repli de transition) passe au code ; Entrée dans le code entre. */
 $('loginPrenom').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('loginPin').focus();}});
 $('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();connexionEleve();}});
