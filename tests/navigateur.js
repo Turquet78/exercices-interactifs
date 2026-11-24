@@ -11887,6 +11887,113 @@ if(require.main === module) (async () => {
       await s.nav.close(); s = null;
     }
 
+    /* ===== 6 quadragies terdecies. {centre-gravite-vecteurs} : G glisse, puis les flèches ===== */
+    /* {centre-gravite-vecteurs} (8.2.19, demande de Turquet, novembre 2026,
+       la fiche « G triangle ») : l'élève fait GLISSER G à la souris — rouge
+       tant qu'il n'est pas à sa place, bleu dès qu'il y est —, puis fait
+       glisser GB⃗ et GC⃗ bout à bout au bout de GA⃗ : la page écrit que la
+       somme est nulle. Puis une copie où G est porté au clic sur un mauvais
+       nœud, et vérifiée : G rouge, la correction verte. jsdom n'a pas de mise
+       en page : le glisser et les encres ne se voient qu'ici. */
+    titre('6 quadragies terdecies. LE POINT G TEL QUE GA + GB + GC = 0 : G GLISSE, ROUGE PUIS BLEU, PUIS LES FLÈCHES BOUT À BOUT');
+    if(!P.centreGraviteVecteurs){
+      ignorer('G glisse, rouge tant qu\'il n\'est pas à sa place, puis GA, GB, GC glissent bout à bout',
+        'ce niveau n\'a pas l\'exercice du point G');
+    } else {
+      s = await ouvrir(chromium, ml, { viewport: { width: 1366, height: 900 } });
+      await connecter(s.page);
+      await s.page.evaluate(id => openTest(id), P.centreGraviteVecteurs.exercice);
+      await s.page.waitForTimeout(400);
+      await prendreMode(s.page, 'train');
+      await s.page.waitForTimeout(900);
+      const dits = [];
+      await s.page.evaluate(() => {
+        const f = () => ({ a: [3, 9], b: [13, 14], c: [14, 1], g0: [4, 3], g: null, ap: null, bp: null, cp: null });
+        test.questions[0] = f(); test.questions[1] = f(); test.idx = 0; renderCgv();
+        document.querySelector('#cgvGraph .cgv-svg').scrollIntoView({ block: 'center' });
+      });
+      await s.page.waitForTimeout(150);
+      const teinte = c => { const m = (c.match(/\d+/g) || []).map(Number); if(m.length < 3) return 'aucune';
+        return m[0] > m[1] + 60 && m[0] > m[2] + 60 ? 'rouge' : m[2] > m[0] + 60 && m[2] > m[1] + 20 ? 'bleu' : m[1] > m[0] + 40 && m[1] > m[2] ? 'vert' : 'autre'; };
+      const etat = () => s.page.evaluate(() => {
+        const ln = document.querySelector('#cgvPt .cgv-g line'), q = test.questions[test.idx];
+        const bord = id => getComputedStyle(document.getElementById(id)).borderTopColor;
+        return { g: ln ? getComputedStyle(ln).stroke : '', pos: q.g, prisesV: document.querySelectorAll('#cgvPrises .svc-prise').length,
+          priseG: !!document.querySelector('#cgvPrises .cgv-prise-g'), c1: bord('cgv-g'), c2: bord('cgv-ch'),
+          bilan: document.getElementById('cgvBilan').textContent, fleches: document.querySelectorAll('#cgvFl line.cgv-a, #cgvFl line.cgv-b, #cgvFl line.cgv-c').length };
+      });
+      const mes = await s.page.evaluate(() => {
+        const svg = document.querySelector('#cgvGraph .cgv-svg'), r = svg.getBoundingClientRect();
+        const dehors = [...document.querySelectorAll('#cgvGraph text')].filter(t => { const b = t.getBoundingClientRect();
+          return b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1; }).length;
+        const pg = document.querySelector('#cgvPrises .cgv-prise-g');
+        const noms = [...document.querySelectorAll('#cgvFl text.svc-nom')].map(t => t.textContent).sort().join(',');
+        return { svg: r.width > 500 && r.height > 360, dehors: dehors, touche: pg ? getComputedStyle(pg).touchAction : '', noms: noms,
+          dessus: document.getElementById('cgv-ch').getBoundingClientRect().bottom <= r.top + 1 };
+      });
+      if(!mes.svg) dits.push('le quadrillage ne se dessine pas (ou trop petit)');
+      if(mes.dehors) dits.push(mes.dehors + ' nom(s) sortent du dessin');
+      if(mes.touche !== 'none') dits.push('la prise de G fait défiler la page sous le doigt (touch-action : ' + mes.touche + ')');
+      if(mes.noms !== 'GA,GB,GC') dits.push('les flèches ne s\'appellent pas GA, GB, GC : ' + mes.noms);
+      if(!mes.dessus) dits.push('les consignes ne se lisent pas au-dessus du dessin');
+      const e0 = await etat();
+      if(teinte(e0.g) !== 'rouge') dits.push('G mal placé n\'est pas rouge : ' + e0.g);
+      if(e0.prisesV || !e0.priseG) dits.push('au départ, les flèches se prennent déjà, ou G ne se prend pas');
+      if(e0.fleches !== 3) dits.push('les trois flèches ne partent pas de G (' + e0.fleches + ')');
+      if(teinte(e0.c1) !== 'bleu') dits.push('l\'étape 1 n\'est pas encadrée en bleu : ' + e0.c1);
+      const pos = async (x, y) => await s.page.evaluate(([x, y]) => {
+        const svg = document.querySelector('#cgvGraph .cgv-svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return { px: r.left + (CGV_PX + x * CGV_C) * r.width / vb.width, py: r.top + (CGV_PY + (CGV_H - y) * CGV_C) * r.height / vb.height };
+      }, [x, y]);
+      const glisser = async (de, a) => {
+        const p = await pos(de[0], de[1]), q = await pos(a[0], a[1]);
+        await s.page.mouse.move(p.px, p.py); await s.page.mouse.down();
+        await s.page.mouse.move(q.px, q.py, { steps: 14 }); await s.page.mouse.up();
+        await s.page.waitForTimeout(150);
+      };
+      /* G glissé à côté de sa place : toujours rouge */
+      await glisser([4, 3], [9, 8]);
+      const e1 = await etat();
+      if(JSON.stringify(e1.pos) !== '[9,8]') dits.push('G glissé ne suit pas la souris : ' + JSON.stringify(e1.pos));
+      if(teinte(e1.g) !== 'rouge') dits.push('G à côté de sa place n\'est plus rouge : ' + e1.g);
+      await glisser([9, 8], [10, 8]);
+      const e2 = await etat();
+      if(JSON.stringify(e2.pos) !== '[10,8]') dits.push('G ne se pose pas à sa place : ' + JSON.stringify(e2.pos));
+      if(teinte(e2.g) !== 'bleu') dits.push('G à sa place ne passe pas au bleu : ' + e2.g);
+      if(e2.priseG || e2.prisesV !== 3) dits.push('G à sa place : il se prend encore, ou les flèches ne se prennent pas');
+      if(teinte(e2.c1) !== 'vert' || teinte(e2.c2) !== 'bleu') dits.push('G à sa place : l\'étape 1 ne verdit pas ou l\'étape 2 ne s\'encadre pas en bleu : ' + e2.c1 + ' / ' + e2.c2);
+      /* un clic sur le quadrillage ne déplace plus G */
+      const p55 = await pos(5, 5); await s.page.mouse.click(p55.px, p55.py); await s.page.waitForTimeout(120);
+      if(JSON.stringify((await etat()).pos) !== '[10,8]') dits.push('G à sa place bouge encore au clic');
+      /* GB⃗ = (3 ; 6) au bout de GA⃗ (en A), puis GC⃗ = (4 ; −7) au bout de GB⃗ */
+      await glisser([11.5, 11], [4.5, 12]);
+      await glisser([12, 4.5], [8, 11.5]);
+      const e3 = await etat();
+      if(!/= ?0/.test(e3.bilan.replace(/\s+/g, ' ')) && e3.bilan.indexOf('revient') < 0) dits.push('bout à bout, la page n\'écrit pas que la somme est nulle : « ' + e3.bilan + ' »');
+      if(teinte(e3.c2) !== 'vert') dits.push('bout à bout, l\'étape 2 ne verdit pas : ' + e3.c2);
+      const traces = await s.page.evaluate(() => document.querySelectorAll('#cgvTraces line.cgv-trace').length);
+      if(traces !== 2) dits.push('les traces pâles de GB et GC ne restent pas (' + traces + ')');
+      await s.page.click('#cgvValidate'); await s.page.waitForTimeout(200);
+      const juste = await s.page.evaluate(() => ({ cls: ['cgv-g', 'cgv-ch'].map(id => document.getElementById(id).className), score: test.score,
+        fb: document.getElementById('cgvFeedback').className, corr: document.getElementById('cgvCorr').children.length }));
+      if(!juste.cls.every(k => /\bok\b/.test(k)) || juste.score !== 2 || juste.fb.indexOf('good') < 0 || juste.corr)
+        dits.push('la copie juste n\'est pas comptée juste : ' + JSON.stringify(juste));
+      await s.page.click('#cgvNext'); await s.page.waitForTimeout(250);
+      await s.page.evaluate(() => document.querySelector('#cgvGraph .cgv-svg').scrollIntoView({ block: 'center' }));
+      const p86 = await pos(8, 6); await s.page.mouse.click(p86.px, p86.py); await s.page.waitForTimeout(120);
+      const e4 = await etat();
+      if(JSON.stringify(e4.pos) !== '[8,6]' || teinte(e4.g) !== 'rouge') dits.push('un clic ne porte pas G, ou G porté au mauvais nœud n\'est pas rouge : ' + JSON.stringify(e4.pos));
+      await s.page.evaluate(() => { window.confirmerCasesVides = false; });
+      await s.page.click('#cgvValidate'); await s.page.waitForTimeout(200);
+      const faux = await s.page.evaluate(() => ({ cls: ['cgv-g', 'cgv-ch'].map(id => document.getElementById(id).className), score: test.score,
+        sol: !!document.querySelector('#cgvCorr .cgv-g-sol'), vert: document.querySelectorAll('#cgvCorr line.svc-s').length }));
+      if(!/\bbad\b/.test(faux.cls[0]) || !/\bsol\b/.test(faux.cls[1]) || faux.score !== 2) dits.push('G faux, flèches non touchées : ' + JSON.stringify(faux));
+      if(!faux.sol || faux.vert !== 3) dits.push('la correction ne montre pas G en vert et la boucle des trois flèches (' + faux.vert + ')');
+      verifier('G glisse, rouge tant qu\'il n\'est pas à sa place, puis GA, GB, GC glissent bout à bout', !dits.length, dits.slice(0, 3).join(' | '));
+      verifier('l\'écran du point G ne lève aucune erreur JavaScript', s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
+      await s.nav.close(); s = null;
+    }
+
     /* ===== 6 undevicies. antécédents : la droite se fait GLISSER ===== */
     /* {antecedents-droite} : le geste central est un GLISSER — la droite suit
        le pointeur enfoncé et s'accroche à la graduation la plus proche — puis
