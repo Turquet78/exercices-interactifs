@@ -3516,6 +3516,7 @@ if(require.main === module) (async () => {
           retour.ecran === 'scr-dmenonce' && retour.corps === avant.corps && retour.envois === avant.envois,
           'écran ' + retour.ecran + ', même énoncé : ' + (retour.corps === avant.corps) + ', envois ' + avant.envois + ' → ' + retour.envois);
         verifier('avec l\'option, l\'écran retrouvé propose la correction en PDF', retour.bouton, 'aucun bouton #dmcPdfBtn');
+        await s.page.evaluate(() => { window.__resteIci = location.href; });
         const photo = await s.page.evaluate(async () => {
           const q = JSON.stringify(test.questions), mode = currentMode, notes = (window.__faux.journal || []).filter(j => j.table === 'resultats').length;
           const h = await dmCorrigeHTML();
@@ -3527,6 +3528,15 @@ if(require.main === module) (async () => {
         });
         verifier('la correction écrit les valeurs dans les étapes de l\'exercice, sans rouge ni bouton',
           photo.vals >= 3 && photo.rouges === 0 && photo.boutons === 0, JSON.stringify(photo));
+        /* LA PHOTO NE FAIT PAS QUITTER LA PAGE (novembre 2026, vu en portant le
+           papier en Première ; la Terminale l'avait déjà) : les écrans rejoués
+           posaient et retiraient la garde du bouton « retour »
+           (#retour-navigateur) ; deux retraits partaient avant que le premier
+           n'aboutisse, et la page reculait de deux entrées — hors du site. */
+        await s.page.waitForTimeout(800);
+        const resteIci = await s.page.evaluate(() => window.__resteIci === location.href).catch(() => false);
+        verifier('préparer la correction ne fait pas quitter la page (la garde du bouton « retour » ne recule pas deux fois)', resteIci,
+          'la page a été rechargée ou quittée pendant la préparation de la correction');
         verifier('la photo de la correction ne laisse rien derrière elle : ni note, ni mode, ni tirage changés',
           photo.memeTirage && photo.mode && photo.rejeu && photo.notes === 0 && photo.ecran === 'scr-dmenonce', JSON.stringify(photo));
         const [dlCor] = await Promise.all([
@@ -3562,7 +3572,10 @@ if(require.main === module) (async () => {
           const d = document.createElement('div'); d.innerHTML = h;
           const de = document.createElement('div'); de.innerHTML = e;
           const g = d.firstElementChild, ge = de.firstElementChild;
-          /* le système, rendu comme pour le PDF */
+          /* le système, rendu comme pour le PDF — la Terminale seule en écrit */
+          if(typeof epaSysHTML !== 'function')
+            return { cellules: g ? g.children.length : -1, cellulesE: ge ? ge.children.length : -1,
+                     slot: (d.querySelector('.dmc-val') || {}).textContent || '', sansSysteme: true };
           await dmeChargerScript(DME_PDF_LIBS[0]);
           const cadre = dmePdfCadre('<div class="dme-pdf"><p>Δ :' + epaSysHTML([1.5, -2, 2.25], [-1, 4, -3], '') + '</p></div>');
           const hote = cadre.contentDocument.querySelector('.dme-pdf');
@@ -3580,7 +3593,8 @@ if(require.main === module) (async () => {
           mise.cellulesE + ' cellule(s) sur 6 attendues');
         verifier('un bouton que la page a jugé (la case-menu d\'une probabilité) s\'imprime dans la correction',
           /P\(A ∩ V\)/.test(mise.slot), '« ' + mise.slot + ' »');
-        verifier('l\'accolade d\'un système garde sa place dans la grille du PDF : x, y et z restent dans l\'accolade',
+        if(mise.sansSysteme) ignorer('l\'accolade d\'un système garde sa place dans la grille du PDF', 'ce niveau n\'écrit aucun système d\'équations (epaSysHTML)');
+        else verifier('l\'accolade d\'un système garde sa place dans la grille du PDF : x, y et z restent dans l\'accolade',
           mise.image && mise.dedans, JSON.stringify(mise));
       }
       /* L'ARBRE DE LA CORRECTION EST COMPLET, SANS AIDE, ET SES TRAITS

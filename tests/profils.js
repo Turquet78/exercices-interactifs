@@ -180,9 +180,18 @@ module.exports = {
     /* LE MOT « BONUS » AVEC LE TITRE DE L'EXERCICE (demande de Turquet,
        novembre 2026 : « dans les fiches de travail ou les devoirs maison ou
        les évaluations ou la SNT… ») — le banc navigateur « 6 sexies bis ».
-       Ce niveau n'a pas la version papier des devoirs (papier:false) et sa
-       liste des devoirs est compacte : la page du devoir tient l'annonce. */
-    bonusEcrit: { table: 'parametres_1ere', bonus: 'pourcentage', normal: 'calcul-mental', mot: 'Bonus', papier: false },
+       Sa liste des devoirs est compacte : la page du devoir tient l'annonce.
+       Le papier des devoirs maison y est venu en novembre 2026 : le trajet
+       passe aussi par l'énoncé papier. */
+    bonusEcrit: { table: 'parametres_1ere', bonus: 'pourcentage', normal: 'calcul-mental', mot: 'Bonus' },
+    /* LE DEVOIR MAISON SUR PAPIER, porté de la Terminale (demande de Turquet,
+       novembre 2026 : « exactement comme en terminale »). Le témoin : le 2.1.4,
+       ses quatre questions, une phrase d'énoncé qui reste, et une étape du
+       guidage de l'écran (« Choisis la valeur initiale ») qui part. Le papier
+       n'est qu'un choix du DEVOIR MAISON : ni fiche, ni évaluation. */
+    devoirPapier: { exercice: 'pourcentage-depart', questions: 4, texte: 'Retrouve',
+                    aide: 'Choisis la valeur initiale', sansPapier: ['fiche', 'eval'] },
+    dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve' },
     /* UNE NOTE QUE LA BASE REFUSE NE SE PERD PAS (novembre 2026 : « new row
        violates row-level security policy for table resultats_1ere » sous
        l'écran de fin, et la fiche gardait l'exercice suivant verrouillé). Le
@@ -362,7 +371,7 @@ module.exports = {
        Déclarés en négatif exprès : ajouter un exercice ne demande rien ici,
        seul un nouvel écran de menu doit être inscrit. */
     ecransHorsExercice: ['setup','login','space','choose','theme','soustheme','rattrapage',
-                        'devoirs','mode','results','teacher-login','teacher','evalcopie'],
+                        'devoirs','mode','dmenonce','results','teacher-login','teacher','evalcopie'],
     niveau: 'Première',
     /* Les classes qui portent l'encadré « Énoncé », et les écrans qui n'en ont
        pas besoin : leur énoncé EST l'ardoise noire, où le calcul s'affiche en
@@ -2691,6 +2700,9 @@ module.exports = {
        Turquet, octobre 2026). « aide » est un texte que l'écran de l'exercice
        montre et que le papier doit taire : le « Rappel » de la formule de la
        tangente, écrit au milieu de l'énoncé du 4.2.2. */
+    /* le témoin du banc jsdom (tests/verifier.js, « le devoir sur papier ») :
+       ecranNiveau — le 1.2 et son écran de niveau, propres à ce niveau */
+    devoirPapier: { exercice: 'tangente-exp', questions: 3, texte: 'Démontre que', aide: 'Rappel', ecranNiveau: true },
     dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que',
              /* et le GUIDAGE de la résolution (Turquet, octobre 2026, devant le
                 PDF du 5.6.1 : « il y a encore l'aide à la résolution, je ne veux

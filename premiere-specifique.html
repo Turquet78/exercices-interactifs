@@ -2632,6 +2632,34 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* L'enveloppe d'un tableau qui défile reçoit le focus (A7, script #defilants) :
    elle montre qu'elle l'a. */
 [data-defile]:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+/* ---- Devoir : l'énoncé complet, papier ou ordinateur ---- */
+.dme-q{border:0;border-top:1.5px solid var(--grid);border-radius:0;padding:8px 2px 6px;margin:0;background:#fff}
+.dme-qnum{font-weight:800;color:var(--blue-dark);margin-bottom:2px}
+.dme-blank{display:inline-block;min-width:90px;height:1.15em;border-bottom:2px dotted var(--ink-soft);vertical-align:middle;margin:0 4px}
+.dme-ok{color:var(--green);font-weight:800;display:inline-flex;align-items:center}
+/* La correction de la version papier : chaque case devient sa valeur, à
+   l'encre de la correction ; un voile couvre l'écran le temps de la photo. */
+.dmc-val{display:inline-block;color:var(--green);font-weight:700;text-align:center;padding:0 3px;vertical-align:middle}
+.dmc-val .lettre{margin-right:.45em}
+#dmcVoile{position:fixed;inset:0;z-index:10000;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center}
+.dmc-voile-boite{font-weight:800;color:var(--ink);font-size:1.1rem}
+.dme-corps .lv-tblwrap{overflow-x:auto}
+.papier-seul{display:none}
+.dme-corps .papier-seul,.dme-pdf .papier-seul{display:revert}
+/* LE PAPIER EST SOBRE ET DENSE (Turquet, octobre 2026 : « est-il possible que
+   cela prenne moins de place, car c'est un PDF à imprimer ») : ni cadres de
+   carte, ni étiquette « Énoncé », ni marges d'écran ; un filet sépare les
+   questions. Les dessins gardent leur cadre : il borne le repère. */
+.dme-corps .card,.dme-pdf .card{border:0;box-shadow:none;background:none;padding:0;margin:0;max-width:none}
+.dme-corps .enonce,.dme-corps .mp-instr,.dme-pdf .enonce,.dme-pdf .mp-instr{border:0;background:none;padding:0;margin:2px 0 8px;border-radius:0;box-shadow:none}
+.dme-corps .enonce::before,.dme-corps .mp-instr::before,.dme-pdf .enonce::before,.dme-pdf .mp-instr::before{display:none}
+/* L'hôte du rendu PDF, dans son cadre hors de l'écran : la largeur d'une page
+   A4 lue à l'écran ; il ne vit que le temps du rendu. */
+.dme-pdf{width:880px;background:#fff;padding:0 2px}
+.dme-pdf .dme-q{margin:0;break-inside:avoid}
+.dme-pdf-tete{padding:4px 2px 10px;border-bottom:2px solid var(--ink);margin-bottom:8px}
+.dme-pdf-titre{font-weight:800;font-size:1.25rem;color:var(--ink)}
+.dme-pdf-qui{font-weight:700;color:var(--ink);margin-top:4px}
 </style>
 <style id="embellir">
   /* ---------- Embellissements sans poids (octobre 2026) ----------
@@ -2951,6 +2979,16 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
   </div>
 
   <!-- DEVOIRS À LA MAISON (élève) -->
+  <section class="screen" id="scr-dmenonce">
+    <div class="card">
+      <button class="btn-link" onclick="dmeRetour()">← Retour</button>
+      <h3 id="dmeTitre" style="margin:8px 0 4px"></h3>
+      <p class="lead" id="dmeIntro"></p>
+      <div id="dmeCorps" class="dme-corps"></div>
+      <div class="row" style="justify-content:center;gap:12px;margin-top:16px;flex-wrap:wrap" id="dmeActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-devoirs">
     <div class="card">
       <div class="topbar">
@@ -4240,7 +4278,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=478;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=479;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5158,7 +5196,11 @@ function ensureDevoir(d,i){ return Object.assign({ id:d.id||newDevoirId(), num:(
   /* Les notes POSÉES par le professeur, « <id élève>|<id exercice> » -> note
      sur 10 (demande de Turquet, octobre 2026). Sans cette ligne, elles
      s'effaceraient au premier rechargement, sans erreur. */
-  notes:(d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {} }, d.archive?{archive:true}:{}, d.publie?{publie:true}:{}); }
+  notes:(d.notes && typeof d.notes==='object' && !Array.isArray(d.notes)) ? d.notes : {} }, d.archive?{archive:true}:{}, d.publie?{publie:true}:{},
+  /* « Avec correction » (comme en Terminale, novembre 2026) : l'élève qui fait
+     un exercice sur papier télécharge aussi sa correction. Recopié ICI, sans
+     quoi il s'effacerait au premier rechargement. Le défaut ne s'écrit pas. */
+  d.correction===true?{correction:true}:{}); }
 function normalizeCfg(cfg){ let ds=cfg.devoirs; if(!Array.isArray(ds)){ if(cfg.devoir&&typeof cfg.devoir==='object') ds=[Object.assign({id:'dm_1',num:1},cfg.devoir)]; else ds=[Object.assign({},DEFAULT_DEVOIR)]; } cfg.devoirs=ds.map((d,i)=>ensureDevoir(d,i)); cfg.fiches = Array.isArray(cfg.fiches)? cfg.fiches.map((d,i)=>ensureDevoir(d,i)) : []; cfg.evaluations = Array.isArray(cfg.evaluations)? cfg.evaluations.map((d,i)=>ensureDevoir(d,i)) : []; cfg.cours = Array.isArray(cfg.cours)? cfg.cours.map((c,i)=>ensureCours(c,i)).filter(Boolean) : []; delete cfg.devoir; return cfg; }
 function testNum(id){ return TEST_NUM[id]||''; }
 function testLabel(id){ const n=testNum(id); return n?(n+' · '+testName(id)):testName(id); }
@@ -6150,17 +6192,23 @@ function renderSignalements(){
        « O'Brien », qui a déjà tué un bouton du professeur. Ici seuls des
        identifiants circulent dans les onclick, mais la règle vaut d'être tenue. */
     const q=r.contexte&&r.contexte.idx!=null ? ' · question '+(r.contexte.idx+1) : '';
+    /* Un DM sur papier arrive par ce même canal : il se DISTINGUE d'un
+       signalement — le professeur y cherche l'énoncé à corriger. */
+    const estPapier=!!(r.contexte&&r.contexte.dmPapier);
     return `<div class="sig-item ${r.lu?'':'nonlu'}">
       <div class="sig-head">
-        <span class="sig-exo">${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
+        <span class="sig-exo">${estPapier?'📄 ':''}${esc((r.numero?r.numero+' · ':'')+testName(r.exercice))}</span>
         <span class="sig-qui">${esc(r.prenom)}</span>
-        <span class="sig-quand">${esc(fmtDate(r.created_at))}${esc(q)}</span>
+        <span class="sig-quand">${esc(fmtDate(r.created_at))}${estPapier?'':esc(q)}</span>
       </div>
       <div class="sig-msg">${esc(r.message)}</div>
-      <div class="sig-meta">${(r.contexte&&r.contexte._eval)?'Évaluation · envoyé depuis la copie corrigée':esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
+      <div class="sig-meta">${estPapier?'devoir sur papier':(r.contexte&&r.contexte._eval)?'Évaluation · envoyé depuis la copie corrigée':esc(modeName(r.mode||'train'))} · version ${esc(String(r.version||'?'))} · ${esc(navigateurCourt(r.navigateur))}</div>
       ${r.reponse?`<div class="sig-rep"><span class="sig-repq">Ta réponse${r.repondu_at?' · '+esc(fmtDate(r.repondu_at)):''}</span>${esc(r.reponse)}</div>`:''}
       <div class="sig-actions">
-        ${(r.contexte&&r.contexte._eval)
+        ${estPapier
+          ? `<button class="btn btn-sm btn-primary" onclick="voirEnonceDM('${escJS(r.id)}')">Voir l’énoncé complet</button>`
+           +`<button class="btn btn-sm btn-ghost" onclick="pdfEnonceDM('${escJS(r.id)}')">📥 PDF de l’énoncé</button>`
+          : (r.contexte&&r.contexte._eval)
           ? `<button class="btn btn-sm btn-primary" onclick="voirCopieSignalement('${escJS(r.id)}')">Voir la copie corrigée</button>`
           : `<button class="btn btn-sm btn-primary" onclick="rejouerSignalement('${escJS(r.id)}')">Rejouer l\u2019écran</button>`}
         ${r.capture?`<button class="btn btn-sm btn-ghost" onclick="voirCaptureSignalement('${escJS(r.id)}')">Voir la copie d\u2019\u00e9cran</button>`:''}
@@ -7313,7 +7361,1043 @@ async function openTestDevoir(devoirId, testId){
       ? cardHTML('▶️','Reprendre l\u2019entraînement',`Tu t\u2019es arrêté à la question ${qnum(pausedRows.train)}. On continue ! Compte pour 10 points.`,`choisirReprise('train')`,'resume')
       : cardHTML('✏️','M\u2019entraîner','Je m\u2019entraîne autant de fois que je veux. Compte pour 10 points.',`lancerDevoirExo('${devoirId}','${testId}','train')`);
   }
+  /* LE PAPIER, dans un DEVOIR MAISON seulement (comme en Terminale, demande de
+     Turquet, novembre 2026) : il n'est pas un mode — aucune note n'en sort —
+     mais la façon de rendre l'exercice ; il vient donc quels que soient les
+     modes réglés, et en DERNIER. */
+  if(dev && (dev.genre||'dm')==='dm')
+    cards += cardHTML('📄','Le faire sur papier',
+      'Je recopie l’énoncé sur ma feuille. Tu verras l’énoncé complet, et tu confirmeras avant qu’il parte à ton professeur : c’est cette version-là qu’il corrigera.'
+        +(dev.correction===true?' Sa correction en PDF t’est aussi proposée.':''),
+      `dmePapierOuvrir('${escJS(devoirId)}','${escJS(testId)}')`);
   $('modeChoices').innerHTML=cards||'<p class="muted">Aucun mode disponible pour cet exercice.</p>';
+}
+/* ---------- LE DEVOIR MAISON SUR PAPIER, porté de la Terminale ----------
+   Demande de Turquet (novembre 2026) : « en première pour les devoirs maison
+   je souhaite avoir l'option sur papier exactement comme en terminale ». Le
+   circuit est celui de terminale.html, recopié tel quel — énoncé photographié
+   sans aide ni guidage, PDF, envoi au professeur par les signalements,
+   correction en PDF si le devoir l'a, l'énoncé retrouvé au retour. Seules
+   différences : les fonctions propres à la Terminale (les arbres, la
+   réhydratation des courbes) ne sont appelées que si elles existent, les
+   aides de la Première (coups de pouce, rappels, modes d'emploi) rejoignent
+   DME_AIDES, son énoncé (.mp-instr) est reconnu comme celui de la Terminale
+   (.enonce, …prompt) — sans quoi il partait avec le guidage —, et les cartes
+   à choisir (.pt-choix-btn) entrent dans les tours de la correction, et la carte n'est proposée que dans un DEVOIR MAISON — ni fiche
+   (en classe, dans l'ordre), ni évaluation (une tentative, à l'aveugle).
+   Chronique : docs/journal/09-devoirs-et-notes.md. */
+/* ---------- Devoir : LA VERSION PAPIER, et l'envoi se confirme ----------
+   « Le faire sur papier » est le troisième choix de la page des modes. Il
+   montre l'énoncé ENTIER — toutes les questions, cases remplacées par des
+   pointillés — à recopier sur la feuille, puis l'élève ENVOIE cet énoncé à son
+   professeur, APRÈS confirmation (demande de Turquet, septembre 2026) : le
+   professeur reçoit une ligne que l'élève ne peut pas retirer, et un clic parti
+   tout seul lui laisserait l'énoncé d'un devoir que personne ne rendra.
+   Le tirage montré est fait par la porte NORMALE (TESTS[id].start()), puis
+   photographié question par question par la porte du REJEU (afficherEcranDe) :
+   réutiliser les rendus mêmes de l'exercice garantit qu'un énoncé ne peut pas
+   diverger de l'exercice, et un exercice ajouté demain est couvert sans rien
+   déclarer.
+   L'énoncé part au professeur par le canal des signalements — la table existe,
+   l'élève a le droit d'y écrire, et le professeur la lit déjà dans son tableau
+   de bord : aucune migration à jouer (la leçon de la 003). L'instantané envoyé
+   porte le tirage EXACT montré à l'élève : c'est cette version-là que le
+   professeur corrigera sur la feuille.
+   UN EXERCICE QUI NE SAIT PAS S'ÉNONCER LE DIT, et ne laisse pas l'élève dans
+   l'écran de l'exercice que le tirage vient d'afficher : on revient à la page
+   des modes, où l'entraînement et le soutien l'attendent. */
+let dmeCtx=null;
+/* Le papier, de bout en bout : l'énoncé s'il sait se montrer, la page des modes
+   sinon. Le repli vit ICI, à un seul endroit — écrit chez chaque appelant, il
+   aurait fini par diverger. */
+async function dmePapierOuvrir(devoirId, testId){
+  const deja=await dmePapierRetrouver(devoirId, testId);
+  if(deja && dmeRevoir(deja, devoirId)) return;
+  const ok=await dmEnonce(devoirId, testId);
+  if(!ok) return openTestDevoir(devoirId, testId);
+}
+async function dmEnonce(devoirId, testId){
+  const t=TESTS[testId]; if(!t||!t.start){ toast('Exercice indisponible','err'); return false; }
+  currentThemeNum=themeOfTest(testId)||currentThemeNum;
+  currentTestId=testId; currentMode='train'; currentDM=devoirId;
+  /* LA PHOTO N'UTILISE JAMAIS UN TIRAGE QUI N'EST PAS LE SIEN. Un start() qui
+     ne tire pas (un écran de départ, un exercice futur) laisse test.questions
+     tel quel — photographier ce reste, c'est montrer l'exercice PRÉCÉDENT en
+     énoncé de celui-ci. Chaque vrai tirage REMPLACE le tableau : si la
+     référence n'a pas bougé, l'exercice ne sait pas s'énoncer : on le DIT et on
+     revient au choix, sans mensonge. */
+  const tirageAvant=test.questions;
+  try{ await Promise.resolve(t.start()); }catch(e){ toast('Exercice indisponible','err'); return false; }
+  /* un exercice à chronomètre a démarré son minuteur au tirage : on le coupe
+     TOUT DE SUITE, sans quoi il avancerait tout seul derrière l'écran d'énoncé
+     — et il avancerait aussi derrière le repli, qui n'affiche pas d'énoncé */
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  /* UN EXERCICE QUI S'OUVRE SUR UN CHOIX (le 6.1.5 : « Type 1 … Type 7 ») ne
+     tire qu'au clic : il le déclare (papierChoix, le HTML des cartes, chaque
+     carte appelant dmeChoisir(k) ; papierTirer(k), le tirage du choix). Le
+     papier montre alors CES cartes, et la photo suit le clic — avant, il
+     répondait « ne sait pas s'énoncer » (signalé par Turquet, octobre 2026). */
+  if(test.questions===tirageAvant&&t.papierChoix&&t.papierTirer){
+    dmeCtx={devoirId:devoirId, testId:testId, envoye:false, choix:true};
+    $('dmeTitre').innerHTML='📄 '+esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
+    $('dmeIntro').textContent='Choisis d’abord ton exercice : son énoncé, en version papier, s’affichera ensuite.';
+    $('dmeCorps').innerHTML=t.papierChoix();
+    $('dmeActions').innerHTML='<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
+    show('dmenonce');
+    return true;
+  }
+  if(test.questions===tirageAvant){ toast('Cet exercice ne sait pas s’énoncer sur papier : fais-le sur l’ordinateur.','err'); return false; }
+  return dmEnonceMontrer(devoirId, testId);
+}
+/* Le choix fait sur l'écran papier : le tirage, puis la photo. */
+async function dmeChoisir(k){
+  const c=dmeCtx, t=c&&TESTS[c.testId]; if(!t||!c.choix) return;
+  dmeViderCorps();          /* les cartes partent avant le rendu : aucun clone n'y reste */
+  try{ await Promise.resolve(t.papierTirer(k)); }catch(e){ toast('Exercice indisponible','err'); dmeCtx=null; return openTestDevoir(c.devoirId, c.testId); }
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  if(!dmEnonceMontrer(c.devoirId, c.testId)){ dmeCtx=null; return openTestDevoir(c.devoirId, c.testId); }
+}
+function dmEnonceMontrer(devoirId, testId){
+  dmAppliquerNbQ();                       /* l'énoncé montre la séance RÉGLÉE du devoir */
+  const corps=dmEnonceHTML();
+  /* un exercice qui ne sait pas se rejouer ne sait pas s'énoncer : on le dit
+     plutôt que d'enfermer l'élève sur un écran vide */
+  if(corps==null){ toast('Cet exercice ne sait pas s’énoncer sur papier : fais-le sur l’ordinateur.','err'); return false; }
+  dmeCtx={devoirId:devoirId, testId:testId, envoye:false};
+  const dev=(mesDevoirs||[]).find(function(d){ return d.id===devoirId; });
+  const devNom=dev&&dev.num!=null?GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'Devoir';
+  dmePdfPoser(devNom+' — '+testLabel(testId), (currentEleve&&currentEleve.prenom)||'');
+  $('dmeTitre').innerHTML='📄 '+esc(testLabel(testId))+(dmBonusCourant()?' '+dmBonusBadge():'');
+  $('dmeIntro').textContent='Voici ton énoncé, en version papier : l’énoncé et toutes les questions, à rédiger sur ta feuille. Télécharge-le en PDF pour l’imprimer : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.'
+    +(dmAvecCorrection(devoirId)?' Une fois l’énoncé téléchargé, tu pourras aussi télécharger sa correction.':'');
+  $('dmeCorps').innerHTML=corps;
+  $('dmeActions').innerHTML=
+    '<button class="btn btn-primary" id="dmePapierBtn" onclick="dmePapier()">📥 Télécharger mon énoncé en PDF</button>'
+   +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
+  show('dmenonce');
+  return true;
+}
+/* Une question rendue, photographiée sans ses commandes : les cases de saisie
+   (et la feuille de rédaction) deviennent des pointillés, les boutons et les
+   retours disparaissent.
+   ET SANS AUCUNE AIDE (demande de Turquet, octobre 2026 : « uniquement l'énoncé
+   et les questions, sans aucune aide de plus ») : l'indice, le rappel de
+   formule, l'exemple de rédaction, la liste de ce qui est attendu, le mode
+   d'emploi du clavier sortent de la photo — donc de l'écran papier, du PDF et
+   de la vue du professeur, qui lisent tous ce capteur. Une aide écrite AU
+   MILIEU d'une phrase d'énoncé se marque d'un <span class="aide-ecran"> : la
+   page la montre, le papier la tait. */
+const DME_AIDES='[class*="pouce"],.pt-aide,.dvl-astuce,.ru-rappel,.apc-pourquoi,.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+/* LE PAPIER NE GARDE QUE L'ÉNONCÉ (Turquet, octobre 2026, devant le PDF du
+   5.6.1 : « il y a encore l'aide à la résolution de l'énoncé, je ne veux que
+   les énoncés »). Sur l'écran, l'exercice GUIDE : « lim Uₙ = … car … », la
+   chaîne d'égalités à compléter, le tableau dont il ne reste qu'à remplir les
+   cases. Sur le papier, l'élève rédige seul : toute LIGNE qui porte une case
+   disparaît — la ligne, c'est le plus proche ancêtre affiché en bloc (une
+   cellule de tableau remonte à son tableau). Restent le texte, les figures,
+   les tableaux de données et les propositions d'un QCM. Une case à cocher
+   n'emporte pas sa ligne : c'est une proposition, elle devient « ☐ ».
+   Garde : une « ligne » qui porte aussi l'énoncé, un dessin ou une consigne
+   (prompt) n'est pas une ligne mais l'exercice entier — seule la case part.
+   Les originaux sont marqués le temps du clonage, puis démarqués. */
+/* Un DESSIN est un svg d'une certaine taille : une parenthèse étirée ou une
+   flèche de tableau en est un aussi pour le navigateur, et prise pour une
+   figure elle gardait toute la ligne de la chaîne. */
+function dmeFigure(e){
+  if(e.querySelector('img,canvas')) return true;
+  return Array.prototype.some.call(e.querySelectorAll('svg'), function(g){ const r=g.getBoundingClientRect(); return r.width>80&&r.height>60; });
+}
+/* L'AFFICHAGE ÉCRIT, PAS CELUI QUE LE NAVIGATEUR CALCULE. L'enfant d'une
+   rangée flex ou grid est « blockifié » : un groupe écrit inline-flex dans la
+   phrase (« I ( … ; … ; … ) » du 7.1.1) s'y lit flex, et passait pour une
+   LIGNE — le papier retirait les cases avec leur groupe et gardait les restes
+   de la chaîne : « et », les barres « ‾2 », la colonne « B − A », les racines
+   vides (signalé par Turquet, novembre 2026, sur le DM n°10). La valeur écrite
+   se relit en rendant un instant son parent bloc — un calcul de style, sans
+   mise en page ; le parent retrouve aussitôt son style d'avant. */
+function dmeDisplayEcrit(x){
+  const d=getComputedStyle(x).display, p=x.parentElement;
+  if(!p||!/^(block|flex|grid|table|list-item|flow-root)$/.test(d)||!/(flex|grid)$/.test(getComputedStyle(p).display)) return d;
+  const avait=p.hasAttribute('style'), ancien=p.style.getPropertyValue('display'), prio=p.style.getPropertyPriority('display');
+  p.style.setProperty('display','block','important');
+  const r=getComputedStyle(x).display;
+  if(ancien) p.style.setProperty('display',ancien,prio); else p.style.removeProperty('display');
+  if(!avait) p.removeAttribute('style');
+  return r;
+}
+function dmeLigneDe(v, section){
+  if(v.type==='checkbox'||v.type==='radio') return v;
+  /* un TABLEAU à compléter (signe, variation) part entier : sur le papier,
+     l'élève le dresse lui-même — ses lignes et ses bornes déjà posées sont le
+     guidage. Un tableau de DONNÉES n'a pas de case, il reste. */
+  if(v.closest('.dme-garde')) return v;
+  const t=v.closest('table,.sv-tbl,.lv-tblwrap,.lv-vartbl2');
+  if(t&&section.contains(t)&&t!==section) return t;
+  /* la LIGNE est le bloc le plus proche qui n'est pas DANS un élément en
+     ligne : le numérateur d'une fraction est un bloc, mais la fraction est
+     posée dans la phrase (inline-flex) — s'arrêter au numérateur laissait
+     « = × − × » et les barres vides de la chaîne */
+  const blocPur=function(x){ return /^(block|flex|grid|table|list-item|flow-root)$/.test(dmeDisplayEcrit(x)); };
+  const dansLigne=function(x){ for(let a=x.parentElement; a&&a!==section; a=a.parentElement){ if(/^inline-/.test(dmeDisplayEcrit(a))) return a; } return null; };
+  let e=v.parentElement;
+  while(e&&e!==section){
+    if(blocPur(e)){ const a=dansLigne(e); if(!a) break; e=a; }
+    e=e.parentElement;
+  }
+  if(!e||e===section||dmeFigure(e)||e.querySelector('.enonce,.mp-instr,[class*="prompt"],input[type="checkbox"],input[type="radio"],.dme-garde')) return v;
+  return e;
+}
+/* LE RESTE DU GUIDAGE. Une chaîne à compléter ne se compose pas que de cases :
+   « On pose : », « = × + × », « Hérédité — on suppose que… », « Avec f(x) = …,
+   on a : » sont ses lignes FIXES, sans case, et survivaient à la première
+   passe. Une ligne de texte (un bloc sans bloc dedans), hors de l'énoncé, d'un
+   dessin, d'un tableau ou d'un programme, ne reste que si elle POSE quelque
+   chose : une question (un verbe à l'impératif ou à l'infinitif, après une
+   éventuelle lettre « a) », « 2. », « Partie B — »), une donnée (« Soit… »,
+   « On donne… »), ou une proposition à cocher. */
+const DME_QUESTION=/^\s*(?:(?:[a-z]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi|Retrouv|Pose|Range|Colori|Effectu|Simplifi|D[ée]velopp|R[ée]dui|Factoris|Compar|Arrondi|Convert|Remplis|Pr[ée]voi|Utilise))/i;
+/* Une ligne qui ne porte presque aucune lettre (« = × + × », « ⟺ y = »,
+   « ; ; », « ou ») est un reste de chaîne, quelle que soit sa forme. */
+/* Ce que seul le PAPIER dit : la consigne qui remplace, sur la feuille, une
+   question que l'écran pose par ses cases. Caché à l'écran, montré dans
+   l'énoncé papier, son PDF et la vue du professeur. */
+function papierSeul(h){ return '<span class="papier-seul"><br>'+h+'</span>'; }
+let dmeIdsSvg=0;
+function dmeLettres(t){ return (t.match(/[A-Za-zÀ-ÿ]/g)||[]).length; }
+function dmeResteDe(section){
+  const vus=[];
+  section.querySelectorAll('div,p,li,h3,h4').forEach(function(e){
+    if(e.closest('.enonce,.mp-instr,[class*="prompt"],table,pre,code,svg,[class*="ML__"],.dme-garde,.papier-seul,[data-dme-ligne]')) return;
+    if(dmeFigure(e)||e.querySelector('table,pre,code,.enonce,.mp-instr,[class*="prompt"]')) return;
+    const d=getComputedStyle(e).display;
+    /* un conteneur qui mêle texte FIXE et cases : on ne peut le juger
+       qu'APRÈS le départ de ses lignes — il est jugé sur le clone */
+    if(e.querySelector('input,select,math-field,.dexp2-sheet')){
+      if(/^(block|flex|grid|list-item|flow-root)$/.test(d)) e.setAttribute('data-dme-boite','');
+      return;
+    }
+    const txt=(e.textContent||'').replace(/\s+/g,' ').trim();
+    if(!txt) return;
+    if(/^(block|flex|grid|list-item|flow-root)$/.test(d)&&dmeLettres(txt)<=2){ vus.push(e); return; }
+    if(!/^(block|flex|grid|list-item|flow-root)$/.test(d)) return;
+    /* garde : la ligne, ou une ligne qu'elle contient, pose une question */
+    if(DME_QUESTION.test(txt)) return;
+    if(Array.prototype.some.call(e.querySelectorAll('div,p,li,h3,h4'), function(f){
+      return DME_QUESTION.test((f.textContent||'').replace(/\s+/g,' ').trim()); })) return;
+    vus.push(e);
+  });
+  return vus;
+}
+function dmEnonceQ(section){
+  const marques=[];
+  section.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(v){
+    const l=dmeLigneDe(v, section); if(l===v||l.hasAttribute('data-dme-ligne')) return;
+    l.setAttribute('data-dme-ligne',''); marques.push(l); });
+  /* les blocs d'aide de l'écran (formule rappelée, pistes en italique) ne
+     comptent pas comme lignes : DME_AIDES les retire de toute façon */
+  dmeResteDe(section).forEach(function(l){ l.setAttribute('data-dme-ligne',''); marques.push(l); });
+  const cel=dmeMarquerCellules(section);
+  const c=section.cloneNode(true);
+  cel.forEach(function(e){ e.removeAttribute('data-dme-cel'); });
+  marques.forEach(function(l){ l.removeAttribute('data-dme-ligne'); });
+  section.querySelectorAll('[data-dme-boite]').forEach(function(e){ e.removeAttribute('data-dme-boite'); });
+  c.querySelectorAll('[data-dme-ligne]').forEach(function(e){ if(e.hasAttribute('data-dme-cel')){ e.innerHTML=''; e.removeAttribute('data-dme-ligne'); } else e.remove(); });   /* une cellule de grille se vide, elle tient sa colonne */
+  /* les conteneurs mixtes, du plus profond au plus large : ce qu'il en reste
+     sans case ne garde sa place que s'il pose une question (même règle que
+     dmeResteDe) ; une case cochable y reste une proposition */
+  Array.prototype.slice.call(c.querySelectorAll('[data-dme-boite]')).reverse().forEach(function(e){
+    e.removeAttribute('data-dme-boite');
+    if(!e.parentNode||e.querySelector('table,pre,code,.enonce,.mp-instr,[class*="prompt"],.papier-seul,.dme-garde,input[type="checkbox"],input[type="radio"]')) return;
+    const txt=(e.textContent||'').replace(/\s+/g,' ').trim();
+    if(dmeLettres(txt)>2&&(DME_QUESTION.test(txt)||Array.prototype.some.call(e.querySelectorAll('div,p,li,h3,h4'), function(f){
+      return DME_QUESTION.test((f.textContent||'').replace(/\s+/g,' ').trim()); }))) return;
+    e.remove();
+  });
+  c.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(e){ e.replaceWith(document.createTextNode('☐ ')); });
+  c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,button').forEach(function(e){ e.remove(); });
+  c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
+  /* Le pointillé prend la PLACE de la case qu'il remplace (mesurée sur l'écran
+     affiché) : un pointillé de taille fixe déplaçait tout ce qui l'entoure, et
+     les branches d'un arbre, posées sur la grille rendue, ne tombaient plus sur
+     leurs étiquettes. Le clone et l'original vont de pair, dans le même ordre. */
+  const sel='input,select,math-field,.dexp2-sheet';
+  const vraies=section.querySelectorAll(sel);
+  c.querySelectorAll(sel).forEach(function(e,k){
+    const b=document.createElement('span'); b.className='dme-blank';
+    const v=vraies[k], w=v?v.offsetWidth:0, h=v?v.offsetHeight:0;
+    if(w>0){ b.style.width=w+'px'; b.style.minWidth='0'; }
+    if(h>0) b.style.height=h+'px';
+    e.replaceWith(b); });
+  dmeNettoyerClone(c);
+  /* ce que le ménage a vidé (un cadre qui ne portait que des lignes à
+     compléter) part aussi : un cadre vide imprime une boîte blanche —
+     sauf une CELLULE de grille (dmeViderCadres) */
+  dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank');
+  return c.innerHTML;
+}
+/* LES CELLULES D'UNE GRILLE GARDENT LEUR PLACE. Une photo retire les cadres
+   qu'elle a vidés ; mais dans une grille (la vérification d'une équation
+   différentielle : début | gauche | = | droite | « ce qui est vrai »), une
+   cellule vide TIENT une colonne. Retirée, chaque cellule suivante glissait
+   d'un rang : les ⟺ tombaient au bout de la ligne d'avant, rien ne
+   s'alignait plus (signalé par Turquet, novembre 2026, DM n°13). Le clone
+   n'a pas de style calculé : on marque sur l'écran affiché, avant de
+   cloner, chaque enfant d'une grille. */
+function dmeMarquerCellules(scr){
+  const l=[];
+  scr.querySelectorAll('*').forEach(function(p){
+    if(p.closest('svg') || !p.children.length || !/grid$/.test(getComputedStyle(p).display)) return;
+    /* la valeur : le numéro de la RANGÉE — une nouvelle rangée commence
+       quand une cellule revient à gauche de la précédente (le haut ne dit
+       rien : une rangée centrée a des cellules de hauteurs différentes) ;
+       une rangée entièrement vidée part toute, sans quoi elle imprimerait
+       une bande blanche */
+    let rang=0, avant=-Infinity;
+    Array.prototype.forEach.call(p.children, function(e){
+      const x=e.getBoundingClientRect().left; if(x<=avant) rang++; avant=x;
+      e.setAttribute('data-dme-cel', String(rang)); l.push(e); });
+  });
+  return l;
+}
+function dmeViderCadres(c, garde){
+  const vide=function(e){ return !(e.textContent||'').trim() && !e.querySelector(garde) && !e.matches(garde); };
+  const rangs=new Map();
+  c.querySelectorAll('[data-dme-cel]').forEach(function(e){
+    const k=e.parentElement, r=e.getAttribute('data-dme-cel');
+    if(!rangs.has(k)) rangs.set(k, {}); (rangs.get(k)[r]=rangs.get(k)[r]||[]).push(e); });
+  rangs.forEach(function(rs){ Object.keys(rs).forEach(function(r){ if(rs[r].every(vide)) rs[r].forEach(function(e){ e.remove(); }); }); });
+  for(let tour=0; tour<4; tour++)
+    c.querySelectorAll('div,p,section,ul,ol,li').forEach(function(e){
+      if(!e.hasAttribute('data-dme-cel') && !(e.textContent||'').trim() && !e.querySelector(garde)) e.remove(); });
+  c.querySelectorAll('[data-dme-cel]').forEach(function(e){ e.removeAttribute('data-dme-cel'); });
+}
+/* CE QUE TOUTE PHOTO D'UN ÉCRAN RETIRE — l'énoncé papier comme la
+   correction : le cadre au marqueur mesuré pour l'écran, et les id (renommés
+   dans un dessin). Un seul endroit : deux photos qui le recopieraient
+   finiraient par diverger. */
+function dmeNettoyerClone(c){
+  /* LE CADRE AU MARQUEUR est une image de fond posée EN LIGNE sur la carte
+     de l'écran (#cadres-marqueur), à la mesure de l'écran : le clone la
+     gardait, et le papier montrait des traits bleus en travers de l'énoncé,
+     tracés pour une autre taille (signalé par Turquet, novembre 2026). Le
+     papier n'a pas de cadre de carte : la marque part avec son dessin. */
+  c.querySelectorAll('.marque').forEach(function(e){
+    e.classList.remove('marque'); e.removeAttribute('data-marque');
+    e.style.backgroundImage=''; e.style.backgroundPosition=''; e.style.backgroundSize='';
+  });
+  /* Une photo ne porte AUCUN id : les conteneurs clonés (s1Res, s1Table, …)
+     gardaient les leurs, et l'écran d'énoncé venant AVANT les écrans
+     d'exercice dans le document, getElementById rendait le CLONE — le rendu
+     de l'exercice écrivait dans l'énoncé caché, l'élève remplissait un écran
+     que la vérification ne lisait pas, et « Vérifier » répondait « Complète
+     au moins une case » devant une copie pleine (signalé par Turquet, août
+     2026). jsdom, lui, garde un cache d'id qui rend l'ORIGINAL : seul un
+     vrai navigateur voyait le défaut. */
+  /* SAUF DANS UN DESSIN : un clipPath, un marqueur de flèche, un dégradé ne
+     servent que par leur id (url(#…)). Retirés, la courbe des limites
+     graphiques sortait coupée de moitié du PDF et les branches d'un arbre
+     perdaient leurs pointes. Ils sont RENOMMÉS (suffixe unique), références
+     comprises : aucun code de l'exercice ne les cherche sous ce nom. */
+  c.querySelectorAll('svg').forEach(function(g){
+    if(g.id) g.setAttribute('data-dme-id', g.id);
+    const n='-dme'+(++dmeIdsSvg), noms={};
+    g.querySelectorAll('[id]').forEach(function(e){ noms[e.id]=e.id+n; e.id=e.id+n; });
+    if(!Object.keys(noms).length) return;
+    [g].concat(Array.prototype.slice.call(g.querySelectorAll('*'))).forEach(function(e){
+      Array.prototype.slice.call(e.attributes).forEach(function(at){
+        const v=at.value.replace(/url\(#([^)]+)\)/g, function(m,k){ return noms[k]?'url(#'+noms[k]+')':m; })
+          .replace(/^#(.+)$/, function(m,k){ return noms[k]&&/href$/.test(at.name)?'#'+noms[k]:m; });
+        if(v!==at.value) e.setAttribute(at.name, v);
+      });
+    });
+    g.removeAttribute('id');
+  });
+  /* l'id part, son nom reste en data-dme-id : le PDF s'en sert pour retracer
+     un arbre sur SA mise en page (dmePdfRetracer) — un attribut sans effet */
+  c.querySelectorAll('[id]').forEach(function(e){ if(!e.closest('svg')){ e.setAttribute('data-dme-id', e.id); e.removeAttribute('id'); } });
+}
+function dmEnonceHTML(){
+  const n=(test.questions||[]).length; if(!n) return null;
+  let out='';
+  for(let i=0;i<n;i++){
+    test.idx=i;
+    if(!afficherEcranDe(test.kind)) return null;
+    const scr=document.querySelector('.screen.on'); if(!scr) return null;
+    /* LES BRANCHES D'UN ARBRE se dessinent à l'image suivante (apfSuivreTraits,
+       requestAnimationFrame), sur la grille rendue : la photo, prise tout de
+       suite, montrait un arbre sans branches — des étiquettes flottantes. On
+       les pose AVANT la photo, l'écran étant affiché. */
+    if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
+    out+='<div class="dme-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+'</div>':'')+dmEnonceQ(scr)+'</div>';
+  }
+  test.idx=0; afficherEcranDe(test.kind);
+  return out;
+}
+/* Quitter l'écran d'énoncé VIDE son hôte — la convention des hôtes partagés :
+   un clone qui resterait dans le document est un écran fantôme de plus. */
+function dmeViderCorps(){ const h=$('dmeCorps'); if(h) h.innerHTML=''; }
+function dmeRetour(){
+  const c=dmeCtx; dmeCtx=null; dmeViderCorps();
+  if(!c){ retourSignalements(); return; }      /* vue professeur : retour aux signalements, au même endroit */
+  currentDM=null; ouvrirDevoirDetail(c.devoirId);
+}
+async function dmePapier(){
+  const c=dmeCtx; if(!c||c.envoye) return;
+  /* L'ENVOI NE SE DÉFAIT PAS, ET C'EST TOUTE LA RAISON DE LA CONFIRMATION :
+     le professeur reçoit une ligne que l'élève ne peut pas retirer, et un clic
+     parti tout seul lui laisserait l'énoncé d'un devoir que personne ne rendra.
+     confirm() est la convention du fichier pour un geste irréversible côté
+     élève — c'est déjà celle de « Abandonner cet exercice ». */
+  if(!confirm('Télécharger ton énoncé en PDF ?\n\nTon professeur en recevra le même exemplaire, avec ton prénom : c’est cette version-là qu’il corrigera.')) return;
+  const bp=$('dmePapierBtn');
+  if(bp) bp.disabled=true;
+  const dev=(mesDevoirs||[]).find(function(d){ return d.id===c.devoirId; });
+  const payload=signalementPayload('DM sur papier — '+((currentEleve&&currentEleve.prenom)||'élève')
+    +(dev&&dev.num!=null?' — '+GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'')+' — '+testLabel(c.testId), null);
+  payload.mode=null;                            /* un devoir sur papier n'a pas de mode */
+  payload.contexte=payload.contexte||{};
+  payload.contexte.dmPapier=true; payload.contexte.dm=c.devoirId;
+  try{
+    /* insert SEC, et l'échec se DIT : annoncer un envoi qui n'a pas eu lieu
+       laisserait l'élève rendre une feuille dont le professeur n'a pas
+       l'énoncé — le refus muet, encore. */
+    const {error}=await sb.from(TABLE_SIG).insert(payload);
+    if(error){ toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return; }
+    c.envoye=true;
+    const corr=dmAvecCorrection(c.devoirId);
+    $('dmeIntro').textContent='Ton professeur a reçu cet énoncé, avec ton prénom. Imprime le PDF et réponds sur la feuille : c’est cette version-là qu’il corrigera.'
+      +(corr?' Sa correction se télécharge aussi : tu la retrouveras ici chaque fois que tu reviendras sur cet exercice.':' Tu le retrouveras ici chaque fois que tu reviendras sur cet exercice.');
+    $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé envoyé au professeur</span>'
+      +dmePdfBouton('📥 Télécharger à nouveau le PDF')
+      +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
+      +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
+    toast('Énoncé envoyé au professeur','ok');
+    /* PAS d'await : le PDF se prépare (bibliothèques, rendu) pendant que
+       l'élève lit la confirmation, et son échec se dit par lui-même */
+    dmePdf();
+  }catch(e){ toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; }
+}
+/* UN REFUS DE LA BASE DEVANT UN ÉLÈVE SE NOMME. « new row violates
+   row-level security policy for table "signalements" », lu tel quel, ne dit
+   rien à personne (vu par Turquet, novembre 2026, sur le DM n°10). La règle
+   d'accès n'accepte la ligne que si le compte CONNECTÉ est celui de l'élève
+   (eleves.user_id = auth.uid()) ; elle la refuse dans trois cas connus, que la
+   page distingue en relisant la session : plus de session du tout ; une
+   session qui est celle d'un AUTRE compte — une seule session Supabase par
+   navigateur : le professeur (ou un autre élève) qui se connecte dans un
+   autre onglet remplace celle de l'élève ; ou bien la bonne session, mais une
+   fiche d'élève qui n'est plus reliée à son compte (après une restauration :
+   supabase/relier-comptes.sql). Toute autre erreur reste brute. */
+async function raisonRefusEleve(error){
+  const brut=(error&&error.message)||'erreur';
+  if(!erreurDeSession(error)) return brut+' — réessaie.';
+  let qui=null;
+  /* une relecture qui échoue ne dit rien de la session : on ne conclut pas */
+  try{ const {data,error:errQui}=await sb.auth.getUser(); if(errQui) return brut+' — réessaie.'; qui=data&&data.user; }catch(e){ return brut+' — réessaie.'; }
+  const moi=currentEleve&&currentEleve.cle?courrielDe(currentEleve.cle).toLowerCase():'';
+  if(!qui) return 'ta session s’est fermée (ordinateur en veille, connexion coupée ?). Reconnecte-toi avec ton code, puis recommence.';
+  if(moi&&String(qui.email||'').toLowerCase()!==moi)
+    return 'ce navigateur est maintenant connecté à un AUTRE compte que le tien (quelqu’un — le professeur ? — s’est connecté dans un autre onglet). Reconnecte-toi avec ton code, puis recommence.';
+  return 'ton compte n’est plus relié à ta fiche d’élève. Préviens ton professeur. (Détail : '+brut+')';
+}
+/* L'énoncé d'un DM sur papier, côté professeur : la photo envoyée par
+   l'élève, rendue par le MÊME capteur que l'écran de l'élève (dmEnonceHTML) —
+   deux rendus auraient fini par diverger. REJEU verrouille les notes : le
+   professeur est connecté à SON compte, et la boucle de capture rejoue de
+   vrais écrans d'exercice. */
+function voirEnonceDM(id){
+  const r=mesSignalements.find(function(x){ return x.id===id; });
+  if(!r || !r.contexte || !r.contexte.kind){ toast('Cet énoncé ne peut pas être affiché','err'); return false; }
+  retenirSignalements(id);
+  REJEU=true;
+  currentDM=null;
+  const corps=dmeRestaurer(r.contexte, r.exercice);
+  if(corps==null){ toast('Cet énoncé ne peut pas être affiché','err'); return false; }
+  dmeCtx=null;
+  $('dmeTitre').textContent='📄 '+(r.prenom||'élève')+' — '+testLabel(r.exercice);
+  $('dmeIntro').textContent='Voici l’énoncé exact que cet élève a reçu pour son devoir sur papier : c’est cette version-là qu’il traite sur sa feuille. Le PDF est celui qu’il a téléchargé.';
+  $('dmeCorps').innerHTML=corps;
+  dmePdfPoser(String(r.message||'').replace(/^DM sur papier — [^—]*— /,'')||testLabel(r.exercice), r.prenom||'');
+  $('dmeActions').innerHTML=dmePdfBouton('📥 Télécharger le PDF')
+    +dmcPdfBouton('📥 PDF de la correction')
+    +'<button class="btn btn-ghost" onclick="dmeRetour()">← Retour aux signalements</button>';
+  show('dmenonce');
+  return true;
+}
+/* Le PDF d'un DM papier, en un clic depuis la liste des signalements : le
+   professeur « reçoit un message avec ce document ». Le fichier n'est pas
+   stocké — le seau des captures n'accepte que des images, et l'ouvrir aux PDF
+   demanderait une migration — : il est REFAIT depuis le tirage exact envoyé,
+   par le même capteur et le même rendu que chez l'élève. */
+function pdfEnonceDM(id){ if(voirEnonceDM(id)) dmePdf(); }
+
+/* ---------- Devoir : LA CORRECTION DE LA VERSION PAPIER ----------
+   Demande de Turquet (novembre 2026) : « une option "avec correction" quand je
+   crée un devoir maison ; si l'élève demande la version papier en PDF, il peut
+   avoir aussi accès à la correction en PDF de l'exercice, présentée avec les
+   mêmes étapes que la version en ligne ; quand il revient sur ce devoir et sur
+   cet exercice, il retrouve son PDF avec l'énoncé et le PDF de la correction
+   associé ».
+   LA CORRECTION EST LA PHOTO DE L'ÉCRAN CORRIGÉ — par la page elle-même, comme
+   l'énoncé est la photo de l'écran à remplir. Aucun exercice ne déclare sa
+   correction : chaque question est rejouée (afficherEcranDe), vérifiée COMME
+   EN ENTRAÎNEMENT — la page y écrit la correction dans les cases — puis
+   photographiée, cases remplacées par leurs valeurs. Les étapes de la
+   correction sont donc, à la lettre, celles de l'exercice en ligne, et un
+   exercice ajouté demain est couvert sans rien déclarer.
+   UNE VÉRIFICATION SUR DES CASES VIDES NE CORRIGE PAS : « Complète au moins
+   une case » (mesuré : 76 exercices sur 84). La correction se FAIT donc écrire,
+   par tours : chaque case reçoit une réponse d'essai (« 0 », « 1 »… ; pour un
+   menu, le choix suivant), la page vérifie, et ce qu'elle a marqué juste ou
+   corrigé (ok, sol) est RETENU ; au tour suivant, l'écran est redessiné neuf,
+   les réponses retenues posées, les autres réessayées. Le tour gagnant est
+   celui que la page a corrigé (test.locked) sans case rouge — sinon le moins
+   rouge, et une case restée rouge s'imprime en pointillé : la réponse d'essai
+   n'est jamais montrée comme une correction. Un exercice à étapes (le nombre
+   de racines d'abord, puis le tableau) passe ses étapes dans le même tour.
+   AUCUNE NOTE, AUCUNE IA : REJEU verrouille l'écriture des notes, et l'aide par
+   IA (une relecture appelée par certaines vérifications) est coupée le temps
+   de la photo — la page juge seule, comme en entraînement. L'état de la séance
+   (tirage, score, réponses) est rendu tel quel à la fin.
+   LE FICHIER N'EST PAS STOCKÉ, IL EST REFAIT, comme l'énoncé : depuis le tirage
+   exact envoyé au professeur. L'élève qui revient sur l'exercice RETROUVE cet
+   envoi (dmePapierRetrouver) — sa ligne dans les signalements, qu'il a le
+   droit de lire (migration 008) — et non un nouveau tirage : l'énoncé et la
+   correction restent ceux de sa feuille. */
+function dmAvecCorrection(devoirId){
+  const d=(mesDevoirs||[]).find(function(x){ return x.id===devoirId; });
+  return !!(d && d.correction===true);
+}
+function dmcPdfBouton(lib){ return '<button class="btn btn-ghost" id="dmcPdfBtn" onclick="dmcPdf()">'+esc(lib)+'</button>'; }
+/* L'envoi déjà fait de CET exercice de CE devoir, le plus récent. Une lecture
+   qui échoue ne dit rien : on retombe sur un nouvel énoncé, comme avant. */
+async function dmePapierRetrouver(devoirId, testId){
+  if(!currentEleve || !currentEleve.id) return null;
+  try{
+    const {data,error}=await sb.from(TABLE_SIG).select('id,created_at,exercice,contexte')
+      .eq('eleve_id',currentEleve.id).eq('exercice',testId).order('created_at',{ascending:false});
+    if(error || !Array.isArray(data)) return null;
+    return data.find(function(r){ const c=r&&r.contexte; return c && c.dmPapier===true && c.dm===devoirId && c.kind && Array.isArray(c.questions); })||null;
+  }catch(e){ return null; }
+}
+/* Le tirage d'un envoi remis en place, puis photographié — l'élève qui revient,
+   et le professeur qui lit la ligne, par le MÊME chemin. */
+function dmeRestaurer(d, exercice){
+  currentTestId=exercice; currentMode='train';
+  clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+  Object.keys(test).forEach(function(k){ delete test[k]; });
+  Object.assign(test,{kind:'cm',questions:[],idx:0,score:0,answers:[],startTime:0,qTimer:null,qDeadline:0,qTotal:0,fbTimer:null,locked:false});
+  const skip={_boxes:1}; Object.keys(d).forEach(function(k){ if(!skip[k]) test[k]=d[k]; });
+  test.startTime=Date.now(); test.locked=false;
+  if(typeof rehydrateQuestions==='function') try{ rehydrateQuestions(); }catch(e){}
+  return dmEnonceHTML();
+}
+/* L'élève revient sur un exercice déjà envoyé : son énoncé, et sa correction
+   si le devoir la propose. */
+function dmeRevoir(r, devoirId){
+  currentThemeNum=themeOfTest(r.exercice)||currentThemeNum;
+  currentDM=devoirId;
+  const corps=dmeRestaurer(r.contexte, r.exercice);
+  if(corps==null) return false;
+  dmeCtx={devoirId:devoirId, testId:r.exercice, envoye:true};
+  const dev=(mesDevoirs||[]).find(function(d){ return d.id===devoirId; });
+  const devNom=dev&&dev.num!=null?GENRE_DEVOIRS[dev.genre||'dm'].badge+' n°'+dev.num:'Devoir';
+  dmePdfPoser(devNom+' — '+testLabel(r.exercice), (currentEleve&&currentEleve.prenom)||'');
+  const corr=dmAvecCorrection(devoirId);
+  let quand=''; try{ const t=new Date(r.created_at); if(!isNaN(t.getTime())) quand=' le '+t.toLocaleDateString('fr-FR'); }catch(e){}
+  $('dmeTitre').innerHTML='📄 '+esc(testLabel(r.exercice))+(dmBonusCourant()?' '+dmBonusBadge():'');
+  $('dmeIntro').textContent='Voici l’énoncé que tu as reçu'+quand+' pour ce devoir sur papier : c’est cette version-là que ton professeur corrigera.'
+    +(corr?' Sa correction se télécharge aussi.':'');
+  $('dmeCorps').innerHTML=corps;
+  $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé déjà envoyé au professeur</span>'
+    +dmePdfBouton('📥 Télécharger mon énoncé en PDF')
+    +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
+    +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
+  show('dmenonce');
+  return true;
+}
+const DMC_SAISIES='input,select,math-field,textarea';
+const DMC_HORS='#paveNum,#paveSup,math-keyboard,.ML__keyboard,.pave';
+const DMC_ESSAIS=['0','1','2','-1','3'];
+function dmcVisible(e){ return !!e && e.isConnected && e.getClientRects().length>0 && getComputedStyle(e).visibility!=='hidden'; }
+function dmcCoche(e){ return e.tagName==='INPUT' && /^(checkbox|radio)$/i.test(e.type||''); }
+function dmcCases(scr){
+  return Array.prototype.filter.call(scr.querySelectorAll(DMC_SAISIES), function(e){
+    if(e.tagName==='INPUT' && /^(hidden|button|submit|reset|file|range|color|image)$/i.test(e.type||'')) return false;
+    return !e.closest(DMC_HORS) && dmcVisible(e);
+  });
+}
+function dmcValeur(e){
+  if(e.tagName==='MATH-FIELD'){ try{ return String((typeof e.getValue==='function'?e.getValue():e.value)||''); }catch(x){ return String(e.value||''); } }
+  if(dmcCoche(e)) return !!e.checked;
+  return String(e.value==null?'':e.value);
+}
+function dmcVide(e){
+  if(dmcCoche(e)) return false;
+  return !String(dmcValeur(e)).replace(/\\placeholder(\[[^\]]*\])?\{\s*\}|\\[,;:! ]|[\s{}]/g,'').length;
+}
+function dmcJuge(e){ return e.classList.contains('ok') || e.classList.contains('sol'); }
+function dmcPoser(e, v){
+  if(e.disabled || e.readOnly || e.hasAttribute('read-only')) return;
+  if(dmcCoche(e)){ if(e.checked!==!!v) e.click(); return; }
+  if(e.tagName==='MATH-FIELD'){ try{ if(typeof e.setValue==='function') e.setValue(String(v)); else e.value=String(v); }catch(x){ e.value=String(v); } }
+  else e.value=String(v);
+  e.dispatchEvent(new Event('input',{bubbles:true}));
+  e.dispatchEvent(new Event('change',{bubbles:true}));
+}
+/* la réponse d'essai d'une case, au rang r : le r-ième choix d'un menu, ou un
+   petit nombre — un essai juste est retenu comme une correction */
+function dmcEssai(e, r){
+  if(e.tagName==='SELECT'){
+    const ops=Array.prototype.filter.call(e.options, function(o){ return o.value!=='' && !o.disabled; });
+    return ops.length ? ops[r%ops.length].value : null;
+  }
+  return DMC_ESSAIS[r%DMC_ESSAIS.length];
+}
+function dmcBouton(scr){
+  return Array.prototype.find.call(scr.querySelectorAll('button'), function(b){
+    return dmcVisible(b) && !b.disabled && !b.closest(DMC_HORS) && /^\s*(re)?(vérifier|valider|corriger)\b/i.test(b.textContent||''); })||null;
+}
+/* une vérification peut finir en différé (une relecture IA coupée, une
+   minuterie courte) : quelques micro-tâches d'abord — aucune image ne se
+   peint entre elles —, puis, tant qu'un bouton dit « Vérification… », de
+   courtes attentes, jamais plus de 1,5 s */
+async function dmcAttendre(){
+  for(let k=0;k<8;k++) await Promise.resolve();
+  const t0=Date.now();
+  while(Date.now()-t0<1500){
+    const scr=document.querySelector('section.screen.on');
+    const occupe=scr && Array.prototype.some.call(scr.querySelectorAll('button[disabled]'), function(b){ return /vérification|relit/i.test(b.textContent||''); });
+    if(!occupe) return;
+    await new Promise(function(ok){ setTimeout(ok,40); });
+  }
+}
+/* La photo d'un écran corrigé : chaque case devient sa VALEUR, à l'encre de
+   la correction (verte) ; une case restée rouge ou vide, un pointillé. Ni
+   boutons, ni verdict adressé à l'élève, ni aide. */
+function dmCorrigeQ(scr){
+  if(typeof apfTraits==='function') scr.querySelectorAll('svg.apf-traits[id$="Traits"]').forEach(function(t){ apfTraits(t.id.slice(0,-6)); });
+  const vraies=Array.prototype.slice.call(scr.querySelectorAll(DMC_SAISIES));
+  const BADGES='.sol:not(input):not(select):not(math-field):not(textarea),.mf-cor';
+  const badgesV=Array.prototype.slice.call(scr.querySelectorAll(BADGES));
+  const cel=dmeMarquerCellules(scr);
+  const c=scr.cloneNode(true);
+  cel.forEach(function(e){ e.removeAttribute('data-dme-cel'); });
+  const badgesC=Array.prototype.slice.call(c.querySelectorAll(BADGES));
+  Array.prototype.slice.call(c.querySelectorAll(DMC_SAISIES)).forEach(function(e,k){
+    const v=vraies[k];
+    if(!v || v.closest(DMC_HORS) || !dmcVisible(v) || (v.tagName==='INPUT' && /^(hidden|button|submit|reset|file)$/i.test(v.type||''))){ e.remove(); return; }
+    const w=v.offsetWidth, h=v.offsetHeight;
+    let r;
+    if(dmcCoche(v)){
+      const coche=v.classList.contains('sol') || (v.checked && !v.classList.contains('bad'));
+      r=document.createElement('span'); r.className=coche?'dmc-val':''; r.textContent=coche?'☑ ':'☐ ';
+    } else if(v.classList.contains('bad') || dmcVide(v)){
+      /* la page a écrit la correction À CÔTÉ de la case (un badge vert,
+         .mf-cor ou .sol — corrCase) :
+         la case vide n'a rien à dire, le badge parle */
+      let badge=null;
+      for(let x=v, k=0; x && k<3 && !badge; x=x.parentElement, k++){
+        if(k && x.querySelectorAll(DMC_SAISIES).length>1) break;     /* l'enveloppe d'une autre case aussi */
+        const y=x.nextElementSibling;
+        if(y && (y.classList.contains('sol')||y.classList.contains('mf-cor')) && !y.matches(DMC_SAISIES) && !y.querySelector(DMC_SAISIES)) badge=y;
+      }
+      /* le badge prend la PLACE de la case : laissé derrière une parenthèse
+         fermée, il imprimait « ( ) e⁻ˣ » — la case vide entre ses parenthèses */
+      const bc=badge?badgesC[badgesV.indexOf(badge)]:null;
+      if(bc){ e.replaceWith(bc); return; }
+      if(badge){ e.remove(); return; }
+      r=document.createElement('span'); r.className='dme-blank';
+      if(w>0){ r.style.width=w+'px'; r.style.minWidth='0'; }
+      if(h>0) r.style.height=h+'px';
+    } else {
+      r=document.createElement('span'); r.className='dmc-val';
+      if(v.tagName==='MATH-FIELD'){
+        const lx=dmcValeur(v), html=(window.mlDexp&&typeof mlDexp.tex==='function')?mlDexp.tex(lx):null;
+        if(html) r.innerHTML=html; else r.textContent=lx;
+      } else if(v.tagName==='SELECT'){ const o=v.options[v.selectedIndex]; r.textContent=o?o.textContent:''; }
+      else r.textContent=dmcValeur(v);
+      if(w>0) r.style.minWidth=Math.min(w,400)+'px';
+    }
+    e.replaceWith(r);
+  });
+  /* UN BOUTON QUE LA PAGE A JUGÉ EST UNE CASE : l'écriture de la
+     probabilité que l'élève choisit dans un petit menu (.apc-slot du 6.1.x,
+     « P(A ∩ V) » devant « = P(A) × P_A(V) ») est un bouton, et la photo
+     retirait tous les boutons — la ligne de la correction commençait par
+     « = » (signalé par Turquet, novembre 2026, DM n°13). Ce que la page y a
+     écrit, juste (ok) ou corrigé (sol), devient sa valeur ; un bouton rouge
+     part, la correction est à côté (.mf-cor). */
+  c.querySelectorAll('button.ok,button.sol').forEach(function(b){
+    if(!(b.textContent||'').trim()) return;
+    const r=document.createElement('span'); r.className='dmc-val'; r.innerHTML=b.innerHTML; b.replaceWith(r); });
+  c.querySelectorAll('.test-top,.exo-title,.mp-actions,.tvi-actions,.mp-feedback,[id$="Feedback"],#esxMsg,.iafb,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,.ia-row,.score-tag,.papier-seul,button').forEach(function(e){ e.remove(); });
+  c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
+  /* UNE FRACTION À DEUX CASES CORRIGÉE D'UN SEUL BADGE (Première : la page
+     écrit « 40/100 » après la fraction entière, pas après chaque case) : la
+     recherche du badge s'arrête à l'enveloppe qui porte deux cases, et la
+     photo imprimait la fraction en pointillés PUIS sa valeur. L'enveloppe qui
+     ne porte plus que des pointillés, suivie d'un badge, cède la place. */
+  c.querySelectorAll('.sol:not(input):not(select):not(math-field):not(textarea),.mf-cor').forEach(function(b){
+    const p=b.previousElementSibling;
+    if(p && p.querySelector('.dme-blank') && !p.querySelector('.dmc-val,svg,img') && !(p.textContent||'').trim()) p.remove();
+  });
+  /* une copie d'essai n'est pas une copie : rien n'y est rouge, et ce que la
+     page avait trouvé juste se lit comme la correction */
+  c.querySelectorAll('.bad').forEach(function(e){ e.classList.remove('bad'); });
+  c.querySelectorAll('.ok').forEach(function(e){ e.classList.remove('ok'); e.classList.add('sol'); });
+  dmeNettoyerClone(c);
+  dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank,.dmc-val');
+  return c.innerHTML;
+}
+/* Une question : les tours de la correction (voir l'en-tête). */
+/* LES CARTES À CHOISIR — l'ajout de la Première au circuit de la Terminale.
+   Une question de pourcentages commence souvent par un choix (« a 40 min,
+   b 50 min… », « 📈 Une augmentation / 📉 Une baisse ») : une carte
+   .pt-choix-btn, pas une case. Sans elle, « Vérifier » ne corrigeait rien, et
+   trente exercices du thème 2 répondaient « se fait avec ton professeur »
+   (mesuré en portant le papier, novembre 2026). Les tours l'essaient comme
+   une case : une carte par tour, jusqu'à celle que la page marque juste ou
+   corrigée (ok, sol), retenue ensuite. */
+const DMC_CHOIX='.pt-choix-btn';
+function dmcChoix(scr){
+  return Array.prototype.filter.call(scr.querySelectorAll(DMC_CHOIX), function(b){ return dmcVisible(b) && !b.closest(DMC_HORS); });
+}
+function dmcChoixPris(b){ return b.classList.contains('sel')||b.classList.contains('ok')||b.classList.contains('sol')||b.classList.contains('bad'); }
+async function dmcQuestion(i, orig){
+  const connu={}, rang={};
+  let choixConnu=null, rangChoix=0;
+  let photo=null, rouges=Infinity;
+  for(let tour=0; tour<6; tour++){
+    test.questions[i]=JSON.parse(orig[i]);
+    if(typeof rehydrateQuestions==='function') try{ rehydrateQuestions(); }catch(e){}
+    test.idx=i; test.locked=false;
+    clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+    if(!afficherEcranDe(test.kind)) return null;
+    let scr=document.querySelector('section.screen.on'); if(!scr) return null;
+    let appris=false, avant=-1;
+    for(let clic=0; clic<4; clic++){
+      const ch=dmcChoix(scr);
+      if(ch.length && !ch.some(dmcChoixPris)){
+        ch[choixConnu!=null ? choixConnu%ch.length : rangChoix%ch.length].click();
+        for(let m=0;m<8;m++) await Promise.resolve();
+        scr=document.querySelector('section.screen.on')||scr;
+      }
+      const cs=dmcCases(scr);
+      cs.forEach(function(e,k){
+        if(dmcJuge(e)) return;
+        if(Object.prototype.hasOwnProperty.call(connu,k)){ dmcPoser(e, connu[k]); return; }
+        if(dmcCoche(e) || !dmcVide(e)) return;
+        const v=dmcEssai(e, rang[k]||0); if(v!=null) dmcPoser(e, v);
+      });
+      /* des cases à cocher seules, aucune cochée : la première */
+      if(cs.length && cs.every(dmcCoche) && !cs.some(function(e){ return e.checked; })) dmcPoser(cs[0], true);
+      const b=dmcBouton(scr); if(!b) break;
+      b.click();
+      await dmcAttendre();
+      clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+      const s2=document.querySelector('section.screen.on'); if(!s2) break;
+      scr=s2;
+      const apres=dmcCases(scr);
+      apres.forEach(function(e,k){
+        if(dmcCoche(e)) return;
+        if(dmcJuge(e) && !dmcVide(e)){ const v=dmcValeur(e); if(connu[k]!==v){ connu[k]=v; appris=true; } }
+      });
+      const kj=dmcChoix(scr).findIndex(dmcJuge);
+      if(kj>=0 && choixConnu!==kj){ choixConnu=kj; appris=true; }
+      if(test.locked) break;
+      /* une étape s'est ouverte (des cases nouvelles) : on la remplit et on
+         revérifie ; sinon le tour est fini */
+      if(apres.length<=cs.length && apres.length===avant) break;
+      if(apres.length<=cs.length && !appris) break;
+      avant=apres.length;
+    }
+    const cases=dmcCases(scr);
+    cases.forEach(function(e,k){ if(e.classList.contains('bad') && !Object.prototype.hasOwnProperty.call(connu,k)) rang[k]=(rang[k]||0)+1; });
+    const choixFaux=dmcChoix(scr).some(function(c){ return c.classList.contains('bad'); });
+    if(choixFaux && choixConnu==null) rangChoix++;
+    const r=cases.filter(function(e){ return e.classList.contains('bad'); }).length+(choixFaux?1:0);
+    /* une photo où la page n'a RIEN corrigé (une rédaction que seule l'IA
+       relit, un tableau qui exige toutes ses cases) n'est pas une correction :
+       elle redirait l'énoncé, et l'élève la croirait corrigée */
+    if(test.locked && r<rouges){
+      const h=dmCorrigeQ(scr);
+      if(/class="([^"]*\s)?(dmc-val|sol|mf-cor|[a-z0-9]+-cor)(\s|")/.test(h)){ rouges=r; photo=h; }
+    }
+    if(test.locked && r===0) break;
+    if(!appris && !choixFaux && !cases.some(function(e){ return e.classList.contains('bad'); }) && !test.locked) break;
+  }
+  return photo;
+}
+let dmcVoile=null;
+function dmcVoiler(on){
+  if(on && !dmcVoile){
+    dmcVoile=document.createElement('div'); dmcVoile.id='dmcVoile';
+    dmcVoile.innerHTML='<div class="dmc-voile-boite">⏳ Préparation de la correction…</div>';
+    document.body.appendChild(dmcVoile);
+  } else if(!on && dmcVoile){ dmcVoile.remove(); dmcVoile=null; }
+}
+async function dmCorrigeHTML(){
+  const n=(test.questions||[]).length; if(!n) return null;
+  const orig=[];   /* chaque question en JSON : le tirage, rendu intact à la fin */
+  for(let k=0;k<n;k++) orig.push(JSON.stringify(test.questions[k]));
+  let etat=null; try{ etat=JSON.stringify(test, function(k,v){ return typeof v==='function'?undefined:v; }); }catch(e){}
+  const mode=currentMode, rejeu=REJEU, vides=window.confirmerCasesVides;
+  const fx=sb&&sb.functions, invoke=fx&&fx.invoke, bulle=toast;
+  let out='', faites=0;
+  dmcVoiler(true);
+  try{
+    REJEU=true; currentMode='train'; window.confirmerCasesVides=false;
+    toast=function(){};          /* les réponses d'essai ne parlent pas à l'élève */
+    if(fx) fx.invoke=function(){ return Promise.resolve({data:null, error:{message:'correction papier : la page juge seule'}}); };
+    for(let i=0;i<n;i++){
+      let h=null;
+      try{ h=await dmcQuestion(i, orig); }catch(e){ console.warn('correction papier, question '+(i+1), e); h=null; }
+      if(h) faites++;
+      out+='<div class="dme-q dmc-q">'+(n>1?'<div class="dme-qnum">Question '+(i+1)+'</div>':'')
+        +(h||'<p class="muted">La correction de cette question n’a pas pu s’écrire automatiquement : elle se fait avec ton professeur.</p>')+'</div>';
+    }
+  } finally {
+    if(fx) fx.invoke=invoke;
+    toast=bulle;
+    REJEU=rejeu; currentMode=mode; window.confirmerCasesVides=vides;
+    clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
+    if(etat){ Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test, JSON.parse(etat)); }
+    test.questions=[]; for(let k=0;k<n;k++) test.questions.push(JSON.parse(orig[k]));
+    if(typeof rehydrateQuestions==='function') try{ rehydrateQuestions(); }catch(e){}
+    test.idx=0; test.locked=false;
+    show('dmenonce');
+    dmcVoiler(false);
+  }
+  return faites ? out : null;
+}
+async function dmcPdf(){
+  const i=dmePdfInfo; if(!i || i.corEnCours) return;
+  if(i.corBlob){ dmeTelecharger(i.corBlob, dmePdfNom('correction')); return; }
+  const bt=$('dmcPdfBtn'), lib=bt?bt.textContent:'';
+  i.corEnCours=true; if(bt){ bt.disabled=true; bt.textContent='⏳ Préparation de la correction…'; }
+  try{
+    const corps=await dmCorrigeHTML();
+    if(dmePdfInfo!==i) return;
+    if(!corps){ toast('La correction de cet exercice ne peut pas s’écrire automatiquement : elle se fait avec ton professeur.','err'); return; }
+    const blob=await dmePdfFabriquer('<div class="dmc">'+corps+'</div>', 'Correction — '+(i.titre||''));
+    if(dmePdfInfo!==i) return;
+    i.corBlob=blob;
+    dmeTelecharger(blob, dmePdfNom('correction'));
+    toast('Correction téléchargée','ok');
+  }catch(e){
+    toast('La correction n’a pas pu être préparée ('+((e&&e.message)||'erreur')+').','err');
+  }finally{
+    i.corEnCours=false;
+    const b2=$('dmcPdfBtn'); if(b2){ b2.disabled=false; if(lib) b2.textContent=lib; }
+  }
+}
+
+/* ---------- Le PDF de l'énoncé papier ----------
+   L'élève qui choisit « Le faire sur papier » télécharge son énoncé en PDF,
+   pour l'imprimer, et le professeur reçoit le même (demande de Turquet,
+   octobre 2026). Le PDF est la PHOTO de l'écran papier (#dmeCorps) — rien
+   d'autre : un titre, le prénom, puis les questions, sans aucune aide.
+   Les deux bibliothèques (html2canvas, jsPDF) ne se chargent qu'au premier
+   PDF : chaque élève qui ouvre la page ne les paie pas. Chaque question est
+   rendue en image puis posée sur des pages A4 ; une question ne se coupe
+   entre deux pages que si elle est plus haute qu'une page.
+   Un SVG rendu par html2canvas perd la feuille de styles (il est sérialisé
+   seul) : une courbe stylée par sa classe sortirait noire et pleine. Les
+   styles CALCULÉS de chaque élément de dessin sont donc écrits dans son
+   attribut style avant le rendu. */
+const DME_PDF_LIBS=['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'];
+const dmePdfScripts={};
+let dmePdfInfo=null;
+function dmePdfPoser(titre, prenom){ dmePdfInfo={titre:titre, prenom:prenom, blob:null, enCours:false}; }
+function dmePdfBouton(lib){ return '<button class="btn btn-ghost" id="dmePdfBtn" onclick="dmePdf()">'+esc(lib)+'</button>'; }
+function dmeChargerScript(url){
+  if(!dmePdfScripts[url]) dmePdfScripts[url]=new Promise(function(ok,ko){
+    const sc=document.createElement('script'); sc.src=url; sc.async=true;
+    const t=setTimeout(function(){ ko(new Error('délai dépassé')); },30000);
+    sc.onload=function(){ clearTimeout(t); ok(); };
+    sc.onerror=function(){ clearTimeout(t); ko(new Error('chargement refusé')); };
+    document.head.appendChild(sc);
+  }).catch(function(e){ delete dmePdfScripts[url]; throw e; });   /* un échec se retente */
+  return dmePdfScripts[url];
+}
+const DME_SVG_PROPS=['fill','fill-opacity','stroke','stroke-width','stroke-dasharray','stroke-linecap','stroke-linejoin',
+  'stroke-opacity','opacity','font-family','font-size','font-weight','font-style','text-anchor','dominant-baseline','visibility','display'];
+function dmePdfStylerSVG(hote){
+  const vue=hote.ownerDocument.defaultView;
+  hote.querySelectorAll('svg').forEach(function(svg){
+    [svg].concat(Array.prototype.slice.call(svg.querySelectorAll('*'))).forEach(function(e){
+      const cs=vue.getComputedStyle(e);
+      DME_SVG_PROPS.forEach(function(k){ const v=cs.getPropertyValue(k); if(v) e.style.setProperty(k,v); });
+    });
+  });
+}
+/* html2canvas dessine mal certains SVG (la courbe des limites graphiques
+   sortait coupée de moitié, la partie droite du repère absente) : chaque
+   dessin, ses styles déjà écrits dans ses attributs, devient une IMAGE de sa
+   taille affichée — une image, html2canvas la pose telle quelle. */
+async function dmePdfSvgEnImages(hote){
+  const vue=hote.ownerDocument.defaultView, attente=[];
+  Array.prototype.slice.call(hote.querySelectorAll('svg')).forEach(function(g){
+    if(g.parentElement&&g.parentElement.closest('svg')) return;
+    const r=g.getBoundingClientRect(); if(r.width<1||r.height<1) return;
+    const k=g.cloneNode(true);
+    k.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    k.setAttribute('width', r.width); k.setAttribute('height', r.height);
+    const cs=vue.getComputedStyle(g);
+    const im=hote.ownerDocument.createElement('img');
+    im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new vue.XMLSerializer().serializeToString(k));
+    im.style.cssText='width:'+r.width+'px;height:'+r.height+'px;display:'+(cs.display==='inline'?'inline-block':cs.display)
+      +';vertical-align:'+cs.verticalAlign+';position:'+cs.position+';left:'+cs.left+';top:'+cs.top+';margin:'+cs.margin
+    /* SA PLACE DANS UNE GRILLE : l'accolade d'un système (.edp-acc) est
+       posée par sa CLASSE en colonne 1, lignes 1 à 3. L'image, sans classe,
+       se plaçait d'office dans la première cellule libre : la ligne x = …
+       prenait la hauteur de l'accolade, y et z tombaient dessous, hors
+       d'elle (signalé par Turquet, novembre 2026, DM n°13). */
+      +';grid-row:'+cs.gridRowStart+' / '+cs.gridRowEnd+';grid-column:'+cs.gridColumnStart+' / '+cs.gridColumnEnd
+      +';align-self:'+cs.alignSelf+';justify-self:'+cs.justifySelf+';order:'+cs.order+';flex:'+cs.flex+';z-index:'+cs.zIndex;
+    attente.push(new Promise(function(ok){ im.onload=ok; im.onerror=ok; }));
+    g.replaceWith(im);
+  });
+  await Promise.all(attente);
+}
+function dmePdfNom(quoi){
+  const i=dmePdfInfo||{};
+  const brut=((quoi||'enonce')+' '+(i.prenom||'')+' '+(i.titre||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return brut.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)+'.pdf';
+}
+function dmeTelecharger(blob, nom){
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=u; a.download=nom; a.rel='noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(u); },60000);
+}
+/* LE RENDU SE FAIT DANS UN CADRE À PART, qui ne porte que les styles de la
+   page et l'énoncé. html2canvas recopie TOUT le document de l'élément qu'il
+   rend, à chaque appel : rendu dans la page (34 000 lignes, des centaines
+   d'écrans), chaque question coûtait une copie entière — 4 s pour un PDF dans
+   une page neuve, près d'une minute après une heure d'exercices, et trois
+   exercices sur 64 dépassaient le délai. Dans le cadre, la copie ne pèse que
+   l'énoncé. Le cadre a la largeur d'un écran d'ordinateur : les règles de
+   largeur de la page suivent la fenêtre (@media), et un cadre étroit
+   resserrait chaque carte au milieu de la feuille ; ainsi le PDF est le même
+   sur un téléphone, une tablette ou un ordinateur. */
+function dmePdfCadre(html){
+  const f=document.createElement('iframe');
+  f.setAttribute('aria-hidden','true'); f.tabIndex=-1;
+  f.style.cssText='position:absolute;left:-12000px;top:0;width:1280px;height:1200px;border:0';
+  document.body.appendChild(f);
+  const styles=Array.prototype.slice.call(document.querySelectorAll('style,link[rel="stylesheet"]'))
+    .map(function(e){ return e.outerHTML; }).join('');
+  const d=f.contentDocument;
+  d.open();
+  d.write('<!DOCTYPE html><html lang="fr" class="'+esc(document.documentElement.className)+'"><head><meta charset="utf-8">'+styles
+    +'</head><body class="'+esc(document.body.className)+'" style="margin:0;background:#fff">'+html+'</body></html>');
+  d.close();
+  return f;
+}
+/* Où trancher une question plus haute que la place : sur une rangée BLANCHE
+   (aucun pixel sombre), en remontant d'au plus un tiers de la tranche — une
+   coupe franche passerait au milieu d'une ligne de texte, moitié en bas d'une
+   page, moitié en haut de la suivante. Sans rangée blanche, la coupe franche. */
+function dmePdfCoupe(cv, off, place){
+  const reste=cv.height-off;
+  if(reste<=place) return reste;
+  const g=cv.getContext('2d'), bas=off+place, haut=Math.max(off+1, bas-Math.floor(place/3));
+  const d=g.getImageData(0,haut,cv.width,bas-haut).data, L=cv.width*4;
+  for(let r=bas-haut-1; r>=0; r--){
+    let blanc=true;
+    for(let i=r*L; i<(r+1)*L; i+=4){ if(d[i]+d[i+1]+d[i+2]<600){ blanc=false; break; } }
+    if(blanc) return haut+r-off;
+  }
+  return place;
+}
+/* LES TRAITS D'UN ARBRE SE RETRACENT SUR LA PAGE DU PDF. Les branches,
+   l'accolade et la place des étiquettes le long des branches sont calculées
+   par la page sur l'écran affiché (aptTraits, apfTraits), en pixels ; le
+   PDF met la grille en page à sa largeur, et les traits copiés tombaient à
+   côté : l'accolade barrait « P(A ∩ V) = 0,368 » (vu en corrigeant le DM
+   n°13, novembre 2026). Les mêmes fonctions retracent chaque arbre dans le
+   cadre du PDF, chacun dans sa question (les arbres de deux questions ont
+   les mêmes noms) : $() y cherche le nom gardé en data-dme-id. */
+function dmePdfRetracer(hote){
+  const avant=$, racine=document.documentElement.style.getPropertyValue('--apc-arbre-h');
+  hote.querySelectorAll('svg.apf-traits[data-dme-id$="Traits"]').forEach(function(t){
+    const pre=t.getAttribute('data-dme-id').slice(0,-6), zone=t.closest('.dme-q')||hote;
+    const g=zone.querySelector('[data-dme-id="'+pre+'Grille"]'); if(!g) return;
+    try{
+      $=function(id){ return zone.querySelector('[data-dme-id="'+id+'"]'); };
+      if(g.classList.contains('apt-arbre')) aptTraits(pre); else apfTraits(pre);
+    }catch(e){ console.warn('PDF : arbre '+pre+' non retracé', e); }
+    finally{ $=avant; }
+  });
+  if(racine) document.documentElement.style.setProperty('--apc-arbre-h', racine); else document.documentElement.style.removeProperty('--apc-arbre-h');
+}
+async function dmePdfFabriquer(corps, titre){
+  for(const u of DME_PDF_LIBS) await dmeChargerScript(u);
+  const i=dmePdfInfo;
+  const cadre=dmePdfCadre('<div class="dme-pdf"><div class="dme-pdf-tete"><div class="dme-pdf-titre">'+esc(titre||i.titre||'')+'</div>'
+    +(i.prenom?'<div class="dme-pdf-qui">Prénom : '+esc(i.prenom)+'</div>':'')+'</div>'+(corps==null?$('dmeCorps').innerHTML:corps)+'</div>');
+  try{
+    const cd=cadre.contentDocument, hote=cd.querySelector('.dme-pdf');
+    if(cd.fonts&&cd.fonts.ready) await cd.fonts.ready;
+    dmePdfRetracer(hote);
+    dmePdfStylerSVG(hote);
+    await dmePdfSvgEnImages(hote);
+    const doc=new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+    const M=12, L=210-2*M, H=297-2*M, E=2;
+    const mmPx=L/(hote.clientWidth*E);
+    /* « seul » : la page ne porte encore que l'en-tête. Une question qui ne
+       tient pas sous lui partirait page 2 et laisserait la page 1 blanche ;
+       elle se RÉDUIT plutôt pour tenir (jusqu'à 85 %). Même réduction pour
+       une question à peine plus haute qu'une page ; au-delà seulement, elle
+       se tranche. */
+    const R=0.85, poser=function(cv,y0,k){ doc.addImage(cv.toDataURL('image/jpeg',0.92),'JPEG',M,y0,cv.width*mmPx*k,cv.height*mmPx*k); };
+    let y=M, vide=true, seul=false, premier=true;
+    for(const b of Array.prototype.slice.call(hote.children)){
+      const cv=await window.html2canvas(b,{scale:E, backgroundColor:'#ffffff', logging:false, useCORS:true});
+      const w=cv.width*mmPx, h=cv.height*mmPx, reste=M+H-y;
+      if(h<=reste){ poser(cv,y,1); y+=h+1; vide=false; seul=premier; premier=false; continue; }
+      if(seul&&h*R<=reste){ poser(cv,y,reste/h); y=M+H; vide=false; seul=false; continue; }
+      if(!seul&&(h<=H||h*R<=H)){
+        if(!vide){ doc.addPage(); y=M; }
+        const k=Math.min(1,H/h); poser(cv,y,k); y+=h*k+1; vide=false; continue;
+      }
+      /* bien plus haute qu'une page (ou trop haute pour tenir sous l'en-tête) :
+         tranchée, page après page, en commençant là où l'on est */
+      let off=0;
+      while(off<cv.height){
+        if((M+H-y)/H<0.15){ doc.addPage(); y=M; }    /* un fond de page : la tranche irait à la suivante */
+        const hh=dmePdfCoupe(cv, off, Math.floor((M+H-y)/mmPx));
+        const t=document.createElement('canvas'); t.width=cv.width; t.height=hh;
+        const g=t.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,t.width,hh); g.drawImage(cv,0,-off);
+        doc.addImage(t.toDataURL('image/jpeg',0.92),'JPEG',M,y,w,hh*mmPx);
+        off+=hh;
+        if(off<cv.height){ doc.addPage(); y=M; } else y+=hh*mmPx+1;
+      }
+      vide=false; seul=false;
+    }
+    return doc.output('blob');
+  } finally { cadre.remove(); }
+}
+async function dmePdf(){
+  const i=dmePdfInfo; if(!i||i.enCours) return;
+  if(i.blob){ dmeTelecharger(i.blob, dmePdfNom()); return; }
+  const bt=$('dmePdfBtn'), lib=bt?bt.textContent:'';
+  i.enCours=true; if(bt){ bt.disabled=true; bt.textContent='⏳ Préparation du PDF…'; }
+  try{
+    const blob=await dmePdfFabriquer();
+    if(dmePdfInfo!==i) return;                   /* l'écran a changé entre-temps */
+    i.blob=blob;
+    dmeTelecharger(blob, dmePdfNom());
+    toast('PDF téléchargé','ok');
+  }catch(e){
+    toast('Le PDF n’a pas pu être préparé ('+((e&&e.message)||'erreur')+') — réessaie avec le bouton « Télécharger ».','err');
+  }finally{
+    i.enCours=false;
+    const b2=$('dmePdfBtn'); if(b2){ b2.disabled=false; if(lib) b2.textContent=lib; }
+  }
 }
 /* ===================== FIN ARCHITECTURE ===================== */
 let pausedRows={};
@@ -31036,6 +32120,8 @@ function renderDmEditor(){
       <div class="field" style="margin:0"><label class="lab" for="dmNum">Numéro</label><input class="text-input" id="dmNum" type="number" min="1" value="${esc(String(d.num))}"></div>
       <div class="field" style="margin:0"><label class="lab" for="dmTitre">Titre</label><input class="text-input" id="dmTitre" value="${esc(d.titre||'')}" maxlength="80"></div>
     </div>
+    ${dmGenre==='dm'?`<label class="dm-switch" style="margin-top:12px"><input type="checkbox" id="dmCorrection" ${d.correction===true?'checked':''}><span class="track"></span><span class="sw-lbl">Avec correction</span></label>
+    <p class="muted" style="font-size:.85rem;margin:2px 0 0">L’élève qui fait un exercice sur papier peut aussi télécharger sa correction en PDF, rédigée avec les mêmes étapes que l’exercice en ligne.</p>`:''}
     <div class="field" style="margin-top:14px"><label class="lab" for="dmCours">Cours / consignes <span class="muted" style="font-weight:600;font-size:.85rem">(facultatif)</span></label><textarea class="dm-ta" id="dmCours" placeholder="Rappel de cours, consignes… (laisse vide pour n'afficher que les exercices)">${esc(d.cours||'')}</textarea></div>
     <div class="dm-pick-h" style="margin-top:6px">${dmGenre==='fiche'?'Exercices de la fiche':dmGenre==='eval'?'Exercices de l\u2019évaluation':'Exercices du devoir'}</div>
     <p class="muted" style="font-size:.85rem;margin:0 0 12px">${dmGenre==='eval'?'Coche « Choisir » sur chaque exercice de l\u2019évaluation (il se fera en entraînement, une seule fois, sans correction). « Questions » règle la longueur de la séance (vide = le format normal). « Bonus » : 1 point en plus, sans dépasser le maximum. ':'Coche les modes proposés pour chaque exercice. « Questions » réduit la séance pour ce devoir (vide = le format normal). « Soutien » règle la note maximale du mode soutien pour cet exercice (5/10 par défaut) ; l\u2019entraînement vaut toujours 10/10.'}</p>
@@ -31105,6 +32191,7 @@ function dmLireEntete(){
   d.titre=(val('dmTitre')||'').trim()||d.titre;
   d.cours=$('dmCours').value;
   d.actif=$('dmActif').checked;
+  if($('dmCorrection')){ if($('dmCorrection').checked) d.correction=true; else delete d.correction; }
 }
 function dmOrdreBouge(id,delta){
   const d=dmCur(); if(!d) return;
@@ -39192,13 +40279,23 @@ function choisirReprise(mode){
   let garde=false, ignorer=0;
   const estGarde=s=>!!(s && s.exoGarde);
   function accorder(){
+    /* UN REJEU N'EST PAS UNE SÉANCE : la correction d'un devoir sur papier
+       (dmCorrigeHTML) fait défiler les écrans d'exercice sous un voile, et la
+       garde se posait puis se retirait à chaque question. Deux retraits
+       partaient avant que le premier n'ait abouti — history.back() est
+       asynchrone, history.state disait encore « garde » — et la page reculait
+       de DEUX entrées : l'élève qui téléchargeait sa correction quittait le
+       site (vu en portant le papier en Première, novembre 2026 ; la Terminale
+       l'avait déjà). Pendant un rejeu, la garde ne bouge pas ; et un retrait
+       ne part jamais tant que le précédent est en route. */
+    if(typeof REJEU!=='undefined' && REJEU) return;
     const visible=!lien.hidden;
     if(visible && !garde){
       if(!estGarde(history.state)){ try{ history.pushState({exoGarde:1}, ''); }catch(e){ return; } }
       garde=true;
     } else if(!visible && garde){
       garde=false;
-      if(estGarde(history.state)){ ignorer++; history.back(); }
+      if(estGarde(history.state) && ignorer===0){ ignorer++; history.back(); }
     }
   }
   new MutationObserver(accorder).observe(lien, {attributes:true, attributeFilter:['hidden']});

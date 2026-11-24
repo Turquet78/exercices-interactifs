@@ -2257,3 +2257,67 @@ pourcentage portent la retenue, l'écran de fin la montre (« 7,5 / 10 »).
 Exécuté dans Chromium sur les cinq exercices (v473) : coup de pouce cliqué
 au vrai bouton, toutes les réponses justes, fiche n° 13 → n − ¼ par question
 aidée ; fiche n° 12 et devoir n° 13 → n.
+
+**Puis la Première a reçu le devoir maison SUR PAPIER, « exactement comme en
+terminale »** (Première v479, demande de Turquet, novembre 2026). Le circuit
+de la Terminale est recopié tel quel dans `premiere-specifique.html` (bloc
+« LE DEVOIR MAISON SUR PAPIER, porté de la Terminale ») : la carte « 📄 Le
+faire sur papier » de la page des modes, l'énoncé photographié sans aide ni
+guidage, l'envoi confirmé au professeur par `signalements_1ere` (aucune
+migration : la 008 donne déjà à l'élève la lecture de ses lignes), le PDF de
+l'énoncé, l'option « Avec correction » de l'éditeur (`#dmCorrection`, recopiée
+par `ensureDevoir`) et le PDF de la correction, l'énoncé RETROUVÉ au retour,
+la ligne « 📄 devoir sur papier » du professeur avec « Voir l'énoncé complet »
+et « 📥 PDF de l'énoncé ». **Un choix du DEVOIR MAISON seulement** : ni dans
+une fiche (en classe, dans l'ordre), ni dans une évaluation (une tentative, à
+l'aveugle) ; la case « Avec correction » n'apparaît que dans l'éditeur d'un
+devoir. Quatre écarts avec la Terminale, tous nés de la forme des exercices de
+la Première :
+* *l'énoncé s'écrit `.mp-instr`* : le circuit ne reconnaissait que `.enonce`
+  et `…prompt`, et l'énoncé des pourcentages partait avec le guidage — le
+  papier du 2.1.4 ne portait plus que « Question 1 Question 2… » ;
+* *les cartes à choisir* (`.pt-choix-btn` : « a 40 min, b 50 min… », « 📈 /
+  📉 ») ne sont pas des cases : la correction par tours ne les touchait pas,
+  « Vérifier » ne corrigeait rien, et trente exercices du thème 2 répondaient
+  « se fait avec ton professeur ». Les tours les essaient comme une case
+  (`dmcChoix`), une par tour, jusqu'à celle que la page marque `ok`/`sol` ;
+* *une fraction à deux cases corrigée d'un seul badge* (« 40/100 » posé après
+  la fraction entière) s'imprimait en pointillés PUIS sa valeur : l'enveloppe
+  qui ne porte plus que des pointillés, suivie d'un badge, cède la place ;
+* `DME_AIDES` gagne les aides de la Première (coups de pouce, `.pt-aide`,
+  `.dvl-astuce`, `.ru-rappel`), `DME_QUESTION` ses verbes (« Retrouve »,
+  « Range », « Colorie », « Simplifie »…), et les fonctions propres à la
+  Terminale (arbres, réhydratation des courbes) ne s'appellent que si elles
+  existent.
+
+**Et la préparation de la correction faisait QUITTER LA PAGE — aux deux
+niveaux.** `dmCorrigeHTML` fait défiler les écrans d'exercice sous son voile ;
+à chacun, la garde du bouton « retour » (`#retour-navigateur`, novembre 2026)
+se posait puis se retirait. `history.back()` est asynchrone : un second
+retrait partait pendant que le premier était en route (`history.state` disait
+encore « garde »), et la page reculait de DEUX entrées — l'élève qui
+téléchargeait sa correction se retrouvait sur la page d'avant le site. Vu dans
+Chromium dès le premier exercice porté, puis reproduit à l'identique en
+Terminale sur le 4.2.2. Remède dans le script commun aux trois niveaux : la
+garde ne bouge pas pendant un rejeu (`REJEU`), et un retrait ne part jamais
+tant que le précédent est en route. Contrôle au banc navigateur (6 sexies ter,
+les niveaux qui ont le papier) : « préparer la correction ne fait pas quitter
+la page ».
+
+**Mesuré dans Chromium sur les 86 exercices du menu de la Première** (énoncé
+papier, puis `dmCorrigeHTML`) : 83 s'énoncent — les trois exercices
+chronométrés (tables ×2, calcul mental) disent qu'ils ne savent pas
+s'énoncer et rendent la page des modes, comme en Terminale ; aucun énoncé
+vide ; 73 écrivent toute leur correction, {reunion-probabilites} 7 questions
+sur 8. Restent sans correction, nommés : {fractions-decimales},
+{fraction-pourcentage} et {pourcentage-colonnes} (colorier des parts : un
+geste, pas une case), {pourcentage-synthese}, {synthese-augmentations},
+{synthese-augmentations-dix}, {synthese-diminutions},
+{synthese-diminutions-dix}, {synthese-pourcentages} — leurs questions disent
+« se fait avec ton professeur ». Le banc jsdom (« le devoir sur papier… ») et
+le banc navigateur (6 sexies bis et ter) lisent leur témoin dans le profil
+(`devoirPapier`, `dmPdf`) : le 2.1.4 en Première, le 4.2.2 en Terminale ; les
+bords propres à la Terminale (le 1.2 et son écran de niveau, le système
+d'équations) s'y déclarent. **Ce qu'aucun banc ne voit** : la mise en page de
+chaque PDF de la Première ; un exercice de la Première relu sur son PDF est
+le seul juge de ce que l'heuristique garde.
