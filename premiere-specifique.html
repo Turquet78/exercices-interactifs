@@ -36652,7 +36652,10 @@ const TRD_LISTES={
   'trd-s1':[['+','+'],['-','−']]
 };
 function trdSel(id, aria, cls){ return itvSelHTML(id, TRD_LISTES[id], aria, cls||'trd-sel'); }
-function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+esc(aria)+'">'; }
+/* la case du terme transposé (trd-e1) attend « +3 » quand b est négatif : le
+   pavé des tablettes n'a que « − » d'office, il lui faut aussi « + » (une
+   élève, novembre 2026 : « je n'ai pas le signe + ») */
+function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric"'+(id==='trd-e1'?' data-pave-plus="+"':'')+' autocomplete="off" aria-label="'+esc(aria)+'">'; }
 /* ---- La bulle d'aide du soutien, à côté de la case cliquée ----
    Demande de Turquet (novembre 2026) : « en mode soutien, je veux que la
    bulle apparaisse quand on clique sur la case et que l'aide corresponde
