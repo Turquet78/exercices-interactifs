@@ -19486,6 +19486,33 @@ if(require.main === module) (async () => {
          page, et l'événement input que la correction en direct écoute), le
          bouton ⌨️ ouvre toujours le clavier complet — et le pavé se tait tant
          qu'il est déployé, puis revient. */
+      /* ---- le TERME TRANSPOSÉ du 6.3 de la Première s'écrit avec son signe ----
+         Une élève (novembre 2026) : « je n'ai pas le signe + ». La case
+         trd-e1 attend « +3 » quand f(x) = ax − 3, et le pavé des tablettes
+         n'offre que « − » d'office (PAVE_TOUCHES) : la case nomme « + » dans
+         data-pave-plus. Mesuré au doigt : « + » puis « 3 » écrivent « +3 ». */
+      if(CIBLE === 'premiere-specifique.html'){
+        const NOM = 'au doigt, la case du terme transposé du 6.3 offre la touche « + » et l\'écrit';
+        s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+        if(await connecter(s.page) !== 'scr-space'){
+          ignorer(NOM, 'connexion impossible');
+        } else {
+          await ouvrirExoPave(s.page, 'tracer-droite');
+          const pret = await s.page.evaluate(() => { const su = document.getElementById('trdSuite'); if(su) su.hidden = false;
+            const el = document.getElementById('trd-e1'); return !!el; });
+          if(!pret){ verifier(NOM, false, 'la case #trd-e1 est introuvable sur l\'écran du 6.3'); }
+          else {
+            await s.page.focus('#trd-e1');
+            await s.page.waitForTimeout(500);
+            const plus = await s.page.evaluate(() => { const b = document.querySelector('#paveNum button[data-t="+"]');
+              if(!b) return false; const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+            const t = plus ? await frapper(s.page, '#trd-e1', ['+', '3']) : { valeur: '', focus: false };
+            verifier(NOM, plus && t.valeur === '+3' && t.focus,
+              !plus ? 'le pavé ne montre aucune touche « + »' : '« ' + t.valeur + ' » au lieu de « +3 », focus ' + (t.focus ? 'gardé' : 'perdu'));
+          }
+        }
+        await s.nav.close(); s = null;
+      }
       if(P.pave.clavierMaths){
         /* Le bord opposé, depuis octobre 2026 en Seconde et en Première : la
            case mathématique reçoit le VRAI clavier mathématique au toucher,
