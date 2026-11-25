@@ -1990,3 +1990,33 @@ douze, `rangees` passe à 4, aux trois niveaux ; et le banc navigateur
 (« 11 duodevicies ») tape au doigt « g », ⇧ « A », « < », « ≤ » sur l'écran
 de calcul témoin et relit `gA<\le`. Le juge du bac blanc (`bbaPrep`) lit
 `\le`/`\ge` comme ≤/≥.
+
+
+**Le clavier du SYSTÈME s'ouvrait parfois sur une case MathLive — l'hôte
+`<math-field>` portait son propre `contenteditable` sans `inputmode`
+(novembre 2026).** Signalé par Turquet sur une tablette Samsung, au 3.12 de
+la Première : « de temps en temps le clavier virtuel n'apparaît pas quand on
+clique sur une case, et c'est le clavier natif de la tablette qui
+apparaît » ; et, plus rarement, la case devient inaccessible. Ce n'était pas
+une fausse manœuvre de l'élève. MathLive 0.110 pose sur l'HÔTE
+`contenteditable="true"` et `tabindex="0"` (son `connectedCallback`), mais
+`inputmode="none"` seulement sur sa zone cachée, le `.ML__keyboard-sink` de
+son shadow DOM — celle que `configureField` verrouillait déjà (`sink()`).
+Un toucher donne d'abord le focus à l'hôte, que MathLive passe aussitôt au
+sink : si le système réagit dans l'intervalle, il voit un champ éditable sans
+interdiction et ouvre SON clavier — une course, d'où le « de temps en
+temps » ; le focus resté sur l'hôte, sans descendre au sink, expliquerait la
+case où rien ne s'écrit. Remède, aux trois niveaux : `sink()` pose aussi
+`inputmode="none"` et `virtualkeyboardpolicy="manual"` sur l'hôte. Le clavier
+physique n'est pas touché ; le clavier à l'écran porte toutes les lettres
+(`kbLettres`), et la touche « abc » d'une case MathLive ouvre le clavier
+MathLive complet, jamais celui du système — rien ne devient intapable.
+Ce qu'un banc voit : la section 9 du banc navigateur exige `inputmode="none"`
+sur l'hôte de CHAQUE case MathLive visible, chaque exercice, les deux modes
+(« aucune case MathLive n'ouvre le clavier du système »), avec son second
+bord (« le contrôle a des cases à mesurer »). Avant le correctif, la case
+`#pb-u` du 3.12 relevée dans un Chromium tactile portait `inputmode` absent ;
+après, `none`, et le clavier MathLive s'ouvre toujours au toucher (simple,
+double, après un toucher ailleurs à 100, 250 et 350 ms, après rotation). Ce
+qu'aucun banc ne voit : le clavier du système lui-même — un Chromium de banc
+n'en a pas. La course ne se juge que sur la tablette.

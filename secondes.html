@@ -9764,7 +9764,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=728;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=729;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -92934,7 +92934,18 @@ function configureField(mf){
       mf.shadowRoot.appendChild(st);
     }
   } catch(e) {}
+  /* LA CASE ELLE-MÊME refuse aussi le clavier du système (novembre 2026,
+     tablette Samsung, 3.12 de la Première : « de temps en temps c'est le
+     clavier natif qui apparaît », et la case devient parfois inaccessible).
+     MathLive pose contenteditable="true" et tabindex sur l'HÔTE <math-field>,
+     sans inputmode : seule sa zone cachée (le « sink ») porte inputmode="none".
+     Un toucher met d'abord le focus sur l'hôte, que MathLive passe aussitôt
+     au sink — si le système réagit dans cet intervalle, il voit un champ
+     éditable sans interdiction et ouvre SON clavier. L'hôte porte donc la
+     même interdiction que le sink ; le clavier physique n'est pas touché, et
+     le clavier à l'écran porte toutes les lettres (kbLettres). */
   const sink = ()=>{ try{
+    mf.setAttribute("inputmode","none"); mf.setAttribute("virtualkeyboardpolicy","manual");
     const el = mf.shadowRoot && mf.shadowRoot.querySelector("[inputmode]");
     if(el){ el.setAttribute("inputmode","none"); el.setAttribute("virtualkeyboardpolicy","manual"); }
   }catch(e){} };
