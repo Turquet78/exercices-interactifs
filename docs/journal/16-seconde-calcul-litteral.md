@@ -1375,3 +1375,17 @@ permise, plus exigée ; la règle de décision envoyée au modèle le dit aussi
 exigée : la demande ne portait que sur le 5.3. Banc principal, « calcul
 littéral rédigé » : les deux copies qui étaient refusées sont comptées justes,
 un résultat brut faux est refusé.
+
+**Le point ou la virgule égaré est retiré avant le juge (Première v486, novembre 2026).**
+Turquet, sur le 5.3 : « l'élève avait tout bon à l'écran, mais la correction
+disait ".5" au lieu de "5" ». Une touche « . » effleurée à côté d'un « + »
+s'écrit dans la case en un point minuscule collé au chiffre suivant (ou monté
+dans un exposant) ; `litPoly` refuse un décimal, `litJuge` s'abstient, et le
+modèle — seul juge restant — reproche « .5 ». Choix de Turquet : retirer EN
+SILENCE tout séparateur qui n'est pas entre deux chiffres
+(`litSansSeparateurIsole`, branché par `nettoyer` dans `litrMath` et appliqué
+par `checkSFR` avant le juge, le modèle et l'enregistrement). Un vrai décimal,
+entre deux chiffres, reste refusé. Exécuté dans la vraie page : la copie
+« 2x² + .10x + .8 » tapée au clavier est comptée juste. Contrôle : banc
+principal, « calcul littéral rédigé… » (quatre copies à point égaré, le
+décimal préservé, `checkSFR` qui appelle `m.nettoyer`).
