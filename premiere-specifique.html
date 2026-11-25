@@ -4284,7 +4284,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=481;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=482;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -32430,6 +32430,10 @@ async function saveDM(){
   d.titre=(val('dmTitre')||'').trim()||GENRE_DEVOIRS[dmGenre].defTitre;
   d.cours=$('dmCours').value;
   d.actif=$('dmActif').checked;
+  /* « Avec correction » LU ICI : l'enregistrement relit chaque champ de
+     l'éditeur, et cette case n'y était pas — cochée, elle se décochait à
+     l'enregistrement (signalé par Turquet, novembre 2026, DM n°4) */
+  if($('dmCorrection')){ if($('dmCorrection').checked && dmGenre==='dm') d.correction=true; else delete d.correction; }
   /* Un devoir enregistré du temps des passages porte encore « rep » et
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
@@ -32456,7 +32460,11 @@ async function saveDM(){
          la définition du devoir, et un devoir réenregistré les perdrait. */
       const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices },
         d.archive?{archive:true}:{}, (d.notes&&Object.keys(d.notes).length)?{notes:d.notes}:{},
-        (d.publie&&dmGenre==='eval')?{publie:true}:{});
+        (d.publie&&dmGenre==='eval')?{publie:true}:{},
+        /* et « correction » RECOPIÉ dans l'objet écrit : la troisième porte
+           par laquelle un drapeau se perd, après ensureDevoir et la lecture
+           de l'éditeur */
+        (d.correction===true&&dmGenre==='dm')?{correction:true}:{});
       const i=arr.findIndex(x=>x.id===d.id);
       if(i>=0) arr[i]=clean; else arr.push(clean);
       const maj={}; maj[cle]=arr;

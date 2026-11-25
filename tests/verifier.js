@@ -32574,6 +32574,24 @@ function ordreDesFiches(w, apres){
       const rubanDM=!!document.getElementById('dmOrdre');
       if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
       if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      /* « AVEC CORRECTION » SURVIT À L'ENREGISTREMENT (signalé par Turquet,
+         novembre 2026, DM n°4 : cochée puis enregistrée, la case se
+         décochait — saveDM ne la lisait pas, et ne la recopiait pas) */
+      const cc=document.getElementById('dmCorrection');
+      if(!cc){ vus.push('la case « Avec correction » manque dans l\\'éditeur d\\'un devoir'); }
+      else {
+        cc.checked=true;
+        await saveDM();
+        await new Promise(function(r){ setTimeout(r,80); });
+        const vc=lireValeurs(), dc=(vc.devoirs||[]).find(function(x){ return x.id==='dm_o'; });
+        if(!dc || dc.correction!==true) vus.push('« Avec correction » cochée n\\'est pas enregistrée : '+JSON.stringify(dc||null).slice(0,160));
+        dmSelId='dm_o'; renderDmEditor();
+        const cc2=document.getElementById('dmCorrection');
+        if(!cc2 || !cc2.checked) vus.push('« Avec correction » enregistrée se décoche au retour dans l\\'éditeur');
+        if(cc2){ cc2.checked=false; await saveDM(); await new Promise(function(r){ setTimeout(r,80); });
+          const dd=(lireValeurs().devoirs||[]).find(function(x){ return x.id==='dm_o'; });
+          if(dd && 'correction' in dd) vus.push('« Avec correction » décochée reste enregistrée'); }
+      }
     } else {
       vus.push('aucun éditeur à exercer');
     }
