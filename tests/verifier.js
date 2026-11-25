@@ -9178,6 +9178,18 @@ function calculLitteralRedige(w, P){
     if(!(j.sait && !j.correct && j.motif==='reduire')) vus.push('5.3 : une copie arrêtée avant la réduction est acceptée');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=(1)/(2)x');
     if(j.sait) vus.push('5.3 : une copie illisible est jugée au lieu d’être confiée au modèle');
+    /* le point ou la virgule égaré, invisible à l'écran (5.3, novembre 2026) :
+       retiré avant le juge ; un décimal, entre deux chiffres, reste refusé */
+    { test.kind='dvd'; const mn=redMath(Object.assign({},dq,{redac:true}));
+      if(typeof mn.nettoyer!=='function') vus.push('5.3 : la rédigée ne retire pas le point égaré (nettoyer absent)');
+      else {
+        [['(4x-3)*(2x-5)=8x^2-20x-6x+.15=8x^2-26x+15','« +.15 »'],['(4x-3)*(2x-5)=8x^2.-26x+15','« x^2. »'],['(4x-3)*(2x-5)=8x^(2)-26x,+15','« x, »'],['(4x-3)*(2x-5)=8x^2-26x+15.','le point final']].forEach(function(c){
+          j=juge('dvd', dq, mn.nettoyer(c[0]));
+          if(!(j.sait && j.correct)) vus.push('5.3 : une copie juste avec un point égaré ('+c[1]+') n’est pas comptée juste ('+JSON.stringify(j)+')');
+        });
+        if(mn.nettoyer('2.5x+1,25')!=='2.5x+1,25') vus.push('5.3 : un vrai décimal est effacé par le nettoyage');
+      }
+      if(!${/async function checkSFR\(\)\{[\s\S]{0,800}m\.nettoyer\(rep\)/.test(lire(CIBLE))}) vus.push('checkSFR n’applique pas m.nettoyer à la copie lue'); }
     const la={forme:'A', prods:[{k:{c:5,d:0}, a:{c:1,d:1}, b:{c:3,d:0}}]};
     j=juge('dvl', la, '5*(x+3)=5x+15');
     if(!(j.sait && j.correct)) vus.push('5.2 : 5 × (x + 3) = 5x + 15 n’est pas compté juste');

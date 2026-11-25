@@ -4289,7 +4289,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=486;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=487;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21904,7 +21904,8 @@ async function checkSFR(){
   if(!cfg || !q || !q.redac) return;
   const r=cfg.r, fb=$(r+'Feedback'); if(!fb) return;
   const m=redMath(q);
-  const rep=(sfrFeuille?sfrFeuille.lire():'').trim();
+  let rep=(sfrFeuille?sfrFeuille.lire():'').trim();
+  if(m.nettoyer) rep=m.nettoyer(rep);   /* calcul littéral : le point ou la virgule égaré (litSansSeparateurIsole) */
   /* La première ligne CONTIENT déjà le calcul et son « = » : on compare à ce
      point de départ, jamais au vide. */
   let intact=false;
@@ -25544,6 +25545,19 @@ function litDeveloppe(s){
   }
   return !litReduite(t);
 }
+/* LE POINT OU LA VIRGULE ÉGARÉ (Turquet, novembre 2026, sur le 5.3 : « l'élève
+   avait tout bon à l'écran, mais la correction disait ".5" au lieu de "5" »).
+   Une touche « . » effleurée à côté d'un « + » ou d'un « × » s'écrit dans la
+   case en un point minuscule, collé au chiffre suivant ou monté dans un
+   exposant : l'élève ne le voit pas. litPoly refuse alors la copie (un
+   décimal), le juge s'abstient, et le modèle reproche « .5 ». Un calcul
+   littéral de ces exercices n'a aucun décimal : un séparateur qui n'est PAS
+   entre deux chiffres n'écrit aucun nombre, il est retiré avant le juge, le
+   modèle et l'enregistrement (choix 2 de Turquet : en silence). « 2.5 »,
+   entre deux chiffres, reste un décimal, et reste refusé. */
+function litSansSeparateurIsole(rep){
+  return String(rep==null?'':rep).replace(/(?<![0-9])[.,]|[.,](?![0-9])/g,'');
+}
 /* Les morceaux d'une copie : la chaîne coupée aux « = », lignes comprises. */
 function litPieces(rep){
   return String(rep==null?'':rep).split(/\n/).join('=').split('=').map(function(m){ return m.trim(); }).filter(function(m){ return m!==''; });
@@ -25636,6 +25650,7 @@ function litrMath(q, ent){
     consigne: L.etape ? 'Écris l’étape où chaque produit est calculé, puis réduis : les termes en <i>x</i>² ensemble, les termes en <i>x</i> ensemble, les nombres ensemble.'
       : test.kind==='dvd' ? 'Tu peux écrire l’étape où chaque produit est calculé, ou donner directement le résultat réduit : les termes en <i>x</i>² ensemble, les termes en <i>x</i> ensemble, les nombres ensemble.'
       : 'Le facteur devant la parenthèse multiplie chaque terme de la parenthèse ; chaque terme garde son signe.',
+    nettoyer:litSansSeparateurIsole,
     juge:function(rep){ return litJuge(rep, L.poly, L.etape); },
     verdictIA:function(j){ return litrVerdictIA(j, {texte:L.texte}); },
     secours:function(j){ return litrSecours(j, {texte:L.texte}); },
