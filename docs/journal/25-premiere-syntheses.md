@@ -261,3 +261,20 @@ est l'autre bord de l'autre). Contrôle : banc principal, « le bac blanc
 (8.1) » — la liste rangée sous quatre séparateurs, à l'envers refusée ;
 « enhéEdant », « antécédant », « antessedents » acceptés avec le bon nombre,
 refusés avec un autre.
+
+**Le « … ÷ » du coup de pouce des fractions restait en pointillés, et
+« Simplifie ta fraction. » s'écrit au-dessus de la division (novembre 2026,
+v482 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
+la division qui simplifie montrait « … ÷ 2 / 10 ÷ 2 ». Le coup de pouce tourne
+sur l'écran du 4.11 sous `test.kind === 'bba'`, et `seSaisie` ne suivait la
+saisie que sous `test.kind === kind` : la chaîne n'était recopiée qu'à la
+vérification. `seKind()` rend le moteur de l'écran courant (`bbaEcran()` sur
+le bac blanc) ; `seSaisie` et `restoreBoxes` (miroirs de la simplification et
+du dénominateur commun) le lisent. Demande jointe : « préciser quand on a le
+résultat et qu'il faut le réduire […] dans tous les exercices où c'est demandé
+de la même façon » — `.simp-dire`, posé EN ABSOLU au-dessus de la première
+division (`seEtapeHTML`, `rvfSimpHTML` en Première ; la division ③ de
+`renderSFTest` en Seconde) : il ne prend aucune place dans la rangée, qui ne
+peut donc pas se replier. Contrôle : banc principal, « le bac blanc (8.1) » —
+12 tapé sur 10 dans le coup de pouce, la division recopie 12 et 10, et la
+consigne est là.

@@ -4552,6 +4552,11 @@
 .dexp-pwrap.show-paren .par{display:inline-block;}
 .dexp-fac sup,.tvi-prompt sup{font-size:.7em;}
 .dexp-hint{font-size:.86rem;color:var(--ink-soft);margin:8px 0 0;}
+/* « Simplifie ta fraction. » au-dessus de la première division qui simplifie
+   (demande de Turquet, novembre 2026) : posé en absolu, il ne déplace rien
+   dans la rangée et ne la fait jamais replier. */
+.simp-dire-host{position:relative}
+.simp-dire{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:6px;white-space:nowrap;font-size:.78rem;font-weight:700;font-style:italic;color:var(--ink-soft);pointer-events:none;line-height:1.2}
 /* ---- Le modèle fixe de {priorite-fractions} -------------------------------
    Reproduit la fiche papier : un calcul ENTIÈREMENT résolu, toujours le même,
    affiché à côté de celui — à d'autres nombres — que l'élève rédige. Il ne se
@@ -9759,7 +9764,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=727;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=728;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -61238,7 +61243,7 @@ function renderSFTest(){
      les routes — le nombre à diviser dépend du dénominateur commun choisi, la
      page ne peut donc pas l'écrire à sa place. */
   const quotient=()=>
-    '<span class="f-frac-input sf-prod sf-div">'
+    '<span class="f-frac-input sf-prod sf-div simp-dire-host">'+'<span class="simp-dire">Simplifie ta fraction.</span>'
        +'<span class="sf-l">'+mf('sf-sn','f-num','numérateur obtenu')
        +'<span class="f-times">÷</span>'+mf('sf-q1','f-num','diviseur du numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
