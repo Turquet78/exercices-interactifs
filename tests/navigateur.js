@@ -3601,7 +3601,13 @@ if(require.main === module) (async () => {
           return { enonce, blocs: d.querySelectorAll('.dmc-q').length, vals: d.querySelectorAll('.dmc-val,.sol,.mf-cor').length,
             prof: (t.match(/avec ton professeur/g) || []).length, blancs: d.querySelectorAll('.dme-blank').length,
             miroirs: [...d.querySelectorAll('.sui-mir,.isd-mir')].filter(m => /^(0|…)$/.test(m.textContent.trim())).length,
-            pouce: /coup de pouce/i.test(t), texteEnonce, tableEnonce };
+            pouce: /coup de pouce/i.test(t), texteEnonce, tableEnonce,
+            /* les flèches du 5.3 se RETRACENT dans la page du PDF : chaque
+               case qu'une flèche vise doit y garder son nom (data-dme-id) */
+            fleches: [...d.querySelectorAll('.dme-q')].reduce((n, q) => n + [...q.querySelectorAll('.dvl-schema[data-fl]')].reduce((m, sc) =>
+              m + JSON.parse(sc.getAttribute('data-fl') || '[]').filter(f => !q.querySelector('[data-dme-id="' + f[0] + '"]') || !q.querySelector('[data-dme-id="' + f[1] + '"]')).length, 0), 0),
+            schemas: d.querySelectorAll('.dvl-schema[data-fl]').length,
+            exemple: d.querySelectorAll('.dvl-ex').length, redige: /À toi de rédiger|Pour écrire/.test(t) };
         }, ex);
         /* L'ÉNONCÉ PAPIER NE PARLE PAS DE L'ÉCRAN, ET N'AIDE PAS (Turquet,
            novembre 2026, DM n°4) — et il porte TOUT l'exercice : la suite du
@@ -3619,6 +3625,10 @@ if(require.main === module) (async () => {
           manque.length ? 'manque « ' + manque.join(' », « ') + ' »' : 'le tableau de données manque');
         verifier('la correction de ' + ex + ' suit les coups de pouce : tout est corrigé, rien en pointillé',
           r.blocs > 0 && r.vals > 0 && r.prof === 0 && r.blancs === 0 && r.miroirs === 0 && !r.pouce, JSON.stringify(r));
+        if(ex === 'developper-double')
+          verifier('la correction du 5.3 : ni exemple ni rédaction vide, et chaque case visée par une flèche garde son nom pour le PDF',
+            r.schemas > 0 && r.fleches === 0 && r.exemple === 0 && !r.redige,
+            JSON.stringify({ schemas: r.schemas, flechesPerdues: r.fleches, exemple: r.exemple, redige: r.redige }));
         if(ex === DP.ficheUnEcran)
           verifier('une fiche d\'un seul écran (' + ex + ') s\'imprime une fois, à l\'énoncé comme à la correction',
             r.enonce === 1 && r.blocs === 1, JSON.stringify(r));
