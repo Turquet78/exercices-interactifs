@@ -3618,3 +3618,16 @@ tableau de variations et le minimum dont ils se servent ; la tangente devient
 la 3, f″ et la convexité la 4, l'équation différentielle reste la 5. Les cases
 et leurs juges n'ont pas changé, seul leur ordre (à l'écran, dans la liste des
 cases et dans le contexte envoyé au modèle).
+
+**« + » au pavé des cases qui écrivent un nombre avec son signe (novembre 2026, v532).**
+Suite du « je n'ai pas le signe + » du 6.3 de la Première (`docs/journal/22-premiere-etude-fonction.md`) :
+le pavé ancré n'offre que « − » d'office. Six cases de la Terminale demandaient
+pourtant leur nombre « avec son signe » sans nommer « + » dans
+`data-pave-plus` : la constante de la tangente (`ecv-f14`, `efb-f14`), celle
+de la dérivée factorisée du 4.3.4 (`eav-bd5`), celles de la convexité
+(`cvp-a3`, `cvp-a1`, `cvp-a2` derrière l'indication), et le nombre qui change
+de membre dans le 2e système de l'appartenance (`erp-…-fkb`) — alors que ses
+jumelles `edp` (`IS`) et `ebc` l'avaient. `txInp(id,'','+')`. Contrôle
+universel : banc navigateur, section 9, « une case qui écrit un nombre avec
+son signe offre la touche « + » au pavé des tablettes ». Éprouvé par sabotage
+(le « + » retiré de `ecv-f14` et de `erp-…-fkb`).
