@@ -6365,6 +6365,25 @@ Banc principal (`quatriemePoint`) : les trois lecteurs sur dix écritures
 (justes, une étape fausse, un membre vide, « y = » dans la case x), la
 copie juste 21/21 aux étapes écrites, une étape fausse rouge et nommée.
 
+### Puis les étapes en SOUTIEN : la case juste ne se fige plus (Seconde v731)
+
+Turquet, novembre 2026, capture du 8.4.7 : « 1-2=-1 » et « -3+1=-2 »
+rouges, « je voudrais que cela soit compté comme juste ». Le juge lisait la
+chaîne — en entraînement, la copie était juste. C'est le SOUTIEN qui la
+cassait : la correction au fil de la frappe (`liveVcm`, `liveVqs`,
+`liveVsm` → `corrChoix`) désactive une case dès qu'elle est juste ; or
+« 1−2 » vaut déjà −1, la case se fermait après le « 2 », et « = −1 » ne
+s'écrivait plus (au pavé des tablettes, la touche « = » disparaissait même
+avec le focus). Les étapes, promises à la v705, étaient impossibles en
+soutien. `vecLiveCase` : une case de calcul (x = …, y = … des vcm, vqs,
+vsm) reste ouverte quand elle devient juste ; une étape en cours
+(« 1−2 = », « 1−2 = − ») reste neutre au lieu de rougir. Les cases de
+nombre se figent comme avant ; « Revérifier » fige toujours.
+
+Banc principal (`quatriemePoint`) : la frappe rejouée lettre à lettre en
+soutien, la case jamais figée, l'étape en cours jamais colorée, la chaîne
+finie juste, une case de nombre juste toujours figée.
+
 ## {coordonnees-vecteur-tracer-decompose} — tracer un vecteur par ses coordonnées, la décomposition pendant le tracé (8.4.8, Seconde v672 — la v671 prise sur main pendant les bancs, par la PR 991)
 
 **La demande** (Turquet, novembre 2026) : « faire un exercice comme le 8.4.6
