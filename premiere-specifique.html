@@ -4289,7 +4289,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=488;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=489;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -7484,12 +7484,12 @@ function dmEnonceMontrer(devoirId, testId){
      novembre 2026, DM n°4). La photo reste dans #dmeCorps, cachée : c'est
      elle que le PDF met en page. */
   const corr=dmAvecCorrection(devoirId);
-  $('dmeIntro').textContent='Télécharge ton énoncé en PDF pour l’imprimer, et rédige sur ta feuille : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.'
-    +(corr?' Tu peux aussi télécharger sa correction en PDF.':'');
+  $('dmeIntro').textContent='Ouvre ton énoncé en PDF pour l’imprimer, et rédige sur ta feuille : ton professeur en reçoit le même exemplaire, avec ton prénom — c’est CETTE version-là qu’il corrigera.'
+    +(corr?' Tu peux aussi ouvrir sa correction en PDF.':'');
   $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=true;
   $('dmeActions').innerHTML=
-    '<button class="btn btn-primary" id="dmePapierBtn" onclick="dmePapier()">📥 Télécharger mon énoncé en PDF</button>'
-   +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
+    '<button class="btn btn-primary" id="dmePapierBtn" onclick="dmePapier()">📄 Ouvrir mon énoncé en PDF</button>'
+   +(corr?dmcPdfBouton('📄 Ouvrir la correction en PDF'):'')
    +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
   show('dmenonce');
   return true;
@@ -7873,7 +7873,10 @@ async function dmeEnvoyer(){
      parti tout seul lui laisserait l'énoncé d'un devoir que personne ne rendra.
      confirm() est la convention du fichier pour un geste irréversible côté
      élève — c'est déjà celle de « Abandonner cet exercice ». */
-  if(!confirm('Télécharger ton énoncé en PDF ?\n\nTon professeur en recevra le même exemplaire, avec ton prénom : c’est cette version-là qu’il corrigera.')) return false;
+  if(!confirm('Ouvrir ton énoncé en PDF ?\n\nTon professeur en recevra le même exemplaire, avec ton prénom : c’est cette version-là qu’il corrigera.')) return false;
+  /* l'onglet du PDF, AU CLIC (juste après la confirmation, avant toute
+     attente) : il recevra l'énoncé ou la correction */
+  dmeOngletPret=dmeOuvrirOnglet();
   const bp=$('dmePapierBtn');
   if(bp) bp.disabled=true;
   c.envoiEnCours=true;
@@ -7888,20 +7891,20 @@ async function dmeEnvoyer(){
        laisserait l'élève rendre une feuille dont le professeur n'a pas
        l'énoncé — le refus muet, encore. */
     const {error}=await sb.from(TABLE_SIG).insert(payload);
-    if(error){ c.envoiEnCours=false; toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return false; }
+    if(error){ c.envoiEnCours=false; dmeFermerOnglet(dmeOngletPret); dmeOngletPret=null; toast('Énoncé non envoyé : '+(await raisonRefusEleve(error)),'err'); if(bp) bp.disabled=false; return false; }
     c.envoye=true; c.envoiEnCours=false;
     const corr=dmAvecCorrection(c.devoirId);
     $('dmeIntro').textContent='Ton professeur a reçu cet énoncé, avec ton prénom. Imprime le PDF et réponds sur la feuille : c’est cette version-là qu’il corrigera.'
-      +(corr?' Sa correction se télécharge aussi : tu la retrouveras ici chaque fois que tu reviendras sur cet exercice.':' Tu le retrouveras ici chaque fois que tu reviendras sur cet exercice.');
+      +(corr?' Sa correction s’ouvre aussi en PDF : tu la retrouveras ici chaque fois que tu reviendras sur cet exercice.':' Tu le retrouveras ici chaque fois que tu reviendras sur cet exercice.');
     $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé envoyé au professeur</span>'
-      +dmePdfBouton('📥 Télécharger à nouveau le PDF')
-      +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
+      +dmePdfBouton('📄 Ouvrir à nouveau le PDF')
+      +(corr?dmcPdfBouton('📄 Ouvrir la correction en PDF'):'')
       +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
     toast('Énoncé envoyé au professeur','ok');
     /* l'appelant lance le PDF SANS await : il se prépare (bibliothèques,
        rendu) pendant que l'élève lit la confirmation */
     return true;
-  }catch(e){ c.envoiEnCours=false; toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; return false; }
+  }catch(e){ c.envoiEnCours=false; dmeFermerOnglet(dmeOngletPret); dmeOngletPret=null; toast('Énoncé non envoyé (connexion) — réessaie.','err'); if(bp) bp.disabled=false; return false; }
 }
 /* UN REFUS DE LA BASE DEVANT UN ÉLÈVE SE NOMME. « new row violates
    row-level security policy for table "signalements" », lu tel quel, ne dit
@@ -7944,8 +7947,8 @@ function voirEnonceDM(id){
   $('dmeIntro').textContent='Voici l’énoncé exact que cet élève a reçu pour son devoir sur papier : c’est cette version-là qu’il traite sur sa feuille. Le PDF est celui qu’il a téléchargé.';
   $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=false;     /* le professeur, lui, le LIT */
   dmePdfPoser(String(r.message||'').replace(/^DM sur papier — [^—]*— /,'')||testLabel(r.exercice), r.prenom||'');
-  $('dmeActions').innerHTML=dmePdfBouton('📥 Télécharger le PDF')
-    +dmcPdfBouton('📥 PDF de la correction')
+  $('dmeActions').innerHTML=dmePdfBouton('📄 Ouvrir le PDF')
+    +dmcPdfBouton('📄 PDF de la correction')
     +'<button class="btn btn-ghost" onclick="dmeRetour()">← Retour aux signalements</button>';
   show('dmenonce');
   return true;
@@ -8032,12 +8035,12 @@ function dmeRevoir(r, devoirId){
   const corr=dmAvecCorrection(devoirId);
   let quand=''; try{ const t=new Date(r.created_at); if(!isNaN(t.getTime())) quand=' le '+t.toLocaleDateString('fr-FR'); }catch(e){}
   $('dmeTitre').innerHTML='📄 '+esc(testLabel(r.exercice))+(dmBonusCourant()?' '+dmBonusBadge():'');
-  $('dmeIntro').textContent='Ton énoncé de ce devoir sur papier'+(quand?', reçu'+quand:'')+', se télécharge en PDF : c’est cette version-là que ton professeur corrigera.'
-    +(corr?' Sa correction se télécharge aussi.':'');
+  $('dmeIntro').textContent='Ton énoncé de ce devoir sur papier'+(quand?', reçu'+quand:'')+', s’ouvre en PDF : c’est cette version-là que ton professeur corrigera.'
+    +(corr?' Sa correction s’ouvre aussi en PDF.':'');
   $('dmeCorps').innerHTML=corps; $('dmeCorps').hidden=true;      /* les boutons seuls, comme au premier passage */
   $('dmeActions').innerHTML='<span class="dme-ok">✓ Énoncé déjà envoyé au professeur</span>'
-    +dmePdfBouton('📥 Télécharger mon énoncé en PDF')
-    +(corr?dmcPdfBouton('📥 Télécharger la correction en PDF'):'')
+    +dmePdfBouton('📄 Ouvrir mon énoncé en PDF')
+    +(corr?dmcPdfBouton('📄 Ouvrir la correction en PDF'):'')
     +'<button class="btn btn-ghost" onclick="dmeRetour()">Retour au devoir</button>';
   show('dmenonce');
   return true;
@@ -8444,20 +8447,22 @@ async function dmCorrigeHTML(pouce){
 async function dmcPdf(){
   /* proposée avant l'envoi : l'élève passe d'abord par l'envoi confirmé */
   if(dmeCtx && !dmeCtx.envoye && !(await dmeEnvoyer())) return;
-  const i=dmePdfInfo; if(!i || i.corEnCours) return;
-  if(i.corBlob){ dmeTelecharger(i.corBlob, dmePdfNom('correction')); return; }
+  const i=dmePdfInfo; if(!i || i.corEnCours){ dmeFermerOnglet(dmeOngletPret); dmeOngletPret=null; return; }
+  const onglet=dmePrendreOnglet();
+  if(i.corBlob){ dmeTelecharger(i.corBlob, dmePdfNom('correction'), onglet); return; }
   const bt=$('dmcPdfBtn'), lib=bt?bt.textContent:'';
   i.corEnCours=true; if(bt){ bt.disabled=true; bt.textContent='⏳ Préparation de la correction…'; }
   try{
     const corps=await dmCorrigeHTML();
     if(dmePdfInfo!==i) return;
-    if(!corps){ toast('La correction de cet exercice ne peut pas s’écrire automatiquement : elle se fait avec ton professeur.','err'); return; }
+    if(!corps){ dmeFermerOnglet(onglet); toast('La correction de cet exercice ne peut pas s’écrire automatiquement : elle se fait avec ton professeur.','err'); return; }
     const blob=await dmePdfFabriquer('<div class="dmc">'+corps+'</div>', 'Correction — '+(i.titre||''));
-    if(dmePdfInfo!==i) return;
+    if(dmePdfInfo!==i){ dmeFermerOnglet(onglet); return; }
     i.corBlob=blob;
-    dmeTelecharger(blob, dmePdfNom('correction'));
-    toast('Correction téléchargée','ok');
+    dmeTelecharger(blob, dmePdfNom('correction'), onglet);
+    toast(onglet && !onglet.closed ? 'Correction ouverte dans un nouvel onglet' : 'Correction téléchargée','ok');
   }catch(e){
+    dmeFermerOnglet(onglet);
     toast('La correction n’a pas pu être préparée ('+((e&&e.message)||'erreur')+').','err');
   }finally{
     i.corEnCours=false;
@@ -8539,11 +8544,63 @@ function dmePdfNom(quoi){
   const brut=((quoi||'enonce')+' '+(i.prenom||'')+' '+(i.titre||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   return brut.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)+'.pdf';
 }
-function dmeTelecharger(blob, nom){
+/* LE PDF S'OUVRE DANS UN SEUL ONGLET (demande de Turquet, novembre 2026 :
+   le téléchargement ouvrait, selon le navigateur, un onglet ET une fenêtre
+   en plus — le réglage « ouvrir les PDF » de chaque appareil). L'élève
+   l'imprime ou l'enregistre depuis l'onglet. window.open() APRÈS une attente
+   est bloqué comme une fenêtre surgissante : l'onglet s'ouvre AU CLIC
+   (dmeOuvrirOnglet, « Préparation du PDF… »), le PDF y arrive ensuite. Un
+   navigateur qui refuse l'onglet retombe sur le téléchargement. */
+let dmeOngletPret=null;
+function dmeOuvrirOnglet(){
+  let o=null;
+  try{ o=window.open('','_blank'); }catch(e){ o=null; }
+  if(o){ try{ o.document.write('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>PDF</title></head>'
+    +'<body style="font-family:sans-serif;margin:48px;color:#333">⏳ Préparation du PDF…</body></html>'); o.document.close(); }catch(e){} }
+  return o;
+}
+/* l'onglet ouvert au clic (par l'envoi confirmé, ou par le bouton lui-même) */
+function dmePrendreOnglet(){
+  const o=dmeOngletPret; dmeOngletPret=null;
+  return (o && !o.closed) ? o : dmeOuvrirOnglet();
+}
+function dmeFermerOnglet(o){ try{ if(o && !o.closed) o.close(); }catch(e){} }
+function dmeTelecharger(blob, nom, onglet){
   const u=URL.createObjectURL(blob);
+  /* l'adresse vit le temps qu'on lise le PDF dans l'onglet */
+  setTimeout(function(){ URL.revokeObjectURL(u); },30*60000);
+  if(onglet && !onglet.closed){
+    try{
+      /* SUR ORDINATEUR, une page autour du PDF : un PDF ouvert tel quel n'a
+         pas de nom, et « Enregistrer » depuis l'onglet l'appelait d'une suite
+         de chiffres — le bouton du haut l'enregistre sous son vrai nom, l'autre
+         l'imprime. Au doigt (tablette, téléphone), le PDF s'ouvre directement :
+         le lecteur de l'appareil sait l'enregistrer et l'imprimer, un PDF dans
+         un cadre ne s'y lit pas toujours en entier. */
+      let doigt=false; try{ doigt=!!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); }catch(e){}
+      if(doigt){ onglet.location.href=u; }
+      else {
+        const d=onglet.document, n=esc(nom);
+        d.open();
+        d.write('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>'+n+'</title><style>'
+          +'html,body{margin:0;height:100%;font-family:sans-serif;background:#525659}'
+          +'.barre{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);z-index:1}'
+          +'.barre b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1F3864}'
+          +'.barre a,.barre button{font:inherit;font-weight:700;padding:8px 14px;border-radius:10px;border:1.5px solid #2E5BBA;background:#2E5BBA;color:#fff;text-decoration:none;cursor:pointer}'
+          +'.barre button{background:#fff;color:#2E5BBA}'
+          +'iframe{position:fixed;top:52px;left:0;width:100%;height:calc(100% - 52px);border:0}'
+          +'</style></head><body><div class="barre"><b>'+n+'</b>'
+          +'<a id="enregistrer" href="'+u+'" download="'+n+'">📥 Enregistrer le PDF</a>'
+          +'<button id="imprimer" type="button" onclick="try{document.getElementById(\'pdf\').contentWindow.print();}catch(e){window.print();}">🖨 Imprimer</button></div>'
+          +'<iframe id="pdf" src="'+u+'" title="'+n+'"></iframe></body></html>');
+        d.close();
+      }
+      try{ onglet.opener=null; }catch(e){}
+      return;
+    }catch(e){}
+  }
   const a=document.createElement('a'); a.href=u; a.download=nom; a.rel='noopener';
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(u); },60000);
 }
 /* LE RENDU SE FAIT DANS UN CADRE À PART, qui ne porte que les styles de la
    page et l'énoncé. html2canvas recopie TOUT le document de l'élément qu'il
@@ -8661,16 +8718,18 @@ async function dmePdfFabriquer(corps, titre){
 }
 async function dmePdf(){
   const i=dmePdfInfo; if(!i||i.enCours) return;
-  if(i.blob){ dmeTelecharger(i.blob, dmePdfNom()); return; }
+  const onglet=dmePrendreOnglet();
+  if(i.blob){ dmeTelecharger(i.blob, dmePdfNom(), onglet); return; }
   const bt=$('dmePdfBtn'), lib=bt?bt.textContent:'';
   i.enCours=true; if(bt){ bt.disabled=true; bt.textContent='⏳ Préparation du PDF…'; }
   try{
     const blob=await dmePdfFabriquer();
-    if(dmePdfInfo!==i) return;                   /* l'écran a changé entre-temps */
+    if(dmePdfInfo!==i){ dmeFermerOnglet(onglet); return; }      /* l'écran a changé entre-temps */
     i.blob=blob;
-    dmeTelecharger(blob, dmePdfNom());
-    toast('PDF téléchargé','ok');
+    dmeTelecharger(blob, dmePdfNom(), onglet);
+    toast(onglet && !onglet.closed ? 'PDF ouvert dans un nouvel onglet' : 'PDF téléchargé','ok');
   }catch(e){
+    dmeFermerOnglet(onglet);
     toast('Le PDF n’a pas pu être préparé ('+((e&&e.message)||'erreur')+') — réessaie avec le bouton « Télécharger ».','err');
   }finally{
     i.enCours=false;

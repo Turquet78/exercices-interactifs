@@ -3439,15 +3439,28 @@ if(require.main === module) (async () => {
         await s.page.evaluate(ex => dmePapierOuvrir('dm-pdf', ex), DP.exercice);
         await s.page.waitForTimeout(1200);
       }
-      const lirePdf = async dl => {
-        if(!dl) return null;
-        const f = await dl.path(); const b = f ? fs.readFileSync(f) : Buffer.alloc(0);
-        const t = b.toString('latin1');
-        return { nom: dl.suggestedFilename(), octets: b.length, entete: t.slice(0, 5),
+      /* LE PDF S'OUVRE DANS UN SEUL ONGLET (Turquet, novembre 2026) : le banc
+         prend l'onglet ouvert au clic, attend que le PDF y arrive, lit ses
+         octets et le nom que porte son bouton « Enregistrer » — puis le ferme */
+      const attendreOnglet = t => s.page.context().waitForEvent('page', { timeout: t }).catch(() => null);
+      const lirePdf = async pg => {
+        if(!pg) return null;
+        const pret = await pg.waitForFunction(() => { const a = document.getElementById('enregistrer'); return a && /^blob:/.test(a.href); },
+          null, { timeout: 90000 }).then(() => true).catch(() => false);
+        if(!pret){ await pg.close().catch(() => {}); return null; }
+        const r = await pg.evaluate(async () => {
+          const a = document.getElementById('enregistrer'), f = document.getElementById('pdf');
+          const o = new Uint8Array(await (await fetch(a.href)).arrayBuffer()); let x = ''; for(const c of o) x += String.fromCharCode(c);
+          return { nom: a.getAttribute('download'), b64: btoa(x), cadre: !!f && f.src === a.href, seul: !window.opener };
+        }).catch(() => null);
+        await pg.close().catch(() => {});
+        if(!r) return null;
+        const b = Buffer.from(r.b64, 'base64'), t = b.toString('latin1');
+        return { nom: r.nom, octets: b.length, entete: t.slice(0, 5), cadre: r.cadre, seul: r.seul,
                  pages: (t.match(/\/Type\s*\/Page[^s]/g) || []).length };
       };
       const [dlEleve] = await Promise.all([
-        s.page.waitForEvent('download', { timeout: 60000 }).catch(() => null),
+        attendreOnglet(60000),
         s.page.click('#dmePapierBtn'),
       ]);
       const pe = await lirePdf(dlEleve);
@@ -3456,6 +3469,9 @@ if(require.main === module) (async () => {
         !!pe && pe.entete === '%PDF-' && pe.pages >= 1 && pe.octets > 20000 && /\.pdf$/.test(pe.nom),
         pe ? pe.nom + ' : ' + pe.octets + ' octets, en-tête « ' + pe.entete + ' », ' + pe.pages + ' page(s)'
            : 'aucun téléchargement — la page dit « ' + toastE + ' »');
+      verifier('le PDF s\'ouvre dans UN onglet, le PDF dans la page, « Enregistrer » sous son vrai nom',
+        !!pe && pe.cadre && pe.seul && /^enonce-.*\.pdf$/.test(pe.nom || ''),
+        pe ? JSON.stringify({ nom: pe.nom, cadre: pe.cadre, detache: pe.seul }) : 'aucun onglet');
       /* le bord opposé de « avec correction » : ce devoir-ci ne l'a pas */
       const sansOption = await s.page.evaluate(() => !!document.getElementById('dmcPdfBtn'));
       verifier('sans l\'option « avec correction », l\'écran papier de l\'élève ne propose aucune correction', !sansOption,
@@ -3480,7 +3496,7 @@ if(require.main === module) (async () => {
         const bouton = await s.page.evaluate(() => !!document.querySelector('#sigListe button[onclick*="pdfEnonceDM"]'));
         verifier('la ligne du professeur propose le PDF de l\'énoncé', bouton, 'aucun bouton pdfEnonceDM dans la liste');
         const [dlProf] = await Promise.all([
-          s.page.waitForEvent('download', { timeout: 60000 }).catch(() => null),
+          attendreOnglet(60000),
           s.page.evaluate(() => pdfEnonceDM('sig-pdf')),
         ]);
         const pp = await lirePdf(dlProf);
@@ -3540,7 +3556,7 @@ if(require.main === module) (async () => {
         verifier('la photo de la correction ne laisse rien derrière elle : ni note, ni mode, ni tirage changés',
           photo.memeTirage && photo.mode && photo.rejeu && photo.notes === 0 && photo.ecran === 'scr-dmenonce', JSON.stringify(photo));
         const [dlCor] = await Promise.all([
-          s.page.waitForEvent('download', { timeout: 90000 }).catch(() => null),
+          attendreOnglet(90000),
           s.page.click('#dmcPdfBtn'),
         ]);
         const pc = await lirePdf(dlCor);
@@ -3570,7 +3586,7 @@ if(require.main === module) (async () => {
           vu.ecran === 'scr-dmenonce' && vu.haut === 0 && vu.plein > 0 && vu.enonce && vu.corr, JSON.stringify(vu));
         await s.page.screenshot({ path: path.join(require('os').tmpdir(), 'papier-boutons-seuls.png') }).catch(() => {});
         const [dlB] = await Promise.all([
-          s.page.waitForEvent('download', { timeout: 90000 }).catch(() => null),
+          attendreOnglet(90000),
           s.page.click('#dmcPdfBtn'),
         ]);
         const pb = await lirePdf(dlB);
