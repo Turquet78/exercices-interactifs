@@ -263,7 +263,7 @@ est l'autre bord de l'autre). Contrôle : banc principal, « le bac blanc
 refusés avec un autre.
 
 **Plus de « = » imposé en tête de ligne quand la rédaction n'est pas un seul
-calcul (Turquet, novembre 2026, version 482).** La question « traduis les mots
+calcul (Turquet, novembre 2026, version 483).** La question « traduis les mots
 en calcul » du bac blanc (moteur `voc` : « la somme du quadruple de 0,25 et du
 triple de 6 ») avait la feuille en mode `calcul` : Entrée ouvrait une ligne qui
 commençait par « = ». Or l'élève y écrit naturellement trois calculs
