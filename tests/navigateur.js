@@ -3442,9 +3442,16 @@ if(require.main === module) (async () => {
       /* LE PDF S'OUVRE DANS UN SEUL ONGLET (Turquet, novembre 2026) : le banc
          prend l'onglet ouvert au clic, attend que le PDF y arrive, lit ses
          octets et le nom que porte son bouton « Enregistrer » — puis le ferme */
-      const attendreOnglet = t => s.page.context().waitForEvent('page', { timeout: t }).catch(() => null);
+      /* la Première ouvre un onglet (dmPdf.onglet) ; un niveau qui télécharge
+         encore est lu par son téléchargement */
+      const attendreOnglet = t => DP.onglet ? s.page.context().waitForEvent('page', { timeout: t }).catch(() => null)
+                                            : s.page.waitForEvent('download', { timeout: t }).catch(() => null);
       const lirePdf = async pg => {
         if(!pg) return null;
+        if(typeof pg.suggestedFilename === 'function'){
+          const f = await pg.path(); const b = f ? fs.readFileSync(f) : Buffer.alloc(0), t = b.toString('latin1');
+          return { nom: pg.suggestedFilename(), octets: b.length, entete: t.slice(0, 5), pages: (t.match(/\/Type\s*\/Page[^s]/g) || []).length };
+        }
         const pret = await pg.waitForFunction(() => { const a = document.getElementById('enregistrer'); return a && /^blob:/.test(a.href); },
           null, { timeout: 90000 }).then(() => true).catch(() => false);
         if(!pret){ await pg.close().catch(() => {}); return null; }
@@ -3469,9 +3476,11 @@ if(require.main === module) (async () => {
         !!pe && pe.entete === '%PDF-' && pe.pages >= 1 && pe.octets > 20000 && /\.pdf$/.test(pe.nom),
         pe ? pe.nom + ' : ' + pe.octets + ' octets, en-tête « ' + pe.entete + ' », ' + pe.pages + ' page(s)'
            : 'aucun téléchargement — la page dit « ' + toastE + ' »');
-      verifier('le PDF s\'ouvre dans UN onglet, le PDF dans la page, « Enregistrer » sous son vrai nom',
+      if(DP.onglet) verifier('le PDF s\'ouvre dans UN onglet, le PDF dans la page, « Enregistrer » sous son vrai nom',
         !!pe && pe.cadre && pe.seul && /^enonce-.*\.pdf$/.test(pe.nom || ''),
         pe ? JSON.stringify({ nom: pe.nom, cadre: pe.cadre, detache: pe.seul }) : 'aucun onglet');
+      else ignorer('le PDF s\'ouvre dans UN onglet, le PDF dans la page, « Enregistrer » sous son vrai nom',
+        'ce niveau télécharge encore ses PDF (dmPdf.onglet absent du profil)');
       /* le bord opposé de « avec correction » : ce devoir-ci ne l'a pas */
       const sansOption = await s.page.evaluate(() => !!document.getElementById('dmcPdfBtn'));
       verifier('sans l\'option « avec correction », l\'écran papier de l\'élève ne propose aucune correction', !sansOption,

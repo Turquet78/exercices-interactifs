@@ -195,6 +195,8 @@ module.exports = {
                        la correction proposée d'emblée (Turquet, novembre 2026, DM n°4) */
                     boutonsSeuls: true },
     dmPdf: { exercice: 'pourcentage-depart', aide: 'Choisis la valeur initiale', question: 'Retrouve', boutonsSeuls: true,
+             /* le PDF s'ouvre dans un seul onglet (Turquet, novembre 2026) */
+             onglet: true,
              /* LA CORRECTION AUX ÉTAPES DES COUPS DE POUCE (Turquet, novembre
                 2026, DM n°4) : chaque question entièrement corrigée, aucun
                 pointillé ; la fiche d'un seul écran (le 3.13) en un seul bloc */
