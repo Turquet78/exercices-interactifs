@@ -2487,3 +2487,34 @@ la correction passe aussi par `dmeSansEcran`. Banc navigateur, 6 sexies ter :
 sur la correction du 5.3, chaque case visée par une flèche porte son nom, ni
 exemple ni « À toi de rédiger ». **Ce qu'aucun banc ne voit** : le PDF fait
 depuis un écran d'une autre largeur que celle du banc — vu ici à 800 px.
+
+**Puis le PDF s'est ouvert dans UN SEUL ONGLET, au lieu d'un téléchargement**
+(Première v489, demande de Turquet, novembre 2026 : « quand on télécharge le
+PDF de la correction ou de l'énoncé, un onglet s'ouvre avec le PDF, et le PDF
+s'ouvre en plus dans une fenêtre supplémentaire »). La page ne lançait qu'un
+téléchargement (`<a download>`) : l'onglet et la fenêtre venaient des réglages
+de chaque appareil (« ouvrir les PDF après téléchargement », le lecteur du
+système). Plutôt que de demander à chaque élève de régler son navigateur, le
+PDF s'ouvre maintenant dans un onglet, et l'élève l'imprime ou l'enregistre
+depuis là.
+* *L'onglet s'ouvre AU CLIC* (`dmeOuvrirOnglet`, « Préparation du PDF… ») :
+  un `window.open()` après l'attente de la préparation (plusieurs secondes)
+  est bloqué comme une fenêtre surgissante. Après la confirmation de l'envoi,
+  `dmeEnvoyer` l'ouvre et le range (`dmeOngletPret`) ; le bouton le prend
+  (`dmePrendreOnglet`) ou l'ouvre lui-même. Un échec le referme.
+* *Sur ordinateur, une page autour du PDF* : un PDF ouvert tel quel par son
+  adresse `blob:` n'a pas de nom, et « Enregistrer » depuis l'onglet
+  l'appelait d'une suite de chiffres. La page porte un bandeau — le nom,
+  « 📥 Enregistrer le PDF » (`download` = son vrai nom), « 🖨 Imprimer » — et
+  le PDF dans un cadre. Au doigt (`pointer: coarse`), le PDF s'ouvre
+  directement : le lecteur de la tablette sait l'enregistrer, et un PDF dans
+  un cadre ne s'y lit pas toujours en entier.
+* *Un navigateur qui refuse l'onglet* retombe sur le téléchargement d'avant.
+* Les boutons disent « 📄 Ouvrir mon énoncé en PDF », « 📄 Ouvrir la
+  correction en PDF ».
+Banc navigateur, 6 sexies ter : les quatre PDF (énoncé de l'élève, du
+professeur, correction, correction avant l'énoncé) se lisent dans l'onglet ;
+l'onglet est détaché de la page (`opener` nul), le PDF y est dans le cadre, et
+« Enregistrer » le nomme « enonce-….pdf ». **Ce qu'aucun banc ne voit** :
+l'onglet sur une vraie tablette (le banc a une souris), et le comportement
+d'un bloqueur de fenêtres réglé plus sévèrement que celui de Chrome.
