@@ -2407,3 +2407,17 @@ aucun ne régresse. Mesuré dans Chromium sur les six exercices du DM n°4 : tou
 corrigées, aucun pointillé, aucun miroir à la réponse d'essai ; PDF relus page
 par page (le 3.13 tient sur deux pages au lieu de quatorze). Banc navigateur,
 6 sexies ter (`dmPdf.pouce`, `dmPdf.ficheUnEcran`).
+
+**Puis « Avec correction » s'est DÉCOCHÉE à l'enregistrement — en Première**
+(v482, signalé par Turquet, novembre 2026, sur le DM n°4 : « quand je coche
+avec correction et que j'enregistre le devoir, il décoche automatiquement »).
+Le drapeau était recopié par `ensureDevoir` (le premier piège, celui du
+« bonus ») et lu par `dmLireEntete` — mais `saveDM` relit chaque champ de
+l'éditeur lui-même, puis écrit un objet `clean` construit champ par champ :
+la case n'était ni lue ni recopiée. Le devoir partait sans `correction`, et
+aucun élève ne voyait le bouton. Trois portes, donc, par lesquelles un drapeau
+d'un devoir se perd : la normalisation (`ensureDevoir`), la lecture de
+l'éditeur (`saveDM`), l'objet écrit (`clean`). Le banc de la v479 ne tenait
+que la première. Banc jsdom, « les fiches se font dans l'ordre… » (la partie
+de la Première, qui exerce le vrai `saveDM`) : cochée, enregistrée, relue
+dans la base et dans l'éditeur ; décochée, effacée.
