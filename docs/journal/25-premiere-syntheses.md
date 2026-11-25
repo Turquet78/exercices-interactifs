@@ -279,7 +279,7 @@ Terminale — toutes sont UNE chaîne d'égalités, et gardent leur « = ».
 
 **Le « … ÷ » du coup de pouce des fractions restait en pointillés, et
 « Simplifie ta fraction. » s'écrit au-dessus de la division (novembre 2026,
-v484 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
+v485 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
 la division qui simplifie montrait « … ÷ 2 / 10 ÷ 2 ». Le coup de pouce tourne
 sur l'écran du 4.11 sous `test.kind === 'bba'`, et `seSaisie` ne suivait la
 saisie que sous `test.kind === kind` : la chaîne n'était recopiée qu'à la
