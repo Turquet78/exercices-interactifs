@@ -9189,7 +9189,7 @@ function calculLitteralRedige(w, P){
         });
         if(mn.nettoyer('2.5x+1,25')!=='2.5x+1,25') vus.push('5.3 : un vrai décimal est effacé par le nettoyage');
       }
-      if(!Array.prototype.some.call(document.scripts, function(sc){ return /async function checkSFR\(\)\{[\s\S]{0,800}m\.nettoyer\(rep\)/.test(sc.textContent||''); })) vus.push('checkSFR n’applique pas m.nettoyer à la copie lue'); }
+      if(!${/async function checkSFR\(\)\{[\s\S]{0,800}m\.nettoyer\(rep\)/.test(lire(CIBLE))}) vus.push('checkSFR n’applique pas m.nettoyer à la copie lue'); }
     const la={forme:'A', prods:[{k:{c:5,d:0}, a:{c:1,d:1}, b:{c:3,d:0}}]};
     j=juge('dvl', la, '5*(x+3)=5x+15');
     if(!(j.sait && j.correct)) vus.push('5.2 : 5 × (x + 3) = 5x + 15 n’est pas compté juste');
