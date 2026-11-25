@@ -276,6 +276,7 @@ montrer un calcul, et la DERNIÈRE donner le résultat. Les autres feuilles à
 « = » de tête des trois niveaux ont été relues une à une : fractions (`frac`,
 2.x de la Seconde), coefficient, « A = … », pourcentage d'un nombre, f′(x) de la
 Terminale — toutes sont UNE chaîne d'égalités, et gardent leur « = ».
+
 **Le « … ÷ » du coup de pouce des fractions restait en pointillés, et
 « Simplifie ta fraction. » s'écrit au-dessus de la division (novembre 2026,
 v484 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
