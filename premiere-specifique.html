@@ -7572,7 +7572,9 @@ function dmeLigneDe(v, section){
    chose : une question (un verbe à l'impératif ou à l'infinitif, après une
    éventuelle lettre « a) », « 2. », « Partie B — »), une donnée (« Soit… »,
    « On donne… »), ou une proposition à cocher. */
-const DME_QUESTION=/^\s*(?:(?:[a-z]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi|Retrouv|Pose|Range|Colori|Effectu|Simplifi|D[ée]velopp|R[ée]dui|Factoris|Compar|Arrondi|Convert|Remplis|Pr[ée]voi|Utilise))/i;
+/* « Partie A » SEUL est un titre de la fiche (le 3.13 : sans lui, ses questions
+   repartaient à 1 sans qu'on sache pourquoi — DM n°4) */
+const DME_QUESTION=/^\s*(?:Partie\s+[A-Z]\s*$|(?:[a-z]\)|[a-j1-9]\.|\(\d+\)|Partie\s+[A-Z]\b|Exercice\s*\d+|Exemple\s*\d+)\s*\S|●?\s*(?:☐|D[ée]montr|Montr(?!ons)|Calcul|D[ée]termin|[ÉE]tudi|Justifi|Donn|D[ée]dui|En d[ée]dui|Conjectur|Exprim|R[ée]sou|Trac|R[ée]dig|Interpr[ée]t|Que |Quel|Associ|Dire|Repr[ée]sent|Cliqu|[ÉE]cri|Lis|Lire|Compl[ée]t|Choisi|Indiqu|V[ée]rifi|Pr[ée]cis|Dress|Trouv|Expliqu|Coch|Plac|Avec la calculatrice|[ÀA] l.aide|Pour chaque|Voici|Soit|On (?:donne|consid|sait|admet|note|prend|choisit|s.int[ée]resse|veut)|Les contre-exemples|Le programme|La suite \(.{1,6}\) semble|[ÉE]tude|Sachant|Parmi|Retrouv|Pose|Range|Colori|Effectu|Simplifi|D[ée]velopp|R[ée]dui|Factoris|Compar|Arrondi|Convert|Remplis|Pr[ée]voi|Utilise))/i;
 /* Une ligne qui ne porte presque aucune lettre (« = × + × », « ⟺ y = »,
    « ; ; », « ou ») est un reste de chaîne, quelle que soit sa forme. */
 /* Ce que seul le PAPIER dit : la consigne qui remplace, sur la feuille, une
@@ -7606,6 +7608,23 @@ function dmeResteDe(section){
   return vus;
 }
 function dmEnonceQ(section){
+  /* CE QUE L'ÉCRAN N'OUVRE QU'APRÈS UN GESTE, le papier le donne d'emblée :
+     un bloc marqué data-papier-montre (la suite du 6.8, fermée tant que la
+     droite n'est pas tracée) est déplié le temps de la photo — mesures des
+     cases comprises — puis replié. */
+  const montres=Array.prototype.filter.call(section.querySelectorAll('[data-papier-montre]'), function(e){ return e.hidden; });
+  montres.forEach(function(e){ e.hidden=false; });
+  /* LES BOUTONS « COUP DE POUCE » sortent de l'écran le temps de la photo,
+     et y reviennent (le même nœud, ses écouteurs avec lui) : posés devant
+     chaque ligne du 3.13, ils faisaient prendre la fiche entière pour du
+     guidage — l'énoncé papier ne gardait que ses deux premières phrases, ni
+     tableau ni questions (signalé par Turquet, novembre 2026, DM n°4) */
+  const pouces=Array.prototype.filter.call(section.querySelectorAll('button'), function(b){ return /coup de pouce/i.test(b.textContent||''); })
+    .map(function(b){ const m=document.createComment('pouce'); b.replaceWith(m); return [m,b]; });
+  try{ return dmEnonceQ_(section); }
+  finally { montres.forEach(function(e){ e.hidden=true; }); pouces.forEach(function(p){ p[0].replaceWith(p[1]); }); }
+}
+function dmEnonceQ_(section){
   const marques=[];
   section.querySelectorAll('input,select,math-field,.dexp2-sheet').forEach(function(v){
     const l=dmeLigneDe(v, section); if(l===v||l.hasAttribute('data-dme-ligne')) return;
@@ -7633,6 +7652,10 @@ function dmEnonceQ(section){
   c.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(e){ e.replaceWith(document.createTextNode('☐ ')); });
   c.querySelectorAll('.test-top,.exo-title,.mp-actions,.mp-feedback,.tvi-actions,.dexp-hint,.hint-souris,.pm-jetons,.s1-jetons,.sa-jetons,.rc-jetons,.svr-outils,button').forEach(function(e){ e.remove(); });
   c.querySelectorAll(DME_AIDES).forEach(function(e){ e.remove(); });
+  /* ce que l'écran montre APRÈS un geste et qui donnerait une réponse sur le
+     papier (la droite redessinée au 5 du 6.8) : l'énoncé seul le retire, la
+     correction le garde */
+  c.querySelectorAll('.dme-hors-enonce').forEach(function(e){ e.remove(); });
   /* Le pointillé prend la PLACE de la case qu'il remplace (mesurée sur l'écran
      affiché) : un pointillé de taille fixe déplaçait tout ce qui l'entoure, et
      les branches d'un arbre, posées sur la grille rendue, ne tombaient plus sur
@@ -7649,8 +7672,51 @@ function dmEnonceQ(section){
   /* ce que le ménage a vidé (un cadre qui ne portait que des lignes à
      compléter) part aussi : un cadre vide imprime une boîte blanche —
      sauf une CELLULE de grille (dmeViderCadres) */
+  c.querySelectorAll('.trd-consigne').forEach(function(e){ e.remove(); });
+  dmeSansEcran(c);
   dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank');
   return c.innerHTML;
+}
+/* L'ÉNONCÉ PAPIER NE PARLE PAS DE L'ÉCRAN, ET N'AIDE PAS (Turquet, novembre
+   2026, DM n°4 : « dans les énoncés en PDF je ne veux pas des commentaires
+   ou remarques du site ou d'aides éventuelles »). Les phrases de l'écran se
+   ressemblent d'un exercice à l'autre — la touche Entrée, « Clique »,
+   « tape x^2 ou appuie sur le bouton », les cases bleues, « la suite
+   s'ouvre », « Vérifie à la fin » — et se retirent ici, phrase par phrase
+   (une PHRASE entière, ou le seul MEMBRE qui parle de l'écran), sans
+   toucher la question qui les porte. Une phrase s'arrête au point ; elle
+   peut traverser une balise EN LIGNE (<i>x</i>), jamais un bloc. */
+const DME_EN_LIGNE='(?:<\\/?(?:i|b|em|strong|sub|sup|span)\\b[^>]*>)';
+const DME_CORPS='(?:'+DME_EN_LIGNE+'|[^.!?<])*';
+const DME_ECRAN=[
+  /* des phrases entières */
+  'Traite les questions dans l[’\']ordre', 'Clique', 'Pour écrire', 'Tu peux aussi écrire directement', 'Il faut au moins une étape',
+  'Vérifie à la fin', 'La touche Entrée', 'Les cases rouges', 'La (?:<b>)?retenue(?:<\\/b>)? \\(case rouge\\)', 'Rédige tout le calcul toi-même',
+  'D[’\']abord case par case', 'Bloqué', 'Tu peux écrire le calcul avant'
+].map(function(d){ return new RegExp('(^|[>.!?:]\\s*|\\s)'+d+DME_CORPS+'[.!?]?','g'); });
+const DME_ECRAN_MEMBRES=[
+  /\s*—\s*la touche Entrée[^.<—]*(—\s*)?/g, /\s*\((?:cases? bleues?)\)/g, /,\s*(?:et|puis) vérifie la fiche(?: à la fin)?/g,
+  / en suivant les étapes(?= ?:)/g,
+  /* le mode d'emploi d'une feuille de calcul : « une étape par ligne,
+     jusqu'au résultat » (le 6.9) */
+  /\s*:\s*écris (?:ton|chaque) calcul, une étape par ligne, jusqu[’']au résultat/g,
+  /\s*(?:en rédigeant ton calcul\s*)?:\s*une étape par ligne, jusqu[’']au résultat/g, /\s*—\s*quand elle est positive, le signe (?:<b>)?\+(?:<\/b>)? est déjà écrit devant la case\s*—/g,
+  /\s*—\s*les racines et les zéros sont déjà écrits/g,
+  /\s+—(?=[.,])/g      /* le tiret resté seul devant le point (« …du tableau —. ») */
+];
+function dmeSansEcran(c){
+  /* ce qui était DÉJÀ vide (une cellule de grille gardée pour l'aplomb) le
+     reste : seul ce que ce filtre vide s'en va */
+  c.querySelectorAll('p,div,span').forEach(function(e){ if(!(e.textContent||'').trim()) e.setAttribute('data-dme-vide',''); });
+  let h=c.innerHTML;
+  DME_ECRAN.forEach(function(re){ h=h.replace(re, function(m,avant){ return /^[>.!?:]/.test(avant) ? avant.replace(/\s+$/,' ') : ' '; }); });
+  DME_ECRAN_MEMBRES.forEach(function(re){ h=h.replace(re,''); });
+  c.innerHTML=h;
+  /* un paragraphe qui ne portait que cela est vide : il part */
+  Array.prototype.slice.call(c.querySelectorAll('p,div,span')).reverse().forEach(function(e){
+    if(!e.hasAttribute('data-dme-vide') && !(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank,input,math-field')) e.remove();
+  });
+  c.querySelectorAll('[data-dme-vide]').forEach(function(e){ e.removeAttribute('data-dme-vide'); });
 }
 /* LES CELLULES D'UNE GRILLE GARDENT LEUR PLACE. Une photo retire les cadres
    qu'elle a vidés ; mais dans une grille (la vérification d'une équation
@@ -20323,7 +20389,9 @@ function bbaSpec(q){
   }
   if(m==='pui'){
     const rs=edsResStr(q);
-    return { prompt:'Donne l’écriture décimale de <i>A</i>&nbsp;=&nbsp;'+mlTex(edsTex(q), esc(edsTxt(q)))+'.', lab:'rédige ton calcul à la suite de « A = »',
+    /* sur le papier, le texte (« 10² + 10⁻³ ») : le rendu MathLive y sortait
+       l'exposant de travers (DM n°4) */
+    return { prompt:'Donne l’écriture décimale de <i>A</i>&nbsp;=&nbsp;<span class="dme-hors-enonce">'+mlTex(edsTex(q), esc(edsTxt(q)))+'</span><span class="papier-seul">'+esc(edsTxt(q))+'</span>.', lab:'rédige ton calcul à la suite de « A = »',
       hint:'Écris chaque puissance de 10 en nombre décimal, puis la somme. Au clavier, <b>^</b> écrit un exposant&nbsp;; <b>Entrée</b> ajoute une ligne, qui commence par «&nbsp;=&nbsp;».',
       mode:'calcul', prefixe:'<i>A</i> =', prefixeTexte:'A =', juge:t=>bbaJugeChaine(t,{cible:{n:edsValeur(q).num,d:edsValeur(q).den}, min:2, fin:'dec', A:true}),
       correction:'Correction : '+edsCorrection(q)+'.', resume:{q:'A = '+edsTxt(q)+' (rédigé)', answer:rs},
@@ -21767,6 +21835,9 @@ function sfrRendu(){
      rédigées (4.12), rendue à tout autre exercice du même écran */
   const scene=$(cfg.host) && $(cfg.host).closest('.mp-stage');
   if(scene) scene.style.display = (q && q.redac && test.toutRedac) ? 'none' : '';
+  /* « La question guidée est faite : rédige maintenant celle-ci. » parle de
+     l'écran : le papier ne la dit pas (DM n°4, novembre 2026) */
+  if($(cfg.prompt)) $(cfg.prompt).classList.toggle('dme-hors-enonce', !!(q && q.redac));
   if(!q || !q.redac){ if(z){ z.hidden=true; z.innerHTML=''; } sfrFeuille=null; return false; }
   test.locked=true;    /* le moteur guidé n'a plus rien à corriger sur cet écran */
   $(cfg.tag).innerHTML=modeTagHTML();
@@ -21786,7 +21857,12 @@ function sfrAfficher(q){
   z.hidden=false;
   /* Les espaces sont INSÉCABLES : dans une rangée flex, une espace ordinaire
      entre deux éléments disparaît. */
-  z.innerHTML='<p class="mp-instr enonce-suite sfr-prompt" id="'+r+'Prompt">À toi de rédiger : calcule '+m.html
+  /* SUR LE PAPIER, la question seule (Turquet, DM n°4 : « il fallait juste
+     mettre développer… ») : ni « À toi de rédiger », ni le mode d'emploi de
+     la feuille ; l'écran garde sa phrase */
+  const litt=(test.kind==='dvl'||test.kind==='dvd');
+  z.innerHTML='<p class="papier-seul">'+(litt?'Développe et réduis ':'Calcule ')+m.html+'.'+(litt ? '' : ' '+(m.suite||'Donne le résultat sous forme de fraction irréductible.'))+'</p>'
+    +'<p class="mp-instr enonce-suite sfr-prompt dme-hors-enonce" id="'+r+'Prompt">À toi de rédiger : calcule '+m.html
       +'.<span class="sfl-suite">'+(m.suite||'Donne le résultat sous forme de fraction irréductible.')+'</span></p>'
     +'<div class="dexp2-sheet" id="'+r+'Sheet"></div>'
     +'<p class="dexp-hint">Écris ton calcul à la suite du « = », une étape par ligne ou tout à la suite. '
@@ -23527,7 +23603,7 @@ const SUI_LIB={ n:'le nombre de pas', r:'de combien on change à chaque pas', p:
 function suiTableau(q, rempli){
   const v=suiVals(q), c=v.c;
   const cell=function(i,val,id){ return '<tr><td>'+i+'</td><td>'+(id?pmMF('',id,' aria-label="'+esc(SUI_LIB[id.slice(4)])+'"'):suiFmt(val))+'</td></tr>'; };
-  return '<table class="sui-tab'+(rempli?' sui-rappel':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
+  return '<table class="sui-tab dme-garde'+(rempli?' sui-rappel dme-hors-enonce':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
     +cell(0,v.u0)+cell(1,v.t1,rempli?'':'sui-t1')+cell(2,v.t2,rempli?'':'sui-t2')+cell(3,v.t3)+'</table>';
 }
 /* L'étiquette d'un pas, en HTML : « 1<sup>er</sup> juin » au pas 0 d'une date. */
@@ -23970,7 +24046,7 @@ function suilRevenir(){
 function suilTableau(q, rempli){
   const v=suiVals(q), c=v.c;
   const cell=function(i,val,cache){ return '<tr><td>'+i+'</td><td>'+(cache?'<b class="suil-trou">?</b>':suiFmt(val))+'</td></tr>'; };
-  return '<table class="sui-tab'+(rempli?' sui-rappel':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
+  return '<table class="sui-tab dme-garde'+(rempli?' sui-rappel dme-hors-enonce':'')+'"><tr><th>'+esc(c.tabL)+'</th><th>'+esc(c.tabC)+'</th></tr>'
     +cell(0,v.u0)+cell(1,v.t1,!rempli)+cell(2,v.t2,!rempli)+cell(3,v.t3)+'</table>';
 }
 /* La question, en mots — l'écran, le contexte de l'aide et l'envoi au modèle la lisent tous. */
@@ -25221,6 +25297,13 @@ function renderDvdTest(){
     +consigne
     +'<div class="dvl-page">'+dvdSchema(q, P+'-', null, nu)+'</div>'
     +'<div class="dvl-outils"><button class="btn btn-ghost red-sq" type="button" tabindex="-1" onmousedown="event.preventDefault()" onclick="dvdCarre()" aria-label="écrire x au carré"><i>x</i>²</button><span class="dvl-astuce">ou tape <i>x</i>^2, <i>x</i>**2</span></div>';
+  /* SUR LE PAPIER : « Développe et réduis A = (…)(…). », rien d'autre — la
+     méthode de l'écran (les termes rouge, bleu, vert, noir), l'exemple, le
+     schéma à cases et les outils sont l'aide de l'écran (Turquet, DM n°4).
+     La correction garde le schéma : seul l'énoncé retire .dme-hors-enonce. */
+  Array.prototype.forEach.call($(P+'Host').children, function(e){ e.classList.add('dme-hors-enonce'); });
+  $(P+'Host').insertAdjacentHTML('afterbegin', '<p class="papier-seul">Développe et réduis <b>'+L.nom+'</b> = '+litrMath(q).html+'.</p>');
+  if($(P+'Prompt')) $(P+'Prompt').classList.add('dme-hors-enonce');
   test.dvdFocus=null;
   dvdCases(q).forEach(function(c){ const el=$(c.id); if(!el) return;
     el.addEventListener('focus', function(){ test.dvdFocus=c.id; });
@@ -29700,7 +29783,10 @@ function fpbTableHTML(q){
     const un=(fpbUnionColorie() && FPB_UNION_CASES.some(c=>PB_CASE[c]===i)) ? ' class="fpb-union"' : '';
     return '<td data-c="'+i+'"'+un+'>'+lab+dedans+'</td>';
   };
-  return '<table class="pb-tab fpb-tab'+(fpbNomsVus() ? '' : ' fpb-sans-noms')+'" id="fpbTab">'
+  /* dme-garde : ce tableau porte les DONNÉES de la fiche — sur le papier il
+     reste, ses cases en pointillés (DM n°4 : « Complète le tableau » sans
+     tableau) ; un tableau de signes, lui, l'élève le dresse */
+  return '<table class="pb-tab fpb-tab dme-garde'+(fpbNomsVus() ? '' : ' fpb-sans-noms')+'" id="fpbTab">'
     +'<tr><th></th><th>'+esc(C.Pl+' avec '+C.dc)+' '+pbHTML('B')+'</th><th>'+esc(C.Pl+' sans '+C.dc)+' '+pbHTML('nB')+'</th><th>Total</th></tr>'
     +'<tr><th>'+esc(C.cA)+'</th>'+cel(0)+cel(3)+cel(6)+'</tr>'
     +'<tr><th>'+esc(C.cnA)+'</th>'+cel(1)+cel(4)+cel(7)+'</tr>'
@@ -36883,7 +36969,10 @@ function renderTrd(){
     +'<div class="trd-regle" id="trdRegleL" hidden><span class="trd-contenu">La représentation graphique d’une fonction du premier degré, de la forme <span class="trd-mot"><i>f</i> (<i>x</i>) = <i>a</i><i>x</i> + <i>b</i></span>, est '+trdSel('trd-regle','la représentation graphique d’une fonction du premier degré')+' .</span></div>'
     +'</div>';
   /* ③ ④ ⑤ : ouverts quand la droite est tracée */
-  h+='<div id="trdSuite" hidden>';
+  /* data-papier-montre : sur le papier, la suite se donne d'emblée — l'élève
+     n'a pas de droite à tracer avant de lire les questions 3 à 5 (signalé par
+     Turquet, novembre 2026, DM n°4 : le PDF s'arrêtait à la question 2) */
+  h+='<div id="trdSuite" hidden data-papier-montre>';
   h+='<div class="trd-partie"><div class="trd-titre">3. Détermine graphiquement l’antécédent de '+K+' par la fonction <i>f</i>.</div>'+trdPouceHTML(3)
     +(trdLibreQ(3) ? '<p class="trd-consigne">Lis-le sur le repère : pars de '+K+' sur l’axe des ordonnées, va horizontalement jusqu’à la droite, puis verticalement jusqu’à l’axe des abscisses, où se lit l’antécédent.</p>'
             : '<p class="trd-consigne">Suis le chemin en pointillés sur le repère : on part de '+K+' sur l’axe des ordonnées (le point rouge), horizontalement jusqu’à la droite, puis verticalement jusqu’à l’axe des abscisses, où se lit l’antécédent.</p>'
@@ -36914,9 +37003,11 @@ function renderTrd(){
   h+='<div class="trd-partie"><div class="trd-titre">5. Complète le tableau de signes de <i>f</i> (<i>x</i>).</div>'+trdPouceHTML(5)
     +(trdLibreQ(5) ? '<p class="trd-consigne">La droite est redessinée : lis où elle coupe l’axe des abscisses — la racine, où <i>f</i> (<i>x</i>) = 0 —, puis si elle est au-dessus de l’axe (+) ou en dessous (−) de chaque côté.</p>'
             : '<p class="trd-consigne">La droite est redessinée : la partie <span class="tsg-mot-rouge">au-dessus</span> de l’axe des abscisses est en <span class="tsg-mot-rouge">rouge</span> et porte le signe <span class="tsg-mot-rouge">+</span> ; la partie <span class="tsg-mot-bleu">en dessous</span> est en <span class="tsg-mot-bleu">bleu</span> et porte le signe <span class="tsg-mot-bleu">−</span> ; le point vert marque la racine, où <i>f</i> (<i>x</i>) = 0 — sa valeur se lit sur l’axe, ou se calcule en résolvant <i>f</i> (<i>x</i>) = 0.</p>')
-    +'<div class="itq-ineg trd-signe-titre">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
-    +'<div class="lv-graph tsg-graph trd-signes-dessin" id="trdSignes">'+(trdLibreQ(5)?trdNueSVG(q):trdSignesSVG(q))+'</div>'
-    +'<div class="itv-ligne trd-tab-ligne"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
+    /* dme-hors-enonce : sur le papier, ce dessin donnerait la droite de la
+       question 2 — l'élève lit les signes sur SON tracé (DM n°4) */
+    +'<div class="itq-ineg trd-signe-titre dme-hors-enonce">Le signe de <i>f</i> (<i>x</i>) se lit sur le dessin</div>'
+    +'<div class="lv-graph tsg-graph trd-signes-dessin dme-hors-enonce" id="trdSignes">'+(trdLibreQ(5)?trdNueSVG(q):trdSignesSVG(q))+'</div>'
+    +'<div class="itv-ligne trd-tab-ligne dme-hors-enonce"><span class="itv-lbl">Tableau</span><span class="itv-corps tsg-corps"><span class="itv-fixe aide-ecran">Écris la racine — là où la droite coupe l’axe des abscisses —, puis place les signes ; le zéro est déjà écrit.</span>'
     +'<table class="tsg-tbl"><tbody>'
     +'<tr><td class="lab"><i>x</i></td><td class="bnd tsg-bl">−∞</td><td class="tsg-root">'+trdIn('trd-rac','la racine de f')+'</td><td class="bnd tsg-br">+∞</td></tr>'
     +'<tr><td class="lab">Signe de <i>f</i> (<i>x</i>)</td><td>'+trdSel('trd-s0','signe avant la racine',' ')+'</td><td class="tsg-zero"><span>0</span></td><td>'+trdSel('trd-s1','signe après la racine',' ')+'</td></tr>'
