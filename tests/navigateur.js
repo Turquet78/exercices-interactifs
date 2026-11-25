@@ -17123,7 +17123,7 @@ if(require.main === module) (async () => {
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], mfNatifs = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], mfNatifs = [], videsRouges = [], sansPlus = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
       let nConfirmVides = 0;
       const passerSoutienManque = [], passerArretes = []; let nPasserSoutien = 0, nPasserCorrige = 0;
       const indicesPlats = []; let nIndicesFlex = 0;
@@ -18001,6 +18001,34 @@ if(require.main === module) (async () => {
               if(rouges.length)
                 videsRouges.push((await s.page.evaluate(i => TEST_NUM[i], id))
                   + ' — ' + rouges.slice(0, 3).join(', '));
+              /* LE « + » D'UNE CASE QUI ÉCRIT UN NOMBRE AVEC SON SIGNE (une
+                 élève, novembre 2026 : « je n'ai pas le signe + », 6.3 de la
+                 Première). Le pavé des tablettes n'offre que « − » d'office :
+                 une case confiée au pavé (inputmode numeric) dont la page
+                 écrit la correction « +3 », ou qui demande le nombre « avec
+                 son signe » (son nom, ou l'indication de sa ligne), nomme « + »
+                 dans data-pave-plus. Lu sur la copie vide qui vient d'être
+                 corrigée : la correction est écrite dans les cases. */
+              const plusManque = await s.page.evaluate(() => {
+                const on = document.querySelector('section.screen.on'); if(!on) return [];
+                const pave = e => e.getAttribute('inputmode') === 'numeric' || e.hasAttribute('data-pave');
+                const aPlus = e => (e.getAttribute('data-pave-plus') || '').split(' ').indexOf('+') >= 0;
+                const signe = t => /avec (son|le) signe/i.test(t || '');
+                const visible = e => { const q = e.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
+                /* l'indication « (la constante s'écrit avec son signe) » posée
+                   APRÈS une case la désigne : la dernière case qui la précède
+                   sur sa ligne */
+                const visees = new Set();
+                [...on.querySelectorAll('span')].filter(h => signe(h.textContent) && !h.querySelector('input,math-field') && h.textContent.length < 200)
+                  .forEach(h => { const l = h.parentElement && h.parentElement.closest('div,p,li,td'); if(!l) return;
+                    const av = [...l.querySelectorAll('input')].filter(i => i.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+                    if(av.length) visees.add(av[av.length - 1]); });
+                return [...on.querySelectorAll('input')].filter(e => pave(e) && !aPlus(e) && visible(e)).filter(e =>
+                  (e.classList.contains('sol') && /^\s*\+/.test(e.value || '')) || signe(e.getAttribute('aria-label')) || visees.has(e)
+                ).map(e => (e.id || '(sans id)') + (e.classList.contains('sol') ? ' « ' + e.value + ' »' : ''));
+              });
+              if(plusManque.length)
+                sansPlus.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + plusManque.slice(0, 4).join(', '));
               /* LA CORRECTION VERTE D'UN EXERCICE PYTHON NE SE COPIE PAS
                  (Turquet, novembre 2026 : copiée en entraînement, elle se
                  recollait à l'exercice recommencé). Après la vérification,
@@ -18370,6 +18398,9 @@ if(require.main === module) (async () => {
       verifier('aucune case laissée vide ne rougit à la vérification',
         videsRouges.length === 0,
         videsRouges.length + ' exercice(s) : ' + videsRouges.slice(0, 6).join(' | '));
+      verifier('une case qui écrit un nombre avec son signe offre la touche « + » au pavé des tablettes',
+        sansPlus.length === 0,
+        sansPlus.length + ' exercice(s) : ' + sansPlus.slice(0, 8).join(' | '));
       if(dispenses.length && !videsRouges.length)
         console.log('   · ' + dispenses.length + ' exercice(s) déclarés hors de ce contrôle : '
           + dispenses.join(', '));
