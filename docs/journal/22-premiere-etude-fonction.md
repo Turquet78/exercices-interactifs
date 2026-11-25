@@ -939,7 +939,7 @@ de `ISD_FICHE` (`ISDP_GARDEES`) — les carrés, f(1) et f(−1) pour x² + 3x �
 puis f(−1) pour −3x² + 2x + 1. Le 6.6 et le 6.7 gardent toute la fiche. Une
 pause d'avant garde ses sept questions (elles sont rangées dans le brouillon).
 
-**Le terme transposé du 6.3 s'écrit avec son « + » — au doigt aussi (novembre 2026, v482).**
+**Le terme transposé du 6.3 s'écrit avec son « + » — au doigt aussi (novembre 2026, v483).**
 Une élève : « je n'ai pas le signe + ». La ligne 2 de l'équation (`trd-e1`,
 « le terme transposé, avec son signe ») attend « +3 » quand f(x) = ax − 3 —
 la correction l'écrit ainsi. Le juge acceptait « 3 », mais rien ne le disait,
