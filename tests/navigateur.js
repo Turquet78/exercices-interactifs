@@ -3592,14 +3592,31 @@ if(require.main === module) (async () => {
           mesDevoirs = [{ id:'dm-pouce', num:4, actif:true, correction:true, exercices:[{ id:ex, modes:['train'] }] }];
           await dmePapierOuvrir('dm-pouce', ex);
           const enonce = document.querySelectorAll('#dmeCorps .dme-q').length;
+          const k0 = document.getElementById('dmeCorps').cloneNode(true); k0.querySelectorAll('svg').forEach(e => e.remove());
+          const texteEnonce = k0.textContent.replace(/\s+/g, ' ');
+          const tableEnonce = !!document.querySelector('#dmeCorps table');
           const h = await dmCorrigeHTML();
           const d = document.createElement('div'); d.innerHTML = h || '';
           const t = d.textContent.replace(/\s+/g, ' ');
           return { enonce, blocs: d.querySelectorAll('.dmc-q').length, vals: d.querySelectorAll('.dmc-val,.sol,.mf-cor').length,
             prof: (t.match(/avec ton professeur/g) || []).length, blancs: d.querySelectorAll('.dme-blank').length,
             miroirs: [...d.querySelectorAll('.sui-mir,.isd-mir')].filter(m => /^(0|…)$/.test(m.textContent.trim())).length,
-            pouce: /coup de pouce/i.test(t) };
+            pouce: /coup de pouce/i.test(t), texteEnonce, tableEnonce };
         }, ex);
+        /* L'ÉNONCÉ PAPIER NE PARLE PAS DE L'ÉCRAN, ET N'AIDE PAS (Turquet,
+           novembre 2026, DM n°4) — et il porte TOUT l'exercice : la suite du
+           6.8 fermée à l'écran, le tableau de données et les deux parties du
+           3.13, la seule question au 5.3 */
+        const ECRAN = /touche|Entrée|[Cc]lique|bouton|clavier|souris|la suite s.ouvre|[Cc]oup de pouce|Vérifie à la fin|vérifie la fiche|\btape |cases? (?:bleue|rouge)|redessin|Bloqué|facultati|déjà écrit|une étape par ligne|À toi de rédiger|question guidée|en suivant les flèches/;
+        const m = r.texteEnonce.match(ECRAN);
+        verifier('l\'énoncé papier de ' + ex + ' ne porte aucune remarque de l\'écran ni aide', !m,
+          m ? '« …' + r.texteEnonce.slice(Math.max(0, m.index - 60), m.index + 60) + '… »' : '');
+        const attendu = { 'tracer-droite-pouce': ['3. Détermine graphiquement', '4. Détermine par le calcul', '5. Complète le tableau de signes'],
+          'frequences-probabilites-pouce': ['Partie A', 'Partie B'], 'developper-double': ['Développe et réduis A ='] }[ex] || [];
+        const manque = attendu.filter(x => r.texteEnonce.indexOf(x) < 0);
+        if(attendu.length) verifier('l\'énoncé papier de ' + ex + ' porte tout l\'exercice',
+          manque.length === 0 && (ex !== 'frequences-probabilites-pouce' || r.tableEnonce),
+          manque.length ? 'manque « ' + manque.join(' », « ') + ' »' : 'le tableau de données manque');
         verifier('la correction de ' + ex + ' suit les coups de pouce : tout est corrigé, rien en pointillé',
           r.blocs > 0 && r.vals > 0 && r.prof === 0 && r.blancs === 0 && r.miroirs === 0 && !r.pouce, JSON.stringify(r));
         if(ex === DP.ficheUnEcran)
