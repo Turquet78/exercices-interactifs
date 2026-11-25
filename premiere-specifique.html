@@ -7504,7 +7504,7 @@ function dmEnonceMontrer(devoirId, testId){
    de la vue du professeur, qui lisent tous ce capteur. Une aide écrite AU
    MILIEU d'une phrase d'énoncé se marque d'un <span class="aide-ecran"> : la
    page la montre, le papier la tait. */
-const DME_AIDES='[class*="pouce"],.pt-aide,.dvl-astuce,.ru-rappel,.apc-pourquoi,.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
+const DME_AIDES='.dvl-ex,[class*="pouce"],.pt-aide,.dvl-astuce,.ru-rappel,.apc-pourquoi,.ecb-aide,.sp-tbl,.tx-avec,.dexp-formula,.sa-lnote,.rfr-legende,.aide-ecran,[class*="hint"],.lr-exemple,.rr-attendu,.eav-note,.rfr-note,.apf-astuce,.apf-mode,.apf-jetons,.expr-help,.tvi-tools';
 /* LE PAPIER NE GARDE QUE L'ÉNONCÉ (Turquet, octobre 2026, devant le PDF du
    5.6.1 : « il y a encore l'aide à la résolution de l'énoncé, je ne veux que
    les énoncés »). Sur l'écran, l'exercice GUIDE : « lim Uₙ = … car … », la
@@ -8161,6 +8161,9 @@ function dmCorrigeQ(scr){
       try{ const fs=getComputedStyle(v).fontSize; if(fs) r.style.fontSize=fs; }catch(x){}
       r.classList.add('dmc-cadre');
     }
+    /* la valeur garde le NOM de sa case : les flèches du 5.3 la visent,
+       retracées dans la page du PDF (dmePdfRetracer) */
+    if(e.id && !r.id) r.id=e.id;
     e.replaceWith(r);
   });
   /* UN BOUTON QUE LA PAGE A JUGÉ EST UNE CASE : l'écriture de la
@@ -8180,8 +8183,11 @@ function dmCorrigeQ(scr){
   c.querySelectorAll('.pose-fac,.dexp-facblock,.pt-opt,.pbf-m').forEach(function(e){ e.remove(); });
   /* la zone de rédaction ouverte sous une question GUIDÉE est celle de la
      question suivante : vide, elle n'a rien à dire dans cette correction */
-  const qc=test.questions&&test.questions[test.idx];
-  if(!(qc&&qc.redac)) c.querySelectorAll('.sfr-prompt').forEach(function(p){ if(p.parentElement && p.parentElement!==c) p.parentElement.remove(); });
+  /* une zone de rédaction n'est jamais une correction : la page ne sait pas
+     écrire une rédaction (aux coups de pouce, la rédigée se corrige par sa
+     guidée). Ouverte sous la guidée vérifiée, c'était celle de la question
+     SUIVANTE — test.idx y est déjà passé (correction du 5.3, DM n°4) */
+  c.querySelectorAll('.sfr-prompt').forEach(function(p){ if(p.parentElement && p.parentElement!==c) p.parentElement.remove(); });
   /* UNE FRACTION À DEUX CASES CORRIGÉE D'UN SEUL BADGE (Première : la page
      écrit « 40/100 » après la fraction entière, pas après chaque case) : la
      recherche du badge s'arrête à l'enveloppe qui porte deux cases, et la
@@ -8196,6 +8202,7 @@ function dmCorrigeQ(scr){
   c.querySelectorAll('.bad').forEach(function(e){ e.classList.remove('bad'); });
   c.querySelectorAll('.ok').forEach(function(e){ e.classList.remove('ok'); e.classList.add('sol'); });
   dmeNettoyerClone(c);
+  dmeSansEcran(c);                 /* la correction ne parle pas de l'écran non plus */
   dmeViderCadres(c, 'svg,img,canvas,table,.dme-blank,.dmc-val');
   return c.innerHTML;
 }
@@ -8598,6 +8605,12 @@ function dmePdfRetracer(hote){
     finally{ $=avant; }
   });
   if(racine) document.documentElement.style.setProperty('--apc-arbre-h', racine); else document.documentElement.style.removeProperty('--apc-arbre-h');
+  /* les flèches et accolades du calcul littéral (5.1 à 5.3), question par
+     question : deux questions portent les mêmes noms de cases */
+  if(typeof dvlTraceDans==='function') hote.querySelectorAll('.dme-q').forEach(function(zone){
+    try{ dvlTraceDans(zone, function(id){ return zone.querySelector('[data-dme-id="'+id+'"]'); }); }
+    catch(e){ console.warn('PDF : schéma non retracé', e); }
+  });
 }
 async function dmePdfFabriquer(corps, titre){
   for(const u of DME_PDF_LIBS) await dmeChargerScript(u);
@@ -24856,13 +24869,18 @@ function dvlSchema(q, pre, vals, nu){
    redescend sur la bulle visée, la pointe en bas), une accolade sous chaque
    produit. Tout se lit sur les positions RENDUES : on retrace après chaque
    rendu, chaque correction et chaque changement de taille. */
-function dvlTrace(){
-  document.querySelectorAll('.dvl-schema').forEach(function(sc){
+function dvlTrace(){ dvlTraceDans(document, function(id){ return document.getElementById(id); }); }
+/* LE MÊME TRACÉ, DANS UNE AUTRE RACINE : la page du PDF (dmePdfRetracer) a sa
+   propre mise en page — les flèches et les accolades calculées sur l'écran de
+   l'élève y tombaient à côté (signalé par Turquet, novembre 2026, correction
+   du 5.3). Les cases y sont nommées par data-dme-id. */
+function dvlTraceDans(racine, parId){
+  racine.querySelectorAll('.dvl-schema').forEach(function(sc){
     const svg=sc.querySelector('svg.dvl-svg'); if(!svg) return;
     const R=sc.getBoundingClientRect(); if(!R.width) return;
     const W=sc.scrollWidth, H=sc.scrollHeight;
     svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox','0 0 '+W+' '+H);
-    const boite=function(id){ const e=document.getElementById(id); if(!e) return null; const r=e.getBoundingClientRect();
+    const boite=function(id){ const e=parId(id); if(!e) return null; const r=e.getBoundingClientRect();
       return {l:r.left-R.left+sc.scrollLeft, r:r.right-R.left+sc.scrollLeft, t:r.top-R.top+sc.scrollTop, b:r.bottom-R.top+sc.scrollTop}; };
     let d='', pointes='';
     let fl=[], acc=[];
