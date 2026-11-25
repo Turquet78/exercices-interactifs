@@ -3629,5 +3629,8 @@ de la dérivée factorisée du 4.3.4 (`eav-bd5`), celles de la convexité
 de membre dans le 2e système de l'appartenance (`erp-…-fkb`) — alors que ses
 jumelles `edp` (`IS`) et `ebc` l'avaient. `txInp(id,'','+')`. Contrôle
 universel : banc navigateur, section 9, « une case qui écrit un nombre avec
-son signe offre la touche « + » au pavé des tablettes ». Éprouvé par sabotage
-(le « + » retiré de `ecv-f14` et de `erp-…-fkb`).
+son signe offre la touche « + » au pavé des tablettes ». Éprouvé par sabotage :
+le « + » retiré de `ecv-f14`, le contrôle relève cette case et elle seule. Le
+même sabotage sur `erp-…-fkb` ne se voit PAS : la case n'a ni nom propre ni
+indication « avec son signe », et sa correction ne s'écrit pas « +… » dans la
+case — un bord que le contrôle ne tient pas.

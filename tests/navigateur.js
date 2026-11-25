@@ -18014,6 +18014,11 @@ if(require.main === module) (async () => {
                 const pave = e => e.getAttribute('inputmode') === 'numeric' || e.hasAttribute('data-pave');
                 const aPlus = e => (e.getAttribute('data-pave-plus') || '').split(' ').indexOf('+') >= 0;
                 const signe = t => /avec (son|le) signe/i.test(t || '');
+                /* le nom écrit par l'exercice (« le terme transposé, avec son
+                   signe »), jamais celui que nommerCases() fabrique avec le
+                   texte de TOUTE la ligne — les cases y deviennent « … », et
+                   chaque voisine hériterait de l'indication de la dernière */
+                const nomPropre = e => { const n = e.getAttribute('aria-label') || ''; return signe(n) && n.indexOf('…') < 0; };
                 const visible = e => { const q = e.getBoundingClientRect(); return q.width > 0 && q.height > 0; };
                 /* l'indication « (la constante s'écrit avec son signe) » posée
                    APRÈS une case la désigne : la dernière case qui la précède
@@ -18024,7 +18029,7 @@ if(require.main === module) (async () => {
                     const av = [...l.querySelectorAll('input')].filter(i => i.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
                     if(av.length) visees.add(av[av.length - 1]); });
                 return [...on.querySelectorAll('input')].filter(e => pave(e) && !aPlus(e) && visible(e)).filter(e =>
-                  (e.classList.contains('sol') && /^\s*\+/.test(e.value || '')) || signe(e.getAttribute('aria-label')) || visees.has(e)
+                  (e.classList.contains('sol') && /^\s*\+/.test(e.value || '')) || nomPropre(e) || visees.has(e)
                 ).map(e => (e.id || '(sans id)') + (e.classList.contains('sol') ? ' « ' + e.value + ' »' : ''));
               });
               if(plusManque.length)

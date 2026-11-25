@@ -1030,5 +1030,10 @@ navigateur, il relève toute case confiée au pavé (inputmode numeric) sans
 demain est couvert sans rien déclarer — à condition de dire « avec son
 signe » quelque part, ou que sa correction écrive le « + » : la première
 question seule est vue, et un tirage qui ne donne qu'un négatif ne montre rien.
+Piège du premier passage : le nom (`aria-label`) d'une case de la Terminale
+sans nom propre est fabriqué par `nommerCases()` avec le texte de TOUTE sa
+ligne, les cases devenues « … » — chaque voisine héritait de « avec son
+signe » et le contrôle relevait le coefficient de x à côté de la constante.
+Seul compte un nom sans « … ».
 Au premier passage : la Seconde n'avait rien à corriger, la Première le seul
 6.3, la Terminale six cases (`docs/journal/14-terminale.md`).
