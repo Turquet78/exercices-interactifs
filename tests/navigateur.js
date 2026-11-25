@@ -17123,7 +17123,7 @@ if(require.main === module) (async () => {
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], mfNatifs = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
       let nConfirmVides = 0;
       const passerSoutienManque = [], passerArretes = []; let nPasserSoutien = 0, nPasserCorrige = 0;
       const indicesPlats = []; let nIndicesFlex = 0;
@@ -17189,7 +17189,7 @@ if(require.main === module) (async () => {
       const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
-      const svgSelectionnables = []; let nSvgVus = 0;
+      const svgSelectionnables = []; let nSvgVus = 0, nMfVus = 0;
       const corPyCopiables = [], enoncePyBloque = []; let nCorPy = 0;
       const casesEntreeMuettes = []; let nCasesEntree = 0;
       for(const id of ids){
@@ -17511,7 +17511,17 @@ if(require.main === module) (async () => {
                           vers: touches.indexOf('\\longrightarrow') >= 0, n: touches.length };
               }catch(e){ limKb = { infini: false, vers: false, n: 0 }; }
             }
+            /* AUCUNE CASE MATHLIVE N'OUVRE LE CLAVIER DU SYSTÈME (novembre
+               2026, tablette Samsung, 3.12 de la Première). MathLive rend
+               l'HÔTE <math-field> éditable sans inputmode : un toucher qui le
+               saisit avant que le focus descende dans le sink ouvre le clavier
+               de l'appareil. L'hôte doit porter inputmode="none" — chaque case
+               visible de chaque exercice, sans rien déclarer. */
+            const mfVus = [...on.querySelectorAll('math-field')].filter(visible);
+            const mfNatifs = mfVus.filter(m => m.getAttribute('inputmode') !== 'none')
+              .map(m => (m.id || m.className || 'math-field') + ' (inputmode=' + m.getAttribute('inputmode') + ')');
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
+                    nMf: mfVus.length, mfNatifs,
                     clavier: !champsMaths || boutonClavier,
                     /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
                        On relève ce qui est AFFICHÉ, exercice par exercice ; la
@@ -17656,6 +17666,9 @@ if(require.main === module) (async () => {
             dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
           if(mode === 'train' && vu.debuts && vu.debuts.length)
             tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
+          nMfVus += (vu.nMf || 0);
+          if(vu.mfNatifs && vu.mfNatifs.length)
+            mfNatifs.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.mfNatifs.slice(0, 2).join(', '));
           if(mode === 'train' && vu.clavier === false)
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
@@ -18221,6 +18234,9 @@ if(require.main === module) (async () => {
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
+      if(nMfVus === 0) verifier('les cases MathLive refusent le clavier du système : le contrôle a des cases à mesurer', false, 'aucune case MathLive visible sur toute la visite');
+      else verifier('aucune case MathLive n\'ouvre le clavier du système (inputmode="none" sur l\'hôte <math-field>)',
+        mfNatifs.length === 0, mfNatifs.length + ' écran(s) — ' + mfNatifs.slice(0, 3).join(' | '));
       verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
         sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
       /* ET UN ÉCRAN QUI POSE UNE LIMITE OFFRE LE CLAVIER DU 3.5 : ∞ et ⟶ sur
