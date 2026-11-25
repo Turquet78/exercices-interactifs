@@ -1376,7 +1376,7 @@ exigée : la demande ne portait que sur le 5.3. Banc principal, « calcul
 littéral rédigé » : les deux copies qui étaient refusées sont comptées justes,
 un résultat brut faux est refusé.
 
-**Le point ou la virgule égaré est retiré avant le juge (Première v486, novembre 2026).**
+**Le point ou la virgule égaré est retiré avant le juge (Première v487, novembre 2026).**
 Turquet, sur le 5.3 : « l'élève avait tout bon à l'écran, mais la correction
 disait ".5" au lieu de "5" ». Une touche « . » effleurée à côté d'un « + »
 s'écrit dans la case en un point minuscule collé au chiffre suivant (ou monté
