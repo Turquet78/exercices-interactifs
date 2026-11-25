@@ -9764,7 +9764,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=729;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=730;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -71776,10 +71776,19 @@ function vcmMarqueSoutien(q,subs){
    bleu, la remplie fausse en rouge, la vide neutre ; rien ne se révèle. */
 function liveVcm(){
   const q=test.questions[test.idx]; if(!q) return;
-  vcmJuge(q).forEach(function(s){
-    if(!s.el) return;
-    if(s.vide) s.el.classList.remove('ok','bad','sol'); else corrChoix(s.el, s.bon, s.ok);
-  });
+  vcmJuge(q).forEach(function(s){ vecLiveCase(s, s.id==='vcm-x'||s.id==='vcm-y'); });
+}
+/* Soutien, une case au fil de la frappe. Une case de CALCUL (x = …, y = …,
+   où l'élève écrit ses étapes) ne se fige pas quand elle devient juste :
+   « 1−2 » vaut déjà −1, et la case se fermait avant « = −1 » (demande de
+   Turquet, novembre 2026, sur le 8.4.7). Une étape en cours d'écriture
+   (« 1−2 = ») reste neutre plutôt que de rougir. */
+function vecLiveCase(s, calc){
+  if(!s.el) return;
+  if(s.vide){ s.el.classList.remove('ok','bad','sol'); return; }
+  if(calc&&!s.ok&&/[=+\-−–(]$/.test(String(s.el.value).replace(/\s+/g,''))){ s.el.classList.remove('ok','bad','sol'); return; }
+  corrChoix(s.el, s.bon, s.ok);
+  if(calc&&!test.locked) s.el.disabled=false;
 }
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
    vide ; si M est manqué, le bon M en VERT et le parallélogramme ABCM en
@@ -72826,7 +72835,7 @@ function vqsMarqueSoutien(q,subs){
    ses quatre coins se jugent ensemble, au fil des listes (vqsMaj). */
 function liveVqs(){
   const q=test.questions[test.idx]; if(!q) return;
-  vqsJuge(q).forEach(function(s){ if(!s.el||VQS_SCHEMA.indexOf(s.id)>=0) return; if(s.vide) s.el.classList.remove('ok','bad','sol'); else corrChoix(s.el, s.bon, s.ok); });
+  vqsJuge(q).forEach(function(s){ if(!s.el||VQS_SCHEMA.indexOf(s.id)>=0) return; vecLiveCase(s, s.id==='vqs-x'||s.id==='vqs-y'); });
   vqsMaj();
 }
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
@@ -73575,10 +73584,7 @@ function vsmMarqueSoutien(q,subs){
    bleu, la remplie fausse en rouge, la vide neutre ; rien ne se révèle. */
 function liveVsm(){
   const q=test.questions[test.idx]; if(!q) return;
-  vsmJuge(q).forEach(function(s){
-    if(!s.el) return;
-    if(s.vide) s.el.classList.remove('ok','bad','sol'); else corrChoix(s.el, s.bon, s.ok);
-  });
+  vsmJuge(q).forEach(function(s){ vecLiveCase(s, VSM_CALC.indexOf(s.id)>=0); });
 }
 /* Correction finale : chaque réponse en bleu, rouge, ou verte si elle était
    vide ; la construction depuis D et le point, en VERT, s'ils manquaient. */

@@ -15993,6 +15993,20 @@ function coordonneesVecteurs(w, P){
     checkVcm(); clearTimeout(test.fbTimer);
     const ls7=cl7();
     if(test.locked || ls7!=='ok,bad,'+Array(18).fill('rien').join(',')+',ok' || !el('vcm-m').disabled || document.querySelector('#scr-vcm .sol')) vus.push('8.4.7 : le soutien : '+ls7);
+    /* soutien, au fil de la frappe : « 1-2 » vaut déjà −1, et la case x = … se
+       figeait avant « = −1 » (Turquet, novembre 2026) — une case de calcul reste
+       ouverte, l'étape en cours reste neutre, la chaîne finie est juste ;
+       même chose aux 8.4.10 (vqs) et 8.4.12 (vsm), par leurs live */
+    test.questions[test.idx]=vcmFiche(); renderVcm();
+    ['1','1-','1-2','1-2=','1-2=-','1-2=-1'].forEach(function(v){
+      el('vcm-x').value=v; liveVcm();
+      const c=el('vcm-x').classList;
+      if(el('vcm-x').disabled) vus.push('8.4.7 soutien : la case x = … se fige à « '+v+' »');
+      if(/=-?$/.test(v)&&(c.contains('bad')||c.contains('ok'))) vus.push('8.4.7 soutien : l’étape en cours « '+v+' » se colore');
+    });
+    if(!el('vcm-x').classList.contains('ok')) vus.push('8.4.7 soutien : « 1-2=-1 » n’est pas juste au fil de la frappe');
+    el('vcm-ba-xf').value='3'; liveVcm();
+    if(!el('vcm-ba-xf').disabled) vus.push('8.4.7 soutien : une case de nombre juste ne se fige plus');
     /* la bulle « gagne / perds » du 8.4.4, à côté du résultat de BA */
     test.questions[test.idx]=vcmFiche(); renderVcm();
     el('vcm-ba-xf').value='3'; el('vcm-ba-xd').value='2'; el('vcm-ba-ry').focus(); el('vcm-ba-rx').focus();
