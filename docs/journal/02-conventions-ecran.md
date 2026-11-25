@@ -1017,3 +1017,23 @@ correction) », et ce bouton corrige », avec ses deux bords — aucun écran
 bloqué sans le bouton, et au moins une question réellement corrigée par lui
 — et le mode relu au soutien après le geste suivant.
 
+
+**Une case qui écrit un nombre AVEC SON SIGNE offre « + » au pavé — dans TOUS les exercices (novembre 2026).**
+Une élève, au 6.3 de la Première : « je n'ai pas le signe + ». Le pavé des
+tablettes porte « − » pour tout le monde, jamais « + » (`PAVE_TOUCHES`) ; une
+case qui en a besoin le nomme dans `data-pave-plus`. Le contrôle va partout :
+greffé sur la vérification d'une copie vide de la section 9 du banc
+navigateur, il relève toute case confiée au pavé (inputmode numeric) sans
+« + » dont la correction écrite commence par « + », dont le nom
+(`aria-label`) dit « avec son signe », ou que désigne une indication
+« … avec son signe » posée juste après elle sur sa ligne. Un exercice ajouté
+demain est couvert sans rien déclarer — à condition de dire « avec son
+signe » quelque part, ou que sa correction écrive le « + » : la première
+question seule est vue, et un tirage qui ne donne qu'un négatif ne montre rien.
+Piège du premier passage : le nom (`aria-label`) d'une case de la Terminale
+sans nom propre est fabriqué par `nommerCases()` avec le texte de TOUTE sa
+ligne, les cases devenues « … » — chaque voisine héritait de « avec son
+signe » et le contrôle relevait le coefficient de x à côté de la constante.
+Seul compte un nom sans « … ».
+Au premier passage : la Seconde n'avait rien à corriger, la Première le seul
+6.3, la Terminale six cases (`docs/journal/14-terminale.md`).
