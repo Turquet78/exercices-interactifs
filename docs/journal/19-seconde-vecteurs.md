@@ -6365,7 +6365,7 @@ Banc principal (`quatriemePoint`) : les trois lecteurs sur dix écritures
 (justes, une étape fausse, un membre vide, « y = » dans la case x), la
 copie juste 21/21 aux étapes écrites, une étape fausse rouge et nommée.
 
-### Puis les étapes en SOUTIEN : la case juste ne se fige plus (Seconde v730)
+### Puis les étapes en SOUTIEN : la case juste ne se fige plus (Seconde v731)
 
 Turquet, novembre 2026, capture du 8.4.7 : « 1-2=-1 » et « -3+1=-2 »
 rouges, « je voudrais que cela soit compté comme juste ». Le juge lisait la
