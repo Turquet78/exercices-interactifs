@@ -7700,14 +7700,18 @@ const DME_ECRAN_MEMBRES=[
   /\s+—(?=[.,])/g      /* le tiret resté seul devant le point (« …du tableau —. ») */
 ];
 function dmeSansEcran(c){
+  /* ce qui était DÉJÀ vide (une cellule de grille gardée pour l'aplomb) le
+     reste : seul ce que ce filtre vide s'en va */
+  c.querySelectorAll('p,div,span').forEach(function(e){ if(!(e.textContent||'').trim()) e.setAttribute('data-dme-vide',''); });
   let h=c.innerHTML;
   DME_ECRAN.forEach(function(re){ h=h.replace(re, function(m,avant){ return /^[>.!?:]/.test(avant) ? avant.replace(/\s+$/,' ') : ' '; }); });
   DME_ECRAN_MEMBRES.forEach(function(re){ h=h.replace(re,''); });
   c.innerHTML=h;
   /* un paragraphe qui ne portait que cela est vide : il part */
   Array.prototype.slice.call(c.querySelectorAll('p,div,span')).reverse().forEach(function(e){
-    if(!(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank,input,math-field')) e.remove();
+    if(!e.hasAttribute('data-dme-vide') && !(e.textContent||'').trim() && !e.querySelector('svg,img,canvas,table,.dme-blank,input,math-field')) e.remove();
   });
+  c.querySelectorAll('[data-dme-vide]').forEach(function(e){ e.removeAttribute('data-dme-vide'); });
 }
 /* LES CELLULES D'UNE GRILLE GARDENT LEUR PLACE. Une photo retire les cadres
    qu'elle a vidés ; mais dans une grille (la vérification d'une équation
