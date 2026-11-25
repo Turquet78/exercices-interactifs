@@ -2470,3 +2470,20 @@ remarque d'écran sur les six énoncés, les questions 3 à 5 du 6.8, le tableau
 et la Partie B du 3.13, « Développe et réduis A = » au 5.3.
 **Ce qu'aucun banc ne voit** : une remarque d'écran tournée autrement que
 celles de la liste ; elle se voit en ouvrant le PDF.
+
+**Puis la correction du 5.3 : l'exemple en trop, les flèches à côté** (Première
+v484, signalé par Turquet, novembre 2026, capture du PDF à l'appui). Les
+flèches et les accolades du calcul littéral sont tracées en pixels sur l'écran
+de l'élève (`dvlTrace`) ; la page du PDF a sa propre largeur (1280 px), et sur
+un écran d'une autre largeur elles tombaient à côté — invisible au banc, dont
+la fenêtre fait 1280 px : reproduit sur une fenêtre de 800 px. Le tracé
+s'exécute maintenant dans une racine donnée (`dvlTraceDans`), et
+`dmePdfRetracer` le rejoue dans chaque question du PDF, comme les arbres ; pour
+cela, la valeur qui remplace une case dans la correction garde le nom de la
+case (`data-dme-id`). L'exemple de la fiche (`.dvl-ex`) rejoint `DME_AIDES`,
+la zone de rédaction ouverte sous une guidée vérifiée (celle de la question
+SUIVANTE : `test.idx` y est déjà passé) ne passe jamais dans une correction, et
+la correction passe aussi par `dmeSansEcran`. Banc navigateur, 6 sexies ter :
+sur la correction du 5.3, chaque case visée par une flèche porte son nom, ni
+exemple ni « À toi de rédiger ». **Ce qu'aucun banc ne voit** : le PDF fait
+depuis un écran d'une autre largeur que celle du banc — vu ici à 800 px.
