@@ -11988,6 +11988,15 @@ function bacBlancAutomatismes(w, P){
     const fx=document.querySelectorAll('#tsfHost .tsf-fixe .f-whole');
     if(fx.length!==2 || fx[0].textContent!=='1' || fx[1].textContent!=='10') vus.push('q2 : la fraction 1/10, déjà sur le dénominateur commun, n\\'est pas écrite avec les chiffres du calcul ('+fx.length+')');
     if(document.querySelector('#tsfHost .tsf-fiche .f-frac')) vus.push('q2 : une petite fraction d\\'énoncé reste dans la fiche du coup de pouce');
+    /* LA CHAÎNE DE SIMPLIFICATION SUIT LA SAISIE dans le coup de pouce (capture
+       de Turquet, novembre 2026 : « … ÷ 2 » restait en pointillés sous 14/10) —
+       test.kind vaut 'bba', et seSaisie n'écoutait que 'tsf' ; « Simplifie ta
+       fraction. » se lit au-dessus de la première division */
+    { const fnE=$('tsf-fn'); if(fnE){ fnE.value='12'; fnE.dispatchEvent(new window.Event('input',{bubbles:true})); }
+      const an=$('tsf-e0-an'), ad=$('tsf-e0-ad');
+      if(!an || an.textContent!=='12' || !ad || ad.textContent!=='10') vus.push('q2 : la division qui simplifie ne recopie pas la fraction écrite 12/10 (« '+(an?an.textContent:'absente')+' ÷ » / « '+(ad?ad.textContent:'absente')+' ÷ »)');
+      const dire=document.querySelector('#tsfHost .simp-dire');
+      if(!dire || !/Simplifie ta fraction/.test(dire.textContent)) vus.push('q2 : « Simplifie ta fraction. » n\\'est pas écrit au-dessus de la division'); }
     /* les retouches de Turquet (novembre 2026, v465) :
        · l'écran d'un coup de pouce porte le THÈME de son exercice modèle (les
          signes de la fiche du 4.11 n'ont leur taille que sous « Fractions ») ;

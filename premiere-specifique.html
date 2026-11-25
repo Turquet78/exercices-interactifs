@@ -2538,6 +2538,11 @@ i.pb-bar::before{content:'';position:absolute;top:0;left:.14em;right:-.06em;bord
 /* La simplification par étapes : le nombre divisé RECOPIE la fraction
    d'avant, et s'écrit comme un nombre de la rangée. */
 .se-dvd{min-width:1ch;text-align:center}
+/* « Simplifie ta fraction. » au-dessus de la première division qui simplifie
+   (demande de Turquet, novembre 2026) : posé en absolu, il ne déplace rien
+   dans la rangée et ne la fait jamais replier. */
+.simp-dire-host{position:relative}
+.simp-dire{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:6px;white-space:nowrap;font-size:.78rem;font-weight:700;font-style:italic;color:var(--ink-soft);pointer-events:none;line-height:1.2}
 .fpm-ligne{display:flex;align-items:center;justify-content:center;gap:8px;}
 .fpm-const{font-family:"Fredoka";font-weight:600;font-size:calc(1.5rem * var(--tab-nb,1));color:var(--ink);white-space:nowrap;}
 /* Sur telephone, on redescend d'un cran : la case grandit toujours avec la reponse. */
@@ -4284,7 +4289,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=484;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=485;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -8723,11 +8728,11 @@ function restoreBoxes(boxes){
   /* {augmentation-tableau} : les cases suivantes d'une donnée recopient la case qu'on vient de remettre */
   if(suiActif()) suiMiroirs();
   /* {trois-fractions-ppcm} : les dénominateurs recopient le dénominateur commun */
-  if(test.kind==='tsf' && test.ppcm) tsfMiroirs();
+  if((test.kind==='tsf' || seKind()==='tsf') && test.ppcm) tsfMiroirs();
   /* {image-second-degre} : les termes recopiés sur la ligne du dessous */
   if(test.kind==='isd' || test.kind==='isdl') isdMiroirs();
   /* la simplification par étapes du thème 4 : de même */
-  if(test.etapes && SE_CFG[test.kind]) seMiroirs(test.kind);
+  if(test.etapes && SE_CFG[seKind()]) seMiroirs(seKind());
 }
 /* ---------- Enregistrement automatique du travail en cours (silencieux) ---------- */
 let recoveryRowId=null, recoveryBusy=false, recoveryDirty=false, recoveryClosed=false;
@@ -20804,7 +20809,7 @@ function renderSFTest(){
      les routes — le nombre à diviser dépend du dénominateur commun choisi, la
      page ne peut donc pas l'écrire à sa place. */
   const quotient=()=>
-    '<span class="f-frac-input sf-prod sf-div">'
+    '<span class="f-frac-input sf-prod sf-div simp-dire-host">'+'<span class="simp-dire">Simplifie ta fraction.</span>'
        +'<span class="sf-l">'+mf('sf-sn','f-num','numérateur obtenu')
        +'<span class="f-times">÷</span>'+mf('sf-q1','f-num','diviseur du numérateur')+'</span>'
        +'<span class="f-fbar"></span>'
@@ -25823,7 +25828,7 @@ function seEtapeHTML(kind, i){
   const s=SE_CFG[kind].pfx+i+'-';
   const cote=function(c, cls, lab){ return '<span class="sf-l"><span class="f-whole se-dvd" id="'+s+'a'+c+'">…</span><span class="f-times">÷</span>'+seCaseHTML(s+'d'+c, cls, lab)+'</span>'; };
   const tag=function(h){ return h.replace('<span class="f-grp"','<span class="f-grp se-etape"'); };
-  return tag(fEq('<span class="f-frac-input sf-prod">'+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>'))
+  return tag(fEq('<span class="f-frac-input sf-prod'+(i===0?' simp-dire-host">'+'<span class="simp-dire">Simplifie ta fraction.</span>':'">')+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>'))
     +tag(fEq('<span class="f-frac-input">'+seCaseHTML(s+'n','f-num','numérateur simplifié')+'<span class="f-fbar"></span>'+seCaseHTML(s+'d','f-den','dénominateur simplifié')+'</span>'));
 }
 /* Les cases dessinées, dans l'ordre d'écriture — sans la copie du diviseur,
@@ -25950,8 +25955,18 @@ function seMonte(kind, q){
   seDessine(kind, q);
   if(!h.__se){ h.__se=true; h.addEventListener('input', function(ev){ seSaisie(kind, ev.target); }, true); }
 }
+/* Le moteur de simplification de l'écran courant : test.kind, ou, sur un coup
+   de pouce du bac blanc, le moteur dont il reprend l'écran. */
+function seKind(){
+  if(!test) return null;
+  if(test.kind==='bba' && typeof bbaEcran==='function'){ const e=bbaEcran(); return SE_CFG[e] ? e : null; }
+  return test.kind;
+}
 function seSaisie(kind, el){
-  if(!test || !test.etapes || test.kind!==kind || test.locked) return;
+  /* {bac-blanc-automatismes} : le coup de pouce des fractions (8.1) tourne sur
+     l'écran du 4.11 SOUS test.kind 'bba' — la chaîne y suit la saisie comme au
+     4.11, sans quoi « … ÷ » ne recopiait pas la fraction écrite (novembre 2026) */
+  if(!test || !test.etapes || seKind()!==kind || test.locked) return;
   const q=test.questions && test.questions[test.idx]; if(!q) return;
   const m=/^(.*-e\d+-)d([nd])$/.exec((el && el.id) || '');
   if(m){ const jum=$(m[1]+'d'+(m[2]==='n'?'d':'n')); if(jum && String(jum.value)!==String(el.value)) jum.value=el.value; }
@@ -27809,7 +27824,7 @@ function rvfSimpPas(q){
 }
 function rvfSimpHTML(i){
   const cote=function(c, cls, lab){ return '<span class="sf-l"><span class="f-whole rvf-dvd" id="rvf-s'+i+'-a'+c+'">…</span><span class="f-times">÷</span>'+rvfCaseHTML('rvf-s'+i+'-d'+c, cls, lab)+'</span>'; };
-  return fEq('<span class="f-frac-input sf-prod">'+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>')
+  return fEq('<span class="f-frac-input sf-prod'+(i===0?' simp-dire-host">'+'<span class="simp-dire">Simplifie ta fraction.</span>':'">')+cote('n','f-num','diviseur du numérateur')+'<span class="f-fbar"></span>'+cote('d','f-den','diviseur du dénominateur')+'</span>')
     +fEq(rvfFracHTML('rvf-s'+i+'-n','rvf-s'+i+'-d'));
 }
 /* Les nombres divisés recopient la fraction d'avant, telle que l'élève l'a
