@@ -2472,7 +2472,7 @@ et la Partie B du 3.13, « Développe et réduis A = » au 5.3.
 celles de la liste ; elle se voit en ouvrant le PDF.
 
 **Puis la correction du 5.3 : l'exemple en trop, les flèches à côté** (Première
-v484, signalé par Turquet, novembre 2026, capture du PDF à l'appui). Les
+v486, signalé par Turquet, novembre 2026, capture du PDF à l'appui). Les
 flèches et les accolades du calcul littéral sont tracées en pixels sur l'écran
 de l'élève (`dvlTrace`) ; la page du PDF a sa propre largeur (1280 px), et sur
 un écran d'une autre largeur elles tombaient à côté — invisible au banc, dont
