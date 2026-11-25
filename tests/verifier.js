@@ -9178,6 +9178,18 @@ function calculLitteralRedige(w, P){
     if(!(j.sait && !j.correct && j.motif==='reduire')) vus.push('5.3 : une copie arrêtée avant la réduction est acceptée');
     j=juge('dvd', dq, '(4x-3)*(2x-5)=(1)/(2)x');
     if(j.sait) vus.push('5.3 : une copie illisible est jugée au lieu d’être confiée au modèle');
+    /* le point ou la virgule égaré, invisible à l'écran (5.3, novembre 2026) :
+       retiré avant le juge ; un décimal, entre deux chiffres, reste refusé */
+    { test.kind='dvd'; const mn=redMath(Object.assign({},dq,{redac:true}));
+      if(typeof mn.nettoyer!=='function') vus.push('5.3 : la rédigée ne retire pas le point égaré (nettoyer absent)');
+      else {
+        [['(4x-3)*(2x-5)=8x^2-20x-6x+.15=8x^2-26x+15','« +.15 »'],['(4x-3)*(2x-5)=8x^2.-26x+15','« x^2. »'],['(4x-3)*(2x-5)=8x^(2)-26x,+15','« x, »'],['(4x-3)*(2x-5)=8x^2-26x+15.','le point final']].forEach(function(c){
+          j=juge('dvd', dq, mn.nettoyer(c[0]));
+          if(!(j.sait && j.correct)) vus.push('5.3 : une copie juste avec un point égaré ('+c[1]+') n’est pas comptée juste ('+JSON.stringify(j)+')');
+        });
+        if(mn.nettoyer('2.5x+1,25')!=='2.5x+1,25') vus.push('5.3 : un vrai décimal est effacé par le nettoyage');
+      }
+      if(!${/async function checkSFR\(\)\{[\s\S]{0,800}m\.nettoyer\(rep\)/.test(lire(CIBLE))}) vus.push('checkSFR n’applique pas m.nettoyer à la copie lue'); }
     const la={forme:'A', prods:[{k:{c:5,d:0}, a:{c:1,d:1}, b:{c:3,d:0}}]};
     j=juge('dvl', la, '5*(x+3)=5x+15');
     if(!(j.sait && j.correct)) vus.push('5.2 : 5 × (x + 3) = 5x + 15 n’est pas compté juste');
@@ -11988,6 +12000,15 @@ function bacBlancAutomatismes(w, P){
     const fx=document.querySelectorAll('#tsfHost .tsf-fixe .f-whole');
     if(fx.length!==2 || fx[0].textContent!=='1' || fx[1].textContent!=='10') vus.push('q2 : la fraction 1/10, déjà sur le dénominateur commun, n\\'est pas écrite avec les chiffres du calcul ('+fx.length+')');
     if(document.querySelector('#tsfHost .tsf-fiche .f-frac')) vus.push('q2 : une petite fraction d\\'énoncé reste dans la fiche du coup de pouce');
+    /* LA CHAÎNE DE SIMPLIFICATION SUIT LA SAISIE dans le coup de pouce (capture
+       de Turquet, novembre 2026 : « … ÷ 2 » restait en pointillés sous 14/10) —
+       test.kind vaut 'bba', et seSaisie n'écoutait que 'tsf' ; « Simplifie ta
+       fraction. » se lit au-dessus de la première division */
+    { const fnE=$('tsf-fn'); if(fnE){ fnE.value='12'; fnE.dispatchEvent(new window.Event('input',{bubbles:true})); }
+      const an=$('tsf-e0-an'), ad=$('tsf-e0-ad');
+      if(!an || an.textContent!=='12' || !ad || ad.textContent!=='10') vus.push('q2 : la division qui simplifie ne recopie pas la fraction écrite 12/10 (« '+(an?an.textContent:'absente')+' ÷ » / « '+(ad?ad.textContent:'absente')+' ÷ »)');
+      const dire=document.querySelector('#tsfHost .simp-dire');
+      if(!dire || !/Simplifie ta fraction/.test(dire.textContent)) vus.push('q2 : « Simplifie ta fraction. » n\\'est pas écrit au-dessus de la division'); }
     /* les retouches de Turquet (novembre 2026, v465) :
        · l'écran d'un coup de pouce porte le THÈME de son exercice modèle (les
          signes de la fiche du 4.11 n'ont leur taille que sous « Fractions ») ;
@@ -32574,6 +32595,24 @@ function ordreDesFiches(w, apres){
       const rubanDM=!!document.getElementById('dmOrdre');
       if(ORDRE_DM && !rubanDM) vus.push('le ruban d\\'ordre manque dans l\\'éditeur des devoirs');
       if(!ORDRE_DM && rubanDM) vus.push('le ruban d\\'ordre s\\'affiche sur un devoir');
+      /* « AVEC CORRECTION » SURVIT À L'ENREGISTREMENT (signalé par Turquet,
+         novembre 2026, DM n°4 : cochée puis enregistrée, la case se
+         décochait — saveDM ne la lisait pas, et ne la recopiait pas) */
+      const cc=document.getElementById('dmCorrection');
+      if(!cc){ vus.push('la case « Avec correction » manque dans l\\'éditeur d\\'un devoir'); }
+      else {
+        cc.checked=true;
+        await saveDM();
+        await new Promise(function(r){ setTimeout(r,80); });
+        const vc=lireValeurs(), dc=(vc.devoirs||[]).find(function(x){ return x.id==='dm_o'; });
+        if(!dc || dc.correction!==true) vus.push('« Avec correction » cochée n\\'est pas enregistrée : '+JSON.stringify(dc||null).slice(0,160));
+        dmSelId='dm_o'; renderDmEditor();
+        const cc2=document.getElementById('dmCorrection');
+        if(!cc2 || !cc2.checked) vus.push('« Avec correction » enregistrée se décoche au retour dans l\\'éditeur');
+        if(cc2){ cc2.checked=false; await saveDM(); await new Promise(function(r){ setTimeout(r,80); });
+          const dd=(lireValeurs().devoirs||[]).find(function(x){ return x.id==='dm_o'; });
+          if(dd && 'correction' in dd) vus.push('« Avec correction » décochée reste enregistrée'); }
+      }
     } else {
       vus.push('aucun éditeur à exercer');
     }

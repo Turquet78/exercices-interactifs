@@ -938,3 +938,13 @@ questions 4, 5 et 6 de cet exercice ») : le 6.9 pose les questions 1, 2, 3 et 7
 de `ISD_FICHE` (`ISDP_GARDEES`) — les carrés, f(1) et f(−1) pour x² + 3x − 1,
 puis f(−1) pour −3x² + 2x + 1. Le 6.6 et le 6.7 gardent toute la fiche. Une
 pause d'avant garde ses sept questions (elles sont rangées dans le brouillon).
+
+**Le terme transposé du 6.3 s'écrit avec son « + » — au doigt aussi (novembre 2026, v484).**
+Une élève : « je n'ai pas le signe + ». La ligne 2 de l'équation (`trd-e1`,
+« le terme transposé, avec son signe ») attend « +3 » quand f(x) = ax − 3 —
+la correction l'écrit ainsi. Le juge acceptait « 3 », mais rien ne le disait,
+et le pavé des tablettes n'offre que « − » d'office (`PAVE_TOUCHES`) : la case
+nomme désormais « + » dans `data-pave-plus` (`trdIn`). Le 6.5 rédigé
+(`TRD_PAVE_NB`) l'avait déjà. Contrôle : banc navigateur, « au doigt, la case
+du terme transposé du 6.3 offre la touche « + » et l'écrit » — « + » puis
+« 3 » tapés sur le pavé donnent « +3 ».

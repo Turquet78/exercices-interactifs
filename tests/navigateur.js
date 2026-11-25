@@ -3592,16 +3592,43 @@ if(require.main === module) (async () => {
           mesDevoirs = [{ id:'dm-pouce', num:4, actif:true, correction:true, exercices:[{ id:ex, modes:['train'] }] }];
           await dmePapierOuvrir('dm-pouce', ex);
           const enonce = document.querySelectorAll('#dmeCorps .dme-q').length;
+          const k0 = document.getElementById('dmeCorps').cloneNode(true); k0.querySelectorAll('svg').forEach(e => e.remove());
+          const texteEnonce = k0.textContent.replace(/\s+/g, ' ');
+          const tableEnonce = !!document.querySelector('#dmeCorps table');
           const h = await dmCorrigeHTML();
           const d = document.createElement('div'); d.innerHTML = h || '';
           const t = d.textContent.replace(/\s+/g, ' ');
           return { enonce, blocs: d.querySelectorAll('.dmc-q').length, vals: d.querySelectorAll('.dmc-val,.sol,.mf-cor').length,
             prof: (t.match(/avec ton professeur/g) || []).length, blancs: d.querySelectorAll('.dme-blank').length,
             miroirs: [...d.querySelectorAll('.sui-mir,.isd-mir')].filter(m => /^(0|…)$/.test(m.textContent.trim())).length,
-            pouce: /coup de pouce/i.test(t) };
+            pouce: /coup de pouce/i.test(t), texteEnonce, tableEnonce,
+            /* les flèches du 5.3 se RETRACENT dans la page du PDF : chaque
+               case qu'une flèche vise doit y garder son nom (data-dme-id) */
+            fleches: [...d.querySelectorAll('.dme-q')].reduce((n, q) => n + [...q.querySelectorAll('.dvl-schema[data-fl]')].reduce((m, sc) =>
+              m + JSON.parse(sc.getAttribute('data-fl') || '[]').filter(f => !q.querySelector('[data-dme-id="' + f[0] + '"]') || !q.querySelector('[data-dme-id="' + f[1] + '"]')).length, 0), 0),
+            schemas: d.querySelectorAll('.dvl-schema[data-fl]').length,
+            exemple: d.querySelectorAll('.dvl-ex').length, redige: /À toi de rédiger|Pour écrire/.test(t) };
         }, ex);
+        /* L'ÉNONCÉ PAPIER NE PARLE PAS DE L'ÉCRAN, ET N'AIDE PAS (Turquet,
+           novembre 2026, DM n°4) — et il porte TOUT l'exercice : la suite du
+           6.8 fermée à l'écran, le tableau de données et les deux parties du
+           3.13, la seule question au 5.3 */
+        const ECRAN = /touche|Entrée|[Cc]lique|bouton|clavier|souris|la suite s.ouvre|[Cc]oup de pouce|Vérifie à la fin|vérifie la fiche|\btape |cases? (?:bleue|rouge)|redessin|Bloqué|facultati|déjà écrit|une étape par ligne|À toi de rédiger|question guidée|en suivant les flèches/;
+        const m = r.texteEnonce.match(ECRAN);
+        verifier('l\'énoncé papier de ' + ex + ' ne porte aucune remarque de l\'écran ni aide', !m,
+          m ? '« …' + r.texteEnonce.slice(Math.max(0, m.index - 60), m.index + 60) + '… »' : '');
+        const attendu = { 'tracer-droite-pouce': ['3. Détermine graphiquement', '4. Détermine par le calcul', '5. Complète le tableau de signes'],
+          'frequences-probabilites-pouce': ['Partie A', 'Partie B'], 'developper-double': ['Développe et réduis A ='] }[ex] || [];
+        const manque = attendu.filter(x => r.texteEnonce.indexOf(x) < 0);
+        if(attendu.length) verifier('l\'énoncé papier de ' + ex + ' porte tout l\'exercice',
+          manque.length === 0 && (ex !== 'frequences-probabilites-pouce' || r.tableEnonce),
+          manque.length ? 'manque « ' + manque.join(' », « ') + ' »' : 'le tableau de données manque');
         verifier('la correction de ' + ex + ' suit les coups de pouce : tout est corrigé, rien en pointillé',
           r.blocs > 0 && r.vals > 0 && r.prof === 0 && r.blancs === 0 && r.miroirs === 0 && !r.pouce, JSON.stringify(r));
+        if(ex === 'developper-double')
+          verifier('la correction du 5.3 : ni exemple ni rédaction vide, et chaque case visée par une flèche garde son nom pour le PDF',
+            r.schemas > 0 && r.fleches === 0 && r.exemple === 0 && !r.redige,
+            JSON.stringify({ schemas: r.schemas, flechesPerdues: r.fleches, exemple: r.exemple, redige: r.redige }));
         if(ex === DP.ficheUnEcran)
           verifier('une fiche d\'un seul écran (' + ex + ') s\'imprime une fois, à l\'énoncé comme à la correction',
             r.enonce === 1 && r.blocs === 1, JSON.stringify(r));
@@ -17096,7 +17123,7 @@ if(require.main === module) (async () => {
       const exemptes = (P.aideIA && P.aideIA.sans) || [];
       const inconnus = exemptes.filter(id => tous.indexOf(id) < 0);
       const ids = tous.filter(id => exemptes.indexOf(id) < 0);
-      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
+      const sans = [], sansMode = [], accolades = [], gabarits = [], xDroits = [], petites = [], dechires = [], tetes = [], sansClavier = [], mfNatifs = [], videsRouges = [], confirmVidesManque = [], coeffsDecales = [], etroits = [], surCourbe = [];
       let nConfirmVides = 0;
       const passerSoutienManque = [], passerArretes = []; let nPasserSoutien = 0, nPasserCorrige = 0;
       const indicesPlats = []; let nIndicesFlex = 0;
@@ -17162,7 +17189,7 @@ if(require.main === module) (async () => {
       const flechesBloquees = [], flecheMilieuSort = [], flecheMilieu = {}, flechesSansCible = new Set(); let nFleches = 0;
       const casesCalculDits = []; let nCasesCalcul = 0, nCasesFois = 0;
       const avecTables = new Set(), sansTables = new Set();
-      const svgSelectionnables = []; let nSvgVus = 0;
+      const svgSelectionnables = []; let nSvgVus = 0, nMfVus = 0;
       const corPyCopiables = [], enoncePyBloque = []; let nCorPy = 0;
       const casesEntreeMuettes = []; let nCasesEntree = 0;
       for(const id of ids){
@@ -17484,7 +17511,17 @@ if(require.main === module) (async () => {
                           vers: touches.indexOf('\\longrightarrow') >= 0, n: touches.length };
               }catch(e){ limKb = { infini: false, vers: false, n: 0 }; }
             }
+            /* AUCUNE CASE MATHLIVE N'OUVRE LE CLAVIER DU SYSTÈME (novembre
+               2026, tablette Samsung, 3.12 de la Première). MathLive rend
+               l'HÔTE <math-field> éditable sans inputmode : un toucher qui le
+               saisit avant que le focus descende dans le sink ouvre le clavier
+               de l'appareil. L'hôte doit porter inputmode="none" — chaque case
+               visible de chaque exercice, sans rien déclarer. */
+            const mfVus = [...on.querySelectorAll('math-field')].filter(visible);
+            const mfNatifs = mfVus.filter(m => m.getAttribute('inputmode') !== 'none')
+              .map(m => (m.id || m.className || 'math-field') + ' (inputmode=' + m.getAttribute('inputmode') + ')');
             return {ia: textes.some(t => /question .* l.IA/i.test(t)), ecran: on.id,
+                    nMf: mfVus.length, mfNatifs,
                     clavier: !champsMaths || boutonClavier,
                     /* LE BOUTON DES TABLES N'EST PROPOSÉ QUE LÀ OÙ IL SERT.
                        On relève ce qui est AFFICHÉ, exercice par exercice ; la
@@ -17629,6 +17666,9 @@ if(require.main === module) (async () => {
             dechires.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.signes[0]);
           if(mode === 'train' && vu.debuts && vu.debuts.length)
             tetes.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' — ' + vu.debuts[0]);
+          nMfVus += (vu.nMf || 0);
+          if(vu.mfNatifs && vu.mfNatifs.length)
+            mfNatifs.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + mode + ') — ' + vu.mfNatifs.slice(0, 2).join(', '));
           if(mode === 'train' && vu.clavier === false)
             sansClavier.push((await s.page.evaluate(i => TEST_NUM[i], id)) + ' (' + vu.ecran + ')');
           if(vu.etiquettes && vu.etiquettes.length)
@@ -18194,6 +18234,9 @@ if(require.main === module) (async () => {
         dechires.length === 0, dechires.slice(0, 3).join(' | '));
       verifier('le calcul en tête de rangée s\'écrit à la taille de sa rangée',
         tetes.length === 0, tetes.slice(0, 3).join(' | '));
+      if(nMfVus === 0) verifier('les cases MathLive refusent le clavier du système : le contrôle a des cases à mesurer', false, 'aucune case MathLive visible sur toute la visite');
+      else verifier('aucune case MathLive n\'ouvre le clavier du système (inputmode="none" sur l\'hôte <math-field>)',
+        mfNatifs.length === 0, mfNatifs.length + ' écran(s) — ' + mfNatifs.slice(0, 3).join(' | '));
       verifier('le clavier mathématique est atteignable sur tout écran à champ mathématique',
         sansClavier.length === 0, sansClavier.join(', ') + ' — aucun bouton « Clavier mathématique »');
       /* ET UN ÉCRAN QUI POSE UNE LIMITE OFFRE LE CLAVIER DU 3.5 : ∞ et ⟶ sur
@@ -19486,6 +19529,33 @@ if(require.main === module) (async () => {
          page, et l'événement input que la correction en direct écoute), le
          bouton ⌨️ ouvre toujours le clavier complet — et le pavé se tait tant
          qu'il est déployé, puis revient. */
+      /* ---- le TERME TRANSPOSÉ du 6.3 de la Première s'écrit avec son signe ----
+         Une élève (novembre 2026) : « je n'ai pas le signe + ». La case
+         trd-e1 attend « +3 » quand f(x) = ax − 3, et le pavé des tablettes
+         n'offre que « − » d'office (PAVE_TOUCHES) : la case nomme « + » dans
+         data-pave-plus. Mesuré au doigt : « + » puis « 3 » écrivent « +3 ». */
+      if(CIBLE === 'premiere-specifique.html'){
+        const NOM = 'au doigt, la case du terme transposé du 6.3 offre la touche « + » et l\'écrit';
+        s = await ouvrir(chromium, ml, { viewport: { width: 820, height: 1180 }, hasTouch: true });
+        if(await connecter(s.page) !== 'scr-space'){
+          ignorer(NOM, 'connexion impossible');
+        } else {
+          await ouvrirExoPave(s.page, 'tracer-droite');
+          const pret = await s.page.evaluate(() => { const su = document.getElementById('trdSuite'); if(su) su.hidden = false;
+            const el = document.getElementById('trd-e1'); return !!el; });
+          if(!pret){ verifier(NOM, false, 'la case #trd-e1 est introuvable sur l\'écran du 6.3'); }
+          else {
+            await s.page.focus('#trd-e1');
+            await s.page.waitForTimeout(500);
+            const plus = await s.page.evaluate(() => { const b = document.querySelector('#paveNum button[data-t="+"]');
+              if(!b) return false; const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+            const t = plus ? await frapper(s.page, '#trd-e1', ['+', '3']) : { valeur: '', focus: false };
+            verifier(NOM, plus && t.valeur === '+3' && t.focus,
+              !plus ? 'le pavé ne montre aucune touche « + »' : '« ' + t.valeur + ' » au lieu de « +3 », focus ' + (t.focus ? 'gardé' : 'perdu'));
+          }
+        }
+        await s.nav.close(); s = null;
+      }
       if(P.pave.clavierMaths){
         /* Le bord opposé, depuis octobre 2026 en Seconde et en Première : la
            case mathématique reçoit le VRAI clavier mathématique au toucher,

@@ -2407,3 +2407,83 @@ aucun ne régresse. Mesuré dans Chromium sur les six exercices du DM n°4 : tou
 corrigées, aucun pointillé, aucun miroir à la réponse d'essai ; PDF relus page
 par page (le 3.13 tient sur deux pages au lieu de quatorze). Banc navigateur,
 6 sexies ter (`dmPdf.pouce`, `dmPdf.ficheUnEcran`).
+
+**Puis « Avec correction » s'est DÉCOCHÉE à l'enregistrement — en Première**
+(v482, signalé par Turquet, novembre 2026, sur le DM n°4 : « quand je coche
+avec correction et que j'enregistre le devoir, il décoche automatiquement »).
+Le drapeau était recopié par `ensureDevoir` (le premier piège, celui du
+« bonus ») et lu par `dmLireEntete` — mais `saveDM` relit chaque champ de
+l'éditeur lui-même, puis écrit un objet `clean` construit champ par champ :
+la case n'était ni lue ni recopiée. Le devoir partait sans `correction`, et
+aucun élève ne voyait le bouton. Trois portes, donc, par lesquelles un drapeau
+d'un devoir se perd : la normalisation (`ensureDevoir`), la lecture de
+l'éditeur (`saveDM`), l'objet écrit (`clean`). Le banc de la v479 ne tenait
+que la première. Banc jsdom, « les fiches se font dans l'ordre… » (la partie
+de la Première, qui exerce le vrai `saveDM`) : cochée, enregistrée, relue
+dans la base et dans l'éditeur ; décochée, effacée.
+
+**Puis l'ÉNONCÉ papier du DM n°4 : tout l'exercice, et rien de l'écran**
+(Première v483, signalé par Turquet, novembre 2026, PDF en main : « dans le
+6.8 le PDF n'a pas les questions 3, 4 et 5 » ; « l'énoncé du 3.13 n'affiche
+que le début » ; « dans le 5.3 la question 1 est mal sortie, et la question 2
+avait des commentaires — il fallait juste mettre développer… » ; « dans les
+énoncés en PDF je ne veux pas des commentaires ou remarques du site ou
+d'aides éventuelles »). Cinq causes, chacune réglée là où elle naît :
+* *la suite fermée à l'écran* (le 6.8, et les 6.3 et 6.5 qui partagent
+  `renderTrd`) : `#trdSuite` est `hidden` tant que la droite n'est pas
+  tracée, et la photo ne voit que ce qui se montre. Un bloc marqué
+  `data-papier-montre` est déplié le temps de la photo (`dmEnonceQ`, mesures
+  comprises), puis replié ;
+* *ce que l'écran montre après un geste et qui DONNERAIT une réponse* : le
+  dessin de la question 5 (la droite de la question 2), le tableau « pour
+  mémoire » du 7.3 (les réponses de sa question 1) portent
+  `.dme-hors-enonce` — retiré de l'énoncé seul, la correction le garde ;
+* *les boutons « Coup de pouce »* posés devant chaque ligne du 3.13 faisaient
+  prendre la fiche entière pour du guidage : l'énoncé ne gardait que ses deux
+  premières phrases. Ils sortent de l'écran le temps de la photo (le même
+  nœud y revient). Et un tableau qui porte les DONNÉES d'un exercice
+  (`#fpbTab` des 3.10 à 3.13, le tableau du 7.3) reste sur le papier, ses
+  cases vides : `.dme-garde` — la règle « un tableau à compléter, l'élève le
+  dresse » vaut pour un tableau de signes, pas pour celui qui porte les
+  effectifs. « Partie A » SEUL est un titre (`DME_QUESTION`) ;
+* *le 5.3* : la méthode de l'écran (les termes rouge, bleu, vert, noir),
+  l'exemple et le schéma à cases étaient l'énoncé, l'expression à
+  développer n'y était pas. Sur le papier, une ligne `papier-seul` :
+  « Développe et réduis A = (x + 4) × (2x + 2). », le reste `.dme-hors-enonce` ;
+  la question rédigée (`sfrAfficher`, toutes les rédigées) : « Développe et
+  réduis (2x + 3) × (2x − 1). » — « Calcule … » ailleurs —, sans « La
+  question guidée est faite » ni « À toi de rédiger » ;
+* *les remarques de l'écran*, partout : `dmeSansEcran` retire, phrase par
+  phrase (une phrase entière, ou le seul membre qui parle de l'écran), la
+  touche Entrée, « Clique », « Pour écrire x², tape… », les cases
+  bleues/rouges, « la suite s'ouvre », « Vérifie à la fin », « une étape par
+  ligne, jusqu'au résultat », « D'abord case par case »… Une phrase s'arrête
+  au point et ne traverse qu'une balise en ligne, jamais un bloc. Les
+  consignes de méthode du 6.8 (`.trd-consigne` : « Lis-le sur le repère :
+  pars de… », « Clique sur le repère ») partent entières. L'écriture MathLive
+  de « 10² + 10⁻³ » (8.1, question 10) sortait l'exposant de travers sur le
+  PDF : le papier écrit le texte.
+Mesuré dans Chromium sur les 86 énoncés du menu (avant/après, texte relevé) :
+plus aucune de ces remarques, aucun énoncé vidé de sa question ; les six PDF
+du DM n°4 relus. Banc navigateur, 6 sexies ter (`dmPdf.pouce`) : aucune
+remarque d'écran sur les six énoncés, les questions 3 à 5 du 6.8, le tableau
+et la Partie B du 3.13, « Développe et réduis A = » au 5.3.
+**Ce qu'aucun banc ne voit** : une remarque d'écran tournée autrement que
+celles de la liste ; elle se voit en ouvrant le PDF.
+
+**Puis la correction du 5.3 : l'exemple en trop, les flèches à côté** (Première
+v486, signalé par Turquet, novembre 2026, capture du PDF à l'appui). Les
+flèches et les accolades du calcul littéral sont tracées en pixels sur l'écran
+de l'élève (`dvlTrace`) ; la page du PDF a sa propre largeur (1280 px), et sur
+un écran d'une autre largeur elles tombaient à côté — invisible au banc, dont
+la fenêtre fait 1280 px : reproduit sur une fenêtre de 800 px. Le tracé
+s'exécute maintenant dans une racine donnée (`dvlTraceDans`), et
+`dmePdfRetracer` le rejoue dans chaque question du PDF, comme les arbres ; pour
+cela, la valeur qui remplace une case dans la correction garde le nom de la
+case (`data-dme-id`). L'exemple de la fiche (`.dvl-ex`) rejoint `DME_AIDES`,
+la zone de rédaction ouverte sous une guidée vérifiée (celle de la question
+SUIVANTE : `test.idx` y est déjà passé) ne passe jamais dans une correction, et
+la correction passe aussi par `dmeSansEcran`. Banc navigateur, 6 sexies ter :
+sur la correction du 5.3, chaque case visée par une flèche porte son nom, ni
+exemple ni « À toi de rédiger ». **Ce qu'aucun banc ne voit** : le PDF fait
+depuis un écran d'une autre largeur que celle du banc — vu ici à 800 px.
