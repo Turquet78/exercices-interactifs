@@ -49,3 +49,53 @@ pose `--dx`/`--dy` sur le jeton et trace la flèche en pointillés de la fiche
 la flèche suivait le vol — mesurée au départ, elle tombait verticalement sur
 le cercle. On mesure la CASE d'arrivée (`.eqr-dest`), que la transformation de
 son enfant ne déplace pas.
+
+## {equation-resoudre-glisser} — résoudre ax + b = 0 en déplaçant les termes à la souris (Seconde, 9.2, novembre 2026)
+
+**D'où il vient.** Demande de Turquet : « une équation du type ax + b = 0,
+avec une solution entière et des nombres entiers ne dépassant pas 30 dans
+tout l'exercice. L'élève peut déplacer avec sa souris soit ax soit + b
+n'importe où dans l'équation : si le terme reste du même côté on ne change
+pas le signe, sinon oui. Quand l'élève a écrit ax = −b ou b = −ax, lui faire
+comprendre qu'il peut déplacer le facteur a ou −a ; tant qu'il ne le met pas
+en bas de b ou −b (au dénominateur), dire que c'est impossible ; sinon écrire
+x = −b/a ou b/−a = x en écriture fractionnaire, et demander à l'élève de
+cliquer sur la fraction pour obtenir le résultat. » Kind `eqd`, ajouté après
+le 9.1 : rien n'est renuméroté.
+
+**Le tirage.** a de ±2 à ±9 (positif à la première question, négatif 3 fois
+sur 10 ensuite), x entier non nul, b = −ax, et |ax| ≤ 30 : a, b et x ne
+dépassent jamais 30. Une question sur quatre (sauf la première) s'écrit
+b + ax = 0. `distinctes()` sur (a, b), cinq questions réglables par le devoir.
+
+**L'état vit dans la question** (`q.st`, créé au premier rendu, jamais au
+tirage : la clé de `distincte()` n'en voit rien) : les deux membres, chacun
+une liste de termes `{t:'x'|'c', k}` — un membre vide s'écrit « 0 », et le 0
+disparaît dès qu'un terme arrive —, la fraction posée, la fin. Du JSON : la
+pause le range, la reprise le redessine.
+
+**Le glisser** se fait aux événements `pointer` (souris, doigt, stylet). Le
+membre visé est le côté du « = » où est le pointeur ; le rang, le nombre de
+termes de ce membre dont le milieu est à gauche du pointeur ; un trait bleu
+montre la place. Le fantôme qui suit le pointeur porte DÉJÀ le signe qu'il
+aura en se posant : la règle 1 se voit avant de lâcher. Posé, le terme
+change de signe s'il a changé de membre (le signe neuf flashe en jaune), et
+la phrase sous l'équation dit ce qui s'est passé.
+
+**Le facteur.** Dès qu'un membre ne contient que le terme en x et l'autre
+que le nombre (`eqdIsole`), le terme en x se coupe : son coefficient, signe
+compris (« 3 » ou « −3 »), devient une prise orange qui sautille, et la
+phrase dit « x est multiplié par 3 : tu peux déplacer le facteur 3 ». Lâché
+SOUS le nombre de l'autre membre (dans sa largeur ± 30 px, plus bas que son
+milieu), il s'y pose en dénominateur : « x = −12/3 », ou « 12/−3 = x » si x
+était à droite. Partout ailleurs : « Impossible : on ne peut pas poser le
+facteur 3 ici. » Au deuxième refus, un indice s'ajoute (« de l'autre côté
+du « = », une multiplication devient une division — pose 3 sous −12 »).
+Un refus ne coûte rien.
+
+**La note.** Un point par question, gagné au clic sur la fraction, qui écrit
+« donc x = −4 » et la vérification (3 × (−4) + 12 = 0 ✓). « Vérifier » avant
+la fin : en entraînement et en évaluation, la résolution s'écrit en vert
+(`.eqd-cor`) et la question compte fausse ; en soutien, la page dit l'étape
+suivante et attend. C'est aussi ce qui laisse le banc des notes mener
+l'exercice jusqu'à sa fin par « Vérifier », comme les autres.
