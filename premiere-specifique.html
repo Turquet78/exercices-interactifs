@@ -4289,7 +4289,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=482;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=484;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -20082,6 +20082,31 @@ function bbaJugeChaine(texte, o){
     return {sait:true, correct:false, phrase:'Ton calcul est juste, mais il n’est pas terminé : termine par le résultat, un nombre décimal ou une fraction.'};
   return {sait:true, correct:true, phrase:'Bravo ! Ton calcul est rédigé, et tout est juste.', ms:ms, lus:lus};
 }
+/* Une chaîne d'égalités OU un calcul par ligne — la feuille sans « = »
+   imposé en tête de ligne (demande de Turquet, novembre 2026 : quand la
+   rédaction n'est pas un seul calcul, Entrée n'écrit plus « = »). Une ligne
+   que l'élève commence lui-même par « = » continue la précédente ; s'il ne
+   reste qu'une chaîne, c'est bbaJugeChaine qui juge. Sinon chaque ligne est
+   un calcul dont les « = » sont vrais, et la DERNIÈRE donne le résultat. */
+function bbaJugeChaineOuLignes(texte, o){
+  const blocs=[];
+  String(texte).split('\n').map(l=>l.trim()).filter(l=>l!=='').forEach(l=>{
+    if(blocs.length && /^=/.test(bbaPrep(l).trim())) blocs[blocs.length-1]+=' '+l; else blocs.push(l);
+  });
+  if(blocs.length<=1) return bbaJugeChaine(blocs.join(''), o);
+  const L=bbaLignes(blocs.join('\n')); if(!L || !L.length) return {sait:false};
+  const f=bbaFauxDans(L); if(f) return {sait:true, correct:false, phrase:f};
+  if(!L.some(x=>x.ms.length>=(o.min||2)))
+    return {sait:true, correct:false, phrase:'Écrire seulement des nombres n’est pas rédiger : montre les calculs qui y mènent.'};
+  const der=L[L.length-1], fin=der.ms[der.ms.length-1];
+  if(!salEgal(der.lus[der.lus.length-1].v, bbaRat(o.cible)))
+    return {sait:true, correct:false, phrase:'Tes égalités sont justes, mais ta dernière ligne ne donne pas le résultat demandé : relis l’énoncé, et termine par le calcul qui y répond.'};
+  if(o.fin==='dec' && !bbaNombre(fin))
+    return {sait:true, correct:false, phrase:'Ton calcul est juste, mais il n’est pas terminé : écris le résultat en écriture décimale à la fin.'};
+  if(o.fin!=='dec' && !bbaNombre(fin) && !bbaFrac(fin))
+    return {sait:true, correct:false, phrase:'Ton calcul est juste, mais il n’est pas terminé : termine par le résultat, un nombre décimal ou une fraction.'};
+  return {sait:true, correct:true, phrase:'Bravo ! Ton calcul est rédigé, et tout est juste.'};
+}
 /* Des lignes indépendantes (mode rédaction) : chaque ligne est un calcul ; les
    « = » d'une ligne doivent être vrais. Rend les morceaux lus, ligne à ligne. */
 function bbaLignes(texte, seps){
@@ -20232,10 +20257,10 @@ function bbaSpec(q){
     const {L,r}=bbaVoc(q), rs=vapStr(r,false), ph=L.titre.replace(/^Calcule /,'').replace(/\.$/,'');
     const calc=L.et.map(e=>(Array.isArray(e.calc)?(e.calc[0]==='x'?e.calc[1]+' × '+e.calc[2]:e.calc[1]+'/'+e.calc[2]):e.calc)+' = '+vapStr(e.r,false)).join(' ; ');
     return { prompt:'Calcule '+ph+', en écriture fractionnaire ou décimale.', lab:'rédige ton calcul — traduis chaque mot en calcul, puis calcule',
-      hint:'Écris tout le calcul à la suite, par exemple « 2 × 3 + 1/4 = 6 + 0,25 = 6,25 ». <b>Entrée</b> ajoute une ligne, qui commence par «&nbsp;=&nbsp;». Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort.',
-      mode:'calcul', juge:t=>bbaJugeChaine(t,{cible:{n:r,d:VAP_D}, min:2}),
+      hint:'Écris le calcul à la suite, par exemple « 2 × 3 + 1/4 = 6 + 0,25 = 6,25 », ou UN calcul par ligne : « 2 × 3 = 6 », puis « 1/4 = 0,25 », puis « 6 + 0,25 = 6,25 ». <b>Entrée</b> ajoute une ligne. Au clavier&nbsp;: <b>/</b> fait une fraction, <b>barre d’espace</b> en sort.',
+      mode:'lignes', juge:t=>bbaJugeChaineOuLignes(t,{cible:{n:r,d:VAP_D}, min:2}),
       correction:'Correction : '+calc+'.', resume:{q:ph+' (rédigé)', answer:rs},
-      ia:'L’élève doit calculer '+ph+' (le double = × 2, le triple = × 3, la moitié = ÷ 2, le tiers = ÷ 3, le quart = ÷ 4, le dixième = ÷ 10, l’inverse de a = 1/a). Il rédige le calcul en une chaîne d’égalités.',
+      ia:'L’élève doit calculer '+ph+' (le double = × 2, le triple = × 3, la moitié = ÷ 2, le tiers = ÷ 3, le quart = ÷ 4, le dixième = ÷ 10, l’inverse de a = 1/a). Il rédige le calcul en une chaîne d’égalités, ou un calcul par ligne (chaque ligne est un calcul indépendant ; seule la dernière doit donner le résultat).',
       att:'Réponse : '+rs+' (toute écriture égale, décimale ou fractionnaire). Les étapes : '+calc+'.' };
   }
   if(m==='frac'){
@@ -32445,6 +32470,10 @@ async function saveDM(){
   d.titre=(val('dmTitre')||'').trim()||GENRE_DEVOIRS[dmGenre].defTitre;
   d.cours=$('dmCours').value;
   d.actif=$('dmActif').checked;
+  /* « Avec correction » LU ICI : l'enregistrement relit chaque champ de
+     l'éditeur, et cette case n'y était pas — cochée, elle se décochait à
+     l'enregistrement (signalé par Turquet, novembre 2026, DM n°4) */
+  if($('dmCorrection')){ if($('dmCorrection').checked && dmGenre==='dm') d.correction=true; else delete d.correction; }
   /* Un devoir enregistré du temps des passages porte encore « rep » et
      « verrou » : on les retire ici plutôt que de les traîner indéfiniment dans
      un réglage que plus rien ne lit. */
@@ -32471,7 +32500,11 @@ async function saveDM(){
          la définition du devoir, et un devoir réenregistré les perdrait. */
       const clean=Object.assign({ id:d.id, num:d.num, actif:d.actif, titre:d.titre, cours:d.cours, exercices:d.exercices },
         d.archive?{archive:true}:{}, (d.notes&&Object.keys(d.notes).length)?{notes:d.notes}:{},
-        (d.publie&&dmGenre==='eval')?{publie:true}:{});
+        (d.publie&&dmGenre==='eval')?{publie:true}:{},
+        /* et « correction » RECOPIÉ dans l'objet écrit : la troisième porte
+           par laquelle un drapeau se perd, après ensureDevoir et la lecture
+           de l'éditeur */
+        (d.correction===true&&dmGenre==='dm')?{correction:true}:{});
       const i=arr.findIndex(x=>x.id===d.id);
       if(i>=0) arr[i]=clean; else arr.push(clean);
       const maj={}; maj[cle]=arr;
@@ -36659,7 +36692,10 @@ const TRD_LISTES={
   'trd-s1':[['+','+'],['-','−']]
 };
 function trdSel(id, aria, cls){ return itvSelHTML(id, TRD_LISTES[id], aria, cls||'trd-sel'); }
-function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric" autocomplete="off" aria-label="'+esc(aria)+'">'; }
+/* la case du terme transposé (trd-e1) attend « +3 » quand b est négatif : le
+   pavé des tablettes n'a que « − » d'office, il lui faut aussi « + » (une
+   élève, novembre 2026 : « je n'ai pas le signe + ») */
+function trdIn(id, aria, cls){ return '<input id="'+id+'" class="lv-in'+(cls?' '+cls:'')+'" inputmode="numeric"'+(id==='trd-e1'?' data-pave-plus="+"':'')+' autocomplete="off" aria-label="'+esc(aria)+'">'; }
 /* ---- La bulle d'aide du soutien, à côté de la case cliquée ----
    Demande de Turquet (novembre 2026) : « en mode soutien, je veux que la
    bulle apparaisse quand on clique sur la case et que l'aide corresponde

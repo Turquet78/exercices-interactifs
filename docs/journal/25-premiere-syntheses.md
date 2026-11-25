@@ -262,9 +262,23 @@ est l'autre bord de l'autre). Contrôle : banc principal, « le bac blanc
 « enhéEdant », « antécédant », « antessedents » acceptés avec le bon nombre,
 refusés avec un autre.
 
+**Plus de « = » imposé en tête de ligne quand la rédaction n'est pas un seul
+calcul (Turquet, novembre 2026, version 483).** La question « traduis les mots
+en calcul » du bac blanc (moteur `voc` : « la somme du quadruple de 0,25 et du
+triple de 6 ») avait la feuille en mode `calcul` : Entrée ouvrait une ligne qui
+commençait par « = ». Or l'élève y écrit naturellement trois calculs
+(« 4 × 0,25 = 1 », « 3 × 6 = 18 », « 1 + 18 = 19 ») — le « = » de tête les
+soudait en une chaîne fausse. Elle passe en mode `lignes` (aucun préfixe) et se
+juge par `bbaJugeChaineOuLignes` : une ligne que l'élève commence lui-même par
+« = » continue la précédente, et s'il ne reste qu'une chaîne, `bbaJugeChaine`
+juge comme avant ; sinon chaque ligne doit avoir des « = » vrais, une au moins
+montrer un calcul, et la DERNIÈRE donner le résultat. Les autres feuilles à
+« = » de tête des trois niveaux ont été relues une à une : fractions (`frac`,
+2.x de la Seconde), coefficient, « A = … », pourcentage d'un nombre, f′(x) de la
+Terminale — toutes sont UNE chaîne d'égalités, et gardent leur « = ».
 **Le « … ÷ » du coup de pouce des fractions restait en pointillés, et
 « Simplifie ta fraction. » s'écrit au-dessus de la division (novembre 2026,
-v482 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
+v484 ; Seconde v728).** Capture de Turquet sur la question 2 : 14/10 écrit,
 la division qui simplifie montrait « … ÷ 2 / 10 ÷ 2 ». Le coup de pouce tourne
 sur l'écran du 4.11 sous `test.kind === 'bba'`, et `seSaisie` ne suivait la
 saisie que sous `test.kind === kind` : la chaîne n'était recopiée qu'à la
