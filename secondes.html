@@ -2121,6 +2121,8 @@
   .eqd-fac{border-color:#F59E0B;box-shadow:0 2px 0 #FCD34D;animation:eqdAppel 1.4s ease-in-out infinite}
   @keyframes eqdAppel{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   .eqd-parti{opacity:.25}
+  .eqd-paire{display:inline-flex;align-items:center;gap:.15em;padding:.1em .14em;border:2px solid #22C55E;border-radius:14px;background:#F0FDF4;cursor:pointer;box-shadow:0 2px 0 #86EFAC}
+  .eqd-paire:hover,.eqd-paire:focus-visible{background:#DCFCE7;outline:none}
   .eqd-vise{background:#FEF3C7;border-color:#F59E0B;box-shadow:0 0 0 3px #FDE68A}
   .eqd-fantome{position:fixed;z-index:9000;pointer-events:none;margin:0;font-family:"Fredoka";font-weight:600;font-size:2.1rem;color:var(--ink);
     box-shadow:0 8px 18px rgba(15,23,42,.25);cursor:grabbing;white-space:nowrap;opacity:.85}
@@ -9822,7 +9824,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=732;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=733;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -90338,10 +90340,51 @@ function eqdTermeHTML(t, cote, i, iso, flash){
   return '<span class="eqd-t'+(neuf?' eqd-arrive':'')+'" data-c="'+cote+'" data-i="'+i+'" aria-label="le terme '+esc(eqdTexteTerme(t, premier))+', à faire glisser">'
     +sgH+'<span class="eqd-v">'+eqdVal(t)+'</span></span>';
 }
+/* Deux termes de la même sorte CÔTE À CÔTE dans un membre s'encadrent en vert,
+   comme la fraction à la fin : un clic sur le cadre les regroupe (demande de
+   Turquet, v733 : « il ne propose pas de regrouper deux termes côte à côte
+   compatibles ; le faire comme quand on calcule la division à la fin »).
+   Les paires se prennent de gauche à droite, sans chevauchement : trois
+   nombres de suite font une paire, puis le troisième attend la suivante. */
+function eqdPaires(l){
+  const p=[]; for(let i=0;i<l.length-1;i++){ if(l[i].t===l[i+1].t){ p.push(i); i++; } }
+  return p;
+}
+function eqdAPaires(st){ return eqdPaires(st.g).length+eqdPaires(st.d).length>0; }
 function eqdCoteHTML(st, cote, iso, flash){
   const l=st[cote];
   if(!l.length) return '<span class="eqd-cote" data-c="'+cote+'"><span class="eqd-zero">0</span></span>';
-  return '<span class="eqd-cote" data-c="'+cote+'">'+l.map(function(t,i){ return eqdTermeHTML(t, cote, i, iso, flash); }).join('')+'</span>';
+  const paires=iso?[]:eqdPaires(l);
+  let h='';
+  for(let i=0;i<l.length;i++){
+    if(paires.indexOf(i)>=0){
+      const a=l[i], b=l[i+1], txt=eqdTexteTerme(a, i===0)+' '+eqdTexteTerme(b, false);
+      h+='<span class="eqd-paire" role="button" tabindex="0" data-c="'+cote+'" data-i="'+i+'" title="Clique pour regrouper"'
+        +' aria-label="'+esc(txt)+' : clique pour regrouper ces deux termes" onclick="eqdCliquePaire(\''+cote+'\','+i+')"'
+        +' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();eqdCliquePaire(\''+cote+'\','+i+');}">'
+        +eqdTermeHTML(a, cote, i, iso, flash)+eqdTermeHTML(b, cote, i+1, iso, flash)+'</span>';
+      i++;
+    } else h+=eqdTermeHTML(l[i], cote, i, iso, flash);
+  }
+  return '<span class="eqd-cote" data-c="'+cote+'">'+h+'</span>';
+}
+/* Le clic sur un cadre vert : les deux termes s'additionnent (signes compris),
+   une somme nulle disparaît. */
+const EQD_MSG_PAIRE='Deux termes de la même sorte côte à côte sont <b>encadrés en vert</b> : <b>clique sur le cadre</b> pour les regrouper.';
+let eqdGlisseA=0;
+function eqdCliquePaire(cote, i){
+  if(test.locked || eqdDrag || Date.now()-eqdGlisseA<500) return;
+  const q=test.questions[test.idx], st=eqdEtat(q), l=st[cote];
+  if(!l || !l[i] || !l[i+1] || l[i].t!==l[i+1].t || st.frac) return;
+  const a=l[i], b=l[i+1], ka=a.k, kb=b.k;
+  a.k=ka+kb; l.splice(i+1,1);
+  let j=i; if(a.k===0){ l.splice(i,1); j=-1; }
+  st.coups=(st.coups||0)+1;
+  const fb=$('eqdFeedback'); if(fb && fb.classList.contains('bad')){ fb.textContent=''; fb.className='mp-feedback'; }
+  const texte='<b>'+eqdLab(a.t,ka)+'</b> et <b>'+eqdLab(a.t,kb)+'</b> se regroupent : '+(a.k===0?'ils <b>s’annulent</b>.':'<b>'+eqdLab(a.t,a.k)+'</b>.');
+  eqdDessiner({cote:cote, i:j, signe:false, texte:texte});
+  if(eqdIsole(st)){ const m=$('eqdMsg'); if(m) m.innerHTML=texte+'<br>'+m.innerHTML; }
+  clearTimeout(test.eqdSave); test.eqdSave=setTimeout(autoSave,800);
 }
 function eqdSol(q){ if(typeof q.s==='number') return q.s; const ab=eqdAB(q); return -ab.B/ab.A; }
 function eqdMsg(html, non){ const m=$('eqdMsg'); if(!m) return; m.innerHTML=html; m.className='eqd-msg'+(non?' eqd-non':''); }
@@ -90395,8 +90438,8 @@ function eqdDessiner(flash){
   if(!st.fini && !st.corrige){
     if(st.frac) eqdMsg('Clique sur la <b>fraction</b> pour obtenir le résultat.');
     else if(iso) eqdMsg(eqdMsgIsole(st, iso));
-    else if(flash && flash.texte) eqdMsg(flash.texte);
-    else eqdMsg(eqdMsgDepart(q));
+    else if(flash && flash.texte) eqdMsg(flash.texte+(eqdAPaires(st)?'<br>'+EQD_MSG_PAIRE:''));
+    else eqdMsg(eqdMsgDepart(q)+(eqdAPaires(st)?'<br>'+EQD_MSG_PAIRE:''));
     if(!test.locked) host.querySelectorAll('.eqd-t,.eqd-fac').forEach(function(el){ el.addEventListener('pointerdown', eqdPrise); });
   }
 }
@@ -90500,6 +90543,8 @@ function eqdLache(e){
   const D=eqdFinDrag(); if(!D) return;
   const q=test.questions[test.idx], st=eqdEtat(q);
   if(D.bouge){ const fb=$('eqdFeedback'); if(fb){ fb.textContent=''; fb.className='mp-feedback'; } }   /* le « pas encore » du soutien ne survit pas au geste suivant */
+  if(D.bouge) eqdGlisseA=Date.now();   /* le « click » qui suit un glisser n'est pas un clic sur le cadre */
+  if(!D.bouge && D.el.closest('.eqd-paire')) return;   /* le clic du cadre vert regroupe */
   if(!D.bouge){ eqdMsg(D.fac?'Fais <b>glisser</b> le facteur avec la souris (ou le doigt) : maintiens le bouton enfoncé et déplace-le.':'Fais <b>glisser</b> le terme avec la souris (ou le doigt) : maintiens le bouton enfoncé et déplace-le.'); return; }
   if(D.fac){ eqdLacheFacteur(q, st, e.clientX, e.clientY); return; }
   const c=eqdCible(e.clientX, e.clientY, D.el, D.terme.t);
