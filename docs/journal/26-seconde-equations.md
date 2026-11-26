@@ -176,7 +176,9 @@ est remplie et que c'est la même en dessous, la compléter automatiquement ».
 Kind `eqf`, ajouté après le 9.2 : rien n'est renuméroté.
 
 **La page suit la fiche**, six lignes « Donc : » alignées sur le « = » :
-l'équation, le nombre du membre de gauche ENTOURÉ en pointillés ; puis
+l'équation, ses deux termes qui vont changer de côté ENTOURÉS dès le départ
+(le nombre de gauche et le terme en x de droite — demande de Turquet, le même
+jour : « il faudra aussi les termes entourés au départ ») ; puis
 « ax = (membre de droite) [case] », le nombre déplacé signe compris, et le
 terme en x de droite entouré ; puis le terme en x arrivé à gauche — APRÈS ax
 s'il était en fin de membre (exercice 2), AVANT s'il était en tête

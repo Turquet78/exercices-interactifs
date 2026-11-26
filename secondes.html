@@ -90322,7 +90322,7 @@ function ctxEqr(q){
    dessous, la compléter automatiquement ».
 
    LA PAGE suit la fiche, six lignes « Donc : » sous l'équation ax + b = c + dx :
-     1. l'équation, le nombre du membre de gauche ENTOURÉ en pointillés ;
+     1. l'équation, ses deux termes qui vont changer de côté ENTOURÉS dès le départ ;
      2. ax = (membre de droite) [case] — le nombre déplacé, signe compris ;
         le terme en x de droite est entouré ;
      3. ax [case] = c (miroir) — le terme en x déplacé (AVANT ax s'il était en
@@ -90401,10 +90401,10 @@ function eqfInput(id, label, touches){
   return '<input class="rel-in eqf-in" id="'+id+'" type="text" inputmode="numeric"'+(touches?' data-pave-plus="'+touches+'"':'')
     +' autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="'+esc(label)+'">';
 }
-function eqfMembreHTML(ts, entoure){
+function eqfMembreHTML(ts, entoure, id){
   return ts.map(function(t,i){
     const h=eqfTerme(t, i===0);
-    return t===entoure ? '<span class="eqf-orig" id="'+(t.t==='x'?'eqf-o2':'eqf-o1')+'">'+h+'</span>' : h;
+    return t===entoure ? '<span class="eqf-orig"'+(id?' id="'+id+'"':'')+'>'+h+'</span>' : h;
   }).join(' ');
 }
 function eqfLigne(g, d, cls){
@@ -90424,9 +90424,11 @@ function renderEqfTest(){
   const xt=eqfInput('eqf-xt', 'le terme en x déplacé, avec son signe', 'x +');
   let h='<p class="eqf-aide">Complète les cases ligne par ligne. Suis les flèches : un terme entouré passe de l’autre côté du « = ». Ce qui se recopie à la ligne du dessous s’écrit tout seul.</p><div class="eqf-g">';
   /* 1. l'équation, le nombre de gauche entouré */
-  h+=eqfLigne(eqfMembreHTML(G, B), eqfMembreHTML(D, null));
+  /* les deux termes qui vont changer de côté sont entourés dès le départ (demande de Turquet) ;
+     la flèche du terme en x part de la ligne 2, comme sur la fiche */
+  h+=eqfLigne(eqfMembreHTML(G, B, 'eqf-o1'), eqfMembreHTML(D, Dx));
   /* 2. ax = membre de droite + le nombre déplacé ; le terme en x de droite entouré */
-  h+=eqfLigne(eqfTerme(X,true), eqfMembreHTML(D, Dx)+' '+eqfInput('eqf-c', 'le nombre déplacé, avec son signe', '+'));
+  h+=eqfLigne(eqfTerme(X,true), eqfMembreHTML(D, Dx, 'eqf-o2')+' '+eqfInput('eqf-c', 'le nombre déplacé, avec son signe', '+'));
   /* 3. le terme en x déplacé à gauche, avant ou après ax ; accolades */
   h+=eqfLigne('<span class="eqf-acc">'+(q.dr ? xt+' '+eqfTerme(X,false) : eqfTerme(X,true)+' '+xt)+'</span>',
     '<span class="eqf-acc">'+eqfTerme(Cc,true)+' <span class="eqf-mir" data-src="eqf-c"></span></span>', 'eqf-l3');
