@@ -167,7 +167,7 @@ aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
 un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
 Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
 
-## {equation-fractions-modeles} — résoudre une équation à fractions comme le modèle (Seconde, 9.3, novembre 2026)
+## {equation-fractions-modeles} — résoudre une équation à fractions comme le modèle (Seconde, 9.4, novembre 2026)
 
 **D'où il vient.** Demande de Turquet, sur la fiche papier « 203 » (deux
 pages, « Modèles » | « Résoudre comme les modèles ») : « faire un exercice
@@ -176,14 +176,14 @@ comme sur le pdf ; quand une case est remplie et que c'est la même en
 dessous, la compléter automatiquement ; voir les exemples si possible à côté
 sur la même ligne comme sur le pdf ; après les 3 premières questions du pdf,
 je te laisse mettre des cases de la même façon pour les questions
-suivantes ». Kind `eqf`, ajouté après le 9.2 : rien n'est renuméroté.
+suivantes ». Kind `eqm`, ajouté après le 9.3 : rien n’est renuméroté.
 
 **La page suit la fiche.** Deux colonnes : à gauche le MODÈLE, avec les
 nombres de la fiche, toujours les mêmes ; à droite l'équation de l'élève,
-résolue ligne à ligne EN FACE de la ligne du modèle — `eqfAligner()` donne à
+résolue ligne à ligne EN FACE de la ligne du modèle — `eqmAligner()` donne à
 chaque ligne des deux colonnes la hauteur de la plus haute des deux. Dans le
 modèle, le terme déplacé est entouré de pointillés et une flèche courbe en
-pointillés le porte après le membre de droite (`eqfTracer()`, mesuré après
+pointillés le porte après le membre de droite (`eqmTracer()`, mesuré après
 rendu comme au 9.1) ; le facteur devant x aussi, à la ligne où il passe en
 division ; et à la forme G, le terme en x de droite part PAR-DESSOUS vers
 le x de gauche, comme sur la fiche. Les dénominateurs se colorent comme sur
@@ -191,7 +191,7 @@ la fiche : or pour le terme déplacé, olive pour l'autre. La fiche ne montre
 aucune accolade : ce sont les cercles et les flèches qui la portent.
 L'équation de l'élève n'est pas entourée (la fiche ne l'entoure pas).
 
-**Sept formes, une par question, dans l'ordre de la fiche** (`EQF_ORDRE`) :
+**Sept formes, une par question, dans l'ordre de la fiche** (`EQM_ORDRE`) :
 A x + a/b = c/b ; B x + a/b = c/d ; C (a/b)x = c/d ; D (a/b)x + c/d = e/d ;
 E (a/b)x + c/d = e/f ; F (−a/b)x − c/d = e/f ; G (a/b)x ± c/d = (e/f)x + g/h.
 Les trois premières ont les cases de la fiche ; les quatre suivantes (« Avec
@@ -199,15 +199,15 @@ des cases aussi », que la fiche laisse en pointillés) ont des cases posées de
 la même façon, ligne du modèle par ligne du modèle. Sept questions, réglables
 par le devoir (`dmNbQuestions(7)` : au-delà de 7, les formes recommencent).
 
-**Une seule fonction écrit les lignes** (`eqfLignes(q, modele)`), pour le
+**Une seule fonction écrit les lignes** (`eqmLignes(q, modele)`), pour le
 modèle et pour l'élève : chaque nombre y est DONNÉ (écrit), une CASE (jugée)
 ou un MIROIR. Le modèle ne peut pas diverger de l'exercice, et le poids d'une
-question (`eqfCases`) se lit sans écran, pour la coupe d'un devoir.
+question (`eqmCases`) se lit sans écran, pour la coupe d'un devoir.
 
 **La même case en dessous se remplit toute seule.** Un miroir est la même
 valeur qu'une case déjà écrite plus haut — ou plus à gauche sur la même ligne
 (« = 5/4 × … » recopie le 5/4 de « 5/4 ÷ … ») : `<input readonly
-class="dq-mirror" data-src>`, recopié à chaque frappe (`eqfMiroirs`), hors
+class="dq-mirror" data-src>`, recopié à chaque frappe (`eqmMiroirs`), hors
 note et hors de la confirmation des cases vides comme toute `.dq-mirror`, le
 focus qui y arrive passe à la case suivante — comme la retenue qui redescend.
 Après la vérification, le miroir d'une source FAUSSE prend la correction
@@ -233,7 +233,7 @@ forme F ; à la forme G, le coefficient regroupé (a/b − e/f) est positif et
 le membre de droite non nul.
 
 **La largeur.** Côte à côte au-delà de 980 px ; en dessous, le modèle
-au-dessus de l'équation. Sur téléphone, `eqfAjuster()` descend la police de
+au-dessus de l'équation. Sur téléphone, `eqmAjuster()` descend la police de
 chaque colonne jusqu'à ce que sa plus longue ligne tienne, avec un plancher
 (13 px au modèle, 16 px aux cases de l'élève) : au-delà, la colonne défile en
 largeur, et se prend au clavier (`tabindex`).
