@@ -252,13 +252,89 @@ le dit si l'élève en ajoute un. Le pourquoi du résultat rappelle que c'est le
 même nombre qu'au a) ; une copie juste affiche la vérification
 (« 2 × 3 − 6 = 6 − 6 = 0 »).
 
-## {equation-resoudre-deux-membres} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.4, novembre 2026)
+## {equation-fractions-modeles} — résoudre une équation à fractions comme le modèle (Seconde, 9.4, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche papier « 203 » (deux
+pages, « Modèles » | « Résoudre comme les modèles ») : « faire un exercice
+comme le pdf, il faudra des flèches et les termes entourés et des accolades
+comme sur le pdf ; quand une case est remplie et que c'est la même en
+dessous, la compléter automatiquement ; voir les exemples si possible à côté
+sur la même ligne comme sur le pdf ; après les 3 premières questions du pdf,
+je te laisse mettre des cases de la même façon pour les questions
+suivantes ». Kind `eqm`, ajouté après le 9.3 : rien n’est renuméroté.
+
+**La page suit la fiche.** Deux colonnes : à gauche le MODÈLE, avec les
+nombres de la fiche, toujours les mêmes ; à droite l'équation de l'élève,
+résolue ligne à ligne EN FACE de la ligne du modèle — `eqmAligner()` donne à
+chaque ligne des deux colonnes la hauteur de la plus haute des deux. Dans le
+modèle, le terme déplacé est entouré de pointillés et une flèche courbe en
+pointillés le porte après le membre de droite (`eqmTracer()`, mesuré après
+rendu comme au 9.1) ; le facteur devant x aussi, à la ligne où il passe en
+division ; et à la forme G, le terme en x de droite part PAR-DESSOUS vers
+le x de gauche, comme sur la fiche. Les dénominateurs se colorent comme sur
+la fiche : or pour le terme déplacé, olive pour l'autre. La fiche ne montre
+aucune accolade : ce sont les cercles et les flèches qui la portent.
+L'équation de l'élève n'est pas entourée (la fiche ne l'entoure pas).
+
+**Sept formes, une par question, dans l'ordre de la fiche** (`EQM_ORDRE`) :
+A x + a/b = c/b ; B x + a/b = c/d ; C (a/b)x = c/d ; D (a/b)x + c/d = e/d ;
+E (a/b)x + c/d = e/f ; F (−a/b)x − c/d = e/f ; G (a/b)x ± c/d = (e/f)x + g/h.
+Les trois premières ont les cases de la fiche ; les quatre suivantes (« Avec
+des cases aussi », que la fiche laisse en pointillés) ont des cases posées de
+la même façon, ligne du modèle par ligne du modèle. Sept questions, réglables
+par le devoir (`dmNbQuestions(7)` : au-delà de 7, les formes recommencent).
+
+**Une seule fonction écrit les lignes** (`eqmLignes(q, modele)`), pour le
+modèle et pour l'élève : chaque nombre y est DONNÉ (écrit), une CASE (jugée)
+ou un MIROIR. Le modèle ne peut pas diverger de l'exercice, et le poids d'une
+question (`eqmCases`) se lit sans écran, pour la coupe d'un devoir.
+
+**La même case en dessous se remplit toute seule.** Un miroir est la même
+valeur qu'une case déjà écrite plus haut — ou plus à gauche sur la même ligne
+(« = 5/4 × … » recopie le 5/4 de « 5/4 ÷ … ») : `<input readonly
+class="dq-mirror" data-src>`, recopié à chaque frappe (`eqmMiroirs`), hors
+note et hors de la confirmation des cases vides comme toute `.dq-mirror`, le
+focus qui y arrive passe à la case suivante — comme la retenue qui redescend.
+Après la vérification, le miroir d'une source FAUSSE prend la correction
+écrite à côté d'elle. Le multiplicateur du dénominateur (7×3 / 5×3) n'est
+PAS un miroir de celui du numérateur : « le même nombre en haut et en bas »
+est justement ce qu'il faut apprendre.
+
+**Le juge.** Une case de nombre attend son entier (« − », « – », « - » se
+valent) ; un signe accepte « - », « * », « x », « : », « / ». Une fraction
+marquée `jv` — un résultat, un inverse — se juge À SA VALEUR, les deux cases
+ensemble : 8/6 vaut 4/3, 136/−45 vaut −136/45, et l'élève qui simplifie n'est
+pas compté faux. Ailleurs, chaque case attend SON nombre : les cases de
+« 21/15 − 10/15 » attendent le dénominateur commun 15, pas une fraction égale.
+Comme la fiche, le modèle ne simplifie pas (24/15, 136/−45), sauf le dernier
+résultat de la forme G (228/20 = 57/5, écrit sur la fiche).
+
+**Le tirage.** Des fractions IRRÉDUCTIBLES partout (a/b … g/h, lues par le
+contrôle universel des fractions de départ, l'identifiant contient
+« fraction »), jamais les nombres du modèle ; dénominateurs différents
+premiers entre eux de 2 à 7 (le dénominateur commun est leur produit, comme
+dans le modèle) ; résultats intermédiaires positifs sauf le facteur de la
+forme F ; à la forme G, le coefficient regroupé (a/b − e/f) est positif et
+le membre de droite non nul.
+
+**La largeur.** Côte à côte au-delà de 980 px ; en dessous, le modèle
+au-dessus de l'équation. Sur téléphone, `eqmAjuster()` descend la police de
+chaque colonne jusqu'à ce que sa plus longue ligne tienne, avec un plancher
+(13 px au modèle, 16 px aux cases de l'élève) : au-delà, la colonne défile en
+largeur, et se prend au clavier (`tabindex`).
+
+**Éprouvé dans Chromium** : une copie juste tapée au clavier sur les sept
+formes, le résultat final remplacé par une fraction égale non simplifiée —
+toutes les cases bleues, 10/10, chaque miroir rempli ; une copie fausse et
+trouée — la correction verte dans les cases vides, les miroirs qui suivent.
+
+## {equation-resoudre-deux-membres} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.5, novembre 2026)
 
 **D'où il vient.** Demande de Turquet, sur la fiche des exercices 2 et 3
 (6x − 1 = 15 − 2x, puis −1 + 6x = −2x + 15) : « faire un exercice comme le
 pdf, il faudra des flèches et des accolades comme sur le pdf ; quand une case
 est remplie et que c'est la même en dessous, la compléter automatiquement ».
-Kind `eqm`, ajouté après le 9.3 (`eqf`, ax − b = 0 pas à pas, fusionné le même jour sous l’identifiant que ce travail portait d’abord) : rien n’est renuméroté.
+Kind `eqb`, ajouté après le 9.4 (`eqm`, les équations à fractions) et le 9.3 (`eqf`, ax − b = 0 pas à pas), tous deux fusionnés le même jour sous l’identifiant que ce travail portait d’abord) : rien n’est renuméroté.
 
 **La page suit la fiche**, six lignes « Donc : » alignées sur le « = » :
 l'équation, ses deux termes qui vont changer de côté ENTOURÉS dès le départ
@@ -270,17 +346,17 @@ s'il était en fin de membre (exercice 2), AVANT s'il était en tête
 (exercice 3) —, une ACCOLADE bleue sous chaque membre ; puis « [case] x =
 [case] » ; puis « A × x = C », le facteur entouré ; enfin « x = C / [case] =
 [case] ». Une flèche en pointillés part de chaque terme entouré vers la case
-où il arrive (`eqmTracer`, un seul SVG sur la grille, refait au
+où il arrive (`eqbTracer`, un seul SVG sur la grille, refait au
 redimensionnement, quand les polices arrivent, à chaque frappe) : par le haut
 pour les deux déplacements, par le côté pour le dénominateur, comme sur la
-fiche. Les accolades sont en CSS (`.eqm-acc`, `::before` et `::after`) : elles
+fiche. Les accolades sont en CSS (`.eqb-acc`, `::before` et `::after`) : elles
 suivent la largeur du membre sans rien mesurer.
 
 **« Compléter automatiquement » : les miroirs.** Le nombre déplacé à la
 ligne 2 se recopie à la ligne 3, A et C de la ligne 4 se recopient à la
 ligne 5, et C au numérateur de la ligne 6. Ce ne sont pas des cases : des
-`span.eqm-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
-et recopient la case source à chaque frappe (`eqmMiroirs`) — et deux fois
+`span.eqb-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
+et recopient la case source à chaque frappe (`eqbMiroirs`) — et deux fois
 après le rendu, parce que `restoreBoxes()` remet les valeurs d'une pause sans
 lever d'événement. Après la vérification, un miroir dont la source est fausse
 recopie la bonne réponse, en vert. Le dénominateur, lui, reste une case :
@@ -292,7 +368,7 @@ une fois sur quatre), une solution entière non nulle de −10 à 10, |a| et |d|
 de 2 à 9, |b| ≤ 15, |c| ≤ 30, par `distincte()` sur (a, b, c, d, ordres).
 Cinq questions, réglables par le devoir (`dmNbQuestions`).
 
-**Le juge.** Six cases par question (`eqmCases`). Le nombre déplacé exige son
+**Le juge.** Six cases par question (`eqbCases`). Le nombre déplacé exige son
 signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
 s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
 Les autres cases sont des entiers relatifs.
