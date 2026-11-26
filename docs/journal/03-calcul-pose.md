@@ -453,7 +453,7 @@ séance est tirée vingt fois. Éprouvé par sabotage — `txt` retiré : « 128
 séances avec un doublon ». Le piège vaut pour tout exercice futur : un
 champ de question nommé `v` est invisible à `distincte()`.
 
-## {bonhomme-relatifs} : le bonhomme sur l'axe (1.9, novembre 2026, v738)
+## {bonhomme-relatifs} : le bonhomme sur l'axe (1.9, novembre 2026, v739)
 
 Demandé par Turquet : une somme de deux entiers relatifs non nuls, et un
 bonhomme qui part de 0 sur un axe gradué — il **avance** pour un nombre
