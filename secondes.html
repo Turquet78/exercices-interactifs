@@ -67737,7 +67737,9 @@ function cgvGen(){
   /* repli — jamais atteint en pratique */
   return {a:[3,8], b:[16,13], c:[12,3], g0:[5,3], g:null, ap:null, bp:null, cp:null};
 }
-function cgvBuildQuestions(){ return distinctes(dmNbQuestions(CGV_NB), function(){ return cgvGen(); }); }
+/* la clé : le TRIANGLE seul — la place de départ de G (g0), tirée avec lui,
+   faisait passer pour neuves deux questions au même triangle */
+function cgvBuildQuestions(){ return distinctes(dmNbQuestions(CGV_NB), function(){ return cgvGen(); }, function(q){ return JSON.stringify([q.a,q.b,q.c]); }); }
 function cgvCases(q){ return ['cgv-g','cgv-ch']; }
 /* Les trois flèches bout à bout : la deuxième part de la fin de la première,
    la troisième de la fin de la deuxième, dans l'ordre que l'élève veut ;
