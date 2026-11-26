@@ -251,3 +251,122 @@ attend le nombre seul : le signe « + » ou « − » est déjà écrit, et le p
 le dit si l'élève en ajoute un. Le pourquoi du résultat rappelle que c'est le
 même nombre qu'au a) ; une copie juste affiche la vérification
 (« 2 × 3 − 6 = 6 − 6 = 0 »).
+
+## {equation-fractions-modeles} — résoudre une équation à fractions comme le modèle (Seconde, 9.4, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche papier « 203 » (deux
+pages, « Modèles » | « Résoudre comme les modèles ») : « faire un exercice
+comme le pdf, il faudra des flèches et les termes entourés et des accolades
+comme sur le pdf ; quand une case est remplie et que c'est la même en
+dessous, la compléter automatiquement ; voir les exemples si possible à côté
+sur la même ligne comme sur le pdf ; après les 3 premières questions du pdf,
+je te laisse mettre des cases de la même façon pour les questions
+suivantes ». Kind `eqm`, ajouté après le 9.3 : rien n’est renuméroté.
+
+**La page suit la fiche.** Deux colonnes : à gauche le MODÈLE, avec les
+nombres de la fiche, toujours les mêmes ; à droite l'équation de l'élève,
+résolue ligne à ligne EN FACE de la ligne du modèle — `eqmAligner()` donne à
+chaque ligne des deux colonnes la hauteur de la plus haute des deux. Dans le
+modèle, le terme déplacé est entouré de pointillés et une flèche courbe en
+pointillés le porte après le membre de droite (`eqmTracer()`, mesuré après
+rendu comme au 9.1) ; le facteur devant x aussi, à la ligne où il passe en
+division ; et à la forme G, le terme en x de droite part PAR-DESSOUS vers
+le x de gauche, comme sur la fiche. Les dénominateurs se colorent comme sur
+la fiche : or pour le terme déplacé, olive pour l'autre. La fiche ne montre
+aucune accolade : ce sont les cercles et les flèches qui la portent.
+L'équation de l'élève n'est pas entourée (la fiche ne l'entoure pas).
+
+**Sept formes, une par question, dans l'ordre de la fiche** (`EQM_ORDRE`) :
+A x + a/b = c/b ; B x + a/b = c/d ; C (a/b)x = c/d ; D (a/b)x + c/d = e/d ;
+E (a/b)x + c/d = e/f ; F (−a/b)x − c/d = e/f ; G (a/b)x ± c/d = (e/f)x + g/h.
+Les trois premières ont les cases de la fiche ; les quatre suivantes (« Avec
+des cases aussi », que la fiche laisse en pointillés) ont des cases posées de
+la même façon, ligne du modèle par ligne du modèle. Sept questions, réglables
+par le devoir (`dmNbQuestions(7)` : au-delà de 7, les formes recommencent).
+
+**Une seule fonction écrit les lignes** (`eqmLignes(q, modele)`), pour le
+modèle et pour l'élève : chaque nombre y est DONNÉ (écrit), une CASE (jugée)
+ou un MIROIR. Le modèle ne peut pas diverger de l'exercice, et le poids d'une
+question (`eqmCases`) se lit sans écran, pour la coupe d'un devoir.
+
+**La même case en dessous se remplit toute seule.** Un miroir est la même
+valeur qu'une case déjà écrite plus haut — ou plus à gauche sur la même ligne
+(« = 5/4 × … » recopie le 5/4 de « 5/4 ÷ … ») : `<input readonly
+class="dq-mirror" data-src>`, recopié à chaque frappe (`eqmMiroirs`), hors
+note et hors de la confirmation des cases vides comme toute `.dq-mirror`, le
+focus qui y arrive passe à la case suivante — comme la retenue qui redescend.
+Après la vérification, le miroir d'une source FAUSSE prend la correction
+écrite à côté d'elle. Le multiplicateur du dénominateur (7×3 / 5×3) n'est
+PAS un miroir de celui du numérateur : « le même nombre en haut et en bas »
+est justement ce qu'il faut apprendre.
+
+**Le juge.** Une case de nombre attend son entier (« − », « – », « - » se
+valent) ; un signe accepte « - », « * », « x », « : », « / ». Une fraction
+marquée `jv` — un résultat, un inverse — se juge À SA VALEUR, les deux cases
+ensemble : 8/6 vaut 4/3, 136/−45 vaut −136/45, et l'élève qui simplifie n'est
+pas compté faux. Ailleurs, chaque case attend SON nombre : les cases de
+« 21/15 − 10/15 » attendent le dénominateur commun 15, pas une fraction égale.
+Comme la fiche, le modèle ne simplifie pas (24/15, 136/−45), sauf le dernier
+résultat de la forme G (228/20 = 57/5, écrit sur la fiche).
+
+**Le tirage.** Des fractions IRRÉDUCTIBLES partout (a/b … g/h, lues par le
+contrôle universel des fractions de départ, l'identifiant contient
+« fraction »), jamais les nombres du modèle ; dénominateurs différents
+premiers entre eux de 2 à 7 (le dénominateur commun est leur produit, comme
+dans le modèle) ; résultats intermédiaires positifs sauf le facteur de la
+forme F ; à la forme G, le coefficient regroupé (a/b − e/f) est positif et
+le membre de droite non nul.
+
+**La largeur.** Côte à côte au-delà de 980 px ; en dessous, le modèle
+au-dessus de l'équation. Sur téléphone, `eqmAjuster()` descend la police de
+chaque colonne jusqu'à ce que sa plus longue ligne tienne, avec un plancher
+(13 px au modèle, 16 px aux cases de l'élève) : au-delà, la colonne défile en
+largeur, et se prend au clavier (`tabindex`).
+
+**Éprouvé dans Chromium** : une copie juste tapée au clavier sur les sept
+formes, le résultat final remplacé par une fraction égale non simplifiée —
+toutes les cases bleues, 10/10, chaque miroir rempli ; une copie fausse et
+trouée — la correction verte dans les cases vides, les miroirs qui suivent.
+
+## {equation-resoudre-rediger} — résoudre ax + b = cx + d en rédigeant les étapes (Seconde, 9.5, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche papier « équation 2 » :
+« faire un exercice comme le pdf, il faudra des flèches et les termes entourés
+et des accolades comme sur le pdf ; quand une case est remplie et que c'est la
+même en dessous, la compléter automatiquement ». Kind `eqe`, ajouté après le
+9.4 : rien n'est renuméroté.
+
+**La page suit la fiche, ligne par ligne**, dans une grille à quatre colonnes
+(étiquette « Donc : », membre de gauche, « = », membre de droite) :
+l'équation, où le nombre du membre de gauche et le terme en x du membre de
+droite sont entourés en pointillés ; puis « [ ] + 12x = + 30 [ ] » — le terme
+en x déplacé à GAUCHE, devant le terme en x qui reste, le nombre déplacé à
+DROITE, après le nombre qui reste —, une accolade bleue sous chaque membre ;
+puis « Donc : [ ] x = [ ] » ; puis « Donc : x = fraction = [ ] ». Les deux
+flèches en pointillés de la fiche sont tracées en SVG par `eqeTracer()`, qui
+mesure les termes entourés et les cases d'arrivée : le terme en x part par le
+HAUT vers la case de gauche, le nombre part par le BAS vers la case de
+droite. Elles se refont au redimensionnement et quand les polices arrivent.
+
+**La fraction se recopie toute seule.** Son numérateur est le nombre de droite
+de la ligne du dessus, son dénominateur le facteur de x : ce ne sont pas des
+cases mais des reflets (`span.eqe-mir`), qui ne se notent pas, recopient leur
+case à chaque frappe (et après la reprise d'une pause, qui remet les saisies
+sans lever « input »), puis en prennent la couleur à la vérification (classes
+à eux, que `ptsEcran` ne lit pas). Une case fausse corrigée (la bonne réponse
+en vert à côté) passe sa correction dans la fraction, en vert : c'est la
+fraction juste qui mène à la solution écrite.
+
+**Le juge.** Cinq cases par question. Le terme en x déplacé est le PREMIER de
+son membre : « 4x » vaut « +4x », « x » vaut « 1x », « × » et « * » sont
+ignorés. Le nombre déplacé vient APRÈS le nombre gardé : son signe fait partie
+de la réponse, et le message le dit s'il manque. Le facteur, le nombre réduit
+et la solution sont des entiers relatifs.
+
+**Le tirage.** Les deux équations de la fiche d'abord (12x − 2 = 4x + 30, puis
+1 − 11x = 15 − 4x — l'énoncé de la fiche porte un « + 15 » de trop, coquille
+non reprise) ; puis A = a − c de ±2 à ±9 (jamais ±1), une solution entière non
+nulle de −10 à 10, |a|, |c| ≤ 15, |b|, |d| ≤ 30, aucun terme nul, et l'ordre
+de chaque membre tiré (ax + b ou b + ax). Six questions, réglables par le
+devoir, `distincte()` sur (a, b, c, d). Le bouton des tables reste offert :
+32 / 8 se calcule.
