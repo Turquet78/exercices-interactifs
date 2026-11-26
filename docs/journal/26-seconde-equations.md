@@ -142,3 +142,27 @@ rétrécir avec elle. Mesuré sur un téléphone de 390 px : 9 termes en 12,6 px
 
 **La vérification finale** remplace x dans l'équation de DÉPART, membre par
 membre : « à gauche, 5 × 4 − 4 = 16 ; à droite, 2 × 4 + 8 = 16 ».
+
+### Puis deux termes côte à côte se regroupent d'un clic, dans un cadre vert (v733, novembre 2026)
+
+**La demande**, sur une capture de « 9x = −6 − 21 » : « il ne propose pas de
+regrouper deux termes côte à côte compatibles ; le faire comme quand on
+calcule la division à la fin, qui est en vert ». Le regroupement existait,
+mais par un geste qu'on ne voit pas — poser un terme SUR un autre.
+
+**Le cadre.** Dans chaque membre, deux termes voisins de la même sorte (avec x,
+ou sans x) sont enveloppés d'un cadre vert (`.eqd-paire`, les couleurs de la
+fraction cliquable) ; les paires se prennent de gauche à droite sans se
+chevaucher (`eqdPaires`) : trois nombres de suite font une paire, le
+troisième attend la suivante. Un clic sur le cadre — ou sur l'un de ses deux
+termes, ou Entrée quand il a le focus — les additionne (`eqdCliquePaire`),
+signes compris ; une somme nulle disparaît. La phrase sous l'équation le
+propose dès qu'un cadre est à l'écran. Le facteur, lui, ne s'encadre jamais :
+dans l'équation réduite, il n'y a plus de paire.
+
+**Le piège évité.** Un terme d'une paire reste prenable au glisser : après un
+glisser, le navigateur envoie quand même un « click » quand le pointeur est
+lâché sur l'élément de départ — un glisser raté (lâché hors de l'équation)
+aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
+un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
+Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
