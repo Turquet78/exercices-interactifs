@@ -167,13 +167,98 @@ aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
 un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
 Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
 
-## {equation-resoudre-etapes} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.3, novembre 2026)
+### Puis rien ne se regroupe au départ, et chaque geste écrit une ligne d'étape (v734, novembre 2026)
+
+**La demande.** « Je veux qu'il n'y ait jamais de termes qui puissent se
+regrouper au départ dans l'équation. On peut mettre des termes en x dans le
+membre de droite. Passer à la ligne quand un déplacement est effectué, pour
+faire afficher les étapes. »
+
+**Le tirage.** Chaque membre de départ porte AU PLUS un terme en x et un
+nombre : rien ne se regroupe avant que l'élève ait déplacé un terme. Le « un
+terme de plus à chaque question » de la v732 ne pouvait donc plus durer
+au-delà de quatre termes ; la difficulté monte désormais par la forme
+(`EQD_FORMES`) : ax + b = 0, ax + b = c, ax = cx + d, ax + b = cx, puis
+ax + b = cx + d, l'ordre de chaque membre tiré à partir de la question 6.
+Les bornes de la v732 restent (sommes des valeurs absolues ≤ 30, solution
+entière non nulle, |A| ≥ 2). Éprouvé sur 300 séances : aucun membre de départ
+n'a deux termes de la même sorte.
+
+**Les étapes.** Chaque geste qui change l'écriture — déplacement, regroupement
+par dépôt ou par cadre vert, facteur posé — range l'équation d'avant dans
+`st.hist` (`eqdNoter`). L'écran devient une résolution écrite : les étapes en
+gris, ligne après ligne, la ligne vivante en dernier dans son cadre en
+pointillés, puis la fraction, puis « x = 4 » en bleu. Une seule grille
+(1fr | = | 1fr) porte toutes les lignes, si bien que les « = » s'alignent ;
+sa largeur suit son contenu (`max-width:100%`, sans `width`) : les deux colonnes
+prennent la largeur du plus large membre, le « = » reste au milieu. La zone
+de dépôt et le trait bleu se mesurent sur la ligne vivante seule
+(`eqdRangVivant`), jamais sur la grille entière.
+
+**Le piège rencontré.** `eqdAjuster()` comparait la largeur de l'équation à
+celle de la carte ; une grille à `width:100%` est toujours aussi large que la
+carte, et la police descendait à 11 px à chaque dessin. Sans `width`, et avec
+le test du débordement réel (`scrollWidth > clientWidth`), elle ne bouge plus
+que si l'équation déborde vraiment.
+
+**Un réglage au passage.** Le clic qui suit un glisser est ignoré pendant
+300 ms (500 ms en v733) : assez pour le « click » parasite que le navigateur
+envoie au lâcher, pas assez pour avaler le vrai clic d'un élève rapide.
+
+## {equation-resoudre-etapes} — résoudre ax − b = 0 pas à pas, comme sur la fiche (Seconde, 9.3, novembre 2026, v735)
+
+**D'où il vient.** Demande de Turquet, sur la fiche « Exercice 1 » (a) « Complète
+l'égalité pour qu'elle soit vraie : 2 × … − 6 = 0 », b) « Résoudre 2x − 6 = 0 »
+en quatre lignes) : « faire un exercice comme le pdf, il faudra des flèches et
+les termes entourés et des accolades comme sur le pdf ; quand une case est
+remplie et que c'est la même en dessous, la compléter automatiquement ». Kind
+`eqf`, ajouté après le 9.2 : rien n'est renuméroté.
+
+**La page suit la fiche.** a) l'égalité à trou « a × [ ] − b = 0 » ; b) la
+résolution, dans une grille à six colonnes (« Donc : », membre de gauche, « = »,
+membre de droite, « = », résultat) : « ax (− b) = 0 », le terme entouré de
+pointillés ; « ax = 0 + [ ] », sous une accolade bleue dont la pointe descend
+vers la ligne suivante ; « Donc : (ax) = [ ] », ax entouré ; « Donc : x =
+[ ]/[ ] = [ ] ». Deux flèches en pointillés : du terme entouré à la case de la
+ligne 2, et de « ax » entouré au dénominateur. Flèches et accolade sont un SVG
+posé par-dessus (`eqfTracer`, sur le modèle d'`eqrTracer`), qui lit les
+positions RENDUES et se retrace au redimensionnement, à l'arrivée des polices
+et après la correction (la case verte d'à côté décale l'accolade). La flèche
+du facteur part du bord gauche de « ax » (18 % de sa largeur) : partie du
+milieu, elle traversait le « x » de la ligne 4.
+
+**La recopie automatique** (`eqfMiroirs`) : une case dont la valeur attendue
+est celle de la case du dessus est un miroir (`.eqf-mir`, `.hors-note`, du
+texte en pointillés) — ni noté, ni réclamé par `#confirmer-vides`, recopié à
+chaque frappe, après la correction (sa couleur suit la case : bleu, rouge ou
+vert) et à la reprise d'une pause (`resumeTest` appelle `eqfMiroirs`, et le
+rendu se relit à 0 et 300 ms, après `restoreBoxes`). Pour « ax − b = 0 », la
+ligne 3 (0 + b = b) recopie la ligne 2 et le numérateur recopie la ligne 2 :
+l'élève écrit 4 cases. Pour « ax + b = 0 », « 0 − b » ne s'écrit pas comme
+« −b » : la ligne 3 est une vraie case, seul le numérateur la recopie (5 cases).
+Le miroir d'une case fausse recopie la faute : la correction verte est sur la
+case.
+
+**Le tirage.** a de 2 à 9, solution entière de 2 à 9 en valeur absolue,
+|b| = |a × s| ≤ 40 ; la première question est celle de la fiche (2x − 6 = 0),
+la deuxième est encore « ax − b = 0 », ensuite une sur deux en moyenne est
+« ax + b = 0 », de solution négative. `distincte()` sur (a, s), six questions
+réglables par le devoir (`dmNbQuestions(6)`). On range a et s, jamais les
+réponses (`eqfDonnees`).
+
+**Le juge.** Un entier par case (« − », « – », « - » se valent). La ligne 2
+attend le nombre seul : le signe « + » ou « − » est déjà écrit, et le pourquoi
+le dit si l'élève en ajoute un. Le pourquoi du résultat rappelle que c'est le
+même nombre qu'au a) ; une copie juste affiche la vérification
+(« 2 × 3 − 6 = 6 − 6 = 0 »).
+
+## {equation-resoudre-deux-membres} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.4, novembre 2026)
 
 **D'où il vient.** Demande de Turquet, sur la fiche des exercices 2 et 3
 (6x − 1 = 15 − 2x, puis −1 + 6x = −2x + 15) : « faire un exercice comme le
 pdf, il faudra des flèches et des accolades comme sur le pdf ; quand une case
 est remplie et que c'est la même en dessous, la compléter automatiquement ».
-Kind `eqf`, ajouté après le 9.2 : rien n'est renuméroté.
+Kind `eqm`, ajouté après le 9.3 (`eqf`, ax − b = 0 pas à pas, fusionné le même jour sous l’identifiant que ce travail portait d’abord) : rien n’est renuméroté.
 
 **La page suit la fiche**, six lignes « Donc : » alignées sur le « = » :
 l'équation, ses deux termes qui vont changer de côté ENTOURÉS dès le départ
@@ -185,17 +270,17 @@ s'il était en fin de membre (exercice 2), AVANT s'il était en tête
 (exercice 3) —, une ACCOLADE bleue sous chaque membre ; puis « [case] x =
 [case] » ; puis « A × x = C », le facteur entouré ; enfin « x = C / [case] =
 [case] ». Une flèche en pointillés part de chaque terme entouré vers la case
-où il arrive (`eqfTracer`, un seul SVG sur la grille, refait au
+où il arrive (`eqmTracer`, un seul SVG sur la grille, refait au
 redimensionnement, quand les polices arrivent, à chaque frappe) : par le haut
 pour les deux déplacements, par le côté pour le dénominateur, comme sur la
-fiche. Les accolades sont en CSS (`.eqf-acc`, `::before` et `::after`) : elles
+fiche. Les accolades sont en CSS (`.eqm-acc`, `::before` et `::after`) : elles
 suivent la largeur du membre sans rien mesurer.
 
 **« Compléter automatiquement » : les miroirs.** Le nombre déplacé à la
 ligne 2 se recopie à la ligne 3, A et C de la ligne 4 se recopient à la
 ligne 5, et C au numérateur de la ligne 6. Ce ne sont pas des cases : des
-`span.eqf-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
-et recopient la case source à chaque frappe (`eqfMiroirs`) — et deux fois
+`span.eqm-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
+et recopient la case source à chaque frappe (`eqmMiroirs`) — et deux fois
 après le rendu, parce que `restoreBoxes()` remet les valeurs d'une pause sans
 lever d'événement. Après la vérification, un miroir dont la source est fausse
 recopie la bonne réponse, en vert. Le dénominateur, lui, reste une case :
@@ -207,7 +292,7 @@ une fois sur quatre), une solution entière non nulle de −10 à 10, |a| et |d|
 de 2 à 9, |b| ≤ 15, |c| ≤ 30, par `distincte()` sur (a, b, c, d, ordres).
 Cinq questions, réglables par le devoir (`dmNbQuestions`).
 
-**Le juge.** Six cases par question (`eqfCases`). Le nombre déplacé exige son
+**Le juge.** Six cases par question (`eqmCases`). Le nombre déplacé exige son
 signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
 s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
 Les autres cases sont des entiers relatifs.
