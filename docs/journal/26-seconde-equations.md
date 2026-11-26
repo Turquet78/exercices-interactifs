@@ -327,3 +327,46 @@ largeur, et se prend au clavier (`tabindex`).
 formes, le résultat final remplacé par une fraction égale non simplifiée —
 toutes les cases bleues, 10/10, chaque miroir rempli ; une copie fausse et
 trouée — la correction verte dans les cases vides, les miroirs qui suivent.
+
+## {equation-resoudre-rediger} — résoudre ax + b = cx + d en rédigeant les étapes (Seconde, 9.5, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche papier « équation 2 » :
+« faire un exercice comme le pdf, il faudra des flèches et les termes entourés
+et des accolades comme sur le pdf ; quand une case est remplie et que c'est la
+même en dessous, la compléter automatiquement ». Kind `eqe`, ajouté après le
+9.4 : rien n'est renuméroté.
+
+**La page suit la fiche, ligne par ligne**, dans une grille à quatre colonnes
+(étiquette « Donc : », membre de gauche, « = », membre de droite) :
+l'équation, où le nombre du membre de gauche et le terme en x du membre de
+droite sont entourés en pointillés ; puis « [ ] + 12x = + 30 [ ] » — le terme
+en x déplacé à GAUCHE, devant le terme en x qui reste, le nombre déplacé à
+DROITE, après le nombre qui reste —, une accolade bleue sous chaque membre ;
+puis « Donc : [ ] x = [ ] » ; puis « Donc : x = fraction = [ ] ». Les deux
+flèches en pointillés de la fiche sont tracées en SVG par `eqeTracer()`, qui
+mesure les termes entourés et les cases d'arrivée : le terme en x part par le
+HAUT vers la case de gauche, le nombre part par le BAS vers la case de
+droite. Elles se refont au redimensionnement et quand les polices arrivent.
+
+**La fraction se recopie toute seule.** Son numérateur est le nombre de droite
+de la ligne du dessus, son dénominateur le facteur de x : ce ne sont pas des
+cases mais des reflets (`span.eqe-mir`), qui ne se notent pas, recopient leur
+case à chaque frappe (et après la reprise d'une pause, qui remet les saisies
+sans lever « input »), puis en prennent la couleur à la vérification (classes
+à eux, que `ptsEcran` ne lit pas). Une case fausse corrigée (la bonne réponse
+en vert à côté) passe sa correction dans la fraction, en vert : c'est la
+fraction juste qui mène à la solution écrite.
+
+**Le juge.** Cinq cases par question. Le terme en x déplacé est le PREMIER de
+son membre : « 4x » vaut « +4x », « x » vaut « 1x », « × » et « * » sont
+ignorés. Le nombre déplacé vient APRÈS le nombre gardé : son signe fait partie
+de la réponse, et le message le dit s'il manque. Le facteur, le nombre réduit
+et la solution sont des entiers relatifs.
+
+**Le tirage.** Les deux équations de la fiche d'abord (12x − 2 = 4x + 30, puis
+1 − 11x = 15 − 4x — l'énoncé de la fiche porte un « + 15 » de trop, coquille
+non reprise) ; puis A = a − c de ±2 à ±9 (jamais ±1), une solution entière non
+nulle de −10 à 10, |a|, |c| ≤ 15, |b|, |d| ≤ 30, aucun terme nul, et l'ordre
+de chaque membre tiré (ax + b ou b + ax). Six questions, réglables par le
+devoir, `distincte()` sur (a, b, c, d). Le bouton des tables reste offert :
+32 / 8 se calcule.
