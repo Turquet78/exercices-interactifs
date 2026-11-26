@@ -452,3 +452,35 @@ différents ont deux clés différentes (200 paires), et chaque longueur de
 séance est tirée vingt fois. Éprouvé par sabotage — `txt` retiré : « 128
 séances avec un doublon ». Le piège vaut pour tout exercice futur : un
 champ de question nommé `v` est invisible à `distincte()`.
+
+## {bonhomme-relatifs} : le bonhomme sur l'axe (1.9, novembre 2026, v739)
+
+Demandé par Turquet : une somme de deux entiers relatifs non nuls, et un
+bonhomme qui part de 0 sur un axe gradué — il **avance** pour un nombre
+positif, il **recule en marche arrière** pour un nombre négatif. « ▶
+Simulation » le fait marcher, le premier nombre puis le second ; l'élève
+écrit le résultat dans la case, avec ou sans simulation. Les nombres vont de
+−5 à 5 (d'abord −9 à 9, ramenés à −5 à 5 le jour même, à la demande de
+Turquet) ; l'axe va de −10 à 10, tous les résultats y tiennent.
+
+Kind `bhr`, en fin du thème 1. Une case par question, dix questions par
+`distinctes(dmNbQuestions(10), …)`. La question ne range que `a` et `b`. Le
+second nombre négatif s'écrit entre parenthèses : « −3 + (−4) ». La case
+lit « 3 », « +3 », « −3 », « -3 » et « (−3) » (`bhrLu`) ; elle porte
+`data-pave-plus="+"`, la correction n'écrit que le nombre.
+
+Le bonhomme regarde toujours vers les positifs : la visière de sa casquette
+et son œil le disent, et un « bip bip · marche arrière » s'affiche quand il
+recule. Avancer et reculer ont leurs encres propres (`--bhr-av` sarcelle,
+`--bhr-rc` orange) : ni bleu (juste), ni rouge (faux), ni vert (correction).
+Chaque déplacement se dessine sous l'axe par un arc fléché avec sa valeur ;
+la page n'écrit jamais le résultat, elle ne fait que poser le bonhomme sur
+la graduation.
+
+Une marche en cours s'arrête quand l'écran se redessine : un jeton
+(`test.bhrJeton`, un nombre, donc du JSON pour la pause) est relu à chaque
+image. Après une réponse fausse (hors soutien), la simulation se lance seule
+pour montrer le chemin ; une case laissée vide reçoit la correction en vert
+sans lancer la marche. Le retour dit si la question a été trouvée sans la
+simulation, et `given` le range (« (avec simulation) » / « (sans
+simulation) ») pour le professeur.

@@ -4750,6 +4750,7 @@ function exercices(suite){
     placerSurLaDroite(w, P);
     ordreCroissant(w, P);
     nombresRelatifs(w, P);
+    bonhommeRelatifs(w, P);
     additionnerRelatifs(w, P);
     associerExpressions(w, P);
     multiplierRelatifs(w, P);
@@ -25873,6 +25874,59 @@ function nombresRelatifs(w, P){
     if(peint('rgp-m-0')!=='rouge' || peint('rgp-n-0')!=='vert' || peint('rgp-s-0')!=='rien')
       vus.push('soutien en direct : '+peint('rgp-m-0')+' / '+peint('rgp-n-0')+' / '+peint('rgp-s-0'));
     currentMode='train';
+    return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {bonhomme-relatifs} — le bonhomme sur l'axe (1.9, Calcul mental).
+   Le tirage : a et b entiers de −5 à 5, jamais nuls, dix paires distinctes.
+   La lecture de la case (« +3 », « −3 », « -3 », « (−3) »), puis la
+   correction par le bouton : juste, fausse, vide, soutien. */
+function bonhommeRelatifs(w, P){
+  const present = evaluer(w, "typeof startBhr==='function' && typeof bhrBuildQuestions==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le bonhomme sur l\'axe : relatifs de −5 à 5 non nuls, la case lue avec son signe, la correction',
+      'ce niveau n\'a pas l\'exercice du bonhomme');
+    return;
+  }
+  verifierEval(w, 'le bonhomme sur l\'axe : relatifs de −5 à 5 non nuls, la case lue avec son signe, la correction', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='bonhomme-relatifs';
+    if(TEST_NUM['bonhomme-relatifs']!=='1.9') vus.push('numéro '+TEST_NUM['bonhomme-relatifs']+' au lieu de 1.9');
+    if(TABLES_SANS.indexOf('bonhomme-relatifs')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    for(let s=0;s<300 && !vus.length;s++){
+      const qs=bhrBuildQuestions();
+      if(qs.length!==10){ vus.push(qs.length+' questions au lieu de 10'); break; }
+      if(new Set(qs.map(function(q){ return q.a+','+q.b; })).size!==10) vus.push('deux questions ont la même paire');
+      qs.forEach(function(q){
+        if(Object.keys(q).sort().join(',')!=='a,b') vus.push('la question porte autre chose que a et b');
+        [q.a,q.b].forEach(function(n){ if(!(Number.isInteger(n) && n>=-5 && n<=5 && n!==0)) vus.push('nombre hors de −5..5 ou nul : '+n); });
+      });
+    }
+    const lu=function(v){ return bhrLu({value:v}); };
+    [['+3','3'],['3','3'],['\\u22123','-3'],['-3','-3'],['(\\u22123)','-3'],[' 0 ','0']].forEach(function(c){ if(lu(c[0])!==c[1]) vus.push('« '+c[0]+' » lu '+lu(c[0])); });
+    if(bhrEcrit({a:-3,b:-4})!=='\\u22123 + (\\u22124)') vus.push('écriture : '+bhrEcrit({a:-3,b:-4}));
+    startBhr();
+    if(!(document.getElementById('modeTagBhr')||{}).innerHTML) vus.push('le badge du mode est vide');
+    const poser=function(v){ test.locked=false; test.questions[test.idx]={a:-3,b:5}; renderBhrTest(); document.getElementById('bhr-r').value=v; };
+    const peint=function(){ const c=(document.getElementById('bhr-r')||{}).className||'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    poser('+2'); checkBhrAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || peint()!=='ok') vus.push('−3 + 5 = +2 n\\'est pas compté juste');
+    poser('8'); checkBhrAnswer();
+    der=test.answers[test.answers.length-1];
+    if(der && der.correct) vus.push('−3 + 5 = 8 est accepté');
+    if(peint()!=='bad') vus.push('la réponse fausse est peinte '+peint());
+    const fb=(document.getElementById('bhrFeedback')||{}).textContent||'';
+    if(!/recule de 3/.test(fb) || !/avance de 5/.test(fb) || !/= 2/.test(fb)) vus.push('le message n\\'explique pas le chemin : « '+fb+' »');
+    poser(''); checkBhrAnswer();
+    if(peint()!=='sol' || document.getElementById('bhr-r').value!=='2') vus.push('la case vide : '+peint()+' / '+document.getElementById('bhr-r').value);
+    currentMode='soutien';
+    poser('-8'); checkBhrAnswer(true);
+    if(peint()!=='bad') vus.push('soutien en direct : la réponse fausse est peinte '+peint());
+    currentMode='train';
+    test.bhrJeton=(test.bhrJeton||0)+1;
     return vus.slice(0,5).join(' | ');
   })()`, v => v === '', undefined);
 }
