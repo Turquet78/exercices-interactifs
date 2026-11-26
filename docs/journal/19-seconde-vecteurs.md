@@ -7376,7 +7376,7 @@ nommé, le soutien ; « 6 quadragies terdecies » (banc navigateur) — G gliss�
 de GA⃗, la copie juste, G porté au clic sur un mauvais nœud et sa correction
 verte.
 
-### Le point G : deux fois le même triangle dans une séance (correctif, v735, novembre 2026)
+### Le point G : deux fois le même triangle dans une séance (correctif, v737, novembre 2026)
 
 Le banc jsdom a rougi une fois sur 300 séances tirées : « deux fois le même
 triangle ». `distinctes()` comparait les questions par `cleQuestion`, qui lit
