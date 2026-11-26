@@ -370,3 +370,48 @@ nulle de −10 à 10, |a|, |c| ≤ 15, |b|, |d| ≤ 30, aucun terme nul, et l'or
 de chaque membre tiré (ax + b ou b + ax). Six questions, réglables par le
 devoir, `distincte()` sur (a, b, c, d). Le bouton des tables reste offert :
 32 / 8 se calcule.
+
+## {equation-resoudre-deux-membres} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.6, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche des exercices 2 et 3
+(6x − 1 = 15 − 2x, puis −1 + 6x = −2x + 15) : « faire un exercice comme le
+pdf, il faudra des flèches et des accolades comme sur le pdf ; quand une case
+est remplie et que c'est la même en dessous, la compléter automatiquement ».
+Kind `eqb`, ajouté après le 9.5 (`eqe`, ax + b = cx + d rédigée sur la fiche « équation 2 »), le 9.4 (`eqm`, les équations à fractions) et le 9.3 (`eqf`, ax − b = 0 pas à pas), tous trois fusionnés le même jour sous l’identifiant que ce travail portait d’abord) : rien n’est renuméroté.
+
+**La page suit la fiche**, six lignes « Donc : » alignées sur le « = » :
+l'équation, ses deux termes qui vont changer de côté ENTOURÉS dès le départ
+(le nombre de gauche et le terme en x de droite — demande de Turquet, le même
+jour : « il faudra aussi les termes entourés au départ ») ; puis
+« ax = (membre de droite) [case] », le nombre déplacé signe compris, et le
+terme en x de droite entouré ; puis le terme en x arrivé à gauche — APRÈS ax
+s'il était en fin de membre (exercice 2), AVANT s'il était en tête
+(exercice 3) —, une ACCOLADE bleue sous chaque membre ; puis « [case] x =
+[case] » ; puis « A × x = C », le facteur entouré ; enfin « x = C / [case] =
+[case] ». Une flèche en pointillés part de chaque terme entouré vers la case
+où il arrive (`eqbTracer`, un seul SVG sur la grille, refait au
+redimensionnement, quand les polices arrivent, à chaque frappe) : par le haut
+pour les deux déplacements, par le côté pour le dénominateur, comme sur la
+fiche. Les accolades sont en CSS (`.eqb-acc`, `::before` et `::after`) : elles
+suivent la largeur du membre sans rien mesurer.
+
+**« Compléter automatiquement » : les miroirs.** Le nombre déplacé à la
+ligne 2 se recopie à la ligne 3, A et C de la ligne 4 se recopient à la
+ligne 5, et C au numérateur de la ligne 6. Ce ne sont pas des cases : des
+`span.eqb-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
+et recopient la case source à chaque frappe (`eqbMiroirs`) — et deux fois
+après le rendu, parce que `restoreBoxes()` remet les valeurs d'une pause sans
+lever d'événement. Après la vérification, un miroir dont la source est fausse
+recopie la bonne réponse, en vert. Le dénominateur, lui, reste une case :
+c'est le geste que la flèche enseigne.
+
+**Le tirage.** Questions 1 et 2 : les deux exercices de la fiche. Ensuite
+l'ordre des termes de chaque membre au hasard, A = a − d de ±2 à ±9 (négatif
+une fois sur quatre), une solution entière non nulle de −10 à 10, |a| et |d|
+de 2 à 9, |b| ≤ 15, |c| ≤ 30, par `distincte()` sur (a, b, c, d, ordres).
+Cinq questions, réglables par le devoir (`dmNbQuestions`).
+
+**Le juge.** Six cases par question (`eqbCases`). Le nombre déplacé exige son
+signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
+s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
+Les autres cases sont des entiers relatifs.
