@@ -166,3 +166,50 @@ lâché sur l'élément de départ — un glisser raté (lâché hors de l'équa
 aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
 un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
 Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
+
+## {equation-resoudre-etapes} — résoudre ax − b = 0 pas à pas, comme sur la fiche (Seconde, 9.3, novembre 2026, v734)
+
+**D'où il vient.** Demande de Turquet, sur la fiche « Exercice 1 » (a) « Complète
+l'égalité pour qu'elle soit vraie : 2 × … − 6 = 0 », b) « Résoudre 2x − 6 = 0 »
+en quatre lignes) : « faire un exercice comme le pdf, il faudra des flèches et
+les termes entourés et des accolades comme sur le pdf ; quand une case est
+remplie et que c'est la même en dessous, la compléter automatiquement ». Kind
+`eqf`, ajouté après le 9.2 : rien n'est renuméroté.
+
+**La page suit la fiche.** a) l'égalité à trou « a × [ ] − b = 0 » ; b) la
+résolution, dans une grille à six colonnes (« Donc : », membre de gauche, « = »,
+membre de droite, « = », résultat) : « ax (− b) = 0 », le terme entouré de
+pointillés ; « ax = 0 + [ ] », sous une accolade bleue dont la pointe descend
+vers la ligne suivante ; « Donc : (ax) = [ ] », ax entouré ; « Donc : x =
+[ ]/[ ] = [ ] ». Deux flèches en pointillés : du terme entouré à la case de la
+ligne 2, et de « ax » entouré au dénominateur. Flèches et accolade sont un SVG
+posé par-dessus (`eqfTracer`, sur le modèle d'`eqrTracer`), qui lit les
+positions RENDUES et se retrace au redimensionnement, à l'arrivée des polices
+et après la correction (la case verte d'à côté décale l'accolade). La flèche
+du facteur part du bord gauche de « ax » (18 % de sa largeur) : partie du
+milieu, elle traversait le « x » de la ligne 4.
+
+**La recopie automatique** (`eqfMiroirs`) : une case dont la valeur attendue
+est celle de la case du dessus est un miroir (`.eqf-mir`, `.hors-note`, du
+texte en pointillés) — ni noté, ni réclamé par `#confirmer-vides`, recopié à
+chaque frappe, après la correction (sa couleur suit la case : bleu, rouge ou
+vert) et à la reprise d'une pause (`resumeTest` appelle `eqfMiroirs`, et le
+rendu se relit à 0 et 300 ms, après `restoreBoxes`). Pour « ax − b = 0 », la
+ligne 3 (0 + b = b) recopie la ligne 2 et le numérateur recopie la ligne 2 :
+l'élève écrit 4 cases. Pour « ax + b = 0 », « 0 − b » ne s'écrit pas comme
+« −b » : la ligne 3 est une vraie case, seul le numérateur la recopie (5 cases).
+Le miroir d'une case fausse recopie la faute : la correction verte est sur la
+case.
+
+**Le tirage.** a de 2 à 9, solution entière de 2 à 9 en valeur absolue,
+|b| = |a × s| ≤ 40 ; la première question est celle de la fiche (2x − 6 = 0),
+la deuxième est encore « ax − b = 0 », ensuite une sur deux en moyenne est
+« ax + b = 0 », de solution négative. `distincte()` sur (a, s), six questions
+réglables par le devoir (`dmNbQuestions(6)`). On range a et s, jamais les
+réponses (`eqfDonnees`).
+
+**Le juge.** Un entier par case (« − », « – », « - » se valent). La ligne 2
+attend le nombre seul : le signe « + » ou « − » est déjà écrit, et le pourquoi
+le dit si l'élève en ajoute un. Le pourquoi du résultat rappelle que c'est le
+même nombre qu'au a) ; une copie juste affiche la vérification
+(« 2 × 3 − 6 = 6 − 6 = 0 »).
