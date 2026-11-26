@@ -167,6 +167,43 @@ aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
 un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
 Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
 
+### Puis rien ne se regroupe au départ, et chaque geste écrit une ligne d'étape (v734, novembre 2026)
+
+**La demande.** « Je veux qu'il n'y ait jamais de termes qui puissent se
+regrouper au départ dans l'équation. On peut mettre des termes en x dans le
+membre de droite. Passer à la ligne quand un déplacement est effectué, pour
+faire afficher les étapes. »
+
+**Le tirage.** Chaque membre de départ porte AU PLUS un terme en x et un
+nombre : rien ne se regroupe avant que l'élève ait déplacé un terme. Le « un
+terme de plus à chaque question » de la v732 ne pouvait donc plus durer
+au-delà de quatre termes ; la difficulté monte désormais par la forme
+(`EQD_FORMES`) : ax + b = 0, ax + b = c, ax = cx + d, ax + b = cx, puis
+ax + b = cx + d, l'ordre de chaque membre tiré à partir de la question 6.
+Les bornes de la v732 restent (sommes des valeurs absolues ≤ 30, solution
+entière non nulle, |A| ≥ 2). Éprouvé sur 300 séances : aucun membre de départ
+n'a deux termes de la même sorte.
+
+**Les étapes.** Chaque geste qui change l'écriture — déplacement, regroupement
+par dépôt ou par cadre vert, facteur posé — range l'équation d'avant dans
+`st.hist` (`eqdNoter`). L'écran devient une résolution écrite : les étapes en
+gris, ligne après ligne, la ligne vivante en dernier dans son cadre en
+pointillés, puis la fraction, puis « x = 4 » en bleu. Une seule grille
+(1fr | = | 1fr) porte toutes les lignes, si bien que les « = » s'alignent ;
+sa largeur suit son contenu (`max-width:100%`, sans `width`) : les deux colonnes
+prennent la largeur du plus large membre, le « = » reste au milieu. La zone
+de dépôt et le trait bleu se mesurent sur la ligne vivante seule
+(`eqdRangVivant`), jamais sur la grille entière.
+
+**Le piège rencontré.** `eqdAjuster()` comparait la largeur de l'équation à
+celle de la carte ; une grille à `width:100%` est toujours aussi large que la
+carte, et la police descendait à 11 px à chaque dessin. Sans `width`, et avec
+le test du débordement réel (`scrollWidth > clientWidth`), elle ne bouge plus
+que si l'équation déborde vraiment.
+
+**Un réglage au passage.** Le clic qui suit un glisser est ignoré pendant
+300 ms (500 ms en v733) : assez pour le « click » parasite que le navigateur
+envoie au lâcher, pas assez pour avaler le vrai clic d'un élève rapide.
 ## {equation-resoudre-rediger} — résoudre ax + b = cx + d en rédigeant les étapes (Seconde, 9.3, novembre 2026)
 
 **D'où il vient.** Demande de Turquet, sur la fiche papier « équation 2 » :
