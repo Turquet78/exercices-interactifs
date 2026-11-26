@@ -99,3 +99,46 @@ la fin : en entraînement et en évaluation, la résolution s'écrit en vert
 (`.eqd-cor`) et la question compte fausse ; en soutien, la page dit l'étape
 suivante et attend. C'est aussi ce qui laisse le banc des notes mener
 l'exercice jusqu'à sa fin par « Vérifier », comme les autres.
+
+### Puis un terme de plus à chaque question, et les termes se regroupent (v732, novembre 2026)
+
+**La demande.** « Dans l'exercice 9.2, compliquer les résolutions au fur et à
+mesure en rajoutant un terme avec x ou sans x dans le membre de gauche ou de
+droite à chaque question. Il faudrait 8 questions. »
+
+**Le tirage.** `eqdFormes(n)` tire d'abord les FORMES : la question 1 est
+ax + b = 0, chaque question suivante reprend la forme de la précédente et y
+insère un terme — avec x ou sans x (le plus rare des deux a plus de chances),
+à gauche ou à droite, à une place tirée parmi les termes de ce membre. Puis
+`eqdNombres(forme, i)` remplit chaque forme de NOUVEAUX nombres : A (le
+coefficient de x une fois tout regroupé à gauche) de ±2 à ±9 (±6 à partir de
+la question 3), une solution entière non nulle de −10 à 10, B = −A × solution,
+et les coefficients répartis au hasard, le dernier calculé. Huit questions
+(`dmNbQuestions(8)`), de 2 à 9 termes. La question est rangée en `gi`, `di`
+(les deux membres de départ) et `s` (la solution) ; une séance tirée avant
+la v732 (a, b) se reprend telle quelle (`eqdDepart`).
+
+**Plus de 30 nulle part, quel que soit l'ordre des gestes.** La somme des
+valeurs absolues des coefficients en x ne dépasse pas 30, celle des nombres
+non plus : toute somme partielle, donc tout regroupement fait dans n'importe
+quel ordre, reste entre −30 et 30, et la fraction finale aussi. |A| ≥ 2 : le
+facteur à déplacer n'est jamais 1. Éprouvé sur 300 séances (2 400 questions) :
+nombre de termes, bornes, solution entière et distincte, aucune entorse.
+
+**Le regroupement.** Un terme lâché SUR un terme de la même sorte (avec x sur
+avec x, sans x sur sans x) s'y additionne : il change d'abord de signe s'il a
+changé de membre, puis la somme remplace la cible (surlignée en jaune pendant
+le glisser) ; une somme nulle disparaît — « + 3x et − 3x s'annulent ». La
+phrase sous l'équation dit les deux temps : « + 2x est passé de l'autre côté
+du « = » : il devient − 2x. + 5x et − 2x se regroupent : + 3x. » Lâché sur un
+terme de l'autre sorte, ou entre deux termes, il s'insère comme avant. Le
+facteur ne devient prenable que quand il ne reste qu'un terme de chaque côté.
+
+**La largeur.** Neuf termes ne tiennent pas en 2,1 rem : `eqdAjuster()` fait
+descendre la police de l'équation jusqu'à ce qu'elle tienne dans la carte,
+sans jamais revenir à la ligne, et les marges des étiquettes sont en em pour
+rétrécir avec elle. Mesuré sur un téléphone de 390 px : 9 termes en 12,6 px,
+300 px pour 322 disponibles ; sur ordinateur, la police ne bouge pas.
+
+**La vérification finale** remplace x dans l'équation de DÉPART, membre par
+membre : « à gauche, 5 × 4 − 4 = 16 ; à droite, 2 × 4 + 8 = 16 ».

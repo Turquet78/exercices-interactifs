@@ -2107,12 +2107,12 @@
   .eqd-enonce{font-size:1.15rem}
   .eqd-zone{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:6px 0 4px}
   .eqd-hist{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:"Fredoka";font-size:1.5rem;color:var(--ink-soft)}
-  .eqd-eq{position:relative;display:inline-flex;align-items:center;gap:.45em;padding:18px 26px;border:2px dashed #CBD5E1;border-radius:16px;background:#F8FAFC;
+  .eqd-eq{position:relative;display:inline-flex;align-items:center;gap:.3em;padding:.5em .7em;border:2px dashed #CBD5E1;border-radius:16px;background:#F8FAFC;
     font-family:"Fredoka";font-weight:600;font-size:2.1rem;color:var(--ink);white-space:nowrap;-webkit-user-select:none;user-select:none;touch-action:none}
-  .eqd-cote{display:inline-flex;align-items:center;gap:.3em;min-width:1.2em;justify-content:center}
+  .eqd-cote{display:inline-flex;align-items:center;gap:.22em;min-width:1.2em;justify-content:center}
   .eqd-zero{color:var(--ink-soft)}
   .eqd-egal{padding:0 .15em}
-  .eqd-t,.eqd-fac{display:inline-flex;align-items:center;gap:.18em;padding:2px 10px;border:2px solid #93C5FD;border-radius:12px;background:#fff;cursor:grab;touch-action:none;
+  .eqd-t,.eqd-fac{display:inline-flex;align-items:center;gap:.15em;padding:.04em .28em;border:2px solid #93C5FD;border-radius:12px;background:#fff;cursor:grab;touch-action:none;
     box-shadow:0 2px 0 #BFDBFE;transition:background .15s}
   .eqd-t:hover,.eqd-fac:hover{background:#EFF6FF}
   .eqd-fixe{cursor:default}
@@ -2121,8 +2121,9 @@
   .eqd-fac{border-color:#F59E0B;box-shadow:0 2px 0 #FCD34D;animation:eqdAppel 1.4s ease-in-out infinite}
   @keyframes eqdAppel{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   .eqd-parti{opacity:.25}
+  .eqd-vise{background:#FEF3C7;border-color:#F59E0B;box-shadow:0 0 0 3px #FDE68A}
   .eqd-fantome{position:fixed;z-index:9000;pointer-events:none;margin:0;font-family:"Fredoka";font-weight:600;font-size:2.1rem;color:var(--ink);
-    box-shadow:0 8px 18px rgba(15,23,42,.25);cursor:grabbing;white-space:nowrap}
+    box-shadow:0 8px 18px rgba(15,23,42,.25);cursor:grabbing;white-space:nowrap;opacity:.85}
   .eqd-curseur{position:absolute;width:4px;border-radius:2px;background:#2563EB;pointer-events:none}
   .eqd-sg-neuf{background:#FDE68A;border-radius:6px;padding:0 .1em;animation:eqdSigne 1.2s ease-out 1}
   @keyframes eqdSigne{0%{transform:scale(1.6)}100%{transform:scale(1)}}
@@ -2143,7 +2144,7 @@
     color:var(--green);font-family:"Fredoka";font-weight:600;font-size:1.35rem}
   .eqd-cor .eqd-num,.eqd-cor .eqd-den{font-size:1.2rem}
   .eqd-fr-in{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1}
-  @media(max-width:640px){ .eqd-eq,.eqd-fantome{font-size:1.6rem} .eqd-eq{padding:14px 14px} }
+  @media(max-width:640px){ .eqd-eq,.eqd-fantome{font-size:1.6rem} .eqd-eq{border-width:1.5px} }
   @media(max-width:520px){ .rel-regle .plc-sel{min-width:0;width:100%} .rel-bloc{padding:10px} }
   /* ---- Soustraire un relatif : additionner son opposé (thème Calcul littéral) ----
      La chaîne « +3 − (−2) = +3 + ( ? 2 ) = ? » est une égalité poursuivie : ses
@@ -9821,7 +9822,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=731;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=732;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -10680,7 +10681,7 @@ const TESTS={
   'reduire-somme': { name:'R\u00e9duire une somme de termes', icon:'\ud83d\udd24', desc:'R\u00e9duis si possible : 2x + 3x, 2x + 3, \u22122x\u00b2 + 3x\u00b2, \u22122x\u00b2 + 3x\u2026 On n\u2019additionne que des termes de m\u00eame nature \u2014 des x avec des x, des x\u00b2 avec des x\u00b2, des nombres avec des nombres.', start:()=>startRed() },
   'associer-expressions': { name:'Associer chaque expression \u00e0 son r\u00e9sultat', icon:'\ud83d\udd17', desc:'Quatre expressions \u2014 un carr\u00e9, un double, un nombre divis\u00e9 par lui-m\u00eame, un nombre moins lui-m\u00eame \u2014 \u00e0 associer \u00e0 leur r\u00e9sultat. Trois fois avec un nombre, puis trois fois avec une lettre \u2014 x, puis a, puis b.', start:()=>startAsx() },
   'equation-deplacer-terme': { name:'R\u00e8gle 1\u00a0: d\u00e9placer un terme de l\u2019autre c\u00f4t\u00e9 du \u00ab\u00a0=\u00a0\u00bb', icon:'\u2696\ufe0f', desc:'Une addition d\u00e9plac\u00e9e de l\u2019autre c\u00f4t\u00e9 du \u00ab\u00a0=\u00a0\u00bb devient une soustraction, et inversement\u00a0: la r\u00e8gle \u00e0 compl\u00e9ter, ses exemples anim\u00e9s, puis les op\u00e9rations \u00e0 trou et les m\u00eames \u00e9quations r\u00e9solues avec la r\u00e8gle.', start:()=>startEqr() },
-  'equation-resoudre-glisser': { name:'R\u00e9soudre ax\u00a0+\u00a0b\u00a0=\u00a00 en d\u00e9pla\u00e7ant les termes', icon:'\u270b', desc:'D\u00e9placer \u00e0 la souris le terme en x ou le nombre\u00a0: de l\u2019autre c\u00f4t\u00e9 du \u00ab\u00a0=\u00a0\u00bb, il change de signe. Puis d\u00e9placer le facteur au d\u00e9nominateur, et cliquer la fraction pour obtenir la solution.', start:()=>startEqd() },
+  'equation-resoudre-glisser': { name:'R\u00e9soudre une \u00e9quation en d\u00e9pla\u00e7ant les termes', icon:'\u270b', desc:'D\u00e9placer \u00e0 la souris les termes en x et les nombres\u00a0: de l\u2019autre c\u00f4t\u00e9 du \u00ab\u00a0=\u00a0\u00bb, ils changent de signe\u00a0; pos\u00e9s sur un terme de la m\u00eame sorte, ils se regroupent. Un terme de plus \u00e0 chaque question. Puis d\u00e9placer le facteur au d\u00e9nominateur, et cliquer la fraction pour obtenir la solution.', start:()=>startEqd() },
   'vecteurs-egaux-tableau': { name:'Vecteurs \u00e9gaux', icon:'\u27a1\ufe0f', desc:'Le tableau de la fiche \u2014 \u00e9galit\u00e9 de vecteurs, figure, configuration g\u00e9om\u00e9trique. Sur chaque ligne, une colonne est donn\u00e9e : choisis la bonne proposition, parmi trois, pour chacune des deux autres.', start:()=>startVgt() },
   'vecteurs-egaux': { name:'Vecteurs \u00e9gaux dans une figure', icon:'\u27a1\ufe0f', desc:'Une figure \u2014 un rectangle et ses milieux, un carr\u00e9, un triangle, un hexagone\u2026 \u2014 et des lignes \u00ab AB = \u2026 = \u2026 \u00bb, de 10 \u00e0 12 vecteurs \u00e0 trouver par figure\u00a0: retrouve tous les vecteurs de la figure \u00e9gaux \u00e0 celui qui ouvre la ligne. Attention au sens\u00a0: BA n\u2019est pas AB.', start:()=>startVeg() },
   'reduire-produit': { name:'R\u00e9duire un produit avec x', icon:'\ud83d\udd22', desc:'Quinze produits de deux facteurs \u2014 un nombre ou la lettre x, jamais x\u00b2. D\u2019abord case par case\u00a0: le signe, le coefficient, puis si \u00e7a se termine par x ou par x\u00b2. Puis directement le r\u00e9sultat r\u00e9duit.', start:()=>startRpd() },
@@ -13434,6 +13435,7 @@ const RAP_CVL=`<b>Calculer une expression pour une valeur de <i>x</i></b><br>
 const RAP_EQD=`<b>Résoudre une équation <i>a</i><i>x</i> + <i>b</i> = 0</b><br>
 <b>1. Déplacer un terme</b> : un terme qui passe <b>de l'autre côté du « = »</b> change de signe ; un terme qui reste du même côté garde son signe.<br>
 Exemple : 3<i>x</i> + 12 = 0 donne 3<i>x</i> = −12.<br>
+<b>Avec plus de termes</b>, on <b>regroupe</b> : les termes en <i>x</i> d'un côté, les nombres de l'autre. Exemple : 5<i>x</i> − 4 = 2<i>x</i> + 8 donne 5<i>x</i> − 2<i>x</i> = 8 + 4, soit 3<i>x</i> = 12.<br>
 <b>2. Déplacer le facteur</b> : dans 3<i>x</i> = −12, <i>x</i> est multiplié par 3. De l'autre côté du « = », la multiplication devient une <b>division</b> : le 3 va au <b>dénominateur</b>, <i>x</i> = \\(\\frac{-12}{3}\\).<br>
 <b>3. Calculer</b> : <i>x</i> = \\(\\frac{-12}{3}\\) = −4.<br>
 <b>Pour vérifier</b>, on remplace <i>x</i> par −4 : 3 × (−4) + 12 = −12 + 12 = 0, c'est juste.`;
@@ -90289,17 +90291,32 @@ function ctxEqr(q){
    Un facteur posé ailleurs qu'au dénominateur ne coûte rien : il est refusé,
    et la page dit pourquoi. */
 function eqdRel(v){ return v<0?'−'+(-v):String(v); }
+/* Les deux membres de départ : q.gi / q.di (v732 : un terme de plus à chaque
+   question), ou a, b des séances tirées avant — une pause d'hier se reprend. */
+function eqdDepart(q){
+  if(q.gi) return {g:q.gi, d:q.di||[]};
+  return {g:q.ordre2?[{t:'c',k:q.b},{t:'x',k:q.a}]:[{t:'x',k:q.a},{t:'c',k:q.b}], d:[]};
+}
 function eqdEtat(q){
-  if(!q.st) q.st={g:q.ordre2?[{t:'c',k:q.b},{t:'x',k:q.a}]:[{t:'x',k:q.a},{t:'c',k:q.b}], d:[], frac:null, fini:false, imp:0, coups:0};
+  if(!q.st){ const dp=eqdDepart(q); q.st={g:JSON.parse(JSON.stringify(dp.g)), d:JSON.parse(JSON.stringify(dp.d)), frac:null, fini:false, imp:0, coups:0}; }
   return q.st;
 }
+/* L'équation ramenée à A·x + B = 0 (tout à gauche) : A et B, sommes des coefficients. */
+function eqdAB(q){
+  const dp=eqdDepart(q); let A=0, B=0;
+  [['g',1],['d',-1]].forEach(function(c){ dp[c[0]].forEach(function(t){ if(t.t==='x') A+=c[1]*t.k; else B+=c[1]*t.k; }); });
+  return {A:A, B:B};
+}
+function eqdNbTermes(q){ const dp=eqdDepart(q); return dp.g.length+dp.d.length; }
+/* Un terme nommé dans une phrase, signe compris : « + 3x », « − x », « − 7 ». */
+function eqdLab(t, k){ const a=Math.abs(k); return (k<0?'− ':'+ ')+(t==='x'?(a===1?'':a)+'<i>x</i>':a); }
 /* Un terme écrit à sa place : le premier d'un membre n'a pas de « + ». */
 function eqdSigne(k, premier){ return premier ? (k<0?'−':'') : (k<0?'−':'+'); }
 function eqdVal(t){ return t.t==='x' ? (Math.abs(t.k)===1?'':Math.abs(t.k))+'<i>x</i>' : String(Math.abs(t.k)); }
 function eqdTexteTerme(t, premier){ const s=eqdSigne(t.k, premier); return (s?s+(premier?'':' '):'')+(t.t==='x'?(Math.abs(t.k)===1?'':Math.abs(t.k))+'x':Math.abs(t.k)); }
 function eqdTexteCote(l){ return l.length ? l.map(function(t,i){ return eqdTexteTerme(t, i===0); }).join(' ') : '0'; }
 function eqdTexteEq(st){ return eqdTexteCote(st.g)+' = '+eqdTexteCote(st.d); }
-function eqdTexteDepart(q){ return q.ordre2 ? eqdRel(q.b)+' '+(q.a<0?'− ':'+ ')+Math.abs(q.a)+'x = 0' : eqdRel(q.a)+'x '+(q.b<0?'− ':'+ ')+Math.abs(q.b)+' = 0'; }
+function eqdTexteDepart(q){ return eqdTexteEq(eqdDepart(q)); }
 /* x seul d'un côté (avec son coefficient), un nombre seul de l'autre : « ax = −b » ou « b = −ax ». */
 function eqdIsole(st){
   const g=st.g, d=st.d;
@@ -90326,11 +90343,13 @@ function eqdCoteHTML(st, cote, iso, flash){
   if(!l.length) return '<span class="eqd-cote" data-c="'+cote+'"><span class="eqd-zero">0</span></span>';
   return '<span class="eqd-cote" data-c="'+cote+'">'+l.map(function(t,i){ return eqdTermeHTML(t, cote, i, iso, flash); }).join('')+'</span>';
 }
-function eqdSol(q){ return -q.b/q.a; }
+function eqdSol(q){ if(typeof q.s==='number') return q.s; const ab=eqdAB(q); return -ab.B/ab.A; }
 function eqdMsg(html, non){ const m=$('eqdMsg'); if(!m) return; m.innerHTML=html; m.className='eqd-msg'+(non?' eqd-non':''); }
 function eqdMsgDepart(q){
-  return 'Fais glisser <b>'+eqdRel(q.a)+'<i>x</i></b> ou <b>'+(q.b<0?'− ':'+ ')+Math.abs(q.b)+'</b> où tu veux dans l’équation. '
-    +'S’il passe <b>de l’autre côté du « = »</b>, il <b>change de signe</b> ; s’il reste du même côté, il garde son signe.';
+  const plus=eqdNbTermes(q)>2;
+  return 'Fais glisser '+(plus?'un terme':'<b>'+eqdTexteTerme(eqdDepart(q).g[0], true).replace(/x/g,'<i>x</i>')+'</b> ou <b>'+eqdLab('c', eqdDepart(q).g[1].k)+'</b>')+' où tu veux dans l’équation. '
+    +'S’il passe <b>de l’autre côté du « = »</b>, il <b>change de signe</b> ; s’il reste du même côté, il garde son signe.'
+    +(plus?'<br>Pose-le <b>sur</b> un terme de la même sorte (avec <i>x</i>, ou sans <i>x</i>) pour les <b>regrouper</b>. Le but : les termes en <i>x</i> d’un côté, les nombres de l’autre.':'');
 }
 function eqdMsgIsole(st, iso){
   const xt=st[iso.cx][0], c=st[iso.cc][0];
@@ -90363,7 +90382,7 @@ function eqdDessiner(flash){
     if(st.fini){
       const r=f.num/f.den;
       h+='<div class="eqd-res">donc <i>x</i> = '+eqdRel(r)+'</div>'
-        +'<div class="eqd-verif">Vérification : '+eqdRel(q.a)+' × '+(r<0?'('+eqdRel(r)+')':r)+' '+(q.b<0?'− ':'+ ')+Math.abs(q.b)+' = '+eqdRel(q.a*r)+' '+(q.b<0?'− ':'+ ')+Math.abs(q.b)+' = 0 ✓</div>';
+        +'<div class="eqd-verif">'+eqdVerifTexte(q, r)+'</div>';
     }
   } else {
     h+='<div class="eqd-eq" id="eqdEq">'+eqdCoteHTML(st,'g',iso,flash)+'<span class="eqd-egal">=</span>'+eqdCoteHTML(st,'d',iso,flash)+'</div>';
@@ -90372,6 +90391,7 @@ function eqdDessiner(flash){
   if(!st.fini && !st.corrige) h+='<div class="eqd-msg" id="eqdMsg"></div>';
   h+='</div>';
   host.innerHTML=h;
+  eqdAjuster();
   if(!st.fini && !st.corrige){
     if(st.frac) eqdMsg('Clique sur la <b>fraction</b> pour obtenir le résultat.');
     else if(iso) eqdMsg(eqdMsgIsole(st, iso));
@@ -90380,6 +90400,29 @@ function eqdDessiner(flash){
     if(!test.locked) host.querySelectorAll('.eqd-t,.eqd-fac').forEach(function(el){ el.addEventListener('pointerdown', eqdPrise); });
   }
 }
+/* La vérification : x remplacé dans l'équation de DÉPART, chaque membre calculé. */
+function eqdVerifTexte(q, r){
+  const dp=eqdDepart(q), xr=r<0?'('+eqdRel(r)+')':String(r);
+  const cote=function(l){
+    if(!l.length) return {txt:'0', v:0};
+    let v=0; const txt=l.map(function(t,i){ v+=t.t==='x'?t.k*r:t.k;
+      const a=Math.abs(t.k), s=i===0?(t.k<0?'−':''):(t.k<0?' − ':' + ');
+      return s+(t.t==='x'?(a===1?xr:a+' × '+xr):a); }).join('');
+    return {txt:txt, v:v}; };
+  const G=cote(dp.g), D=cote(dp.d);
+  return 'Vérification : à gauche, '+G.txt+' = '+eqdRel(G.v)+' ; à droite, '+D.txt+(dp.d.length>1||dp.d.some(function(t){return t.t==='x';})?' = '+eqdRel(D.v):'')+'. Les deux membres sont égaux ✓';
+}
+/* Neuf termes ne tiennent pas en 2,1 rem sur une ligne : la police de
+   l'équation descend jusqu'à ce qu'elle tienne dans la carte (jamais sous
+   11 px ; marges et écarts en em, ils rétrécissent avec elle) — jamais de retour à la ligne, une équation se lit d'un trait. */
+function eqdAjuster(){
+  const host=$('eqdHost'), eq=host && host.querySelector('.eqd-eq'); if(!eq) return;
+  eq.style.fontSize='';
+  const dispo=host.clientWidth-8; if(!(dispo>0)) return;
+  let fs=parseFloat(getComputedStyle(eq).fontSize), n=0;
+  while(eq.scrollWidth>dispo && fs>11 && n++<40){ fs-=1; eq.style.fontSize=fs+'px'; }
+}
+window.addEventListener('resize', function(){ if(typeof test!=='undefined' && test && test.kind==='eqd') eqdAjuster(); });
 /* ---------- le glisser ---------- */
 let eqdDrag=null;
 function eqdPrise(e){
@@ -90391,6 +90434,7 @@ function eqdPrise(e){
   const cote=el.dataset.c, i=+el.dataset.i, terme=st[cote][i];
   const f=el.cloneNode(true); f.classList.add('eqd-fantome'); f.classList.remove('eqd-arrive');
   f.style.left=r.left+'px'; f.style.top=r.top+'px'; f.style.animation='none';
+  const eqEl=$('eqdEq'); if(eqEl) f.style.fontSize=getComputedStyle(eqEl).fontSize;
   document.body.appendChild(f);
   el.classList.add('eqd-parti');
   eqdDrag={el:el, f:f, fac:fac, cote:cote, i:i, terme:terme, dx:e.clientX-r.left, dy:e.clientY-r.top, x0:e.clientX, y0:e.clientY, bouge:false, cible:null};
@@ -90404,7 +90448,7 @@ function eqdBouge(e){
   if(Math.abs(e.clientX-D.x0)+Math.abs(e.clientY-D.y0)>4) D.bouge=true;
   D.f.style.left=(e.clientX-D.dx)+'px'; D.f.style.top=(e.clientY-D.dy)+'px';
   if(D.fac) return;
-  D.cible=eqdCible(e.clientX, e.clientY, D.el);
+  D.cible=eqdCible(e.clientX, e.clientY, D.el, D.terme.t);
   eqdCurseur(D.cible);
   /* le fantôme porte le signe qu'il aura s'il est lâché ici */
   const k=(D.cible && D.cible.cote!==D.cote) ? -D.terme.k : D.terme.k;
@@ -90414,10 +90458,15 @@ function eqdBouge(e){
 }
 /* Où le terme se poserait : le membre (de quel côté du « = » est le pointeur)
    et le rang dans ce membre (combien de termes ont leur milieu à gauche). */
-function eqdCible(x, y, pris){
+function eqdCible(x, y, pris, sorte){
   const eq=$('eqdEq'); if(!eq) return null;
   const R=eq.getBoundingClientRect();
   if(x<R.left-60 || x>R.right+60 || y<R.top-70 || y>R.bottom+70) return null;
+  /* SUR un terme de la même sorte (avec x / sans x) : on les regroupe */
+  const st=eqdEtat(test.questions[test.idx]);
+  const sur=[].find.call(eq.querySelectorAll('.eqd-t'), function(c){ if(c===pris) return false;
+    const r=c.getBoundingClientRect(); return x>=r.left+2 && x<=r.right-2 && y>=r.top-8 && y<=r.bottom+8; });
+  if(sur && sorte){ const t=st[sur.dataset.c][+sur.dataset.i]; if(t && t.t===sorte) return {cote:sur.dataset.c, fusion:+sur.dataset.i, el:sur, chips:[]}; }
   const eg=eq.querySelector('.eqd-egal').getBoundingClientRect();
   const cote=x<(eg.left+eg.right)/2?'g':'d';
   const chips=[].filter.call(eq.querySelectorAll('.eqd-cote[data-c="'+cote+'"] .eqd-t'), function(c){ return c!==pris; });
@@ -90426,7 +90475,9 @@ function eqdCible(x, y, pris){
 }
 function eqdCurseur(c){
   const eq=$('eqdEq'); if(!eq) return;
+  eq.querySelectorAll('.eqd-vise').forEach(function(v){ v.classList.remove('eqd-vise'); });
   let k=eq.querySelector('.eqd-curseur');
+  if(c && c.fusion!=null){ if(k) k.remove(); c.el.classList.add('eqd-vise'); return; }
   if(!c){ if(k) k.remove(); return; }
   if(!k){ k=document.createElement('span'); k.className='eqd-curseur'; eq.appendChild(k); }
   const R=eq.getBoundingClientRect();
@@ -90451,8 +90502,9 @@ function eqdLache(e){
   if(D.bouge){ const fb=$('eqdFeedback'); if(fb){ fb.textContent=''; fb.className='mp-feedback'; } }   /* le « pas encore » du soutien ne survit pas au geste suivant */
   if(!D.bouge){ eqdMsg(D.fac?'Fais <b>glisser</b> le facteur avec la souris (ou le doigt) : maintiens le bouton enfoncé et déplace-le.':'Fais <b>glisser</b> le terme avec la souris (ou le doigt) : maintiens le bouton enfoncé et déplace-le.'); return; }
   if(D.fac){ eqdLacheFacteur(q, st, e.clientX, e.clientY); return; }
-  const c=eqdCible(e.clientX, e.clientY, D.el);
+  const c=eqdCible(e.clientX, e.clientY, D.el, D.terme.t);
   if(!c){ eqdMsg('Pose le terme <b>dans l’équation</b>, à gauche ou à droite du « = ».'); return; }
+  if(c.fusion!=null){ eqdRegrouper(st, D, c); return; }
   const t=st[D.cote].splice(D.i,1)[0];
   const change=c.cote!==D.cote;
   if(change) t.k=-t.k;
@@ -90464,6 +90516,24 @@ function eqdLache(e){
     ? '<b>'+avant+'</b> est passé <b>de l’autre côté du « = »</b> : il devient <b>'+avec+'</b>.'
     : '<b>'+avec+'</b> est resté <b>du même côté du « = »</b> : il garde son signe.';
   eqdDessiner({cote:c.cote, i:c.j, signe:change, texte:texte});
+  if(eqdIsole(st)){ const m=$('eqdMsg'); if(m) m.innerHTML=texte+'<br>'+m.innerHTML; }
+  clearTimeout(test.eqdSave); test.eqdSave=setTimeout(autoSave,800);
+}
+/* Deux termes de la même sorte se regroupent : le terme lâché change de signe
+   s'il a changé de membre, PUIS s'additionne à celui sur lequel il est posé ;
+   une somme nulle disparaît (un membre vide s'écrit 0). */
+function eqdRegrouper(st, D, c){
+  const t=st[D.cote][D.i], cible=st[c.cote][c.fusion];
+  const change=c.cote!==D.cote, kDep=change?-t.k:t.k, avant=cible.k;
+  st[D.cote].splice(D.i,1);
+  cible.k+=kDep;
+  let i=st[c.cote].indexOf(cible);
+  if(cible.k===0){ st[c.cote].splice(i,1); i=-1; }
+  st.coups=(st.coups||0)+1;
+  const texte=(change?'<b>'+eqdLab(t.t,t.k)+'</b> est passé <b>de l’autre côté du « = »</b> : il devient <b>'+eqdLab(t.t,kDep)+'</b>. ':'')
+    +'<b>'+eqdLab(t.t,avant)+'</b> et <b>'+eqdLab(t.t,kDep)+'</b> se regroupent : '
+    +(cible.k===0?'ils <b>s’annulent</b>.':'<b>'+eqdLab(t.t,cible.k)+'</b>.');
+  eqdDessiner({cote:c.cote, i:i, signe:false, texte:texte});
   if(eqdIsole(st)){ const m=$('eqdMsg'); if(m) m.innerHTML=texte+'<br>'+m.innerHTML; }
   clearTimeout(test.eqdSave); test.eqdSave=setTimeout(autoSave,800);
 }
@@ -90498,7 +90568,7 @@ function eqdCliqueFraction(){
 function eqdRepondre(q, ok){
   const st=eqdEtat(q), s=eqdSol(q);
   test.answers.push({correct:ok, q:eqdTexteDepart(q),
-    answer:eqdTexteDepart(q)+' ⇔ '+eqdRel(q.a)+'x = '+eqdRel(-q.b)+' ⇔ x = '+eqdRel(-q.b)+'/'+eqdRel(q.a)+' = '+eqdRel(s),
+    answer:(function(){ const ab=eqdAB(q); return eqdTexteDepart(q)+' ⇔ '+eqdRel(ab.A)+'x = '+eqdRel(-ab.B)+' ⇔ x = '+eqdRel(-ab.B)+'/'+eqdRel(ab.A)+' = '+eqdRel(s); })(),
     given:(st.fini?'résolue : x = '+eqdRel(s):'non terminée : '+(st.frac?eqdTexteEq(st)+' (fraction posée)':eqdTexteEq(st)))+(st.imp?' — '+st.imp+' facteur(s) posé(s) ailleurs qu’au dénominateur':'')});
 }
 function eqdBoutonSuite(){
@@ -90507,7 +90577,7 @@ function eqdBoutonSuite(){
   const nb=$('eqdNext'); if(nb) nb.focus();
 }
 function eqdCorrHTML(q){
-  const a=q.a, b=q.b;
+  const ab=eqdAB(q), a=ab.A, b=ab.B;
   return '<div class="eqd-cor sol" aria-label="la correction"><span>'+esc(eqdTexteDepart(q)).replace(/x/g,'<i>x</i>')+'</span>'
     +'<span>'+eqdRel(a)+'<i>x</i> = '+eqdRel(-b)+'</span>'
     +'<span><i>x</i> = '+eqdFracHTML(-b, a)+'</span>'
@@ -90518,7 +90588,9 @@ function eqdProchaine(q, st){
   if(st.frac) return 'Il te reste à cliquer sur la fraction pour obtenir le résultat.';
   const iso=eqdIsole(st);
   if(iso) return 'Fais glisser le facteur '+eqdRel(st[iso.cx][0].k)+' : il doit aller au dénominateur, sous '+eqdRel(st[iso.cc][0].k)+'.';
-  return 'Commence par déplacer '+(q.b<0?'− ':'+ ')+Math.abs(q.b)+' de l’autre côté du « = » : il changera de signe, et il ne restera que le terme en x à gauche.';
+  if(eqdNbTermes(q)>2) return 'Regroupe : les termes en x d’un côté du « = », les nombres de l’autre. Pose un terme SUR un terme de la même sorte pour les additionner, jusqu’à n’avoir plus qu’un terme de chaque côté.';
+  const c=eqdDepart(q).g[1].k;
+  return 'Commence par déplacer '+(c<0?'− ':'+ ')+Math.abs(c)+' de l’autre côté du « = » : il changera de signe, et il ne restera que le terme en x à gauche.';
 }
 function checkEqdAnswer(live){
   if(live || test.locked) return;
@@ -90530,20 +90602,63 @@ function checkEqdAnswer(live){
   }
   st.corrige=true; test.locked=true;
   eqdDessiner();
-  $('eqdFeedback').textContent='La résolution n’est pas terminée : voici la correction. '+eqdRel(q.a)+'x = '+eqdRel(-q.b)+', donc x = '+eqdRel(-q.b)+' ÷ '+(q.a<0?'('+eqdRel(q.a)+')':q.a)+' = '+eqdRel(eqdSol(q))+'.';
+  const ab=eqdAB(q);
+  $('eqdFeedback').textContent='La résolution n’est pas terminée : voici la correction. '+eqdRel(ab.A)+'x = '+eqdRel(-ab.B)+', donc x = '+eqdRel(-ab.B)+' ÷ '+(ab.A<0?'('+eqdRel(ab.A)+')':ab.A)+' = '+eqdRel(eqdSol(q))+'.';
   $('eqdFeedback').className='mp-feedback bad';
   eqdRepondre(q, false);
   eqdBoutonSuite();
   autoSave();
 }
 function nextEqdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderEqdTest(); autoSave(); } else finishTest(); }
-/* a de ±2 à ±9, x entier non nul, b = −ax : |a|, |b| et |x| ne dépassent jamais 30. */
-function eqdGen(_, i){
-  let a, x, essais=0;
-  do{ a=rand(2,9)*((i===0 || Math.random()<0.7)?1:-1); x=rand(-10,10); }while((x===0 || Math.abs(a*x)>30) && ++essais<500);
-  return {a:a, b:-a*x, ordre2:i>0 && Math.random()<0.25};
+/* LE TIRAGE (v732, demande de Turquet : « compliquer les résolutions au fur et
+   à mesure en rajoutant un terme avec x ou sans x dans le membre de gauche ou
+   de droite à chaque question ; il faudrait 8 questions »). La question 1 est
+   ax + b = 0 ; chaque question suivante reprend la FORME de la précédente et y
+   ajoute un terme — avec x ou sans x, à gauche ou à droite —, avec de
+   nouveaux nombres : 2 termes à la question 1, 9 à la question 8.
+   PLUS DE 30 NULLE PART : la somme des valeurs absolues des coefficients en x
+   ne dépasse pas 30, celle des nombres non plus — si bien qu'aucun
+   regroupement, dans quelque ordre que ce soit, ne dépasse 30 ; la solution
+   est entière, non nulle, et |A| ≥ 2 (le facteur à déplacer n'est jamais 1). */
+const EQD_MAX=30;
+function eqdFormes(n){
+  const f=[[{t:'x',c:'g'},{t:'c',c:'g'}]];
+  while(f.length<n){
+    const p=f[f.length-1].slice(), nx=p.filter(function(o){ return o.t==='x'; }).length;
+    const t=Math.random()<(p.length-nx)/p.length?'x':'c', c=Math.random()<0.5?'g':'d';
+    const memes=p.map(function(o,k){ return o.c===c?k:-1; }).filter(function(k){ return k>=0; });
+    const ou=memes.length?memes[rand(0,memes.length-1)]+(Math.random()<0.5?0:1):p.length;
+    p.splice(ou,0,{t:t,c:c});
+    f.push(p);
+  }
+  return f;
 }
-function eqdBuildQuestions(){ return distinctes(dmNbQuestions(5), eqdGen, function(q){ return q.a+'/'+q.b; }); }
+function eqdNombres(F, i){
+  const xs=F.filter(function(o){ return o.t==='x'; }), cs=F.filter(function(o){ return o.t==='c'; });
+  const remplir=function(L, total, max){
+    const ks=[]; let somme=0;
+    L.forEach(function(o, j){ if(j===L.length-1) return; let k; do{ k=rand(-max,max); }while(!k); ks.push(k); somme+=o.c==='g'?k:-k; });
+    const der=L[L.length-1], reste=total-somme; ks.push(der.c==='g'?reste:-reste);
+    return ks; };
+  const abs=function(ks){ return ks.reduce(function(t,k){ return t+Math.abs(k); },0); };
+  for(let essai=0; essai<5000; essai++){
+    const A=rand(2,i<2?9:6)*((i===0 || Math.random()<0.7)?1:-1), sol=rand(-10,10);
+    if(!sol) continue;
+    const B=-A*sol; if(Math.abs(B)>EQD_MAX) continue;
+    const kx=remplir(xs, A, 6), kc=remplir(cs, B, 9);
+    if(kx.some(function(k){ return !k; }) || kc.some(function(k){ return !k; })) continue;
+    if(abs(kx)>EQD_MAX || abs(kc)>EQD_MAX) continue;
+    if(i===0 && kx[0]<0) continue;
+    let ix=0, ic=0; const g=[], d=[];
+    F.forEach(function(o){ (o.c==='g'?g:d).push({t:o.t, k:o.t==='x'?kx[ix++]:kc[ic++]}); });
+    return {gi:g, di:d, s:sol};
+  }
+  return {gi:[{t:'x',k:3},{t:'c',k:-6}], di:[], s:2};   /* jamais atteint : 5000 essais suffisent largement */
+}
+function eqdBuildQuestions(){
+  const formes=eqdFormes(Math.max(1, dmNbQuestions(8)));
+  return distinctes(formes.length, function(_, i){ return eqdNombres(formes[i], i); }, function(q){ return JSON.stringify([q.gi,q.di]); });
+}
 function startEqd(){
   if(!currentEleve){ accueil(); return; }
   const qs=eqdBuildQuestions();
@@ -90559,6 +90674,7 @@ function ctxEqd(q){
   const st=eqdEtat(q);
   let c='L’élève résout une équation du premier degré '+eqdTexteDepart(q)+' en DÉPLAÇANT les termes à la souris. '
    +'La page applique la règle 1 : un terme qui passe de l’autre côté du « = » change de signe, un terme qui reste du même côté garde son signe. '
+   +'Un terme posé SUR un terme de la même sorte (avec x, ou sans x) s’additionne avec lui : c’est ainsi qu’il regroupe les termes en x d’un côté et les nombres de l’autre. '
    +'Quand il a obtenu la forme ax = −b (ou b = −ax), il fait glisser le FACTEUR a (ou −a) devant x : ce facteur ne peut se poser qu’au dénominateur du nombre de l’autre membre '
    +'(de l’autre côté du « = », la multiplication devient une division) ; ailleurs, la page dit que c’est impossible. Puis il clique sur la fraction obtenue pour avoir le résultat. '
    +'Où il en est : '+(st.fini?'équation résolue.':(st.frac?'il a écrit x = '+eqdRel(st.frac.num)+'/'+eqdRel(st.frac.den)+' et doit cliquer la fraction.':'l’équation s’écrit '+eqdTexteEq(st)+'.'))+' '
