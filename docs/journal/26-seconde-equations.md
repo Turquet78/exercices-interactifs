@@ -166,3 +166,46 @@ lâché sur l'élément de départ — un glisser raté (lâché hors de l'équa
 aurait alors regroupé la paire. Le glisser note son heure (`eqdGlisseA`), et
 un clic qui le suit de moins d'une demi-seconde est ignoré. Éprouvé dans
 Chromium : glisser raté sans effet, clic qui regroupe, Entrée qui regroupe.
+
+## {equation-resoudre-etapes} — résoudre ax + b = c + dx ligne par ligne, comme la fiche (Seconde, 9.3, novembre 2026)
+
+**D'où il vient.** Demande de Turquet, sur la fiche des exercices 2 et 3
+(6x − 1 = 15 − 2x, puis −1 + 6x = −2x + 15) : « faire un exercice comme le
+pdf, il faudra des flèches et des accolades comme sur le pdf ; quand une case
+est remplie et que c'est la même en dessous, la compléter automatiquement ».
+Kind `eqf`, ajouté après le 9.2 : rien n'est renuméroté.
+
+**La page suit la fiche**, six lignes « Donc : » alignées sur le « = » :
+l'équation, le nombre du membre de gauche ENTOURÉ en pointillés ; puis
+« ax = (membre de droite) [case] », le nombre déplacé signe compris, et le
+terme en x de droite entouré ; puis le terme en x arrivé à gauche — APRÈS ax
+s'il était en fin de membre (exercice 2), AVANT s'il était en tête
+(exercice 3) —, une ACCOLADE bleue sous chaque membre ; puis « [case] x =
+[case] » ; puis « A × x = C », le facteur entouré ; enfin « x = C / [case] =
+[case] ». Une flèche en pointillés part de chaque terme entouré vers la case
+où il arrive (`eqfTracer`, un seul SVG sur la grille, refait au
+redimensionnement, quand les polices arrivent, à chaque frappe) : par le haut
+pour les deux déplacements, par le côté pour le dénominateur, comme sur la
+fiche. Les accolades sont en CSS (`.eqf-acc`, `::before` et `::after`) : elles
+suivent la largeur du membre sans rien mesurer.
+
+**« Compléter automatiquement » : les miroirs.** Le nombre déplacé à la
+ligne 2 se recopie à la ligne 3, A et C de la ligne 4 se recopient à la
+ligne 5, et C au numérateur de la ligne 6. Ce ne sont pas des cases : des
+`span.eqf-mir` en lecture, ni jugés ni comptés, qui affichent « …… » à vide
+et recopient la case source à chaque frappe (`eqfMiroirs`) — et deux fois
+après le rendu, parce que `restoreBoxes()` remet les valeurs d'une pause sans
+lever d'événement. Après la vérification, un miroir dont la source est fausse
+recopie la bonne réponse, en vert. Le dénominateur, lui, reste une case :
+c'est le geste que la flèche enseigne.
+
+**Le tirage.** Questions 1 et 2 : les deux exercices de la fiche. Ensuite
+l'ordre des termes de chaque membre au hasard, A = a − d de ±2 à ±9 (négatif
+une fois sur quatre), une solution entière non nulle de −10 à 10, |a| et |d|
+de 2 à 9, |b| ≤ 15, |c| ≤ 30, par `distincte()` sur (a, b, c, d, ordres).
+Cinq questions, réglables par le devoir (`dmNbQuestions`).
+
+**Le juge.** Six cases par question (`eqfCases`). Le nombre déplacé exige son
+signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
+s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
+Les autres cases sont des entiers relatifs.
