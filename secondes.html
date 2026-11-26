@@ -2121,6 +2121,16 @@
   .eqd-fac{border-color:#F59E0B;box-shadow:0 2px 0 #FCD34D;animation:eqdAppel 1.4s ease-in-out infinite}
   @keyframes eqdAppel{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
   .eqd-parti{opacity:.25}
+  .eqd-lignes{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;row-gap:.3em;max-width:100%;
+    font-family:"Fredoka";font-weight:600;font-size:2.1rem;color:var(--ink);white-space:nowrap;-webkit-user-select:none;user-select:none;touch-action:none}
+  .eqd-lg,.eqd-le,.eqd-ld{font-size:.72em;color:var(--ink-soft);padding:0 .25em}
+  .eqd-lg{justify-self:end} .eqd-ld{justify-self:start}
+  .eqd-lg.eqd-fin,.eqd-le.eqd-fin,.eqd-ld.eqd-fin{font-size:.95em;color:var(--blue-dark);font-weight:700}
+  .eqd-lignes .eqd-vg,.eqd-lignes .eqd-ve,.eqd-lignes .eqd-vd{align-self:stretch;display:flex;align-items:center;background:#F8FAFC;border:2px dashed #CBD5E1;padding:.3em .3em;margin-top:.15em}
+  .eqd-lignes .eqd-vg{justify-content:flex-end;border-right:none;border-radius:16px 0 0 16px}
+  .eqd-lignes .eqd-ve{border-left:none;border-right:none;padding:.3em .25em}
+  .eqd-lignes .eqd-vd{justify-content:flex-start;border-left:none;border-radius:0 16px 16px 0}
+  @media(max-width:640px){ .eqd-lignes{font-size:1.6rem} }
   .eqd-paire{display:inline-flex;align-items:center;gap:.15em;padding:.1em .14em;border:2px solid #22C55E;border-radius:14px;background:#F0FDF4;cursor:pointer;box-shadow:0 2px 0 #86EFAC}
   .eqd-paire:hover,.eqd-paire:focus-visible{background:#DCFCE7;outline:none}
   .eqd-vise{background:#FEF3C7;border-color:#F59E0B;box-shadow:0 0 0 3px #FDE68A}
@@ -9824,7 +9834,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=733;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=734;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -90373,12 +90383,13 @@ function eqdCoteHTML(st, cote, iso, flash){
 const EQD_MSG_PAIRE='Deux termes de la même sorte côte à côte sont <b>encadrés en vert</b> : <b>clique sur le cadre</b> pour les regrouper.';
 let eqdGlisseA=0;
 function eqdCliquePaire(cote, i){
-  if(test.locked || eqdDrag || Date.now()-eqdGlisseA<500) return;
+  if(test.locked || eqdDrag || Date.now()-eqdGlisseA<300) return;
   const q=test.questions[test.idx], st=eqdEtat(q), l=st[cote];
   if(!l || !l[i] || !l[i+1] || l[i].t!==l[i+1].t || st.frac) return;
-  const a=l[i], b=l[i+1], ka=a.k, kb=b.k;
+  const a=l[i], b=l[i+1], ka=a.k, kb=b.k, avantEq=eqdTexteEq(st);
   a.k=ka+kb; l.splice(i+1,1);
   let j=i; if(a.k===0){ l.splice(i,1); j=-1; }
+  eqdNoter(st, avantEq);
   st.coups=(st.coups||0)+1;
   const fb=$('eqdFeedback'); if(fb && fb.classList.contains('bad')){ fb.textContent=''; fb.className='mp-feedback'; }
   const texte='<b>'+eqdLab(a.t,ka)+'</b> et <b>'+eqdLab(a.t,kb)+'</b> se regroupent : '+(a.k===0?'ils <b>s’annulent</b>.':'<b>'+eqdLab(a.t,a.k)+'</b>.');
@@ -90412,23 +90423,37 @@ function renderEqdTest(){
   if(st.fini || st.corrige) eqdBoutonSuite();
   else $('eqdActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkEqdAnswer()">Vérifier</button>';
 }
+/* LES ÉTAPES (v734, demande de Turquet : « passer à la ligne quand un
+   déplacement est effectué, pour faire afficher les étapes »). Chaque geste qui
+   change l'équation range l'écriture d'avant dans st.hist ; l'équation se lit
+   alors comme une résolution écrite, ligne après ligne, la ligne vivante en
+   dernier, dans son cadre. Une seule grille (1fr | = | 1fr) porte toutes les
+   lignes : les « = » s'alignent les uns sous les autres. */
+function eqdLigneHTML(txt, cls){
+  const k=txt.indexOf(' = '), x=function(t){ return esc(t).replace(/x/g,'<i>x</i>'); };
+  return '<span class="eqd-lg '+(cls||'')+'">'+x(txt.slice(0,k))+'</span><span class="eqd-le '+(cls||'')+'">=</span><span class="eqd-ld '+(cls||'')+'">'+x(txt.slice(k+3))+'</span>';
+}
+function eqdNoter(st, avant){ if(eqdTexteEq(st)!==avant){ st.hist=st.hist||[]; st.hist.push(avant); } }
 function eqdDessiner(flash){
   const q=test.questions[test.idx], st=eqdEtat(q), host=$('eqdHost'); if(!host) return;
   const iso=eqdIsole(st);
+  const hist=(st.hist||[]).map(function(t){ return eqdLigneHTML(t, 'eqd-h'); }).join('');
   let h='<div class="eqd-zone">';
   if(st.frac){
     const f=st.frac, fr='<button type="button" class="eqd-frac'+(st.fini||st.corrige?' eqd-fixe':'')+'" id="eqdFrac" onclick="eqdCliqueFraction()" aria-label="la fraction '+esc(eqdRel(f.num)+' sur '+eqdRel(f.den))+' : clique pour obtenir le résultat">'
       +'<span class="eqd-num">'+eqdRel(f.num)+'</span><span class="eqd-den'+(flash==='frac'?' eqd-den-neuf':'')+'">'+eqdRel(f.den)+'</span></button>';
-    h+='<div class="eqd-hist"><span>'+esc(f.avant).replace(/x/g,'<i>x</i>')+'</span></div>';
-    h+='<div class="eqd-eq eqd-eq-fr">'+(f.cx==='g'?'<span class="eqd-cote"><i>x</i></span><span class="eqd-egal">=</span><span class="eqd-cote">'+fr+'</span>'
-      :'<span class="eqd-cote">'+fr+'</span><span class="eqd-egal">=</span><span class="eqd-cote"><i>x</i></span>')+'</div>';
-    if(st.fini){
-      const r=f.num/f.den;
-      h+='<div class="eqd-res">donc <i>x</i> = '+eqdRel(r)+'</div>'
-        +'<div class="eqd-verif">'+eqdVerifTexte(q, r)+'</div>';
-    }
+    const hf=(st.hist && st.hist.length)?hist:eqdLigneHTML(f.avant, 'eqd-h');   /* une pause d'avant la v734 n'a pas d'étapes : sa dernière ligne */
+    h+='<div class="eqd-lignes eqd-eq-fr">'+hf
+      +(f.cx==='g'?'<span class="eqd-cote eqd-vg"><i>x</i></span><span class="eqd-egal eqd-ve">=</span><span class="eqd-cote eqd-vd">'+fr+'</span>'
+                  :'<span class="eqd-cote eqd-vg">'+fr+'</span><span class="eqd-egal eqd-ve">=</span><span class="eqd-cote eqd-vd"><i>x</i></span>')
+      +(st.fini?eqdLigneHTML('x = '+eqdRel(f.num/f.den), 'eqd-fin'):'')
+      +'</div>';
+    if(st.fini) h+='<div class="eqd-verif">'+eqdVerifTexte(q, f.num/f.den)+'</div>';
   } else {
-    h+='<div class="eqd-eq" id="eqdEq">'+eqdCoteHTML(st,'g',iso,flash)+'<span class="eqd-egal">=</span>'+eqdCoteHTML(st,'d',iso,flash)+'</div>';
+    h+='<div class="eqd-lignes" id="eqdEq">'+hist
+      +eqdCoteHTML(st,'g',iso,flash).replace('class="eqd-cote"','class="eqd-cote eqd-vg"')
+      +'<span class="eqd-egal eqd-ve">=</span>'
+      +eqdCoteHTML(st,'d',iso,flash).replace('class="eqd-cote"','class="eqd-cote eqd-vd"')+'</div>';
   }
   if(st.corrige) h+=eqdCorrHTML(q);
   if(!st.fini && !st.corrige) h+='<div class="eqd-msg" id="eqdMsg"></div>';
@@ -90459,11 +90484,11 @@ function eqdVerifTexte(q, r){
    l'équation descend jusqu'à ce qu'elle tienne dans la carte (jamais sous
    11 px ; marges et écarts en em, ils rétrécissent avec elle) — jamais de retour à la ligne, une équation se lit d'un trait. */
 function eqdAjuster(){
-  const host=$('eqdHost'), eq=host && host.querySelector('.eqd-eq'); if(!eq) return;
+  const host=$('eqdHost'), eq=host && host.querySelector('.eqd-lignes'); if(!eq) return;
   eq.style.fontSize='';
   const dispo=host.clientWidth-8; if(!(dispo>0)) return;
   let fs=parseFloat(getComputedStyle(eq).fontSize), n=0;
-  while(eq.scrollWidth>dispo && fs>11 && n++<40){ fs-=1; eq.style.fontSize=fs+'px'; }
+  while((eq.scrollWidth>dispo || eq.scrollWidth>eq.clientWidth+1) && fs>11 && n++<40){ fs-=1; eq.style.fontSize=fs+'px'; }
 }
 window.addEventListener('resize', function(){ if(typeof test!=='undefined' && test && test.kind==='eqd') eqdAjuster(); });
 /* ---------- le glisser ---------- */
@@ -90503,8 +90528,8 @@ function eqdBouge(e){
    et le rang dans ce membre (combien de termes ont leur milieu à gauche). */
 function eqdCible(x, y, pris, sorte){
   const eq=$('eqdEq'); if(!eq) return null;
-  const R=eq.getBoundingClientRect();
-  if(x<R.left-60 || x>R.right+60 || y<R.top-70 || y>R.bottom+70) return null;
+  const R=eqdRangVivant(eq);
+  if(x<R.left-60 || x>R.right+60 || y<R.top-50 || y>R.bottom+70) return null;
   /* SUR un terme de la même sorte (avec x / sans x) : on les regroupe */
   const st=eqdEtat(test.questions[test.idx]);
   const sur=[].find.call(eq.querySelectorAll('.eqd-t'), function(c){ if(c===pris) return false;
@@ -90516,6 +90541,11 @@ function eqdCible(x, y, pris, sorte){
   let j=0; chips.forEach(function(c){ const r=c.getBoundingClientRect(); if((r.left+r.right)/2<x) j++; });
   return {cote:cote, j:j, chips:chips};
 }
+/* Le rectangle de la ligne VIVANTE (les deux membres et le « = »), sans les étapes au-dessus. */
+function eqdRangVivant(eq){
+  const g=eq.querySelector('.eqd-vg').getBoundingClientRect(), d=eq.querySelector('.eqd-vd').getBoundingClientRect();
+  return {left:Math.min(g.left,d.left), right:Math.max(g.right,d.right), top:Math.min(g.top,d.top), bottom:Math.max(g.bottom,d.bottom)};
+}
 function eqdCurseur(c){
   const eq=$('eqdEq'); if(!eq) return;
   eq.querySelectorAll('.eqd-vise').forEach(function(v){ v.classList.remove('eqd-vise'); });
@@ -90523,12 +90553,16 @@ function eqdCurseur(c){
   if(c && c.fusion!=null){ if(k) k.remove(); c.el.classList.add('eqd-vise'); return; }
   if(!c){ if(k) k.remove(); return; }
   if(!k){ k=document.createElement('span'); k.className='eqd-curseur'; eq.appendChild(k); }
-  const R=eq.getBoundingClientRect();
+  const R=eq.getBoundingClientRect(), V=eqdRangVivant(eq);
   let x;
-  if(!c.chips.length){ const z=eq.querySelector('.eqd-cote[data-c="'+c.cote+'"]').getBoundingClientRect(); x=c.cote==='g'?z.left-6:z.right+6; if(c.cote==='d' && !eqdEtat(test.questions[test.idx]).d.length) x=(z.left+z.right)/2; if(c.cote==='g' && !eqdEtat(test.questions[test.idx]).g.length) x=(z.left+z.right)/2; }
+  if(!c.chips.length){
+    const z=eq.querySelector('.eqd-cote[data-c="'+c.cote+'"] .eqd-zero'), ref=z||(eqdDrag&&eqdDrag.el);
+    const zr=ref?ref.getBoundingClientRect():{left:V.left,right:V.right};
+    x=z?(zr.left+zr.right)/2:(c.cote==='g'?zr.right+4:zr.left-6);
+  }
   else if(c.j===0) x=c.chips[0].getBoundingClientRect().left-6;
   else x=c.chips[c.j-1].getBoundingClientRect().right+4;
-  k.style.left=(x-R.left-2)+'px'; k.style.top='10px'; k.style.height=(R.height-20)+'px';
+  k.style.left=(x-R.left-2)+'px'; k.style.top=(V.top-R.top+6)+'px'; k.style.height=(V.bottom-V.top-12)+'px';
 }
 function eqdFinDrag(){
   const D=eqdDrag; if(!D) return null;
@@ -90550,10 +90584,12 @@ function eqdLache(e){
   const c=eqdCible(e.clientX, e.clientY, D.el, D.terme.t);
   if(!c){ eqdMsg('Pose le terme <b>dans l’équation</b>, à gauche ou à droite du « = ».'); return; }
   if(c.fusion!=null){ eqdRegrouper(st, D, c); return; }
+  const avantEq=eqdTexteEq(st);
   const t=st[D.cote].splice(D.i,1)[0];
   const change=c.cote!==D.cote;
   if(change) t.k=-t.k;
   st[c.cote].splice(c.j,0,t);
+  eqdNoter(st, avantEq);
   st.coups=(st.coups||0)+1;
   const nom=t.t==='x'?(Math.abs(t.k)+'<i>x</i>'):String(Math.abs(t.k));
   const avec=(t.k<0?'− ':'+ ')+nom, avant=(t.k<0?'+ ':'− ')+nom;
@@ -90569,11 +90605,12 @@ function eqdLache(e){
    une somme nulle disparaît (un membre vide s'écrit 0). */
 function eqdRegrouper(st, D, c){
   const t=st[D.cote][D.i], cible=st[c.cote][c.fusion];
-  const change=c.cote!==D.cote, kDep=change?-t.k:t.k, avant=cible.k;
+  const change=c.cote!==D.cote, kDep=change?-t.k:t.k, avant=cible.k, avantEq=eqdTexteEq(st);
   st[D.cote].splice(D.i,1);
   cible.k+=kDep;
   let i=st[c.cote].indexOf(cible);
   if(cible.k===0){ st[c.cote].splice(i,1); i=-1; }
+  eqdNoter(st, avantEq);
   st.coups=(st.coups||0)+1;
   const texte=(change?'<b>'+eqdLab(t.t,t.k)+'</b> est passé <b>de l’autre côté du « = »</b> : il devient <b>'+eqdLab(t.t,kDep)+'</b>. ':'')
     +'<b>'+eqdLab(t.t,avant)+'</b> et <b>'+eqdLab(t.t,kDep)+'</b> se regroupent : '
@@ -90591,6 +90628,7 @@ function eqdLacheFacteur(q, st, x, y){
     const r=cc.getBoundingClientRect();
     if(x>=r.left-30 && x<=r.right+30 && y>=r.top+r.height*0.55 && y<=r.bottom+90){
       st.frac={num:c.k, den:xt.k, cx:iso.cx, avant:eqdTexteEq(st)};
+      st.hist=st.hist||[]; st.hist.push(st.frac.avant);
       eqdDessiner('frac');
       clearTimeout(test.eqdSave); test.eqdSave=setTimeout(autoSave,800);
       return;
@@ -90655,26 +90693,34 @@ function checkEqdAnswer(live){
   autoSave();
 }
 function nextEqdQuestion(){ if(test.idx<test.questions.length-1){ test.idx++; renderEqdTest(); autoSave(); } else finishTest(); }
-/* LE TIRAGE (v732, demande de Turquet : « compliquer les résolutions au fur et
-   à mesure en rajoutant un terme avec x ou sans x dans le membre de gauche ou
-   de droite à chaque question ; il faudrait 8 questions »). La question 1 est
-   ax + b = 0 ; chaque question suivante reprend la FORME de la précédente et y
-   ajoute un terme — avec x ou sans x, à gauche ou à droite —, avec de
-   nouveaux nombres : 2 termes à la question 1, 9 à la question 8.
+/* LE TIRAGE. v732 : un terme de plus à chaque question. v734 (Turquet :
+   « je veux qu'il n'y ait jamais de termes qui puissent se regrouper au
+   départ dans l'équation ; on peut mettre des termes en x dans le membre de
+   droite ») : chaque membre porte AU PLUS un terme en x et un nombre — rien ne
+   se regroupe avant que l'élève ait déplacé un terme. La difficulté monte par
+   la FORME : 2 termes, puis 3 (un nombre, puis un terme en x à droite), puis
+   4 (ax + b = cx + d), l'ordre de chaque membre tiré à partir de la question 6.
    PLUS DE 30 NULLE PART : la somme des valeurs absolues des coefficients en x
-   ne dépasse pas 30, celle des nombres non plus — si bien qu'aucun
-   regroupement, dans quelque ordre que ce soit, ne dépasse 30 ; la solution
-   est entière, non nulle, et |A| ≥ 2 (le facteur à déplacer n'est jamais 1). */
+   ne dépasse pas 30, celle des nombres non plus — aucun regroupement, dans
+   quelque ordre que ce soit, ne dépasse 30 ; la solution est entière, non
+   nulle, et |A| ≥ 2 (le facteur à déplacer n'est jamais 1). */
 const EQD_MAX=30;
+const EQD_FORMES=[
+  [['x','c'],[]],          /* ax + b = 0 */
+  [['x','c'],['c']],       /* ax + b = c */
+  [['x'],['x','c']],       /* ax = cx + d */
+  [['x','c'],['x']],       /* ax + b = cx */
+  [['x','c'],['x','c']],   /* ax + b = cx + d */
+  [['c','x'],['x','c']],
+  [['x','c'],['c','x']],
+  [['c','x'],['c','x']]
+];
 function eqdFormes(n){
-  const f=[[{t:'x',c:'g'},{t:'c',c:'g'}]];
-  while(f.length<n){
-    const p=f[f.length-1].slice(), nx=p.filter(function(o){ return o.t==='x'; }).length;
-    const t=Math.random()<(p.length-nx)/p.length?'x':'c', c=Math.random()<0.5?'g':'d';
-    const memes=p.map(function(o,k){ return o.c===c?k:-1; }).filter(function(k){ return k>=0; });
-    const ou=memes.length?memes[rand(0,memes.length-1)]+(Math.random()<0.5?0:1):p.length;
-    p.splice(ou,0,{t:t,c:c});
-    f.push(p);
+  const f=[];
+  for(let i=0;i<n;i++){
+    let g=EQD_FORMES[Math.min(i,EQD_FORMES.length-1)][0].slice(), d=EQD_FORMES[Math.min(i,EQD_FORMES.length-1)][1].slice();
+    if(i>=5){ if(Math.random()<0.5) g.reverse(); if(Math.random()<0.5) d.reverse(); }
+    f.push(g.map(function(t){ return {t:t,c:'g'}; }).concat(d.map(function(t){ return {t:t,c:'d'}; })));
   }
   return f;
 }
