@@ -2170,9 +2170,8 @@
   .eqe-in.rel-in{width:78px;height:44px}
   .eqe-in.eqe-inx{width:96px;font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}
   .eqe-frac{display:inline-flex;flex-direction:column;align-items:center;gap:3px;vertical-align:middle}
-  .eqe-mir{display:block;min-width:2.2em;text-align:center;line-height:1.9rem;padding:0 .2em;color:var(--blue-dark)}
-  .eqe-mir-vide{color:#94A3B8}
-  .eqe-mir.eqe-m-ok{color:var(--blue)} .eqe-mir.eqe-m-bad{color:var(--red)} .eqe-mir.eqe-m-sol{color:var(--green)}
+  .eqe-frac .mf-cor{margin-left:0}
+  .eqe-fcase{display:inline-flex;align-items:center;justify-content:center}
   .eqe-fbar{display:block;align-self:stretch;min-width:2.4em;height:3px;background:var(--ink);border-radius:2px}
   .eqe-fleche{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
   .eqe-g .mf-cor{margin-left:4px}
@@ -10048,7 +10047,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=739;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=740;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -91790,11 +91789,11 @@ function ctxEqd(q){
    Le terme en x de droite part à GAUCHE (flèche par-dessus), le nombre de
    gauche part à DROITE (flèche par-dessous), comme sur la fiche.
 
-   LA FRACTION SE RECOPIE TOUTE SEULE : son numérateur est le nombre écrit à
-   droite de la ligne du dessus, son dénominateur le facteur de x. Ce ne sont
-   pas des cases mais des reflets (spans « eqe-mir ») : ils ne se notent pas,
-   prennent la couleur de leur case source après la vérification, et ne
-   peuvent pas être faux d'eux-mêmes.
+   LA DIVISION S'ÉCRIT PAR L'ÉLÈVE (demande de Turquet, novembre 2026 :
+   « laisser l'élève compléter la division à la fin de la résolution ») :
+   numérateur (eqe-N) et dénominateur (eqe-D) sont deux cases notées, le
+   nombre de droite et le facteur de x de la ligne du dessus ; (−B)/(−A) vaut
+   aussi. Elles remplacent les reflets qui la recopiaient tout seuls.
 
    LE TIRAGE : les deux premières questions sont celles de la fiche
    (12x − 2 = 4x + 30, puis 1 − 11x = 15 − 4x) ; les suivantes tirent un
@@ -91828,6 +91827,8 @@ function eqeCases(q){
     {id:'eqe-R', role:'R', bon:eqeRelS(r.R)},
     {id:'eqe-A', role:'A', bon:eqeRel(r.A)},
     {id:'eqe-B', role:'B', bon:eqeRel(r.B)},
+    {id:'eqe-N', role:'N', bon:eqeRel(r.B)},
+    {id:'eqe-D', role:'D', bon:eqeRel(r.A)},
     {id:'eqe-S', role:'S', bon:eqeRel(r.S)}
   ];
 }
@@ -91847,6 +91848,13 @@ function eqeJuste(c, el, q){
     return parseInt(v,10)===r.R;
   }
   if(!/^[+-]?\d+$/.test(v)) return false;
+  if(c.role==='N' || c.role==='D'){
+    /* la division de la dernière ligne : B / A, ou (−B) / (−A), qui vaut la même */
+    const n=parseInt(v,10), autre=$(c.role==='N'?'eqe-D':'eqe-N');
+    const w=autre?eqeNettoie(autre.value):'', m=/^[+-]?\d+$/.test(w)?parseInt(w,10):null;
+    const bon=c.role==='N'?r.B:r.A, bonAutre=c.role==='N'?r.A:r.B;
+    return n===bon || (n===-bon && m===-bonAutre);
+  }
   return parseInt(v,10)===r[c.role];
 }
 function eqeInput(id, label, cls, plus){
@@ -91892,15 +91900,16 @@ function renderEqeTest(){
     +'<span class="eqe-lab">Donc :</span>'
     +'<span class="eqe-l"><span><i>x</i></span></span>'
     +'<span class="eqe-eg">=</span>'
-    +'<span class="eqe-r"><span class="eqe-ligne"><span class="eqe-frac" aria-label="la fraction, recopiée de la ligne du dessus">'
-      +'<span class="eqe-mir" id="eqe-mB" data-src="eqe-B">…</span><span class="eqe-fbar"></span><span class="eqe-mir" id="eqe-mA" data-src="eqe-A">…</span></span>'
+    +'<span class="eqe-r"><span class="eqe-ligne"><span class="eqe-frac" aria-label="la fraction à compléter">'
+      +'<span class="eqe-fcase">'+eqeInput('eqe-N','le numérateur de la fraction : le nombre de droite de la ligne du dessus','',pN)+'</span><span class="eqe-fbar"></span>'
+      +'<span class="eqe-fcase">'+eqeInput('eqe-D','le dénominateur de la fraction : le nombre devant x de la ligne du dessus','',pN)+'</span></span>'
       +'<span class="eqe-eg">=</span>'+eqeInput('eqe-S','la solution x, la fraction calculée','',pN)+'</span></span>'
     +'</div></div>'
-    +'<p class="eqe-aide">La fraction se <b>recopie toute seule</b> : son numérateur et son dénominateur sont les nombres de la ligne du dessus.</p>';
+    +'<p class="eqe-aide">Complète la <b>division</b> : <i>x</i> est multiplié par le nombre devant <i>x</i>, il passe au dénominateur.</p>';
   $('eqeHost').innerHTML=h;
   const cs=eqeCases(q);
   cs.forEach(function(c, i){ const el=$(c.id); if(!el) return;
-    el.addEventListener('input', function(){ eqeMiroirs(); if(isSoutien()) checkEqeAnswer(true);
+    el.addEventListener('input', function(){ if(isSoutien()) checkEqeAnswer(true);
       clearTimeout(test.eqeSave); test.eqeSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){
       if(e.key!=='Enter') return; e.preventDefault();
@@ -91909,28 +91918,9 @@ function renderEqeTest(){
     });
   });
   eqeTracer();
-  /* la reprise d'une pause remet les saisies sans lever « input » : les reflets se relisent après */
-  setTimeout(function(){ eqeMiroirs(); eqeTracer(); }, 0);
+  setTimeout(eqeTracer, 0);
   try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(eqeTracer); }catch(e){}
-  setTimeout(function(){ eqeMiroirs(); eqeTracer(); }, 300);
-}
-/* LES REFLETS : le numérateur et le dénominateur recopient leur case ; après
-   la vérification, ils en prennent la couleur (classes à eux : ptsEcran ne
-   les compte pas). */
-function eqeMiroirs(){
-  ['eqe-mA','eqe-mB'].forEach(function(id){
-    const m=$(id); if(!m) return;
-    const s=$(m.getAttribute('data-src')); if(!s) return;
-    /* une case fausse corrigée (la bonne réponse écrite en vert à côté) : la
-       fraction prend la correction, en vert — c'est elle qui donne la solution */
-    const cor=s.classList.contains('bad') && s.nextElementSibling && s.nextElementSibling.classList.contains('mf-cor') ? s.nextElementSibling.textContent : null;
-    const v=cor!=null ? cor.trim() : String(s.value==null?'':s.value).trim();
-    m.textContent=v===''?'…':v;
-    m.classList.toggle('eqe-mir-vide', v==='');
-    m.classList.toggle('eqe-m-ok', s.classList.contains('ok'));
-    m.classList.toggle('eqe-m-bad', s.classList.contains('bad') && cor==null);
-    m.classList.toggle('eqe-m-sol', s.classList.contains('sol') || cor!=null);
-  });
+  setTimeout(eqeTracer, 300);
 }
 /* LES FLÈCHES de la fiche, en pointillés : le terme en x de droite part par
    le HAUT vers la case de gauche, le nombre de gauche part par le BAS vers la
@@ -91976,6 +91966,7 @@ function eqePourquoi(q, subs){
     +(/^\d+$/.test(v)?' Écris le signe devant '+Math.abs(r.R)+' : c’est lui qui dit si on ajoute ou si on retire.':'');
   if(f.c.role==='A') return 'À gauche, on regroupe les termes en x : '+eqeRel(r.L)+' + '+(q.a<0?'('+eqeRel(q.a)+')':q.a)+' = '+eqeRel(r.A)+', donc '+eqeRel(r.A)+'x.';
   if(f.c.role==='B') return 'À droite, on regroupe les nombres : '+eqeRel(q.d)+' + '+(r.R<0?'('+eqeRel(r.R)+')':r.R)+' = '+eqeRel(r.B)+'.';
+  if(f.c.role==='N' || f.c.role==='D') return 'De '+eqeRel(r.A)+'x = '+eqeRel(r.B)+', on divise par le nombre devant x : le numérateur est '+eqeRel(r.B)+' (le nombre de droite), le dénominateur '+eqeRel(r.A)+' (le nombre devant x).';
   return 'x est multiplié par '+eqeRel(r.A)+' : de l’autre côté du « = », la multiplication devient une division. x = '+eqeRel(r.B)+' / '+(r.A<0?'('+eqeRel(r.A)+')':r.A)+' = '+eqeRel(r.S)+'.';
 }
 function checkEqeAnswer(live){
@@ -91989,7 +91980,6 @@ function checkEqeAnswer(live){
       if(String(el.value||'').trim()==='') return;
       el.classList.add(eqeJuste(c,el,q)?'ok':'bad');
     });
-    eqeMiroirs();
     return;
   }
   const subs=cases.map(function(c){ const el=$(c.id);
@@ -91998,7 +91988,6 @@ function checkEqeAnswer(live){
   const pourquoi=eqePourquoi(q, subs);
   const donne=subs.map(function(s){ return s.c.role+' : '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; ');
   subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
-  eqeMiroirs();
   if(!allOk && isSoutien()){ soutienAgain('eqeFeedback','eqeActions','checkEqeAnswer','eqeHost'); return; }
   test.locked=true;
   test.score+=nCorrect; $('eqeLiveScore').textContent=test.score;
@@ -92054,7 +92043,7 @@ function ctxEqe(q){
    +'Ligne 1 : l’équation, où le nombre '+eqeTermeTxt(q.b,false,true)+' du membre de gauche et le terme '+eqeTermeTxt(q.c,true,true)+' du membre de droite sont entourés ; une flèche montre que chacun passe de l’autre côté du « = ». '
    +'Ligne 2 : il écrit le terme en x déplacé à gauche (devant le terme en x qui reste) et le nombre déplacé à droite (après le nombre qui reste) — règle 1 : un terme qui change de côté change de signe. '
    +'Ligne 3 : « Donc : … x = … » — il regroupe les termes en x à gauche et les nombres à droite. '
-   +'Ligne 4 : « Donc : x = fraction = … » — la fraction se recopie toute seule (numérateur : le nombre de droite, dénominateur : le facteur de x), il écrit la solution. '
+   +'Ligne 4 : « Donc : x = fraction = … » — il écrit lui-même la division (numérateur : le nombre de droite, dénominateur : le facteur de x), puis la solution. '
    +'Réponses attendues, STRICTEMENT SECRÈTES : ligne 2 : '+eqeTermeTxt(r.L,true,true)+' à gauche, '+eqeRelS(r.R)+' à droite ; ligne 3 : '+eqeRel(r.A)+'x = '+eqeRel(r.B)+' ; x = '+eqeRel(r.B)+'/'+eqeRel(r.A)+' = '+eqeRel(r.S)+'. '
    +'Les erreurs classiques : garder le signe en changeant de côté, se tromper de signe en regroupant, soustraire le facteur au lieu de diviser.';
   if(faux) c+=' Il s’est trompé sur '+faux+' case(s).';

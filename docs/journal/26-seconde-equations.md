@@ -357,7 +357,14 @@ sans lever « input »), puis en prennent la couleur à la vérification (classe
 en vert à côté) passe sa correction dans la fraction, en vert : c'est la
 fraction juste qui mène à la solution écrite.
 
-**Le juge.** Cinq cases par question. Le terme en x déplacé est le PREMIER de
+**Puis la division s'est écrite par l'élève** (demande de Turquet, 27 novembre
+2026 : « laisser l'élève compléter la division à la fin de la résolution »).
+Les reflets sont partis : numérateur (`eqe-N`) et dénominateur (`eqe-D`) sont
+deux cases notées, empilées sur le trait. Le juge attend B / A ; (−B) / (−A)
+vaut aussi, chaque case jugée avec sa voisine. Le pourquoi d'une case fausse
+dit d'où vient chaque nombre. Sept cases par question.
+
+**Le juge** (d'origine). Cinq cases par question. Le terme en x déplacé est le PREMIER de
 son membre : « 4x » vaut « +4x », « x » vaut « 1x », « × » et « * » sont
 ignorés. Le nombre déplacé vient APRÈS le nombre gardé : son signe fait partie
 de la réponse, et le message le dit s'il manque. Le facteur, le nombre réduit
