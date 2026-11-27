@@ -422,3 +422,83 @@ Cinq questions, réglables par le devoir (`dmNbQuestions`).
 signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
 s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
 Les autres cases sont des entiers relatifs.
+
+## Six exercices de plus, sans développement ni factorisation (Seconde, 9.7 à 9.12, novembre 2026, v741)
+
+**D'où ils viennent.** Demande de Turquet : « des idées de résolution
+d'équation du premier degré sans développement sans factorisation pour mes
+élèves qui sont très à l'aise sur les exercices déjà traités », puis « fais le
+1, puis le 2, puis le 3, puis le 5 : programme de calcul à l'envers, problèmes
+concrets sans parenthèses, choisir l'équation ». Six exercices, ajoutés après
+le 9.6 : rien n'est renuméroté.
+
+| N° | Identifiant | Kind | Ce que l'élève fait |
+|---|---|---|---|
+| 9.7 | `equation-nombre-solutions` | `eqn` | regroupe (A x = B), dit « une seule / aucune / une infinité », écrit la solution s'il y en a une |
+| 9.8 | `equation-coefficients-fractions` | `eqq` | (a/b)x + c/d = (e/f)x + g/h : le facteur, le nombre, l'inverse, la solution irréductible |
+| 9.9 | `equation-trouver-erreur` | `eqz` | trouve la ligne fausse d'une copie, le genre d'erreur, la bonne solution |
+| 9.10 | `equation-programme-calcul` | `eqp` | traduit un programme de calcul en équation, la résout, vérifie |
+| 9.11 | `equation-probleme-concret` | `eqc` | met un problème en équation, le résout, répond à la question |
+| 9.12 | `equation-choisir-traduction` | `eqk` | choisit l'équation qui traduit l'énoncé parmi quatre, la résout |
+
+**Un moteur, six identités.** Les six partagent `eqxRender`, `eqxCheck`,
+`eqxNext`, `eqxStart` ; chaque kind déclare dans `EQX[kind]` son tirage
+(`build`), ses cases (`cases`, `juste`, `bon`), son rendu (`instr`, `html`,
+`maj`), ses explications (`pourquoi`) et son contexte pour l'aide (`ctx`).
+Chaque identité garde son écran, son rappel, ses questions proposées, sa note.
+Les fonctions nommées (`renderEqnTest`, `checkEqnAnswer`…) sont écrites UNE
+PAR LIGNE : le contrôle « chaque bouton appelle une fonction définie » ne lit
+que la première déclaration d'une ligne, et six fonctions posées sur la même
+ligne l'ont fait rougir à la première exécution.
+
+**Rien à développer, nulle part.** Les programmes de calcul multiplient
+toujours d'abord ; les problèmes n'ont aucune parenthèse (le triangle s'écrit
+x + x + 2 + x + 8, jamais 2(x + 3) ; le rectangle a été écarté pour cette
+raison). La case d'équation refuse les parenthèses et le dit.
+
+**La case d'équation (9.10, 9.11).** `eqxLitEquation` lit des sommes de
+termes k·x ou k (entiers, décimaux à virgule ou à point, « × », « * »,
+juxtaposition « 3x », division par un nombre) et un seul « = ». Toute équation
+ÉQUIVALENTE est acceptée — y compris déjà réduite (« 5x = 25 ») — sauf la
+solution elle-même (« x = 5 », « 5 = x ») : c'est une réponse, pas une mise
+en équation, et le message le dit. Le pavé offre « x », « + » et « = ».
+
+**9.7.** Chaque membre a deux ou trois termes (cinq au moins en tout), et deux
+membres écrits pareil sont refusés au tirage : 2x + 3 = 2x + 3 se verrait sans
+calcul. Les trois cas sortent dans chaque séance, dans un ordre tiré. La ligne
+« Sa solution : x = … » ne se montre que si l'élève choisit « une seule
+solution » — ou après la correction, si l'équation en a une ; sur une équation
+sans solution unique, elle n'est jamais jugée.
+
+**9.8.** Les fractions de départ sont irréductibles et rangées sous a/b, c/d,
+e/f, g/h : le contrôle « les fractions de départ d'un calcul de fractions sont
+irréductibles » les lit (l'identifiant contient « fraction »). La page écrit le
+regroupement ; l'élève calcule le facteur et le nombre (toute fraction égale
+acceptée), l'inverse (idem), puis la solution, qui doit être IRRÉDUCTIBLE —
+une fraction égale mais non simplifiée est fausse, et le message dit
+« simplifie ». La solution n'est jamais entière (le dénominateur vide d'une
+fraction empilée n'aurait pas eu de sens). Les fractions grises de la ligne
+« x = B ÷ A » sont des reflets des cases (`eqxMir`) qui prennent la correction
+en vert quand la case source est fausse.
+
+**9.9.** La copie est cohérente avec son erreur : les lignes suivantes
+découlent de la ligne fausse, comme sur une vraie copie. Cinq genres d'erreur,
+un par question dans l'ordre tiré : un terme qui change de côté sans changer de
+signe (ligne ①), un signe faux en regroupant (②), le facteur soustrait au lieu
+de diviser (③), la fraction à l'envers (③), le signe du quotient (④). Le tirage
+écarte une copie fausse qui tomberait par hasard sur la bonne solution.
+
+**9.10.** Trois sortes : un programme et son résultat ; deux programmes au même
+résultat ; un programme qui ajoute le nombre de départ, comparé au double
+(triple…) de ce nombre augmenté ou diminué d'un entier. La vérification n'est
+pas le résultat donné par l'énoncé (ce serait le recopier) : pour un programme
+seul, c'est le nombre obtenu après « multiplier par a ».
+
+**9.11 et 9.12.** Sept situations (`EQC_SIT`) : cinéma avec abonnement, deux
+loueurs, triangle, âges, deux tirelires, trois entiers consécutifs, deux cuves.
+Chacune range ses nombres et la solution, et dit son inconnue, son équation et
+sa question finale — qui n'est pas toujours x (le plus grand côté, l'âge de la
+mère, le prix payé). Le 9.12 fabrique ses trois pièges sur l'équation juste :
+le x posé sur le mauvais nombre, un signe changé, un x oublié, les
+coefficients de x échangés d'un membre à l'autre ; un piège équivalent à la
+bonne équation ou à un autre piège, ou sans x après regroupement, est écarté.
