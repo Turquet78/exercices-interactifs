@@ -1491,6 +1491,10 @@ l'encadré, J et K entourés ; un segment refusé (deux fois le même point) le
 laisse ; le segment [JK] tracé l'efface ; après « Vérifier », le bouton est
 grisé et n'écrit plus rien ; au 7.1.13, aucun bouton.
 
+La v533 a été prise deux fois sur `main` le même jour (le 4.5.1, #1202, et cet
+indice, #1201, fusionnés à trente secondes d'écart) : la Terminale passe en
+v534 pour qu'un numéro ne désigne qu'une version.
+
 ## 7.1.15 — un exercice de bac : le cube, deux droites, la section (`espace-bac-cube`, kind `ebc`)
 
 Demande de Turquet (novembre 2026), avec le sujet du bac blanc du 2 décembre
