@@ -25974,7 +25974,7 @@ function bonhommeDeplacer(w, P){
     const tr=(document.getElementById('bhrMan')||{getAttribute:function(){return '';}}).getAttribute('transform')||'';
     if(test.bhdEt!==1 || tr.indexOf('translate('+bhrX(-3).toFixed(2))<0) vus.push('la reprise : étape '+test.bhdEt+', bonhomme '+tr);
     if(((document.getElementById('bhrArcs')||{}).children||[]).length!==3) vus.push('la reprise ne redessine pas l\\'arc du premier déplacement');
-    if(!/^2\\./.test((document.getElementById('bhdConsigne')||{}).textContent||'')) vus.push('la reprise ne reprend pas la consigne de l\\'étape 2');
+    if(!/^2\\D/.test((document.getElementById('bhdConsigne')||{}).textContent||'')) vus.push('la reprise ne reprend pas la consigne de l\\'étape 2');
     bhdPoser(2); bhdValider();
     if(test.bhdEt!==2 || !document.getElementById('bhd-r')) vus.push('+5 bien posé : étape '+test.bhdEt+', case '+!!document.getElementById('bhd-r'));
     bhdPoser(9); if(test.bhdPos!==2) vus.push('le bonhomme bouge encore une fois arrivé');

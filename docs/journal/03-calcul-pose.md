@@ -543,6 +543,14 @@ le donne ; trois pas à gauche ; un faux à l'étape 2 ramène au bout du premie
 bouge plus une fois arrivé et ne sort pas de l'axe ; juste, faux, vide (la
 correction verte), soutien en direct.
 
+**Puis la consigne de l'étape s'est écrite en GRAND (v745).** « Il faut
+écrire en plus gros et rendre plus voyant 1. 2. et 3. » : la consigne est
+devenue un bandeau orangé, le numéro de l'étape dans une pastille, la
+consigne en grand (« Déplace le bonhomme de −3 », le terme en gras orange) et
+le rappel du geste en petit dessous ; l'étape 3 passe en bleu. Sur téléphone,
+le bandeau rétrécit sans déborder (vu à 390 px). Le contrôle jsdom de la
+reprise lit désormais le numéro de la pastille (`^2\D`), plus « 2. ».
+
 ## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
 
 Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il
