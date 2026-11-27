@@ -543,7 +543,7 @@ le donne ; trois pas à gauche ; un faux à l'étape 2 ramène au bout du premie
 bouge plus une fois arrivé et ne sort pas de l'axe ; juste, faux, vide (la
 correction verte), soutien en direct.
 
-**Puis la consigne de l'étape s'est écrite en GRAND (v743).** « Il faut
+**Puis la consigne de l'étape s'est écrite en GRAND (v744).** « Il faut
 écrire en plus gros et rendre plus voyant 1. 2. et 3. » : la consigne est
 devenue un bandeau orangé, le numéro de l'étape dans une pastille, la
 consigne en grand (« Déplace le bonhomme de −3 », le terme en gras orange) et
