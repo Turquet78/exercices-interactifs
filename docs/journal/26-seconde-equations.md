@@ -416,7 +416,7 @@ signe (« 1 » seul est faux, et le message le dit) ; le terme en x aussi, sauf
 s'il est en tête de membre (exercice 3) ; « x » sans coefficient vaut 1.
 Les autres cases sont des entiers relatifs.
 
-## Six exercices de plus, sans développement ni factorisation (Seconde, 9.7 à 9.12, novembre 2026, v740)
+## Six exercices de plus, sans développement ni factorisation (Seconde, 9.7 à 9.12, novembre 2026, v741)
 
 **D'où ils viennent.** Demande de Turquet : « des idées de résolution
 d'équation du premier degré sans développement sans factorisation pour mes
