@@ -4752,6 +4752,7 @@ function exercices(suite){
     nombresRelatifs(w, P);
     bonhommeRelatifs(w, P);
     bonhommeDeplacer(w, P);
+    bonhommeSchema(w, P);
     additionnerRelatifs(w, P);
     associerExpressions(w, P);
     multiplierRelatifs(w, P);
@@ -25996,6 +25997,78 @@ function bonhommeDeplacer(w, P){
     if(peint()!=='bad') vus.push('soutien en direct : la réponse fausse est peinte '+peint());
     currentMode='train';
     test.bhrJeton=(test.bhrJeton||0)+1;
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {bonhomme-schema} — le bon schéma parmi quatre, puis le résultat (1.11) */
+function bonhommeSchema(w, P){
+  const present = evaluer(w, "typeof startBhs==='function' && typeof bhsValider==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le bon schéma du bonhomme : quatre schémas distincts, un seul juste, les pièges de signe et de longueur ; faux, il se barre ; juste, la case s\'ouvre',
+      'ce niveau n\'a pas l\'exercice du bon schéma du bonhomme');
+    return;
+  }
+  verifierEval(w, 'le bon schéma du bonhomme : quatre schémas distincts, un seul juste, les pièges de signe et de longueur ; faux, il se barre ; juste, la case s\'ouvre', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='bonhomme-schema';
+    if(TEST_NUM['bonhomme-schema']!=='1.11') vus.push('numéro '+TEST_NUM['bonhomme-schema']+' au lieu de 1.11');
+    if(TABLES_SANS.indexOf('bonhomme-schema')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    /* le tirage : 400 questions */
+    for(let k=0;k<400 && vus.length<3;k++){
+      const q=bhsGen(), cles=q.opts.map(function(p){ return p[0]+','+p[1]; });
+      if(q.opts.length!==4 || new Set(cles).size!==4) { vus.push('schémas non distincts : '+cles.join(' ; ')); continue; }
+      if(cles[q.bon]!==q.a+','+q.b) vus.push('le bon schéma n\\'est pas a + b : '+cles[q.bon]+' pour '+q.a+','+q.b);
+      if(cles.indexOf(q.b+','+q.a)>=0 && q.a!==q.b) vus.push('b + a parmi les pièges : '+cles.join(' ; '));
+      const pieges=q.opts.filter(function(p,i){ return i!==q.bon; });
+      if(!pieges.some(function(p){ return (p[0]===q.a&&p[1]===-q.b)||(p[0]===-q.a&&p[1]===q.b); })) vus.push('aucun piège de signe : '+cles.join(' ; '));
+      if(!pieges.some(function(p){ return Math.abs(p[0])+Math.abs(p[1])!==Math.abs(q.a)+Math.abs(q.b); })) vus.push('aucun piège de longueur : '+cles.join(' ; '));
+      if(q.opts.some(function(p){ return !p[0]||!p[1]||Math.abs(p[0])>5||Math.abs(p[1])>5; })) vus.push('un schéma sort de −5 à 5 : '+cles.join(' ; '));
+    }
+    startBhs();
+    if(test.kind!=='bhs' || test.qId!=='bonhomme-schema') vus.push('identité : '+test.kind+' / '+test.qId);
+    if(test.questions.length!==10 || test.maxScore!==10) vus.push(test.questions.length+' questions, barème '+test.maxScore);
+    if(document.querySelectorAll('#bhsGrille .bhs-carte').length!==4) vus.push(document.querySelectorAll('#bhsGrille .bhs-carte').length+' schémas affichés');
+    const fb=function(){ return (document.getElementById('bhsFb')||{}).textContent||''; };
+    const neuf=function(a,b,opts,bon){ test.locked=false; test.questions[test.idx]={a:a,b:b,opts:opts,bon:bon}; test.bhsEt=0; test.bhsChoix=null; test.bhsFautes=[]; renderBhsTest(); };
+    neuf(-3,5,[[-3,4],[-3,5],[3,5],[-3,-5]],1);
+    if(document.getElementById('bhs-r')) vus.push('la case du résultat est ouverte avant le choix');
+    if(document.querySelectorAll('#bhsGrille text[fill^="var(--bhr"]').length) vus.push('les flèches portent leur nombre avant le choix');
+    if(document.querySelectorAll('#bhsGrille text[fill^="var(--bhr"]').length===0 && (bhsChoisir(0), bhsValider(), document.querySelectorAll('#bhs-c0 text[fill^="var(--bhr"]').length!==2)) vus.push('un schéma refusé ne montre pas les nombres de ses flèches');
+    neuf(-3,5,[[-3,4],[-3,5],[3,5],[-3,-5]],1);
+    bhsValider();
+    if(test.bhsEt!==0 || !/Clique/.test(fb())) vus.push('valider sans choisir : étape '+test.bhsEt+', « '+fb()+' »');
+    bhsChoisir(2); bhsValider();
+    if(test.bhsEt!==0 || !/montre 3 \\+ 5/.test(fb()) || !document.getElementById('bhs-c2').classList.contains('bhs-faux')) vus.push('un faux schéma : étape '+test.bhsEt+', « '+fb()+' »');
+    if(/la première flèche part de 0/.test(fb())) vus.push('la première erreur donne déjà les déplacements');
+    bhsChoisir(2); if(test.bhsChoix===2) vus.push('un schéma refusé se choisit encore');
+    checkBhsAnswer(); if(test.answers.length) vus.push('« Vérifier » compte une réponse avant le bon schéma');
+    bhsChoisir(0); bhsValider();
+    if(!/la première flèche part de 0/.test(fb())) vus.push('la seconde erreur ne dit pas les déplacements : « '+fb()+' »');
+    /* la pause range le choix, la reprise redessine les schémas refusés */
+    const snap=JSON.parse(JSON.stringify(snapshotTest()));
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test,snap); renderBhsTest();
+    if(test.bhsEt!==0 || document.querySelectorAll('#bhsGrille .bhs-faux').length!==2) vus.push('la reprise : étape '+test.bhsEt+', '+document.querySelectorAll('#bhsGrille .bhs-faux').length+' schémas refusés');
+    bhsChoisir(1); bhsValider();
+    if(test.bhsEt!==1 || !document.getElementById('bhs-r') || !/Oui/.test(fb())) vus.push('le bon schéma : étape '+test.bhsEt+', « '+fb()+' »');
+    if(!document.getElementById('bhs-c1').classList.contains('bhs-juste')) vus.push('le bon schéma n\\'est pas marqué');
+    bhsChoisir(3); if(test.bhsChoix===3) vus.push('un schéma se choisit encore une fois le bon trouvé');
+    const peint=function(){ const c=(document.getElementById('bhs-r')||{}).className||'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    document.getElementById('bhs-r').value='+2'; checkBhsAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || peint()!=='ok') vus.push('−3 + 5 = +2 n\\'est pas compté juste');
+    if(der && !/2 schémas faux/.test(der.given||'')) vus.push('la copie ne relève pas les schémas faux : '+(der&&der.given));
+    const finir=function(a,b){ neuf(a,b,[[a,b],[a,-b],[-a,b],[-a,-b]],0); bhsChoisir(0); bhsValider(); };
+    finir(4,-1); document.getElementById('bhs-r').value='5'; checkBhsAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || der.correct || peint()!=='bad') vus.push('4 + (−1) = 5 : '+(der&&der.correct)+' / '+peint());
+    finir(-2,-2); document.getElementById('bhs-r').value=''; checkBhsAnswer();
+    if(peint()!=='sol' || document.getElementById('bhs-r').value!=='\\u22124') vus.push('la case vide : '+peint()+' / '+document.getElementById('bhs-r').value);
+    currentMode='soutien';
+    finir(2,3); document.getElementById('bhs-r').value='-5'; checkBhsAnswer(true);
+    if(peint()!=='bad') vus.push('soutien en direct : la réponse fausse est peinte '+peint());
+    currentMode='train';
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }

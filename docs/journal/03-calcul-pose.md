@@ -543,10 +543,64 @@ le donne ; trois pas à gauche ; un faux à l'étape 2 ramène au bout du premie
 bouge plus une fois arrivé et ne sort pas de l'axe ; juste, faux, vide (la
 correction verte), soutien en direct.
 
-**Puis la consigne de l'étape s'est écrite en GRAND (v742).** « Il faut
+**Puis la consigne de l'étape s'est écrite en GRAND (v743).** « Il faut
 écrire en plus gros et rendre plus voyant 1. 2. et 3. » : la consigne est
 devenue un bandeau orangé, le numéro de l'étape dans une pastille, la
 consigne en grand (« Déplace le bonhomme de −3 », le terme en gras orange) et
 le rappel du geste en petit dessous ; l'étape 3 passe en bleu. Sur téléphone,
 le bandeau rétrécit sans déborder (vu à 390 px). Le contrôle jsdom de la
 reprise lit désormais le numéro de la pastille (`^2\D`), plus « 2. ».
+
+## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
+
+Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il
+y a plusieurs schémas montrant des déplacements du bonhomme avec les deux
+flèches, et où l'élève doit trouver le bon schéma et ensuite donner le
+résultat. »
+
+**Quatre schémas, A à D** (kind `bhs`), chacun un axe de −10 à 10, les deux
+flèches du 1.10 (sarcelle si elle avance, orange si elle recule) et le
+bonhomme posé à l'arrivée. Les flèches ne portent PAS leur nombre tant que
+le schéma n'est pas jugé : l'élève lit le sens et compte la longueur.
+Grille de deux colonnes à partir de ~900 px, une seule en dessous ; le SVG
+est dessiné en chaînes, sans identifiants (quatre par écran), et ne partage
+rien d'autre avec le 1.9 que `bhrX`, `bhrFmt`, `bhrEcrit`, `bhrLu` et le
+tirage `bhrNz()`.
+
+**Les pièges** (`bhsGen()`) : TOUJOURS un signe inversé (a + (−b) ou −a + b),
+TOUJOURS une flèche d'un pas trop longue ou trop courte — la couleur donne le
+sens, seule la longueur oblige à compter —, et un troisième tiré parmi les
+restes, −a + (−b) compris. Les quatre sont distincts, non nuls, de −5 à 5.
+JAMAIS b + a : il arrive au même point, et la commutativité n'est pas l'objet.
+Le piège se cachait : quand b = −a (3 + (−3)), −a + (−b) EST b + a — le
+contrôle dédié l'a vu à sa première exécution ; (b, a) est désormais écarté
+d'office avec (a, b).
+Les schémas et la place du bon sont tirés avec la question et rangés dans
+`q.opts` / `q.bon` — deux clés de `CLE_HORS` : la même somme avec d'autres
+pièges reste un doublon pour `distinctes()`.
+
+**Le juge du schéma** : valider sans rien choisir le dit ; un schéma faux se
+peint en rouge pâle (`bhs-faux`, pas `bad` : ce n'est pas une case, et il ne
+doit pas passer pour une question bloquée aux yeux de `#passer-soutien`), ses
+flèches montrent leurs nombres et son coin écrit la somme qu'il représente ;
+il ne se choisit plus. À la seconde erreur, la page dit les deux
+déplacements attendus. Juste, le bon schéma passe en bleu avec ses nombres,
+les autres s'éteignent, et la case du résultat s'ouvre.
+
+**La note** ne compte que la case du résultat (`maxScore` = nombre de
+questions), comme au 1.10 ; les schémas faux sont RELEVÉS dans la copie
+(`given` : « −2 (2 schémas faux avant le bon) »).
+
+**La pause** : `bhsEt`, `bhsChoix`, `bhsFautes` vivent sur `test`. Le banc de
+la pause ne sait pas choisir un schéma : l'exercice est déclaré dans
+`pauseReprise.horsAtteinte`, et le contrôle jsdom dédié (`bonhommeSchema`,
+`tests/verifier.js`) fait l'aller-retour JSON lui-même, après deux schémas
+refusés.
+
+**Contrôle dédié** : numéro 1.11, pas de bouton des tables ; 400 tirages
+(quatre schémas distincts, le bon est a + b, un piège de signe, un piège de
+longueur, jamais b + a, tout de −5 à 5) ; aucun nombre sur les flèches avant
+le choix ; valider sans choisir ; un faux se barre et ne se rechoisit pas, la
+seconde erreur dit les déplacements ; « Vérifier » ne compte rien avant le
+bon schéma ; la reprise ; juste, faux, vide (correction verte), soutien en
+direct.

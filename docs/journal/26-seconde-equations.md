@@ -490,8 +490,19 @@ seul, c'est le nombre obtenu après « multiplier par a ».
 **9.11 et 9.12.** Sept situations (`EQC_SIT`) : cinéma avec abonnement, deux
 loueurs, triangle, âges, deux tirelires, trois entiers consécutifs, deux cuves.
 Chacune range ses nombres et la solution, et dit son inconnue, son équation et
-sa question finale — qui n'est pas toujours x (le plus grand côté, l'âge de la
-mère, le prix payé). Le 9.12 fabrique ses trois pièges sur l'équation juste :
+sa question finale. Le 9.12 fabrique ses trois pièges sur l'équation juste :
 le x posé sur le mauvais nombre, un signe changé, un x oublié, les
 coefficients de x échangés d'un membre à l'autre ; un piège équivalent à la
 bonne équation ou à un autre piège, ou sans x après regroupement, est écarté.
+
+**La conclusion du 9.11 répond à la question de l'énoncé (v742, novembre
+2026).** « Quel âge a Léa ? » se concluait « La mère de Léa a … ans » : la case
+finale demandait un autre nombre que celui de la question (signalé par
+Turquet). Même défaut sur quatre autres situations — « Pour combien de
+séances… ? » concluait par le prix payé, les loueurs par le prix, les
+tirelires par la somme, les cuves par le volume. Chacune conclut désormais par
+ce que demande l'énoncé (« Léa a … ans », « Les deux tarifs sont égaux pour …
+séances », …). Le triangle (« Combien mesure chaque côté ? ») et les entiers
+consécutifs gardent leur dernière valeur à calculer, le plus grand côté et le
+plus grand nombre, qui fait partie de la réponse. La phrase de « pourquoi »
+ne met plus en minuscule l'initiale d'un prénom (« léa a »).
