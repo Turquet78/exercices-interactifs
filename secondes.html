@@ -10204,7 +10204,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=741;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=742;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -93568,7 +93568,9 @@ EQX.eqp={
 /* ===== 9.11 ET 9.12 — DES PROBLÈMES CONCRETS (eqc, eqk) ========================
    Sept situations (q.p), aucune parenthèse : tarifs, locations, périmètre
    d'un triangle, âges, épargne, nombres consécutifs, cuves. Chacune range
-   ses nombres et dit son inconnue, son équation, sa question finale. Le 9.11
+   ses nombres et dit son inconnue, son équation, sa question finale — qui
+   répond à la question de l'énoncé, jamais à une autre (« Quel âge a Léa ? »
+   se conclut « Léa a … ans », pas par l'âge de la mère). Le 9.11
    fait écrire l'équation ; le 9.12 la fait choisir parmi quatre. */
 const EQC_SIT=[
   { /* 0 — abonnement de cinéma */
@@ -93576,13 +93578,13 @@ const EQC_SIT=[
     txt:function(q){ return 'Au cinéma, une place coûte <b>'+eqxNb(q.s)+' €</b>. Avec la carte d’abonnement, qui coûte <b>'+eqxNb(q.A)+' €</b> par an, la place ne coûte plus que <b>'+eqxNb(q.u)+' €</b>. Pour combien de séances dans l’année les deux tarifs sont-ils égaux ?'; },
     inc:'On note <i>x</i> le nombre de séances.',
     eq:function(q){ return {G:[{k:q.A,x:0},{k:q.u,x:1}], D:[{k:q.s,x:1}]}; },
-    q2:function(q){ return {lab:'Pour ce nombre de séances, on paie dans les deux cas', val:q.s*q.x, unite:'€'}; } },
+    q2:function(q){ return {lab:'Les deux tarifs sont égaux pour', val:q.x, unite:'séances'}; } },
   { /* 1 — location de vélos */
     gen:function(){ const x=rand(2,10), d=rand(2,6), b=d+rand(1,4), a=rand(0,8), c=a+(b-d)*x; if(c>40 || a===0) return null; return {p:1, a:a, b:b, c:c, d:d, x:x}; },
     txt:function(q){ return 'Le loueur A demande <b>'+q.a+' €</b> de frais puis <b>'+q.b+' €</b> par heure. Le loueur B demande <b>'+q.c+' €</b> de frais puis <b>'+q.d+' €</b> par heure. Pour combien d’heures de location les deux loueurs font-ils payer le même prix ?'; },
     inc:'On note <i>x</i> le nombre d’heures.',
     eq:function(q){ return {G:[{k:q.a,x:0},{k:q.b,x:1}], D:[{k:q.c,x:0},{k:q.d,x:1}]}; },
-    q2:function(q){ return {lab:'Pour cette durée, chaque loueur fait payer', val:q.a+q.b*q.x, unite:'€'}; } },
+    q2:function(q){ return {lab:'Les deux loueurs font payer le même prix pour', val:q.x, unite:'heures'}; } },
   { /* 2 — périmètre d'un triangle */
     gen:function(){ const x=rand(3,15), m=rand(1,5), n=m+rand(1,6); if(x+m<=n) return null;   /* l'inégalité triangulaire */ return {p:2, m:m, n:n, P:3*x+m+n, x:x}; },
     txt:function(q){ return 'Un triangle a trois côtés : le premier mesure <i>x</i> cm, le deuxième <b>'+q.m+' cm</b> de plus que le premier, le troisième <b>'+q.n+' cm</b> de plus que le premier. Son périmètre est <b>'+q.P+' cm</b>. Combien mesure chaque côté ?'; },
@@ -93594,13 +93596,13 @@ const EQC_SIT=[
     txt:function(q){ return 'La mère de Léa a <b>'+q.m+' ans</b> de plus que Léa. Aujourd’hui, l’âge de la mère est égal à '+{3:'trois',4:'quatre',5:'cinq'}[q.k]+' fois celui de Léa. Quel âge a Léa ?'; },
     inc:'On note <i>x</i> l’âge de Léa, en années.',
     eq:function(q){ return {G:[{k:1,x:1},{k:q.m,x:0}], D:[{k:q.k,x:1}]}; },
-    q2:function(q){ return {lab:'La mère de Léa a', val:q.k*q.x, unite:'ans'}; } },
+    q2:function(q){ return {lab:'Léa a', val:q.x, unite:'ans'}; } },
   { /* 4 — épargne */
     gen:function(){ const x=rand(3,15), d=rand(2,8), b=d+rand(2,6), a=rand(5,40), c=a+(b-d)*x; if(c>120) return null; return {p:4, a:a, b:b, c:c, d:d, x:x}; },
     txt:function(q){ return 'Tom a <b>'+q.a+' €</b> dans sa tirelire et y ajoute <b>'+q.b+' €</b> chaque semaine. Zoé a <b>'+q.c+' €</b> et ajoute <b>'+q.d+' €</b> chaque semaine. Au bout de combien de semaines auront-ils la même somme ?'; },
     inc:'On note <i>x</i> le nombre de semaines.',
     eq:function(q){ return {G:[{k:q.a,x:0},{k:q.b,x:1}], D:[{k:q.c,x:0},{k:q.d,x:1}]}; },
-    q2:function(q){ return {lab:'Ils auront alors chacun', val:q.a+q.b*q.x, unite:'€'}; } },
+    q2:function(q){ return {lab:'Ils auront la même somme au bout de', val:q.x, unite:'semaines'}; } },
   { /* 5 — trois nombres consécutifs */
     gen:function(){ const x=rand(5,60); return {p:5, S:3*x+3, x:x}; },
     txt:function(q){ return 'La somme de trois nombres entiers consécutifs est <b>'+q.S+'</b>. Quels sont ces trois nombres ?'; },
@@ -93612,7 +93614,7 @@ const EQC_SIT=[
     txt:function(q){ return 'La cuve A contient <b>'+q.a+' L</b> d’eau et se vide de <b>'+q.b+' L</b> par minute. La cuve B contient <b>'+q.c+' L</b> et se remplit de <b>'+q.d+' L</b> par minute. Au bout de combien de minutes contiendront-elles la même quantité d’eau ?'; },
     inc:'On note <i>x</i> le nombre de minutes.',
     eq:function(q){ return {G:[{k:q.a,x:0},{k:-q.b,x:1}], D:[{k:q.c,x:0},{k:q.d,x:1}]}; },
-    q2:function(q){ return {lab:'Chaque cuve contiendra alors', val:q.c+q.d*q.x, unite:'L'}; } }
+    q2:function(q){ return {lab:'Elles contiendront la même quantité d’eau au bout de', val:q.x, unite:'minutes'}; } }
 ];
 function eqcGen(p){ for(let i=0;i<500;i++){ const q=EQC_SIT[p].gen(); if(q) return q; } return EQC_SIT[p].gen() || {p:5, S:33, x:10}; }
 function eqcBuild(nb){
@@ -93650,7 +93652,7 @@ EQX.eqc={
     const t=eqcEq(q), r=eqxAB(t.G,t.D), S=EQC_SIT[q.p], v=S.q2(q);
     if(f.c.nom==='équation') return eqxEquationPourquoi(f.el.value, t.G, t.D, 'l’énoncé');
     if(f.c.nom==='x') return 'On résout '+eqxEqT(t.G,t.D)+' : '+eqxNb(r.A)+'x = '+eqxNb(r.B)+', donc x = '+eqxNb(q.x)+'.';
-    return 'Avec x = '+eqxNb(q.x)+' : '+v.lab.charAt(0).toLowerCase()+v.lab.slice(1)+' '+eqxNb(v.val)+(v.unite?' '+v.unite:'')+'.';
+    return 'Avec x = '+eqxNb(q.x)+' : '+v.lab.replace(/^(Le|La|Les|Ils|Elles)(?= )/, function(m){ return m.toLowerCase(); })+' '+eqxNb(v.val)+(v.unite?' '+v.unite:'')+'.';
   },
   texte:function(q){ return EQC_SIT[q.p].txt(q).replace(/<[^>]+>/g,''); },
   reponse:function(q){ const t=eqcEq(q), v=EQC_SIT[q.p].q2(q); return eqxEqT(t.G,t.D)+', x = '+eqxNb(q.x)+' ; '+v.lab+' '+eqxNb(v.val)+(v.unite?' '+v.unite:''); },
