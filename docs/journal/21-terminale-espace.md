@@ -1468,6 +1468,29 @@ les demande. L'indice ne coûte rien à la note.
 section tracée sans L ni 𝒟 → (IJ), (CG), L, (LK), puis « La section est
 complète », bilan tout juste ; le bouton cliqué écrit son indice.
 
+#### Puis le bouton « Indice » est passé À CÔTÉ DE LA FIGURE (v533)
+
+Turquet, novembre 2026 : « dans le 7.1.12, 7.1.14 et 7.1.15, quand l'élève
+doit construire la section du cube, faire en sorte qu'il y ait un bouton indice
+à côté de la figure ». Le bouton de la v514 existait déjà aux trois (la
+partie 4 du 7.1.15 tourne sur le moteur du 7.1.14), mais au bout de la barre
+d'outils, et son indice s'écrivait en petit gris dans la ligne de message, où
+la phrase suivante l'écrasait : on ne le voyait pas. Il vit maintenant dans une
+colonne à droite de la figure (`.esx-figrang`, `.esx-indice-col`), au-dessus
+d'elle sous 760 px ; l'indice s'écrit dans un encadré ambre sous le bouton
+(`#esxIndiceTxt`), et les points qu'il nomme sont entourés d'ambre sur la
+figure (`esxIndiceVise`, posé par `esxIndiceTexte`). Les phrases n'ont pas
+changé. L'encadré et les anneaux restent tant que la construction ne change
+pas (`esxIndiceN`) : un geste refusé ne les efface pas, un trait tracé ou
+annulé, si. Le bouton se grise avec les outils à la vérification. Toujours
+rien au 7.1.13, dont les étapes sont écrites.
+
+**Exécuté** dans Chromium, à 1 280 et 390 px, aux 7.1.12, 7.1.14 et 7.1.15
+(partie 4) : l'indice cliqué écrit « … trace le segment rouge [JK] » dans
+l'encadré, J et K entourés ; un segment refusé (deux fois le même point) le
+laisse ; le segment [JK] tracé l'efface ; après « Vérifier », le bouton est
+grisé et n'écrit plus rien ; au 7.1.13, aucun bouton.
+
 ## 7.1.15 — un exercice de bac : le cube, deux droites, la section (`espace-bac-cube`, kind `ebc`)
 
 Demande de Turquet (novembre 2026), avec le sujet du bac blanc du 2 décembre
