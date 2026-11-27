@@ -3619,6 +3619,44 @@ la 3, f″ et la convexité la 4, l'équation différentielle reste la 5. Les ca
 et leurs juges n'ont pas changé, seul leur ordre (à l'écran, dans la liste des
 cases et dans le contexte envoyé au modèle).
 
+### Puis, une fois sur deux, la partie A sur la courbe de f′ (v533)
+
+Demande de Turquet (novembre 2026), avec la partie A d'un autre sujet (la
+courbe de f′ pour f(x) = (x − 1)e^(2x) − 1) : « faire en sorte qu'une fois
+sur 2, pour la partie A, on donne le graphique de f′(x) et qu'on ait les mêmes
+questions ; ne pas regarder la partie B ; on n'a pas le droit d'avoir le même
+exemple que celui de l'image ». Le tirage range `q.gd` (0 ou 1, à pile ou face)
+— pas `q.g`, que `cleQuestion()` écarte (`CLE_HORS`). La partie B ne change
+pas, et la courbe dessinée est le f′ de SA fonction, (2ax + a + 2b)e^(2x) :
+a ∈ {2, 4, 6}, jamais le (2x − 1)e^(2x) de l'image. La suggestion d'un
+« … e^(−…) » n'a pas été prise : elle aurait demandé de refaire toute la
+partie B (limites, sens de variation, TVI, équation différentielle), que la
+demande disait de laisser.
+
+Les trois questions du sujet, en cases (`efb-d1` à `efb-d17`, dans
+`efbCases` à la place des `efb-a*`) : 1. le signe de f′ (courbe sous ou
+au-dessus de l'axe) sur ]−∞ ; x₀] et [x₀ ; +∞[, les variations de f qui en
+découlent, « minimum » en x = x₀ ; 2. f′(x₀) = 0 lu au point P, puis la
+tangente à C_f « horizontale » choisie parmi trois ; 3. f′ décroissante puis
+croissante, donc f concave puis convexe, l'abscisse du creux de f′ (le point
+d'inflexion, x₀ − 1/2) à un quart près, comme l'ancien A4. Les limites ne se
+lisent pas sur la courbe de f′ : cette partie A n'en a pas.
+
+Le dessin est celui de f, généralisé (`efbCourbe`) : les deux courbes sont de
+la forme (px + r)e^(2x), un creux puis une montée. Deux défauts vus sur la
+première capture, corrigés pour la courbe de f′ seulement : son creux tombe
+souvent tout près de l'axe des ordonnées, qui barrait ses graduations
+(« −2 », « −5 ») — elles passent dans la marge gauche, hors du quadrillage ;
+l'étiquette de P, en haut à gauche, touchait la graduation du demi d'avant —
+elle passe en bas à droite, où la courbe ne va pas. La hauteur se cale sur le
+creux seul (aucun point à montrer en 0).
+
+Banc navigateur (« 6 quinquagies ») : la copie remplie depuis l'attendu est
+toute juste sur deux visages de la courbe de f′ (le creux sur l'axe des
+ordonnées, a = 2, b = −2 ; puis b = 0), l'étiquette dit C_f′, les cases de
+l'autre partie A n'existent pas, et `genEFBCase()` tire la courbe de f′ entre
+60 et 140 fois sur 200.
+
 **« + » au pavé des cases qui écrivent un nombre avec son signe (novembre 2026, v532).**
 Suite du « je n'ai pas le signe + » du 6.3 de la Première (`docs/journal/22-premiere-etude-fonction.md`) :
 le pavé ancré n'offre que « − » d'office. Six cases de la Terminale demandaient

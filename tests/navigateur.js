@@ -8053,6 +8053,7 @@ if(require.main === module) (async () => {
     titre('6 quinquagies. LE 4.5.1 : L\'EXERCICE DE BAC SUR (ax + b)e^(2x) — LA COPIE ENTIÈRE, LE DESSIN');
     if(!P.etudeFonctionBac){
       ['le 4.5.1 : la copie remplie est toute juste, sur deux visages',
+       'le 4.5.1 : une fois sur deux, la partie A lit la courbe de f′ — ses trois questions, la copie toute juste',
        'le 4.5.1 : l\'encadrement de α à la calculatrice — plus précis juste, trop large ou à côté faux',
        'le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
        'le 4.5.1 : le dessin n\'est pas écrasé en hauteur',
@@ -8094,6 +8095,17 @@ if(require.main === module) (async () => {
       await epingler({ a: 4, b: 0, k: 1 });
       await s.page.waitForTimeout(400);
       const v2 = await copie();
+      /* une fois sur deux, la partie A lit la courbe de f′ : ses trois questions,
+         sur deux visages (le creux de f′ en 0 — sur l'axe des ordonnées —, puis b = 0) */
+      await epingler({ a: 2, b: -2, k: 3, gd: 1 });
+      await s.page.waitForTimeout(400);
+      const d0 = await s.page.evaluate(() => ({ d: !!document.getElementById('efb-d17'), a: !!document.getElementById('efb-a5'),
+        cf: (document.querySelector('#efbForm .efb-svg .sv-cf') || {}).textContent || '' }));
+      const v4 = await copie();
+      await epingler({ a: 6, b: 0, k: 2, gd: 1 });
+      await s.page.waitForTimeout(400);
+      const v5 = await copie();
+      const tirage = await s.page.evaluate(() => { let n = 0; for (let i = 0; i < 200; i++) if (genEFBCase().gd) n++; return n; });
       /* l'encadrement de α se cherche à la calculatrice : plus précis, il est
          juste ; trop large, ou du mauvais côté, il est faux */
       const enc = await s.page.evaluate(() => {
@@ -8114,6 +8126,9 @@ if(require.main === module) (async () => {
       verifier('le 4.5.1 : la copie remplie est toute juste, sur deux visages',
         juste(v1) && juste(v2),
         [v1, v2].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — '));
+      verifier('le 4.5.1 : une fois sur deux, la partie A lit la courbe de f′ — ses trois questions, la copie toute juste',
+        d0.d && !d0.a && d0.cf === 'Cf′' && juste(v4) && juste(v5) && tirage > 60 && tirage < 140,
+        'cases ' + JSON.stringify(d0) + ', ' + [v4, v5].map(v => v.oks + ' ok, rouges ' + JSON.stringify(v.bads.slice(0, 4)) + ', note ' + v.score + '/' + v.max).join(' — ') + ', courbe de f′ tirée ' + tirage + ' fois sur 200');
       verifier('le 4.5.1 : l\'encadrement de α à la calculatrice — plus précis juste, trop large ou à côté faux',
         enc.fin === true && enc.large === false && enc.cote === false, JSON.stringify(enc));
       verifier('le 4.5.1 : une copie vide reçoit toutes ses corrections, aucune case rouge',
@@ -8122,7 +8137,7 @@ if(require.main === module) (async () => {
       verifier('le 4.5.1 : le dessin n\'est pas écrasé en hauteur, et les flèches du tableau sont dessinées',
         v1.gH > 0.8 * v1.gW && v1.gW > 400 && v1.fleches >= 2,
         'dessin ' + v1.gW + '×' + v1.gH + ' px, ' + v1.fleches + ' flèche(s)');
-      verifier('le 4.5.1 : la page ne déborde pas', !v1.page && !v2.page, 'la page défile horizontalement');
+      verifier('le 4.5.1 : la page ne déborde pas', !v1.page && !v2.page && !v4.page, 'la page défile horizontalement');
       verifier('l\'exercice de bac sur les fonctions ne lève aucune erreur JavaScript',
         s.erreurs.length === 0, s.erreurs.slice(0, 2).join(' | '));
       await s.nav.close(); s = null;
