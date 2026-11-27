@@ -495,7 +495,7 @@ le x posé sur le mauvais nombre, un signe changé, un x oublié, les
 coefficients de x échangés d'un membre à l'autre ; un piège équivalent à la
 bonne équation ou à un autre piège, ou sans x après regroupement, est écarté.
 
-**La conclusion du 9.11 répond à la question de l'énoncé (v742, novembre
+**La conclusion du 9.11 répond à la question de l'énoncé (v743, novembre
 2026).** « Quel âge a Léa ? » se concluait « La mère de Léa a … ans » : la case
 finale demandait un autre nombre que celui de la question (signalé par
 Turquet). Même défaut sur quatre autres situations — « Pour combien de
