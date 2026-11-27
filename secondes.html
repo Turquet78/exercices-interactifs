@@ -1060,7 +1060,18 @@
   #bhdCmd[hidden]{display:none}
   #scr-bhd .bhd-prise{cursor:grab;outline:none}
   #scr-bhd .bhd-prise:focus-visible circle{stroke:var(--blue)}
-  .bhd-consigne{margin:0;text-align:center;font-weight:700;color:var(--ink);font-size:1.05rem}
+  /* la consigne de l'étape, en bandeau : le numéro dans sa pastille, la
+     consigne en grand (demande de Turquet : « écrire en plus gros et rendre
+     plus voyant 1. 2. et 3. ») */
+  .bhd-consigne{display:flex;align-items:center;justify-content:center;gap:16px;margin:0;padding:12px 20px;border-radius:16px;background:#FFF6E5;border:2.5px solid #E8A33D;color:var(--ink);text-align:left}
+  .bhd-consigne.bhd-fin{background:#EAF0FF;border-color:var(--blue)}
+  .bhd-num{flex:0 0 auto;width:2em;height:2em;border-radius:50%;background:#E8A33D;color:#fff;font-weight:900;font-size:1.7rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+  .bhd-fin .bhd-num{background:var(--blue)}
+  .bhd-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .bhd-grand{font-size:1.55rem;font-weight:800;line-height:1.25}
+  .bhd-terme{font-size:1.15em;font-weight:900;color:#B45309;white-space:nowrap}
+  .bhd-sous{font-size:1rem;font-weight:600;color:var(--ink-soft)}
+  @media(max-width:520px){ .bhd-consigne{gap:10px;padding:10px 12px} .bhd-num{font-size:1.3rem} .bhd-grand{font-size:1.2rem} .bhd-sous{font-size:.9rem} }
   .bhd-t{padding:0 .12em;border-radius:6px}
   .bhd-cur{background:#FFF1D6;box-shadow:inset 0 -3px 0 #E8A33D}
   .bhd-attente{display:inline-flex;align-items:center;justify-content:center;width:3.2em;height:1.7em;box-sizing:border-box;border:2px dashed var(--line);border-radius:10px;color:var(--ink-soft)}
@@ -10204,7 +10215,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=741;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=742;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -89887,9 +89898,13 @@ function bhdRamener(de,a){
 }
 function bhdConsigne(q){
   const et=test.bhdEt, c=$('bhdConsigne'); if(!c) return;
-  if(et===0) c.innerHTML='<b>1.</b> Déplace le bonhomme de <b>'+bhrFmt(q.a)+'</b> à partir du départ, puis clique sur « Valider le déplacement ».';
-  else if(et===1) c.innerHTML='<b>2.</b> Déplace maintenant le bonhomme de <b>'+bhrFmt(q.b)+'</b> à partir de là où il est, puis clique sur « Valider le déplacement ».';
-  else c.innerHTML='<b>3.</b> Le bonhomme est arrivé. Écris le résultat de la somme.';
+  const bandeau=function(n,grand,sous){
+    return '<span class="bhd-num" aria-label="étape '+n+'">'+n+'</span>'
+      +'<span class="bhd-txt"><span class="bhd-grand">'+grand+'</span><span class="bhd-sous">'+sous+'</span></span>'; };
+  c.classList.toggle('bhd-fin', et>=2);
+  if(et===0) c.innerHTML=bandeau(1,'Déplace le bonhomme de <span class="bhd-terme">'+bhrFmt(q.a)+'</span>','à partir du départ, puis clique sur « Valider le déplacement ».');
+  else if(et===1) c.innerHTML=bandeau(2,'Déplace le bonhomme de <span class="bhd-terme">'+bhrFmt(q.b)+'</span>','à partir de là où il est, puis clique sur « Valider le déplacement ».');
+  else c.innerHTML=bandeau(3,'Écris le résultat de la somme','Le bonhomme est arrivé.');
 }
 function bhdCalcHTML(q){
   const et=test.bhdEt;
@@ -89988,7 +90003,7 @@ function renderBhdTest(){
   $('modeTagBhd').innerHTML=modeTagHTML();
   $('bhdLiveScore').textContent=test.score;
   $('bhdFb').textContent=''; $('bhdFb').className='mp-feedback';
-  $('bhdHost').innerHTML='<p class="bhd-consigne" id="bhdConsigne"></p>'
+  $('bhdHost').innerHTML='<p class="bhd-consigne" id="bhdConsigne" aria-live="polite"></p>'
     +'<div class="bhr-axe">'+bhrSVG()+'</div>'
     +'<div class="bhr-cmd" id="bhdCmd"'+(test.bhdEt>=2?' hidden':'')+'>'
     +'<button class="btn" type="button" onclick="bhdPas(-1)" aria-label="un pas vers la gauche">◀ un pas</button>'
