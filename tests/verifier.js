@@ -4751,6 +4751,7 @@ function exercices(suite){
     ordreCroissant(w, P);
     nombresRelatifs(w, P);
     bonhommeRelatifs(w, P);
+    bonhommeDeplacer(w, P);
     additionnerRelatifs(w, P);
     associerExpressions(w, P);
     multiplierRelatifs(w, P);
@@ -25928,6 +25929,74 @@ function bonhommeRelatifs(w, P){
     currentMode='train';
     test.bhrJeton=(test.bhrJeton||0)+1;
     return vus.slice(0,5).join(' | ');
+  })()`, v => v === '', undefined);
+}
+function bonhommeDeplacer(w, P){
+  const present = evaluer(w, "typeof startBhd==='function' && typeof bhdValider==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('le bonhomme à déplacer : faux, il revient au départ ou au bout du premier déplacement ; juste, la case du résultat s\'ouvre',
+      'ce niveau n\'a pas l\'exercice du bonhomme à déplacer');
+    return;
+  }
+  verifierEval(w, 'le bonhomme à déplacer : faux, il revient au départ ou au bout du premier déplacement ; juste, la case du résultat s\'ouvre', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='bonhomme-deplacer';
+    if(TEST_NUM['bonhomme-deplacer']!=='1.10') vus.push('numéro '+TEST_NUM['bonhomme-deplacer']+' au lieu de 1.10');
+    if(TABLES_SANS.indexOf('bonhomme-deplacer')<0) vus.push('le bouton des tables est proposé : on n\\'y multiplie rien');
+    startBhd();
+    if(test.kind!=='bhd' || test.qId!=='bonhomme-deplacer') vus.push('identité : '+test.kind+' / '+test.qId);
+    if(test.questions.length!==10 || test.maxScore!==10) vus.push(test.questions.length+' questions, barème '+test.maxScore);
+    const fb=function(){ return (document.getElementById('bhdFb')||{}).textContent||''; };
+    const neuf=function(a,b){ test.locked=false; test.questions[test.idx]={a:a,b:b}; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; renderBhdTest(); };
+    neuf(-3,5);
+    if(document.getElementById('bhd-r')) vus.push('la case du résultat est ouverte avant les déplacements');
+    bhdValider();
+    if(test.bhdEt!==0 || !/pas bougé/.test(fb())) vus.push('sans bouger, la validation : étape '+test.bhdEt+', « '+fb()+' »');
+    bhdPoser(3); bhdValider();
+    if(test.bhdEt!==0 || test.bhdPos!==0 || !/remis au départ/.test(fb())) vus.push('−3 posé en +3 : étape '+test.bhdEt+', position '+test.bhdPos+', « '+fb()+' »');
+    if(/recule de 3/.test(fb())) vus.push('la première erreur donne déjà le déplacement');
+    bhdPoser(-2); bhdValider();
+    if(!/recule de 3/.test(fb())) vus.push('la seconde erreur ne dit pas le déplacement : « '+fb()+' »');
+    bhdPas(-1); bhdPas(-1); bhdPas(-1);
+    if(test.bhdPos!==-3) vus.push('trois pas à gauche depuis 0 : '+test.bhdPos);
+    bhdValider();
+    if(test.bhdEt!==1 || !/Oui/.test(fb())) vus.push('−3 bien posé : étape '+test.bhdEt+', « '+fb()+' »');
+    if(document.getElementById('bhd-r')) vus.push('la case du résultat est ouverte après le premier déplacement');
+    bhdPoser(-5); bhdValider();
+    if(test.bhdEt!==1 || test.bhdPos!==-3 || !/fin du premier déplacement/.test(fb())) vus.push('+5 posé en −5 : étape '+test.bhdEt+', position '+test.bhdPos+', « '+fb()+' »');
+    checkBhdAnswer();
+    if(test.answers.length) vus.push('« Vérifier » compte une réponse avant la fin des déplacements');
+    /* la pause range l'étape, la reprise redessine le bonhomme et son arc */
+    const snap=JSON.parse(JSON.stringify(snapshotTest()));
+    Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test,snap); renderBhdTest();
+    const tr=(document.getElementById('bhrMan')||{getAttribute:function(){return '';}}).getAttribute('transform')||'';
+    if(test.bhdEt!==1 || tr.indexOf('translate('+bhrX(-3).toFixed(2))<0) vus.push('la reprise : étape '+test.bhdEt+', bonhomme '+tr);
+    if(((document.getElementById('bhrArcs')||{}).children||[]).length!==3) vus.push('la reprise ne redessine pas l\\'arc du premier déplacement');
+    if(!/^2\\./.test((document.getElementById('bhdConsigne')||{}).textContent||'')) vus.push('la reprise ne reprend pas la consigne de l\\'étape 2');
+    bhdPoser(2); bhdValider();
+    if(test.bhdEt!==2 || !document.getElementById('bhd-r')) vus.push('+5 bien posé : étape '+test.bhdEt+', case '+!!document.getElementById('bhd-r'));
+    bhdPoser(9); if(test.bhdPos!==2) vus.push('le bonhomme bouge encore une fois arrivé');
+    const peint=function(){ const c=(document.getElementById('bhd-r')||{}).className||'';
+      return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    document.getElementById('bhd-r').value='+2'; checkBhdAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || peint()!=='ok') vus.push('−3 + 5 = +2 n\\'est pas compté juste');
+    if(der && !/3 déplacements faux/.test(der.given||'')) vus.push('la copie ne relève pas les déplacements faux : '+(der&&der.given));
+    const finir=function(a,b){ neuf(a,b); bhdPoser(a); bhdValider(); bhdPoser(a+b); bhdValider(); };
+    finir(4,-1); bhdPoser(-10); bhdPoser(-30); if(test.bhdPos!==3) vus.push('arrivé, le bonhomme se repose : '+test.bhdPos);
+    document.getElementById('bhd-r').value='5'; checkBhdAnswer();
+    der=test.answers[test.answers.length-1];
+    if(!der || der.correct || peint()!=='bad') vus.push('4 + (−1) = 5 : '+(der&&der.correct)+' / '+peint());
+    finir(-2,-2); document.getElementById('bhd-r').value=''; checkBhdAnswer();
+    if(peint()!=='sol' || document.getElementById('bhd-r').value!=='\\u22124') vus.push('la case vide : '+peint()+' / '+document.getElementById('bhd-r').value);
+    neuf(1,1); bhdPoser(-30); if(test.bhdPos!==-10) vus.push('le bonhomme sort de l\\'axe : '+test.bhdPos);
+    currentMode='soutien';
+    finir(2,3); document.getElementById('bhd-r').value='-5'; checkBhdAnswer(true);
+    if(peint()!=='bad') vus.push('soutien en direct : la réponse fausse est peinte '+peint());
+    currentMode='train';
+    test.bhrJeton=(test.bhrJeton||0)+1;
+    return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }
 function ordreCroissant(w, P){
