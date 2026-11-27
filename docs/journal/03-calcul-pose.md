@@ -484,3 +484,61 @@ pour montrer le chemin ; une case laissée vide reçoit la correction en vert
 sans lancer la marche. Le retour dit si la question a été trouvée sans la
 simulation, et `given` le range (« (avec simulation) » / « (sans
 simulation) ») pour le professeur.
+
+## {bonhomme-deplacer} : le bonhomme à déplacer (1.10, novembre 2026, v740)
+
+Demandé par Turquet le lendemain du 1.9 : « le même exercice, où l'on demande
+à l'élève de déplacer le bonhomme du premier terme ; on dira si c'est faux et
+on le remettra au départ tant que ce n'est pas le bon déplacement ; puis la
+même chose pour le deuxième terme — faux, on le remet à la fin du premier
+déplacement ; et quand il a posé le bonhomme à la position finale, on demande
+le résultat de la somme. »
+
+**Le même axe, le même bonhomme, le même tirage** que le 1.9 (kind `bhd`,
+`bhrBuildQuestions()`, `bhrSVG()`, `bhrPlacer()`, `bhrLu()`). Les deux écrans
+partagent donc les identifiants de l'axe (`bhrMan`, `bhrArcs`) : chacun VIDE
+l'hôte de l'autre en se dessinant, sans quoi `$('bhrMan')` rendait le
+bonhomme de l'écran caché.
+
+**Trois façons de déplacer**, parce que le doigt d'une tablette n'a pas la
+précision de la souris : glisser le bonhomme (ou toucher une graduation : il
+s'y pose), les boutons « ◀ un pas » / « un pas ▶ », et les flèches du clavier
+sur le bonhomme (rôle `slider`, Entrée valide). Le SVG porte
+`touch-action:none` ; sur un écran étroit l'axe garde sa largeur minimale du
+1.9 et DÉFILE pour suivre le bonhomme — jamais pendant un glisser, où le
+défilement emporterait la graduation sous le doigt et le bonhomme avec.
+
+**Le juge des déplacements** : la position posée doit être le départ de
+l'étape plus le terme. Faux, la page le dit, le bonhomme GLISSE jusqu'au
+départ de l'étape (0, puis le bout du premier déplacement), et la première
+erreur ne donne que la règle (positif avance, négatif recule) ; à la seconde,
+elle dit le déplacement (« −3 : il recule de 3 »). Valider sans avoir bougé
+n'est pas un déplacement faux : rien n'est compté. Juste, l'arc reste sur
+l'axe (vert s'il avance, orange s'il recule).
+
+**Les arcs se croisaient** quand le second déplacement revient en arrière
+(3 + (−2), 1 + (−5)) : l'étiquette du premier arc était barrée par le second,
+plus profond. Elle se pose alors au bout de sa flèche, du côté que le second
+arc ne parcourt pas. Vu sur capture, cinq cas (même sens, retour plus court,
+retour plus long, retour à 0).
+
+**La note** ne compte que la case du résultat, une par question
+(`maxScore` = nombre de questions) : les déplacements sont tenus jusqu'à ce
+qu'ils soient justes, dans tous les modes, et les déplacements faux sont
+RELEVÉS dans la copie (`given` : « −4 (3 déplacements faux avant le bon) »),
+pas retranchés. « Vérifier » n'existe qu'à l'étape 3.
+
+**La pause** : l'étape (`bhdEt`), la position (`bhdPos`) et les fautes
+(`bhdFautes`) vivent sur `test`, que `snapshotTest()` range ; la reprise
+redessine le bonhomme, les arcs déjà validés et la consigne de l'étape.
+Le banc de la pause ne sait pas déplacer le bonhomme : l'exercice est déclaré
+dans `pauseReprise.horsAtteinte`, et le contrôle jsdom dédié
+(`bonhommeDeplacer`, `tests/verifier.js`) fait l'aller-retour JSON lui-même,
+au milieu de l'étape 2.
+
+**Contrôle dédié** : numéro 1.10, pas de bouton des tables ; valider sans
+bouger ; un faux à l'étape 1 ramène à 0 sans donner le déplacement, le second
+le donne ; trois pas à gauche ; un faux à l'étape 2 ramène au bout du premier ;
+« Vérifier » ne compte rien avant l'étape 3 ; la reprise ; le bonhomme ne
+bouge plus une fois arrivé et ne sort pas de l'axe ; juste, faux, vide (la
+correction verte), soutien en direct.
