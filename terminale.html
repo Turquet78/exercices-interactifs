@@ -2534,6 +2534,8 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .mf-cor{margin-left:4px}
 #scr-lnf .tg-in.sol,#scr-lnf .tg-in.sol:disabled{border-color:var(--green);background:var(--green-soft);color:var(--green);opacity:1}
 #scr-lnf .lnf-instr{margin:8px 0 4px}
+#scr-lnf .lnf-cap{margin-left:14px;white-space:nowrap}
+#scr-lnf .lnf-row .op{font-size:1.25rem;font-weight:700;color:var(--ink);margin:0 6px}
 .lnf-donc{margin:0 14px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
@@ -4805,7 +4807,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=535;
+const APP_VERSION=536;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21054,42 +21056,48 @@ function lnfGraphSVG(q){
   return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg">'+g+asy
     +'<path class="sv-curve" d="'+efTrace(X,Y,sx,sy,ymin,ymax)+'"/>'+lab+cl+'</svg>';
 }
-/* ---- la dérivée : la chaîne du 4.1.1, en cases MathLive ---- */
-const LNF_DER=['lnf-u','lnf-du','lnf-s1','lnf-s2','lnf-s3','lnf-s4','lnf-s5','lnf-s6','lnf-s7','lnf-s8','lnf-s9'];
-const LNF_L1=['lnf-s1','lnf-s2','lnf-s3'], LNF_L2=['lnf-s4','lnf-s5','lnf-s6','lnf-s7'], LNF_L3=['lnf-s8','lnf-s9'];
-/* Le juge : chaque LIGNE se juge d'abord entière — sa valeur est-elle f′ ? —,
-   ce qui accepte toute écriture équivalente (1/(x + 2) comme −1/(−x − 2)) ;
-   sinon chaque case contre ce qu'elle porte, la paire c × (ax + b) du même
-   dénominateur dans l'ordre que l'on veut. Une case vide n'est jamais juste,
-   sauf le facteur 1 omis devant la parenthèse d'une ligne juste. */
+/* ---- la dérivée, comme la fiche « ln dérivée » (Turquet, novembre 2026) ----
+   « demande la dérivée d'abord de ln(ax + b), en écrivant la formule (ln u)′
+   avant ; puis mettre directement f′(x) = …/… ; puis demander de dériver
+   cx + d ; et ensuite demander f′(x) et terminer le calcul comme sur le pdf
+   joint ; on précisera si on souhaite que la case soit un développement ou
+   une réduction ; mettre en rouge quand les cases sont fausses et en bleu
+   sinon ». La fiche : 2/(2x + 1) − 3 = 2/(2x + 1) − 3×(…)/1×(…)
+   = ……/(2x + 1) = ……/(2x + 1) — les deux parenthèses, le numérateur
+   DÉVELOPPÉ, puis RÉDUIT, sur le dénominateur écrit par la page.
+   Chaque case se juge SEULE et se peint seule : bleue si elle est juste,
+   rouge sinon. Une fraction se juge d'abord en entier (1/(x − 3) comme
+   −1/(−x + 3)), sinon numérateur et dénominateur chacun contre le sien. */
+const LNF_DER=['lnf-n1','lnf-dn1','lnf-c1','lnf-s1','lnf-s2','lnf-s3','lnf-s4','lnf-s5','lnf-s6','lnf-s7'];
+/* le numérateur développé : a − x − ab ; réduit : −x + xs */
+function lnfDevPlain(A){ return numFmt(A.a)+' − x'+txB(-A.a*A.b); }
+/* une écriture sans parenthèse, sans produit : une somme de termes */
+function lnfSansParenthese(s){ return !/[()×*·]/.test(s) && !/\\left|\\cdot|\\times/.test(s); }
+/* réduite : au plus un terme en x et au plus une constante */
+function lnfReduite(s){
+  const t=String(s).replace(/\s+/g,'').replace(/[−–]/g,'-');
+  if(!t || !lnfSansParenthese(t)) return false;
+  const termes=t.match(/[+-]?[^+-]+/g)||[];
+  return termes.filter(x=>/x/.test(x)).length<=1 && termes.filter(x=>!/x/.test(x)).length<=1;
+}
 function lnfDerVerdicts(q){
-  const A=lnfAns(q), fp=A.fp, u=x=>A.a*x+A.b, du=x=>A.a, cc=x=>A.c, nn=x=>-x+A.xs;
-  const V={}, eqF=(f,g)=>!!f && cmpFns(f,g), C=id=>dexpCompile(id);
-  V['lnf-u']=checkExprFn(dexpCellValue('lnf-u'),u);
-  V['lnf-du']=checkExprFn(dexpCellValue('lnf-du'),du);
-  const g={};
-  { const f1=C('lnf-s1'), f2=C('lnf-s2'), f3=C('lnf-s3');
-    g.l1=!!(f1&&f2&&f3) && cmpFns(x=>f1(x)/f2(x)+f3(x), fp);
-    if(g.l1) LNF_L1.forEach(id=>V[id]=true);
-    else { V['lnf-s1']=eqF(f1,du); V['lnf-s2']=eqF(f2,u); V['lnf-s3']=eqF(f3,cc); } }
-  { const f4=C('lnf-s4'), f5=dexpCompile1('lnf-s5'), f6=C('lnf-s6'), f7=C('lnf-s7');
-    g.l2=!!(f4&&f5&&f6&&f7) && cmpFns(x=>(f4(x)+f5(x)*f6(x))/f7(x), fp);
-    if(g.l2) LNF_L2.forEach(id=>V[id]=true);
-    else {
-      const g5=C('lnf-s5');
-      V['lnf-s4']=eqF(f4,du); V['lnf-s7']=eqF(f7,u);
-      const droit=(eqF(g5,cc)?1:0)+(eqF(f6,u)?1:0), croise=(eqF(g5,u)?1:0)+(eqF(f6,cc)?1:0);
-      if(croise>droit){ V['lnf-s5']=eqF(g5,u); V['lnf-s6']=eqF(f6,cc); g.sw=true; }
-      else { V['lnf-s5']=eqF(g5,cc); V['lnf-s6']=eqF(f6,u); }
-    } }
-  { const f8=C('lnf-s8'), f9=C('lnf-s9');
-    g.l3=!!(f8&&f9) && cmpFns(x=>f8(x)/f9(x), fp);
-    if(g.l3) LNF_L3.forEach(id=>V[id]=true);
-    else { V['lnf-s8']=eqF(f8,nn); V['lnf-s9']=eqF(f9,u); } }
-  const U=lnfUPlain(A), cs=numFmt(A.c), as=numFmt(A.a);
-  const sol={'lnf-u':U,'lnf-du':as,'lnf-s1':as,'lnf-s2':U,'lnf-s3':cs,'lnf-s4':as,
-    'lnf-s5':(g.sw?U:cs),'lnf-s6':(g.sw?cs:U),'lnf-s7':U,'lnf-s8':lnfNPlain(A),'lnf-s9':U};
-  return {verdicts:V, groups:g, sol:sol};
+  const A=lnfAns(q), u=x=>A.a*x+A.b, aa=x=>A.a, cc=x=>A.c, nn=x=>-x+A.xs;
+  const V={}, eqF=(f,g)=>!!f && cmpFns(f,g), C=id=>dexpCompile(id), R=id=>dexpCellValue(id);
+  const frac=(n,d)=>{ const fn=C(n), fd=C(d);
+    if(fn && fd && cmpFns(x=>fn(x)/fd(x), x=>A.a/u(x))){ V[n]=V[d]=true; return; }
+    V[n]=eqF(fn,aa); V[d]=eqF(fd,u); };
+  frac('lnf-n1','lnf-dn1');                     /* (ln(ax + b))′ = □/□ */
+  V['lnf-c1']=eqF(C('lnf-c1'),cc);              /* (cx + d)′ = □ */
+  frac('lnf-s1','lnf-s2');                      /* f′(x) = □/□ □ */
+  V['lnf-s3']=eqF(C('lnf-s3'),cc);
+  V['lnf-s4']=eqF(C('lnf-s4'),u);               /* c × (□) / 1 × (□) */
+  V['lnf-s5']=eqF(C('lnf-s5'),u);
+  V['lnf-s6']=eqF(C('lnf-s6'),nn) && lnfSansParenthese(R('lnf-s6'));   /* développé */
+  V['lnf-s7']=eqF(C('lnf-s7'),nn) && lnfReduite(R('lnf-s7'));          /* réduit */
+  const U=lnfUPlain(A), as=numFmt(A.a), cs=(A.c>0?'+':'')+numFmt(A.c);
+  const sol={'lnf-n1':as,'lnf-dn1':U,'lnf-c1':numFmt(A.c),'lnf-s1':as,'lnf-s2':U,'lnf-s3':cs,
+    'lnf-s4':U,'lnf-s5':U,'lnf-s6':lnfDevPlain(A),'lnf-s7':lnfNPlain(A)};
+  return {verdicts:V, groups:{}, sol:sol};
 }
 function lnfCases(q){
   const A=lnfAns(q), out=[];
@@ -21102,23 +21110,23 @@ function lnfCases(q){
 function lnfFormHTML(q){
   const A=lnfAns(q), fp='<i>f</i> ′(<i>x</i>)';
   const bm=(id,cls,nom)=>'<math-field class="dexp-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>';
-  const bp=(id,nom)=>'<span class="dexp-pwrap show-paren"><span class="par">(</span>'+bm(id,'',nom)+'<span class="par">)</span></span>';
   const fr=(n,d)=>lnfFracH(n,d);
-  const linTex=(A.c>0?'x':'-x')+(A.d>0?'+'+A.d:(A.d<0?'-'+Math.abs(A.d):''));
+  const U=lnfUHtml(A), lin=lnfLinHtml(A).replace(/^ \+ /,'').replace(/^ − /,'−');
+  const cap=t=>'<span class="dexp-hint lnf-cap">← '+t+'</span>';
   let h='';
-  /* ---- 1. la dérivée, toutes les étapes (le 4.1.1), puis le même dénominateur ---- */
-  h+='<p class="tx-part">1. Démontre que, pour tout <i>x</i> de <i>I</i>, '+fp+' = '+fr(lnfNHtml(A),lnfUHtml(A))+' :</p>'
-    +'<div class="dexp-pose">On pose :</div>'
-    +'<div class="dexp-row"><span>'+mlTex('u(x)=','<i>u</i>(<i>x</i>) = ')+bm('lnf-u','','u(x)')+'</span><span>'+mlTex("u'(x)=",'<i>u′</i>(<i>x</i>) = ')+bm('lnf-du','',"u′(x)")+'</span></div>'
-    +'<div class="dexp-formula">'+mlTex("\\left(\\ln u\\right)'=\\frac{u'}{u}", '(ln <i>u</i>)′ = <i>u′</i>/<i>u</i>')+'<span class="lnf-donc">donc</span>'
-      +mlTex("f\\;{}'(x)=\\frac{u'(x)}{u(x)}+\\left("+linTex+"\\right)'", fp+' = <i>u′</i>(<i>x</i>)/<i>u</i>(<i>x</i>) + ('+lnfLinHtml(A).replace(/^ \+ /,'')+')′')+'</div>'
-    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnf-s1','','numérateur : u′(x)'),bm('lnf-s2','','dénominateur : u(x)'))
-      +bm('lnf-s3','dexp-mf-slim','dérivée de la partie affine, avec son signe')+'</div>'
+  /* ---- 1. la dérivée, comme la fiche « ln dérivée » ---- */
+  h+='<p class="tx-part">1. Démontre que, pour tout <i>x</i> de <i>I</i>, '+fp+' = '+fr(lnfNHtml(A),U)+' :</p>'
+    +'<div class="dexp-formula">'+mlTex("\\left(\\ln u\\right)'=\\frac{u'}{u}", '(ln <i>u</i>)′ = <i>u′</i>/<i>u</i>')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">(ln('+U+'))′ =</span>'+fr(bm('lnf-n1','','numérateur : la dérivée de '+lnfUPlain(A)),bm('lnf-dn1','','dénominateur'))+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">('+lin+')′ =</span>'+bm('lnf-c1','dexp-mf-slim','dérivée de '+lin.replace(/<[^>]*>/g,''))+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnf-s1','','numérateur'),bm('lnf-s2','','dénominateur'))
+      +bm('lnf-s3','dexp-mf-slim','le nombre avec son signe')+'</div>'
     +'<p class="tvi-instr lnf-instr">On met au <b>même dénominateur</b> :</p>'
-    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'
-      +fr('<span class="lnf-numrow">'+bm('lnf-s4','dexp-mf-slim','premier terme du numérateur')+bm('lnf-s5','dexp-mf-slim','facteur, avec son signe')+'<span class="op">×</span>'+bp('lnf-s6','parenthèse')+'</span>',
-          bm('lnf-s7','','dénominateur commun'))+'</div>'
-    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnf-s8','dexp-mf-wide','numérateur réduit'),bm('lnf-s9','','dénominateur'))+'</div>';
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(numFmt(A.a),U)
+      +'<span class="op">'+(A.c>0?'+':'−')+'</span>'
+      +fr('<span class="lnf-numrow">1 × ('+bm('lnf-s4','','facteur du numérateur')+')</span>','<span class="lnf-numrow">1 × ('+bm('lnf-s5','','facteur du dénominateur')+')</span>')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">=</span>'+fr(bm('lnf-s6','dexp-mf-wide','numérateur développé'),U)+cap('développe le numérateur')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">=</span>'+fr(bm('lnf-s7','dexp-mf-wide','numérateur réduit'),U)+cap('réduis le numérateur')+'</div>';
   /* ---- 2. le tableau (le 4.4.2) ---- */
   const T=lnfTab(q);
   h+='<p class="tx-part">2. Étudie les variations de <i>f</i> sur <i>I</i> = '+lnfDomHtml(A)+' — complète le tableau :</p>'
@@ -21183,8 +21191,6 @@ function checkLNF(live){
     let vide=raw.trim()==='', ok;
     if(x.type==='der'){
       ok=!vide && !!derV.verdicts[x.id];
-      /* le facteur 1 omis devant la parenthèse, dans une ligne juste */
-      if(vide && x.id==='lnf-s5' && derV.groups.l2){ vide=false; ok=true; }
     } else ok=!vide && asgOkCase(q,x,raw);
     etats[x.id]={ok:ok,vide:vide};
     if(!vide) anyFilled=true;
@@ -21232,10 +21238,10 @@ function lnfConseilCtx(){
   const q=test.questions[test.idx], A=lnfAns(q);
   const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
   return 'Exercice LOGARITHME NÉPÉRIEN — étude de f(x) = '+lnfFxPlain(A)+' sur I = '+lnfDomHtml(A)+'. '
-   +'1) Démontrer f′(x) = ('+lnfNPlain(A)+')/('+lnfUPlain(A)+') : on pose u(x) = '+lnfUPlain(A)+', u′(x) = '+numFmt(A.a)+', (ln u)′ = u′/u, donc f′(x) = u′/u + ('+numFmt(A.c)+'), puis on met au même dénominateur ('+numFmt(A.a)+' + ('+numFmt(A.c)+')(' +lnfUPlain(A)+'))/('+lnfUPlain(A)+') et on réduit le numérateur. '
+   +'1) Démontrer f′(x) = ('+lnfNPlain(A)+')/('+lnfUPlain(A)+') : avec (ln u)′ = u′/u, (ln('+lnfUPlain(A)+'))′ = '+numFmt(A.a)+'/('+lnfUPlain(A)+') ; la dérivée de la partie affine vaut '+numFmt(A.c)+' ; donc f′(x) = '+numFmt(A.a)+'/('+lnfUPlain(A)+') '+(A.c>0?'+ ':'− ')+'1 ; au même dénominateur : '+numFmt(A.a)+'/('+lnfUPlain(A)+') '+(A.c>0?'+ ':'− ')+'1×('+lnfUPlain(A)+')/1×('+lnfUPlain(A)+'), puis le numérateur DÉVELOPPÉ ('+lnfDevPlain(A)+'), puis RÉDUIT. '
    +'2) Tableau de signes : le dénominateur '+lnfUPlain(A)+' est strictement positif sur I, le numérateur s’annule en x = '+numFmt(A.xs)+' ; tableau de variations. '
    +'3) Valeur du maximum M = f('+numFmt(A.xs)+') = ln(1) + … = '+numFmt(A.m)+', car ln(1) = 0. '
-   +'Saisies de l’élève : u '+lu('lnf-u')+', u′ '+lu('lnf-du')+', numérateur réduit '+lu('lnf-s8')+', racine '+lu('ef-r0')+', M '+lu('lnf-d7')+'. '
+   +'Saisies de l’élève : dérivée de ln '+lu('lnf-n1')+' / '+lu('lnf-dn1')+', numérateur développé '+lu('lnf-s6')+', numérateur réduit '+lu('lnf-s7')+', racine '+lu('ef-r0')+', M '+lu('lnf-d7')+'. '
    +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement, sur la PREMIÈRE case fausse ou vide.';
 }
 
