@@ -165,7 +165,7 @@ vertes, la fausse rouge avec sa correction à côté ; en « Sans étape », une
 ligne fausse rougit seule, la juste bleuit, et la conclusion attendue
 s'écrit en vert sous la feuille.
 
-## {ln-resoudre-equation} (9.3.1, v538) : résoudre une équation avec ln
+## {ln-resoudre-equation} (9.3.1, v539) : résoudre une équation avec ln
 
 Demande de Turquet (novembre 2026), avec la fiche « Résoudre ln(−x + 2) +
 ln(x) = 0 sur ]0 ; 2[ ⟺ ln[(…)×(…)] = 0 ⟺ (…)×(…) = … ⟺ … = … ⟺ … = 0 ⟺
