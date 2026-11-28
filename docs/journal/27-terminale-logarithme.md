@@ -196,7 +196,7 @@ c'est la même pour la suite, la remplir automatiquement ».
   la ligne APPLIQUE une propriété (ln 2³ → 3 ln 2, ln e^p → p) n'est jamais
   un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
   17 cases notées à 10, plus la forme finale.
-## {ln-resoudre-exp} (9.3.1, v539) : résoudre e^(…) − k = 0 avec ln
+## {ln-resoudre-exp} (9.3.1, v540) : résoudre e^(…) − k = 0 avec ln
 
 Demande de Turquet (novembre 2026), avec la fiche « Résoudre e^x − 2 = 0 sur
 ℝ ; e^(x−3) − 2 = 0 ; e^(−2x) − 3 = 0 » : « créer un exercice dans ln, comme
