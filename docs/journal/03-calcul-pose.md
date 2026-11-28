@@ -607,6 +607,17 @@ vert (`bhdM2OpSol`) et sa case vide reçoit la correction. Le bouton, le
 « = » et la case tiennent sur une ligne (`.bhd-eg`) : à 390 px, le « = »
 partait seul en fin de ligne. Vu dans Chromium à 1280 et 390 px.
 
+**Puis les quatre situations À TOUR DE RÔLE (v750).** « Avoir
+alternativement les 4 situations : + et + ; − et − ; + et − avec + qui est le
+plus grand ; − et + avec − qui est le plus grand. » Le 1.10 a son propre
+tirage (`bhdTirer`, appelé par `distinctes()` avec l'indice de la question) :
+la question i est de la situation i % 4, dans cet ordre. Nombres de −5 à 5,
+non nuls ; en ③ et ④ les deux valeurs sans signe diffèrent (le plus grand
+de 2 à 5, le plus petit au-dessous), donc jamais de somme nulle. Le 1.9 et le
+1.11 gardent `bhrBuildQuestions()`. Contrôle dédié : 30 séances, chaque
+question dans sa situation. Vu dans Chromium : « 1 + 2 | −1 + (−3) |
+5 + (−2) | −2 + 1 | 4 + 4 | … ».
+
 ## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
 
 Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il

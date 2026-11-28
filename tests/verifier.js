@@ -26026,6 +26026,12 @@ function bonhommeDeplacer(w, P){
       vus.push('−4 + 1 par une règle fausse, sans calcul choisi : '+(der&&der.correct)+' / '+['bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2r'].map(cl).join(','));
     if(der && !/par la règle : −3/.test(der.given||'')) vus.push('la copie ne relève pas le résultat par la règle : '+(der&&der.given));
     for(let k=0;k<30;k++){ startBhd(); if(test.questions.some(function(x){ return x.a+x.b===0; })){ vus.push('une somme nulle est tirée'); break; } }
+    /* v750 : les quatre situations à tour de rôle */
+    for(let k=0;k<30 && vus.length<6;k++){ startBhd();
+      test.questions.forEach(function(x,i){
+        const ok=[x.a>0&&x.b>0, x.a<0&&x.b<0, x.a>0&&x.b<0&&x.a>-x.b, x.a<0&&x.b>0&&-x.a>x.b][i%4];
+        if(!ok || !x.a || !x.b || Math.abs(x.a)>5 || Math.abs(x.b)>5) vus.push('question '+(i+1)+' hors de sa situation '+(i%4+1)+' : '+x.a+' + '+x.b);
+      }); }
     finir(-2,-2); document.getElementById('bhd-r').value=''; checkBhdAnswer();
     if(peint()!=='sol' || document.getElementById('bhd-r').value!=='\\u22124') vus.push('la case vide : '+peint()+' / '+document.getElementById('bhd-r').value);
     neuf(1,1); bhdPoser(-30); if(test.bhdPos!==-10) vus.push('le bonhomme sort de l\\'axe : '+test.bhdPos);
