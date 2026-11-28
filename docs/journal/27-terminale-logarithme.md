@@ -164,3 +164,47 @@ cases sur 18 ; une copie à une case juste sur 7 reçoit ses corrections
 vertes, la fausse rouge avec sa correction à côté ; en « Sans étape », une
 ligne fausse rougit seule, la juste bleuit, et la conclusion attendue
 s'écrit en vert sous la feuille.
+
+## {ln-etude-fonction-carre} (9.1.2, v539) : l'étude de ln(ax + b) + cx²
+
+Demande de Turquet (novembre 2026) : « faire le même exercice que le 9.1.1
+avec une fonction de la forme f(x) = ln(ax + b) + cx² ; les abscisses des
+extremums doivent être entières ». Partie 1 du thème 9, après le 9.1.1.
+
+**Les abscisses entières fixent b et c.** f′(x) = a/(ax + b) + 2cx s'annule
+là où 2acx² + 2bcx + a = 0 : produit des racines r1·r2 = 1/(2c), somme −b/a.
+Des racines entières imposent c = 1/(2P), P = r1·r2 — jamais un c entier
+(|r1·r2| serait < 1) —, et b = −a(r1 + r2). Le tirage porte (a, r1, r2),
+a = ±1 ; Q = |P|, σ le signe de P : f(x) = ln(ax + b) + σx²/(2Q),
+f′(x) = N(x)/(Q(ax + b)), N(x) = σax² + σbx + aQ = σa(x − r1)(x − r2),
+Δ = (r1 − r2)². `lnqAns()` recalcule tout.
+
+**Deux visages, un de chaque par séance, en ordre mélangé :**
+
+* P < 0 (`LNQ_UN`) : racines de signes contraires, f concave, UNE SEULE est
+  dans I — l'élève calcule les deux, ne garde que celle de I dans le tableau.
+  C'est le piège voulu (« n'y écris que les racines qui appartiennent à I »).
+* P > 0 (`LNQ_DEUX`) : les deux racines du côté de I (négatives si a = 1),
+  toutes deux dans I : un maximum et un minimum, trois intervalles.
+
+La valeur en r : f(r) = ln|r′| + r/(2r′), r′ l'autre racine ; « Or ln 1 = □,
+donc M = □ » ne s'ajoute que si ln 1 apparaît.
+
+**Le même écran que le 9.1.1** (kind `lnq`, `DISPATCH lnq:['lnf',renderLNF]`,
+le patron du 6.3.2 sur l'écran du 6.1.5) : `renderLNF` et `checkLNF` aiguillent
+sur `test.kind`. La partie 1 suit la fiche « ln dérivée » : (ln(ax + b))′ =
+□/□, (σx²/(2Q))′ = □, f′(x) = □/□ □, puis a × □/((ax + b) × □) ± x × (□)/(Q × (□)),
+puis le numérateur développé et réduit (`lnqReduite` : un terme par degré, sans
+parenthèse). Partie 2 : Δ, x1 < x2, puis le tableau du 4.4.2 (`lnqTab`) et une
+phrase d'extremum par racine de I, la nature choisie (`lnqSyntHTML`). Partie 3 :
+les valeurs EXACTES (`lnqExact`, fraction ou entier, sans tolérance).
+
+**Une flèche ne traverse pas un trait de fraction.** Dans la grille de la
+partie 3, x²/(2Q) empilé faisait passer la flèche du x à sa case à travers le
+dénominateur (vu à la première capture) : la grille écrit (1/(2Q)) x², et la
+ligne du dessous (1/(2Q)) × (□)².
+
+Essayé dans Chromium : les copies faites des corrections de la page sont
+parfaites (32 cases sur 32 pour un maximum, 44 sur 44 pour deux extremums,
+a = 1 et a = −1) ; une copie à une case remplie, fausse (Δ = 7), la reçoit en
+rouge avec 16 en vert à côté, et les 29 autres corrections en vert.
