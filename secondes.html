@@ -10297,7 +10297,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=751;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=752;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -49283,7 +49283,7 @@ function ctxPlo(q){
    voyage dans q.prog et compte pour UNE case (pts-case). Aucune correction
    au fil de la frappe (déclaré dans tests/profils.js).
 
-   PUIS LE PROGRAMME EST DONNÉ (version 751, demande de Turquet, novembre
+   PUIS LE PROGRAMME EST DONNÉ (version 752, demande de Turquet, novembre
    2026 : « demander uniquement aux élèves de compléter les textes entre
    guillemets dans le programme qui sera donné, avec des pointillés entre les
    guillemets ; on acceptera des fautes d'orthographe, des textes similaires,
@@ -49321,7 +49321,7 @@ function pceBuildQuestions(){
   return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PCE_SITUATIONS.length-1), t:['','','']}; });
 }
 function pceSit(q){ return PCE_SITUATIONS[q.s]||PCE_SITUATIONS[0]; }
-/* Les trois trous du programme donné (version 751, demande de Turquet,
+/* Les trois trous du programme donné (version 752, demande de Turquet,
    novembre 2026 : « demander uniquement aux élèves de compléter les textes
    entre guillemets dans le programme qui sera donné, avec des pointillés
    entre les guillemets ; on acceptera des fautes d'orthographe, des textes

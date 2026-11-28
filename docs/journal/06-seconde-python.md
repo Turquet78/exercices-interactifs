@@ -5800,7 +5800,7 @@ et les modèles comparés à un vrai CPython sous les quatre réponses (un
 `input` de remplacement écrit la réponse, comme la console de la page).
 
 **Puis le programme est DONNÉ, et l'élève n'écrit que les textes entre
-guillemets** (6.7.1, version 751, demande de Turquet, novembre 2026 : « en
+guillemets** (6.7.1, version 752 — 751 prise sur `main` pendant les bancs —, demande de Turquet, novembre 2026 : « en
 seconde dans le 6.7.1, demander uniquement aux élèves de compléter les textes
 entre guillemets dans le programme qui sera donné, avec des pointillés entre
 les guillemets. On acceptera des fautes d'orthographe, des textes similaires,
