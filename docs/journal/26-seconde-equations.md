@@ -601,3 +601,10 @@ et « Passer à la suite » corrige comme en entraînement.
 |c| ≤ 12, |a| ≤ 15, |b| ≤ 25, |d| ≤ 30, aucun terme nul, l'ordre de chaque
 membre tiré. Six questions, réglables par le devoir, `distincte()` sur
 (a, b, c, d).
+
+**Le 9.10 ne fait plus vérifier (v751, novembre 2026).** Demande de Turquet :
+« dans le 9.10 ne pas faire la vérification à la fin ». La case « Vérification :
+avec ce nombre, … on obtient » est retirée avec son juge (`eqpVerif`), son
+message, sa ligne dans la réponse attendue et dans le contexte de l'aide ; le
+rappel de cours ne dit plus « on vérifie ». Deux cases par question :
+l'équation et la solution, plus les étapes facultatives.
