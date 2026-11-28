@@ -551,6 +551,31 @@ le rappel du geste en petit dessous ; l'étape 3 passe en bleu. Sur téléphone,
 le bandeau rétrécit sans déborder (vu à 390 px). Le contrôle jsdom de la
 reprise lit désormais le numéro de la pastille (`^2\D`), plus « 2. ».
 
+**Puis une MÉTHODE 2, la règle, sous le bonhomme (v746).** Demande de
+Turquet, avec sa fiche « Règle relatif » : « faire une première méthode
+exactement comme celle qui est dans l'exercice, et sur la suite de la page
+avec le même exemple une deuxième méthode comme le PDF ; on rappellera la
+règle avant d'appliquer la méthode ». La méthode 1 n'a pas bougé (un titre
+« Méthode 1 : avec le bonhomme » au-dessus du bandeau). Quand le bonhomme
+est arrivé, la case du résultat s'ouvre ET, dessous, « Méthode 2 : avec la
+règle » : la règle encadrée (même signe → on additionne sans les signes,
+sinon on soustrait le plus grand et le plus petit ; puis le signe du plus
+fort), puis les lignes de la fiche sur le même calcul — « Les nombres −6 et
++2 ont : [liste] », « donc il faut : [additionner 6 et 2 / soustraire le
+plus grand, 6, et le plus petit, 2] », « donc on doit calculer : 6 + 2 = ▢
+ou 6 − 2 = ▢ », « on met le signe du plus fort entre −6 et +2, qui est
+[+ / −], au résultat », « donc le résultat est : ▢ ». Le même « Vérifier »
+juge tout. Des deux calculs, celui qui n'est pas à faire porte `.hors-note`
+(laissé vide, pas de confirmation ni de couleur) ; rempli, il est rouge —
+c'est le mauvais calcul. La question ne vaut son point que si TOUT est
+juste (`score += allOk`), et la copie relève le résultat par la règle.
+**Le tirage écarte les sommes nulles** (3 + (−3)) au 1.10 seulement : elles
+n'ont pas de « signe du plus fort ». Le 1.9 et le 1.11 tirent comme avant.
+Contrôle jsdom étendu : la méthode 2 s'ouvre avec la case, reprend
+l'exemple, juste partout ; une règle fausse (« même signe », « additionner »,
+5 dans le mauvais calcul) rougit sans rougir le résultat juste ; aucune
+somme nulle en 30 séances.
+
 ## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
 
 Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il

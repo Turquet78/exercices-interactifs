@@ -1076,6 +1076,21 @@
   .bhd-cur{background:#FFF1D6;box-shadow:inset 0 -3px 0 #E8A33D}
   .bhd-attente{display:inline-flex;align-items:center;justify-content:center;width:3.2em;height:1.7em;box-sizing:border-box;border:2px dashed var(--line);border-radius:10px;color:var(--ink-soft)}
   #bhdHost .mf-cor{font-size:.8em}
+  /* la méthode 2 du 1.10 : la règle, puis les étapes de la fiche (v746) */
+  .bhd-meth{margin:0;font-size:1.15rem;font-weight:900;color:var(--blue)}
+  .bhd-m2[hidden]{display:none}
+  .bhd-m2{display:flex;flex-direction:column;gap:12px;margin-top:10px;padding-top:16px;border-top:2px dashed var(--line)}
+  .bhd-regle{margin:0;padding:10px 14px;border-radius:12px;background:#EAF0FF;border-left:5px solid var(--blue);font-size:1.05rem;line-height:1.45}
+  .bhd-l{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:1.25rem;font-weight:700;color:var(--ink)}
+  .bhd-l .bhr-in{font-size:1em}
+  .bhd-l select{font:inherit;font-size:.9em;font-weight:700;padding:3px 6px;border:2px solid #BBD0F7;border-radius:10px;background:var(--surface);color:var(--ink);max-width:100%}
+  .bhd-l select.ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .bhd-l select.bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .bhd-l select.sol{border-color:var(--green);border-style:dashed;background:var(--green-soft);color:var(--green)}
+  .bhd-l select:disabled{opacity:1}
+  #bhdHost .bhd-l select{width:auto;flex:0 1 auto;min-width:0}
+  .bhd-ou{font-weight:600;color:var(--ink-soft)}
+  @media(max-width:520px){ .bhd-l{font-size:1.05rem} .bhd-regle{font-size:.95rem} }
   /* {bonhomme-schema} : le bon schéma parmi quatre, puis le résultat (1.11) */
   #scr-bhs{--bhr-av:#0F766E; --bhr-rc:#C2410C}
   .bhs-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:12px}
@@ -8781,7 +8796,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
       <span class="score-tag"><span class="score-lbl">Cases justes</span>&nbsp;<b id="bhdLiveScore">0</b></span>
     </div>
     <div class="card">
-      <p class="enonce">Calcule la somme en déplaçant toi-même le bonhomme. Il part de <b>0</b> : il <b>avance</b> pour un nombre positif et <b>recule</b> pour un nombre négatif. Glisse-le, touche une graduation ou utilise les boutons ◀ ▶, puis valide chaque déplacement. Quand il est arrivé, écris le résultat.</p>
+      <p class="enonce">Calcule la somme par deux méthodes. <b>Méthode 1</b> : déplace toi-même le bonhomme. Il part de <b>0</b> : il <b>avance</b> pour un nombre positif et <b>recule</b> pour un nombre négatif. Glisse-le, touche une graduation ou utilise les boutons ◀ ▶, puis valide chaque déplacement. Quand il est arrivé, écris le résultat. <b>Méthode 2</b> : sous le bonhomme, refais le même calcul avec la règle des signes.</p>
       <div class="mp-stage"><div style="width:100%;display:flex;flex-direction:column;gap:14px" id="bhdHost"></div></div>
       <div class="mp-feedback" id="bhdFb" aria-live="polite"></div>
       <div class="row" style="justify-content:center">
@@ -10245,7 +10260,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=745;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=746;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -13273,7 +13288,7 @@ const QIA_SUGG={
   vgt:["Comment reconna\u00eetre deux vecteurs \u00e9gaux sur une figure\u00a0?","Pourquoi AB = CD donne-t-il le parall\u00e9logramme ABDC et pas ABCD\u00a0?","Pourquoi AB = BC veut-il dire que B est le milieu de [AC]\u00a0?","Pourquoi AB = AC veut-il dire que B et C sont confondus\u00a0?"],
   rgp:["Pourquoi +3 \u2212 2 fait-il +1 ?","Comment savoir si le r\u00e9sultat est positif ou n\u00e9gatif ?","Pourquoi \u22123 \u2212 2 fait-il \u22125 et pas \u22121 ?","Que veut dire le signe devant un nombre ?"],
   bhr:["Pourquoi le bonhomme recule-t-il pour un nombre n\u00e9gatif\u00a0?","Comment savoir si le r\u00e9sultat est positif ou n\u00e9gatif\u00a0?","Comment calculer \u22123 + 5 sans l\u2019axe\u00a0?","Pourquoi 2 + (\u22124) donne-t-il \u22122\u00a0?"],
-  bhd:["De combien de pas dois-je d\u00e9placer le bonhomme\u00a0?","Dans quel sens va-t-il pour un nombre n\u00e9gatif\u00a0?","Pourquoi le second d\u00e9placement part-il de l\u00e0 o\u00f9 il est\u00a0?","Comment lire le r\u00e9sultat sur l\u2019axe\u00a0?"],
+  bhd:["Quand faut-il additionner, et quand faut-il soustraire\u00a0?","De combien de pas dois-je d\u00e9placer le bonhomme\u00a0?","Dans quel sens va-t-il pour un nombre n\u00e9gatif\u00a0?","Pourquoi le second d\u00e9placement part-il de l\u00e0 o\u00f9 il est\u00a0?","Comment lire le r\u00e9sultat sur l\u2019axe\u00a0?"],
   bhs:["Comment savoir dans quel sens va une fl\u00e8che\u00a0?","Comment lire la longueur d\u2019une fl\u00e8che sur l\u2019axe\u00a0?","Pourquoi la seconde fl\u00e8che part-elle du bout de la premi\u00e8re\u00a0?","Comment lire le r\u00e9sultat sur le sch\u00e9ma\u00a0?"],
   red:["Quand peut-on additionner deux termes\u00a0?","Pourquoi 2x + 3 ne fait-il pas 5x\u00a0?","Que vaut \u22122x + 3x\u00a0?","Pourquoi \u22122x\u00b2 + 3x ne se r\u00e9duit-il pas\u00a0?"],
   mrl:["Comment trouver le signe d\u2019un produit\u00a0?","Pourquoi moins par moins donne-t-il plus\u00a0?","Quelle est la diff\u00e9rence avec l\u2019addition des relatifs\u00a0?","Comment retrouver le r\u00e9sultat de 7 \u00d7 8\u00a0?"],
@@ -15106,7 +15121,9 @@ On part de <b>0</b>. Un nombre <b>positif</b> fait <b>avancer</b> (vers la droit
 const RAP_BHD=`<b>Additionner deux relatifs en déplaçant le bonhomme</b><br>
 Le bonhomme part de <b>0</b>. Un nombre <b>positif</b> le fait <b>avancer</b> (vers la droite) d'autant de graduations ; un nombre <b>négatif</b> le fait <b>reculer</b> (vers la gauche).<br>
 <b>①</b> On le déplace du <b>premier</b> nombre, à partir de 0. <b>②</b> On le déplace du <b>second</b> nombre, <b>à partir de là où il est arrivé</b>. <b>③</b> La graduation où il s'arrête est le <b>résultat</b>.<br>
-<b>Exemple :</b> −3 + 5 : il recule de 3 jusqu'à −3, puis il avance de 5 : il arrive en 2. Donc −3 + 5 = 2.`;
+<b>Exemple :</b> −3 + 5 : il recule de 3 jusqu'à −3, puis il avance de 5 : il arrive en 2. Donc −3 + 5 = 2.<br>
+<b>Méthode 2, la règle :</b> quand les deux nombres sont de <b>même signe</b>, on les <b>additionne</b> (sans leur signe) ; sinon, on <b>soustrait</b> le plus grand et le plus petit. Ensuite, on met au résultat le <b>signe du plus fort</b>.<br>
+<b>Exemple :</b> −6 + 2 : signes différents, donc 6 − 2 = 4 ; le plus fort est −6, donc le résultat est −4.`;
 const RAP_BHS=`<b>Lire les déplacements du bonhomme sur un schéma</b><br>
 Sur chaque schéma, le bonhomme part de <b>0</b>. La <b>première flèche</b> part de 0 : elle a la longueur du <b>premier nombre</b>, vers la droite s'il est positif, vers la gauche s'il est négatif. La <b>seconde flèche</b> part du <b>bout de la première</b> : elle a la longueur du second nombre, dans son sens.<br>
 On compte les graduations parcourues par chaque flèche. Le bout de la seconde flèche, là où le bonhomme s'arrête, est le <b>résultat</b>.<br>
@@ -89958,9 +89975,46 @@ function bhdBoutons(){
   else act.innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" id="bhdValBtn" onclick="bhdValider()">Valider le déplacement</button>';
 }
 function bhdBrancherCase(){
-  const el=$('bhd-r'); if(!el) return;
-  el.addEventListener('input',function(){ if(isSoutien()) checkBhdAnswer(true); autoSave(); });
-  el.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); checkBhdAnswer(); } });
+  BHD_CASES.forEach(function(id){
+    const el=$(id); if(!el) return;
+    el.addEventListener(el.tagName==='SELECT'?'change':'input',function(){ if(isSoutien()) checkBhdAnswer(true); autoSave(); });
+    if(el.tagName!=='SELECT') el.addEventListener('keydown',function(e){
+      if(e.key!=='Enter') return; e.preventDefault();
+      if(id==='bhd-m2r') checkBhdAnswer();
+      else { const i=BHD_CASES.indexOf(id), n=$(BHD_CASES[i+1]); if(n){ try{ n.focus(); }catch(er){} } }
+    });
+  });
+}
+/* LA MÉTHODE 2 (v746, demande de Turquet sur sa fiche « Règle relatif ») :
+   sous le bonhomme, le MÊME calcul refait par la règle, rappelée d'abord,
+   puis les lignes de la fiche — « les nombres −6 et +2 ont : … », « donc il
+   faut : … », « donc on doit calculer : 6 + 2 = … ou 6 − 2 = … », « on met le
+   signe du plus fort… », « donc le résultat est … ». Elle s'ouvre avec la
+   case du résultat du bonhomme (étape 3), et le même « Vérifier » juge tout.
+   Des deux calculs « 6 + 2 » et « 6 − 2 », un seul est à faire : l'autre
+   porte .hors-note (pas de confirmation s'il reste vide) ; rempli, il est
+   faux — c'est le mauvais calcul. */
+const BHD_CASES=['bhd-r','bhd-m2s','bhd-m2o','bhd-m2p','bhd-m2m','bhd-m2g','bhd-m2r'];
+function bhdSg(n){ return n<0?'−'+(-n):'+'+n; }
+function bhdM2Data(q){
+  const A=Math.abs(q.a), B=Math.abs(q.b), gd=Math.max(A,B), pt=Math.min(A,B), meme=(q.a>0)===(q.b>0);
+  return {gd:gd, pt:pt, meme:meme, r:q.a+q.b};
+}
+function bhdM2HTML(q){
+  const d=bhdM2Data(q), na=bhdSg(q.a), nb=bhdSg(q.b);
+  const sel=function(id,aria,opts){ return '<select id="'+id+'" aria-label="'+aria+'"><option value="">…</option>'
+    +opts.map(function(o){ return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('')+'</select>'; };
+  const inp=function(id,aria,cls,plus){ return '<input class="bhr-in'+(cls?' '+cls:'')+'" id="'+id+'" type="text" inputmode="numeric" maxlength="4" autocomplete="off"'+(plus?' data-pave-plus="+"':'')+' aria-label="'+aria+'">'; };
+  const sous=d.gd===d.pt?'soustraire '+d.gd+' et '+d.pt:'soustraire le plus grand, '+d.gd+', et le plus petit, '+d.pt;
+  return '<p class="bhd-meth">Méthode 2 : avec la règle</p>'
+    +'<p class="bhd-regle"><b>Règle :</b> quand les deux nombres sont de <b>même signe</b>, on les <b>additionne</b> (sans leur signe) ; sinon, on <b>soustrait</b> le plus grand et le plus petit (sans leur signe). Ensuite, on met au résultat le <b>signe du plus fort</b>.</p>'
+    +'<p class="bhd-l">Calculer '+bhrEcrit(q)+'</p>'
+    +'<p class="bhd-l">Les nombres '+na+' et '+nb+' ont : '+sel('bhd-m2s','les deux nombres ont le même signe, ou des signes différents',[['meme','le même signe'],['diff','des signes différents']])+'</p>'
+    +'<p class="bhd-l">donc il faut : '+sel('bhd-m2o','additionner ou soustraire',[['add','additionner '+d.gd+' et '+d.pt],['sub',sous]])+'</p>'
+    +'<p class="bhd-l">donc on doit calculer : <span>'+d.gd+' + '+d.pt+' =</span>'+inp('bhd-m2p','résultat de '+d.gd+' + '+d.pt,d.meme?'':'hors-note')
+      +'<span class="bhd-ou">ou</span><span>'+d.gd+' − '+d.pt+' =</span>'+inp('bhd-m2m','résultat de '+d.gd+' − '+d.pt,d.meme?'hors-note':'')+'</p>'
+    +'<p class="bhd-l">on met le signe du plus fort entre '+na+' et '+nb+', qui est '+sel('bhd-m2g','le signe du plus fort',[['+','+'],['-','−']])+', au résultat</p>'
+    +'<p class="bhd-l">donc le résultat est : '+inp('bhd-m2r','résultat de la somme par la règle, avec son signe','',true)+'</p>';
 }
 function bhdValider(){
   const q=bhdQ(); if(!q || test.locked || test.bhdEt>=2) return;
@@ -89974,6 +90028,7 @@ function bhdValider(){
     if(test.bhdEt>=2){
       const cmd=$('bhdCmd'); if(cmd) cmd.hidden=true;
       const m=$('bhrMan'); if(m){ m.removeAttribute('tabindex'); m.classList.remove('bhd-prise'); }
+      const m2=$('bhdM2'); if(m2){ m2.innerHTML=bhdM2HTML(q); m2.hidden=false; }
       bhdBrancherCase();
       const c=$('bhd-r'); if(c){ try{ c.focus(); }catch(e){} }
     }
@@ -90041,12 +90096,13 @@ function renderBhdTest(){
   $('modeTagBhd').innerHTML=modeTagHTML();
   $('bhdLiveScore').textContent=test.score;
   $('bhdFb').textContent=''; $('bhdFb').className='mp-feedback';
-  $('bhdHost').innerHTML='<p class="bhd-consigne" id="bhdConsigne" aria-live="polite"></p>'
+  $('bhdHost').innerHTML='<p class="bhd-meth">Méthode 1 : avec le bonhomme</p><p class="bhd-consigne" id="bhdConsigne" aria-live="polite"></p>'
     +'<div class="bhr-axe">'+bhrSVG()+'</div>'
     +'<div class="bhr-cmd" id="bhdCmd"'+(test.bhdEt>=2?' hidden':'')+'>'
     +'<button class="btn" type="button" onclick="bhdPas(-1)" aria-label="un pas vers la gauche">◀ un pas</button>'
     +'<button class="btn" type="button" onclick="bhdPas(1)" aria-label="un pas vers la droite">un pas ▶</button></div>'
-    +'<div class="bhr-ligne" id="bhdLigne">'+bhdCalcHTML(q)+'</div>';
+    +'<div class="bhr-ligne" id="bhdLigne">'+bhdCalcHTML(q)+'</div>'
+    +'<div class="bhd-m2" id="bhdM2"'+(test.bhdEt>=2?'':' hidden')+'>'+(test.bhdEt>=2?bhdM2HTML(q):'')+'</div>';
   test.bhrJeton=(test.bhrJeton||0)+1;
   bhdArcs(q); bhrPlacer(test.bhdEt>=2?q.a+q.b:test.bhdPos); bhrPose();
   bhdConsigne(q); bhdBoutons(); bhdBrancherAxe(); bhdBrancherCase();
@@ -90055,35 +90111,49 @@ function renderBhdTest(){
 }
 function checkBhdAnswer(live){
   if(test.locked || test.bhdEt<2) return;
-  const q=bhdQ(), cases=[{id:'bhd-r', bon:String(q.a+q.b)}];
+  const q=bhdQ(), d=bhdM2Data(q), r=q.a+q.b;
+  /* fac : le calcul qui n'est pas à faire — jugé seulement s'il est rempli (faux) */
+  const cases=[{id:'bhd-r', bon:String(r), lib:bhrFmt(r)},
+    {id:'bhd-m2s', bon:d.meme?'meme':'diff'},
+    {id:'bhd-m2o', bon:d.meme?'add':'sub'},
+    {id:'bhd-m2p', bon:String(d.gd+d.pt), lib:String(d.gd+d.pt), fac:!d.meme},
+    {id:'bhd-m2m', bon:String(d.gd-d.pt), lib:String(d.gd-d.pt), fac:d.meme},
+    {id:'bhd-m2g', bon:r<0?'-':'+'},
+    {id:'bhd-m2r', bon:String(r), lib:bhrFmt(r)}];
+  const lu=function(el){ return !el?'':(el.tagName==='SELECT'?el.value:bhrLu(el)); };
   if(live){
     if(!isSoutien()) return;
     cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
       el.classList.remove('ok','bad');
-      const v=bhrLu(el); if(v==='') return;
-      el.classList.add(v===c.bon?'ok':'bad');
+      const v=lu(el); if(v==='') return;
+      el.classList.add(!c.fac && v===c.bon?'ok':'bad');
     });
     return;
   }
-  const subs=cases.map(function(c){ const el=$(c.id), v=bhrLu(el);
-    return {c:c, el:el, vide:v==='', ok:v===c.bon}; });
+  const subs=[];
+  cases.forEach(function(c){ const el=$(c.id); if(!el) return; const v=lu(el);
+    if(c.fac){ el.classList.remove('ok','bad','sol'); if(v!==''){ el.classList.add('bad'); el.disabled=!isSoutien(); subs.push({c:c, el:el, vide:false, ok:false}); } return; }
+    subs.push({c:c, el:el, vide:v==='', ok:v===c.bon}); });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
   const donne=subs[0].vide?'?':bhrFmt(parseInt(bhrLu(subs[0].el),10)||0);
-  subs.forEach(function(s){ corrChoix(s.el, bhrFmt(parseInt(s.c.bon,10)), s.ok); });
+  subs.forEach(function(s){ if(s.c.fac) return; corrChoix(s.el, s.c.lib!=null?s.c.lib:s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('bhdFb','bhdActions','checkBhdAnswer','bhdHost'); return; }
   test.locked=true;
-  test.score+=nCorrect; $('bhdLiveScore').textContent=test.score;
-  const r=q.a+q.b;
+  test.score+=allOk?1:0; $('bhdLiveScore').textContent=test.score;
   if(allOk){
-    $('bhdFb').textContent=pick(['Bravo !','Parfait !','Excellent !','Très bien !'])+' Le bonhomme est bien arrivé en '+bhrFmt(r)+'.';
+    $('bhdFb').textContent=pick(['Bravo !','Parfait !','Excellent !','Très bien !'])+' Le bonhomme est bien arrivé en '+bhrFmt(r)+', et la règle donne le même résultat.';
     $('bhdFb').className='mp-feedback good';
   } else {
-    $('bhdFb').textContent=msgAvecVides(subs, 'Le bonhomme est arrivé sur la graduation '+bhrFmt(r)+' : '+bhrEcrit(q)+' = '+bhrFmt(r)+'.');
+    const pq=d.meme?'Les deux nombres sont de même signe : on additionne '+d.gd+' + '+d.pt+' = '+(d.gd+d.pt)
+      :'Les deux nombres sont de signes différents : on soustrait '+d.gd+' − '+d.pt+' = '+(d.gd-d.pt);
+    $('bhdFb').textContent=msgAvecVides(subs, 'Le bonhomme est arrivé sur la graduation '+bhrFmt(r)+' : '+bhrEcrit(q)+' = '+bhrFmt(r)+'. '
+      +pq+', et on met le signe du plus fort, '+(r<0?'−':'+')+'.');
     $('bhdFb').className='mp-feedback bad';
   }
   const f=test.bhdFautes||[0,0], nf=(f[0]||0)+(f[1]||0);
+  const r2=$('bhd-m2r'), d2=(r2&&!r2.classList.contains('sol')&&bhrLu(r2)!=='')?bhrFmt(parseInt(bhrLu(r2),10)||0):'?';
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:bhrEcrit(q), answer:bhrFmt(r),
-    given:donne+(nf?' ('+nf+' déplacement'+(nf>1?'s':'')+' faux avant le bon)':' (déplacements justes du premier coup)')});
+    given:donne+(nf?' ('+nf+' déplacement'+(nf>1?'s':'')+' faux avant le bon)':' (déplacements justes du premier coup)')+' ; par la règle : '+d2});
   const last=test.idx===test.questions.length-1;
   $('bhdActions').innerHTML='<button class="btn btn-primary" id="bhdNext" onclick="nextBhdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('bhdNext'); if(nb) nb.focus();
@@ -90095,7 +90165,9 @@ function nextBhdQuestion(){
 }
 async function startBhd(){
   if(!currentEleve){ accueil(); return; }
-  const qs=bhrBuildQuestions();
+  /* la méthode 2 met « le signe du plus fort » : une somme nulle (3 + (−3))
+     n'en a pas — elle n'est pas tirée ici */
+  const qs=distinctes(dmNbQuestions(BHR_NB), function(){ const a=bhrNz(); let b=bhrNz(); while(b===-a) b=bhrNz(); return {a:a, b:b}; });
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'bhd', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(),
@@ -90110,7 +90182,8 @@ function ctxBhd(q){
     +'Le bonhomme part de 0 ; l’élève le déplace du premier nombre et valide (s’il se trompe, le bonhomme revient au départ), puis du second nombre à partir de là (s’il se trompe, le bonhomme revient au bout du premier déplacement), puis il écrit le résultat. Un nombre positif fait AVANCER (vers la droite), un nombre négatif fait RECULER (vers la gauche). '
     +'Étape en cours : '+(et===0?'le déplacement du premier nombre, '+bhrFmt(q.a)+', à partir de 0':et===1?'le déplacement du second nombre, '+bhrFmt(q.b)+', à partir de '+bhrFmt(q.a):'l’écriture du résultat')+'. '
     +'Réponses attendues, STRICTEMENT SECRÈTES : le bonhomme arrive en '+bhrFmt(q.a)+' puis en '+bhrFmt(r)+' ; le résultat est '+bhrFmt(r)+'. '
-    +'Ne donne ni la graduation d’arrivée ni le résultat : rappelle le sens du déplacement et le nombre de pas.';
+    +'Puis (méthode 2, à l’étape du résultat) il refait le même calcul par la RÈGLE : même signe → on additionne les nombres sans leur signe, signes différents → on soustrait le plus grand et le plus petit ; on met au résultat le signe du plus fort. Il choisit « même signe / signes différents », « additionner / soustraire », écrit le bon des deux calculs, choisit le signe et écrit le résultat. '
+    +'Ne donne ni la graduation d’arrivée ni le résultat : rappelle le sens du déplacement, le nombre de pas, ou la règle.';
   if(et>=2 && v!=='' && v!==String(r)) c+=' Il a écrit '+v+', ce qui est faux.';
   return {nombre:'', contexte:c};
 }
