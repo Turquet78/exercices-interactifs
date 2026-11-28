@@ -104,6 +104,16 @@ redimensionnement (`ResizeObserver`, `resize`). Mesuré dans Chromium : centre
 du x et centre de la case au même pixel, a = 1 et a = −1, à 1100 px comme à
 390 px.
 
+### Puis des parenthèses hautes autour des cases de la question 3 (v539)
+
+Demande de Turquet (novembre 2026) : « dans la question 3 je veux que les
+parenthèses puissent mieux encadrer les cases verticalement ». Les parenthèses
+qui entourent une CASE — f(□), ln(… □ …), ln(□) — sont désormais hautes
+(`.lnf-par`, KaTeX_Main à 2,1 em, étirée de 12 %, centrée sur la case), comme
+celles de la grille du 8.1.1 ; celles de la ligne f(x), autour d'un x, restent
+ordinaires. Les flèches n'ont pas bougé : centre du x et centre de la case au
+même pixel, a = ±1, à 1100 et 390 px.
+
 ## {ln-demontrer-egalite} (9.2.1, v537) : démontrer une égalité avec ln
 
 Demande de Turquet (novembre 2026), avec la fiche « Démontrer que ln 8 +

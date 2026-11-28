@@ -2542,6 +2542,7 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .lnf-gc{display:inline-flex;align-items:center;justify-content:center}
 #scr-lnf .lnf-gc.lnf-lab{justify-content:flex-end;margin-right:4px}
 #scr-lnf .lnf-gc i{font-size:1.12em}
+#scr-lnf .lnf-par{display:inline-block;vertical-align:middle;position:relative;top:-0.05em;font-family:KaTeX_Main,'Times New Roman',serif;font-weight:400;font-size:2.1em;line-height:1;transform:scaleY(1.12);margin:0 2px;color:var(--ink)}
 #scr-lnf .lnf-cap{margin-left:14px;white-space:nowrap}
 #scr-lnf .lnf-row .op{font-size:1.25rem;font-weight:700;color:var(--ink);margin:0 6px}
 .lnf-donc{margin:0 14px}
@@ -4847,7 +4848,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=538;
+const APP_VERSION=539;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21189,15 +21190,21 @@ function lnfFormHTML(q){
      MÊME colonne que sa case, et un SVG par-dessus (lnfTrace) qui tire une
      flèche du bas de chaque x au haut de sa case, sur les positions rendues. */
   const col=(c,cls)=>'<span class="lnf-gc'+(cls?' '+cls:'')+'">'+c+'</span>';
-  const sA=(A.a>0?'':'−'), sC=(A.c>0?'+':'−'), bB=txB(A.b)+' )', dD=txB(A.d);
+  /* les parenthèses qui entourent une CASE sont hautes (lnfPar), comme celles
+     de la grille du 8.1.1 : la case tient entre elles, du haut au bas
+     (Turquet, novembre 2026 : « que les parenthèses puissent mieux encadrer
+     les cases verticalement ») ; celles de f(x), autour d'un x, restent
+     ordinaires */
+  const P=c=>'<span class="lnf-par" aria-hidden="true">'+c+'</span>';
+  const sA=(A.a>0?'':'−'), sC=(A.c>0?'+':'−'), bB=txB(A.b)+' )', bB2=txB(A.b)+' '+P(')'), dD=txB(A.d);
   h+='<p class="tx-part">3. Démontre que ce maximum vaut M = '+numFmt(A.m)+' :</p>'
     +'<div class="lnf-sch" data-fl=\'[["lnf-x1","lnf-d2"],["lnf-x2","lnf-d3"]]\'>'
     +'<svg class="lnf-svg" aria-hidden="true" focusable="false"></svg><div class="lnf-grille">'
     +col('<span class="tg-eq"><i>f</i>(<i>x</i>) =</span>','lnf-lab')+col('ln(')+col(sA)+col('<i id="lnf-x1">x</i>')+col(bB)+col(sC)+col('<i id="lnf-x2">x</i>')+col(dD)
-    +col('<span class="tg-eq">M =</span>&nbsp;<i>f</i>( '+txInp('lnf-d1')+' ) <span class="tg-eq">=</span>','lnf-lab')
-    +col('ln(')+col(sA)+col(txInp('lnf-d2'))+col(bB)+col(sC)+col(txInp('lnf-d3'))+col(dD)
+    +col('<span class="tg-eq">M =</span>&nbsp;<i>f</i>'+P('(')+txInp('lnf-d1')+P(')')+' <span class="tg-eq">=</span>','lnf-lab')
+    +col('ln'+P('('))+col(sA)+col(txInp('lnf-d2'))+col(bB2)+col(sC)+col(txInp('lnf-d3'))+col(dD)
     +'</div></div>'
-    +'<div class="tg-line"><span class="tg-eq">M =</span> ln( '+txInp('lnf-d4')+' ) '+txInp('lnf-d5','','+')
+    +'<div class="tg-line"><span class="tg-eq">M =</span> ln'+P('(')+txInp('lnf-d4')+P(')')+' '+txInp('lnf-d5','','+')
       +' <span class="dexp-hint">(le nombre avec son signe)</span></div>'
     +'<div class="tg-line">Or ln( 1 ) '+tEq('=', txInp('lnf-d6'))+', donc <span class="tg-eq">M =</span> '+txInp('lnf-d7')+'.</div>';
   return '<div class="tg-form">'+h+'</div>';
