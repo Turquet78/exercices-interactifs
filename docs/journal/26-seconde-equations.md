@@ -364,6 +364,19 @@ deux cases notées, empilées sur le trait. Le juge attend B / A ; (−B) / (−
 vaut aussi, chaque case jugée avec sa voisine. Le pourquoi d'une case fausse
 dit d'où vient chaque nombre. Sept cases par question.
 
+**Puis les flèches ont cessé de passer sur les écritures** (demande de
+Turquet, 28 novembre 2026 : « je ne veux pas que les flèches passent sur les
+écritures et elles doivent arriver à peu près perpendiculairement à la case
+d'arrivée »). Les deux arcs de Bézier coupaient le « 12x » et arrivaient
+presque à l'horizontale sur la case de droite. `eqeTracer()` trace désormais
+des chemins à angles arrondis (`eqeChemin`) qui finissent tous les deux par un
+segment VERTICAL sur le bord haut de leur case : le terme en x monte, file
+au-dessus de la ligne 1, puis descend dans un couloir que rien de la ligne 1
+ne surplombe (mesuré terme par terme, 7 px de marge ; à défaut, il descend à
+gauche de la ligne 1 et longe l'interligne) ; le nombre descend au milieu de
+l'interligne, le longe, puis tombe sur sa case. Vu dans Chromium sur
+ordinateur et sur téléphone, pour les deux équations de la fiche et un tirage.
+
 **Le juge** (d'origine). Cinq cases par question. Le terme en x déplacé est le PREMIER de
 son membre : « 4x » vaut « +4x », « x » vaut « 1x », « × » et « * » sont
 ignorés. Le nombre déplacé vient APRÈS le nombre gardé : son signe fait partie
@@ -513,3 +526,25 @@ séances », …). Le triangle (« Combien mesure chaque côté ? ») et les ent
 consécutifs gardent leur dernière valeur à calculer, le plus grand côté et le
 plus grand nombre, qui fait partie de la réponse. La phrase de « pourquoi »
 ne met plus en minuscule l'initiale d'un prénom (« léa a »).
+
+**La résolution étape par étape (9.10, 9.11, 9.12 — v747, novembre 2026).**
+Demande de Turquet : « l'élève doit pouvoir résoudre les équations étape par
+étape en complétant des cases avant et après le = « … = … », on acceptera toute
+équation équivalente, on aura le droit de sauter les étapes ». Entre la mise en
+équation (ou le choix de la lettre, au 9.12) et « Donc : x = … », le moteur
+commun pose jusqu'à six lignes `… = …` (`eqxEtapesHTML`, déclarées par
+`etapes` et `apres` dans `EQX[kind]`). Une ligne s'ouvre quand la précédente
+est commencée ; Entrée passe d'une case à la suivante, lignes d'étapes
+comprises. Chaque ligne complète est jugée équivalente ou non à l'équation du
+problème (`eqxEtapeJuste` : même lecture que la case d'équation, A ≠ 0 et
+A·B′ = A′·B) — la forme résolue « x = 7 » ou « x = 28/4 » est acceptée ici,
+c'est une étape. Une ligne à moitié remplie n'est pas jugée (une case vide ne
+rougit jamais).
+
+**Facultatives, donc hors note.** Les cases portent `.hors-note` : sauter les
+étapes ne coûte rien, et `#confirmer-vides` ne demande rien pour elles. Une
+ligne fausse rougit, le message le dit (« L'étape 2 n'est pas équivalente… »,
+même quand la solution est juste) ; en soutien, elle bloque comme une case
+fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
+l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
+choisie : une étape tirée d'une mauvaise mise en équation rougit.

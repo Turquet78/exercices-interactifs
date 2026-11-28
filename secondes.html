@@ -2290,6 +2290,8 @@
   .eqx-prog ol{margin:0;padding-left:1.4em}
   .eqx-aide{margin:0;color:var(--ink-soft);font-size:.98rem;font-family:Nunito,system-ui,sans-serif;font-weight:600;text-align:center}
   .eqx-bloc .mf-cor{margin-left:4px}
+  .eqx-etapes{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .eqx-etin.rel-in{width:min(40vw,220px)}
   @media(max-width:640px){ .eqx-bloc{font-size:1.2rem} .eqx-in.rel-in{width:64px;height:40px} .eqx-frin .eqx-in.rel-in{width:60px;height:38px} .eqx-frin .eqx-fbar{min-width:60px} .eqx-copie{padding:8px 12px} }
   /* ===== 9.2 — Résoudre ax + b = 0 en déplaçant les termes à la souris (eqd) ===== */
   .eqd-enonce{font-size:1.15rem}
@@ -92793,7 +92795,29 @@ function renderEqeTest(){
 }
 /* LES FLÈCHES de la fiche, en pointillés : le terme en x de droite part par
    le HAUT vers la case de gauche, le nombre de gauche part par le BAS vers la
-   case de droite. On mesure les termes entourés et les cases d'arrivée. */
+   case de droite. On mesure les termes entourés et les cases d'arrivée.
+   Deux exigences de Turquet (novembre 2026) : une flèche ne passe JAMAIS sur
+   une écriture, et elle arrive à peu près PERPENDICULAIREMENT à sa case —
+   verticalement, sur son bord haut. D'où des chemins à angles arrondis :
+   - le terme en x monte, file au-dessus de la ligne 1, puis descend à la
+     verticale dans un couloir libre de la ligne 1 au-dessus de la case
+     (s'il n'y en a pas, il descend à gauche de la ligne 1, puis longe
+     l'interligne jusqu'au-dessus de la case) ;
+   - le nombre descend dans l'interligne, le longe, puis tombe sur la case. */
+function eqeChemin(pts, rayon){
+  const p=[];
+  pts.forEach(function(q){ const d=p[p.length-1]; if(!d || Math.abs(d[0]-q[0])>0.5 || Math.abs(d[1]-q[1])>0.5) p.push(q); });
+  let d='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);
+  for(let i=1;i<p.length-1;i++){
+    const A=p[i-1], B=p[i], C=p[i+1];
+    const l1=Math.hypot(B[0]-A[0],B[1]-A[1]), l2=Math.hypot(C[0]-B[0],C[1]-B[1]);
+    const r=Math.min(rayon, l1/2, l2/2);
+    const u=[B[0]-(B[0]-A[0])/l1*r, B[1]-(B[1]-A[1])/l1*r], v=[B[0]+(C[0]-B[0])/l2*r, B[1]+(C[1]-B[1])/l2*r];
+    d+=' L'+u[0].toFixed(1)+' '+u[1].toFixed(1)+' Q'+B[0].toFixed(1)+' '+B[1].toFixed(1)+' '+v[0].toFixed(1)+' '+v[1].toFixed(1);
+  }
+  const z=p[p.length-1];
+  return d+' L'+z[0].toFixed(1)+' '+z[1].toFixed(1);
+}
 function eqeTracer(){
   const host=$('eqeHost'); if(!host) return;
   const bloc=host.querySelector('.eqe-bloc'); if(!bloc) return;
@@ -92801,27 +92825,48 @@ function eqeTracer(){
   const dL=$('eqe-L'), dR=$('eqe-R');
   if(!ox || !oc || !dL || !dR) return;
   const rb=bloc.getBoundingClientRect(); if(!rb.width) return;
-  const rx=ox.getBoundingClientRect(), rc=oc.getBoundingClientRect(), rl=dL.getBoundingClientRect(), rr=dR.getBoundingClientRect();
-  const P=function(r){ return {l:r.left-rb.left, r:r.right-rb.left, t:r.top-rb.top, b:r.bottom-rb.top, cx:r.left+r.width/2-rb.left}; };
-  const X=P(rx), C=P(rc), L=P(rl), R=P(rr);
-  const pointe=function(x2,y2,cx,cy){
-    const ang=Math.atan2(y2-cy, x2-cx), k=8;
-    return '<path d="M'+x2+' '+y2+' L'+(x2-k*Math.cos(ang-0.45))+' '+(y2-k*Math.sin(ang-0.45))+' L'+(x2-k*Math.cos(ang+0.45))+' '+(y2-k*Math.sin(ang+0.45))+' Z" fill="#334155"/>';
+  const P=function(el){ const r=el.getBoundingClientRect(); return {l:r.left-rb.left, r:r.right-rb.left, t:r.top-rb.top, b:r.bottom-rb.top, cx:r.left+r.width/2-rb.left}; };
+  const X=P(ox), C=P(oc), L=P(dL), R=P(dR);
+  /* les écritures de la ligne 1 : chaque terme et le « = » */
+  const obs=[].slice.call(bloc.querySelectorAll('.eqe-l1>span, .eqe-eg.eqe-r1')).map(P).filter(function(o){ return o.r>o.l; });
+  if(!obs.length) return;
+  const l1t=Math.min.apply(null, obs.map(function(o){ return o.t; })), l1b=Math.max.apply(null, obs.map(function(o){ return o.b; }));
+  const l1g=Math.min.apply(null, obs.map(function(o){ return o.l; }));
+  const ym=(l1b+Math.min(L.t,R.t))/2;          /* le milieu de l'interligne */
+  const arr=6;                                  /* la pointe s'arrête à 6 px de la case */
+  /* Un couloir vertical libre au-dessus d'une case : la portion de la case
+     qu'aucune écriture de la ligne 1 ne surplombe (6 px de marge), le point
+     le plus proche du centre de la case. */
+  const couloir=function(K){
+    let libres=[[K.l+10, K.r-10]];
+    obs.forEach(function(o){ const a=o.l-7, b=o.r+7, n=[];
+      libres.forEach(function(s){ if(b<=s[0] || a>=s[1]) n.push(s); else { if(a>s[0]) n.push([s[0],a]); if(b<s[1]) n.push([b,s[1]]); } });
+      libres=n; });
+    let best=null;
+    libres.forEach(function(s){ const x=Math.max(s[0], Math.min(s[1], K.cx)); if(best===null || Math.abs(x-K.cx)<Math.abs(best-K.cx)) best=x; });
+    return best;
   };
-  const arc=function(x1,y1,x2,y2,cx,cy){
-    return '<path d="M'+x1+' '+y1+' Q'+cx+' '+cy+' '+x2+' '+y2+'" fill="none" stroke="#64748B" stroke-width="1.7" stroke-dasharray="1.5 3.5" stroke-linecap="round"/>'+pointe(x2,y2,cx,cy);
+  /* par le haut : le terme en x (à droite) jusqu'à la case de gauche */
+  const haut=Math.max(4, l1t-22);
+  const xs=X.cx, xl=couloir(L);
+  const ptsH = xl!==null
+    ? [[xs,X.t-2],[xs,haut],[xl,haut],[xl,L.t-arr]]
+    : [[xs,X.t-2],[xs,haut],[Math.min(l1g-12, L.l-12),haut],[Math.min(l1g-12, L.l-12),ym-4],[L.cx,ym-4],[L.cx,L.t-arr]];
+  /* par le bas : le nombre (à gauche) jusqu'à la case de droite, par l'interligne */
+  const xr=Math.max(R.l+12, Math.min(R.r-12, R.cx));
+  const ptsB=[[C.cx,C.b+2],[C.cx,ym+3],[xr,ym+3],[xr,R.t-arr]];
+  const pointe=function(pts){
+    const a=pts[pts.length-1], z=pts[pts.length-2], ang=Math.atan2(a[1]-z[1], a[0]-z[0]), k=8;
+    return '<path d="M'+a[0]+' '+a[1]+' L'+(a[0]-k*Math.cos(ang-0.45))+' '+(a[1]-k*Math.sin(ang-0.45))+' L'+(a[0]-k*Math.cos(ang+0.45))+' '+(a[1]-k*Math.sin(ang+0.45))+' Z" fill="#334155"/>';
   };
-  /* par le haut : du terme en x (à droite) jusqu'au-dessus de la case de gauche */
-  const x1=X.cx, y1=X.t-2, x2=L.cx, y2=L.t-4;
-  const haut=Math.max(4, Math.min(y1,X.t)-34);
-  /* par le bas : du nombre (à gauche) jusqu'au-dessus de la case de droite, en passant sous la ligne 1 */
-  const x3=C.cx, y3=C.b+2, x4=R.cx, y4=R.t-4;
-  const bas=Math.max(y3, y4)+6;
+  const trace=function(pts){
+    return '<path d="'+eqeChemin(pts, 14)+'" fill="none" stroke="#64748B" stroke-width="1.7" stroke-dasharray="1.5 3.5" stroke-linecap="round"/>'+pointe(pts);
+  };
   let svg=bloc.querySelector('svg.eqe-fleche');
   if(!svg){ bloc.insertAdjacentHTML('beforeend','<svg class="eqe-fleche" aria-hidden="true"></svg>'); svg=bloc.querySelector('svg.eqe-fleche'); }
   svg.setAttribute('width', rb.width); svg.setAttribute('height', rb.height);
   svg.setAttribute('viewBox','0 0 '+rb.width+' '+rb.height);
-  svg.innerHTML=arc(x1,y1,x2,y2,(x1+x2)/2,2*haut-(y1+y2)/2)+arc(x3,y3,x4,y4,(x3+x4)/2,bas);
+  svg.innerHTML=trace(ptsH)+trace(ptsB);
 }
 window.addEventListener('resize', function(){ clearTimeout(window.__eqeRz); window.__eqeRz=setTimeout(function(){ if(test && test.kind==='eqe') eqeTracer(); },120); });
 /* Le pourquoi, dit sur la PREMIÈRE case fausse. */
@@ -93498,6 +93543,60 @@ function eqxEquationPourquoi(v, G, D, quoi){
   if(e.resolue) return 'Écris l’équation qui traduit '+quoi+', avec x dans chaque membre ou dans l’un d’eux, avant de la résoudre : par exemple '+eqxEqT(G,D)+'.';
   return 'Ton équation ne traduit pas '+quoi+'. Une équation qui convient : '+eqxEqT(G,D)+'.';
 }
+/* ---- la résolution étape par étape (9.10, 9.11, 9.12) : des lignes
+   « … = … » FACULTATIVES. Chaque ligne remplie doit être équivalente à
+   l'équation du problème (toute équation équivalente est acceptée, la
+   solution « x = … » comprise) ; l'élève saute les étapes qu'il veut. Une
+   ligne s'ouvre quand la précédente est commencée. Les cases sont
+   .hors-note : elles ne comptent pas dans la note et une ligne vide ne
+   demande aucune confirmation ; une ligne fausse rougit, et en soutien elle
+   bloque comme une case fausse. ---- */
+const EQX_NB_ETAPES=6;
+function eqxEtapesHTML(k){
+  let h='<p class="eqx-p">Résous l’équation étape par étape (tu peux sauter des étapes) :</p><div class="eqx-etapes" id="'+k+'-etapes">';
+  for(let i=0;i<EQX_NB_ETAPES;i++) h+='<div class="eqx-l eqx-etape"'+(i?' hidden':'')+'>'
+    +eqxInput(k+'-Eg'+i,'membre de gauche de l’étape '+(i+1),'eqx-eqin eqx-etin hors-note','x + /')
+    +'<span class="eqx-egal">=</span>'
+    +eqxInput(k+'-Ed'+i,'membre de droite de l’étape '+(i+1),'eqx-eqin eqx-etin hors-note','x + /')+'</div>';
+  return h+'</div>';
+}
+function eqxEtapeIds(k){ const o=[]; for(let i=0;i<EQX_NB_ETAPES;i++) o.push(k+'-Eg'+i, k+'-Ed'+i); return o; }
+/* ouvre la ligne suivante dès qu'une ligne est commencée */
+function eqxEtapesMaj(k){
+  const lignes=document.querySelectorAll('#'+k+'-etapes .eqx-etape');
+  lignes.forEach(function(l, i){
+    if(i===0) return;
+    const p=lignes[i-1], plein=[].some.call(p.querySelectorAll('input'), function(x){ return !eqxVide(x); }) || [].some.call(l.querySelectorAll('input'), function(x){ return !eqxVide(x); });
+    l.hidden=!(plein && !p.hidden);
+  });
+}
+/* une ligne G' = D' est-elle équivalente à G = D ? */
+function eqxEtapeJuste(gv, dv, G, D){
+  const e=eqxLitEquation(String(gv)+'='+String(dv)); if(!e) return false;
+  const r=eqxAB(G,D);
+  if(Math.abs(e.A)<1e-9) return false;
+  return Math.abs(e.A*r.B-e.B*r.A)<1e-6;
+}
+/* juge les lignes complètes ; rend les numéros des lignes fausses */
+function eqxEtapesJuge(k, q){
+  const S=EQX[k]; if(!S.etapes) return [];
+  const t=S.etapes(q), faux=[];
+  for(let i=0;i<EQX_NB_ETAPES;i++){
+    const g=$(k+'-Eg'+i), d=$(k+'-Ed'+i); if(!g || !d) continue;
+    [g,d].forEach(function(x){ x.classList.remove('ok','bad'); });
+    if(eqxVide(g) || eqxVide(d)) continue;
+    const ok=eqxEtapeJuste(g.value, d.value, t.G, t.D);
+    [g,d].forEach(function(x){ x.classList.add(ok?'ok':'bad'); });
+    if(!ok) faux.push(i+1);
+  }
+  return faux;
+}
+function eqxEtapesPourquoi(faux, k, q){
+  if(!faux.length) return '';
+  const t=EQX[k].etapes(q);
+  return (faux.length===1?'L’étape '+faux[0]+' n’est pas équivalente':'Les étapes '+faux.join(', ')+' ne sont pas équivalentes')
+    +' à l’équation '+eqxEqT(t.G,t.D)+' : à chaque ligne, on fait la même opération des deux côtés du « = » (un terme qui change de côté change de signe, on divise les deux membres par le même nombre).';
+}
 /* ---- le rendu commun ---- */
 function eqxRender(k){
   const S=EQX[k], q=test.questions[test.idx]; test.locked=false;
@@ -93508,14 +93607,18 @@ function eqxRender(k){
   $(k+'Actions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="check'+eqxCap(k)+'Answer()">Vérifier</button>';
   $(k+'Instr').innerHTML=S.instr(q);
   $(k+'Host').innerHTML=S.html(q);
-  const cs=S.cases(q);
-  const maj=function(){ eqxMiroirs(k+'Host'); if(S.maj) S.maj(q); };
-  cs.forEach(function(c, i){ const el=$(c.id); if(!el) return;
+  const cs=S.cases(q).map(function(c){ return c.id; });
+  /* les lignes d'étapes s'insèrent dans l'ordre de la touche Entrée, après la case S.apres */
+  if(S.etapes){ const j=cs.indexOf(S.apres)+1; cs.splice.apply(cs, [j,0].concat(eqxEtapeIds(k))); }
+  const maj=function(){ eqxMiroirs(k+'Host'); if(S.etapes) eqxEtapesMaj(k); if(S.maj) S.maj(q); };
+  cs.forEach(function(id, i){ const el=$(id); if(!el) return;
     el.addEventListener(el.tagName==='SELECT'?'change':'input', function(){ maj(); if(isSoutien()) eqxCheck(k,true);
       clearTimeout(test.eqxSave); test.eqxSave=setTimeout(autoSave,1000); });
     el.addEventListener('keydown', function(e){
       if(e.key!=='Enter') return; e.preventDefault();
-      const suiv=cs.slice(i+1).map(function(s){ return $(s.id); }).find(function(x){ return x && !x.disabled && x.offsetParent!==null; });
+      /* Entrée ouvre la ligne d'étape suivante avant d'y aller */
+      maj();
+      const suiv=cs.slice(i+1).map(function(s){ return $(s); }).find(function(x){ return x && !x.disabled && x.offsetParent!==null; });
       if(suiv) suiv.focus(); else eqxCheck(k);
     });
   });
@@ -93534,19 +93637,22 @@ function eqxCheck(k, live){
       if(eqxVide(el) || (c.paire && eqxVide($(c.paire)))) return;
       el.classList.add(S.juste(c,el,q)?'ok':'bad');
     });
+    eqxEtapesJuge(k, q);
     eqxMiroirs(k+'Host'); if(S.maj) S.maj(q);
     return;
   }
   const subs=cases.map(function(c){ const el=$(c.id); return {c:c, el:el, ok:S.juste(c,el,q), vide:eqxVide(el)}; });
   const nCorrect=subs.filter(function(s){ return s.ok; }).length, allOk=nCorrect===subs.length;
-  const pourquoi=S.pourquoi(q, subs);
+  const etFaux=eqxEtapesJuge(k, q), etPourquoi=eqxEtapesPourquoi(etFaux, k, q);
+  const pourquoi=[S.pourquoi(q, subs), etPourquoi].filter(Boolean).join(' ');
   const donne=subs.map(function(s){ return s.c.nom+' : '+(s.vide?'?':String(s.el.value).trim()); }).join(' ; ');
   subs.forEach(function(s){ corrChoix(s.el, s.c.bon, s.ok); });
   eqxMiroirs(k+'Host'); if(S.maj) S.maj(q, true);
-  if(!allOk && isSoutien()){ soutienAgain(k+'Feedback', k+'Actions', 'check'+eqxCap(k)+'Answer', k+'Host'); return; }
+  if((!allOk || etFaux.length) && isSoutien()){ soutienAgain(k+'Feedback', k+'Actions', 'check'+eqxCap(k)+'Answer', k+'Host'); return; }
   test.locked=true;
   test.score+=nCorrect; $(k+'LiveScore').textContent=test.score;
-  if(allOk){ $(k+'Feedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $(k+'Feedback').className='mp-feedback good'; }
+  if(allOk && !etFaux.length){ $(k+'Feedback').textContent=pick(['Bravo, tout est juste !','Parfait !','Excellent !','Très bien !']); $(k+'Feedback').className='mp-feedback good'; }
+  else if(allOk){ $(k+'Feedback').textContent='Ta solution est juste. '+etPourquoi; $(k+'Feedback').className='mp-feedback bad'; }
   else { $(k+'Feedback').textContent=msgAvecVides(subs, pourquoi); $(k+'Feedback').className='mp-feedback bad'; }
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:S.texte(q), answer:S.reponse(q), given:donne});
   const last=test.idx===test.questions.length-1;
@@ -93888,6 +93994,7 @@ function eqpProgramme(titre, etapes){
 }
 EQX.eqp={
   id:'equation-programme-calcul',
+  etapes:function(q){ return eqpTermes(q); }, apres:'eqp-E',
   build:function(){
     const nb=dmNbQuestions(6), ts=[];
     while(ts.length<nb) ts.push.apply(ts, eqxMelange([0,1,2]));
@@ -93921,6 +94028,7 @@ EQX.eqp={
       +'<div class="eqx-progs">'+p+'</div>'
       +'<p class="eqx-p">On note <i>x</i> le nombre choisi au départ. Écris l’équation qui traduit la question :</p>'
       +'<div class="eqx-l">'+eqxInput('eqp-E','l’équation qui traduit la question','eqx-eqin','x + =')+'</div>'
+      +eqxEtapesHTML('eqp')
       +'<div class="eqx-l"><span>Donc :</span><span><i>x</i></span><span class="eqx-egal">=</span>'+eqxInput('eqp-S','la solution x')+'</div>'
       +'<div class="eqx-l eqx-l-txt"><span>'+verif+'</span>'+eqxInput('eqp-V','le résultat de la vérification')+'</div>'
       +'</div>';
@@ -94005,6 +94113,7 @@ function eqcBuild(nb){
 function eqcEq(q){ return EQC_SIT[q.p].eq(q); }
 EQX.eqc={
   id:'equation-probleme-concret',
+  etapes:function(q){ return eqcEq(q); }, apres:'eqc-E',
   build:function(){ return eqcBuild(dmNbQuestions(5)); },
   cases:function(q){ const t=eqcEq(q); return [
     {id:'eqc-E', nom:'équation', bon:eqxEqT(t.G,t.D)},
@@ -94023,6 +94132,7 @@ EQX.eqc={
     return '<div class="eqx-bloc">'
       +'<p class="eqx-p">'+S.inc+' Écris l’équation qui traduit l’énoncé :</p>'
       +'<div class="eqx-l">'+eqxInput('eqc-E','l’équation qui traduit l’énoncé','eqx-eqin','x + =')+'</div>'
+      +eqxEtapesHTML('eqc')
       +'<div class="eqx-l"><span>Donc :</span><span><i>x</i></span><span class="eqx-egal">=</span>'+eqxInput('eqc-S','la solution x')+'</div>'
       +'<div class="eqx-l eqx-l-txt"><span>'+r.lab+'</span>'+eqxInput('eqc-V','la réponse au problème')+(r.unite?'<span>'+r.unite+'</span>':'')+'</div>'
       +'</div>';
@@ -94086,6 +94196,7 @@ function eqkGen(p){
 const EQK_LET=['A','B','C','D'];
 EQX.eqk={
   id:'equation-choisir-traduction',
+  etapes:function(q){ return eqcEq(q); }, apres:'eqk-C',
   build:function(){
     const nb=dmNbQuestions(6), ps=[];
     while(ps.length<nb) ps.push.apply(ps, eqxMelange([0,1,2,3,4,5,6]));
@@ -94106,6 +94217,7 @@ EQX.eqk={
       +'<p class="eqx-p">'+EQC_SIT[q.p].inc+' Une seule de ces équations traduit l’énoncé :</p>'
       +'<div class="eqx-copie">'+q.o.map(function(o,i){ return '<div class="eqx-cl"><span class="eqx-num">'+EQK_LET[i]+'</span>'+eqxEqH(o.G,o.D)+'</div>'; }).join('')+'</div>'
       +'<p class="eqx-p">L’équation qui traduit l’énoncé est l’équation '+eqxSelect('eqk-C','l’équation qui traduit l’énoncé',EQK_LET.map(function(l){ return [l,l]; }))+'</p>'
+      +eqxEtapesHTML('eqk')
       +'<div class="eqx-l"><span>Sa solution :</span><span><i>x</i></span><span class="eqx-egal">=</span>'+eqxInput('eqk-S','la solution x')+'</div>'
       +'</div>';
   },

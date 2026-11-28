@@ -54,7 +54,37 @@ côté. Un défaut vu à la première capture : les corrections des cases en tex
 de la partie 3 restaient grises — la règle `.tg-in.sol` est propre à chaque
 écran (`#scr-lnf .tg-in.sol`).
 
-## {ln-demontrer-egalite} (9.2.1, v536) : démontrer une égalité avec ln
+### Puis la dérivée comme la fiche « ln dérivée » (v536)
+
+Demande de Turquet (novembre 2026), avec la fiche « 2/(2x + 1) − 3 =
+2/(2x + 1) − 3×(…)/1×(…) = ……/(2x + 1) = ……/(2x + 1) » : « demande la dérivée
+d'abord de ln(ax + b), en écrivant la formule (ln u)′ avant ; puis mettre
+directement f′(x) = …/… ; puis demander de dériver cx + d ; et ensuite demander
+f′(x) et terminer le calcul comme sur le pdf joint ; on précisera si on souhaite
+que la case soit un développement ou une réduction ; mettre en rouge quand les
+cases sont fausses et en bleu sinon ».
+
+La partie 1 n'a plus « On pose u, u′ » ni la ligne (a + c × (…))/(…) :
+(ln u)′ = u′/u est écrite par la page, puis (ln(ax + b))′ = □/□, (cx + d)′ = □,
+f′(x) = □/□ □ (le nombre avec son signe), puis la ligne de la fiche, écrite par
+la page sauf les deux parenthèses — a/(ax + b) ∓ 1 × (□)/1 × (□) —, puis
+= □/(ax + b) « ← développe le numérateur » et = □/(ax + b) « ← réduis le
+numérateur ».
+
+**Chaque case se juge SEULE** (`lnfDerVerdicts`) : plus de ligne jugée en bloc,
+qui pouvait peindre en bleu une case fausse prise seule. Une fraction se juge
+d'abord en entier (1/(x − 3) comme −1/(−x + 3)), sinon numérateur et
+dénominateur chacun contre le sien. Le numérateur DÉVELOPPÉ doit valoir
+−x + xs et s'écrire sans parenthèse ni produit (`lnfSansParenthese`) ; le
+RÉDUIT, en plus, n'a qu'un terme en x et une constante (`lnfReduite`) :
+« 1 − x + 3 » est juste dans la première case, faux dans la seconde.
+
+Essayé dans Chromium : la copie faite des corrections est parfaite (28 cases sur
+28) ; en soutien, des frappes réelles — 1 et x − 2 dans la fraction, −1, +1,
+« 1 − x + 3 » dans les deux numérateurs — se peignent à la sortie de chaque case :
+bleu, rouge, bleu, rouge, bleu, rouge.
+
+## {ln-demontrer-egalite} (9.2.1, v537) : démontrer une égalité avec ln
 
 Demande de Turquet (novembre 2026), avec la fiche « Démontrer que ln 8 +
 ln 10 + ln(1/40) = ln 2 » : « créer un exercice avec des exemples comme dans
