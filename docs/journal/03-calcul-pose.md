@@ -672,7 +672,7 @@ seconde erreur dit les déplacements ; « Vérifier » ne compte rien avant le
 bon schéma ; la reprise ; juste, faux, vide (correction verte), soutien en
 direct.
 
-## {relatifs-regle-cent} : la règle seule, un relatif et ±100 (1.12, novembre 2026, v751 — la v750 prise par le 1.10 pendant la rédaction)
+## {relatifs-regle-cent} : la règle seule, un relatif et ±100 (1.12, novembre 2026, v752 — la v750 prise par le 1.10, la v751 par le 9.10 pendant la rédaction)
 
 Demandé par Turquet : « en seconde, faire un exercice comme le 1.10
 uniquement avec la 2ème méthode, en prenant un nombre entre 1 et 10 en
