@@ -576,6 +576,22 @@ l'exemple, juste partout ; une règle fausse (« même signe », « additionner 
 5 dans le mauvais calcul) rougit sans rougir le résultat juste ; aucune
 somme nulle en 30 séances.
 
+**Puis la méthode 2 s'est corrigée TOUT DE SUITE (v747).** « Mettre en
+rouge dès que le résultat de la case est faux, même en mode entraînement, et
+demander de corriger la case ; mettre en bleu quand c'est bon. » Chaque case
+de la méthode 2 est jugée dès qu'elle est remplie, dans TOUS les modes
+(`bhdJugerM2`) : une liste au choix (`change`), une case quittée ou validée
+par Entrée — jamais à la frappe (« 1 » avant « 12 »). Juste : `ok`, bleue.
+Fausse : `bad`, rouge, et une ligne sous la méthode (`#bhdM2Fb`) dit
+« Cette case est fausse : corrige-la. » avec un indice qui renvoie à la règle
+sans donner la réponse ; Entrée ne passe pas à la case suivante ; la
+première frappe lève le rouge. Le mauvais des deux calculs, rempli, rougit
+avec « Ce n'est pas ce calcul qu'il faut faire ». Les fautes sont RELEVÉES
+(`test.bhdM2Fautes`, « 3 cases corrigées en cours de route » dans la copie),
+pas retranchées, comme les déplacements du bonhomme. Le soutien en direct ne
+juge plus que la case du bonhomme : la méthode 2 a son propre juge. Vu dans
+Chromium avec de vrais gestes (liste, frappe, Entrée, clic ailleurs).
+
 ## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
 
 Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il
