@@ -186,3 +186,68 @@ c'est la même pour la suite, la remplir automatiquement ».
   la ligne APPLIQUE une propriété (ln 2³ → 3 ln 2, ln e^p → p) n'est jamais
   un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
   17 cases notées à 10, plus la forme finale.
+## {ln-signe-derivee} (9.1.2, v539) : le signe de f′ avec ln ou exp
+
+Demande de Turquet (novembre 2026), avec la fiche « tableau de signe avec ln
+ou expo » (f′(x) = ln x, ln x − 1, −ln x − 1, −2 ln x + 1, ln(2x + 1),
+ln(−2x) − 1) : « créer un exercice dans ln comme le pdf ; on alternera une
+fonction avec expo dans la dérivée avec une fonction avec ln dans la
+dérivée ; on tracera la courbe de f′(x), et on demandera de compléter
+logiquement avec l'aide de la courbe ou sans l'aide de la courbe les tableaux
+de signe et de variations ; quand une équation n'a aucune solution ou que
+c'est ℝ, ne pas mettre les étapes inutiles qui sont dans la fin des
+résolutions ». Partie 1 « Étude de fonction » du thème 9, après le 9.1.1.
+
+**Six questions, ln et exp alternés** (`LNS_FAM`, tirées par `distinctes()`) :
+
+| | famille | exemple |
+|---|---|---|
+| 1 | `L1` ±ln x + q | −ln x + 1 |
+| 2 | `E1` ±e^x + q | −e^x + 5 |
+| 3 | `L2` p ln x + q, \|p\| = 2 ou 3 | −2 ln x + 1 (le d) de la fiche) |
+| 4 | `E0` p e^(cx) + q qui ne s'annule jamais | −2e^(2x) − 3 |
+| 5 | `Lu` ±ln(ax + b) + q, \|a\| = 2 ou 3 | ln(−2x) − 1 (le f) |
+| 6 | `E2` p e^(cx) + q, c ∈ {2, 3, −1, −2} | 2e^(3x) − 6 |
+
+La question ne porte que (t, p, q, a, b, c) ; `lnsAns` recalcule tout : les
+lignes à trous, la racine, les signes, les flèches.
+
+**La chaîne de la fiche, une équivalence par ligne.** Les signes ≥ et ≤ sont
+IMPRIMÉS comme sur la fiche (le sens change à la division par un négatif) ;
+les « … » sont des cases MathLive. Côté ln : p ln u ≥ □, ln u ≥ □,
+e^□ ≥ e^□, □ ≥ □ (puis □ ≥ □ pour ln(ax + b), le sens changé si a < 0), « car
+eˣ est une fonction [croissante ▾] sur ℝ ». Côté exp, le miroir : p e^(cx) ≥ □,
+e^(cx) ≥ □, ln(□) ≥ ln(□), □ ≥ □, « car ln est une fonction [croissante ▾]
+sur ]0 ; +∞[ ». Une étape inutile n'est pas écrite : q = 0 saute « p ln u ≥ □ »,
+p = 1 saute la division.
+
+**Aucune solution, ou ℝ : la chaîne s'arrête** (la famille `E0`). Dès
+e^(cx) ≥ k avec k ≤ 0 : « Or e^(cx) > 0 pour tout réel x : cette inéquation
+[est vraie pour tout réel x / n'a aucune solution ▾] » — sans ln, sans
+racine ; le tableau n'a que −∞ et +∞, un signe, une flèche.
+
+**Le juge ne croit aucune écriture.** `lnsLire` passe le LaTeX à `lndLire`
+(ln, e, fractions, racines — le juge du 9.2.1), x pris pour une variable ;
+une case d'expression (ln x, −2x + 3, e^(3x)…) se juge en quatre x de
+l'ensemble de définition, une case de nombre (e^(1/2), (e − 1)/2,
+ln(3)/3…) par sa valeur exacte : toute écriture équivalente est juste, une
+valeur approchée ne l'est pas — l'aide le dit (« les valeurs exactes »).
+
+**La courbe de f′, au choix** : deux boutons « Avec la courbe de f′ » /
+« Sans la courbe » (`test.lnsCourbe`, gardé pour la séance et dans la
+pause) ; les cases sont les mêmes, la courbe ne fait que montrer le signe.
+Asymptote en pointillés côté ln, fenêtre resserrée pour e^(cx) avec |c| ≥ 2
+(sinon la courbe n'est qu'un trait vertical).
+
+**Le tableau a ses ids propres** (`lns-r0`, `lns-s*`, `lns-a*`,
+`lnsArrowChange`) : il reprend le dessin du 4.4.2 (`lv-vartbl2`,
+`svArrowSVG`, `efSign`) mais jamais ses ids `ef-*` partagés — aucun tableau
+fantôme à vider. La racine s'écrit dans une case MathLive du tableau.
+
+**Essayé dans Chromium** : sur une séance tirée (−ln x + 1, −e^x + 5,
+−2 ln x + 1, −2e^(2x) − 3, −ln(−2x + 3), 2e^(3x) − 6), la copie faite des
+corrections de la page est parfaite à chaque question (12, 12, 12, 5, 13,
+14 cases). À la première capture, les cases d'exposant posées dans un
+`<sup>` restaient sur la ligne (le conteneur flex ignore `vertical-align`) :
+e^□ se lisait « e □ » — elles sont relevées par `.lns-exp` ; et la courbe de
+2e^(3x) − 6 n'était qu'un trait vertical sur la fenêtre de ±3.
