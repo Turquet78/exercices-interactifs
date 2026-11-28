@@ -514,7 +514,7 @@ consécutifs gardent leur dernière valeur à calculer, le plus grand côté et 
 plus grand nombre, qui fait partie de la réponse. La phrase de « pourquoi »
 ne met plus en minuscule l'initiale d'un prénom (« léa a »).
 
-**La résolution étape par étape (9.10, 9.11, 9.12 — v747, novembre 2026).**
+**La résolution étape par étape (9.10, 9.11, 9.12 — v747, puis v748 : la 1.10 avait pris le même numéro le même jour ; novembre 2026).**
 Demande de Turquet : « l'élève doit pouvoir résoudre les équations étape par
 étape en complétant des cases avant et après le = « … = … », on acceptera toute
 équation équivalente, on aura le droit de sauter les étapes ». Entre la mise en
