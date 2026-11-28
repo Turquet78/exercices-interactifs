@@ -549,7 +549,7 @@ fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
 **Au 9.12, la case qui nomme l'équation se juge dès le choix, et ferme la
-résolution tant qu'elle est fausse (v751, novembre 2026).** Demande de
+résolution tant qu'elle est fausse (v752, novembre 2026).** Demande de
 Turquet : « mettre en rouge la case qui nomme [l'équation] quand c'est faux
 et bleu sinon. L'élève ne peut pas commencer sa résolution tant que la case
 n'est pas bleue. » `EQX.eqk.maj` (le crochet `maj` du moteur commun) peint
@@ -617,7 +617,7 @@ et « Passer à la suite » corrige comme en entraînement.
 membre tiré. Six questions, réglables par le devoir, `distincte()` sur
 (a, b, c, d).
 
-**Le 9.10 ne fait plus vérifier (v751, novembre 2026).** Demande de Turquet :
+**Le 9.10 ne fait plus vérifier (v752, novembre 2026).** Demande de Turquet :
 « dans le 9.10 ne pas faire la vérification à la fin ». La case « Vérification :
 avec ce nombre, … on obtient » est retirée avec son juge (`eqpVerif`), son
 message, sa ligne dans la réponse attendue et dans le contexte de l'aide ; le
