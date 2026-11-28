@@ -1317,7 +1317,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-efb,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-efb,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-lnf,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2525,6 +2525,16 @@ body:has(#paveNum:not([hidden])) #testCtrls{top:8px;bottom:auto;margin-bottom:0}
 .edv-prime{font-family:KaTeX_Main,'Times New Roman',serif;font-size:1.9rem;line-height:1;font-weight:700;color:var(--ink);align-self:flex-start;margin:-4px 0 0 1px}
 math-field.dexp-mf.edv-let{min-width:42px}
 #scr-edv .mf-cor{margin-left:4px}
+/* 9.1.1 : les fractions de la dérivée portent des cases MathLive empilées */
+.lnf-graph{max-width:420px}
+.lnf-row{align-items:center;flex-wrap:nowrap}
+.lnf-frac{margin:0 4px}
+.lnf-frac .ec-num,.lnf-frac .ec-den{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:3px 6px}
+.lnf-numrow{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+#scr-lnf .mf-cor{margin-left:4px}
+#scr-lnf .tg-in.sol,#scr-lnf .tg-in.sol:disabled{border-color:var(--green);background:var(--green-soft);color:var(--green);opacity:1}
+#scr-lnf .lnf-instr{margin:8px 0 4px}
+.lnf-donc{margin:0 14px}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:var(--card-max);margin:0 auto;}
@@ -3832,6 +3842,22 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
     </div>
   </section>
 
+  <!-- 9.1.1 LOGARITHME NÉPÉRIEN — étude de ln(ax + b) + cx + d : dérivée, tableau, maximum.
+       Le tableau porte les ids ef-* partagés : les hôtes des autres écrans sont vidés au rendu. -->
+  <section class="screen" id="scr-lnf">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lnfModeTag"></span><span class="q-idx" id="lnfQIdx">Question 1 / 2</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="lnfLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="enonce" id="lnfPrompt"></p>
+      <div class="ec-graph lnf-graph" id="lnfGraph"></div>
+      <div id="lnfForm"></div>
+      <div class="mp-feedback" id="lnfFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="lnfActions"></div>
+    </div>
+  </section>
+
   <section class="screen" id="scr-eal">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="ealModeTag"></span><span class="q-idx" id="ealQIdx">Question 1 / 3</span></span>
@@ -4779,7 +4805,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=534;
+const APP_VERSION=535;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5036,6 +5062,7 @@ const TESTS={
   'espace-bac-cube': { name:'Espace \u2014 exercice de bac\u00a0: le cube, deux droites, la section', icon:'\ud83e\uddca', desc:'Un exercice de bac en trois parties, sur un cube et trois points I, J, K de ses ar\u00eates\u00a0: A \u2014 des coordonn\u00e9es, le vecteur IK, une repr\u00e9sentation param\u00e9trique de (IK), un point P de (IK), une autre repr\u00e9sentation\u00a0; B \u2014 (IK) et une droite (d) sont-elles parall\u00e8les\u00a0? s\u00e9cantes\u00a0? coplanaires\u00a0? ; C \u2014 construire la section du cube par le plan (IJK).', start:()=>startEBC() },
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
+  'ln-etude-fonction': { name:'Étude de ln(ax + b) + cx + d', icon:'\ud83d\udcc8', desc:'Sur la courbe de f(x) = ln(ax + b) + cx + d\u00a0: la dérivée démontrée avec toutes les étapes comme au {derivee-exp} \u2014 u, u\u2032, (ln u)\u2032 = u\u2032/u \u2014, mise au même dénominateur, puis le tableau de signes et de variations comme au {etude-exponentielle}, et la valeur exacte du maximum.', start:()=>startLNF() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
@@ -5186,6 +5213,12 @@ const THEMES=[
      solution —, {equadiff-verifier-solution}, 8.1.1. */
   { num:8, nom:'Équations différentielles', sous:[
       { num:1, nom:'Vérifier une solution', ids:['equadiff-verifier-solution'] }
+    ] },
+  /* Le thème du Logarithme népérien (demande de Turquet, novembre 2026 :
+     « faire un exercice comme le 4.4.2, dans le nouveau thème logarithme
+     népérien ») : l'étude de ln(ax + b) + cx + d, {ln-etude-fonction}, 9.1.1. */
+  { num:9, nom:'Logarithme népérien', sous:[
+      { num:1, nom:'Étude de fonction', ids:['ln-etude-fonction'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -5418,7 +5451,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-efb','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv'];
+  const ECRANS_TEST=['scr-test','scr-efb','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv','scr-lnf'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5891,6 +5924,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='esl' && test.questions && test.questions[test.idx]){ c=eslConseilCtx(); }
   else if(test && test.kind==='ebc' && test.questions && test.questions[test.idx]){ c=ebcConseilCtx(); }
   else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
+  else if(test && test.kind==='lnf' && test.questions && test.questions[test.idx]){ c=lnfConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
@@ -7780,7 +7814,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], lnf:['lnf',renderLNF], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7912,7 +7946,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['efb','cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['lnf','efb','cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -13631,6 +13665,10 @@ function dexpLiveCheck(id){
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkECV(true); },0);
     return;
   }
+  if(test && test.kind==='lnf'){   /* la dérivée du 9.1.1 : même route, vers checkLNF */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkLNF(true); },0);
+    return;
+  }
   if(test && test.kind==='efb'){   /* les chaînes et la grille du 4.5.1 : même route, vers checkEFB */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkEFB(true); },0);
     return;
@@ -14999,11 +15037,12 @@ function efArrowChange(){
   /* le tableau du 5.3 sert aussi {etude-exponentielle} : même dessin, même
      fonction — la question de l'étude ne portant que (a, b), on reconstruit
      son tableau par ecTab() */
-  if(test.kind!=='ef' && test.kind!=='ec' && test.kind!=='afp' && test.kind!=='asg' && test.kind!=='sdq' && test.kind!=='ecv') return;
+  if(test.kind!=='ef' && test.kind!=='ec' && test.kind!=='afp' && test.kind!=='asg' && test.kind!=='sdq' && test.kind!=='ecv' && test.kind!=='lnf') return;
   const ov=$('ef-var-ov'); if(!ov) return;
   let c=test.questions[test.idx]; if(!c) return;
   if(test.kind==='ec'||test.kind==='asg'||test.kind==='ecv') c=ecTab(c);   /* asg et ecv réutilisent le tableau MÊME du 5.5 */
   if(test.kind==='afp') c=afpTab(c);
+  if(test.kind==='lnf') c=lnfTab(c);   /* le tableau du 9.1.1, depuis (a, b, m) */
   if(test.kind==='sdq') c=sdqTab(c);   /* le tableau de la fiche 9, depuis la courbe de f' */
   const nA=c.fleches.length, ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
   const dirs=[]; for(let i=0;i<nA;i++) dirs.push(($('ef-a'+i)||{}).value||'');
@@ -15312,7 +15351,7 @@ function renderAfp(){
   const ex='Exercice '+(Math.floor(test.idx/3)+1)+' \u2014 ';
   /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3, de l'étude et
      du 4.6 : leurs hôtes se vident, sans quoi $() lirait un tableau fantôme */
-  ['efTable','ecForm','asgForm','sdqHost','ecvForm'].forEach(function(id){ const h=$(id); if(h) h.innerHTML=''; });
+  ['efTable','ecForm','asgForm','sdqHost','ecvForm','lnfForm'].forEach(function(id){ const h=$(id); if(h) h.innerHTML=''; });
   if(q.type==='a'){
     $('afpPrompt').innerHTML=ex+'On donne une courbe repr\u00e9sentant <b><i>f</i></b>. Compl\u00e8te logiquement le tableau : les abscisses o\u00f9 <i>f</i>\u2009\u2032 s\u2019annule, le signe de <i>f</i>\u2009\u2032, les variations de <i>f</i>.';
     $('afpHost').innerHTML='<div class="af-graph">'+afGraphSVG(q.pts,false)+'</div><p class="af-instr aide-ecran">Compl\u00e9ter logiquement :</p><div class="sv-tables" id="afpTable">'+efTableHTML(afpTab(q))+'</div>';
@@ -15791,7 +15830,7 @@ function renderSdq(){
   /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3, du 5.5, de la
      fiche 9 et du 4.6 : leurs hôtes se vident, sans quoi $() lirait un
      tableau FANTÔME de l'écran quitté — le piège documenté */
-  ['efTable','ecForm','afpHost','asgForm','ecvForm'].forEach(function(id){ const h=$(id); if(h) h.innerHTML=''; });
+  ['efTable','ecForm','afpHost','asgForm','ecvForm','lnfForm'].forEach(function(id){ const h=$(id); if(h) h.innerHTML=''; });
   const props=q.props.map(function(p,i){
     return '<div class="sdq-prop" data-prop="'+i+'"><span class="sdq-lettre">'+SDQ_LETTRES[i]+')</span>'+sdqTexte(p)+'</div>';
   }).join('');
@@ -17254,7 +17293,7 @@ function renderEF(){
   $('efTable').classList.remove('ef-revele');
   /* les ids ef-* vivent aussi sur les écrans du 5.5, de la fiche 9 et du 4.6 :
      leurs hôtes se vident, sans quoi un tableau FANTÔME reprendrait la main */
-  ['ecForm','afpHost','asgForm','sdqHost','ecvForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
+  ['ecForm','afpHost','asgForm','sdqHost','ecvForm','lnfForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
   $('efTable').innerHTML=efTableHTML(c)+efSyntHTML(c)+efGraphHTML(c);
   setTimeout(efArrowChange,0);
   if(isSoutien()){
@@ -20356,7 +20395,7 @@ function renderEC(){
   /* le tableau porte les ids ef-* du 5.3, de la fiche 9 et du 4.6 : les hôtes
      des AUTRES écrans se vident, sans quoi $() lirait le tableau FANTÔME de
      l'écran quitté */
-  ['efTable','afpHost','asgForm','sdqHost','ecvForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
+  ['efTable','afpHost','asgForm','sdqHost','ecvForm','lnfForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
   $('ecForm').innerHTML=ecFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('ecForm'));
   ecF=mlFeuille({ conteneur:'ecSheet', mode:'calcul',
@@ -20824,7 +20863,7 @@ function renderASG(){
   /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3, du 5.5 et de
      la fiche 9 : leurs hôtes se vident, sans quoi $() lirait un tableau
      FANTÔME de l'écran quitté — le piège documenté */
-  ['efTable','ecForm','afpHost','sdqHost','ecvForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
+  ['efTable','ecForm','afpHost','sdqHost','ecvForm','lnfForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
   $('asgForm').innerHTML=asgFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('asgForm'));   /* les cases du b) sont des math-field, comme au 2.1 */
   setTimeout(efArrowChange,0);
@@ -20912,6 +20951,292 @@ function asgConseilCtx(){
   return 'Exercice TVI — étude de f(x) = ('+s1ExprText(A.p,A.q)+')e^(−x) : a) limites en ±∞ et asymptote (en +∞ la limite est 0), b) démontrer f′(x) = ('+asgAffStr(A)+')e^(−x), c) tableau de signes de f′ et variations, d) '+(A.ext==='max'?'maximum':'minimum')+' en x = '+numFmt(A.r)+', e) f(x) = 0 admet une unique solution α sur ]−∞ ; '+numFmt(A.r)+'] (continuité + stricte monotonie + 0 compris entre les valeurs aux bords : TVI), f) tableau de signe de f. '
    +'Saisies de l’élève : limite en +∞ '+lu('asg-la')+', limite en −∞ '+lu('asg-lb')+', dérivée '+lu('asg-bfac')+', racine de f′ '+lu('asg-c2')+', α '+lu('asg-e6')+'. '
    +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement.';
+}
+
+/* ====================== TEST : Étude de ln(ax + b) + cx + d (kind 'lnf') ====================== */
+/* Le thème du Logarithme népérien (demande de Turquet, novembre 2026) : « faire
+   un exercice comme le 4.4.2, dans le nouveau thème logarithme népérien ; il
+   faudra étudier une fonction de la forme ln(ax + b) + cx + d avec −b/a entier
+   et (−b + 1)/a entier aussi ; on ne fera que les questions b, c et d ; il y
+   aura un graphique au début ; la dérivée sera présentée avec toutes les
+   étapes comme dans le 4.1.1 ; le tableau avec la dérivée doit être complété
+   comme dans le 4.4.2 ; la dérivée sera mise au même dénominateur avant le
+   tableau de signes ».
+   LES DEUX CONDITIONS FIXENT a ET c. −b/a et (1 − b)/a entiers : leur
+   différence 1/a l'est aussi, donc a = ±1. f′(x) = a/(ax + b) + c s'annule où
+   ax + b = −a/c ; pour que ce soit en x = (1 − b)/a — là où ln(ax + b) = 0,
+   ce que la seconde condition annonce —, il faut c = −a. Alors
+   f′(x) = (−x + xs)/(ax + b) avec xs = a(1 − b) = (1 − b)/a, et le maximum
+   M = f(xs) = ln 1 + c·xs + d est un ENTIER. Le tirage porte a, b et M ;
+   d = M + a·xs s'en déduit. f est concave (ln u avec u affine, plus une
+   fonction affine) : l'extremum est toujours un MAXIMUM.
+   Les trois parties, chacune prise à l'exercice qui la traite :
+   1) f′ en cases MathLive, toutes les étapes comme au 4.1.1 — on pose u et
+      u′, la formule, la substitution, puis le MÊME DÉNOMINATEUR, puis la
+      forme réduite (la cible est révélée, « Démontre que », comme au 4.4.2) ;
+   2) le tableau de signes et de variations du 4.4.2 (efTableHTML,
+      efSyntHTML, efArrowChange) — numérateur, dénominateur, f′, flèches ;
+   3) la valeur du maximum, la ligne du d) du 4.4.2 (ln 1 = 0 au lieu de e⁰).
+   La séance montre les DEUX visages, a = 1 et a = −1, chacun une fois en
+   ordre mélangé, b jamais le même. La bonne réponse n'est jamais rangée à
+   côté de la question : elle ne porte que (a, b, m), et lnfAns() recalcule
+   tout. Les ids ef-* du tableau sont partagés avec cinq autres écrans : les
+   hôtes se vident symétriquement (le piège du tableau fantôme). */
+function lnfAns(q){
+  const a=q.a, b=q.b, c=-a, xs=a*(1-b), x0=-a*b;
+  return { a:a, b:b, c:c, d:q.m+a*xs, m:q.m, xs:xs, x0:x0,
+           f:function(x){ const u=a*x+b; return u>0?Math.log(u)+c*x+q.m+a*xs:NaN; },
+           fp:function(x){ return (-x+xs)/(a*x+b); } };
+}
+function lnfGenCase(a){
+  const b=pick([-3,-2,-1,0,1,2,3]);
+  const m=pick([-2,-1,1,2,3]);
+  return {a:a, b:b, m:m};
+}
+function lnfGen(){
+  const q1=lnfGenCase(1);
+  let q2=lnfGenCase(-1);
+  for(let t=0;t<50 && q2.b===q1.b;t++) q2=lnfGenCase(-1);
+  return rand(0,1)===0 ? [q1,q2] : [q2,q1];
+}
+/* les écritures : u(x) = ax + b, la partie affine cx + d, f(x) entière */
+function lnfUHtml(A){ return efAffHtml(A.a,A.b); }
+function lnfUPlain(A){ return s1ExprText(A.a,A.b); }
+function lnfLinHtml(A){ return (A.c>0?' + ':' − ')+'<i>x</i>'+txB(A.d); }
+function lnfFx(A){ return 'ln('+lnfUHtml(A)+')'+lnfLinHtml(A); }
+function lnfFxPlain(A){ return 'ln('+lnfUPlain(A)+') '+(A.c>0?'+ x':'− x')+txB(A.d); }
+function lnfNHtml(A){ return efAffHtml(-1,A.xs); }
+function lnfNPlain(A){ return s1ExprText(-1,A.xs); }
+function lnfDomHtml(A){ return A.a>0 ? ']'+numFmt(A.x0)+' ; +∞[' : ']−∞ ; '+numFmt(A.x0)+'['; }
+function lnfFracH(n,d){ return '<span class="ec-frac lnf-frac"><span class="ec-num">'+n+'</span><span class="ec-den">'+d+'</span></span>'; }
+/* Le tableau du 4.4.2, depuis (a, b) : le dénominateur ax + b est strictement
+   positif sur l'ensemble de définition, le numérateur −x + xs est positif
+   puis négatif — f monte puis descend, quel que soit le visage. */
+function lnfTab(q){
+  const A=lnfAns(q);
+  return { bornes:(A.a>0?[numFmt(A.x0),'+∞']:['−∞',numFmt(A.x0)]), roots:[efNum(A.xs)],
+    lignes:[ {lab:'Signe de '+lnfNHtml(A), zero:[true],  s:['+','−']},
+             {lab:'Signe de '+lnfUHtml(A), zero:[false], s:['+','+']},
+             {lab:'Signe de <i>f</i> ′(<i>x</i>)', zero:[true], s:['+','−']} ],
+    fleches:['up','down'],
+    synth:{mode:'sel', t:'max', x:efNum(A.xs)} };
+}
+/* La courbe du début : tracée depuis f, l'asymptote verticale en pointillés,
+   la fenêtre calée sur le maximum et sur l'axe des ordonnées, quadrillée à
+   l'unité, et la courbe qui sort du cadre par le bas près de l'asymptote. */
+function lnfGraphSVG(q){
+  const A=lnfAns(q);
+  let lo, hi;
+  if(A.a>0){ lo=Math.min(A.x0,0)-0.5; hi=Math.max(A.xs+4,0.5); }
+  else { lo=Math.min(A.xs-4,-0.5); hi=Math.max(A.x0,0)+0.5; }
+  const ymin=Math.min(A.m-4.5,-1), ymax=Math.max(A.m+1.5,1);
+  const W=360, H=Math.round(Math.max(200,Math.min(300,(ymax-ymin)*34))), L=8, R=W-8, T=8, B=H-8;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(B-T);
+  const X=[], Y=[], N=400;
+  const d0=(A.a>0)?A.x0+0.002:lo, d1=(A.a>0)?hi:A.x0-0.002;
+  for(let i=0;i<=N;i++){ const x=d0+(d1-d0)*i/N; X.push(x); Y.push(A.f(x)); }
+  let g='';
+  for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++) g+='<line x1="'+sx(gx).toFixed(1)+'" y1="'+T+'" x2="'+sx(gx).toFixed(1)+'" y2="'+B+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>';
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++) g+='<line x1="'+L+'" y1="'+sy(gy).toFixed(1)+'" x2="'+R+'" y2="'+sy(gy).toFixed(1)+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>';
+  const ox=sx(0).toFixed(1), oy=sy(0).toFixed(1);
+  g+='<line x1="'+L+'" y1="'+oy+'" x2="'+R+'" y2="'+oy+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  g+='<line x1="'+ox+'" y1="'+T+'" x2="'+ox+'" y2="'+B+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  let lab='<text x="'+(sx(0)-4).toFixed(1)+'" y="'+(sy(0)+12).toFixed(1)+'" class="sv-ax" text-anchor="end">O</text>';
+  for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ if(gx===0) continue;
+    lab+='<text x="'+sx(gx).toFixed(1)+'" y="'+(sy(0)+12).toFixed(1)+'" class="sv-ax" text-anchor="middle">'+numFmt(gx)+'</text>'; }
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ if(gy===0) continue;
+    lab+='<text x="'+(sx(0)-4).toFixed(1)+'" y="'+(sy(gy)+4).toFixed(1)+'" class="sv-ax" text-anchor="end">'+numFmt(gy)+'</text>'; }
+  const ax=sx(A.x0).toFixed(1);
+  const asy='<line class="lnf-asy" x1="'+ax+'" y1="'+T+'" x2="'+ax+'" y2="'+B+'" stroke="var(--ink-soft)" stroke-width="1.3" stroke-dasharray="5 4"/>';
+  /* l'étiquette de la courbe, au bout de la branche lointaine */
+  const xl=(A.a>0)?(hi-0.6):(lo+0.6), yl=A.f(xl);
+  const cl=(isFinite(yl)&&yl>ymin&&yl<ymax)?'<text class="sv-ax lnf-cf" x="'+sx(xl).toFixed(1)+'" y="'+(sy(yl)-8).toFixed(1)+'" text-anchor="middle" font-style="italic">C</text>':'';
+  return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg">'+g+asy
+    +'<path class="sv-curve" d="'+efTrace(X,Y,sx,sy,ymin,ymax)+'"/>'+lab+cl+'</svg>';
+}
+/* ---- la dérivée : la chaîne du 4.1.1, en cases MathLive ---- */
+const LNF_DER=['lnf-u','lnf-du','lnf-s1','lnf-s2','lnf-s3','lnf-s4','lnf-s5','lnf-s6','lnf-s7','lnf-s8','lnf-s9'];
+const LNF_L1=['lnf-s1','lnf-s2','lnf-s3'], LNF_L2=['lnf-s4','lnf-s5','lnf-s6','lnf-s7'], LNF_L3=['lnf-s8','lnf-s9'];
+/* Le juge : chaque LIGNE se juge d'abord entière — sa valeur est-elle f′ ? —,
+   ce qui accepte toute écriture équivalente (1/(x + 2) comme −1/(−x − 2)) ;
+   sinon chaque case contre ce qu'elle porte, la paire c × (ax + b) du même
+   dénominateur dans l'ordre que l'on veut. Une case vide n'est jamais juste,
+   sauf le facteur 1 omis devant la parenthèse d'une ligne juste. */
+function lnfDerVerdicts(q){
+  const A=lnfAns(q), fp=A.fp, u=x=>A.a*x+A.b, du=x=>A.a, cc=x=>A.c, nn=x=>-x+A.xs;
+  const V={}, eqF=(f,g)=>!!f && cmpFns(f,g), C=id=>dexpCompile(id);
+  V['lnf-u']=checkExprFn(dexpCellValue('lnf-u'),u);
+  V['lnf-du']=checkExprFn(dexpCellValue('lnf-du'),du);
+  const g={};
+  { const f1=C('lnf-s1'), f2=C('lnf-s2'), f3=C('lnf-s3');
+    g.l1=!!(f1&&f2&&f3) && cmpFns(x=>f1(x)/f2(x)+f3(x), fp);
+    if(g.l1) LNF_L1.forEach(id=>V[id]=true);
+    else { V['lnf-s1']=eqF(f1,du); V['lnf-s2']=eqF(f2,u); V['lnf-s3']=eqF(f3,cc); } }
+  { const f4=C('lnf-s4'), f5=dexpCompile1('lnf-s5'), f6=C('lnf-s6'), f7=C('lnf-s7');
+    g.l2=!!(f4&&f5&&f6&&f7) && cmpFns(x=>(f4(x)+f5(x)*f6(x))/f7(x), fp);
+    if(g.l2) LNF_L2.forEach(id=>V[id]=true);
+    else {
+      const g5=C('lnf-s5');
+      V['lnf-s4']=eqF(f4,du); V['lnf-s7']=eqF(f7,u);
+      const droit=(eqF(g5,cc)?1:0)+(eqF(f6,u)?1:0), croise=(eqF(g5,u)?1:0)+(eqF(f6,cc)?1:0);
+      if(croise>droit){ V['lnf-s5']=eqF(g5,u); V['lnf-s6']=eqF(f6,cc); g.sw=true; }
+      else { V['lnf-s5']=eqF(g5,cc); V['lnf-s6']=eqF(f6,u); }
+    } }
+  { const f8=C('lnf-s8'), f9=C('lnf-s9');
+    g.l3=!!(f8&&f9) && cmpFns(x=>f8(x)/f9(x), fp);
+    if(g.l3) LNF_L3.forEach(id=>V[id]=true);
+    else { V['lnf-s8']=eqF(f8,nn); V['lnf-s9']=eqF(f9,u); } }
+  const U=lnfUPlain(A), cs=numFmt(A.c), as=numFmt(A.a);
+  const sol={'lnf-u':U,'lnf-du':as,'lnf-s1':as,'lnf-s2':U,'lnf-s3':cs,'lnf-s4':as,
+    'lnf-s5':(g.sw?U:cs),'lnf-s6':(g.sw?cs:U),'lnf-s7':U,'lnf-s8':lnfNPlain(A),'lnf-s9':U};
+  return {verdicts:V, groups:g, sol:sol};
+}
+function lnfCases(q){
+  const A=lnfAns(q), out=[];
+  const N=(id,good)=>out.push({id:id, type:'int', good:good});
+  LNF_DER.forEach(id=>out.push({id:id, type:'der'}));
+  efCases(lnfTab(q)).forEach(x=>out.push({id:x.id, type:(x.type==='sel'?'sel':'tabnum'), good:x.good}));
+  N('lnf-d1',A.xs); N('lnf-d2',A.xs); N('lnf-d3',A.xs); N('lnf-d4',1); N('lnf-d5',A.m); N('lnf-d6',0); N('lnf-d7',A.m);
+  return out;
+}
+function lnfFormHTML(q){
+  const A=lnfAns(q), fp='<i>f</i> ′(<i>x</i>)';
+  const bm=(id,cls,nom)=>'<math-field class="dexp-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>';
+  const bp=(id,nom)=>'<span class="dexp-pwrap show-paren"><span class="par">(</span>'+bm(id,'',nom)+'<span class="par">)</span></span>';
+  const fr=(n,d)=>lnfFracH(n,d);
+  const linTex=(A.c>0?'x':'-x')+(A.d>0?'+'+A.d:(A.d<0?'-'+Math.abs(A.d):''));
+  let h='';
+  /* ---- 1. la dérivée, toutes les étapes (le 4.1.1), puis le même dénominateur ---- */
+  h+='<p class="tx-part">1. Démontre que, pour tout <i>x</i> de <i>I</i>, '+fp+' = '+fr(lnfNHtml(A),lnfUHtml(A))+' :</p>'
+    +'<div class="dexp-pose">On pose :</div>'
+    +'<div class="dexp-row"><span>'+mlTex('u(x)=','<i>u</i>(<i>x</i>) = ')+bm('lnf-u','','u(x)')+'</span><span>'+mlTex("u'(x)=",'<i>u′</i>(<i>x</i>) = ')+bm('lnf-du','',"u′(x)")+'</span></div>'
+    +'<div class="dexp-formula">'+mlTex("\\left(\\ln u\\right)'=\\frac{u'}{u}", '(ln <i>u</i>)′ = <i>u′</i>/<i>u</i>')+'<span class="lnf-donc">donc</span>'
+      +mlTex("f\\;{}'(x)=\\frac{u'(x)}{u(x)}+\\left("+linTex+"\\right)'", fp+' = <i>u′</i>(<i>x</i>)/<i>u</i>(<i>x</i>) + ('+lnfLinHtml(A).replace(/^ \+ /,'')+')′')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnf-s1','','numérateur : u′(x)'),bm('lnf-s2','','dénominateur : u(x)'))
+      +bm('lnf-s3','dexp-mf-slim','dérivée de la partie affine, avec son signe')+'</div>'
+    +'<p class="tvi-instr lnf-instr">On met au <b>même dénominateur</b> :</p>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'
+      +fr('<span class="lnf-numrow">'+bm('lnf-s4','dexp-mf-slim','premier terme du numérateur')+bm('lnf-s5','dexp-mf-slim','facteur, avec son signe')+'<span class="op">×</span>'+bp('lnf-s6','parenthèse')+'</span>',
+          bm('lnf-s7','','dénominateur commun'))+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnf-s8','dexp-mf-wide','numérateur réduit'),bm('lnf-s9','','dénominateur'))+'</div>';
+  /* ---- 2. le tableau (le 4.4.2) ---- */
+  const T=lnfTab(q);
+  h+='<p class="tx-part">2. Étudie les variations de <i>f</i> sur <i>I</i> = '+lnfDomHtml(A)+' — complète le tableau :</p>'
+    +'<p class="tvi-instr lnf-instr">Sur <i>I</i>, '+lnfUHtml(A)+' &gt; 0 : le signe de '+fp+' est celui de son numérateur.</p>'
+    +efTableHTML(T)+efSyntHTML(T);
+  /* ---- 3. la valeur du maximum (le d) du 4.4.2) ---- */
+  const sub=id=>(A.a>0?'':'−')+txInp(id)+txB(A.b);
+  h+='<p class="tx-part">3. Démontre que ce maximum vaut M = '+numFmt(A.m)+' :</p>'
+    +'<div class="tg-line"><span class="tg-eq">M =</span> <i>f</i>( '+txInp('lnf-d1')+' ) <span class="tg-eq">=</span> ln( '+sub('lnf-d2')+' ) '
+      +(A.c>0?'+ ':'− ')+txInp('lnf-d3')+txB(A.d)+'</div>'
+    +'<div class="tg-line"><span class="tg-eq">M =</span> ln( '+txInp('lnf-d4')+' ) '+txInp('lnf-d5','','+')
+      +' <span class="dexp-hint">(le nombre avec son signe)</span></div>'
+    +'<div class="tg-line">Or ln( 1 ) '+tEq('=', txInp('lnf-d6'))+', donc <span class="tg-eq">M =</span> '+txInp('lnf-d7')+'.</div>';
+  return '<div class="tg-form">'+h+'</div>';
+}
+async function startLNF(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='ln-etude-fonction'; test.kind='lnf';
+  test.questions=lnfGen();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  /* le barème, remis : test est global et les démarreurs le réutilisent */
+  test.maxScore=test.questions.length;
+  show('lnf'); renderLNF();
+}
+function renderLNF(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const A=lnfAns(q);
+  $('lnfQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('lnfModeTag').innerHTML=modeTagHTML();
+  $('lnfLiveScore').textContent=test.score;
+  $('lnfFeedback').textContent=''; $('lnfFeedback').className='mp-feedback';
+  $('lnfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLNF()">Vérifier</button>';
+  $('lnfPrompt').innerHTML='On considère la fonction <i>f</i> définie sur <i>I</i> = '+lnfDomHtml(A)+' par <b><i>f</i>(<i>x</i>) = '+lnfFx(A)
+    +'</b>. On note C sa courbe représentative, tracée ci-dessous.';
+  $('lnfGraph').innerHTML=lnfGraphSVG(q);
+  /* le tableau porte les ids ef-* de cinq autres écrans : leurs hôtes se
+     vident, sans quoi $() lirait le tableau FANTÔME de l'écran quitté */
+  ['efTable','ecForm','afpHost','asgForm','sdqHost','ecvForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
+  $('lnfForm').innerHTML=lnfFormHTML(q);
+  if(window.mlDexp) window.mlDexp.upgrade($('lnfForm'));
+  setTimeout(efArrowChange,0);
+  if(isSoutien()){
+    $('lnfForm').querySelectorAll('input,select').forEach(el=>{
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkLNF(true)); });
+    /* les math-field ne se colorent qu'à la SORTIE de la case : la greffe
+       appelle dexpLiveCheck sur focusout, qui route vers checkLNF(true) */
+  }
+}
+function lnfVal(x){ return (x.type==='sel')?x.good:numFmt(x.good); }
+function checkLNF(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], cases=lnfCases(q);
+  const derV=lnfDerVerdicts(q);
+  const dis=(el,on)=>{ if(el.tagName==='MATH-FIELD') el.readOnly=on; else el.disabled=on; };
+  let allOk=true, vides=0, anyFilled=false;
+  const etats={};
+  cases.forEach(x=>{
+    const el=$(x.id); if(!el) return;
+    const raw=(el.tagName==='MATH-FIELD')?dexpCellValue(x.id):String(el.value==null?'':el.value);
+    let vide=raw.trim()==='', ok;
+    if(x.type==='der'){
+      ok=!vide && !!derV.verdicts[x.id];
+      /* le facteur 1 omis devant la parenthèse, dans une ligne juste */
+      if(vide && x.id==='lnf-s5' && derV.groups.l2){ vide=false; ok=true; }
+    } else ok=!vide && asgOkCase(q,x,raw);
+    etats[x.id]={ok:ok,vide:vide};
+    if(!vide) anyFilled=true;
+    if(vide){ vides++; allOk=false; } else if(!ok) allOk=false;
+    el.classList.remove('ok','bad');
+    if(!vide) el.classList.add(ok?'ok':'bad');   /* une case VIDE ne reçoit jamais de couleur */
+  });
+  if(live) return;
+  if(!anyFilled){
+    $('lnfFeedback').textContent='Complète au moins une case avant de vérifier.';
+    $('lnfFeedback').className='mp-feedback';
+    return;
+  }
+  if(!allOk && isSoutien()){
+    $('lnfFeedback').innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.':'Presque ! Corrige les cases en rouge, puis revérifie.');
+    $('lnfFeedback').className='mp-feedback bad';
+    cases.forEach(x=>{ const el=$(x.id); if(!el) return; dis(el, !!(etats[x.id] && etats[x.id].ok)); });
+    $('lnfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLNF()">Revérifier</button>';
+    return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('lnfLiveScore').textContent=test.score;
+    $('lnfFeedback').textContent=pick(['Parfait !','Très bien !','Excellent !','Bravo, étude complète !']);
+    $('lnfFeedback').className='mp-feedback good';
+    cases.forEach(x=>{ const el=$(x.id); if(el) dis(el,true); });
+  } else {
+    $('lnfFeedback').innerHTML=msgCorrCouleurs(vides>0);
+    $('lnfFeedback').className='mp-feedback bad';
+    cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
+      const el=$(x.id); if(!el) return;
+      const val=(x.type==='der')?derV.sol[x.id]:lnfVal(x);
+      if(el.tagName==='MATH-FIELD') rfReveal(x.id, asgML(val), val, e.ok, e.vide);
+      else corrCase(x.id, val, e.ok);
+    });
+    efArrowChange();   /* les flèches complétées en vert se redessinent */
+  }
+  const A=lnfAns(q);
+  test.answers.push({...(ptsExo()||{}),q:'Étude de f(x) = '+lnfFxPlain(A)+' : dérivée au même dénominateur, tableau, maximum M = '+numFmt(A.m), answer:'étude', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const last=test.idx===test.questions.length-1;
+  $('lnfActions').innerHTML='<button class="btn btn-primary" onclick="nextLNF()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
+}
+function nextLNF(){ if(test.idx<test.questions.length-1){ test.idx++; renderLNF(); } else finishTest(); }
+function lnfConseilCtx(){
+  const q=test.questions[test.idx], A=lnfAns(q);
+  const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice LOGARITHME NÉPÉRIEN — étude de f(x) = '+lnfFxPlain(A)+' sur I = '+lnfDomHtml(A)+'. '
+   +'1) Démontrer f′(x) = ('+lnfNPlain(A)+')/('+lnfUPlain(A)+') : on pose u(x) = '+lnfUPlain(A)+', u′(x) = '+numFmt(A.a)+', (ln u)′ = u′/u, donc f′(x) = u′/u + ('+numFmt(A.c)+'), puis on met au même dénominateur ('+numFmt(A.a)+' + ('+numFmt(A.c)+')(' +lnfUPlain(A)+'))/('+lnfUPlain(A)+') et on réduit le numérateur. '
+   +'2) Tableau de signes : le dénominateur '+lnfUPlain(A)+' est strictement positif sur I, le numérateur s’annule en x = '+numFmt(A.xs)+' ; tableau de variations. '
+   +'3) Valeur du maximum M = f('+numFmt(A.xs)+') = ln(1) + … = '+numFmt(A.m)+', car ln(1) = 0. '
+   +'Saisies de l’élève : u '+lu('lnf-u')+', u′ '+lu('lnf-du')+', numérateur réduit '+lu('lnf-s8')+', racine '+lu('ef-r0')+', M '+lu('lnf-d7')+'. '
+   +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement, sur la PREMIÈRE case fausse ou vide.';
 }
 
 /* ====================== TEST : Étude de fonction et convexité (kind 'ecv') ====================== */
@@ -21135,7 +21460,7 @@ function renderECV(){
   /* les ids ef-* du tableau vivent aussi sur les écrans du 5.3, du 5.5, de la
      fiche 9 et du 4.6 : leurs hôtes se vident, sans quoi $() lirait un
      tableau FANTÔME de l'écran quitté — le piège documenté */
-  ['efTable','ecForm','afpHost','sdqHost','asgForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
+  ['efTable','ecForm','afpHost','sdqHost','asgForm','lnfForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
   $('ecvForm').innerHTML=ecvFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('ecvForm'));   /* les cases des c) et g) sont des math-field, comme au 2.1 */
   setTimeout(efArrowChange,0);
@@ -23228,6 +23553,13 @@ const RAP_EDV=`<b>Vérifier qu’une fonction est solution d’une équation dif
 • <b>Les dérivées utiles</b> : (e<sup><i>ax</i></sup>)′ = <i>a</i>e<sup><i>ax</i></sup> ; (e<sup><i>u</i></sup>)′ = <i>u</i>′e<sup><i>u</i></sup>, par exemple (e<sup><i>x</i>²</sup>)′ = 2<i>x</i>e<sup><i>x</i>²</sup> ; (<i>k</i>e<sup><i>u</i></sup>)′ = <i>k</i><i>u</i>′e<sup><i>u</i></sup>.<br>
 • <b>Un produit</b> : (<i>uv</i>)′ = <i>u</i>′<i>v</i> + <i>uv</i>′. Par exemple, avec <i>f</i>(<i>x</i>) = <i>x</i>e<sup><i>x</i></sup> : <i>u</i> = <i>x</i>, <i>v</i> = e<sup><i>x</i></sup>, <i>u</i>′ = 1, <i>v</i>′ = e<sup><i>x</i></sup>, donc <i>f</i>′(<i>x</i>) = 1 × e<sup><i>x</i></sup> + <i>x</i> × e<sup><i>x</i></sup> = e<sup><i>x</i></sup>(<i>x</i> + 1).<br>
 • <b>Factoriser par e<sup><i>ax</i></sup></b> : quand les deux membres contiennent la même exponentielle, on la met en facteur des deux côtés et on compare ce qui reste dans les parenthèses.`;
+const RAP_LNF=`<b>Étudier une fonction avec un logarithme</b><br>
+• <b>Ensemble de définition</b> : ln(<i>u</i>(<i>x</i>)) n’existe que si <i>u</i>(<i>x</i>) &gt; 0. Par exemple, ln(<i>x</i> + 2) est défini sur ]−2 ; +∞[, ln(−<i>x</i> + 3) sur ]−∞ ; 3[.<br>
+• <b>La dérivée</b> : (ln <i>u</i>)′ = <i>u</i>′/<i>u</i>. On pose <i>u</i>(<i>x</i>), on calcule <i>u</i>′(<i>x</i>), puis on dérive chaque terme : (<i>cx</i> + <i>d</i>)′ = <i>c</i>.<br>
+• <b>Exemple</b> : <i>f</i>(<i>x</i>) = ln(<i>x</i> + 2) − <i>x</i> + 3. <i>u</i>(<i>x</i>) = <i>x</i> + 2, <i>u</i>′(<i>x</i>) = 1, donc <i>f</i> ′(<i>x</i>) = 1/(<i>x</i> + 2) − 1.<br>
+• <b>Le même dénominateur</b> : on écrit −1 = −1 × (<i>x</i> + 2)/(<i>x</i> + 2), donc <i>f</i> ′(<i>x</i>) = (1 − 1 × (<i>x</i> + 2))/(<i>x</i> + 2) = (−<i>x</i> − 1)/(<i>x</i> + 2).<br>
+• <b>Le signe de <i>f</i> ′</b> : sur l’ensemble de définition, le dénominateur <i>u</i>(<i>x</i>) est strictement positif ; <i>f</i> ′(<i>x</i>) a donc le signe de son numérateur. On cherche où il s’annule, on remplit le tableau de signes, puis les flèches : <i>f</i> croît là où <i>f</i> ′ &gt; 0, décroît là où <i>f</i> ′ &lt; 0.<br>
+• <b>La valeur de l’extremum</b> : on calcule <i>f</i> en l’abscisse trouvée. À retenir : <b>ln(1) = 0</b>.`;
 const RAP_EAL=`<b>Trois points alignés, ou un plan ?</b><br>
 • <b>Remarque</b> : trois points <b>alignés</b> se prolongent sur une <b>droite</b> ; trois points <b>non alignés</b> se prolongent sur un <b>plan</b>, noté (<i>ABC</i>).<br>
 • <b>Propriété</b> : trois points <i>A</i>, <i>B</i> et <i>C</i> définissent un plan de l’espace si <i>A</i>, <i>B</i> et <i>C</i> sont <b>non alignés</b>, c’est-à-dire si <span class="elg-vec">AB</span> et <span class="elg-vec">AC</span> sont <b>non colinéaires</b>.<br>
@@ -23298,7 +23630,7 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, lnf:RAP_LNF, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, efb:RAP_EFB, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -44100,6 +44432,7 @@ const QIA_SUGG={
   esg:["Faire un rappel de cours pour cet exercice.","Quel outil utiliser pour cette étape ?","Pourquoi L est-il dans les deux plans ?","Pourquoi la parallèle se trace-t-elle sur la face opposée ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?"],
   esx:["Faire un rappel de cours pour cet exercice.","Pourquoi L est-il dans les deux plans ?","Comment trouver l’intersection de deux plans ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?","Par où commencer la section ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
+  lnf:["Faire un rappel de cours pour cet exercice.","Comment dériver ln(u) ?","Comment mettre au même dénominateur ?","Pourquoi le dénominateur est-il positif ?","Comment trouver le signe de f′ ?","Pourquoi ln(1) = 0 ?"],
   edv:["Faire un rappel de cours pour cet exercice.","Comment vérifier qu’une fonction est solution d’une équation différentielle ?","Comment dériver e^(x²) ?","Comment dériver un produit u × v ?","Pourquoi factoriser par l’exponentielle ?","Que veut dire « réduire » un membre ?"],
   ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
   ecb:["Faire un rappel de cours pour cet exercice.","Comment lire les coordonnées d’un sommet du cube ?","Comment trouver les coordonnées d’un point sur une arête ?","Que se passe-t-il pour un point sur le prolongement d’une arête ?","Comment calculer les coordonnées d’un vecteur ?","Comment placer un point dont on connaît les coordonnées ?"],
@@ -44864,7 +45197,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEFB','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
+  const noms=['renderLNF','renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEFB','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);
