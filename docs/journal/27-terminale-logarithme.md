@@ -197,10 +197,10 @@ c'est la même pour la suite, la remplir automatiquement ».
   un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
   17 cases notées à 10, plus la forme finale.
 
-### Et la v539 : deux retouches du 9.2.1 avaient pris la même v538
+### Et la v540 : deux retouches du 9.2.1 avaient pris la même v538
 
 La lecture de « 3^{^4} » (pull request 1225) et les parenthèses avec les
 cases recopiées (pull request 1226) ont été fusionnées l'une après l'autre,
-chacune en v538 : deux pages différentes portaient le même numéro. La v539
-les réunit, et les bancs de la Terminale ont été rejoués sur la page
+chacune en v538 : deux pages différentes portaient le même numéro. La v540
+les réunit (la v539 a été prise entre-temps par les parenthèses du 9.1.1), et les bancs de la Terminale ont été rejoués sur la page
 réunie.
