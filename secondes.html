@@ -90292,11 +90292,23 @@ function nextBhdQuestion(){
   if(test.idx<test.questions.length-1){ test.idx++; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; test.bhdM2Op=null; test.bhdM2OpSol=false; renderBhdTest(); autoSave(); }
   else finishTest();
 }
+/* LES QUATRE SITUATIONS, À TOUR DE RÔLE (v750, demande de Turquet) : la
+   question i est de la situation i % 4 — ① + et + ; ② − et − ; ③ + et −, le
+   positif le plus fort ; ④ − et +, le négatif le plus fort. Les nombres
+   restent de −5 à 5, non nuls ; en ③ et ④ les deux valeurs sans signe
+   diffèrent, donc jamais de somme nulle. */
+function bhdTirer(_, i){
+  const n=function(){ return rand(1,5); }, k=(i||0)%4;
+  if(k===0) return {a:n(), b:n()};
+  if(k===1) return {a:-n(), b:-n()};
+  let g=rand(2,5), p=rand(1,g-1);
+  return k===2 ? {a:g, b:-p} : {a:-g, b:p};
+}
 async function startBhd(){
   if(!currentEleve){ accueil(); return; }
   /* la méthode 2 met « le signe du plus fort » : une somme nulle (3 + (−3))
      n'en a pas — elle n'est pas tirée ici */
-  const qs=distinctes(dmNbQuestions(BHR_NB), function(){ const a=bhrNz(); let b=bhrNz(); while(b===-a) b=bhrNz(); return {a:a, b:b}; });
+  const qs=distinctes(dmNbQuestions(BHR_NB), bhdTirer);
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'bhd', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(),
