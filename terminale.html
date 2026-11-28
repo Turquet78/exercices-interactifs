@@ -2542,6 +2542,7 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .lnf-gc{display:inline-flex;align-items:center;justify-content:center}
 #scr-lnf .lnf-gc.lnf-lab{justify-content:flex-end;margin-right:4px}
 #scr-lnf .lnf-gc i{font-size:1.12em}
+#scr-lnf .lnf-par{display:inline-block;vertical-align:middle;position:relative;top:-0.05em;font-family:KaTeX_Main,'Times New Roman',serif;font-weight:400;font-size:2.1em;line-height:1;transform:scaleY(1.12);margin:0 2px;color:var(--ink)}
 #scr-lnf .lnf-cap{margin-left:14px;white-space:nowrap}
 #scr-lnf .lnf-row .op{font-size:1.25rem;font-weight:700;color:var(--ink);margin:0 6px}
 .lnf-donc{margin:0 14px}
@@ -2551,6 +2552,9 @@ math-field.dexp-mf.edv-let{min-width:42px}
 .lnd-m.on{background:var(--blue);color:#fff}
 .lnd-dep{font-size:1.15rem;margin:4px 0 6px}
 .lnd-rad{text-decoration:overline}
+/* une parenthèse qui entoure une case l'encadre en hauteur */
+#scr-lnd .lnd-par{display:inline-block;font-size:1.75em;line-height:1;font-weight:300;transform:scaleY(1.1);margin:0 1px;color:var(--ink)}
+#scr-lnd .lnd-mir{border-style:dashed}
 #scr-lnd .lnd-instr{margin:8px 0 4px}
 #scr-lnd .lnd-l{white-space:nowrap}
 #scr-lnd .mf-cor{margin-left:4px}
@@ -4844,7 +4848,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=538;
+const APP_VERSION=539;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21186,15 +21190,21 @@ function lnfFormHTML(q){
      MÊME colonne que sa case, et un SVG par-dessus (lnfTrace) qui tire une
      flèche du bas de chaque x au haut de sa case, sur les positions rendues. */
   const col=(c,cls)=>'<span class="lnf-gc'+(cls?' '+cls:'')+'">'+c+'</span>';
-  const sA=(A.a>0?'':'−'), sC=(A.c>0?'+':'−'), bB=txB(A.b)+' )', dD=txB(A.d);
+  /* les parenthèses qui entourent une CASE sont hautes (lnfPar), comme celles
+     de la grille du 8.1.1 : la case tient entre elles, du haut au bas
+     (Turquet, novembre 2026 : « que les parenthèses puissent mieux encadrer
+     les cases verticalement ») ; celles de f(x), autour d'un x, restent
+     ordinaires */
+  const P=c=>'<span class="lnf-par" aria-hidden="true">'+c+'</span>';
+  const sA=(A.a>0?'':'−'), sC=(A.c>0?'+':'−'), bB=txB(A.b)+' )', bB2=txB(A.b)+' '+P(')'), dD=txB(A.d);
   h+='<p class="tx-part">3. Démontre que ce maximum vaut M = '+numFmt(A.m)+' :</p>'
     +'<div class="lnf-sch" data-fl=\'[["lnf-x1","lnf-d2"],["lnf-x2","lnf-d3"]]\'>'
     +'<svg class="lnf-svg" aria-hidden="true" focusable="false"></svg><div class="lnf-grille">'
     +col('<span class="tg-eq"><i>f</i>(<i>x</i>) =</span>','lnf-lab')+col('ln(')+col(sA)+col('<i id="lnf-x1">x</i>')+col(bB)+col(sC)+col('<i id="lnf-x2">x</i>')+col(dD)
-    +col('<span class="tg-eq">M =</span>&nbsp;<i>f</i>( '+txInp('lnf-d1')+' ) <span class="tg-eq">=</span>','lnf-lab')
-    +col('ln(')+col(sA)+col(txInp('lnf-d2'))+col(bB)+col(sC)+col(txInp('lnf-d3'))+col(dD)
+    +col('<span class="tg-eq">M =</span>&nbsp;<i>f</i>'+P('(')+txInp('lnf-d1')+P(')')+' <span class="tg-eq">=</span>','lnf-lab')
+    +col('ln'+P('('))+col(sA)+col(txInp('lnf-d2'))+col(bB2)+col(sC)+col(txInp('lnf-d3'))+col(dD)
     +'</div></div>'
-    +'<div class="tg-line"><span class="tg-eq">M =</span> ln( '+txInp('lnf-d4')+' ) '+txInp('lnf-d5','','+')
+    +'<div class="tg-line"><span class="tg-eq">M =</span> ln'+P('(')+txInp('lnf-d4')+P(')')+' '+txInp('lnf-d5','','+')
       +' <span class="dexp-hint">(le nombre avec son signe)</span></div>'
     +'<div class="tg-line">Or ln( 1 ) '+tEq('=', txInp('lnf-d6'))+', donc <span class="tg-eq">M =</span> '+txInp('lnf-d7')+'.</div>';
   return '<div class="tg-form">'+h+'</div>';
@@ -21536,9 +21546,10 @@ function lndAns(q){
     const L2=' + ln( ';
     A.lignes=[
       ['ln 2', S(p), ' + ln( ', B(2,{grp:'a'}), ' × ', B(5,{grp:'a'}), ' ) + ln( ', B(1), ' ) − ln( ', B(N3), ' )'],
-      [B(p), ' ln 2'+L2, B(2,{grp:'b'}), ' )'+L2, B(5,{grp:'b'}), ' ) − ln( 5 × 2', S(k), ' )'],
-      [B(p), ' ln 2'+L2, B(2,{grp:'c'}), ' )'+L2, B(5,{grp:'c'}), ' ) − ln 5 − ln 2', S(k)],
-      [B(p), ' ln 2'+L2, B(2,{grp:'d'}), ' )'+L2, B(5,{grp:'d'}), ' ) − ln 5 − ', B(k), ' ln 2']
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{grp:'b',m:'l2a'}), ' )'+L2, B(5,{grp:'b',m:'l2b'}), ' ) − ln( 5 × 2', S(k,{m:'k2'}), ' )'],
+      /* les termes qui ne bougent pas d'une ligne à l'autre (m) se recopient seuls : des miroirs */
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{m:'l2a'}), ' )'+L2, B(5,{m:'l2b'}), ' ) − ln 5 − ln 2', S(k,{m:'k2'})],
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{m:'l2a'}), ' )'+L2, B(5,{m:'l2b'}), ' ) − ln 5 − ', B(k), ' ln 2']
     ];
   } else if(q.t==='pui'){
     const c=q.c, n=q.p+q.r-q.s;
@@ -21604,8 +21615,20 @@ function lndAns(q){
   }
   /* les ids des cases, dans l'ordre de lecture */
   let nb=0;
-  A.lignes.forEach(function(L,li){ L.forEach(function(x){ if(typeof x==='object'){ x.id='lnd-c'+(nb++); x.grp=x.grp?('g'+li+x.grp):null; } }); });
-  A.cases=[].concat.apply([],A.lignes.map(L=>L.filter(x=>typeof x==='object')));
+  /* LA MÊME CASE EN DESSOUS SE REMPLIT TOUTE SEULE (demande de Turquet,
+     novembre 2026) : une case qui reprend, inchangé, un terme d'une ligne du
+     dessus (même clé m) en est le MIROIR — en lecture seule, recopié à chaque
+     frappe, hors note et hors de la confirmation des cases vides (.dq-mirror).
+     Une case dont la ligne APPLIQUE une propriété (ln 2^3 → 3 ln 2) n'est
+     jamais un miroir : ce passage est ce que l'élève apprend. */
+  const premier={};
+  A.lignes.forEach(function(L,li){ L.forEach(function(x){ if(typeof x==='object'){
+    x.id='lnd-c'+(nb++); x.grp=x.grp?('g'+li+x.grp):null;
+    if(x.m){ if(premier[x.m]) { x.src=premier[x.m]; x.grp=null; } else premier[x.m]=x.id; }
+  } }); });
+  const toutes=[].concat.apply([],A.lignes.map(L=>L.filter(x=>typeof x==='object')));
+  A.cases=toutes.filter(x=>!x.src);
+  A.miroirs=toutes.filter(x=>x.src);
   return A;
 }
 /* le rappel des propriétés utiles à la question, dit au-dessus des étapes */
@@ -21672,6 +21695,23 @@ function lndVerdictFeuille(A){
 }
 
 /* ---- l'écran ---- */
+/* les parenthèses qui entourent une case : grandes, pour l'encadrer en hauteur */
+function lndParens(t){ return String(t).replace(/\(\u202f/g,'<span class="lnd-par">(</span>').replace(/\u202f\)/g,'<span class="lnd-par">)</span>'); }
+/* Les miroirs : la valeur de leur case source. Après la vérification (E
+   donné), un miroir dont la source est fausse ou vide prend la correction
+   écrite par la page, en vert ; sinon il suit la couleur de sa source. */
+function lndMiroirs(E){
+  const q=test.questions&&test.questions[test.idx]; if(!q || test.kind!=='lnd') return;
+  const A=lndAns(q);
+  (A.miroirs||[]).forEach(function(x){
+    const m=$(x.id), s=$(x.src); if(!m||!s) return;
+    let v=String(s.value||'').trim(), cls=null;
+    if(s.classList.contains('ok')) cls='ok'; else if(s.classList.contains('bad')) cls='bad';
+    if(E){ if(cls!=='ok'){ v=E.ecrit[x.src]; cls='sol'; } }
+    if(m.value!==v) m.value=v;
+    m.classList.remove('ok','bad','sol'); if(cls && v!=='') m.classList.add(cls);
+  });
+}
 function lndModeLib(){ return test.lndMode==='libre'?'libre':'etapes'; }
 function lndChoisirMode(m){
   if(test.locked || lndModeLib()===m) return;
@@ -21687,8 +21727,10 @@ function lndFormHTML(q){
     h+='<p class="tvi-instr lnd-instr">Complète chaque étape. On utilise : '+lndAstuce(q)+'</p>';
     A.lignes.forEach(function(L){
       h+='<div class="tg-line lnd-l"><span class="tg-eq">=</span> '+L.map(function(x){
-        if(typeof x==='string') return x;
-        const inp=txInp(x.id, x.sup?'tx-se':'');
+        if(typeof x==='string') return lndParens(x);
+        const inp=x.src
+          ? '<input type="text" class="tg-in dq-mirror lnd-mir'+(x.sup?' tx-se':'')+'" id="'+x.id+'" data-src="'+x.src+'" readonly tabindex="-1" aria-label="recopié automatiquement">'
+          : txInp(x.id, x.sup?'tx-se':'');
         return x.sup?'<sup>'+inp+'</sup>':inp;
       }).join('')+'</div>';
     });
@@ -21739,7 +21781,10 @@ function renderLND(){
     }
   } else {
     if(window.mlDexp) window.mlDexp.upgrade($('lndForm'));
-    if(isSoutien()) $('lndForm').querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>checkLND(true)));
+    $('lndForm').addEventListener('input', function(){ if(!test.locked) lndMiroirs(); });
+    if(isSoutien()) $('lndForm').querySelectorAll('input:not(.dq-mirror)').forEach(el=>el.addEventListener('input',()=>{ checkLND(true); lndMiroirs(); }));
+    /* la reprise d'une pause remet les saisies APRÈS le rendu (restoreBoxes) */
+    setTimeout(function(){ if(!test.locked) lndMiroirs(); },0); setTimeout(function(){ if(!test.locked) lndMiroirs(); },300);
     /* la case finale (math-field) se colore à sa SORTIE : dexpLiveCheck route vers checkLND(true) */
   }
 }
@@ -21787,6 +21832,7 @@ function checkLND(live){
   const elF=$('lnd-fin'), finOk=!fin.vide && fin.fini;
   if(elF){ elF.classList.remove('ok','bad'); if(!fin.vide) elF.classList.add(finOk?'ok':'bad'); }
   if(!fin.vide) anyFilled=true; if(fin.vide){ vides++; allOk=false; } else if(!finOk) allOk=false;
+  lndMiroirs();
   if(live) return;
   if(!anyFilled){ fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback'; return; }
   if(!allOk && isSoutien()){
@@ -21806,6 +21852,7 @@ function checkLND(live){
     fb.innerHTML=msgCorrCouleurs(vides>0); fb.className='mp-feedback bad';
     A.cases.forEach(x=>{ corrCase(x.id, E.ecrit[x.id], !!(E.lu[x.id]!=='' && E.V[x.id])); const el=$(x.id); if(el) el.disabled=true; });
     rfReveal('lnd-fin', A.cible.tex, A.cible.plain, finOk, fin.vide);
+    lndMiroirs(E);
   }
   test.answers.push({...(ptsExo()||{}), q:'Démontrer que '+A.depPlain+' = '+A.cible.plain+' (avec les étapes)', answer:A.cible.plain, given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   suite();
