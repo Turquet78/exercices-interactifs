@@ -2296,6 +2296,12 @@
   .eqx-prog{border:2px solid #BBD0F7;border-radius:12px;padding:8px 20px;background:#F8FAFF;font-family:Nunito,system-ui,sans-serif;font-size:1.05rem;font-weight:600;text-align:left}
   .eqx-prog-t{font-family:"Fredoka";font-weight:700;color:var(--blue-dark);margin-bottom:4px}
   .eqx-prog ol{margin:0;padding-left:1.4em}
+  .eqc-fig-cadre{max-width:100%}
+  .eqc-fig{display:block;max-width:100%;height:auto}
+  .eqc-fig .eqc-forme{fill:#EEF4FF;stroke:var(--blue-dark);stroke-width:3;stroke-linejoin:round}
+  .eqc-fig .eqc-angle{fill:none;stroke:var(--blue-dark);stroke-width:1.5}
+  .eqc-fig .eqc-lab{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:20px;fill:var(--ink)}
+  .eqc-fig .eqc-x{font-family:KaTeX_Math,Georgia,'Times New Roman',serif;font-style:italic;font-weight:400;font-size:22px}
   .eqx-aide{margin:0;color:var(--ink-soft);font-size:.98rem;font-family:Nunito,system-ui,sans-serif;font-weight:600;text-align:center}
   .eqx-bloc .mf-cor{margin-left:4px}
   .eqx-etapes{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -10298,7 +10304,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=749;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=750;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11169,7 +11175,7 @@ const TESTS={
   'equation-coefficients-fractions': { name:'Des fractions des deux côtés', icon:'➗', desc:'Résoudre une équation où x et les nombres ont des coefficients fractionnaires des deux côtés : calculer le facteur de x et le nombre de droite, puis multiplier par l’inverse et simplifier.', start:()=>startEqq() },
   'equation-trouver-erreur': { name:'Trouver l’erreur', icon:'🔎', desc:'Un élève a résolu une équation, mais une de ses lignes est fausse : trouver la ligne, dire quelle erreur il a faite, puis donner la bonne solution.', start:()=>startEqz() },
   'equation-programme-calcul': { name:'Un programme de calcul à l’envers', icon:'🔢', desc:'Quel nombre faut-il choisir au départ ? Traduire le programme de calcul par une équation, la résoudre, puis vérifier.', start:()=>startEqp() },
-  'equation-probleme-concret': { name:'Mettre un problème en équation', icon:'🚲', desc:'Tarifs, locations, âges, périmètre, épargne : choisir l’inconnue, écrire l’équation qui traduit l’énoncé, la résoudre et répondre à la question.', start:()=>startEqc() },
+  'equation-probleme-concret': { name:'Mettre un problème en équation', icon:'🚲', desc:'Tarifs, locations, âges, périmètres d’un triangle et d’un rectangle, épargne, cuves : choisir l’inconnue, écrire l’équation qui traduit l’énoncé, la résoudre et répondre à la question.', start:()=>startEqc() },
   'equation-choisir-traduction': { name:'Choisir la bonne équation', icon:'✅', desc:'Parmi quatre équations, une seule traduit l’énoncé du problème : la choisir, puis la résoudre.', start:()=>startEqk() },
   'equation-resoudre-libre': { name:'Résoudre une équation ligne par ligne', icon:'📝', desc:'Résoudre ax + b = cx + d à sa façon : chaque étape s’écrit sur une ligne « … = … », toute équation équivalente est acceptée, on peut sauter des étapes, jusqu’à x = un nombre.', start:()=>startEqw() },
   'vecteurs-egaux-tableau': { name:'Vecteurs \u00e9gaux', icon:'\u27a1\ufe0f', desc:'Le tableau de la fiche \u2014 \u00e9galit\u00e9 de vecteurs, figure, configuration g\u00e9om\u00e9trique. Sur chaque ligne, une colonne est donn\u00e9e : choisis la bonne proposition, parmi trois, pour chacune des deux autres.', start:()=>startVgt() },
@@ -94135,8 +94141,8 @@ EQX.eqp={
 };
 
 /* ===== 9.11 ET 9.12 — DES PROBLÈMES CONCRETS (eqc, eqk) ========================
-   Sept situations (q.p), aucune parenthèse : tarifs, locations, périmètre
-   d'un triangle, âges, épargne, nombres consécutifs, cuves. Chacune range
+   Huit situations (q.p), aucune parenthèse : tarifs, locations, périmètre
+   d'un triangle, d'un rectangle (dessinés, côtés en fonction de x), âges, épargne, nombres consécutifs, cuves. Chacune range
    ses nombres et dit son inconnue, son équation, sa question finale — qui
    répond à la question de l'énoncé, jamais à une autre (« Quel âge a Léa ? »
    se conclut « Léa a … ans », pas par l'âge de la mère). Le 9.11
@@ -94159,6 +94165,7 @@ const EQC_SIT=[
     txt:function(q){ return 'Un triangle a trois côtés : le premier mesure <i>x</i> cm, le deuxième <b>'+q.m+' cm</b> de plus que le premier, le troisième <b>'+q.n+' cm</b> de plus que le premier. Son périmètre est <b>'+q.P+' cm</b>. Combien mesure chaque côté ?'; },
     inc:'On note <i>x</i> la longueur du premier côté, en cm.',
     eq:function(q){ return {G:[{k:1,x:1},{k:1,x:1},{k:q.m,x:0},{k:1,x:1},{k:q.n,x:0}], D:[{k:q.P,x:0}]}; },
+    fig:function(q){ return eqcFigTriangle(q); },
     q2:function(q){ return {lab:'Le plus grand côté mesure', val:q.x+q.n, unite:'cm'}; } },
   { /* 3 — âges */
     gen:function(){ const k=rand(3,5), x=rand(6,14), m=(k-1)*x; if(m<20 || m>40) return null; return {p:3, k:k, m:m, x:x}; },
@@ -94183,11 +94190,53 @@ const EQC_SIT=[
     txt:function(q){ return 'La cuve A contient <b>'+q.a+' L</b> d’eau et se vide de <b>'+q.b+' L</b> par minute. La cuve B contient <b>'+q.c+' L</b> et se remplit de <b>'+q.d+' L</b> par minute. Au bout de combien de minutes contiendront-elles la même quantité d’eau ?'; },
     inc:'On note <i>x</i> le nombre de minutes.',
     eq:function(q){ return {G:[{k:q.a,x:0},{k:-q.b,x:1}], D:[{k:q.c,x:0},{k:q.d,x:1}]}; },
-    q2:function(q){ return {lab:'Elles contiendront la même quantité d’eau au bout de', val:q.x, unite:'minutes'}; } }
+    q2:function(q){ return {lab:'Elles contiendront la même quantité d’eau au bout de', val:q.x, unite:'minutes'}; } },
+  { /* 7 — périmètre d'un rectangle : les quatre côtés à la suite, sans parenthèses */
+    gen:function(){ const x=rand(3,15), m=rand(1,9); return {p:7, m:m, P:4*x+2*m, x:x}; },
+    txt:function(q){ return 'Un rectangle a une largeur de <i>x</i> cm. Sa longueur mesure <b>'+q.m+' cm</b> de plus que sa largeur. Son périmètre est <b>'+q.P+' cm</b>. Quelles sont les dimensions de ce rectangle ?'; },
+    inc:'On note <i>x</i> la largeur du rectangle, en cm.',
+    eq:function(q){ return {G:[{k:1,x:1},{k:1,x:1},{k:q.m,x:0},{k:1,x:1},{k:1,x:1},{k:q.m,x:0}], D:[{k:q.P,x:0}]}; },
+    fig:function(q){ return eqcFigRectangle(q); },
+    q2:function(q){ return {lab:'La longueur mesure', val:q.x+q.m, unite:'cm'}; } }
 ];
+/* La figure d'un problème de géométrie (triangle, rectangle) : chaque côté
+   porte sa longueur écrite en fonction de x, le x en KaTeX_Math (un tspan à
+   lui, .eqc-x). Le dessin suit les vraies longueurs, la solution n'y est
+   écrite nulle part. */
+function eqcLong(d){ return '<tspan class="eqc-x">x</tspan>'+(d?' + '+d:''); }
+function eqcEtiq(x, y, d, ancre){ return '<text class="eqc-lab" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+(ancre||'middle')+'" dominant-baseline="middle">'+eqcLong(d)+'</text>'; }
+function eqcFigTriangle(q){
+  const a=q.x, b=q.x+q.m, c=q.x+q.n;   /* c, le plus long, sert de base */
+  const cx=(c*c+b*b-a*a)/(2*c), cy=Math.sqrt(Math.max(b*b-cx*cx, 0.01));
+  const k=Math.min(280/c, 150/cy), W=360, H=Math.round(cy*k)+70;
+  const ox=(W-c*k)/2, oy=H-30;
+  const A=[ox, oy], B=[ox+c*k, oy], C=[ox+cx*k, oy-cy*k];
+  const g=[(A[0]+B[0]+C[0])/3, (A[1]+B[1]+C[1])/3];
+  const etiq=function(P1, P2, d){
+    const mx=(P1[0]+P2[0])/2, my=(P1[1]+P2[1])/2; let nx=mx-g[0], ny=my-g[1]; const l=Math.hypot(nx,ny)||1;
+    nx/=l; ny/=l; const ex=mx+nx*22, ey=my+ny*18;
+    return eqcEtiq(ex, ey, d, Math.abs(nx)<0.35?'middle':(nx>0?'start':'end'));
+  };
+  return '<svg class="eqc-fig" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="le triangle et ses côtés">'
+    +'<polygon points="'+[A,B,C].map(function(P){ return P[0].toFixed(1)+','+P[1].toFixed(1); }).join(' ')+'" class="eqc-forme"/>'
+    +etiq(A,B,q.n)+etiq(A,C,q.m)+etiq(B,C,0)
+    +'</svg>';
+}
+function eqcFigRectangle(q){
+  const L=q.x+q.m, l=q.x, k=Math.min(240/L, 130/l), w=L*k, h=Math.max(l*k, 46);
+  const W=360, H=Math.round(h)+80, ox=(W-w)/2, oy=40;
+  const angle=function(x, y, sx, sy){ return '<path class="eqc-angle" d="M'+(x+sx*10).toFixed(1)+' '+y.toFixed(1)+' L'+(x+sx*10).toFixed(1)+' '+(y+sy*10).toFixed(1)+' L'+x.toFixed(1)+' '+(y+sy*10).toFixed(1)+'"/>'; };
+  return '<svg class="eqc-fig" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="le rectangle et ses côtés">'
+    +'<rect x="'+ox.toFixed(1)+'" y="'+oy+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" class="eqc-forme"/>'
+    +angle(ox,oy,1,1)+angle(ox+w,oy,-1,1)+angle(ox,oy+h,1,-1)+angle(ox+w,oy+h,-1,-1)
+    +eqcEtiq(W/2, oy-16, q.m)+eqcEtiq(W/2, oy+h+18, q.m)
+    +eqcEtiq(ox-12, oy+h/2, 0, 'end')+eqcEtiq(ox+w+12, oy+h/2, 0, 'start')
+    +'</svg>';
+}
+function eqcFig(q){ const S=EQC_SIT[q.p]; return S.fig?'<div class="eqc-fig-cadre">'+S.fig(q)+'</div>':''; }
 function eqcGen(p){ for(let i=0;i<500;i++){ const q=EQC_SIT[p].gen(); if(q) return q; } return EQC_SIT[p].gen() || {p:5, S:33, x:10}; }
 function eqcBuild(nb){
-  const ps=[]; while(ps.length<nb) ps.push.apply(ps, eqxMelange([0,1,2,3,4,5,6]));
+  const ps=[]; while(ps.length<nb) ps.push.apply(ps, eqxMelange(EQC_SIT.map(function(s,i){ return i; })));
   const qs=[]; ps.slice(0,nb).forEach(function(p){ qs.push(distincte(qs, function(){ return eqcGen(p); }, function(x){ return JSON.stringify(x); })); });
   return qs;
 }
@@ -94195,7 +94244,7 @@ function eqcEq(q){ return EQC_SIT[q.p].eq(q); }
 EQX.eqc={
   id:'equation-probleme-concret',
   etapes:function(q){ return eqcEq(q); }, apres:'eqc-E',
-  build:function(){ return eqcBuild(dmNbQuestions(5)); },
+  build:function(){ return eqcBuild(dmNbQuestions(EQC_SIT.length)); },   /* chaque situation une fois, dans un ordre tiré */
   cases:function(q){ const t=eqcEq(q); return [
     {id:'eqc-E', nom:'équation', bon:eqxEqT(t.G,t.D)},
     {id:'eqc-S', nom:'x', bon:eqxNb(q.x)},
@@ -94210,7 +94259,7 @@ EQX.eqc={
   instr:function(q){ return EQC_SIT[q.p].txt(q); },
   html:function(q){
     const S=EQC_SIT[q.p], r=S.q2(q);
-    return '<div class="eqx-bloc">'
+    return '<div class="eqx-bloc">'+eqcFig(q)
       +'<p class="eqx-p">'+S.inc+' Écris l’équation qui traduit l’énoncé :</p>'
       +'<div class="eqx-l">'+eqxInput('eqc-E','l’équation qui traduit l’énoncé','eqx-eqin','x + =')+'</div>'
       +eqxEtapesHTML('eqc')
@@ -94231,7 +94280,7 @@ EQX.eqc={
     return 'L’élève met en équation un problème concret : « '+S.txt(q).replace(/<[^>]+>/g,'')+' » '+S.inc.replace(/<[^>]+>/g,'')+' '
       +'Il écrit l’équation (toute équation équivalente, sans parenthèses, est acceptée), la résout, puis répond à la question : « '+v.lab+' … ». '
       +'Réponse attendue, STRICTEMENT SECRÈTE : '+eqxEqT(t.G,t.D)+', x = '+eqxNb(q.x)+', '+v.lab+' '+eqxNb(v.val)+(v.unite?' '+v.unite:'')+'. '
-      +'Les erreurs classiques : multiplier le mauvais nombre par x (le prix fixe au lieu du prix par séance), se tromper de signe (une cuve qui se vide), oublier un terme.';
+      +'Les erreurs classiques : multiplier le mauvais nombre par x (le prix fixe au lieu du prix par séance), se tromper de signe (une cuve qui se vide), oublier un terme (un rectangle a quatre côtés : deux largeurs x et deux longueurs, sans parenthèses x + x + m + x + x + m).';
   }
 };
 /* 9.12 : quatre équations, une seule traduit l'énoncé. Les trois autres sont
@@ -94279,8 +94328,8 @@ EQX.eqk={
   id:'equation-choisir-traduction',
   etapes:function(q){ return eqcEq(q); }, apres:'eqk-C',
   build:function(){
-    const nb=dmNbQuestions(6), ps=[];
-    while(ps.length<nb) ps.push.apply(ps, eqxMelange([0,1,2,3,4,5,6]));
+    const nb=dmNbQuestions(EQC_SIT.length), ps=[];   /* chaque situation une fois */
+    while(ps.length<nb) ps.push.apply(ps, eqxMelange(EQC_SIT.map(function(s,i){ return i; })));
     const qs=[]; ps.slice(0,nb).forEach(function(p){ qs.push(distincte(qs, function(){ return eqkGen(p); }, function(x){ return JSON.stringify(eqcEq(x)); })); });
     return qs;
   },
@@ -94294,7 +94343,7 @@ EQX.eqk={
   },
   instr:function(q){ return EQC_SIT[q.p].txt(q); },
   html:function(q){
-    return '<div class="eqx-bloc">'
+    return '<div class="eqx-bloc">'+eqcFig(q)
       +'<p class="eqx-p">'+EQC_SIT[q.p].inc+' Une seule de ces équations traduit l’énoncé :</p>'
       +'<div class="eqx-copie">'+q.o.map(function(o,i){ return '<div class="eqx-cl"><span class="eqx-num">'+EQK_LET[i]+'</span>'+eqxEqH(o.G,o.D)+'</div>'; }).join('')+'</div>'
       +'<p class="eqx-p">L’équation qui traduit l’énoncé est l’équation '+eqxSelect('eqk-C','l’équation qui traduit l’énoncé',EQK_LET.map(function(l){ return [l,l]; }))+'</p>'

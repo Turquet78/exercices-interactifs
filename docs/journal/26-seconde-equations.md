@@ -466,8 +466,8 @@ ligne l'ont fait rougir à la première exécution.
 
 **Rien à développer, nulle part.** Les programmes de calcul multiplient
 toujours d'abord ; les problèmes n'ont aucune parenthèse (le triangle s'écrit
-x + x + 2 + x + 8, jamais 2(x + 3) ; le rectangle a été écarté pour cette
-raison). La case d'équation refuse les parenthèses et le dit.
+x + x + 2 + x + 8, jamais 2(x + 3) ; le rectangle n'est entré qu'en écrivant ses
+quatre côtés, v750). La case d'équation refuse les parenthèses et le dit.
 
 **La case d'équation (9.10, 9.11).** `eqxLitEquation` lit des sommes de
 termes k·x ou k (entiers, décimaux à virgule ou à point, « × », « * »,
@@ -507,8 +507,9 @@ résultat ; un programme qui ajoute le nombre de départ, comparé au double
 pas le résultat donné par l'énoncé (ce serait le recopier) : pour un programme
 seul, c'est le nombre obtenu après « multiplier par a ».
 
-**9.11 et 9.12.** Sept situations (`EQC_SIT`) : cinéma avec abonnement, deux
-loueurs, triangle, âges, deux tirelires, trois entiers consécutifs, deux cuves.
+**9.11 et 9.12.** Huit situations (`EQC_SIT`) : cinéma avec abonnement, deux
+loueurs, triangle, âges, deux tirelires, trois entiers consécutifs, deux cuves,
+rectangle (v750).
 Chacune range ses nombres et la solution, et dit son inconnue, son équation et
 sa question finale. Le 9.12 fabrique ses trois pièges sur l'équation juste :
 le x posé sur le mauvais nombre, un signe changé, un x oublié, les
@@ -548,6 +549,26 @@ même quand la solution est juste) ; en soutien, elle bloque comme une case
 fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
+**Le rectangle, les dessins, toutes les situations (9.11, 9.12 — v750,
+novembre 2026).** Demande de Turquet : « dans le 9.11 faire aussi un exercice
+avec le périmètre d'un rectangle ; quand on a un problème avec un triangle ou
+un rectangle, faire un dessin avec les longueurs exprimées en fonction de x
+sur les côtés ; faire en sorte que tous les types de problème soient traités à
+la suite ». Huitième situation (`EQC_SIT[7]`) : la largeur x, la longueur
+x + m, le périmètre 4x + 2m. Le rectangle avait été écarté parce que
+2(x + m) + 2x se développe ; il entre en écrivant ses QUATRE côtés à la suite
+— x + x + m + x + x + m —, sans parenthèses, comme le triangle. La conclusion
+répond à la question : « La longueur mesure … cm ».
+Une situation peut porter `fig(q)` : le triangle et le rectangle en ont une
+(`eqcFigTriangle`, `eqcFigRectangle`), posée en tête du bloc par `eqcFig`
+au 9.11 comme au 9.12. Chaque côté porte sa longueur en fonction de x, le x
+dans un `tspan` en KaTeX_Math (`.eqc-x`) ; les quatre côtés du rectangle
+sont écrits, avec leurs angles droits. Le dessin suit les vraies longueurs
+(le triangle a sa plus longue côte pour base, son troisième sommet par les
+longueurs), sans qu'aucune valeur n'y soit écrite.
+Une séance tire chaque situation UNE fois, dans un ordre tiré : huit
+questions par défaut au 9.11 (cinq avant) et au 9.12 (six avant) ; le
+réglage « Questions » d'un devoir reste maître.
 ## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v749 — le 1.10 avait pris les v747 et v748 sur `main` pendant les contrôles)
 
 **D'où il vient.** Demande de Turquet : « créer un exercice comme le 9.5,
