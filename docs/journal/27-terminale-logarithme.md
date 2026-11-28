@@ -196,3 +196,54 @@ c'est la même pour la suite, la remplir automatiquement ».
   la ligne APPLIQUE une propriété (ln 2³ → 3 ln 2, ln e^p → p) n'est jamais
   un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
   17 cases notées à 10, plus la forme finale.
+## {ln-resoudre-exp} (9.3.1, v540) : résoudre e^(…) − k = 0 avec ln
+
+Demande de Turquet (novembre 2026), avec la fiche « Résoudre e^x − 2 = 0 sur
+ℝ ; e^(x−3) − 2 = 0 ; e^(−2x) − 3 = 0 » : « créer un exercice dans ln, comme
+le pdf ; on fera comme dans le 9.2.1, un mode avec étapes ou sans étape ; pour
+le mode sans étape on acceptera toutes les équations équivalentes, et on
+pourra sauter des étapes ». Nouvelle partie 3 « Équations » du thème 9.
+
+**Quatre familles** (`lnxGenFam`), la séance de six questions dans l'ordre
+x, xb, ax, xb, ax, axb, par `distinctes()` — k ∈ {2, …, 8, 10} :
+
+| famille | équation | étapes de la fiche | solution |
+|---|---|---|---|
+| `x` | e^x − k = 0 | e^x = □, ln(e^x) = ln(□) | x = ln k |
+| `xb` | e^(x−c) − k = 0 | … puis x − c = ln(□) | x = c + ln k |
+| `ax` | e^(ax) − k = 0 | … puis ax = ln(□) | x = ln k / a |
+| `axb` | e^(ax+b) − k = 0 | … puis ax + b = ln(□), ax = ln(□) ∓ □ | x = (ln k − b)/a |
+
+La fiche écrit « e^x = …… » sous e^(x−3) − 2 = 0 : une coquille, la page écrit
+e^(x−3) = □. La quatrième famille n'est pas sur la fiche : c'est la suite
+naturelle des trois exemples, une seule question par séance.
+
+**Deux façons, comme au 9.2.1** (`test.lnxMode`, gardé pour la séance et la
+pause) : « Avec les étapes » — des cases de nombres (le k, le b de la
+dernière ligne sans son signe, que la page écrit), puis x = [case MathLive] ;
+« Sans étape » — la feuille `mlFeuille`, chaque ligne préfixée de ⟺, les
+lignes voyageant dans `test.lnxLignes`.
+
+**Le juge des équations** (`lnxJugerLigne`, `lnxEquivalente`) : une ligne
+« A = B » (ou « A = B ⟺ C = D ») est lue par `lndLire` — qui lit désormais la
+lettre x, sans rien changer au 9.2.1 où elle donne NaN, donc faux — et elle
+est acceptée si elle est ÉQUIVALENTE à l'équation de départ : la solution x₀
+la vérifie, g = A − B n'est pas identiquement nul, et le balayage de
+[−15 ; 15] (pas de 0,025) ne trouve aucune autre annulation — une valeur
+nulle loin de x₀, ou un changement de signe qu'une dichotomie confirme
+(un saut d'asymptote ne compte pas). « (x − 3)² = (ln 2)² » est rejetée (deux
+solutions), « 0 = 0 » aussi, « 2x = 6 + 2 ln 2 » acceptée. La ligne est FINIE
+quand elle s'écrit x = valeur EXACTE : un membre « x » seul, l'autre sans x ni
+e et avec un ln ; « x = 3,69 » est rejeté, « x = ln(2e³) » est juste mais pas
+fini. La case finale des étapes (`lnxJugerFinal`) suit la même règle ; une
+valeur approchée à 0,01 près y reçoit en soutien « donne la valeur exacte ».
+
+**Essayé dans Chromium** : une copie faite des corrections est parfaite aux six
+questions (3, 4, 4, 4, 4, 6 cases) ; une copie à une case juste, une fausse et
+les autres vides reçoit le bleu, le rouge avec sa correction à côté, et les
+corrections vertes ; en soutien « sans étape », des frappes réelles
+(e^x = 10, Entrée, x = ln 10) se peignent en bleu à la sortie de la feuille, et
+« Vérifier » rend « Bravo ! » ; une ligne « x = 2 » rougit seule. Un défaut vu
+à la première capture : « −2 x » s'écrivait avec un blanc — chaque morceau de
+texte de la ligne était un élément flex séparé ; ils sont regroupés
+(`.lnx-t`).

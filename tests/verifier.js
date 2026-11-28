@@ -115,6 +115,32 @@ function lnExposantImbrique(w){
   })()`, v => v === '');
 }
 
+/* 9.3.1 de la Terminale (novembre 2026) : « Sans étape », toute équation
+   ÉQUIVALENTE à e^(x−3) − 2 = 0 est acceptée, les étapes sautées comprises —
+   et seulement elles : une équation qui perd la solution, qui en gagne une
+   autre, ou qui est toujours vraie, rougit ; la dernière doit être
+   x = valeur exacte. */
+function lnResoudreEquivalentes(w){
+  const nom = '{ln-resoudre-exp} : « sans étape », une équation est acceptée si et seulement si elle est équivalente, et finie en x = valeur exacte';
+  const present = evaluer(w, "typeof lnxJugerLigne==='function' && typeof lnxAns==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice « Résoudre e^x − k = 0 avec ln »'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[], A=lnxAns({t:'xb',k:2,c:3}), B=lnxAns({t:'ax',k:3,a:-2});
+    const attendu=[
+      [A,'e^{x-3}=2','ok'], [A,'\\\\ln\\\\left(e^{x-3}\\\\right)=\\\\ln2','ok'], [A,'x-3=\\\\ln 2','ok'],
+      [A,'x=3+\\\\ln2','fin'], [A,'x=\\\\ln 2+3','fin'], [A,'2x=6+2\\\\ln2','ok'],
+      [A,'x-3=\\\\ln2\\\\iff x=3+\\\\ln2','fin'],
+      [A,'x-3=2','non'], [A,'e^x=2','non'], [A,'x=3.69','non'], [A,'0=0','non'], [A,'x^2=(3+\\\\ln2)^2','non'],
+      [B,'-2x=\\\\ln3','ok'], [B,'x=-\\\\frac{\\\\ln3}{2}','fin'], [B,'x=\\\\frac{\\\\ln 3}{-2}','fin'], [B,'x=\\\\frac{\\\\ln3}{2}','non']
+    ];
+    attendu.forEach(function(t){
+      const j=lnxJugerLigne(t[0],t[1]), lu=j.ok?(j.fini?'fin':'ok'):'non';
+      if(lu!==t[2]) vus.push(t[1]+' : '+lu+' au lieu de '+t[2]);
+    });
+    return vus.join(' ; ');
+  })()`, v => v === '');
+}
+
 /* Corps EXACT d'une fonction : accolades appariées, en sautant tout ce qui n'en
    est pas — chaînes, gabarits et leurs ${}, commentaires, expressions
    régulières.
@@ -4764,6 +4790,7 @@ function exercices(suite){
 
     sommeFractions(w, P);
     lnExposantImbrique(w);
+    lnResoudreEquivalentes(w);
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     revisionFractions(w, P);
