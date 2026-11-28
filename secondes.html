@@ -1091,6 +1091,14 @@
   #bhdHost .bhd-l select{width:auto;flex:0 1 auto;min-width:0}
   .bhd-ou{font-weight:600;color:var(--ink-soft)}
   .bhd-m2fb{margin:0;min-height:1.4em;font-size:1.05rem;font-weight:700}
+  .bhd-op{display:inline-flex;align-items:center;font:inherit;font-weight:800;padding:2px 12px;border-radius:10px;border:2px solid #BBD0F7;background:var(--surface);color:var(--ink);white-space:nowrap}
+  .bhd-eg{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+  button.bhd-op{cursor:pointer}
+  button.bhd-op:hover{border-color:var(--blue)}
+  .bhd-op.bhd-op-bad{color:var(--red);background:var(--red-soft);border-color:#f0b3bb}
+  .bhd-op.bhd-op-ok{color:var(--blue);background:#EAF0FF;border-color:#b7c4ee}
+  .bhd-op.bhd-op-sol{color:var(--green);background:var(--green-soft);border:2px dashed var(--green)}
+  .bhd-op.bhd-op-off{color:var(--ink-soft);opacity:.45;border-style:dashed;text-decoration:line-through}
   .bhd-m2fb.bad{color:var(--red)}
   @media(max-width:520px){ .bhd-l{font-size:1.05rem} .bhd-regle{font-size:.95rem} }
   /* {bonhomme-schema} : le bon schéma parmi quatre, puis le résultat (1.11) */
@@ -10262,7 +10270,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=747;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=748;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -89976,9 +89984,9 @@ function bhdBoutons(){
   if(test.bhdEt>=2) act.innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" onclick="checkBhdAnswer()">Vérifier</button>';
   else act.innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" type="button" id="bhdValBtn" onclick="bhdValider()">Valider le déplacement</button>';
 }
-function bhdBrancherCase(){
-  BHD_CASES.forEach(function(id){
-    const el=$(id); if(!el) return;
+function bhdBrancherCase(){ BHD_CASES.forEach(bhdBrancherUne); }
+function bhdBrancherUne(id){
+    const el=$(id); if(!el || el.dataset.bhdBranche) return; el.dataset.bhdBranche='1';
     const m2=id!=='bhd-r';
     if(m2) el.addEventListener('change',function(){ bhdJugerM2(id); autoSave(); });
     if(!m2 || el.tagName!=='SELECT') el.addEventListener('input',function(){
@@ -89990,7 +89998,6 @@ function bhdBrancherCase(){
       if(id==='bhd-m2r') checkBhdAnswer();
       else { const i=BHD_CASES.indexOf(id), n=$(BHD_CASES[i+1]); if(n){ try{ n.focus(); }catch(er){} } }
     });
-  });
 }
 /* LA MÉTHODE 2 (v746, demande de Turquet sur sa fiche « Règle relatif ») :
    sous le bonhomme, le MÊME calcul refait par la règle, rappelée d'abord,
@@ -90001,7 +90008,7 @@ function bhdBrancherCase(){
    Des deux calculs « 6 + 2 » et « 6 − 2 », un seul est à faire : l'autre
    porte .hors-note (pas de confirmation s'il reste vide) ; rempli, il est
    faux — c'est le mauvais calcul. */
-const BHD_CASES=['bhd-r','bhd-m2s','bhd-m2o','bhd-m2p','bhd-m2m','bhd-m2g','bhd-m2r'];
+const BHD_CASES=['bhd-r','bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2g','bhd-m2r'];
 /* LA MÉTHODE 2 SE CORRIGE TOUT DE SUITE (v747, demande de Turquet) : dans
    TOUS les modes, une case de la méthode 2 est jugée dès qu'elle est remplie
    — une liste au choix, une case quittée ou validée par Entrée (jamais à la
@@ -90014,7 +90021,7 @@ const BHD_CASES=['bhd-r','bhd-m2s','bhd-m2o','bhd-m2p','bhd-m2m','bhd-m2g','bhd-
 function bhdM2Attendu(q,id){
   const d=bhdM2Data(q), r=q.a+q.b;
   return {'bhd-m2s':{bon:d.meme?'meme':'diff'}, 'bhd-m2o':{bon:d.meme?'add':'sub'},
-    'bhd-m2p':{bon:String(d.gd+d.pt), fac:!d.meme}, 'bhd-m2m':{bon:String(d.gd-d.pt), fac:d.meme},
+    'bhd-m2c':{bon:String(d.meme?d.gd+d.pt:d.gd-d.pt)},
     'bhd-m2g':{bon:r<0?'-':'+'}, 'bhd-m2r':{bon:String(r)}}[id];
 }
 function bhdM2Indice(q,id,fac){
@@ -90022,7 +90029,7 @@ function bhdM2Indice(q,id,fac){
   if(fac) return 'Ce n’est pas ce calcul qu’il faut faire : relis la ligne « donc il faut » et vide cette case.';
   return {'bhd-m2s':'Regarde le signe de '+bhdSg(q.a)+' et celui de '+bhdSg(q.b)+'.',
     'bhd-m2o':'Relis la règle : de même signe, on additionne ; de signes différents, on soustrait.',
-    'bhd-m2p':'Refais le calcul '+d.gd+' + '+d.pt+'.', 'bhd-m2m':'Refais le calcul '+d.gd+' − '+d.pt+'.',
+    'bhd-m2c':'Refais le calcul '+d.gd+(d.meme?' + ':' − ')+d.pt+'.',
     'bhd-m2g':'Le plus fort est celui qui a le plus grand nombre sans son signe : '+bhdSg(q.a)+' ou '+bhdSg(q.b)+' ?',
     'bhd-m2r':'Le résultat, c’est le nombre que tu as calculé, avec le signe du plus fort devant.'}[id];
 }
@@ -90044,6 +90051,40 @@ function bhdM2Data(q){
   const A=Math.abs(q.a), B=Math.abs(q.b), gd=Math.max(A,B), pt=Math.min(A,B), meme=(q.a>0)===(q.b>0);
   return {gd:gd, pt:pt, meme:meme, r:q.a+q.b};
 }
+/* LE CALCUL À FAIRE SE CHOISIT D'UN CLIC (v748, demande de Turquet) : « 6 + 2 »
+   et « 6 − 2 » sont deux boutons. Le mauvais rougit (faute relevée, message) ;
+   le bon devient bleu et SEUL il ouvre sa case « = ▢ » — l'autre égalité est
+   grisée, sans case : l'élève ne peut pas la compléter. Le choix vit sur
+   test.bhdM2Op (la pause le range). À « Vérifier » sans choix, la page écrit
+   le bon calcul (vert, bhdM2OpSol) et la case vide reçoit sa correction. */
+function bhdM2CalcHTML(q){
+  const d=bhdM2Data(q), bon=d.meme?'add':'sub', ch=test.bhdM2Op;
+  const ex={add:d.gd+' + '+d.pt, sub:d.gd+' − '+d.pt};
+  const bouton=function(op){
+    if(!ch) return '<button type="button" class="bhd-op" id="bhd-op-'+op+'" onclick="bhdChoisirOp(\''+op+'\')" aria-label="choisir le calcul '+ex[op]+'">'+ex[op]+'</button>';
+    if(op===ch) return '<span class="bhd-eg"><span class="bhd-op '+(test.bhdM2OpSol?'bhd-op-sol':'bhd-op-ok')+'" id="bhd-op-'+op+'">'+ex[op]+'</span><span>=</span>'
+      +'<input class="bhr-in" id="bhd-m2c" type="text" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="résultat de '+ex[op]+'"></span>';
+    return '<span class="bhd-op bhd-op-off" id="bhd-op-'+op+'" aria-disabled="true">'+ex[op]+'</span>';
+  };
+  return 'donc on doit calculer : '+bouton('add')+'<span class="bhd-ou">ou</span>'+bouton('sub')
+    +(ch?'':'<span class="bhd-ou">(clique sur le bon calcul)</span>');
+}
+function bhdChoisirOp(op){
+  const q=bhdQ(); if(!q || test.locked || test.bhdM2Op) return;
+  const d=bhdM2Data(q), bon=d.meme?'add':'sub', fb=$('bhdM2Fb');
+  if(op!==bon){
+    const b=$('bhd-op-'+op); if(b) b.classList.add('bhd-op-bad');
+    test.bhdM2Fautes=(test.bhdM2Fautes||0)+1;
+    if(fb){ fb.textContent='Ce n’est pas ce calcul qu’il faut faire : relis la ligne « donc il faut » et clique sur l’autre.'; fb.className='bhd-m2fb bad'; }
+    autoSave(); return;
+  }
+  test.bhdM2Op=op;
+  const l=$('bhdM2Calc'); if(l) l.innerHTML=bhdM2CalcHTML(q);
+  if(fb){ fb.textContent=''; fb.className='bhd-m2fb'; }
+  bhdBrancherUne('bhd-m2c');
+  const c=$('bhd-m2c'); if(c){ try{ c.focus(); }catch(e){} }
+  autoSave();
+}
 function bhdM2HTML(q){
   const d=bhdM2Data(q), na=bhdSg(q.a), nb=bhdSg(q.b);
   const sel=function(id,aria,opts){ return '<select id="'+id+'" aria-label="'+aria+'"><option value="">…</option>'
@@ -90055,8 +90096,7 @@ function bhdM2HTML(q){
     +'<p class="bhd-l">Calculer '+bhrEcrit(q)+'</p>'
     +'<p class="bhd-l">Les nombres '+na+' et '+nb+' ont : '+sel('bhd-m2s','les deux nombres ont le même signe, ou des signes différents',[['meme','le même signe'],['diff','des signes différents']])+'</p>'
     +'<p class="bhd-l">donc il faut : '+sel('bhd-m2o','additionner ou soustraire',[['add','additionner '+d.gd+' et '+d.pt],['sub',sous]])+'</p>'
-    +'<p class="bhd-l">donc on doit calculer : <span>'+d.gd+' + '+d.pt+' =</span>'+inp('bhd-m2p','résultat de '+d.gd+' + '+d.pt,d.meme?'':'hors-note')
-      +'<span class="bhd-ou">ou</span><span>'+d.gd+' − '+d.pt+' =</span>'+inp('bhd-m2m','résultat de '+d.gd+' − '+d.pt,d.meme?'hors-note':'')+'</p>'
+    +'<p class="bhd-l" id="bhdM2Calc">'+bhdM2CalcHTML(q)+'</p>'
     +'<p class="bhd-l">on met le signe du plus fort entre '+na+' et '+nb+', qui est '+sel('bhd-m2g','le signe du plus fort',[['+','+'],['-','−']])+', au résultat</p>'
     +'<p class="bhd-l">donc le résultat est : '+inp('bhd-m2r','résultat de la somme par la règle, avec son signe','',true)+'</p>'
     +'<p class="bhd-m2fb" id="bhdM2Fb" aria-live="polite"></p>';
@@ -90161,8 +90201,7 @@ function checkBhdAnswer(live){
   const cases=[{id:'bhd-r', bon:String(r), lib:bhrFmt(r)},
     {id:'bhd-m2s', bon:d.meme?'meme':'diff'},
     {id:'bhd-m2o', bon:d.meme?'add':'sub'},
-    {id:'bhd-m2p', bon:String(d.gd+d.pt), lib:String(d.gd+d.pt), fac:!d.meme},
-    {id:'bhd-m2m', bon:String(d.gd-d.pt), lib:String(d.gd-d.pt), fac:d.meme},
+    {id:'bhd-m2c', bon:String(d.meme?d.gd+d.pt:d.gd-d.pt), lib:String(d.meme?d.gd+d.pt:d.gd-d.pt)},
     {id:'bhd-m2g', bon:r<0?'-':'+'},
     {id:'bhd-m2r', bon:String(r), lib:bhrFmt(r)}];
   const lu=function(el){ return !el?'':(el.tagName==='SELECT'?el.value:bhrLu(el)); };
@@ -90174,6 +90213,11 @@ function checkBhdAnswer(live){
       el.classList.add(v===c.bon?'ok':'bad');
     });
     return;
+  }
+  if(!test.bhdM2Op){
+    /* aucun calcul choisi : la page écrit le bon, en vert, et sa case vide recevra la correction */
+    test.bhdM2Op=d.meme?'add':'sub'; test.bhdM2OpSol=true;
+    const l=$('bhdM2Calc'); if(l) l.innerHTML=bhdM2CalcHTML(q);
   }
   const subs=[];
   cases.forEach(function(c){ const el=$(c.id); if(!el) return; const v=lu(el);
@@ -90206,7 +90250,7 @@ function checkBhdAnswer(live){
 }
 function nextBhdQuestion(){
   test.bhrJeton=(test.bhrJeton||0)+1;
-  if(test.idx<test.questions.length-1){ test.idx++; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; renderBhdTest(); autoSave(); }
+  if(test.idx<test.questions.length-1){ test.idx++; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; test.bhdM2Op=null; test.bhdM2OpSol=false; renderBhdTest(); autoSave(); }
   else finishTest();
 }
 async function startBhd(){
@@ -90217,7 +90261,7 @@ async function startBhd(){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'bhd', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(),
-    qTimer:null, fbTimer:null, locked:false, bhrJeton:0, bhdEt:0, bhdPos:0, bhdFautes:[0,0], bhdM2Fautes:0});
+    qTimer:null, fbTimer:null, locked:false, bhrJeton:0, bhdEt:0, bhdPos:0, bhdFautes:[0,0], bhdM2Fautes:0, bhdM2Op:null, bhdM2OpSol:false});
   test.qId='bonhomme-deplacer';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('bhd'); renderBhdTest();
