@@ -548,3 +548,56 @@ même quand la solution est juste) ; en soutien, elle bloque comme une case
 fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
+## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v749 — le 1.10 avait pris les v747 et v748 sur `main` pendant les contrôles)
+
+**D'où il vient.** Demande de Turquet : « créer un exercice comme le 9.5,
+mais sans les étapes détaillées, pas de flèche et d'accolades. L'élève doit
+pouvoir résoudre les équations étape par étape en complétant des cases avant
+et après le = « ....... = ...... », on acceptera toute équation
+équivalente, on aura le droit de sauter les étapes. » Kind `eqw`, ajouté
+après le 9.12 : rien n'est renuméroté. Un moteur à lui (`renderEqwTest`,
+`checkEqwAnswer`…), qui reprend les lecteurs du moteur `eqx` (9.7 à 9.12) et
+l'écriture des membres du 9.5 (`eqeMembres`, `eqeTermeTxt`).
+
+**Les lignes.** L'équation, puis « Donc : [membre de gauche] = [membre de
+droite] », dans une grille à quatre colonnes : les « = » tombent l'un sous
+l'autre sans rien mesurer. Une seule ligne au départ. Entrée dans le membre
+de gauche passe au membre de droite ; Entrée au bout d'une ligne remplie en
+ouvre une autre (le bouton « + Ajouter une ligne » fait de même au doigt —
+pas « Ligne suivante » : le mot « suivant » est celui que `#passer-soutien`
+lit comme un bouton pour avancer) ; Entrée au bout d'une ligne finale
+« x = nombre » vérifie ; ⌫ dans une ligne vide la retire. Ces touches sont
+prises sur la FENÊTRE, en capture, comme au 6.5 de la Première : la porte
+des cases vides (`#confirmer-vides`) écoute Entrée sur le document. Le
+nombre de lignes vit dans `test.eqwN` : il part avec la pause, le rendu
+refait autant de lignes, puis `restoreBoxes()` les remplit. Les lignes
+ajoutées portent `data-facultatif` : la boîte des cases vides ne réclame que
+la première. Les cases sont du texte (`data-pave-plus="x + /"`), le x en
+ApfX ; « 32/8 », « 32 ÷ 8 », « 8 × x » se lisent.
+
+**Le juge** (`eqwJugeLigne`). Une ligne est juste si `eqxLitEquation` la
+lit (sommes de k·x et de nombres, « × », division par un nombre, sans
+parenthèses) et que sa solution unique est celle de l'équation de départ —
+aucune étape n'est imposée, n'importe quelle équation équivalente passe,
+« x = 4 » dès la première ligne aussi. Deux points par question : « les
+lignes » (toutes les lignes écrites sont justes) et « la fin » (la dernière
+est « x = nombre » ou « nombre = x », juste ; « x = 32/8 » est juste mais
+pas finie, et le message dit de calculer). La note de chaque question
+(`pts`, `cases:2`) est posée par le juge, pas par le compte des cases de
+l'écran : une ligne a deux cases, et la fin n'en a aucune.
+
+**La correction.** La ligne juste en bleu (ses deux cases), la fausse en
+rouge, une case vide jamais — une ligne à un seul membre ne rougit que dans
+le membre écrit. Aucune ligne écrite : la solution type (`eqwModele`,
+« ax − cx = d − b », « Ax = B », « x = B/A » — le signe au numérateur —,
+« x = S ») s'écrit en vert. Un calcul qui ne va pas au bout reçoit
+« x = S » en vert sous ses lignes. Le message nomme la première ligne
+fausse, et sa solution quand elle se lit simplement. En soutien, une ligne
+se colore dès que ses deux membres sont écrits et validés, rien ne se fige,
+et « Passer à la suite » corrige comme en entraînement.
+
+**Le tirage.** ax + b = cx + d, comme au 9.5 : A = a − c de ±2 à ±9
+(négatif une fois sur quatre), une solution entière non nulle de −10 à 10,
+|c| ≤ 12, |a| ≤ 15, |b| ≤ 25, |d| ≤ 30, aucun terme nul, l'ordre de chaque
+membre tiré. Six questions, réglables par le devoir, `distincte()` sur
+(a, b, c, d).
