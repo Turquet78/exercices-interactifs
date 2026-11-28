@@ -592,6 +592,21 @@ pas retranchées, comme les déplacements du bonhomme. Le soutien en direct ne
 juge plus que la case du bonhomme : la méthode 2 a son propre juge. Vu dans
 Chromium avec de vrais gestes (liste, frappe, Entrée, clic ailleurs).
 
+**Puis le calcul s'est CHOISI d'un clic (v748).** « Quand il doit choisir
+4 + 3 ou 4 − 3, laisser l'élève cliquer sur la bonne opération ; quand il a
+réussi à voir la case en bleu, lui demander alors de compléter l'égalité
+concernée ; l'élève ne pourra pas compléter l'autre égalité. » Les deux
+calculs sont deux boutons (`bhdChoisirOp`, `bhdM2CalcHTML`) : le mauvais
+rougit, la ligne du dessous dit « Ce n'est pas ce calcul qu'il faut faire »
+et la faute est relevée ; le bon devient bleu, SEUL il gagne « = ▢ »
+(`#bhd-m2c`, jugée comme les autres cases de la méthode 2), et l'autre
+calcul est grisé, barré, sans case. Les deux cases `bhd-m2p`/`bhd-m2m` et
+leur `.hors-note` sont parties. Le choix vit sur `test.bhdM2Op` (la pause le
+range, vu à la reprise) ; « Vérifier » sans choix écrit le bon calcul en
+vert (`bhdM2OpSol`) et sa case vide reçoit la correction. Le bouton, le
+« = » et la case tiennent sur une ligne (`.bhd-eg`) : à 390 px, le « = »
+partait seul en fin de ligne. Vu dans Chromium à 1280 et 390 px.
+
 ## {bonhomme-schema} : le bon schéma du bonhomme (1.11, novembre 2026, v742)
 
 Demandé par Turquet à la suite du 1.10 : « un exercice comme le 1.10, où il
