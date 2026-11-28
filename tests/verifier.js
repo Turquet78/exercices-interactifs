@@ -4774,6 +4774,7 @@ function exercices(suite){
     bonhommeRelatifs(w, P);
     bonhommeDeplacer(w, P);
     bonhommeSchema(w, P);
+    relatifsRegleCent(w, P);
     additionnerRelatifs(w, P);
     associerExpressions(w, P);
     multiplierRelatifs(w, P);
@@ -26060,6 +26061,68 @@ function bonhommeDeplacer(w, P){
     if(peint()!=='bad') vus.push('soutien en direct : la réponse fausse est peinte '+peint());
     currentMode='train';
     test.bhrJeton=(test.bhrJeton||0)+1;
+    return vus.slice(0,6).join(' | ');
+  })()`, v => v === '', undefined);
+}
+/* {relatifs-regle-cent} — la règle seule, un relatif de 1 à 10 et ±100 (1.12) */
+function relatifsRegleCent(w, P){
+  const present = evaluer(w, "typeof startBhg==='function' && typeof checkBhgAnswer==='function'");
+  if(!present.ok || !present.valeur){
+    ignorer('la règle, somme d\'un relatif et de ±100 : le tirage, les cases jugées tout de suite, juste, faux, vide',
+      'ce niveau n\'a pas l\'exercice de la règle avec ±100');
+    return;
+  }
+  verifierEval(w, 'la règle, somme d\'un relatif et de ±100 : le tirage, les cases jugées tout de suite, juste, faux, vide', `(function(){
+    const vus=[];
+    currentEleve={id:'e-controle',prenom:'Contrôle'}; currentMode='train'; currentDM=null;
+    currentTestId='relatifs-regle-cent';
+    if(TEST_NUM['relatifs-regle-cent']!=='1.12') vus.push('numéro '+TEST_NUM['relatifs-regle-cent']+' au lieu de 1.12');
+    if(TABLES_SANS.indexOf('relatifs-regle-cent')<0) vus.push('le bouton des tables est proposé');
+    for(let k=0;k<40;k++){ startBhg();
+      test.questions.forEach(function(x){ const A=Math.abs(x.a), B=Math.abs(x.b), cent=A===100?B:(B===100?A:-1);
+        if(cent<1 || cent>10 || (A===100)===(B===100)) vus.push('tirage hors règle : '+x.a+' + '+x.b); });
+      if(vus.length) break; }
+    const vusA={}, vusB={}; for(let k=0;k<200;k++){ const g=bhgGen(); vusA[Math.abs(g.a)===100]=1; vusB[g.a<0]=1; vusB['b'+(g.b<0)]=1; }
+    if(Object.keys(vusA).length<2 || Object.keys(vusB).length<4) vus.push('±100 ne tombe pas des deux côtés, ou un signe manque');
+    if(test.kind!=='bhg' || test.qId!=='relatifs-regle-cent') vus.push('identité : '+test.kind+' / '+test.qId);
+    const neuf=function(a,b){ test.locked=false; test.questions[test.idx]={a:a,b:b}; test.bhdM2Fautes=0; test.bhdM2Op=null; test.bhdM2OpSol=false; renderBhgTest(); };
+    neuf(-100,7);
+    const h=document.getElementById('bhgHost'), t=h.textContent;
+    if(document.getElementById('bhrMan') && h.querySelector('#bhrMan')) vus.push('un bonhomme est dessiné');
+    if(/Méthode/.test(t) || !/Règle/.test(t) || !/−100 \\+ 7/.test(t) || !/100 \\+ 7/.test(t) || !/100 − 7/.test(t)) vus.push('les lignes de la règle : « '+t.slice(0,220)+' »');
+    const cl=function(id){ const c=(document.getElementById(id)||{}).className||''; return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
+    const ev=function(id,v,type){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event(type||'change',{bubbles:true})); };
+    const val=function(id,v){ document.getElementById(id).value=v; };
+    ev('bhd-m2s','meme'); if(cl('bhd-m2s')!=='bad') vus.push('« même signe » faux n\\'est pas rouge tout de suite');
+    ev('bhd-m2s','diff'); if(cl('bhd-m2s')!=='ok') vus.push('« signes différents » n\\'est pas bleu');
+    ev('bhd-m2o','sub');
+    bhdChoisirOp('add'); if(document.getElementById('bhd-m2c')) vus.push('le mauvais calcul ouvre sa case');
+    bhdChoisirOp('sub'); if(!document.getElementById('bhd-m2c')) vus.push('le bon calcul n\\'ouvre pas sa case');
+    ev('bhd-m2c','107'); if(cl('bhd-m2c')!=='bad') vus.push('100 − 7 = 107 n\\'est pas rouge');
+    ev('bhd-m2c','93'); ev('bhd-m2g','-'); ev('bhd-m2r','-93');
+    checkBhgAnswer();
+    let der=test.answers[test.answers.length-1];
+    if(!der || !der.correct || test.score!==1) vus.push('−100 + 7 = −93 n\\'est pas compté juste : '+(der&&der.correct)+' / '+test.score);
+    if(['bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2g','bhd-m2r'].some(function(id){ return cl(id)!=='ok'; })) vus.push('la copie juste n\\'est pas bleue : '+['bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2g','bhd-m2r'].map(cl).join(','));
+    if(der && !/3 cases corrigées/.test(der.given||'')) vus.push('la copie ne relève pas les cases corrigées : '+(der&&der.given));
+    if(!document.getElementById('bhgNext')) vus.push('pas de bouton pour passer à la suite');
+    neuf(6,100); val('bhd-m2s','meme'); val('bhd-m2o','add'); bhdChoisirOp('add'); val('bhd-m2c','106'); val('bhd-m2g','+'); val('bhd-m2r','106');
+    checkBhgAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || !der.correct) vus.push('6 + 100 = 106 n\\'est pas compté juste');
+    neuf(-4,-100); val('bhd-m2s','meme'); val('bhd-m2o','add'); val('bhd-m2g','+'); val('bhd-m2r','104');
+    checkBhgAnswer(); der=test.answers[test.answers.length-1];
+    if(!der || der.correct || cl('bhd-m2g')!=='bad' || cl('bhd-m2r')!=='bad' || cl('bhd-m2c')!=='sol' || !/bhd-op-sol/.test((document.getElementById('bhd-op-add')||{}).className||''))
+      vus.push('−4 + (−100) = 104, sans calcul choisi : '+(der&&der.correct)+' / '+['bhd-m2s','bhd-m2c','bhd-m2g','bhd-m2r'].map(cl).join(','));
+    neuf(100,-3); checkBhgAnswer();
+    if(cl('bhd-m2r')!=='sol' || document.getElementById('bhd-m2r').value!=='97') vus.push('la case vide : '+cl('bhd-m2r')+' / '+document.getElementById('bhd-m2r').value);
+    /* la pause : le calcul choisi se range */
+    neuf(100,-3); bhdChoisirOp('sub');
+    const snap=JSON.parse(JSON.stringify(test)); Object.keys(test).forEach(function(k){ delete test[k]; }); Object.assign(test,snap); renderBhgTest();
+    if(!document.getElementById('bhd-m2c') || !/bhd-op-ok/.test((document.getElementById('bhd-op-sub')||{}).className||'')) vus.push('la reprise perd le calcul choisi');
+    currentMode='soutien';
+    neuf(100,-3); val('bhd-m2s','diff'); val('bhd-m2o','sub'); val('bhd-m2g','+'); val('bhd-m2r','98'); checkBhgAnswer();
+    if(test.locked || cl('bhd-m2r')!=='bad') vus.push('en soutien, une copie fausse ne se reprend pas : '+test.locked+' / '+cl('bhd-m2r'));
+    currentMode='train';
     return vus.slice(0,6).join(' | ');
   })()`, v => v === '', undefined);
 }

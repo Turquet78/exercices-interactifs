@@ -671,3 +671,42 @@ le choix ; valider sans choisir ; un faux se barre et ne se rechoisit pas, la
 seconde erreur dit les déplacements ; « Vérifier » ne compte rien avant le
 bon schéma ; la reprise ; juste, faux, vide (correction verte), soutien en
 direct.
+
+## {relatifs-regle-cent} : la règle seule, un relatif et ±100 (1.12, novembre 2026, v752 — la v750 prise par le 1.10, la v751 par le 9.10 pendant la rédaction)
+
+Demandé par Turquet : « en seconde, faire un exercice comme le 1.10
+uniquement avec la 2ème méthode, en prenant un nombre entre 1 et 10 en
+valeur absolue et un nombre égal à 100 en valeur absolue. »
+
+**Pas de bonhomme** : un axe de −10 à 10 ne porte pas 100, et la demande
+écarte la méthode 1. Kind `bhg`, en fin du thème 1. Les lignes, les cases
+et leurs juges sont CEUX de la méthode 2 du 1.10 — `bhdM2HTML(q, sansTitre)`
+(sans le titre « Méthode 2 »), `bhdJugerM2` (chaque case jugée dès qu'elle
+est remplie, dans tous les modes), `bhdChoisirOp` (le calcul cliqué, seul le
+bon ouvre sa case), mêmes identifiants `bhd-m2…` —, dessinés dans `#bhgHost`.
+Les deux écrans vident l'hôte de l'autre en se dessinant, comme le 1.9 et le
+1.10. Entrée dans la case du résultat appelle `checkBhgAnswer()` quand
+`test.kind` est `bhg`.
+
+**Le tirage** (`bhgGen`) : un nombre de 1 à 10, de signe tiré, et +100 ou
+−100, en premier ou en second terme au hasard — « −100 + 7 », « 6 + (−100) ».
+La somme n'est jamais nulle, le plus fort est toujours ±100. Dix questions par
+`distinctes(dmNbQuestions(10), …)`. La case du résultat est un peu plus large
+(`#bhgHost .bhr-in`, 3,6 em) : « −107 ».
+
+**La note** : une question vaut son point si les cinq cases sont justes
+(`maxScore` = nombre de questions) ; les cases corrigées en route sont
+RELEVÉES dans la copie (`given` : « −93 (3 cases corrigées en cours de
+route) »), pas retranchées. « Vérifier » sans calcul choisi écrit le bon en
+vert et sa case vide reçoit la correction. Le soutien en direct ne fait rien :
+les cases ont leur juge immédiat. La pause range `bhdM2Op` sur `test`.
+
+**Contrôle dédié** (`relatifsRegleCent`, `tests/verifier.js`) : numéro 1.12,
+pas de bouton des tables ; 40 séances sans tirage hors règle, ±100 des deux
+côtés et des deux signes ; ni bonhomme ni « Méthode » à l'écran ; « même
+signe » faux rouge tout de suite, puis bleu corrigé ; le mauvais calcul
+n'ouvre pas de case ; 107 pour 100 − 7 rouge ; −100 + 7 = −93 juste et bleu,
+trois cases relevées ; 6 + 100 = 106 ; −4 + (−100) faux sans calcul choisi (le
+calcul et sa case en vert) ; la case vide reçoit 97 ; la reprise garde le
+calcul choisi ; en soutien, une copie fausse se reprend. Vu dans Chromium à
+1280 et 390 px, de vrais gestes (listes, clic du calcul, frappe, Entrée).
