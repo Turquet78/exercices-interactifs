@@ -514,7 +514,7 @@ consécutifs gardent leur dernière valeur à calculer, le plus grand côté et 
 plus grand nombre, qui fait partie de la réponse. La phrase de « pourquoi »
 ne met plus en minuscule l'initiale d'un prénom (« léa a »).
 
-## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v747)
+## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v748 — le 1.10 avait pris la v747 sur `main` pendant les contrôles)
 
 **D'où il vient.** Demande de Turquet : « créer un exercice comme le 9.5,
 mais sans les étapes détaillées, pas de flèche et d'accolades. L'élève doit
