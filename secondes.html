@@ -11188,7 +11188,7 @@ const TESTS={
   'equation-nombre-solutions': { name:'Une solution, aucune ou une infinité ?', icon:'🤔', desc:'Regrouper les termes de chaque membre, puis conclure : 0x = 5 n’a aucune solution, 0x = 0 en a une infinité, et 3x = 6 en a une seule.', start:()=>startEqn() },
   'equation-coefficients-fractions': { name:'Des fractions des deux côtés', icon:'➗', desc:'Résoudre une équation où x et les nombres ont des coefficients fractionnaires des deux côtés : calculer le facteur de x et le nombre de droite, puis multiplier par l’inverse et simplifier.', start:()=>startEqq() },
   'equation-trouver-erreur': { name:'Trouver l’erreur', icon:'🔎', desc:'Un élève a résolu une équation, mais une de ses lignes est fausse : trouver la ligne, dire quelle erreur il a faite, puis donner la bonne solution.', start:()=>startEqz() },
-  'equation-programme-calcul': { name:'Un programme de calcul à l’envers', icon:'🔢', desc:'Quel nombre faut-il choisir au départ ? Traduire le programme de calcul par une équation, la résoudre, puis vérifier.', start:()=>startEqp() },
+  'equation-programme-calcul': { name:'Un programme de calcul à l’envers', icon:'🔢', desc:'Quel nombre faut-il choisir au départ ? Traduire le programme de calcul par une équation, puis la résoudre.', start:()=>startEqp() },
   'equation-probleme-concret': { name:'Mettre un problème en équation', icon:'🚲', desc:'Tarifs, locations, âges, périmètre, épargne : choisir l’inconnue, écrire l’équation qui traduit l’énoncé, la résoudre et répondre à la question.', start:()=>startEqc() },
   'equation-choisir-traduction': { name:'Choisir la bonne équation', icon:'✅', desc:'Parmi quatre équations, une seule traduit l’énoncé du problème : la choisir, puis la résoudre.', start:()=>startEqk() },
   'equation-resoudre-libre': { name:'Résoudre une équation ligne par ligne', icon:'📝', desc:'Résoudre ax + b = cx + d à sa façon : chaque étape s’écrit sur une ligne « … = … », toute équation équivalente est acceptée, on peut sauter des étapes, jusqu’à x = un nombre.', start:()=>startEqw() },
@@ -13109,7 +13109,7 @@ const QIA_SUGG={
   eqn:["Pourquoi 0x = 5 n’a-t-il aucune solution ?","Que veut dire « une infinité de solutions » ?","Comment regrouper les termes en x des deux membres ?","Comment vérifier ma réponse ?"],
   eqq:["Comment soustraire deux fractions ?","Pourquoi multiplier par l’inverse ?","Comment trouver l’inverse d’une fraction négative ?","Comment simplifier ma fraction ?"],
   eqz:["Comment repérer une erreur de signe ?","Pourquoi divise-t-on au lieu de soustraire ?","Dans quel sens écrire la fraction ?","Comment vérifier une solution ?"],
-  eqp:["Comment traduire un programme de calcul par une expression ?","Que veut dire « ajouter le nombre choisi » ?","Comment écrire « soustraire 4 » avec x ?","Comment vérifier ma solution ?"],
+  eqp:["Comment traduire un programme de calcul par une expression ?","Que veut dire « ajouter le nombre choisi » ?","Comment écrire « soustraire 4 » avec x ?","Comment résoudre l’équation étape par étape ?"],
   eqc:["Comment choisir ce que représente x ?","Comment traduire « par séance » ou « par heure » ?","Comment savoir si mon équation est juste ?","Comment vérifier ma solution ?"],
   eqw:["Quelles étapes puis-je sauter ?","Comment savoir si ma ligne est juste ?","Pourquoi un terme change-t-il de signe en changeant de côté ?","Comment vérifier ma solution ?"],
   eqk:["Comment savoir quelle équation traduit l’énoncé ?","Comment tester une équation avec un nombre ?","Quels sont les pièges classiques ?","Comment résoudre l’équation choisie ?"],
@@ -14034,7 +14034,7 @@ const RAP_EQP=`<b>Un programme de calcul à l'envers</b><br>
 On note <i>x</i> le nombre choisi, et on traduit chaque ligne :<br>
 « Multiplier par 3 » : 3<i>x</i> ; « Ajouter 5 » : 3<i>x</i> + 5 ; « Soustraire 4 » : 3<i>x</i> − 4 ; « Ajouter le nombre choisi » : 3<i>x</i> + <i>x</i>.<br>
 Le résultat voulu donne l'équation : 3<i>x</i> + 5 = 20, ou 3<i>x</i> + 5 = 2<i>x</i> − 4 quand deux programmes doivent donner le même résultat.<br>
-On la résout, puis on <b>vérifie</b> en faisant tourner le programme avec la solution.`;
+On la résout, ligne par ligne si l'on veut : chaque ligne est une équation équivalente à la précédente.`;
 const RAP_EQC=`<b>Mettre un problème en équation</b><br>
 <b>1. Choisir l'inconnue</b> : écrire ce que représente <i>x</i> (un nombre de séances, un âge, une longueur…).<br>
 <b>2. Traduire l'énoncé</b> : « 4 € par séance » donne 4<i>x</i> ; « 20 € d'abonnement » donne + 20 ; « se vide de 3 L par minute » donne − 3<i>x</i>.<br>
@@ -94191,7 +94191,6 @@ function eqpTermes(q){
   return {G:[{k:q.a,x:1},{k:1,x:1},{k:q.b,x:0}], D:[{k:q.m,x:1},{k:q.d,x:0}]};
 }
 function eqpSol(q){ const t=eqpTermes(q), r=eqxAB(t.G,t.D); return r.B/r.A; }
-function eqpVerif(q){ const s=eqpSol(q); return q.t===0?q.a*s:q.a*s+(q.t===2?s:0)+q.b; }
 function eqpGen(t){
   for(let i=0;i<800;i++){
     const s=rand(-9,12); if(s===0) continue;
@@ -94218,14 +94217,12 @@ EQX.eqp={
   },
   cases:function(q){ const t=eqpTermes(q); return [
     {id:'eqp-E', nom:'équation', bon:eqxEqT(t.G,t.D)},
-    {id:'eqp-S', nom:'x', bon:eqxNb(eqpSol(q))},
-    {id:'eqp-V', nom:'vérification', bon:eqxNb(eqpVerif(q))}]; },
+    {id:'eqp-S', nom:'x', bon:eqxNb(eqpSol(q))}]; },
   juste:function(c, el, q){
     if(!el) return false;
     const t=eqpTermes(q);
     if(c.nom==='équation') return eqxEquationJuste(el.value, t.G, t.D);
-    if(c.nom==='x') return eqxEgal(eqxNum(el.value), eqpSol(q));
-    return eqxEgal(eqxNum(el.value), eqpVerif(q));
+    return eqxEgal(eqxNum(el.value), eqpSol(q));
   },
   instr:function(q){
     if(q.t===0) return 'Quel nombre faut-il choisir au départ pour obtenir <b>'+eqxNb(q.r)+'</b> ?';
@@ -94237,34 +94234,29 @@ EQX.eqp={
     if(q.t===0) p=eqpProgramme('Programme',['Choisir un nombre.','Le multiplier par '+q.a+'.',eqpEtape(q.b),'Écrire le résultat.']);
     else if(q.t===1) p=eqpProgramme('Programme 1',['Choisir un nombre.','Le multiplier par '+q.a+'.',eqpEtape(q.b)])+eqpProgramme('Programme 2',['Choisir un nombre.','Le multiplier par '+q.c+'.',eqpEtape(q.d)]);
     else p=eqpProgramme('Programme',['Choisir un nombre.','Le multiplier par '+q.a+'.','Ajouter le nombre choisi au départ.',eqpEtape(q.b)]);
-    const verif=q.t===0?'Vérification : avec ce nombre, après la deuxième ligne (« multiplier par '+q.a+' »), on obtient'
-      :q.t===1?'Vérification : avec ce nombre, chacun des deux programmes donne':'Vérification : avec ce nombre, le programme donne';
     return '<div class="eqx-bloc">'
       +'<div class="eqx-progs">'+p+'</div>'
       +'<p class="eqx-p">On note <i>x</i> le nombre choisi au départ. Écris l’équation qui traduit la question :</p>'
       +'<div class="eqx-l">'+eqxInput('eqp-E','l’équation qui traduit la question','eqx-eqin','x + =')+'</div>'
       +eqxEtapesHTML('eqp')
       +'<div class="eqx-l"><span>Donc :</span><span><i>x</i></span><span class="eqx-egal">=</span>'+eqxInput('eqp-S','la solution x')+'</div>'
-      +'<div class="eqx-l eqx-l-txt"><span>'+verif+'</span>'+eqxInput('eqp-V','le résultat de la vérification')+'</div>'
       +'</div>';
   },
   pourquoi:function(q, subs){
     const f=eqxPremiere(subs); if(!f) return '';
     const t=eqpTermes(q), s=eqpSol(q);
     if(f.c.nom==='équation') return eqxEquationPourquoi(f.el.value, t.G, t.D, 'le programme');
-    if(f.c.nom==='x'){ const r=eqxAB(t.G,t.D); return 'On résout '+eqxEqT(t.G,t.D)+' : '+eqxNb(r.A)+'x = '+eqxNb(r.B)+', donc x = '+eqxNb(s)+'.'; }
-    if(q.t===0) return 'Avec '+eqxNb(s)+' : '+eqxNb(s)+' × '+q.a+' = '+eqxNb(q.a*s)+' (puis '+eqpEtape(q.b).toLowerCase().replace('.','')+' donne bien '+eqxNb(q.r)+').';
-    return 'Avec '+eqxNb(s)+', le programme donne '+eqxNb(eqpVerif(q))+'.';
+    const r=eqxAB(t.G,t.D); return 'On résout '+eqxEqT(t.G,t.D)+' : '+eqxNb(r.A)+'x = '+eqxNb(r.B)+', donc x = '+eqxNb(s)+'.';
   },
   texte:function(q){ const t=eqpTermes(q); return 'Programme de calcul : '+eqxEqT(t.G,t.D); },
-  reponse:function(q){ const t=eqpTermes(q); return eqxEqT(t.G,t.D)+', x = '+eqxNb(eqpSol(q))+' ; vérification : '+eqxNb(eqpVerif(q)); },
+  reponse:function(q){ const t=eqpTermes(q); return eqxEqT(t.G,t.D)+', x = '+eqxNb(eqpSol(q)); },
   ctx:function(q){ const t=eqpTermes(q);
     const prog=q.t===0?'choisir un nombre, le multiplier par '+q.a+', '+eqpEtape(q.b).toLowerCase()+' On veut obtenir '+q.r+'.'
       :q.t===1?'programme 1 : multiplier par '+q.a+', '+eqpEtape(q.b).toLowerCase()+' Programme 2 : multiplier par '+q.c+', '+eqpEtape(q.d).toLowerCase()+' On veut le même résultat.'
       :'multiplier par '+q.a+', ajouter le nombre de départ, '+eqpEtape(q.b).toLowerCase()+' On veut obtenir '+EQP_MULT[q.m]+' du nombre de départ, '+(q.d>=0?'augmenté de '+q.d:'diminué de '+(-q.d))+'.';
-    return 'L’élève cherche le nombre de départ d’un programme de calcul : '+prog+' Il note x le nombre de départ, écrit l’équation (toute équation équivalente est acceptée), la résout, puis vérifie. '
-      +'Réponse attendue, STRICTEMENT SECRÈTE : '+eqxEqT(t.G,t.D)+', x = '+eqxNb(eqpSol(q))+', vérification : '+eqxNb(eqpVerif(q))+'. '
-      +'Aucune parenthèse : on multiplie toujours d’abord. Les erreurs classiques : traduire « soustraire 4 » par + 4, oublier d’ajouter le nombre de départ (x), résoudre sans vérifier.';
+    return 'L’élève cherche le nombre de départ d’un programme de calcul : '+prog+' Il note x le nombre de départ, écrit l’équation (toute équation équivalente est acceptée), puis la résout, étape par étape s’il le veut ; on ne lui demande pas de vérification. '
+      +'Réponse attendue, STRICTEMENT SECRÈTE : '+eqxEqT(t.G,t.D)+', x = '+eqxNb(eqpSol(q))+'. '
+      +'Aucune parenthèse : on multiplie toujours d’abord. Les erreurs classiques : traduire « soustraire 4 » par + 4, oublier d’ajouter le nombre de départ (x).';
   }
 };
 
