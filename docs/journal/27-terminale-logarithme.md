@@ -104,6 +104,51 @@ redimensionnement (`ResizeObserver`, `resize`). Mesuré dans Chromium : centre
 du x et centre de la case au même pixel, a = 1 et a = −1, à 1100 px comme à
 390 px.
 
+## {ln-etude-carre} (9.1.2, v539) : l'étude de ax(ln x)²
+
+Demande de Turquet (novembre 2026) : « faire le même exercice que le 9.1.1
+avec une fonction de la forme f(x) = (ax + b) ln(x)² ; les abscisses des
+extremums doivent être entières ou de la forme ln e avec e entier » — lu
+comme e^k, k entier.
+
+**La condition fixe b = 0.** f′(x) = ln x × (ax ln x + 2ax + 2b)/x : x = 1
+annule toujours ln x ; la seconde racine x = e^k demande
+a e^k (k + 2) + 2b = 0, soit b = −a e^k (k + 2)/2 — entier seulement pour
+k = −2, b = 0 ; une racine entière n ≥ 2 voudrait ln n rationnel. Reste
+f(x) = ax(ln x)², f′(x) = a ln x (ln x + 2), extremums en e⁻² (valeur
+4a e⁻²) et en 1 (valeur 0). |a| de 2 à 4 (la ligne « signe de a » du
+tableau ne lit jamais « signe de 1 ») ; la séance pose a > 0 et a < 0, en
+ordre mélangé.
+
+**Trois parties, celles du 9.1.1 :**
+
+* 1 — la dérivée d'un produit comme au 4.1.1 : u et v posés par la page,
+  u′(x) = □, (w²)′ = 2 × w′ × w écrite, v′(x) = 2 × □ × □ (1/x et ln x,
+  dans l'ordre que l'on veut, la paire jugée d'abord en entier),
+  f′(x) = □ × □ + □ × □ (la ligne jugée en entier, sinon par paires libres,
+  les deux produits échangeables), « = □ ← simplifie par x » (la valeur de
+  f′, sans fraction), « = ln(x) × (□) », « = □ ln(x)(ln(x) + □) ».
+* 2 — le tableau du 4.4.2 : signe de a, de ln x, de ln x + 2, de f′ ; les
+  deux racines et les deux abscisses de la synthèse sont des champs
+  MathLive (la chaîne de efTableHTML/efSyntHTML, ses `<input>` remplacés au
+  rendu), jugés comme des nombres : e^{−2}, 1/e², \exponentialE^{−2}.
+* 3 — f(x) rappelée au-dessus de f(e⁻²), les flèches des deux x vers leurs
+  cases (le schéma et `lnfTrace` du 9.1.1, partagés), puis ln(e⁻²) = □,
+  f(e⁻²) = a × e⁻² × (□)² = □ e⁻², f(1) = □.
+
+**Le juge lit ln.** `compileExprExp` ne le lisait pas : `compileExprLn`
+écrit « ln » en un jeton « £ » que l'analyseur commun `exprLire` lit
+désormais (ln(…), ln x, ln^2 x), et « e » seul en constante.
+`compileExprExp` refuse toujours « £ » : son alphabet n'a pas changé. Les
+comparaisons se font sur des x positifs (`LNQ_PTS`), jamais sur les points
+négatifs de `cmpFns`.
+
+**Essayé dans Chromium** : une copie juste — e écrit \exponentialE, 1/e²,
+ln x sans parenthèses, les facteurs dans l'autre ordre — est parfaite, aux
+deux visages ; une copie d'une seule case fausse reçoit ses corrections en
+vert et sa case fausse en rouge, la correction à côté. Les hôtes du tableau
+partagé (ids ef-*) se vident désormais à sept.
+
 ## {ln-demontrer-egalite} (9.2.1, v537) : démontrer une égalité avec ln
 
 Demande de Turquet (novembre 2026), avec la fiche « Démontrer que ln 8 +
