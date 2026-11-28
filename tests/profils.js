@@ -2717,6 +2717,7 @@ module.exports = {
        ecranNiveau — le 1.2 et son écran de niveau, propres à ce niveau */
     devoirPapier: { exercice: 'tangente-exp', questions: 3, texte: 'Démontre que', aide: 'Rappel', ecranNiveau: true },
     dmPdf: { exercice: 'tangente-exp', aide: 'Rappel', question: 'Démontre que',
+             onglet: true,      /* le PDF s'ouvre dans un seul onglet (Turquet, novembre 2026) */
              /* et le GUIDAGE de la résolution (Turquet, octobre 2026, devant le
                 PDF du 5.6.1 : « il y a encore l'aide à la résolution, je ne veux
                 que les énoncés ») : la chaîne « lim Uₙ = … car … » et sa piste */

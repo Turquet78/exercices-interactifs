@@ -2518,3 +2518,14 @@ l'onglet est détaché de la page (`opener` nul), le PDF y est dans le cadre, et
 « Enregistrer » le nomme « enonce-….pdf ». **Ce qu'aucun banc ne voit** :
 l'onglet sur une vraie tablette (le banc a une souris), et le comportement
 d'un bloqueur de fenêtres réglé plus sévèrement que celui de Chrome.
+
+**Et la Terminale a suivi : « fais pareil pour la terminale »** (Terminale v539,
+Turquet, novembre 2026). Le bloc de la Première est recopié tel quel
+(`dmeOuvrirOnglet`, `dmePrendreOnglet`, `dmeFermerOnglet`, `dmeTelecharger`
+avec son bandeau « Enregistrer / Imprimer » sur ordinateur, le PDF direct au
+doigt). Seule différence : la Terminale n'a pas `dmeEnvoyer` — l'envoi vit dans
+`dmePapier`, qui ouvre l'onglet juste après la confirmation et le referme si
+l'envoi échoue ; sa correction se télécharge sans envoi préalable, le bouton
+ouvre donc l'onglet lui-même. Boutons et phrases disent « Ouvrir ». Le profil
+de la Terminale déclare `dmPdf.onglet` : le banc navigateur (6 sexies ter) y lit
+désormais les PDF dans l'onglet, comme en Première.
