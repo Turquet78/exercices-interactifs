@@ -165,6 +165,28 @@ vertes, la fausse rouge avec sa correction à côté ; en « Sans étape », une
 ligne fausse rougit seule, la juste bleuit, et la conclusion attendue
 s'écrit en vert sous la feuille.
 
+### Puis les parenthèses ont encadré les cases, et la même case en dessous s'est remplie seule (v538)
+
+Demande de Turquet (novembre 2026) : « faire en sorte que les parenthèses
+encadrent mieux les cases verticalement ; quand une case est remplie et que
+c'est la même pour la suite, la remplir automatiquement ».
+
+* **Les parenthèses** qui touchent une case (`ln( [ ] )`, `( [ ] )`) sont
+  des `span.lnd-par` à 1,75 em, posés par `lndParens` sur le texte des
+  étapes : elles couvrent la hauteur de la case au lieu de s'arrêter à
+  mi-hauteur.
+* **Les miroirs** (`A.miroirs`, clé `m` dans `lndAns`) : une case qui reprend
+  INCHANGÉ un terme d'une ligne du dessus est un `<input readonly
+  class="dq-mirror">` recopié à chaque frappe (`lndMiroirs`), hors note et
+  hors de `#confirmer-vides`, comme à la Seconde (le 9.x des équations).
+  Après la vérification, un miroir suit la couleur de sa source juste, et
+  prend la correction verte si la source est fausse ou vide. Seul le modèle
+  en a : « p ln 2 + ln(2) + ln(5) » des lignes 3 et 4 recopie la ligne 2, et
+  l'exposant k de « ln 2^k » recopie celui de « ln(5 × 2^k) ». Une case dont
+  la ligne APPLIQUE une propriété (ln 2³ → 3 ln 2, ln e^p → p) n'est jamais
+  un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
+  17 cases notées à 10, plus la forme finale.
+
 ## {ln-etude-produit} (9.1.2, v539) : l'étude de (ax + b) ln x + c
 
 Demande de Turquet (novembre 2026) : « faire le même exercice que le 9.1.1
