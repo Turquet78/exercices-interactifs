@@ -467,7 +467,7 @@ ligne l'ont fait rougir à la première exécution.
 **Rien à développer, nulle part.** Les programmes de calcul multiplient
 toujours d'abord ; les problèmes n'ont aucune parenthèse (le triangle s'écrit
 x + x + 2 + x + 8, jamais 2(x + 3) ; le rectangle n'est entré qu'en écrivant ses
-quatre côtés, v750). La case d'équation refuse les parenthèses et le dit.
+quatre côtés, v751). La case d'équation refuse les parenthèses et le dit.
 
 **La case d'équation (9.10, 9.11).** `eqxLitEquation` lit des sommes de
 termes k·x ou k (entiers, décimaux à virgule ou à point, « × », « * »,
@@ -509,7 +509,7 @@ seul, c'est le nombre obtenu après « multiplier par a ».
 
 **9.11 et 9.12.** Huit situations (`EQC_SIT`) : cinéma avec abonnement, deux
 loueurs, triangle, âges, deux tirelires, trois entiers consécutifs, deux cuves,
-rectangle (v750).
+rectangle (v751).
 Chacune range ses nombres et la solution, et dit son inconnue, son équation et
 sa question finale. Le 9.12 fabrique ses trois pièges sur l'équation juste :
 le x posé sur le mauvais nombre, un signe changé, un x oublié, les
@@ -549,7 +549,7 @@ même quand la solution est juste) ; en soutien, elle bloque comme une case
 fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
-**Le rectangle, les dessins, toutes les situations (9.11, 9.12 — v750,
+**Le rectangle, les dessins, toutes les situations (9.11, 9.12 — v751 ; le 1.10 avait pris la v750 sur `main` pendant les contrôles,
 novembre 2026).** Demande de Turquet : « dans le 9.11 faire aussi un exercice
 avec le périmètre d'un rectangle ; quand on a un problème avec un triangle ou
 un rectangle, faire un dessin avec les longueurs exprimées en fonction de x
