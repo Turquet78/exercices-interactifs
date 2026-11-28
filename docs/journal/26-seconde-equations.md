@@ -549,7 +549,7 @@ fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
 **Au 9.12, la case qui nomme l'équation se juge dès le choix, et ferme la
-résolution tant qu'elle est fausse (v750, novembre 2026).** Demande de
+résolution tant qu'elle est fausse (v751, novembre 2026).** Demande de
 Turquet : « mettre en rouge la case qui nomme [l'équation] quand c'est faux
 et bleu sinon. L'élève ne peut pas commencer sa résolution tant que la case
 n'est pas bleue. » `EQX.eqk.maj` (le crochet `maj` du moteur commun) peint
