@@ -1090,6 +1090,8 @@
   .bhd-l select:disabled{opacity:1}
   #bhdHost .bhd-l select{width:auto;flex:0 1 auto;min-width:0}
   .bhd-ou{font-weight:600;color:var(--ink-soft)}
+  .bhd-m2fb{margin:0;min-height:1.4em;font-size:1.05rem;font-weight:700}
+  .bhd-m2fb.bad{color:var(--red)}
   @media(max-width:520px){ .bhd-l{font-size:1.05rem} .bhd-regle{font-size:.95rem} }
   /* {bonhomme-schema} : le bon schéma parmi quatre, puis le résultat (1.11) */
   #scr-bhs{--bhr-av:#0F766E; --bhr-rc:#C2410C}
@@ -90014,9 +90016,14 @@ function bhdBoutons(){
 function bhdBrancherCase(){
   BHD_CASES.forEach(function(id){
     const el=$(id); if(!el) return;
-    el.addEventListener(el.tagName==='SELECT'?'change':'input',function(){ if(isSoutien()) checkBhdAnswer(true); autoSave(); });
+    const m2=id!=='bhd-r';
+    if(m2) el.addEventListener('change',function(){ bhdJugerM2(id); autoSave(); });
+    if(!m2 || el.tagName!=='SELECT') el.addEventListener('input',function(){
+      if(m2 && !test.locked && el.classList.contains('bad')){ el.classList.remove('bad'); const f=$('bhdM2Fb'); if(f){ f.textContent=''; f.className='bhd-m2fb'; } }
+      if(!m2 && isSoutien()) checkBhdAnswer(true); autoSave(); });
     if(el.tagName!=='SELECT') el.addEventListener('keydown',function(e){
       if(e.key!=='Enter') return; e.preventDefault();
+      if(m2 && bhdJugerM2(id)==='bad') return;
       if(id==='bhd-m2r') checkBhdAnswer();
       else { const i=BHD_CASES.indexOf(id), n=$(BHD_CASES[i+1]); if(n){ try{ n.focus(); }catch(er){} } }
     });
@@ -90032,6 +90039,43 @@ function bhdBrancherCase(){
    porte .hors-note (pas de confirmation s'il reste vide) ; rempli, il est
    faux — c'est le mauvais calcul. */
 const BHD_CASES=['bhd-r','bhd-m2s','bhd-m2o','bhd-m2p','bhd-m2m','bhd-m2g','bhd-m2r'];
+/* LA MÉTHODE 2 SE CORRIGE TOUT DE SUITE (v747, demande de Turquet) : dans
+   TOUS les modes, une case de la méthode 2 est jugée dès qu'elle est remplie
+   — une liste au choix, une case quittée ou validée par Entrée (jamais à la
+   frappe : « 1 » avant « 12 » n'est pas une faute). Juste : bleue (ok).
+   Fausse : rouge (bad), et la page demande de la corriger, avec un indice
+   qui renvoie à la règle sans donner la réponse ; Entrée ne passe pas à la
+   suivante. Les fautes sont RELEVÉES dans la copie (test.bhdM2Fautes), pas
+   retranchées : la case corrigée finit bleue, comme un déplacement du
+   bonhomme repris. « Vérifier » rejuge le tout comme avant. */
+function bhdM2Attendu(q,id){
+  const d=bhdM2Data(q), r=q.a+q.b;
+  return {'bhd-m2s':{bon:d.meme?'meme':'diff'}, 'bhd-m2o':{bon:d.meme?'add':'sub'},
+    'bhd-m2p':{bon:String(d.gd+d.pt), fac:!d.meme}, 'bhd-m2m':{bon:String(d.gd-d.pt), fac:d.meme},
+    'bhd-m2g':{bon:r<0?'-':'+'}, 'bhd-m2r':{bon:String(r)}}[id];
+}
+function bhdM2Indice(q,id,fac){
+  const d=bhdM2Data(q);
+  if(fac) return 'Ce n’est pas ce calcul qu’il faut faire : relis la ligne « donc il faut » et vide cette case.';
+  return {'bhd-m2s':'Regarde le signe de '+bhdSg(q.a)+' et celui de '+bhdSg(q.b)+'.',
+    'bhd-m2o':'Relis la règle : de même signe, on additionne ; de signes différents, on soustrait.',
+    'bhd-m2p':'Refais le calcul '+d.gd+' + '+d.pt+'.', 'bhd-m2m':'Refais le calcul '+d.gd+' − '+d.pt+'.',
+    'bhd-m2g':'Le plus fort est celui qui a le plus grand nombre sans son signe : '+bhdSg(q.a)+' ou '+bhdSg(q.b)+' ?',
+    'bhd-m2r':'Le résultat, c’est le nombre que tu as calculé, avec le signe du plus fort devant.'}[id];
+}
+function bhdJugerM2(id){
+  const q=bhdQ(), el=$(id), fb=$('bhdM2Fb'); if(!q || !el || test.locked) return '';
+  const att=bhdM2Attendu(q,id); if(!att) return '';
+  const v=el.tagName==='SELECT'?el.value:bhrLu(el);
+  el.classList.remove('ok','bad','sol');
+  const dire=function(t,c){ if(fb){ fb.textContent=t; fb.className='bhd-m2fb'+(c?' '+c:''); } };
+  if(v===''){ dire('',''); return ''; }
+  if(!att.fac && v===att.bon){ el.classList.add('ok'); dire('',''); return 'ok'; }
+  el.classList.add('bad');
+  test.bhdM2Fautes=(test.bhdM2Fautes||0)+1;
+  dire('Cette case est fausse : corrige-la. '+bhdM2Indice(q,id,att.fac),'bad');
+  return 'bad';
+}
 function bhdSg(n){ return n<0?'−'+(-n):'+'+n; }
 function bhdM2Data(q){
   const A=Math.abs(q.a), B=Math.abs(q.b), gd=Math.max(A,B), pt=Math.min(A,B), meme=(q.a>0)===(q.b>0);
@@ -90051,7 +90095,8 @@ function bhdM2HTML(q){
     +'<p class="bhd-l">donc on doit calculer : <span>'+d.gd+' + '+d.pt+' =</span>'+inp('bhd-m2p','résultat de '+d.gd+' + '+d.pt,d.meme?'':'hors-note')
       +'<span class="bhd-ou">ou</span><span>'+d.gd+' − '+d.pt+' =</span>'+inp('bhd-m2m','résultat de '+d.gd+' − '+d.pt,d.meme?'hors-note':'')+'</p>'
     +'<p class="bhd-l">on met le signe du plus fort entre '+na+' et '+nb+', qui est '+sel('bhd-m2g','le signe du plus fort',[['+','+'],['-','−']])+', au résultat</p>'
-    +'<p class="bhd-l">donc le résultat est : '+inp('bhd-m2r','résultat de la somme par la règle, avec son signe','',true)+'</p>';
+    +'<p class="bhd-l">donc le résultat est : '+inp('bhd-m2r','résultat de la somme par la règle, avec son signe','',true)+'</p>'
+    +'<p class="bhd-m2fb" id="bhdM2Fb" aria-live="polite"></p>';
 }
 function bhdValider(){
   const q=bhdQ(); if(!q || test.locked || test.bhdEt>=2) return;
@@ -90160,10 +90205,10 @@ function checkBhdAnswer(live){
   const lu=function(el){ return !el?'':(el.tagName==='SELECT'?el.value:bhrLu(el)); };
   if(live){
     if(!isSoutien()) return;
-    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled) return;
+    cases.forEach(function(c){ const el=$(c.id); if(!el || el.disabled || c.id!=='bhd-r') return;
       el.classList.remove('ok','bad');
       const v=lu(el); if(v==='') return;
-      el.classList.add(!c.fac && v===c.bon?'ok':'bad');
+      el.classList.add(v===c.bon?'ok':'bad');
     });
     return;
   }
@@ -90176,6 +90221,7 @@ function checkBhdAnswer(live){
   subs.forEach(function(s){ if(s.c.fac) return; corrChoix(s.el, s.c.lib!=null?s.c.lib:s.c.bon, s.ok); });
   if(!allOk && isSoutien()){ soutienAgain('bhdFb','bhdActions','checkBhdAnswer','bhdHost'); return; }
   test.locked=true;
+  const m2fb=$('bhdM2Fb'); if(m2fb){ m2fb.textContent=''; m2fb.className='bhd-m2fb'; }
   test.score+=allOk?1:0; $('bhdLiveScore').textContent=test.score;
   if(allOk){
     $('bhdFb').textContent=pick(['Bravo !','Parfait !','Excellent !','Très bien !'])+' Le bonhomme est bien arrivé en '+bhrFmt(r)+', et la règle donne le même résultat.';
@@ -90190,14 +90236,14 @@ function checkBhdAnswer(live){
   const f=test.bhdFautes||[0,0], nf=(f[0]||0)+(f[1]||0);
   const r2=$('bhd-m2r'), d2=(r2&&!r2.classList.contains('sol')&&bhrLu(r2)!=='')?bhrFmt(parseInt(bhrLu(r2),10)||0):'?';
   test.answers.push({...(ptsExo()||{}), correct:allOk, q:bhrEcrit(q), answer:bhrFmt(r),
-    given:donne+(nf?' ('+nf+' déplacement'+(nf>1?'s':'')+' faux avant le bon)':' (déplacements justes du premier coup)')+' ; par la règle : '+d2});
+    given:donne+(nf?' ('+nf+' déplacement'+(nf>1?'s':'')+' faux avant le bon)':' (déplacements justes du premier coup)')+' ; par la règle : '+d2+(test.bhdM2Fautes?' ('+test.bhdM2Fautes+' case'+(test.bhdM2Fautes>1?'s':'')+' corrigée'+(test.bhdM2Fautes>1?'s':'')+' en cours de route)':'')});
   const last=test.idx===test.questions.length-1;
   $('bhdActions').innerHTML='<button class="btn btn-primary" id="bhdNext" onclick="nextBhdQuestion()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
   const nb=$('bhdNext'); if(nb) nb.focus();
 }
 function nextBhdQuestion(){
   test.bhrJeton=(test.bhrJeton||0)+1;
-  if(test.idx<test.questions.length-1){ test.idx++; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; renderBhdTest(); autoSave(); }
+  if(test.idx<test.questions.length-1){ test.idx++; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; renderBhdTest(); autoSave(); }
   else finishTest();
 }
 async function startBhd(){
@@ -90208,7 +90254,7 @@ async function startBhd(){
   clearTimeout(test.qTimer); clearTimeout(test.fbTimer);
   Object.keys(test).forEach(function(k){ delete test[k]; });
   Object.assign(test,{kind:'bhd', questions:qs, idx:0, score:0, maxScore:qs.length, answers:[], startTime:Date.now(),
-    qTimer:null, fbTimer:null, locked:false, bhrJeton:0, bhdEt:0, bhdPos:0, bhdFautes:[0,0]});
+    qTimer:null, fbTimer:null, locked:false, bhrJeton:0, bhdEt:0, bhdPos:0, bhdFautes:[0,0], bhdM2Fautes:0});
   test.qId='bonhomme-deplacer';
   recoveryRowId=null; recoveryClosed=false; recoveryDirty=false;
   show('bhd'); renderBhdTest();
