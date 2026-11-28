@@ -2534,6 +2534,14 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .mf-cor{margin-left:4px}
 #scr-lnf .tg-in.sol,#scr-lnf .tg-in.sol:disabled{border-color:var(--green);background:var(--green-soft);color:var(--green);opacity:1}
 #scr-lnf .lnf-instr{margin:8px 0 4px}
+#scr-lnf .lnf-sch{position:relative;display:inline-block;max-width:100%;overflow-x:auto;margin:4px 0 12px;padding:2px 4px 4px}
+#scr-lnf .lnf-svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+#scr-lnf .lnf-fl{fill:none;stroke:#1F6F8B;stroke-width:1.6}
+#scr-lnf .lnf-pt{fill:#1F6F8B;stroke:none}
+#scr-lnf .lnf-grille{display:grid;grid-template-columns:repeat(8,auto);column-gap:5px;row-gap:34px;align-items:center;white-space:nowrap;font-size:1.05rem}
+#scr-lnf .lnf-gc{display:inline-flex;align-items:center;justify-content:center}
+#scr-lnf .lnf-gc.lnf-lab{justify-content:flex-end;margin-right:4px}
+#scr-lnf .lnf-gc i{font-size:1.12em}
 #scr-lnf .lnf-cap{margin-left:14px;white-space:nowrap}
 #scr-lnf .lnf-row .op{font-size:1.25rem;font-weight:700;color:var(--ink);margin:0 6px}
 .lnf-donc{margin:0 14px}
@@ -4807,7 +4815,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=536;
+const APP_VERSION=537;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -21132,16 +21140,61 @@ function lnfFormHTML(q){
   h+='<p class="tx-part">2. Étudie les variations de <i>f</i> sur <i>I</i> = '+lnfDomHtml(A)+' — complète le tableau :</p>'
     +'<p class="tvi-instr lnf-instr">Sur <i>I</i>, '+lnfUHtml(A)+' &gt; 0 : le signe de '+fp+' est celui de son numérateur.</p>'
     +efTableHTML(T)+efSyntHTML(T);
-  /* ---- 3. la valeur du maximum (le d) du 4.4.2) ---- */
-  const sub=id=>(A.a>0?'':'−')+txInp(id)+txB(A.b);
+  /* ---- 3. la valeur du maximum (le d) du 4.4.2), f(x) rappelée au-dessus,
+     comme le 6.6 de la Première (Turquet, novembre 2026 : « rappeler
+     l'expression de f(x) en présentant comme dans l'exercice de 1ère avec
+     des flèches qui partent précisément des x pour arriver précisément sur
+     les cases correspondantes ») : une grille où chaque x de f(x) est dans la
+     MÊME colonne que sa case, et un SVG par-dessus (lnfTrace) qui tire une
+     flèche du bas de chaque x au haut de sa case, sur les positions rendues. */
+  const col=(c,cls)=>'<span class="lnf-gc'+(cls?' '+cls:'')+'">'+c+'</span>';
+  const sA=(A.a>0?'':'−'), sC=(A.c>0?'+':'−'), bB=txB(A.b)+' )', dD=txB(A.d);
   h+='<p class="tx-part">3. Démontre que ce maximum vaut M = '+numFmt(A.m)+' :</p>'
-    +'<div class="tg-line"><span class="tg-eq">M =</span> <i>f</i>( '+txInp('lnf-d1')+' ) <span class="tg-eq">=</span> ln( '+sub('lnf-d2')+' ) '
-      +(A.c>0?'+ ':'− ')+txInp('lnf-d3')+txB(A.d)+'</div>'
+    +'<div class="lnf-sch" data-fl=\'[["lnf-x1","lnf-d2"],["lnf-x2","lnf-d3"]]\'>'
+    +'<svg class="lnf-svg" aria-hidden="true" focusable="false"></svg><div class="lnf-grille">'
+    +col('<span class="tg-eq"><i>f</i>(<i>x</i>) =</span>','lnf-lab')+col('ln(')+col(sA)+col('<i id="lnf-x1">x</i>')+col(bB)+col(sC)+col('<i id="lnf-x2">x</i>')+col(dD)
+    +col('<span class="tg-eq">M =</span>&nbsp;<i>f</i>( '+txInp('lnf-d1')+' ) <span class="tg-eq">=</span>','lnf-lab')
+    +col('ln(')+col(sA)+col(txInp('lnf-d2'))+col(bB)+col(sC)+col(txInp('lnf-d3'))+col(dD)
+    +'</div></div>'
     +'<div class="tg-line"><span class="tg-eq">M =</span> ln( '+txInp('lnf-d4')+' ) '+txInp('lnf-d5','','+')
       +' <span class="dexp-hint">(le nombre avec son signe)</span></div>'
     +'<div class="tg-line">Or ln( 1 ) '+tEq('=', txInp('lnf-d6'))+', donc <span class="tg-eq">M =</span> '+txInp('lnf-d7')+'.</div>';
   return '<div class="tg-form">'+h+'</div>';
 }
+/* Les flèches de la question 3 : du bas de chaque x de f(x) au haut de la
+   case qui le remplace — sur les positions RENDUES, retracées au
+   redimensionnement (le patron d'isdTrace, en Première). */
+function lnfTrace(){
+  document.querySelectorAll('#lnfForm .lnf-sch').forEach(function(sc){
+    const svg=sc.querySelector('svg.lnf-svg'); if(!svg) return;
+    const R=sc.getBoundingClientRect(); if(!R.width) return;
+    const W=sc.scrollWidth, H=sc.scrollHeight;
+    svg.setAttribute('width',W); svg.setAttribute('height',H); svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    const boite=function(id){ const e=document.getElementById(id); if(!e) return null; const r=e.getBoundingClientRect();
+      return {l:r.left-R.left, r:r.right-R.left, t:r.top-R.top, b:r.bottom-R.top}; };
+    let fl=[]; try{ fl=JSON.parse(sc.getAttribute('data-fl')||'[]'); }catch(e){}
+    let d='', pt='';
+    fl.forEach(function(f){
+      const a=boite(f[0]), b=boite(f[1]); if(!a||!b) return;
+      const x1=(a.l+a.r)/2, y1=a.b+3, x2=(b.l+b.r)/2, y2=b.t-2;
+      const L=Math.hypot(x2-x1,y2-y1)||1, ux=(x2-x1)/L, uy=(y2-y1)/L, bx=x2-ux*8, by=y2-uy*8;
+      d+='M'+x1.toFixed(1)+' '+y1.toFixed(1)+' L'+bx.toFixed(1)+' '+by.toFixed(1)+' ';
+      pt+='M'+(bx-uy*4.5).toFixed(1)+' '+(by+ux*4.5).toFixed(1)+' L'+(bx+uy*4.5).toFixed(1)+' '+(by-ux*4.5).toFixed(1)+' L'+x2.toFixed(1)+' '+y2.toFixed(1)+' Z ';
+    });
+    svg.innerHTML='<path class="lnf-fl" d="'+d+'"/><path class="lnf-pt" d="'+pt+'"/>';
+  });
+}
+let lnfObs=null;
+function lnfSuivre(){
+  requestAnimationFrame(lnfTrace); setTimeout(lnfTrace,120); setTimeout(lnfTrace,600);
+  try{ document.fonts && document.fonts.ready.then(lnfTrace); }catch(e){}
+  if(typeof ResizeObserver==='function'){
+    if(!lnfObs) lnfObs=new ResizeObserver(function(){ lnfTrace(); });
+    lnfObs.disconnect();
+    document.querySelectorAll('#lnfForm .lnf-sch, #lnfForm .lnf-sch input').forEach(function(e){ lnfObs.observe(e); });
+  }
+}
+window.addEventListener('resize', function(){ if(document.querySelector('#scr-lnf.on')) lnfTrace(); });
 async function startLNF(){
   if(!currentEleve){ accueil(); return; }
   recoveryRowId=null; recoveryClosed=false;
@@ -21170,6 +21223,7 @@ function renderLNF(){
   $('lnfForm').innerHTML=lnfFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('lnfForm'));
   setTimeout(efArrowChange,0);
+  lnfSuivre();
   if(isSoutien()){
     $('lnfForm').querySelectorAll('input,select').forEach(el=>{
       el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>checkLNF(true)); });

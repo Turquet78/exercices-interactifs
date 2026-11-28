@@ -83,3 +83,23 @@ Essayé dans Chromium : la copie faite des corrections est parfaite (28 cases su
 28) ; en soutien, des frappes réelles — 1 et x − 2 dans la fraction, −1, +1,
 « 1 − x + 3 » dans les deux numérateurs — se peignent à la sortie de chaque case :
 bleu, rouge, bleu, rouge, bleu, rouge.
+
+### Puis f(x) rappelée au-dessus du maximum, des flèches des x vers les cases (v537)
+
+Demande de Turquet (novembre 2026) : « dans la question 3, rappeler
+l'expression de f(x) en présentant comme dans l'exercice de 1ère 1.10 avec des
+flèches qui partent précisément des x pour arriver précisément sur les cases
+correspondantes ». Le 1.10 de la Première est l'écriture décimale d'une somme,
+sans flèches ; la présentation décrite est celle du 6.6 {image-second-degre}
+(isdSchema, isdTrace) : c'est elle qui est reprise.
+
+La première ligne de la question 3 devient une grille de huit colonnes
+(`.lnf-grille`) : f(x) = ln( [signe] x [+ b )] [signe] x [+ d] au-dessus de
+M = f(□) = ln( [signe] □ [+ b )] [signe] □ [+ d]. Chaque x est dans la MÊME
+colonne que sa case, son signe dans la colonne d'avant : la flèche tombe
+droite. Un SVG posé par-dessus (`lnfTrace`) tire chaque flèche du bas du x
+(`#lnf-x1`, `#lnf-x2`) au haut de sa case (`lnf-d2`, `lnf-d3`), sur les
+positions RENDUES ; il se retrace au rendu, aux polices chargées, au
+redimensionnement (`ResizeObserver`, `resize`). Mesuré dans Chromium : centre
+du x et centre de la case au même pixel, a = 1 et a = −1, à 1100 px comme à
+390 px.
