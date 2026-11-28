@@ -2551,6 +2551,9 @@ math-field.dexp-mf.edv-let{min-width:42px}
 .lnd-m.on{background:var(--blue);color:#fff}
 .lnd-dep{font-size:1.15rem;margin:4px 0 6px}
 .lnd-rad{text-decoration:overline}
+/* une parenthèse qui entoure une case l'encadre en hauteur */
+#scr-lnd .lnd-par{display:inline-block;font-size:1.75em;line-height:1;font-weight:300;transform:scaleY(1.1);margin:0 1px;color:var(--ink)}
+#scr-lnd .lnd-mir{border-style:dashed}
 #scr-lnd .lnd-instr{margin:8px 0 4px}
 #scr-lnd .lnd-l{white-space:nowrap}
 #scr-lnd .mf-cor{margin-left:4px}
@@ -21395,6 +21398,11 @@ function lndLire(lx){
      .replace(/\\[dt]frac/g,'\\frac').replace(/\\times|\\cdot/g,'*').replace(/\\div/g,'/')
      .replace(/\\[,;:! ]|~/g,' ').replace(/−/g,'-').replace(/½/g,'{(1/2)}')
      .replace(/\\placeholder\{[^{}]*\}/g,'').replace(/\\lbrack/g,'[').replace(/\\rbrack/g,']');
+  /* UN EXPOSANT VIDE QUI PORTE UN EXPOSANT : « ^ » tapé deux fois écrit
+     3^{^4} (ou 3^{{}^4}) — à l'écran, un 3 et un 4 minuscule en haut, que
+     l'élève lit 3⁴. Le juge le lit comme il s'affiche : 3^{4} (novembre 2026,
+     « ln(3⁴) + ln(3³) − 5 ln 3 » comptée fausse). */
+  let s0; do{ s0=s; s=s.replace(/\^\{\s*(?:\{\s*\}\s*)?\^/g,'^{'); }while(s!==s0);
   const T=[]; let i=0;
   while(i<s.length){
     const c=s[i];
@@ -21531,9 +21539,10 @@ function lndAns(q){
     const L2=' + ln( ';
     A.lignes=[
       ['ln 2', S(p), ' + ln( ', B(2,{grp:'a'}), ' × ', B(5,{grp:'a'}), ' ) + ln( ', B(1), ' ) − ln( ', B(N3), ' )'],
-      [B(p), ' ln 2'+L2, B(2,{grp:'b'}), ' )'+L2, B(5,{grp:'b'}), ' ) − ln( 5 × 2', S(k), ' )'],
-      [B(p), ' ln 2'+L2, B(2,{grp:'c'}), ' )'+L2, B(5,{grp:'c'}), ' ) − ln 5 − ln 2', S(k)],
-      [B(p), ' ln 2'+L2, B(2,{grp:'d'}), ' )'+L2, B(5,{grp:'d'}), ' ) − ln 5 − ', B(k), ' ln 2']
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{grp:'b',m:'l2a'}), ' )'+L2, B(5,{grp:'b',m:'l2b'}), ' ) − ln( 5 × 2', S(k,{m:'k2'}), ' )'],
+      /* les termes qui ne bougent pas d'une ligne à l'autre (m) se recopient seuls : des miroirs */
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{m:'l2a'}), ' )'+L2, B(5,{m:'l2b'}), ' ) − ln 5 − ln 2', S(k,{m:'k2'})],
+      [B(p,{m:'pln2'}), ' ln 2'+L2, B(2,{m:'l2a'}), ' )'+L2, B(5,{m:'l2b'}), ' ) − ln 5 − ', B(k), ' ln 2']
     ];
   } else if(q.t==='pui'){
     const c=q.c, n=q.p+q.r-q.s;
@@ -21599,8 +21608,20 @@ function lndAns(q){
   }
   /* les ids des cases, dans l'ordre de lecture */
   let nb=0;
-  A.lignes.forEach(function(L,li){ L.forEach(function(x){ if(typeof x==='object'){ x.id='lnd-c'+(nb++); x.grp=x.grp?('g'+li+x.grp):null; } }); });
-  A.cases=[].concat.apply([],A.lignes.map(L=>L.filter(x=>typeof x==='object')));
+  /* LA MÊME CASE EN DESSOUS SE REMPLIT TOUTE SEULE (demande de Turquet,
+     novembre 2026) : une case qui reprend, inchangé, un terme d'une ligne du
+     dessus (même clé m) en est le MIROIR — en lecture seule, recopié à chaque
+     frappe, hors note et hors de la confirmation des cases vides (.dq-mirror).
+     Une case dont la ligne APPLIQUE une propriété (ln 2^3 → 3 ln 2) n'est
+     jamais un miroir : ce passage est ce que l'élève apprend. */
+  const premier={};
+  A.lignes.forEach(function(L,li){ L.forEach(function(x){ if(typeof x==='object'){
+    x.id='lnd-c'+(nb++); x.grp=x.grp?('g'+li+x.grp):null;
+    if(x.m){ if(premier[x.m]) { x.src=premier[x.m]; x.grp=null; } else premier[x.m]=x.id; }
+  } }); });
+  const toutes=[].concat.apply([],A.lignes.map(L=>L.filter(x=>typeof x==='object')));
+  A.cases=toutes.filter(x=>!x.src);
+  A.miroirs=toutes.filter(x=>x.src);
   return A;
 }
 /* le rappel des propriétés utiles à la question, dit au-dessus des étapes */
@@ -21667,6 +21688,23 @@ function lndVerdictFeuille(A){
 }
 
 /* ---- l'écran ---- */
+/* les parenthèses qui entourent une case : grandes, pour l'encadrer en hauteur */
+function lndParens(t){ return String(t).replace(/\(\u202f/g,'<span class="lnd-par">(</span>').replace(/\u202f\)/g,'<span class="lnd-par">)</span>'); }
+/* Les miroirs : la valeur de leur case source. Après la vérification (E
+   donné), un miroir dont la source est fausse ou vide prend la correction
+   écrite par la page, en vert ; sinon il suit la couleur de sa source. */
+function lndMiroirs(E){
+  const q=test.questions&&test.questions[test.idx]; if(!q || test.kind!=='lnd') return;
+  const A=lndAns(q);
+  (A.miroirs||[]).forEach(function(x){
+    const m=$(x.id), s=$(x.src); if(!m||!s) return;
+    let v=String(s.value||'').trim(), cls=null;
+    if(s.classList.contains('ok')) cls='ok'; else if(s.classList.contains('bad')) cls='bad';
+    if(E){ if(cls!=='ok'){ v=E.ecrit[x.src]; cls='sol'; } }
+    if(m.value!==v) m.value=v;
+    m.classList.remove('ok','bad','sol'); if(cls && v!=='') m.classList.add(cls);
+  });
+}
 function lndModeLib(){ return test.lndMode==='libre'?'libre':'etapes'; }
 function lndChoisirMode(m){
   if(test.locked || lndModeLib()===m) return;
@@ -21682,8 +21720,10 @@ function lndFormHTML(q){
     h+='<p class="tvi-instr lnd-instr">Complète chaque étape. On utilise : '+lndAstuce(q)+'</p>';
     A.lignes.forEach(function(L){
       h+='<div class="tg-line lnd-l"><span class="tg-eq">=</span> '+L.map(function(x){
-        if(typeof x==='string') return x;
-        const inp=txInp(x.id, x.sup?'tx-se':'');
+        if(typeof x==='string') return lndParens(x);
+        const inp=x.src
+          ? '<input type="text" class="tg-in dq-mirror lnd-mir'+(x.sup?' tx-se':'')+'" id="'+x.id+'" data-src="'+x.src+'" readonly tabindex="-1" aria-label="recopié automatiquement">'
+          : txInp(x.id, x.sup?'tx-se':'');
         return x.sup?'<sup>'+inp+'</sup>':inp;
       }).join('')+'</div>';
     });
@@ -21734,7 +21774,10 @@ function renderLND(){
     }
   } else {
     if(window.mlDexp) window.mlDexp.upgrade($('lndForm'));
-    if(isSoutien()) $('lndForm').querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>checkLND(true)));
+    $('lndForm').addEventListener('input', function(){ if(!test.locked) lndMiroirs(); });
+    if(isSoutien()) $('lndForm').querySelectorAll('input:not(.dq-mirror)').forEach(el=>el.addEventListener('input',()=>{ checkLND(true); lndMiroirs(); }));
+    /* la reprise d'une pause remet les saisies APRÈS le rendu (restoreBoxes) */
+    setTimeout(function(){ if(!test.locked) lndMiroirs(); },0); setTimeout(function(){ if(!test.locked) lndMiroirs(); },300);
     /* la case finale (math-field) se colore à sa SORTIE : dexpLiveCheck route vers checkLND(true) */
   }
 }
@@ -21782,6 +21825,7 @@ function checkLND(live){
   const elF=$('lnd-fin'), finOk=!fin.vide && fin.fini;
   if(elF){ elF.classList.remove('ok','bad'); if(!fin.vide) elF.classList.add(finOk?'ok':'bad'); }
   if(!fin.vide) anyFilled=true; if(fin.vide){ vides++; allOk=false; } else if(!finOk) allOk=false;
+  lndMiroirs();
   if(live) return;
   if(!anyFilled){ fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback'; return; }
   if(!allOk && isSoutien()){
@@ -21801,6 +21845,7 @@ function checkLND(live){
     fb.innerHTML=msgCorrCouleurs(vides>0); fb.className='mp-feedback bad';
     A.cases.forEach(x=>{ corrCase(x.id, E.ecrit[x.id], !!(E.lu[x.id]!=='' && E.V[x.id])); const el=$(x.id); if(el) el.disabled=true; });
     rfReveal('lnd-fin', A.cible.tex, A.cible.plain, finOk, fin.vide);
+    lndMiroirs(E);
   }
   test.answers.push({...(ptsExo()||{}), q:'Démontrer que '+A.depPlain+' = '+A.cible.plain+' (avec les étapes)', answer:A.cible.plain, given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   suite();
