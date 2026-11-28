@@ -44580,9 +44580,9 @@ function pythonIfElse(w, P){
   const nom = '{python-if-else} : la condition if … else';
   if(!P.pythonIfElse){ ignorer(nom, 'ce niveau n\'a pas l\'exercice de la condition if … else'); return; }
   const ID = P.pythonIfElse.exercice, NB = P.pythonIfElse.nb, NUM = P.pythonIfElse.numero;
-  const present = evaluer(w, "typeof startPCE==='function' && typeof pceDiag==='function' && typeof pceBuildQuestions==='function'");
+  const present = evaluer(w, "typeof startPCE==='function' && typeof pceTrou==='function' && typeof pceBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPCE / pceDiag / pceBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPCE / pceTrou / pceBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -44601,7 +44601,7 @@ function pythonIfElse(w, P){
   })()`, v => v === '');
 
   /* ---- 2. la fiche épinglée, et le tirage ---- */
-  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche d’abord (age, 18), puis d’autres situations distinctes ; le modèle de chacune passe au juge, chaque situation sort (300 séances)', `(function(){
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche d’abord (age, 18), puis d’autres situations distinctes ; les textes du modèle de chacune passent au juge, chaque situation sort (300 séances)', `(function(){
     const vus=[], vues={};
     for(let s=0;s<300&&vus.length<4;s++){
       const qs=pceBuildQuestions();
@@ -44609,63 +44609,45 @@ function pythonIfElse(w, P){
       if(pceSit(qs[0]).v!=="age"||pceSit(qs[0]).n!==18){ vus.push("la fiche n’ouvre pas la séance"); break; }
       const ss=qs.map(function(q){ return q.s; });
       if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
-      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+      qs.forEach(function(q){ vues[q.s]=1; if(pceTextes(q).join("")!=="") vus.push("texte non vide au départ"); });
     }
-    PCE_SITUATIONS.forEach(function(_, i){ const d=pceDiag(pceModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    PCE_SITUATIONS.forEach(function(S, i){ [S.inv, S.oui, S.non].forEach(function(t, k){ if(!pceTrou(k, t, {s:i}).ok) vus.push("le modèle "+i+", texte "+k); }); });
     if(new Set(PCE_SITUATIONS.map(function(S){ return S.v; })).size!==PCE_SITUATIONS.length) vus.push("deux situations sur la même variable");
     if(Object.keys(vues).length!==PCE_SITUATIONS.length) vus.push("des situations ne sortent jamais : "+Object.keys(vues).join(","));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 3. le juge ---- */
-  verifierEval(w, 'le juge accepte toute copie juste (casse, point final, espaces, elif absent) et nomme chaque défaut — input sans int, float, <=, phrases inversées, else oublié, print hors du bloc, deux if sans else, mauvais seuil, phrase fausse, If, « = », aucune question, mauvaise variable, invite vide, guillemets typographiques, programme vide', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0};
-    const pr=function(t){ return "print("+Q+t+Q+")"; };
-    const P=function(c){ return "age = int(input("+Q+"Quel âge as-tu ? "+Q+"))"+NL+c; };
-    const ie=function(cond, a, b){ return "if "+cond+":"+NL+"    "+pr(a)+NL+"else:"+NL+"    "+pr(b); };
-    const justes=[pceModele(q),
-                  P(ie("age < 18", "tu es mineur", "Tu es majeur !")),
-                  P("if age<18 :"+NL+NL+"    "+pr("Tu es mineur.")+NL+"else :"+NL+"    "+pr("Tu es majeur.")),
-                  "# l’âge"+NL+P(ie("18 > age", "Tu es mineur.", "Tu es majeur."))];
-    justes.forEach(function(p){ const d=pceDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
-    const cas=[
-      ["age = input("+Q+"a "+Q+")"+NL+ie("age < 18", "Tu es mineur.", "Tu es majeur."), /int\\(input/],
-      ["age = float(input("+Q+"a "+Q+"))"+NL+ie("age < 18", "Tu es mineur.", "Tu es majeur."), /ENTIER/],
-      [P(ie("age <= 18", "Tu es mineur.", "Tu es majeur.")), /<=/],
-      [P(ie("age < 18", "Tu es majeur.", "Tu es mineur.")), /inversées/],
-      [P("if age < 18:"+NL+"    "+pr("Tu es mineur.")), /il manque le else/],
-      [P("if age < 18:"+NL+"    "+pr("Tu es mineur.")+NL+pr("Tu es majeur.")), /UNE phrase/],
-      [P("if age < 18:"+NL+"    "+pr("Tu es mineur.")+NL+"if age >= 18:"+NL+"    "+pr("Tu es majeur.")), /demande un else/],
-      [P(ie("age < 16", "Tu es mineur.", "Tu es majeur.")), /nombre de ta condition/],
-      [P(ie("age < 18", "Mineur", "Tu es majeur.")), /doit afficher/],
-      [P("If age < 18:"+NL+"    "+pr("a")), /minuscules/],
-      [P("if age = 18:"+NL+"    "+pr("a")), /ne compare pas/],
-      [ie("age < 18", "Tu es mineur.", "Tu es majeur."), /aucune question/],
-      ["a = int(input("+Q+"a "+Q+"))"+NL+ie("a < 18", "Tu es mineur.", "Tu es majeur."), /variable age/],
-      ["age = int(input())"+NL+ie("age < 18", "Tu es mineur.", "Tu es majeur."), /pas de question/],
-      ["age = int(input("+Q+"a "+Q+"))"+NL+"b = int(input("+Q+"b "+Q+"))", /une seule/],
-      [P("if age < 18:"+NL+"    print(“Tu es mineur.”)"), /guillemets/],
-      ["", /vide/]
-    ];
-    cas.forEach(function(c){
-      const d=pceDiag(c[0],q);
-      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
-      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
-    });
-    if(!pceDiag("",q).vide) vus.push("la copie vide n’est pas reconnue");
-    const q3={s:3}; if(!pceDiag(pceModele(q3),q3).ok||pceDiag(pceModele(q),q3).ok) vus.push("le juge ne suit pas la situation de la question");
-    return vus.slice(0,4).join(" | ");
+  /* ---- 3. le juge, trou par trou ---- */
+  verifierEval(w, 'le juge accepte les textes semblables — fautes, majuscules, caractères en trop ou en moins, une autre tournure de la question — et refuse l’autre phrase (nommée), un autre texte et une question qui ne demande pas ce qu’il faut ; un trou vide est vide', `(function(){
+    const vus=[], q={s:0};
+    const ok=function(i, t){ return pceTrou(i, t, q).ok; };
+    ["Quel est ton âge ?","quel age as tu","Entre ton âge","Tu as quel ages ?","Combien as-tu d'ans ?"].forEach(function(t){ if(!ok(0,t)) vus.push("question refusée : "+t); });
+    ["Tu es mineur.","tu es mineur","TU ES MINNEUR","Tu es mineure !!!","tu est mineur","Vous êtes mineur.","mineur"].forEach(function(t){ if(!ok(1,t)) vus.push("phrase du if refusée : "+t); });
+    ["Tu es majeur.","tu é majeure","Tu es majeur!!","majeur"].forEach(function(t){ if(!ok(2,t)) vus.push("phrase du else refusée : "+t); });
+    ["Bonjour","Quel est ton nom ?","12"].forEach(function(t){ if(ok(0,t)) vus.push("question acceptée à tort : "+t); });
+    ["Tu es majeur.","Bonjour","Tu as gagné"].forEach(function(t){ if(ok(1,t)) vus.push("phrase du if acceptée à tort : "+t); });
+    ["Tu es mineur.","Au revoir"].forEach(function(t){ if(ok(2,t)) vus.push("phrase du else acceptée à tort : "+t); });
+    if(!/phrase du else/.test(pceTrou(1,"Tu es majeur.",q).dit)) vus.push("la phrase inversée n’est pas nommée : "+pceTrou(1,"Tu es majeur.",q).dit);
+    if(!/doit demander l.âge/.test(pceTrou(0,"Bonjour",q).dit)) vus.push("la question fausse n’est pas nommée");
+    if(!pceTrou(1,"  ",q).vide||pceTrou(1,"  ",q).ok) vus.push("le trou vide n’est pas vide");
+    const q1={s:1};
+    if(pceTrou(1,"Tu as la moyenne.",q1).ok||pceTrou(2,"Tu n’as pas la moyenne",q1).ok) vus.push("note : les phrases se confondent");
+    if(!pceTrou(1,"tu na pas la moyene",q1).ok||!pceTrou(2,"TU AS LA MOYENE",q1).ok) vus.push("note : une phrase mal tapée refusée");
+    const q3={s:3};
+    if(!pceTrou(1,"leau gele",q3).ok||pceTrou(1,"L’eau ne gèle pas.",q3).ok||!pceTrou(2,"l eau gele pas",q3).ok) vus.push("température : les phrases");
+    const q4={s:4};
+    if(!pceTrou(1,"bonjour",q4).ok||!pceTrou(2,"bon apres midi",q4).ok||pceTrou(2,"Bonjour !",q4).ok) vus.push("heure : les phrases");
+    return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
   /* ---- 4. l'écran, et la copie juste ---- */
-  verifierEval(w, 'l’écran : le dessin en premier, puis la définition de la fiche mot pour mot (au premier écran seulement), la question en gras dans son cadre avec les deux coups de pouce repliés, mot pour mot, la cellule et la console VIDES ; le rappel ne dit que la définition ; la console pose la question ; la copie juste vaut 1', `(function(){
+  verifierEval(w, 'l’écran : le dessin en premier, puis la définition de la fiche mot pour mot (au premier écran seulement), la consigne en gras dans son cadre, le programme DONNÉ avec ses trois textes en pointillés entre les guillemets, plus de cellule libre ni de coup de pouce ; la console vide puis qui pose la question du programme complété ; trois textes justes valent 3', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPCE();
     const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
-    /* textContent colle les blocs : un espace après chaque puce, paragraphe et cellule de la définition */
     const lit=function(el){ const c=el.cloneNode(true); c.querySelectorAll("li,p,ul,div,.pce-def-g>span").forEach(function(e){ e.insertBefore(document.createTextNode(" "), e.firstChild); e.appendChild(document.createTextNode(" ")); }); return net(c.textContent); };
-    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    if(test.maxScore!==3*${NB}) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-pce"), img=ecr.querySelector("#pceFig img.pce-img");
     if(!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("pas de dessin");
     const tout=[].slice.call(ecr.querySelectorAll("img,.pii-def,.pyn-etape"));
@@ -44674,43 +44656,42 @@ function pythonIfElse(w, P){
     const D="⚠ Définition d’une condition if age < 18 : … else … if age < 18 : signifie: si age < 18 alors print (\\"Tu es mineur.\\") afficher \\"Tu es mineur.\\" else : sinon print (\\"Tu es majeur.\\") afficher \\"Tu es majeur.\\"";
     if(!def||lit(def)!==D) vus.push("la définition : "+(def&&JSON.stringify(lit(def))));
     const et=document.getElementById("pceEtape"), ti=et&&et.querySelector(".pyn-titre");
-    const E="✏️ Faire un programme Qui demande l’âge de l’utilisateur et qui met le résultat dans la variable entière age. Si l’age est plus petit que 18 Alors il affiche \\"Tu es mineur\\" Sinon il affiche \\"Tu es majeur.\\" Rappel: Pour demander un nombre entier il faut mettre: = int ( input (\\" ... texte de la question... \\"))";
+    const E="✏️ Compléter le programme : écrire les textes entre les guillemets, à la place des pointillés. Le programme demande l’âge de l’utilisateur et met le résultat dans la variable entière age. Si l’age est plus petit que 18 Alors il affiche \\"Tu es mineur\\" Sinon il affiche \\"Tu es majeur.\\"";
     if(!ti||lit(ti).split(String.fromCharCode(39)).join("’")!==E) vus.push("l’énoncé : "+(ti&&JSON.stringify(lit(ti))));
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
-    ["pce-prog","pceRun","pceConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
-    const pouces=document.querySelectorAll("#pceEtape details.pyd-pouce");
-    const R="print (\\"... texte de la réponse ... \\")";
-    const attendus=[["coup de pouce 1","age = int (input ( \\"...texte de la question ... \\") )"],
-                    ["coup de pouce 2","if age < 18 : "+R+" else : "+R]];
-    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
-    else attendus.forEach(function(a, i){
-      if(pouces[i].open) vus.push("coup de pouce "+(i+1)+" déplié d’emblée");
-      if(net(pouces[i].querySelector("summary").textContent)!==a[0]) vus.push("le titre du coup de pouce "+(i+1));
-      const t=net(pouces[i].querySelector("p").textContent);
-      if(t!==a[1]) vus.push("le coup de pouce "+(i+1)+" : "+JSON.stringify(t));
-    });
-    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pce||"";
-    if(net(rap.textContent)!==D.replace("⚠ ","").replace(" : … else … if"," : … else … if")) vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
-    const ta=document.getElementById("pce-prog"), cons=document.getElementById("pceConsole");
-    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
-    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
-    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
-    ta.value=pceModele(q);
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
-    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    if(document.getElementById("pce-prog")) vus.push("la cellule libre est encore là");
+    if(document.querySelectorAll("#pceEtape details.pyd-pouce").length) vus.push("des coups de pouce restent");
+    const prog=document.getElementById("pceProg");
+    if(!prog||!et.contains(prog)) vus.push("le programme n’est pas dans le cadre de la question");
+    else {
+      const c=prog.cloneNode(true);
+      c.querySelectorAll("input").forEach(function(i){ i.replaceWith(document.createTextNode(i.getAttribute("placeholder"))); });
+      c.querySelectorAll(".pyx-num").forEach(function(n){ n.remove(); });
+      const lignes=[].map.call(c.querySelectorAll(".pch-l"), function(l){ return l.textContent; });
+      const A=["age = int(input(\\"........\\"))","if age < 18 :","    print (\\"........\\")","else :","    print (\\"........\\")"];
+      if(JSON.stringify(lignes)!==JSON.stringify(A)) vus.push("le programme donné : "+JSON.stringify(lignes));
+    }
+    const ch=[0,1,2].map(function(i){ return document.getElementById("pce-t"+i); });
+    if(ch.some(function(x){ return !x||x.value!==""||!x.classList.contains("pts-case"); })) vus.push("les trois trous ne sont pas des cases vides notées");
+    ["pceRun","pceConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const cons=document.getElementById("pceConsole");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide");
+    const T=["Quel est ton âge ? ","tu es mineur","Tu es majeur."];
+    ch.forEach(function(x, i){ x.value=T[i]; x.dispatchEvent(new Event("input",{bubbles:true})); });
+    if(JSON.stringify(q.t)!==JSON.stringify(T)) vus.push("les textes ne voyagent pas dans la question");
     pceExecuter();
     const rep=document.getElementById("pce-rep");
     if(!rep||cons.textContent!=="Quel est ton âge ? ") vus.push("la console ne pose pas la question : "+JSON.stringify(cons.textContent));
     else {
-      rep.value="18"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
-      if(cons.textContent!=="Quel est ton âge ? 18"+NL+"Tu es majeur.") vus.push("la console après la réponse : "+JSON.stringify(cons.textContent));
+      rep.value="12"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      if(cons.textContent!=="Quel est ton âge ? 12"+NL+"tu es mineur") vus.push("la console après la réponse : "+JSON.stringify(cons.textContent));
     }
     checkPCE();
-    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    if(ch.some(function(x){ return !x.classList.contains("ok"); })||test.score!==3) vus.push("la copie juste : note "+test.score);
     const ans=test.answers[test.answers.length-1];
-    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!ans||ans.cases!==3||ans.justes!==3||!ans.correct) vus.push("la note ne compte pas 3 cases justes : "+JSON.stringify(ans));
     nextPCE();
-    if(test.idx!==1||document.getElementById("pce-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(test.idx!==1||document.getElementById("pce-t1").value!=="") vus.push("la question suivante ne s’ouvre pas sur des trous vides");
     if(document.getElementById("pceAvant").innerHTML!=="") vus.push("la définition est répétée à la question 2");
     if(!document.querySelector("#pceFig img")) vus.push("le dessin manque à la question 2");
     const t2=document.querySelector("#pceEtape .pyn-titre");
@@ -44719,33 +44700,33 @@ function pythonIfElse(w, P){
   })()`, v => v === '');
 
   /* ---- 5. faux, vide, et le soutien ---- */
-  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+  verifierEval(w, 'un texte faux rougit et le programme qui convient s’écrit en vert DESSOUS, un trou vide ne rougit pas et reçoit son texte en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, la case juste reste bleue, et la question reste ouverte', `(function(){
+    const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPCE();
-    let ta=document.getElementById("pce-prog");
-    ta.value="age = int(input("+Q+"a "+Q+"))"+NL+"if age < 18:"+NL+"    print("+Q+"Tu es mineur."+Q+")";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const ch=function(){ return [0,1,2].map(function(i){ return document.getElementById("pce-t"+i); }); };
+    const ecrire=function(T){ ch().forEach(function(x, i){ x.value=T[i]; x.dispatchEvent(new Event("input",{bubbles:true})); }); };
+    ecrire(["Quel âge as-tu ?","Tu es majeur.",""]);
     checkPCE();
-    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
+    let c=ch();
+    if(!c[0].classList.contains("ok")) vus.push("la question juste n’est pas bleue");
+    if(!c[1].classList.contains("bad")) vus.push("la phrase fausse ne rougit pas");
+    if(c[2].classList.contains("bad")||!c[2].classList.contains("sol")||c[2].value!==pceSit(test.questions[0]).non) vus.push("le trou vide : "+c[2].className+" « "+c[2].value+" »");
     const mod=document.querySelector("#pceModele .sol");
     if(!mod||mod.textContent!==pceModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
-    if(!/la page a répondu « 18 »/.test(document.getElementById("pceConsole").textContent)) vus.push("la console ne montre pas la réponse qui trahit la copie");
-    nextPCE(); ta=document.getElementById("pce-prog");
+    if(test.score!==1) vus.push("note "+test.score+" au lieu de 1");
+    currentMode="soutien"; startPCE(); c=ch();
     checkPCE();
-    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
-    if(!ta.classList.contains("sol")||ta.value!==pceModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
-    currentMode="soutien"; startPCE(); ta=document.getElementById("pce-prog");
-    checkPCE();
-    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
-    ta.value="age = int(input("+Q+"a "+Q+"))"+NL+"if age <= 18:"+NL+"    print("+Q+"Tu es mineur."+Q+")"+NL+"else:"+NL+"    print("+Q+"Tu es majeur."+Q+")";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(c.some(function(x){ return x.classList.contains("bad"); })||test.locked) vus.push("soutien : un trou vide rougit ou verrouille");
+    ecrire(["Quel âge as-tu ?","Tu es majeur.",""]);
     checkPCE();
     const fb=document.getElementById("pceFeedback").textContent;
-    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
-    if(!/<= 18/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(!c[0].classList.contains("ok")||!c[1].classList.contains("bad")||c[2].classList.contains("bad")||test.locked) vus.push("soutien : les couleurs "+c.map(function(x){ return x.className; }).join(" / "));
+    if(!/phrase du else/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
     if(document.querySelector("#pceModele .sol")) vus.push("soutien : le modèle est révélé");
-    if(!/STRICTEMENT SECRÈTE/.test(ctxPce(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
+    ecrire(["Quel âge as-tu ?","Tu es mineur","tu es majeur"]);
+    checkPCE();
+    if(!test.locked||test.score!==3) vus.push("soutien : la copie corrigée ne passe pas");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
@@ -47656,20 +47637,18 @@ function pythonFautesOrthographe(w, P){
 function pythonTextesSemblables(w, P){
   const nom = 'les textes semblables sont acceptés par les juges qui choisissaient une phrase exacte, l’autre phrase et un autre nombre jamais';
   if(!P.toleranceTexte){ ignorer(nom, 'ce niveau n\'a aucun exercice qui fasse afficher un texte'); return; }
-  const present = evaluer(w, "['pceDiag','pceModele','pofA','pofNet','pciPhrase','ptmLire','pfiDiag','pyTexteProche','pyMotDans'].every(function(f){ return typeof window[f]==='function'; }) && !!PW.pws");
+  const present = evaluer(w, "['pceTrou','pceModele','pofA','pofNet','pciPhrase','ptmLire','pfiDiag','pyTexteProche','pyMotDans'].every(function(f){ return typeof window[f]==='function'; }) && !!PW.pws");
   if(!present.ok || !present.valeur){ verifier(nom, false, 'un des juges est introuvable'); return; }
   verifierEval(w, nom, `(function(){
     const vus=[];
-    /* {python-if-else} : la fiche, les phrases mal tapées et en majuscules */
-    const q={s:0,prog:""}, M=pceModele(q);
-    const juste=function(src){ const d=pceDiag(src,q); return d.ok; };
-    if(!juste(M)) vus.push("le modèle du if/else est refusé");
-    if(!juste(M.replace("Tu es mineur.","TU ES MINNEUR").replace("Tu es majeur.","tu é majeure"))) vus.push("if/else : « TU ES MINNEUR » / « tu é majeure » refusés");
-    if(juste(M.replace("Tu es mineur.","Tu es majeur."))) vus.push("if/else : « Tu es majeur. » accepté pour « Tu es mineur. »");
-    if(juste(M.replace("Tu es mineur.","Bonjour"))) vus.push("if/else : un autre texte accepté");
-    const q1={s:1,prog:""}, M1=pceModele(q1);
-    if(pceDiag(M1.replace("Tu n'as pas la moyenne.","Tu as la moyenne."),q1).ok) vus.push("if/else : « Tu as la moyenne. » accepté pour « Tu n’as pas la moyenne. »");
-    if(!pceDiag(M1.replace("Tu n'as pas la moyenne.","tu na pas la moyene"),q1).ok) vus.push("if/else : « tu na pas la moyene » refusé");
+    /* {python-if-else} : les phrases mal tapées et en majuscules, dans leurs trous */
+    const q={s:0}, juste=function(i, t, qq){ return pceTrou(i, t, qq||q).ok; };
+    if(!juste(1,"TU ES MINNEUR")||!juste(2,"tu é majeure")) vus.push("if/else : « TU ES MINNEUR » / « tu é majeure » refusés");
+    if(juste(1,"Tu es majeur.")) vus.push("if/else : « Tu es majeur. » accepté pour « Tu es mineur. »");
+    if(juste(1,"Bonjour")) vus.push("if/else : un autre texte accepté");
+    const q1={s:1};
+    if(juste(1,"Tu as la moyenne.",q1)) vus.push("if/else : « Tu as la moyenne. » accepté pour « Tu n’as pas la moyenne. »");
+    if(!juste(1,"tu na pas la moyene",q1)) vus.push("if/else : « tu na pas la moyene » refusé");
     /* {python-pile-face} : les mots clés */
     if(!pofA(pofNet("Vous avez choisi FASE"),"face")||!pofA(pofNet("Brava !"),"bravo")||!pofA(pofNet("C est pa mal"),"pas mal")) vus.push("pile ou face : un mot clé mal tapé n’est pas lu");
     if(pofA(pofNet("Vous avez choisi Pile"),"face")||pofA(pofNet("Perdu"),"bravo")) vus.push("pile ou face : un mot en lit un autre");
