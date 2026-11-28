@@ -1317,7 +1317,7 @@
   .svd-tbl td.svd-sgc{text-align:center}
   .svd-tbl .tvi-sel.svd-sg{min-width:64px}
   .svd-tbl .mf-cor{font-size:.85rem;padding:1px 6px;margin-left:4px}
-  #scr-test,#scr-efb,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-lnf,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
+  #scr-test,#scr-efb,#scr-tvi,#scr-tvi2,#scr-tvi3,#scr-tvins,#scr-tvg,#scr-dhv,#scr-lg,#scr-lg2,#scr-lg3,#scr-dexp,#scr-sv,#scr-tg,#scr-tx,#scr-s1,#scr-s2,#scr-sp,#scr-su,#scr-sa,#scr-sa2,#scr-tcl,#scr-tvf,#scr-tnm,#scr-ssm,#scr-sag,#scr-sap,#scr-enc,#scr-rec,#scr-ef,#scr-eq,#scr-rc,#scr-rf,#scr-rl,#scr-rfr,#scr-svr,#scr-svd,#scr-ssv,#scr-rr,#scr-sar,#scr-lr,#scr-ec,#scr-afp,#scr-afq,#scr-sdq,#scr-asg,#scr-ecv,#scr-svq,#scr-cvx,#scr-cvq,#scr-afd,#scr-cvt,#scr-eav,#scr-sal,#scr-lqn,#scr-cvp,#scr-elg,#scr-edp,#scr-epa,#scr-eds,#scr-ecb,#scr-epo,#scr-ecp,#scr-ecd,#scr-erp,#scr-eal,#scr-esx,#scr-ebc,#scr-edv,#scr-lnf,#scr-lnd,#scr-apb,#scr-apf,#scr-apc,#scr-apt,#scr-aps,#scr-sbe,#scr-vae,#scr-epc{padding-bottom:84px}#scr-cqp{padding-bottom:84px}
   #aHost .f-num,#aHost .f-den{width:94px} #aHost .f-dec{width:130px}
   #dHost .f-num,#dHost .f-den{width:94px} #dHost .f-dec{width:130px}
   .step-hidden{display:none}
@@ -2545,6 +2545,21 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .lnf-cap{margin-left:14px;white-space:nowrap}
 #scr-lnf .lnf-row .op{font-size:1.25rem;font-weight:700;color:var(--ink);margin:0 6px}
 .lnf-donc{margin:0 14px}
+/* 9.2.1 — démontrer une égalité avec ln */
+.lnd-modes{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+.lnd-m{border:2px solid var(--blue);background:var(--surface);color:var(--blue);padding:6px 14px;border-radius:999px;font-weight:700}
+.lnd-m.on{background:var(--blue);color:#fff}
+.lnd-dep{font-size:1.15rem;margin:4px 0 6px}
+.lnd-rad{text-decoration:overline}
+#scr-lnd .lnd-instr{margin:8px 0 4px}
+#scr-lnd .lnd-l{white-space:nowrap}
+#scr-lnd .mf-cor{margin-left:4px}
+#scr-lnd .lnd-cor{display:inline-block;margin:2px 0 6px}
+#scr-lnd .tg-in.sol,#scr-lnd .tg-in.sol:disabled{border-color:var(--green);background:var(--green-soft);color:var(--green);opacity:1}
+#lndSheet .dexp2-line.ok,#lndSheet .dexp2-line.bad,#lndSheet .dexp2-line.sol{border-radius:8px;padding-left:8px;border-left-width:4px;border-left-style:solid}
+#lndSheet .dexp2-line.ok{background-color:#EAF0FF;border-left-color:var(--blue)}
+#lndSheet .dexp2-line.bad{background-color:var(--red-soft);border-left-color:var(--red)}
+#lndSheet .dexp2-line.sol{background-color:#E9F7F0;border-left-color:var(--green)}
 #scr-eal .tg-in.sol{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 /* ---- Test : signe du 1er degré ---- */
 .s1-card{max-width:var(--card-max);margin:0 auto;}
@@ -3867,6 +3882,20 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
       <div class="mp-actions" id="lnfActions"></div>
     </div>
   </section>
+  <!-- 9.2.1 LOGARITHME NÉPÉRIEN — démontrer une égalité avec les propriétés de ln :
+       avec les étapes de la fiche, ou sans étape sur une feuille d'égalités. -->
+  <section class="screen" id="scr-lnd">
+    <div class="test-top">
+      <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="lndModeTag"></span><span class="q-idx" id="lndQIdx">Question 1 / 6</span></span>
+      <span class="score-tag"><span class="score-lbl">Questions parfaites</span>&nbsp;<b id="lndLiveScore">0</b></span>
+    </div>
+    <div class="card tvi-card tg-card">
+      <p class="enonce" id="lndPrompt"></p>
+      <div id="lndForm"></div>
+      <div class="mp-feedback" id="lndFeedback" aria-live="polite"></div>
+      <div class="mp-actions" id="lndActions"></div>
+    </div>
+  </section>
 
   <section class="screen" id="scr-eal">
     <div class="test-top">
@@ -4815,7 +4844,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=537;
+const APP_VERSION=538;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5073,6 +5102,7 @@ const TESTS={
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'ln-etude-fonction': { name:'Étude de ln(ax + b) + cx + d', icon:'\ud83d\udcc8', desc:'Sur la courbe de f(x) = ln(ax + b) + cx + d\u00a0: la dérivée démontrée avec toutes les étapes comme au {derivee-exp} \u2014 u, u\u2032, (ln u)\u2032 = u\u2032/u \u2014, mise au même dénominateur, puis le tableau de signes et de variations comme au {etude-exponentielle}, et la valeur exacte du maximum.', start:()=>startLNF() },
+  'ln-demontrer-egalite': { name:'Démontrer une égalité avec ln', icon:'\ud83e\uddee', desc:'Démontrer que ln 8 + ln 10 + ln(1/40) = ln 2, et cinq autres égalités\u00a0: ln(ab), ln(a/b), ln(a\u207f), ln 1, ln e et \u221ae \u2014 avec les étapes de la fiche, ou sans étape, une égalité par ligne.', start:()=>startLND() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
   'arbre-probabilites-fiche': { name:'Probabilités \u2014 arbre : les cinq situations de la fiche', icon:'\ud83c\udf32', desc:'Seulement des probabilités, et l\u2019arbre de la fiche : complète-le avec les données et leurs contraires, puis écris chaque calcul en détaillant les étapes \u2014 intersections, P(B), probabilités conditionnelles, et P(B) en fonction de x.', start:()=>startAPF() },
@@ -5228,7 +5258,10 @@ const THEMES=[
      « faire un exercice comme le 4.4.2, dans le nouveau thème logarithme
      népérien ») : l'étude de ln(ax + b) + cx + d, {ln-etude-fonction}, 9.1.1. */
   { num:9, nom:'Logarithme népérien', sous:[
-      { num:1, nom:'Étude de fonction', ids:['ln-etude-fonction'] }
+      { num:1, nom:'Étude de fonction', ids:['ln-etude-fonction'] },
+      /* « Démontrer que ln 8 + ln 10 + ln(1/40) = ln 2 » (novembre 2026) :
+         les propriétés algébriques, avec ou sans les étapes, 9.2.1 */
+      { num:2, nom:'Propriétés algébriques', ids:['ln-demontrer-egalite'] }
     ] }
 ];
 /* « ids » reste la liste PLATE des exercices du thème, dans l'ordre : tout le
@@ -5461,7 +5494,7 @@ document.addEventListener('move-out', function(ev){
    Exclusions : fenêtres d'aide (question à l'IA), écrans hors exercice, champs MathLive. --- */
 let dernierCopieInterne='';
 (function(){
-  const ECRANS_TEST=['scr-test','scr-efb','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv','scr-lnf'];
+  const ECRANS_TEST=['scr-test','scr-efb','scr-tvi','scr-tvi2','scr-tvi3','scr-tvins','scr-tvg','scr-dhv','scr-lg','scr-lg2','scr-lg3','scr-sv','scr-tg','scr-tx','scr-s1','scr-s2','scr-sp','scr-su','scr-sa','scr-enc','scr-rec','scr-ef','scr-eq','scr-rc','scr-rf','scr-rl','scr-dexp','scr-lr','scr-ec','scr-asg','scr-cvt','scr-ecv','scr-cvx','scr-eav','scr-sal','scr-cvp','scr-elg','scr-edp','scr-epa','scr-eds','scr-ecb','scr-epo','scr-ecp','scr-ecd','scr-erp','scr-eal','scr-esx','scr-ebc','scr-edv','scr-lnf','scr-lnd'];
   function texteCopie(){
     const el=document.activeElement;
     if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
@@ -5935,6 +5968,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='ebc' && test.questions && test.questions[test.idx]){ c=ebcConseilCtx(); }
   else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
   else if(test && test.kind==='lnf' && test.questions && test.questions[test.idx]){ c=lnfConseilCtx(); }
+  else if(test && test.kind==='lnd' && test.questions && test.questions[test.idx]){ c=lndConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
   else if(test && test.kind==='ssv' && test.questions && test.questions[test.idx]){ c=ssvConseilCtx(); }
@@ -7824,7 +7858,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], lnf:['lnf',renderLNF], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], lnf:['lnf',renderLNF], lnd:['lnd',renderLND], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -7956,7 +7990,7 @@ function show(name){
   const ecranQuitte=(document.querySelector('.screen.on')||{id:''}).id.replace(/^scr-/,'');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('scr-'+name).classList.add('on');
-  const testScreens=['lnf','efb','cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
+  const testScreens=['lnf','lnd','efb','cvp','elg','edp','epa','eds','ecb','epo','ecp','ecd','erp','eal','esx','ebc','edv','test','tvi','tvi2','tvi3','tvins','tvg','dhv','lg','lg2','lg3','dexp','sv','tg','tx','s1','s2','sp','su','sa','sa2','tcl','tvf','tnm','ssm','sag','sap','lqn','epc','apb','apf','apc','apt','aps','sbe','vae','cqp','enc','rec','ef','eq','rc','rf','rl','rfr','svr','svd','ssv','svq','rr','sar','lr','ec','afp','afq','sdq','asg','ecv','cvx','cvq','afd','cvt','eav','sal'];
   document.body.classList.toggle('ecran-exo', testScreens.includes(name));   /* le portrait y donne au cadre toute la largeur */
   if(testScreens.includes(name) && ecranQuitte && !testScreens.includes(ecranQuitte) && ecranQuitte!=='results') ecranAvantExo=ecranQuitte;
   if(name==='mode' && ecranQuitte && !testScreens.includes(ecranQuitte) && !['mode','results','dmenonce','s2lvl'].includes(ecranQuitte)) ecranAvantModes=ecranQuitte;
@@ -13673,6 +13707,10 @@ function dexpLiveCheck(id){
   }
   if(test && test.kind==='ecv'){   /* les c) et g) du 2.2.2 : même route, vers checkECV */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkECV(true); },0);
+    return;
+  }
+  if(test && test.kind==='lnd'){   /* la case finale du 9.2.1 : même route, vers checkLND */
+    if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkLND(true); },0);
     return;
   }
   if(test && test.kind==='lnf'){   /* la dérivée du 9.1.1 : même route, vers checkLNF */
@@ -21299,6 +21337,487 @@ function lnfConseilCtx(){
    +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement, sur la PREMIÈRE case fausse ou vide.';
 }
 
+/* ====================== TEST : Démontrer une égalité avec ln (kind 'lnd') ====================== */
+/* La fiche « Démontrer que ln 8 + ln 10 + ln(1/40) = ln 2 » (demande de
+   Turquet, novembre 2026) : « créer un exercice avec des exemples comme dans
+   le pdf ; on proposera à l'élève de le faire avec des étapes données comme
+   dans l'exemple au début de l'exercice, ou sans étape, et l'élève devra
+   écrire des égalités dans un champ de saisie jusqu'à la réponse ; on
+   acceptera toute égalité correcte, l'élève pourra sauter des étapes ».
+   SIX FAMILLES, une par exemple de la fiche, dans son ordre — la séance les
+   pose toutes, chacune une fois, sur des nombres tirés :
+     mod  ln 2^p + ln 10 + ln(1/(5·2^k)) = (p + 1 − k) ln 2, k ≥ 2   (le modèle)
+     pui  ln c^p + ln c^r − ln(c^s)      = (p + r − s) ln c   (le a)
+     let  ln(a^m/b) + ln(b^n/a^k)        = (n − 1) ln b − (k − m) ln a   (le b)
+     exp  ln(e^p) − ln(e^r)              = p − r              (le c)
+     rac  ln(e^p √e) − ln(1/e^t)         = p + 1/2 + t        (le d)
+     sqr  ln(c^p) + ln(√c/c) + ln(1/c^q) = (p − q − 1/2) ln c (le réel a)
+   DEUX FAÇONS, au choix de l'élève (test.lndMode, gardé pour toute la
+   séance et dans la pause) :
+   · « Avec les étapes » — la chaîne à trous du modèle de la fiche, des cases
+     de nombres (les paires ln(2) + ln(5) dans l'ordre que l'on veut), puis
+     la forme finale dans une case MathLive ;
+   · « Sans étape » — la feuille de calcul commune (mlFeuille, mode calcul) :
+     une égalité par ligne, chaque ligne (chaque membre d'une ligne) doit
+     VALOIR l'expression de départ — c'est ce que le « = » affirme —, et la
+     dernière doit être écrite sous la forme demandée.
+   LE JUGE NE CROIT AUCUNE ÉCRITURE : lndLire lit le LaTeX de MathLive en un
+   arbre (ln, √, fractions, puissances, e, et les lettres a, b), lndEval le
+   calcule — en trois couples (a, b) pour la famille à lettres —, et
+   lndForme dit si une écriture est « finie » : un nombre seul pour les
+   familles exp et rac, sinon des ln de nombres premiers ou de lettres, au
+   plus un par atome de la cible. La bonne réponse n'est jamais rangée à côté
+   de la question : la question ne porte que ses paramètres, lndAns recalcule
+   tout. */
+const LND_FAM=['mod','pui','let','exp','rac','sqr'];
+function lndGenFam(fam){
+  /* k ≥ 2 : avec k = 1, ln(1/10) annule ln 10 et la question n'a plus rien à démontrer */
+  if(fam==='mod'){ let p,k; do{ p=rand(2,5); k=rand(2,4); }while(p+1-k===0); return {t:fam, p:p, k:k}; }
+  if(fam==='pui'){ const c=pick([2,3]), mx=(c===2?6:4); let p,r,s;
+    do{ p=rand(2,mx); r=rand(1,mx); s=rand(2,mx+1); }while(p+r-s===0 || p===r);
+    return {t:fam, c:c, p:p, r:r, s:s}; }
+  if(fam==='let'){ let m,n,k; do{ m=rand(2,4); n=rand(2,5); k=rand(1,5); }while(k===m); return {t:fam, m:m, n:n, k:k}; }
+  if(fam==='exp'){ let p,r; do{ p=rand(2,6); r=pick([-4,-3,-2,-1,1,2,3]); }while(r===p); return {t:fam, p:p, r:r}; }
+  if(fam==='rac'){ return {t:fam, p:rand(1,3), r:rand(1,3)}; }
+  const c=pick([2,3,5]); return {t:'sqr', c:c, p:rand(1,(c===5?2:3)), r:rand(1,3)};
+}
+function lndGen(){ return distinctes(LND_FAM.length, function(u,i){ return lndGenFam(LND_FAM[i%LND_FAM.length]); }); }
+
+/* ---- lire et calculer une écriture LaTeX ---- */
+/* Un arbre : {t:'n',v} {t:'v',n} {t:'+'|'-'|'*'|'/'|'^',a,b} {t:'neg',a}
+   {t:'ln',a} {t:'rac',a,k}. null si l'écriture ne se lit pas. */
+function lndLire(lx){
+  let s=saClean(String(lx==null?'':lx));
+  s=s.replace(/\\left|\\right/g,'')
+     .replace(/\\mathrm\{e\}|\\exponentialE|\\operatorname\{e\}/g,'e')
+     .replace(/\\operatorname\{ln\}|\\mathrm\{ln\}/g,'\\ln ')
+     .replace(/\{,\}/g,'.').replace(/,/g,'.')
+     .replace(/\\[dt]frac/g,'\\frac').replace(/\\times|\\cdot/g,'*').replace(/\\div/g,'/')
+     .replace(/\\[,;:! ]|~/g,' ').replace(/−/g,'-').replace(/½/g,'{(1/2)}')
+     .replace(/\\placeholder\{[^{}]*\}/g,'').replace(/\\lbrack/g,'[').replace(/\\rbrack/g,']');
+  const T=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(c==='\\'){ const m=/^\\([a-zA-Z]+)/.exec(s.slice(i)); if(!m) return null; T.push({t:'cmd',v:m[1]}); i+=m[0].length; continue; }
+    if(/[0-9.]/.test(c)){ const m=/^(?:\d+\.?\d*|\.\d+)/.exec(s.slice(i)); if(!m||m[0]==='.') return null; T.push({t:'n',raw:m[0]}); i+=m[0].length; continue; }
+    if(/[abe]/.test(c)){ T.push({t:'v',v:c}); i++; continue; }
+    if('+-*/^(){}[]'.indexOf(c)>=0){ T.push({t:c}); i++; continue; }
+    return null;
+  }
+  let k=0;
+  const voir=()=>T[k]?T[k].t:null;
+  const prendre=t=>{ if(voir()!==t) throw 0; return T[k++]; };
+  const debutAtome=()=>{ const t=voir(); return t==='n'||t==='v'||t==='('||t==='{'||(t==='cmd'&&/^(frac|sqrt|ln)$/.test(T[k].v)); };
+  function expr(){ let f=terme(); while(voir()==='+'||voir()==='-'){ const op=T[k++].t; f={t:op,a:f,b:terme()}; } return f; }
+  function terme(){ let f=unaire();
+    for(;;){ if(voir()==='*'||voir()==='/'){ const op=T[k++].t; f={t:op,a:f,b:unaire()}; }
+      else if(debutAtome()){ f={t:'*',a:f,b:puissance()}; } else break; }
+    return f; }
+  function unaire(){ if(voir()==='-'){ k++; return {t:'neg',a:unaire()}; } if(voir()==='+'){ k++; return unaire(); } return puissance(); }
+  function puissance(){ const b=atome(); if(voir()==='^'){ k++; return {t:'^',a:b,b:argument()}; } return b; }
+  /* l'argument d'un ^, d'un \frac, d'un \sqrt : un groupe {…}, ou UN SEUL
+     caractère — « \frac12 » est 1/2, « e^23 » est e²·3 en LaTeX */
+  function argument(){
+    const t=voir();
+    if(t==='{'){ k++; const g=expr(); prendre('}'); return g; }
+    if(t==='n'){ const tok=T[k]; if(tok.raw.length>1){ const v=tok.raw[0]; tok.raw=tok.raw.slice(1); return {t:'n',v:+v}; } k++; return {t:'n',v:+tok.raw}; }
+    if(t==='-'){ k++; return {t:'neg',a:argument()}; }
+    return atome();
+  }
+  function atome(){
+    const t=voir();
+    if(t==='n'){ return {t:'n',v:parseFloat(T[k++].raw)}; }
+    if(t==='v'){ return {t:'v',n:T[k++].v}; }
+    if(t==='('){ k++; const g=expr(); prendre(')'); return g; }
+    if(t==='['){ k++; const g=expr(); prendre(']'); return g; }
+    if(t==='{'){ k++; const g=expr(); prendre('}'); return g; }
+    if(t==='cmd'){ const c=T[k++].v;
+      if(c==='frac'){ const n=argument(), d=argument(); return {t:'/',a:n,b:d}; }
+      if(c==='sqrt'){ let ix=null; if(voir()==='['){ k++; ix=expr(); prendre(']'); } return {t:'rac',a:argument(),k:ix}; }
+      if(c==='ln'){ if(voir()==='(') return {t:'ln',a:atome()}; return {t:'ln',a:puissance()}; }
+    }
+    throw 0;
+  }
+  try{ if(!T.length) return null; const f=expr(); return k===T.length?f:null; }catch(e){ return null; }
+}
+function lndEval(n, env){
+  switch(n.t){
+    case 'n': return n.v;
+    case 'v': return n.n==='e'?Math.E:env[n.n];
+    case '+': return lndEval(n.a,env)+lndEval(n.b,env);
+    case '-': return lndEval(n.a,env)-lndEval(n.b,env);
+    case '*': return lndEval(n.a,env)*lndEval(n.b,env);
+    case '/': return lndEval(n.a,env)/lndEval(n.b,env);
+    case '^': return Math.pow(lndEval(n.a,env),lndEval(n.b,env));
+    case 'neg': return -lndEval(n.a,env);
+    case 'ln': { const u=lndEval(n.a,env); return u>0?Math.log(u):NaN; }
+    case 'rac': { const u=lndEval(n.a,env), ix=n.k?lndEval(n.k,env):2; return u>=0?Math.pow(u,1/ix):NaN; }
+  }
+  return NaN;
+}
+/* les couples (a, b) où la famille à lettres se calcule — a, b > 0 */
+const LND_ENV=[{a:2.3,b:1.7},{a:0.6,b:3.1},{a:5.2,b:0.45}];
+function lndVaut(n, ref){
+  if(!n) return false;
+  return LND_ENV.every(function(env){ const v=lndEval(n,env), t=ref(env);
+    return typeof v==='number' && isFinite(v) && Math.abs(v-t)<=1e-9*(1+Math.abs(t)); });
+}
+/* les membres d'une ligne : « A = B = C » se lit membre par membre */
+function lndMembres(lx){
+  return saClean(String(lx==null?'':lx)).split('=').map(t=>t.trim()).filter(t=>t!=='' && saClean(t)!=='');
+}
+/* Une écriture est FINIE quand elle a la forme de la cible :
+   · cible nombre : un nombre, son opposé ou un quotient de deux nombres ;
+   · cible en ln : aucune √, aucun e, aucune puissance hors des coefficients,
+     chaque ln porte un ATOME de la cible (un nombre premier ou une lettre),
+     jamais deux fois le même. « 3 ln 2 », « −½ ln 3 », « (−ln 3)/2 »,
+     « 2 ln b − 2 ln a » le sont ; « ln 8 », « ln 2 + 2 ln 2 », « ln(b²/a²) »
+     ne le sont pas. */
+function lndForme(n, A){
+  if(!n) return false;
+  if(A.cible.nb){
+    const nb=x=>x.t==='n'||(x.t==='neg'&&nb(x.a));
+    return nb(n) || (n.t==='/'&&nb(n.a)&&nb(n.b)) || (n.t==='neg'&&n.a.t==='/'&&nb(n.a.a)&&nb(n.a.b));
+  }
+  const vus=[]; let bon=true;
+  (function marche(x, sousLn){
+    if(!bon) return;
+    if(x.t==='ln'){
+      const a=x.a, at=(a.t==='n')?String(a.v):((a.t==='v'&&a.n!=='e')?a.n:null);
+      if(at===null || A.cible.atomes.indexOf(at)<0 || vus.indexOf(at)>=0){ bon=false; return; }
+      vus.push(at); return;
+    }
+    if(x.t==='v'||x.t==='rac'){ bon=false; return; }
+    if(x.t==='^'){ bon=false; return; }
+    if(x.a) marche(x.a); if(x.b) marche(x.b);
+  })(n);
+  return bon && vus.length>0;
+}
+
+/* ---- les écritures ---- */
+function lndCoefTex(c){   /* un coefficient entier ou demi-entier devant ln */
+  if(c===1) return ''; if(c===-1) return '-';
+  if(Number.isInteger(c)) return String(c);
+  return (c<0?'-':'')+'\\frac{'+Math.abs(2*c)+'}{2}';
+}
+function lndCoefHtml(c){
+  if(c===1) return ''; if(c===-1) return '−';
+  if(Number.isInteger(c)) return numFmt(c)+' ';
+  return (c<0?'−':'')+lnfFracH(String(Math.abs(2*c)),'2')+' ';
+}
+function lndLnHtml(arg){ return 'ln '+arg; }
+function lndLnP(arg){ return 'ln( '+arg+' )'; }
+function lndPuiH(b,e){ return b+'<sup>'+e+'</sup>'; }
+const LND_E='<span class="tx-e">e</span>';
+const LND_I=l=>'<i>'+l+'</i>';
+/* Tout ce que la question montre, se calcule et se corrige — depuis ses
+   seuls paramètres. lignes : la chaîne « Avec les étapes », chaque élément
+   un texte (HTML) ou une case {v, s, grp, sup} (v : valeur, s : écriture de
+   la correction, grp : paire à ordre libre, sup : case en exposant). */
+function lndAns(q){
+  const B=(v,o)=>Object.assign({v:v, s:(o&&o.s)||numFmt(v)},o||{});
+  const S=(v,o)=>B(v,Object.assign({sup:true},o||{}));
+  const D=()=>({v:0.5, s:'1/2', demi:true});
+  const DS=()=>Object.assign(D(),{sup:true});
+  const A={q:q};
+  if(q.t==='mod'){
+    const p=q.p, k=q.k, n=p+1-k, N1=Math.pow(2,p), N3=5*Math.pow(2,k);
+    A.depTex='\\ln '+N1+'+\\ln 10+\\ln\\left(\\frac{1}{'+N3+'}\\right)';
+    A.depHtml=lndLnHtml(N1)+' + '+lndLnHtml(10)+' + ln'+'( '+lnfFracH('1',String(N3))+' )';
+    A.depPlain='ln '+N1+' + ln 10 + ln(1/'+N3+')';
+    A.ref=()=>Math.log(N1)+Math.log(10)+Math.log(1/N3);
+    A.cible={tex:lndCoefTex(n)+'\\ln 2', html:lndCoefHtml(n)+'ln 2', plain:(n===1?'':(n===-1?'−':numFmt(n)+' '))+'ln 2', atomes:['2']};
+    const L2=' + ln( ';
+    A.lignes=[
+      ['ln 2', S(p), ' + ln( ', B(2,{grp:'a'}), ' × ', B(5,{grp:'a'}), ' ) + ln( ', B(1), ' ) − ln( ', B(N3), ' )'],
+      [B(p), ' ln 2'+L2, B(2,{grp:'b'}), ' )'+L2, B(5,{grp:'b'}), ' ) − ln( 5 × 2', S(k), ' )'],
+      [B(p), ' ln 2'+L2, B(2,{grp:'c'}), ' )'+L2, B(5,{grp:'c'}), ' ) − ln 5 − ln 2', S(k)],
+      [B(p), ' ln 2'+L2, B(2,{grp:'d'}), ' )'+L2, B(5,{grp:'d'}), ' ) − ln 5 − ', B(k), ' ln 2']
+    ];
+  } else if(q.t==='pui'){
+    const c=q.c, n=q.p+q.r-q.s;
+    A.depTex='\\ln '+Math.pow(c,q.p)+'+\\ln '+Math.pow(c,q.r)+'-\\ln\\left('+c+'^{'+q.s+'}\\right)';
+    A.depHtml=lndLnHtml(Math.pow(c,q.p))+' + '+lndLnHtml(Math.pow(c,q.r))+' − '+lndLnP(lndPuiH(c,q.s));
+    A.depPlain='ln '+Math.pow(c,q.p)+' + ln '+Math.pow(c,q.r)+' − ln('+c+'^'+q.s+')';
+    A.ref=()=>Math.log(Math.pow(c,q.p))+Math.log(Math.pow(c,q.r))-q.s*Math.log(c);
+    A.cible={tex:lndCoefTex(n)+'\\ln '+c, html:lndCoefHtml(n)+'ln '+c, plain:(n===1?'':(n===-1?'−':numFmt(n)+' '))+'ln '+c, atomes:[String(c)]};
+    A.lignes=[
+      ['ln '+c, S(q.p), ' + ln '+c, S(q.r), ' − ln '+c, S(q.s)],
+      [B(q.p), ' ln '+c+' + ', B(q.r), ' ln '+c+' − ', B(q.s), ' ln '+c]
+    ];
+  } else if(q.t==='let'){
+    const m=q.m, n=q.n, k=q.k, cb=n-1, ca=m-k, a=LND_I('a'), b=LND_I('b');
+    const pw=(l,e)=>e===1?l:l+'^{'+e+'}';
+    A.depTex='\\ln\\left(\\frac{'+pw('a',m)+'}{b}\\right)+\\ln\\left(\\frac{'+pw('b',n)+'}{'+pw('a',k)+'}\\right)';
+    A.depHtml='ln( '+lnfFracH(lndPuiH(a,m),b)+' ) + ln( '+lnfFracH(lndPuiH(b,n),(k===1?a:lndPuiH(a,k)))+' )';
+    A.depPlain='ln(a^'+m+'/b) + ln(b^'+n+'/a'+(k===1?'':'^'+k)+')';
+    A.ref=env=>Math.log(Math.pow(env.a,m)/env.b)+Math.log(Math.pow(env.b,n)/Math.pow(env.a,k));
+    const ta=(ca<0?'-':'+')+lndCoefTex(Math.abs(ca))+'\\ln a';
+    const ha=(ca<0?' − ':' + ')+lndCoefHtml(Math.abs(ca))+'ln '+a;
+    A.cible={tex:lndCoefTex(cb)+'\\ln b'+ta, html:lndCoefHtml(cb)+'ln '+b+ha,
+      plain:(cb===1?'':cb+' ')+'ln b '+(ca<0?'− ':'+ ')+(Math.abs(ca)===1?'':Math.abs(ca)+' ')+'ln a', atomes:['a','b']};
+    A.lignes=[
+      ['ln( '+a, S(m), ' ) − ln '+b+' + ln( '+b, S(n), ' ) − ln( '+a, S(k), ' )'],
+      [B(m), ' ln '+a+' − ln '+b+' + ', B(n), ' ln '+b+' − ', B(k), ' ln '+a]
+    ];
+  } else if(q.t==='exp'){
+    const v=q.p-q.r;
+    A.depTex='\\ln\\left(e^{'+q.p+'}\\right)-\\ln\\left(e^{'+q.r+'}\\right)';
+    A.depHtml=lndLnP(lndPuiH(LND_E,q.p))+' − '+lndLnP(lndPuiH(LND_E,numFmt(q.r)));
+    A.depPlain='ln(e^'+q.p+') − ln(e^'+q.r+')';
+    A.ref=()=>q.p-q.r;
+    A.cible={tex:String(v), html:numFmt(v), plain:numFmt(v), nb:true};
+    A.lignes=[
+      [B(q.p), ' ln '+LND_E+' − ( ', B(q.r), ' ) ln '+LND_E],
+      [B(q.p), ' − ( ', B(q.r), ' )']
+    ];
+  } else if(q.t==='rac'){
+    const v=q.p+0.5+q.r;
+    const ep=q.p===1?LND_E:lndPuiH(LND_E,q.p), er=q.r===1?LND_E:lndPuiH(LND_E,q.r);
+    A.depTex='\\ln\\left(e'+(q.p===1?'':'^{'+q.p+'}')+'\\sqrt{e}\\right)-\\ln\\left(\\frac{1}{e'+(q.r===1?'':'^{'+q.r+'}')+'}\\right)';
+    A.depHtml='ln( '+ep+' √<span class="lnd-rad">'+LND_E+'</span> ) − ln( '+lnfFracH('1',er)+' )';
+    A.depPlain='ln(e'+(q.p===1?'':'^'+q.p)+'√e) − ln(1/e'+(q.r===1?'':'^'+q.r)+')';
+    A.ref=()=>v;
+    A.cible={tex:numFmt(v).replace(',','{,}'), html:numFmt(v), plain:numFmt(v), nb:true};
+    A.lignes=[
+      ['ln( '+LND_E, S(q.p), ' ) + ln( '+LND_E, DS(), ' ) − ln( ', B(1), ' ) + ln( '+LND_E, S(q.r), ' )'],
+      [B(q.p), ' + ', D(), ' − ', B(0), ' + ', B(q.r)]
+    ];
+  } else {
+    const c=q.c, v=q.p-q.r-0.5, Np=Math.pow(c,q.p), Nq=Math.pow(c,q.r);
+    A.depTex='\\ln '+Np+'+\\ln\\left(\\frac{\\sqrt{'+c+'}}{'+c+'}\\right)+\\ln\\left(\\frac{1}{'+Nq+'}\\right)';
+    A.depHtml=lndLnHtml(Np)+' + ln( '+lnfFracH('√<span class="lnd-rad">'+c+'</span>',String(c))+' ) + ln( '+lnfFracH('1',String(Nq))+' )';
+    A.depPlain='ln '+Np+' + ln(√'+c+'/'+c+') + ln(1/'+Nq+')';
+    A.ref=()=>Math.log(Np)+Math.log(Math.sqrt(c)/c)-Math.log(Nq);
+    A.cible={tex:lndCoefTex(v)+'\\ln '+c, html:lndCoefHtml(v)+'ln '+c,
+      plain:(v<0?'−':'')+Math.abs(2*v)+'/2 ln '+c, atomes:[String(c)]};
+    A.lignes=[
+      ['ln '+c, S(q.p), ' + ln '+c, DS(), ' − ln '+c+' + ln( ', B(1), ' ) − ln '+c, S(q.r)],
+      [B(q.p), ' ln '+c+' + ', D(), ' ln '+c+' − ln '+c+' + ', B(0), ' − ', B(q.r), ' ln '+c]
+    ];
+  }
+  /* les ids des cases, dans l'ordre de lecture */
+  let nb=0;
+  A.lignes.forEach(function(L,li){ L.forEach(function(x){ if(typeof x==='object'){ x.id='lnd-c'+(nb++); x.grp=x.grp?('g'+li+x.grp):null; } }); });
+  A.cases=[].concat.apply([],A.lignes.map(L=>L.filter(x=>typeof x==='object')));
+  return A;
+}
+/* le rappel des propriétés utiles à la question, dit au-dessus des étapes */
+function lndAstuce(q){
+  const a='<i>a</i>', b='<i>b</i>', n='<i>n</i>', fr=lnfFracH(a,b);
+  const prod='ln('+a+' × '+b+') = ln '+a+' + ln '+b, quot='ln('+fr+') = ln '+a+' − ln '+b, pui='ln('+a+'<sup>'+n+'</sup>) = '+n+' ln '+a;
+  if(q.t==='mod') return prod+', '+quot+', '+pui+' et ln 1 = 0.';
+  if(q.t==='pui') return pui+'.';
+  if(q.t==='let') return quot+' et '+pui+'.';
+  if(q.t==='exp') return 'ln(e<sup>'+n+'</sup>) = '+n+' ln e et ln e = 1.';
+  if(q.t==='rac') return '√e = e<sup>½</sup>, '+prod+', '+quot+', ln(e<sup>'+n+'</sup>) = '+n+' et ln 1 = 0.';
+  return '√<i>c</i> = <i>c</i><sup>½</sup>, '+quot+', '+pui+' et ln 1 = 0.';
+}
+/* une case de nombre : « 1/2 », « 0,5 », « ½ », « −3 » */
+function lndNombre(raw){
+  const t=String(raw==null?'':raw).trim().replace(/½/g,'1/2');
+  if(t==='' || /[a-zA-Z]/.test(t)) return null;
+  const f=compileExprExp(t); if(!f) return null;
+  let v; try{ v=f(0); }catch(e){ return null; }
+  return (typeof v==='number' && isFinite(v)) ? v : null;
+}
+/* les cases des étapes : chacune contre sa valeur ; une PAIRE (grp) se juge
+   dans l'ordre que l'on veut — l'ordre qui donne le plus de cases justes */
+function lndVerdictsEtapes(A){
+  const lu={}, V={}, ecrit={};
+  A.cases.forEach(x=>{ const el=$(x.id); lu[x.id]=el?String(el.value==null?'':el.value).trim():''; });
+  const egal=(id,v)=>{ const n=lndNombre(lu[id]); return n!==null && Math.abs(n-v)<1e-9; };
+  const fait={};
+  A.cases.forEach(x=>{
+    if(fait[x.id]) return;
+    if(x.grp){
+      const P=A.cases.filter(y=>y.grp===x.grp);
+      if(P.length===2){
+        const [u,w]=P, droit=(egal(u.id,u.v)?1:0)+(egal(w.id,w.v)?1:0), croise=(egal(u.id,w.v)?1:0)+(egal(w.id,u.v)?1:0);
+        if(croise>droit){ V[u.id]=egal(u.id,w.v); V[w.id]=egal(w.id,u.v); ecrit[u.id]=w.s; ecrit[w.id]=u.s; }
+        else { V[u.id]=egal(u.id,u.v); V[w.id]=egal(w.id,w.v); ecrit[u.id]=u.s; ecrit[w.id]=w.s; }
+        fait[u.id]=fait[w.id]=true; return;
+      }
+    }
+    V[x.id]=egal(x.id,x.v); ecrit[x.id]=x.s; fait[x.id]=true;
+  });
+  return {V:V, lu:lu, ecrit:ecrit};
+}
+/* la case finale, et toute ligne de la feuille : sa valeur, puis sa forme */
+function lndJugerFinal(A, lx){
+  const M=lndMembres(lx);
+  if(!M.length) return {vide:true, ok:false, fini:false};
+  const arbres=M.map(lndLire);
+  const justes=arbres.every(n=>lndVaut(n, A.ref));
+  return {vide:false, ok:justes, fini:justes && lndForme(arbres[arbres.length-1], A)};
+}
+let lndFeuille=null;
+function lndLignesFeuille(){
+  if(!lndFeuille) return [];
+  return lndFeuille.lignes.map(function(L){ let lx=''; try{ lx=String(L.mf.getValue?L.mf.getValue():''); }catch(e){} return {L:L, lx:lx}; })
+    .filter(x=>lndMembres(x.lx).length>0);
+}
+function lndVerdictFeuille(A){
+  const lg=lndLignesFeuille();
+  lg.forEach(x=>{ const j=lndJugerFinal(A, x.lx); x.ok=j.ok; x.fini=j.fini; });
+  const der=lg[lg.length-1];
+  return {lignes:lg, vide:lg.length===0, justes:lg.length>0 && lg.every(x=>x.ok), arrive:!!(der && der.fini),
+          ok:lg.length>0 && lg.every(x=>x.ok) && !!(der && der.fini)};
+}
+
+/* ---- l'écran ---- */
+function lndModeLib(){ return test.lndMode==='libre'?'libre':'etapes'; }
+function lndChoisirMode(m){
+  if(test.locked || lndModeLib()===m) return;
+  test.lndMode=m; test.lndLignes=null; autoSave(); renderLND();
+}
+function lndFormHTML(q){
+  const A=lndAns(q), libre=(lndModeLib()==='libre');
+  let h='<div class="lnd-modes" role="group" aria-label="façon de faire la démonstration">'
+    +'<button type="button" class="btn lnd-m'+(libre?'':' on')+'" aria-pressed="'+(!libre)+'" onclick="lndChoisirMode(\'etapes\')">Avec les étapes</button>'
+    +'<button type="button" class="btn lnd-m'+(libre?' on':'')+'" aria-pressed="'+libre+'" onclick="lndChoisirMode(\'libre\')">Sans étape</button></div>';
+  h+='<div class="tg-line lnd-dep">'+mlTex(A.depTex, A.depHtml)+'</div>';
+  if(!libre){
+    h+='<p class="tvi-instr lnd-instr">Complète chaque étape. On utilise : '+lndAstuce(q)+'</p>';
+    A.lignes.forEach(function(L){
+      h+='<div class="tg-line lnd-l"><span class="tg-eq">=</span> '+L.map(function(x){
+        if(typeof x==='string') return x;
+        const inp=txInp(x.id, x.sup?'tx-se':'');
+        return x.sup?'<sup>'+inp+'</sup>':inp;
+      }).join('')+'</div>';
+    });
+    h+='<div class="tg-line lnd-l lnd-fin"><span class="tg-eq">=</span> <math-field class="dexp-mf dexp-mf-wide" id="lnd-fin" aria-label="la forme finale, celle de l’énoncé"></math-field></div>';
+    h+='<p class="dexp-hint">Une case de nombre peut porter une fraction : écris 1/2 ou 0,5.</p>';
+  } else {
+    h+='<p class="tvi-instr lnd-instr">Écris une égalité par ligne, jusqu’à la forme de l’énoncé. Tu peux sauter des étapes : chaque égalité juste est acceptée.</p>'
+      +'<div class="dexp2-sheet pts-case" id="lndSheet"></div>'
+      +'<p class="dexp-hint"><b>Entrée</b> (ou la touche <b>⏎</b>) ajoute une ligne ; <b>retour arrière</b> sur une ligne vide la supprime. Au clavier : <b>ln</b> s’écrit l, n ; <b>^</b> exposant, <b>/</b> fraction.</p>';
+  }
+  return h;
+}
+async function startLND(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='ln-demontrer-egalite'; test.kind='lnd';
+  test.questions=lndGen();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.lndMode=test.lndMode==='libre'?'libre':'etapes'; test.lndLignes=null;
+  test.maxScore=test.questions.length;
+  show('lnd'); renderLND();
+}
+function renderLND(){
+  const q=test.questions[test.idx]; test.locked=false;
+  const A=lndAns(q);
+  $('lndQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
+  $('lndModeTag').innerHTML=modeTagHTML();
+  $('lndLiveScore').textContent=test.score;
+  $('lndFeedback').textContent=''; $('lndFeedback').className='mp-feedback';
+  $('lndActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLND()">Vérifier</button>';
+  $('lndPrompt').innerHTML='Démontrer que <b>'+mlTex(A.depTex+'='+A.cible.tex, A.depHtml+' = '+A.cible.html)+'</b>'+(q.t==='let'?' (<i>a</i> et <i>b</i> sont des réels strictement positifs)':'')+'.';
+  $('lndForm').innerHTML=lndFormHTML(q);
+  lndFeuille=null;
+  if(lndModeLib()==='libre'){
+    lndFeuille=mlFeuille({ conteneur:'lndSheet', mode:'calcul', prefixes:{premiere:'=', suite:'='}, prefixesTexte:{premiere:'=', suite:'='} });
+    /* la feuille n'a aucun id : elle voyage dans test (le motif du 6.11) */
+    const brouillon=Array.isArray(test.lndLignes)?test.lndLignes:null;
+    if(brouillon&&brouillon.length) brouillon.forEach(function(v,i){
+      const L=lndFeuille.lignes[i]||lndFeuille.ajouterLigne(i-1);
+      if(L){ try{ L.mf.setValue(String(v)); }catch(e){} } });
+    const sh=$('lndSheet');
+    if(sh){
+      const noter=function(){ try{ test.lndLignes=lndFeuille.lignes.map(L=>L.mf.getValue()); }catch(e){} };
+      sh.addEventListener('input', noter); sh.addEventListener('focusout', noter);
+      /* la feuille se juge à la SORTIE, jamais à la frappe : « ln 2 + » n'est pas faux, il n'est pas fini */
+      if(isSoutien()) sh.addEventListener('focusout', function(){ setTimeout(function(){ if(!test.locked) checkLND(true); },0); });
+    }
+  } else {
+    if(window.mlDexp) window.mlDexp.upgrade($('lndForm'));
+    if(isSoutien()) $('lndForm').querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>checkLND(true)));
+    /* la case finale (math-field) se colore à sa SORTIE : dexpLiveCheck route vers checkLND(true) */
+  }
+}
+function checkLND(live){
+  if(test.locked && !live) return;
+  const q=test.questions[test.idx], A=lndAns(q), fb=$('lndFeedback');
+  const last=test.idx===test.questions.length-1;
+  const suite=()=>{ $('lndActions').innerHTML='<button class="btn btn-primary" onclick="nextLND()">'+(last?'Voir mes résultats':'Question suivante')+'</button>'; };
+  const reverifier=()=>{ $('lndActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLND()">Revérifier</button>'; };
+  if(lndModeLib()==='libre'){
+    const v=lndVerdictFeuille(A), sh=$('lndSheet');
+    if(lndFeuille) lndFeuille.lignes.forEach(L=>L.line.classList.remove('ok','bad','sol'));
+    v.lignes.forEach(x=>x.L.line.classList.add(x.ok?'ok':'bad'));
+    if(live) return;
+    if(v.vide){ fb.textContent='Écris au moins une égalité avant de vérifier.'; fb.className='mp-feedback'; return; }
+    if(!v.ok && isSoutien()){
+      fb.innerHTML=v.justes?'Tes égalités sont justes — continue jusqu’à la forme de l’énoncé : '+A.cible.html+'.'
+        :'Une égalité est fausse (en rouge) : corrige-la, puis revérifie.';
+      fb.className='mp-feedback bad'; reverifier(); return;
+    }
+    test.locked=true;
+    if(sh){ sh.classList.remove('ok','bad','sol'); sh.classList.add(v.ok?'ok':'bad'); }
+    if(v.ok){
+      test.score++; $('lndLiveScore').textContent=test.score;
+      fb.textContent=pick(['Parfait !','Très bien, c’est démontré !','Excellent !','Bravo !']); fb.className='mp-feedback good';
+    } else {
+      fb.innerHTML=(v.justes?'Tes égalités sont justes, mais tu n’es pas arrivé à la forme de l’énoncé.':'Une égalité au moins est fausse (en rouge).')
+        +' <span class="msg-sol">La conclusion attendue est écrite en <b>vert</b>.</span>';
+      fb.className='mp-feedback bad';
+      if(sh && !(sh.nextElementSibling&&sh.nextElementSibling.classList.contains('mf-cor')))
+        sh.insertAdjacentHTML('afterend','<span class="mf-cor lnd-cor">= '+A.cible.html+'</span>');
+    }
+    if(lndFeuille) lndFeuille.verrouiller();
+    test.answers.push({...(ptsExo()||{}), q:'Démontrer que '+A.depPlain+' = '+A.cible.plain+' (sans étape)', answer:A.cible.plain, given:v.ok?'✓':'incomplet', correct:v.ok, type:'tvi'});
+    suite(); return;
+  }
+  /* avec les étapes */
+  const E=lndVerdictsEtapes(A), fin=lndJugerFinal(A, (()=>{ const el=$('lnd-fin'); try{ return el?String(el.getValue()):''; }catch(e){ return ''; } })());
+  let allOk=true, vides=0, anyFilled=false;
+  A.cases.forEach(x=>{ const el=$(x.id); if(!el) return;
+    const vide=E.lu[x.id]==='', ok=!vide && E.V[x.id];
+    if(!vide) anyFilled=true; if(vide){ vides++; allOk=false; } else if(!ok) allOk=false;
+    el.classList.remove('ok','bad'); if(!vide) el.classList.add(ok?'ok':'bad');
+  });
+  const elF=$('lnd-fin'), finOk=!fin.vide && fin.fini;
+  if(elF){ elF.classList.remove('ok','bad'); if(!fin.vide) elF.classList.add(finOk?'ok':'bad'); }
+  if(!fin.vide) anyFilled=true; if(fin.vide){ vides++; allOk=false; } else if(!finOk) allOk=false;
+  if(live) return;
+  if(!anyFilled){ fb.textContent='Complète au moins une case avant de vérifier.'; fb.className='mp-feedback'; return; }
+  if(!allOk && isSoutien()){
+    fb.innerHTML=(vides>0?'Il te manque '+vides+' case(s) — complète-les, puis corrige les cases en rouge et revérifie.'
+      :(!finOk && fin.ok?'La dernière ligne est juste mais pas encore écrite sous la forme de l’énoncé — réduis-la.':'Presque ! Corrige les cases en rouge, puis revérifie.'));
+    fb.className='mp-feedback bad';
+    A.cases.forEach(x=>{ const el=$(x.id); if(el) el.disabled=!!E.V[x.id]; });
+    if(elF) elF.readOnly=finOk;
+    reverifier(); return;
+  }
+  test.locked=true;
+  if(allOk){
+    test.score++; $('lndLiveScore').textContent=test.score;
+    fb.textContent=pick(['Parfait !','Très bien, c’est démontré !','Excellent !','Bravo !']); fb.className='mp-feedback good';
+    A.cases.forEach(x=>{ const el=$(x.id); if(el) el.disabled=true; }); if(elF) elF.readOnly=true;
+  } else {
+    fb.innerHTML=msgCorrCouleurs(vides>0); fb.className='mp-feedback bad';
+    A.cases.forEach(x=>{ corrCase(x.id, E.ecrit[x.id], !!(E.lu[x.id]!=='' && E.V[x.id])); const el=$(x.id); if(el) el.disabled=true; });
+    rfReveal('lnd-fin', A.cible.tex, A.cible.plain, finOk, fin.vide);
+  }
+  test.answers.push({...(ptsExo()||{}), q:'Démontrer que '+A.depPlain+' = '+A.cible.plain+' (avec les étapes)', answer:A.cible.plain, given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  suite();
+}
+function nextLND(){ if(test.idx<test.questions.length-1){ test.idx++; test.lndLignes=null; renderLND(); } else finishTest(); }
+function lndConseilCtx(){
+  const q=test.questions[test.idx], A=lndAns(q), libre=lndModeLib()==='libre';
+  let saisie='';
+  if(libre) saisie='Lignes écrites par l’élève (chaque ligne commence par « = ») : '+(lndLignesFeuille().map(x=>'« '+(window.mlDexp?window.mlDexp.toPlain(x.lx):x.lx)+' »').join(' ; ')||'(aucune)')+'. ';
+  else saisie='Cases des étapes : '+A.cases.map(x=>{ const el=$(x.id); const v=el?String(el.value||'').trim():''; return v===''?'(vide)':'« '+v+' »'; }).join(', ')+'. ';
+  return 'Exercice LOGARITHME NÉPÉRIEN — démontrer une égalité avec les propriétés algébriques de ln : '+A.depPlain+' = '+A.cible.plain+'. '
+   +(libre?'L’élève rédige SANS étape imposée : une égalité par ligne, toute égalité juste est acceptée, il peut sauter des étapes ; la dernière ligne doit être écrite sous la forme de l’énoncé. '
+     :'L’élève suit des étapes à trous : décomposer chaque nombre (en produit, en puissance), puis appliquer ln(ab) = ln a + ln b, ln(a/b) = ln a − ln b, ln(aⁿ) = n ln a, ln 1 = 0, ln e = 1, √e = e^(1/2), et réduire. ')
+   +saisie
+   +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement (quelle propriété utiliser), sur la PREMIÈRE étape fausse ou vide.';
+}
+
 /* ====================== TEST : Étude de fonction et convexité (kind 'ecv') ====================== */
 /* Repris de la fiche « FICHE 5 — Étude de fonction et convexité : étude de
    f(x) = (2x − 2)e^(−x) » (demande de Turquet, septembre 2026). C'est la
@@ -23690,7 +24209,13 @@ const RAP_VAE=`<b>Variable aléatoire, espérance, variance, écart type</b><br>
 • <b>Espérance</b> : <i>E</i>(<i>X</i>) = <i>p</i><sub>1</sub><i>x</i><sub>1</sub> + <i>p</i><sub>2</sub><i>x</i><sub>2</sub> + … C’est le gain MOYEN par partie sur un grand nombre de parties : négative, le jeu est défavorable au joueur ; nulle, il est équitable.<br>
 • <b>Variance</b> : <i>V</i>(<i>X</i>) = <i>p</i><sub>1</sub>(<i>x</i><sub>1</sub> − <i>E</i>(<i>X</i>))² + <i>p</i><sub>2</sub>(<i>x</i><sub>2</sub> − <i>E</i>(<i>X</i>))² + … Attention au signe : (−3 − (−0,6))² = (−2,4)² = 5,76.<br>
 • <b>Écart type</b> : <i>σ</i>(<i>X</i>) = √<i>V</i>(<i>X</i>), en euros comme <i>X</i> : il mesure de combien, en moyenne, les gains s’écartent de l’espérance.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, lnf:RAP_LNF, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAP_LND=`<b>Les propriétés algébriques du logarithme</b><br>
+• Pour <i>a</i> &gt; 0 et <i>b</i> &gt; 0 : <b>ln(<i>a</i> × <i>b</i>) = ln <i>a</i> + ln <i>b</i></b> et <b>ln\\(\\left(\\frac{a}{b}\\right)\\) = ln <i>a</i> − ln <i>b</i></b> ; en particulier ln\\(\\left(\\frac{1}{b}\\right)\\) = − ln <i>b</i>.<br>
+• <b>ln(<i>a</i><sup><i>n</i></sup>) = <i>n</i> ln <i>a</i></b> pour tout entier <i>n</i> ; et ln √<i>a</i> = ln(<i>a</i><sup>½</sup>) = ½ ln <i>a</i>.<br>
+• <b>ln 1 = 0</b>, <b>ln e = 1</b>, donc <b>ln(e<sup><i>n</i></sup>) = <i>n</i></b>.<br>
+• <b>Méthode</b> : on décompose chaque nombre en produit de nombres premiers (8 = 2<sup>3</sup>, 40 = 5 × 2<sup>3</sup>), on « casse » chaque ln avec les propriétés, puis on regroupe les ln du même nombre.<br>
+• <b>Exemple</b> : ln 8 + ln 10 + ln\\(\\left(\\frac{1}{40}\\right)\\) = 3 ln 2 + ln 2 + ln 5 − ln 5 − 3 ln 2 = ln 2.`;
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, lnf:RAP_LNF, lnd:RAP_LND, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, efb:RAP_EFB, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -44492,6 +45017,7 @@ const QIA_SUGG={
   esg:["Faire un rappel de cours pour cet exercice.","Quel outil utiliser pour cette étape ?","Pourquoi L est-il dans les deux plans ?","Pourquoi la parallèle se trace-t-elle sur la face opposée ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?"],
   esx:["Faire un rappel de cours pour cet exercice.","Pourquoi L est-il dans les deux plans ?","Comment trouver l’intersection de deux plans ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?","Par où commencer la section ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
+  lnd:["Faire un rappel de cours pour cet exercice.","Comment transformer ln(a × b) ?","Comment transformer ln(a/b) ?","Comment écrire ln 8 avec ln 2 ?","Que valent ln 1 et ln e ?","Comment écrire √e comme une puissance de e ?"],
   lnf:["Faire un rappel de cours pour cet exercice.","Comment dériver ln(u) ?","Comment mettre au même dénominateur ?","Pourquoi le dénominateur est-il positif ?","Comment trouver le signe de f′ ?","Pourquoi ln(1) = 0 ?"],
   edv:["Faire un rappel de cours pour cet exercice.","Comment vérifier qu’une fonction est solution d’une équation différentielle ?","Comment dériver e^(x²) ?","Comment dériver un produit u × v ?","Pourquoi factoriser par l’exponentielle ?","Que veut dire « réduire » un membre ?"],
   ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
@@ -45257,7 +45783,7 @@ function fermerFenetresIA(vider){
      l'élève qui y arrive en premier, et le banc ne le voyait pas parce que la
      visite séquentielle passait par le 2.1 d'abord, qui posait la rangée sur
      l'écran PARTAGÉ (signalé par Turquet, capture du 2.2, août 2026). */
-  const noms=['renderLNF','renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEFB','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
+  const noms=['renderLNF','renderLND','renderDexp','renderDexp2','renderDexp3','renderDexpQ','renderDexpQ2','renderLR','renderEQ','renderSU','renderEC','renderASG','renderECV','renderEFB','renderEAV','renderSVR','renderSVD','renderSSV','renderLG','renderLG2','renderLG3','renderSVQ','renderTVI2','renderTVI3','renderLQN','renderAPB','renderAPF','renderAPC','renderAPT','renderAPS','renderSBE','renderVAE','renderEPC','renderEDV'];
   noms.forEach(n=>{
     const f=window[n]; if(typeof f!=='function') return;
     window[n]=function(){ const r=f.apply(this,arguments);

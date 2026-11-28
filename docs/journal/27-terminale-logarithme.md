@@ -84,7 +84,7 @@ Essayé dans Chromium : la copie faite des corrections est parfaite (28 cases su
 « 1 − x + 3 » dans les deux numérateurs — se peignent à la sortie de chaque case :
 bleu, rouge, bleu, rouge, bleu, rouge.
 
-### Puis f(x) rappelée au-dessus du maximum, des flèches des x vers les cases (v537)
+### Puis f(x) rappelée au-dessus du maximum, des flèches des x vers les cases (v538)
 
 Demande de Turquet (novembre 2026) : « dans la question 3, rappeler
 l'expression de f(x) en présentant comme dans l'exercice de 1ère 1.10 avec des
@@ -103,3 +103,64 @@ positions RENDUES ; il se retrace au rendu, aux polices chargées, au
 redimensionnement (`ResizeObserver`, `resize`). Mesuré dans Chromium : centre
 du x et centre de la case au même pixel, a = 1 et a = −1, à 1100 px comme à
 390 px.
+
+## {ln-demontrer-egalite} (9.2.1, v537) : démontrer une égalité avec ln
+
+Demande de Turquet (novembre 2026), avec la fiche « Démontrer que ln 8 +
+ln 10 + ln(1/40) = ln 2 » : « créer un exercice avec des exemples comme dans
+le pdf ; on proposera à l'élève de le faire avec des étapes données comme
+dans l'exemple au début de l'exercice, ou sans étape, et l'élève devra écrire
+des égalités dans un champ de saisie jusqu'à la réponse ; on acceptera toute
+égalité correcte, l'élève pourra sauter des étapes ». Nouvelle partie 2
+« Propriétés algébriques » du thème 9.
+
+**Six familles, une par exemple de la fiche, dans son ordre** — la séance les
+pose toutes, une fois chacune, sur des nombres tirés (`lndGenFam`, par
+`distinctes()`) :
+
+| famille | forme | la fiche |
+|---|---|---|
+| `mod` | ln 2^p + ln 10 + ln(1/(5·2^k)) = (p + 1 − k) ln 2, k ≥ 2 | le modèle (p = 3, k = 3) |
+| `pui` | ln c^p + ln c^r − ln(c^s) = (p + r − s) ln c, c ∈ {2, 3} | le a) |
+| `let` | ln(a^m/b) + ln(b^n/a^k) = (n − 1) ln b + (m − k) ln a | le b) |
+| `exp` | ln(e^p) − ln(e^r) = p − r | le c) |
+| `rac` | ln(e^p √e) − ln(1/e^t) = p + 1/2 + t | le d) |
+| `sqr` | ln(c^p) + ln(√c/c) + ln(1/c^q) = (p − q − 1/2) ln c, c ∈ {2, 3, 5} | le réel a |
+
+k ≥ 2 au modèle : avec k = 1, ln(1/10) annule ln 10 et il ne reste rien à
+démontrer — vu à la première capture.
+
+**Deux façons, au choix de l'élève**, par deux boutons en tête de la
+question ; le choix (`test.lndMode`) vaut pour la suite de la séance et
+voyage dans la pause :
+
+* **Avec les étapes** — la chaîne à trous du modèle de la fiche
+  (`lndAns().lignes`) : des cases de nombres (exposants compris, `tx-se`),
+  la paire ln(2) + ln(5) dans l'ordre que l'on veut (la paire `grp`, jugée
+  dans l'ordre qui donne le plus de cases justes), une case accepte « 1/2 »,
+  « 0,5 » ou « ½ » ; puis la forme finale dans une case MathLive.
+* **Sans étape** — la feuille commune `mlFeuille` (mode calcul, chaque ligne
+  préfixée de « = ») : chaque ligne — chaque membre si l'élève écrit
+  « A = B » d'un trait — doit VALOIR l'expression de départ, et la dernière
+  doit être écrite sous la forme de l'énoncé. La feuille n'a aucun id :
+  ses lignes voyagent dans `test.lndLignes`, comme au 6.11. La feuille
+  entière est UNE réponse (`pts-case`) ; les lignes se colorent une à une
+  (bleu juste, rouge faux), à la sortie de la feuille en soutien.
+
+**Le juge ne croit aucune écriture.** `lndLire` lit le LaTeX de MathLive en
+un arbre (ln, √, \frac — `\frac12` compris —, puissances, e, a, b, la
+multiplication sous-entendue ; « ln 2^3 » est ln(2³)), `lndEval` le calcule,
+en trois couples (a, b) > 0 pour la famille à lettres. `lndForme` dit si une
+écriture est FINIE : un nombre seul (ou un quotient) pour `exp` et `rac` ;
+sinon des ln dont chaque argument est un atome de la cible (le nombre
+premier, ou a, b), jamais deux fois le même, sans √ ni puissance.
+« 2(ln b − ln a) » et « (−ln 3)/2 » sont finies ; « ln 8 », « ln 2 + ln 2 −
+ln 2 » et « ln(b²/a²) » sont justes mais pas finies — l'élève qui s'arrête
+là lit en soutien « tes égalités sont justes — continue jusqu'à la forme de
+l'énoncé ».
+
+**Essayé dans Chromium** : une copie juste des étapes du modèle vaut 18
+cases sur 18 ; une copie à une case juste sur 7 reçoit ses corrections
+vertes, la fausse rouge avec sa correction à côté ; en « Sans étape », une
+ligne fausse rougit seule, la juste bleuit, et la conclusion attendue
+s'écrit en vert sous la feuille.
