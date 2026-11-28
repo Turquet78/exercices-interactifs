@@ -44627,7 +44627,7 @@ function pythonIfElse(w, P){
     ["Bonjour","Quel est ton nom ?","12"].forEach(function(t){ if(ok(0,t)) vus.push("question acceptée à tort : "+t); });
     ["Tu es majeur.","Bonjour","Tu as gagné"].forEach(function(t){ if(ok(1,t)) vus.push("phrase du if acceptée à tort : "+t); });
     ["Tu es mineur.","Au revoir"].forEach(function(t){ if(ok(2,t)) vus.push("phrase du else acceptée à tort : "+t); });
-    if(!/phrase de l’else/.test(pceTrou(1,"Tu es majeur.",q).dit)) vus.push("la phrase inversée n’est pas nommée : "+pceTrou(1,"Tu es majeur.",q).dit);
+    if(!/phrase du else/.test(pceTrou(1,"Tu es majeur.",q).dit)) vus.push("la phrase inversée n’est pas nommée : "+pceTrou(1,"Tu es majeur.",q).dit);
     if(!/doit demander l.âge/.test(pceTrou(0,"Bonjour",q).dit)) vus.push("la question fausse n’est pas nommée");
     if(!pceTrou(1,"  ",q).vide||pceTrou(1,"  ",q).ok) vus.push("le trou vide n’est pas vide");
     const q1={s:1};
@@ -44722,7 +44722,7 @@ function pythonIfElse(w, P){
     checkPCE();
     const fb=document.getElementById("pceFeedback").textContent;
     if(!c[0].classList.contains("ok")||!c[1].classList.contains("bad")||c[2].classList.contains("bad")||test.locked) vus.push("soutien : les couleurs "+c.map(function(x){ return x.className; }).join(" / "));
-    if(!/phrase de l’else/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(!/phrase du else/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
     if(document.querySelector("#pceModele .sol")) vus.push("soutien : le modèle est révélé");
     ecrire(["Quel âge as-tu ?","Tu es mineur","tu es majeur"]);
     checkPCE();

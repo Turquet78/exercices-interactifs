@@ -49297,7 +49297,7 @@ function ctxPlo(q){
    S.mq, à la tolérance du thème) ; une phrase passe si pyTexteProche la
    trouve semblable à l'attendue, ou si elle porte ses mots clés (S.ko /
    S.kn) sans ceux de l'autre — mais une phrase plus proche de l'AUTRE est
-   nommée « la phrase de l'else ». « Exécuter » lance le programme complété
+   nommée « la phrase du else ». « Exécuter » lance le programme complété
    (le dialogue du 6.3.4). */
 const PCE_NB=3;
 /* Le dessin de la fiche : le serpent boudeur et sa bulle. Découpé dans la
@@ -49369,7 +49369,7 @@ function pceTrou(i, t, q){
     : {ok:false, vide:false, dit:'La question entre les guillemets de input doit demander '+S.quoi+'.'};
   const oui=i===1;
   if(pcePhraseOk(t, S, oui)) return {ok:true, vide:false, dit:''};
-  if(pcePhraseOk(t, S, !oui)) return {ok:false, vide:false, dit:'« '+t.trim()+' » est la phrase de l’'+(oui?'else':'if')+' : '+(oui?'sous le if, quand '+S.v+' est plus petit que '+S.n+', le programme affiche « '+S.oui+' »':'sous le else, quand '+S.v+' n’est pas plus petit que '+S.n+', le programme affiche « '+S.non+' »')+'.'};
+  if(pcePhraseOk(t, S, !oui)) return {ok:false, vide:false, dit:'« '+t.trim()+' » est la phrase du '+(oui?'else':'if')+' : '+(oui?'sous le if, quand '+S.v+' est plus petit que '+S.n+', le programme affiche « '+S.oui+' »':'sous le else, quand '+S.v+' n’est pas plus petit que '+S.n+', le programme affiche « '+S.non+' »')+'.'};
   return {ok:false, vide:false, dit:oui?'Sous le if, quand '+S.v+' est plus petit que '+S.n+', le programme doit afficher « '+S.oui+' ».':'Sous le else, quand '+S.v+' n’est pas plus petit que '+S.n+', le programme doit afficher « '+S.non+' ».'};
 }
 /* Les réponses que montre CPython : deux sous le seuil, le seuil, une au-dessus. */

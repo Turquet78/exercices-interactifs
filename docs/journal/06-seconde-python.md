@@ -5826,7 +5826,7 @@ mots clés de sa phrase (`S.ko` / `S.kn` : « mineur » ; « pas » et
 `pyMotDans` ou le mot en tête d'un plus long : « mineure ») : « Vous êtes
 mineur », « mineur » seul, « Tu es mineure !!! » passent. Le bord opposé
 tient : une phrase plus proche de l'AUTRE est refusée et nommée (« … est la
-phrase de l'else »). Un trou vide ne rougit jamais ; en entraînement, il
+phrase du else »). Un trou vide ne rougit jamais ; en entraînement, il
 reçoit son texte en vert, et une copie fausse voit le programme qui convient
 écrit en vert dessous ; en soutien, les cases justes restent bleues, la faute
 est dite, rien n'est révélé. `pceDiag` (le juge qui exécutait la copie) est
