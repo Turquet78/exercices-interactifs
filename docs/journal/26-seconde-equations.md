@@ -548,6 +548,21 @@ même quand la solution est juste) ; en soutien, elle bloque comme une case
 fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
+**Au 9.12, la case qui nomme l'équation se juge dès le choix, et ferme la
+résolution tant qu'elle est fausse (v752, novembre 2026).** Demande de
+Turquet : « mettre en rouge la case qui nomme [l'équation] quand c'est faux
+et bleu sinon. L'élève ne peut pas commencer sa résolution tant que la case
+n'est pas bleue. » `EQX.eqk.maj` (le crochet `maj` du moteur commun) peint
+la liste `eqk-C` à chaque choix, dans TOUS les modes — entraînement compris :
+c'est la porte de la résolution, pas une réponse qu'on cacherait jusqu'à
+« Vérifier ». Tant qu'elle n'est pas bleue, les lignes d'étapes et la case
+de la solution sont `disabled` (grisées), et une phrase le dit (« Choisis
+d'abord la bonne équation… »). Après la vérification, `maj` ne touche à rien
+(`fin` ou `test.locked`) : `corrChoix` garde la main sur la correction. Une
+liste rendue vide ne se peint pas (une case vide ne rougit jamais). Exécuté
+dans Chromium, entraînement et soutien : départ fermé, choix faux rouge et
+fermé, choix juste bleu et ouvert, copie juste comptée 2 / 2.
+
 ## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v749 — le 1.10 avait pris les v747 et v748 sur `main` pendant les contrôles)
 
 **D'où il vient.** Demande de Turquet : « créer un exercice comme le 9.5,

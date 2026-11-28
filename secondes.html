@@ -2276,6 +2276,8 @@
   .eqx-eqin.rel-in{width:min(100%,440px);text-align:left;padding:0 14px}
   .eqx-eqin.rel-in,.eqx-eqin+.mf-cor{font-family:"ApfX","Fredoka",system-ui,sans-serif;font-style:normal}   /* le x arrondi (KaTeX_Math) par ApfX, chiffres en Fredoka */
   .eqx-sel.plc-sel{width:auto;min-width:110px;max-width:100%;padding:0 14px;font-size:1.05rem}
+  .eqk-attente{color:#64748b;font-style:italic}
+  .eqk-ferme,#eqk-S:disabled{opacity:.45}
   .eqx-eq{display:inline-flex;align-items:center;gap:.3em;white-space:nowrap;vertical-align:middle}
   .eqx-t{display:inline-flex;align-items:center;gap:.15em;white-space:nowrap}
   .eqx-frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15}
@@ -10298,7 +10300,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=751;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=752;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -94302,9 +94304,25 @@ EQX.eqk={
       +'<p class="eqx-p">'+EQC_SIT[q.p].inc+' Une seule de ces équations traduit l’énoncé :</p>'
       +'<div class="eqx-copie">'+q.o.map(function(o,i){ return '<div class="eqx-cl"><span class="eqx-num">'+EQK_LET[i]+'</span>'+eqxEqH(o.G,o.D)+'</div>'; }).join('')+'</div>'
       +'<p class="eqx-p">L’équation qui traduit l’énoncé est l’équation '+eqxSelect('eqk-C','l’équation qui traduit l’énoncé',EQK_LET.map(function(l){ return [l,l]; }))+'</p>'
+      +'<p class="eqx-p eqk-attente" id="eqk-attente">Choisis d’abord la bonne équation : la résolution s’ouvre quand la case est bleue.</p>'
       +eqxEtapesHTML('eqk')
       +'<div class="eqx-l"><span>Sa solution :</span><span><i>x</i></span><span class="eqx-egal">=</span>'+eqxInput('eqk-S','la solution x')+'</div>'
       +'</div>';
+  },
+  /* la case qui nomme l'équation se juge dès le choix, dans tous les modes :
+     bleue si c'est la bonne, rouge sinon ; la résolution (étapes et solution)
+     reste fermée tant qu'elle n'est pas bleue (demande de Turquet, novembre
+     2026). Après la vérification, corrChoix a la main : on ne touche à rien. */
+  maj:function(q, fin){
+    if(fin || test.locked) return;
+    const sel=$('eqk-C'); if(!sel) return;
+    const vide=eqxVide(sel), ok=!vide && sel.value===EQK_LET[q.bon];
+    sel.classList.remove('ok','bad','sol');
+    if(!vide) sel.classList.add(ok?'ok':'bad');
+    const att=$('eqk-attente'); if(att) att.hidden=ok;
+    const ids=eqxEtapeIds('eqk').concat(['eqk-S']);
+    ids.forEach(function(id){ const el=$(id); if(el) el.disabled=!ok; });
+    const et=$('eqk-etapes'); if(et) et.classList.toggle('eqk-ferme', !ok);
   },
   pourquoi:function(q, subs){
     const f=eqxPremiere(subs); if(!f) return '';
