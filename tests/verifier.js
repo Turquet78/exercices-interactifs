@@ -25949,7 +25949,7 @@ function bonhommeDeplacer(w, P){
     if(test.kind!=='bhd' || test.qId!=='bonhomme-deplacer') vus.push('identité : '+test.kind+' / '+test.qId);
     if(test.questions.length!==10 || test.maxScore!==10) vus.push(test.questions.length+' questions, barème '+test.maxScore);
     const fb=function(){ return (document.getElementById('bhdFb')||{}).textContent||''; };
-    const neuf=function(a,b){ test.locked=false; test.questions[test.idx]={a:a,b:b}; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; renderBhdTest(); };
+    const neuf=function(a,b){ test.locked=false; test.questions[test.idx]={a:a,b:b}; test.bhdEt=0; test.bhdPos=0; test.bhdFautes=[0,0]; test.bhdM2Fautes=0; test.bhdM2Op=null; test.bhdM2OpSol=false; renderBhdTest(); };
     neuf(-3,5);
     if(document.getElementById('bhd-r')) vus.push('la case du résultat est ouverte avant les déplacements');
     bhdValider();
@@ -25983,9 +25983,9 @@ function bonhommeDeplacer(w, P){
     /* la méthode 2 (v746) : la règle, sous le bonhomme, ouverte avec la case du résultat */
     const m2=document.getElementById('bhdM2');
     if(!m2 || m2.hidden || !document.getElementById('bhd-m2r') || !/Règle/.test(m2.textContent)) vus.push('la méthode 2 ne s\\'ouvre pas avec la case du résultat');
-    if(!/−3 et \\+5/.test(m2.textContent) || !/5 \\+ 3 =/.test(m2.textContent) || !/5 − 3 =/.test(m2.textContent)) vus.push('la méthode 2 ne reprend pas l\\'exemple : « '+m2.textContent.slice(0,200)+' »');
+    if(!/−3 et \\+5/.test(m2.textContent) || !/5 \\+ 3/.test(m2.textContent) || !/5 − 3/.test(m2.textContent) || document.getElementById('bhd-m2c')) vus.push('la méthode 2 ne reprend pas l\\'exemple : « '+m2.textContent.slice(0,200)+' »');
     const val=function(id,v){ document.getElementById(id).value=v; };
-    const regle=function(sg,op,p,m,g,r){ val('bhd-m2s',sg); val('bhd-m2o',op); val('bhd-m2p',p); val('bhd-m2m',m); val('bhd-m2g',g); val('bhd-m2r',r); };
+    const regle=function(sg,op,p,m,g,r){ val('bhd-m2s',sg); val('bhd-m2o',op); if(p){ bhdChoisirOp(p); } if(m) val('bhd-m2c',m); val('bhd-m2g',g); val('bhd-m2r',r); };
     const cl=function(id){ const c=(document.getElementById(id)||{}).className||''; return /\\bok\\b/.test(c)?'ok':(/\\bbad\\b/.test(c)?'bad':(/\\bsol\\b/.test(c)?'sol':'rien')); };
     /* v747 : la méthode 2 se corrige tout de suite, en entraînement aussi */
     const ev=function(id,v,type){ const el=document.getElementById(id); el.value=v; el.dispatchEvent(new Event(type||'change',{bubbles:true})); };
@@ -25994,21 +25994,23 @@ function bonhommeDeplacer(w, P){
     if(cl('bhd-m2s')!=='bad' || !/corrige/.test(m2fb())) vus.push('en entraînement, « même signe » faux n\\'est pas rouge tout de suite : '+cl('bhd-m2s')+' « '+m2fb()+' »');
     ev('bhd-m2s','diff');
     if(cl('bhd-m2s')!=='ok' || m2fb()!=='') vus.push('corrigé, « signes différents » n\\'est pas bleu : '+cl('bhd-m2s')+' « '+m2fb()+' »');
-    ev('bhd-m2m','3', 'input');
-    if(cl('bhd-m2m')!=='rien') vus.push('la case rougit pendant la frappe : '+cl('bhd-m2m'));
-    ev('bhd-m2m','3');
-    if(cl('bhd-m2m')!=='bad') vus.push('5 − 3 = 3 quitté n\\'est pas rouge : '+cl('bhd-m2m'));
-    ev('bhd-m2p','8');
-    if(cl('bhd-m2p')!=='bad' || !/pas ce calcul/.test(m2fb())) vus.push('le mauvais calcul rempli : '+cl('bhd-m2p')+' « '+m2fb()+' »');
-    ev('bhd-m2p','');
-    if(cl('bhd-m2p')!=='rien') vus.push('le mauvais calcul vidé reste peint : '+cl('bhd-m2p'));
+    /* v748 : le calcul se choisit d'un clic ; seul le bon ouvre sa case */
+    bhdChoisirOp('add');
+    if(document.getElementById('bhd-m2c') || !/bhd-op-bad/.test(document.getElementById('bhd-op-add').className) || !/pas ce calcul/.test(m2fb())) vus.push('le mauvais calcul cliqué : case '+!!document.getElementById('bhd-m2c')+', « '+m2fb()+' »');
+    bhdChoisirOp('sub');
+    if(!document.getElementById('bhd-m2c') || !/bhd-op-ok/.test(document.getElementById('bhd-op-sub').className) || document.getElementById('bhd-op-add').tagName==='BUTTON' || document.querySelectorAll('#bhdM2Calc input').length!==1)
+      vus.push('le bon calcul cliqué n\\'ouvre pas sa seule case, ou l\\'autre reste cliquable');
+    bhdChoisirOp('add'); if(test.bhdM2Op!=='sub') vus.push('le calcul se rechoisit une fois le bon trouvé');
+    ev('bhd-m2c','3', 'input');
+    if(cl('bhd-m2c')!=='rien') vus.push('la case rougit pendant la frappe : '+cl('bhd-m2c'));
+    ev('bhd-m2c','3');
+    if(cl('bhd-m2c')!=='bad') vus.push('5 − 3 = 3 quitté n\\'est pas rouge : '+cl('bhd-m2c'));
     if(test.bhdM2Fautes!==3) vus.push('les fautes de la méthode 2 ne sont pas relevées : '+test.bhdM2Fautes);
     regle('diff','sub','','2','+','+2');
     document.getElementById('bhd-r').value='+2'; checkBhdAnswer();
     let der=test.answers[test.answers.length-1];
     if(!der || !der.correct || peint()!=='ok') vus.push('−3 + 5 = +2 n\\'est pas compté juste');
-    if(cl('bhd-m2p')!=='rien') vus.push('le calcul qui n\\'est pas à faire, laissé vide, est peint '+cl('bhd-m2p'));
-    if(['bhd-m2s','bhd-m2o','bhd-m2m','bhd-m2g','bhd-m2r'].some(function(id){ return cl(id)!=='ok'; })) vus.push('la méthode 2 juste n\\'est pas peinte juste');
+    if(['bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2g','bhd-m2r'].some(function(id){ return cl(id)!=='ok'; })) vus.push('la méthode 2 juste n\\'est pas peinte juste');
     if(test.score!==1) vus.push('une question juste ne vaut pas 1 point : '+test.score);
     if(der && !/3 cases corrigées/.test(der.given||'')) vus.push('la copie ne relève pas les cases corrigées : '+(der&&der.given));
     if(der && !/3 déplacements faux/.test(der.given||'')) vus.push('la copie ne relève pas les déplacements faux : '+(der&&der.given));
@@ -26017,10 +26019,10 @@ function bonhommeDeplacer(w, P){
     document.getElementById('bhd-r').value='5'; checkBhdAnswer();
     der=test.answers[test.answers.length-1];
     if(!der || der.correct || peint()!=='bad') vus.push('4 + (−1) = 5 : '+(der&&der.correct)+' / '+peint());
-    finir(-4,1); document.getElementById('bhd-r').value='-3'; regle('meme','add','5','','-','-3'); checkBhdAnswer();
+    finir(-4,1); document.getElementById('bhd-r').value='-3'; regle('meme','add','','','-','-3'); checkBhdAnswer();
     der=test.answers[test.answers.length-1];
-    if(!der || der.correct || peint()!=='ok' || cl('bhd-m2s')!=='bad' || cl('bhd-m2o')!=='bad' || cl('bhd-m2p')!=='bad' || cl('bhd-m2m')!=='sol' || cl('bhd-m2r')!=='ok')
-      vus.push('−4 + 1 par une règle fausse : '+(der&&der.correct)+' / '+['bhd-m2s','bhd-m2o','bhd-m2p','bhd-m2m','bhd-m2r'].map(cl).join(','));
+    if(!der || der.correct || peint()!=='ok' || cl('bhd-m2s')!=='bad' || cl('bhd-m2o')!=='bad' || cl('bhd-m2c')!=='sol' || cl('bhd-m2r')!=='ok' || !/bhd-op-sol/.test((document.getElementById('bhd-op-sub')||{}).className||''))
+      vus.push('−4 + 1 par une règle fausse, sans calcul choisi : '+(der&&der.correct)+' / '+['bhd-m2s','bhd-m2o','bhd-m2c','bhd-m2r'].map(cl).join(','));
     if(der && !/par la règle : −3/.test(der.given||'')) vus.push('la copie ne relève pas le résultat par la règle : '+(der&&der.given));
     for(let k=0;k<30;k++){ startBhd(); if(test.questions.some(function(x){ return x.a+x.b===0; })){ vus.push('une somme nulle est tirée'); break; } }
     finir(-2,-2); document.getElementById('bhd-r').value=''; checkBhdAnswer();
