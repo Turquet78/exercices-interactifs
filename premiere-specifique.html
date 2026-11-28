@@ -1800,6 +1800,8 @@ i.pb-P{margin-right:.14em}
   .isd-pt{fill:#1F6F8B;stroke:none}
   .isd-ac{fill:none;stroke:#1F6F8B;stroke-width:1.5}
   .isd-grille{display:grid;grid-template-columns:auto auto auto auto auto;column-gap:22px;row-gap:12px;align-items:center;white-space:nowrap}
+  .isd-dec{position:relative}
+  .isd-eg{margin-left:.3em}
   .isd-c{display:inline-flex;align-items:center;justify-content:center;gap:2px}
   .isd-lab{justify-content:flex-start;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--ink)}
   .isd-nom{justify-content:flex-end}
@@ -4289,7 +4291,7 @@ function $(id){
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=489;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=490;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -22628,14 +22630,17 @@ function isdMiroirs(){
   });
 }
 function isdSchema(q){
-  const ax=isdN(q.x), fx='<i>f</i>(<i>x</i>)', fa='<i>f</i>('+ax+')';
+  const ax=isdN(q.x), fx='<i>f</i>(<i id="isd-fxx">x</i>)', fa='<i>f</i>(<span id="isd-fan">'+ax+'</span>)';
   const ag=q.a===1?'':(q.a===-1?'−':isdN(q.a));
-  const fl=[['isd-fx','isd-fa'],['isd-t1','isd-g1'],['isd-t2','isd-g2']], acc=['isd-g1','isd-g2','isd-g3'];
+  /* [départ, arrivée, terme à décaler] : la flèche part du « x » du terme et
+     tombe sur la case qui le remplace ; le terme glisse pour que son x soit
+     juste au-dessus (isdTrace) */
+  const fl=[['isd-fxx','isd-fan','isd-fx'],['isd-t1x','isd-p1','isd-t1'],['isd-t2x','isd-p2','isd-t2']], acc=['isd-g1','isd-g2','isd-g3'];
   const ligne=function(cls, cells){ return cells.map(function(c){ return '<span class="isd-c '+cls+(c[1]?' '+c[1]:'')+'">'+c[0]+'</span>'; }).join(''); };
-  let h=ligne('isd-l1', [['','isd-lab'],['<span id="isd-fx">'+fx+'</span> =','isd-nom'],
-      ['<span id="isd-t1">'+ag+'<i>x</i>²</span>'],['<span id="isd-t2">'+isdS(q.b)+'<i>x</i></span>'],['<span>'+isdS(q.c)+'</span>']]);
+  let h=ligne('isd-l1', [['','isd-lab'],['<span id="isd-fx" class="isd-dec">'+fx+'</span><span class="isd-eg">=</span>','isd-nom'],
+      ['<span id="isd-t1" class="isd-dec">'+ag+'<i id="isd-t1x">x</i>²</span>'],['<span id="isd-t2" class="isd-dec">'+isdS(q.b)+'<i id="isd-t2x">x</i></span>'],['<span>'+isdS(q.c)+'</span>']]);
   const p1='<span id="isd-g1p">('+isdCase('isd-p1','le nombre qui remplace x dans x au carré')+')</span>²';
-  h+=ligne('isd-l3', [['Calculer l’image de '+ax+' :','isd-lab'],['<span id="isd-fa">'+fa+'</span> =','isd-nom'],
+  h+=ligne('isd-l3', [['Calculer l’image de '+ax+' :','isd-lab'],['<span id="isd-fa">'+fa+'</span><span class="isd-eg">=</span>','isd-nom'],
       [q.a===1 ? '<span id="isd-g1">'+p1+'</span>' : ag+'<span id="isd-g1">'+p1+'</span>'],
       ['<span id="isd-g2">'+isdS(q.b)+' × <span id="isd-g2p">('+isdCase('isd-p2','le nombre qui remplace x dans '+isdN(q.b)+'x')+')</span></span>'],
       ['<span id="isd-g3">'+isdS(q.c)+'</span>']]);
@@ -22675,10 +22680,18 @@ function isdTrace(){
     let fl=[], acc=[];
     try{ fl=JSON.parse(sc.getAttribute('data-fl')||'[]'); acc=JSON.parse(sc.getAttribute('data-acc')||'[]'); }catch(e){}
     let d='', pt='', ac='';
+    /* chaque terme glisse pour que son « x » soit au-dessus de sa case : on
+       remet le décalage à zéro, on mesure, puis on le pose (un décalage
+       relatif ne change pas la grille) */
+    fl.forEach(function(f){ const t=f[2] && document.getElementById(f[2]); if(t) t.style.left='0px'; });
+    fl.forEach(function(f){
+      const t=f[2] && document.getElementById(f[2]), a=boite(f[0]), b=boite(f[1]); if(!t || !a || !b) return;
+      t.style.left=(((b.l+b.r)-(a.l+a.r))/2).toFixed(1)+'px';
+    });
     fl.forEach(function(f){
       const a=boite(f[0]), b=boite(f[1]); if(!a || !b) return;
-      /* du milieu du terme au milieu de son groupe : la grille les aligne, la
-         flèche tombe droite, comme sur la fiche */
+      /* du « x » du terme au milieu de sa case : la flèche tombe droite,
+         comme sur la fiche */
       const x1=(a.l+a.r)/2, y1=a.b+4, x2=(b.l+b.r)/2, y2=b.t-3;
       const L=Math.hypot(x2-x1, y2-y1)||1, ux=(x2-x1)/L, uy=(y2-y1)/L, bx=x2-ux*8, by=y2-uy*8;
       d+='M'+x1.toFixed(1)+' '+y1.toFixed(1)+' L'+bx.toFixed(1)+' '+by.toFixed(1)+' ';
