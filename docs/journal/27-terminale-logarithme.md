@@ -164,3 +164,54 @@ cases sur 18 ; une copie à une case juste sur 7 reçoit ses corrections
 vertes, la fausse rouge avec sa correction à côté ; en « Sans étape », une
 ligne fausse rougit seule, la juste bleuit, et la conclusion attendue
 s'écrit en vert sous la feuille.
+
+## {ln-resoudre-equation} (9.3.1, v539) : résoudre une équation avec ln
+
+Demande de Turquet (novembre 2026), avec la fiche « Résoudre ln(2x − 1) = 0
+sur ]0,5 ; +∞[ » : « créer un exercice dans ln, comme le pdf ; les solutions
+seront entières et relatifs ; on fera comme dans le 9.2.1, un mode avec étape
+ou sans étape ; pour le mode sans étape on acceptera toutes les équations
+équivalentes, et on pourra sauter des étapes ». Puis, en cours de route : « on
+ne peut pas avoir de résultat entier en fait » — e^k ne l'est pas. Ce qui est
+entier relatif : la solution de ln(ax + b) = 0, et pour les deux autres
+modèles les nombres de l'énoncé et l'exposant k. Nouvelle partie 3
+« Équations » du thème 9.
+
+**Trois familles, une par exemple de la fiche**, deux fois chacune (6
+questions, `lnrGen` par `distinctes()`) :
+
+| famille | forme | solution |
+|---|---|---|
+| `z` | ln(ax + b) = 0, a ∈ {2, 3, 4, 5, −2, −3} | x = (1 − b)/a, entier non nul |
+| `p` | c ln(x + b) + d = 0, d = −ck, c de 2 à 5 | x = −b + e^k, k ∈ {±1, ±2, ±3} |
+| `m` | c ln(−x + b) + d = 0 | x = b − e^k |
+
+**L'ensemble de résolution est calculé** (`lnrAns().domH`) : la fiche écrit
+]−∞ ; −1[ au troisième exemple, là où −x + 1 > 0 donne ]−∞ ; 1[. Une borne
+non entière s'écrit en décimal court (0,5) ou en fraction.
+
+**Avec les étapes** — la chaîne de la fiche, « ⟺ » en tête de ligne, des
+cases de nombres (exposants en `tx-se`) : e^(ln(ax + b)) = e^□, ax + b = □,
+ax = □, x = □ ; ou c ln(u) = □, ln(u) = □/□ = □, e^(ln u) = e^□, u = e^□,
+x = □ + e^□ (et −x = □ + e^□, x = □ − e^□ pour la famille `m`). La fraction
+se juge EN ENTIER (`lnrVerdictsEtapes`) : toute fraction qui vaut k est
+juste ; sinon chaque case contre la sienne.
+
+**Sans étape** — la feuille commune (`mlFeuille`, mode calcul, préfixe
+« ⟺ ») ; ses lignes voyagent dans `test.lnrLignes`. Le juge
+(`lnrJugerLigne`, `lnrEquivPaire`) : `lndLire` lit chaque membre — il
+accepte désormais la lettre x —, g = gauche − droite doit s'annuler en la
+solution et NULLE PART AILLEURS sur l'ensemble de définition : 900 points,
+serrés près de la borne finie (10^−4 à 10^3), et un zéro ou un changement de
+signe loin de la solution trahit une équation non équivalente. « A = B = C »
+se lit maillon par maillon : deux membres sans x doivent être égaux
+(« ln(x − 2) = 2/2 = 1 », comme sur la fiche). La dernière ligne est finie
+quand elle est « x = … » sans x ni ln à droite — un entier écrit pour la
+famille `z`.
+
+**Essayé dans Chromium** : six copies justes faites des corrections de la
+page valent 6 sur 6 ; une copie fausse reçoit ses corrections en vert. Sur la
+feuille : « −2x + 13 = 1 », « x = 6 » justes et finies ; « x = 7 » fausse ;
+« (x − 6)² = 0 » juste (équivalente sur l'ensemble) ; « x = 12/2 » juste mais
+non finie ; « x = 2 − e¹ » fausse pour 2 ln(x − 2) − 2 = 0 ;
+« e² = −x + 5 » juste (membres dans l'autre sens).
