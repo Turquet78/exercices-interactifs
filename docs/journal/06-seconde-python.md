@@ -7390,3 +7390,63 @@ Le numéro s'est heurté à une autre fusion : la PR 1068 (les zéros des 8.4.6
 et 8.4.8), fusionnée quelques minutes avant, portait elle aussi la Seconde en
 700. Le 6.2.24 passe en 701, pour qu'on sache d'un coup d'œil laquelle est
 ouverte.
+
+## Le 6.7.2 et le 6.7.3 deviennent des programmes À TROUS (novembre 2026, v752)
+
+**La demande.** Turquet, novembre 2026 : « en seconde dans le 6.7.2, mettre
+le programme déjà fait comme dans les coups de pouce, l'élève devra compléter
+les pointillés pour les textes et les formules du prix ; on acceptera des
+fautes d'orthographe dans les textes, avec des caractères en trop ou en moins,
+des expressions similaires, des majuscules », puis, pendant le travail :
+« faire la même chose pour le 6.7.3 après ».
+
+**Le programme est écrit, ses pointillés sont des cases.** Les coups de pouce
+du carnet portaient déjà le programme, des pointillés à la place des textes et
+des calculs : il est maintenant ÉCRIT sur l'écran (`psmProgHTML`,
+`pxyProgHTML`), colorié comme le carnet, et chaque pointillé est un `<input>`
+(`.pch-in`, compté par `ptsEcran()` comme une case). Les guillemets sont
+écrits : l'élève tape le texte seul (s'il les recopie, `pytTexte` les retire ;
+un `"` ou un `\` au milieu aussi, sans quoi le programme casserait).
+« Faire un programme » / « Écrire un programme » devient « Compléter les
+pointillés du programme » ; le reste de l'énoncé ne bouge pas. Les coups de
+pouce qui ÉTAIENT le programme disparaissent : au 6.7.2 il reste le troisième
+(les deux formules), renommé « coup de pouce » ; au 6.7.3, plus aucun. Les
+rappels de cours (`RAP_PSM`, `RAP_PXY`) ne changent pas.
+
+- **6.7.2** : cinq cases — la question de `input`, les deux calculs du prix,
+  les deux textes du `print` (`PSM_TROUS`).
+- **6.7.3** : six cases — les deux questions, puis, dans chaque `print`, le
+  texte et ce qui est affiché après lui (`PXY_TROUS`).
+
+**Un texte se juge par ses MOTS** (`pytJugeTexte`, outils partagés `pyt…`
+placés devant le 6.7.3) : il faut qu'un des mots attendus s'y lise à la
+tolérance du thème (`pyMotDans`, une lettre par tranche de quatre). Question
+du 6.7.2 : samoussas, combien, nombre, quantité ; textes du prix : prix,
+payer, total, coûte, coût, montant, somme, euros, tarif. Questions du 6.7.3 :
+nombre, premier, deuxième, second, valeur, décimal, entrer, donne… ; textes :
+grand, max, maximum, supérieur — et « le plus petit » est nommé et refusé.
+Majuscules, accents, espaces, lettres en trop ou en moins passent.
+
+**Un calcul se juge par sa VALEUR** (`psmJugeCalc`) : exécuté sous les quatre
+nombres de samoussas de `psmEx`, il doit donner nombre × le prix de SA
+branche — `1.2*nombre`, `nombre*1.20`, un « prix = » recopié passent. Nommés :
+le prix de l'autre branche, le prix d'un seul samoussa, la virgule, un nombre
+fixe, une variable inconnue, un texte. **La variable affichée du 6.7.3**
+(`pxyJugeVar`) se juge par sa valeur dans sa branche, sous les paires de
+`PXY_EX` qui y mènent ; nommés : le plus petit, les guillemets, un nom
+inconnu.
+
+**La note** compte chaque case (5 ou 6 par question) ; la case juste est
+bleue, la fausse rouge avec la bonne réponse en vert à côté (`pytMarque`), la
+vide reçoit la réponse en vert sans rougir. En soutien, rien n'est révélé et
+la question reste ouverte. « Exécuter » assemble le programme avec ce qui est
+écrit (`psmSrc`, `pxySrc`) et garde le dialogue de la console ; Entrée passe
+d'un pointillé au suivant, et dans le dernier exécute. Les anciens juges du
+programme entier (`psmDiag`, `pxyDiag`) sont retirés.
+
+**Contrôles** : `pythonSamoussa` et `pythonIfPlusGrand` (banc principal) ont
+été réécrits pour le programme à trous — la séance, les juges sur des textes
+fautifs acceptés et des défauts nommés, l'écran et le programme écrit ligne
+par ligne, le dialogue de la console, la copie juste (5 et 6 cases), la case
+fausse, les cases vides, le soutien ; la comparaison des modèles à CPython
+reste.

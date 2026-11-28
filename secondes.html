@@ -1542,7 +1542,8 @@
      valeur, courtes, ne s'élargissent pas à sa mesure (v686) */
   select.pfr-in.pfp-sel.pfp-sel-court{width:12ch}
   .pfp-nw{white-space:nowrap;display:inline-flex;align-items:baseline}
-  #psfHost .mf-cor.pyn-cor,#pynHost .mf-cor.pyn-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600}
+  .pyt-texte{width:20ch} .pyt-calc{width:13ch} .pyt-var{width:5ch}
+  #psfHost .mf-cor.pyn-cor,#pynHost .mf-cor.pyn-cor,#psmHost .mf-cor.pyn-cor,#pxyHost .mf-cor.pyn-cor{font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:600}
   .pyp-cours{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 10px}
   .pyp-regle{border:1px solid var(--line);border-left:5px solid #6c8ebf;border-radius:10px;background:#f4f8ff;padding:10px 12px;font-size:.98rem;line-height:1.45;color:var(--ink);text-align:left}
   .pyp-regle b{font-family:"Fredoka";font-weight:600}
@@ -10298,7 +10299,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=751;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=752;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11353,8 +11354,8 @@ const TESTS={
   'python-if-location': { name:'Je loue une voiture', icon:'\ud83d\ude97', desc:'\u00c9cris un programme qui demande le nombre de kilom\u00e8tres parcourus et calcule le prix de la location avec if et else, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPLO() },
   'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur avec int(input(\u2026)), puis affiche \u00ab\u00a0Tu es mineur.\u00a0\u00bb s\u2019il est plus petit que 18, \u00ab\u00a0Tu es majeur.\u00a0\u00bb sinon, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
   'python-for-table': { name:'Afficher la table de 3, puis la table de 7', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche la table de 3, de \u00ab\u00a03 fois 1 est \u00e9gal \u00e0 3\u00a0\u00bb \u00e0 \u00ab\u00a03 fois 9 est \u00e9gal \u00e0 27\u00a0\u00bb, avec une boucle for \u2026 in range(\u2026) \u2014 puis un second qui affiche la table de 7. Ex\u00e9cute-les\u00a0: la console montre ce qu\u2019ils affichent.', start:()=>startPTM() },
-  'python-samoussa': { name:'Le prix des samoussas', icon:'\ud83e\udd5f', desc:'\u00c9cris un programme qui demande le nombre de samoussas, puis, avec if et else, calcule le prix\u00a0: 1,20\u00a0\u20ac le samoussa si on en prend moins de 10, 0,80\u00a0\u20ac \u00e0 partir de 10. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPSM() },
-  'python-if-plus-grand': { name:'Le plus grand des deux nombres', icon:'\ud83d\udc0d', desc:'\u00c9cris un programme qui demande deux nombres d\u00e9cimaux et affiche le plus grand des deux, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPXY() },
+  'python-samoussa': { name:'Le prix des samoussas', icon:'\ud83e\udd5f', desc:'Compl\u00e8te les pointill\u00e9s du programme\u00a0: le texte de la question, les deux calculs du prix (1,20\u00a0\u20ac le samoussa si on en prend moins de 10, 0,80\u00a0\u20ac \u00e0 partir de 10) et les textes affich\u00e9s. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPSM() },
+  'python-if-plus-grand': { name:'Le plus grand des deux nombres', icon:'\ud83d\udc0d', desc:'Compl\u00e8te les pointill\u00e9s du programme qui demande deux nombres d\u00e9cimaux et affiche le plus grand des deux, avec if \u2026 else\u00a0: les textes et ce qu\u2019affiche chaque print. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPXY() },
   'python-if-plus-grand-trois': { name:'Bonus\u00a0: le plus grand de trois nombres', icon:'\ud83d\udd00', desc:'Bonus\u00a0: \u00e9cris un programme qui demande 3 nombres d\u00e9cimaux et qui affiche le plus grand des trois, avec if \u2026 else. Ex\u00e9cute-le pour lui r\u00e9pondre.', start:()=>startPGT() },
   'python-remplacer-lettre': { name:'Remplacer la premi\u00e8re lettre par "*"', icon:'\u2b50', desc:'Fais un programme qui remplace la premi\u00e8re lettre d\u2019une cha\u00eene par "*" : "gaston" devient "*aston". On reconstruit la cha\u00eene lettre par lettre, avec une boucle for.', start:()=>startPRL() },
   'python-tables-multiplication': { name:'Afficher les tables de 2 \u00e0 9', icon:'\u2716\ufe0f', desc:'\u00c9cris un programme qui affiche toutes les tables de multiplication, de la table de 2 jusqu\u2019\u00e0 la table de 9, avec une double boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPMT() },
@@ -13218,12 +13219,12 @@ const QIA_SUGG={
   pfk:["Comment faire prendre à x les valeurs de 0 à 10 ?","Comment afficher un texte et un nombre dans le même print ?","Comment s’écrit x² en Python ?","Pourquoi la ligne du print doit-elle être décalée ?"],
   pgt:["Comment comparer deux nombres en Python ?","Comment écrire if, elif et else ?","Que se passe-t-il si deux nombres sont égaux ?","Pourquoi faut-il écrire float(…) autour de input ?"],
   ptm:["Comment faire prendre à k les valeurs de 1 à 9 ?","Pourquoi range(1,10) s’arrête-t-il à 9 ?","Comment écrire du texte et des nombres dans le même print ?","Comment calculer le résultat de chaque ligne ?"],
-  pxy:["Pourquoi faut-il écrire float(…) autour de input ?","Comment écrire la condition du if ?","Pourquoi les lignes sous if et else sont-elles décalées ?","Que faut-il mettre à la place des ... dans le print ?"],
+  pxy:["Que faut-il écrire dans les pointillés de input ?","Quand la ligne sous le if s’exécute-t-elle ?","Quelle variable faut-il afficher dans chaque print ?","Pourquoi faut-il écrire float(…) autour de input ?"],
   pci:["Comment ranger l’âge dans une variable entière ?","Comment s’écrit « si … alors … sinon » en Python ?","Comment écrire « plus petit que 18 » ?","Pourquoi les lignes sous le if sont-elles décalées ?"],
   pfi:["Comment faire varier x de 0 à 1 de dixième en dixième ?","Pourquoi range(11) et pas range(10) ?","Comment écrire x² en Python ?","Comment afficher un texte et un nombre dans le même print ?"],
   plo:["Pourquoi faut-il écrire int(…) autour de input ?","Comment écrire un if et un else en Python ?","Comment calculer le prix des kilomètres restants ?","Comment afficher le prix avec une phrase ?"],
   pce:["Que signifie if … else ?","Pourquoi faut-il écrire int(…) autour de input ?","Où placer les deux-points et les décalages ?","Que se passe-t-il si l’on répond exactement 18 ?"],
-  psm:["Pourquoi faut-il écrire int(…) autour de input ?","Comment écrire « si … sinon » en Python ?","Pourquoi faut-il décaler les lignes sous le if et le else ?","Comment écrire 1,20 en Python ?"],
+  psm:["Que faut-il écrire dans les pointillés de input ?","Comment écrire le calcul du prix ?","Comment écrire 1,20 en Python ?","Pourquoi y a-t-il deux calculs du prix ?"],
   pcz:["Pourquoi le programme colle-t-il les deux nombres ?","Que fait int(…) autour de input ?","Comment corriger le programme ?"],
   pte:["Que veut dire TypeError ?","Pourquoi Python ne peut-il pas ajouter 1 à la réponse ?","Comment corriger le programme ?"],
   pfl:["Quelle différence entre int et float ?","Pourquoi int(…) refuse-t-il 1.65 ?","Comment corriger le programme ?"],
@@ -48369,7 +48370,7 @@ function ctxPfn(q){
    input depuis le 6.3. Dans la cellule, Tab décale de quatre espaces et
    Entrée après « : » décale la ligne suivante (le geste du 6.6.2).
 
-   LE JUGE (pxyDiag) exécute la copie sous quatre paires de réponses que
+   LE JUGE D'ORIGINE (pxyDiag, retiré en novembre 2026 : le programme est désormais À TROUS, voir plus bas) exécutait la copie sous quatre paires de réponses que
    l'élève ne connaît pas (PXY_EX) — le plus grand en premier, en second,
    deux négatifs, deux nombres égaux : « tester plusieurs fois », c'est la
    page qui le fait. Il faut deux input, chacun avec sa question, les
@@ -48384,6 +48385,108 @@ function ctxPfn(q){
    variables tirées par distinctes() ; dmNbQuestions() l'allonge. Le
    programme voyage dans q.prog et compte pour UNE case (pts-case). Aucune
    correction au fil de la frappe (déclaré dans tests/profils.js). */
+/* LE PROGRAMME À TROUS (demande de Turquet, novembre 2026 : « en seconde dans
+   le 6.7.2, mettre le programme déjà fait comme dans les coups de pouce,
+   l'élève devra compléter les pointillés pour les textes et les formules du
+   prix ; on acceptera des fautes d'orthographe dans les textes, avec des
+   caractères en trop ou en moins, des expressions similaires, des
+   majuscules », puis « faire la même chose pour le 6.7.3 »). Le programme
+   des coups de pouce est ÉCRIT sur l'écran ; seuls ses pointillés sont des
+   cases. Les guillemets sont déjà là : un texte se juge par ses MOTS
+   (pyMotDans, la tolérance du thème), jamais mot pour mot. Les deux exercices
+   partagent les outils ci-dessous (pyt…). */
+function pytNet(s){ return String(s==null?'':s).replace(/[\r\n]+/g,' ').trim(); }
+/* Le texte tapé, sans les guillemets que l'élève aurait recopiés : ceux de la
+   ligne sont déjà écrits. Un " ou un \ au milieu casserait le programme. */
+function pytTexte(s){ return pytNet(s).replace(/^["'“”«»\s]+|["'“”«»\s]+$/g,'').replace(/["\\]/g,''); }
+/* La question de input : une espace la sépare de la réponse tapée. */
+function pytQuestion(s){ const t=pytTexte(s); return t && !/\s$/.test(t) ? t+' ' : t; }
+function pytNon(d){ return {ok:false, vide:false, diag:d}; }
+/* Un texte : vide, ou il porte un des mots attendus (à quelques lettres près). */
+function pytJugeTexte(saisie, mots, diag, interdits){
+  const brut=pytNet(saisie);
+  if(!brut) return {vide:true, ok:false, diag:''};
+  if(/\b(input|print)\s*\(/.test(brut)) return pytNon('« input( », « print( » et les guillemets sont déjà écrits : dans les pointillés, écris seulement le texte.');
+  if(/["'”»]\s*,/.test(brut)) return pytNon('La suite de la ligne est déjà écrite après les guillemets : dans les pointillés, écris seulement le texte.');
+  const t=pytTexte(brut);
+  if(!t) return pytNon('Les guillemets sont déjà écrits : entre eux, écris le texte.');
+  if((interdits||[]).some(function(m){ return pyMotDans(t, m[0]); })) return pytNon(interdits.find(function(m){ return pyMotDans(t, m[0]); })[1]);
+  if(mots.some(function(m){ return pyMotDans(t, m); })) return {ok:true, vide:false, diag:''};
+  return pytNon(diag);
+}
+function pytTrouHTML(t){
+  return '<input class="pch-in pyt-in pyt-'+t.k+'" id="'+t.id+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="'+t.quoi+'" placeholder="…">';
+}
+function pytLigne(n, html){ return '<div class="pyx-ligne"><span class="pyx-num">'+n+'</span><span class="pch-l">'+html+'</span></div>'; }
+const pytK=function(s){ return '<span class="py-kw">'+s+'</span>'; }, pytO=function(s){ return '<span class="py-op">'+s+'</span>'; },
+      pytN=function(s){ return '<span class="py-num">'+s+'</span>'; }, pytS=function(s){ return '<span class="py-str">'+s+'</span>'; };
+/* La case corrigée : bleue si juste ; vide, elle reçoit la réponse en vert ;
+   fausse, elle rougit et la réponse s'écrit en vert à côté. */
+function pytMarque(el, ok, sol){
+  if(!el) return;
+  el.classList.remove('ok','bad','sol');
+  if(ok===true){ el.classList.add('ok'); return; }
+  if(ok!==false) return;
+  if(!pytNet(el.value)){ if(sol!=null){ el.value=sol; el.classList.add('sol'); } return; }
+  el.classList.add('bad');
+  if(sol!=null && !el.parentNode.querySelector('.pyt-cor[data-pour="'+el.id+'"]'))
+    el.insertAdjacentHTML('afterend','<span class="mf-cor pyn-cor pyt-cor" data-pour="'+el.id+'">'+esc(sol)+'</span>');
+}
+/* Les cases branchées : la saisie voyage dans q.tr ; Entrée passe à la case
+   suivante, et dans la dernière exécute le programme. */
+function pytBrancher(trous, q, saisie, executer){
+  trous.forEach(function(t, i){
+    const el=$(t.id); if(!el) return;
+    el.value=(q.tr&&q.tr[i])||'';
+    el.addEventListener('input', saisie);
+    el.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+      e.preventDefault();
+      const nx=trous[i+1]; if(nx && $(nx.id)) $(nx.id).focus(); else executer();
+    });
+  });
+}
+function pytLire(trous, q){ q.tr=trous.map(function(t){ const el=$(t.id); return el?el.value:''; }); return q.tr; }
+/* Le dialogue de la console (celui du 6.3.9) : on exécute avec les réponses
+   déjà données ; si le programme en attend une de plus, une case s'ouvre. */
+function pytPas(consoleId, repId, src, reps, mode, suite){
+  const c=$(consoleId); if(!c) return null;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  let r=null, err=null;
+  try{ r=pyRun(src, reps); }catch(e){ err=e; }
+  if(err && err.attente){
+    c.textContent=err.sortie;
+    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
+    const inp=document.createElement('input');
+    inp.type='text'; inp.id=repId; inp.className='pyi-rep'; inp.autocomplete='off';
+    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
+    inp.setAttribute('inputmode', mode);
+    inp.setAttribute('aria-label','ta réponse à la question du programme');
+    inp.addEventListener('keydown', function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      suite(inp.value);
+    });
+    c.appendChild(inp);
+    try{ inp.focus(); }catch(e){}
+    return 'attente';
+  }
+  const virgule=!!(err && reps && reps.some(function(x){ return /\d,\d/.test(x); }));
+  if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err)+(virgule?'\n(En Python, la virgule d’un nombre décimal s’écrit avec un POINT : 1.5, pas 1,5.)':''); c.classList.add('py-err'); }
+  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  return 'fini';
+}
+/* À la vérification, la console montre une exécution que la page a faite. */
+function pytAfficherJuge(consoleId, src, reps){
+  const c=$(consoleId); if(!c) return;
+  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
+  let r=null, err=null;
+  try{ r=pyRun(src, reps.map(String)); }catch(e){ err=e; }
+  const tete='(la page a répondu '+reps.map(function(x){ return '« '+x+' »'; }).join(' puis ')+')\n';
+  if(err){ c.textContent=tete+(err.attente?err.sortie+err.invite+'… (le programme attend encore une réponse)':(err.sortie||'')+'Erreur : '+(err.message||err)); if(!err.attente) c.classList.add('py-err'); }
+  else c.textContent=tete+(r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
+}
+
 const PXY_NB=3;
 /* Le dessin de la fiche : les deux serpents, « Je suis le plus grand ! ».
    Découpé dans la capture, détouré (le fond crème rendu transparent depuis
@@ -48396,90 +48499,75 @@ const PXY_VARS=[['x','y'], ['a','b'], ['n','m'], ['u','v'], ['p','q'], ['s','t']
 const PXY_EX=[[3.5, 12.25], [9.75, 2.5], [-4.5, -1.25], [6.5, 6.5]];
 function pxyBuildQuestions(){
   const n=Math.min(dmNbQuestions(PXY_NB), PXY_VARS.length);
-  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PXY_VARS.length-1), prog:''}; });
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PXY_VARS.length-1), tr:['','','','','','']}; });
 }
 function pxySit(q){ const v=PXY_VARS[q.s]||PXY_VARS[0]; return {a:v[0], b:v[1]}; }
-/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
-function pxyModele(q){
-  const S=pxySit(q);
-  return S.a+' = float(input("Premier nombre ? "))\n'+S.b+' = float(input("Deuxième nombre ? "))\n'
-    +'if '+S.a+' < '+S.b+':\n    print("Le plus grand est", '+S.b+')\nelse:\n    print("Le plus grand est", '+S.a+')';
+/* Les pointillés du programme : deux questions, puis, dans chaque branche,
+   le texte affiché et ce qui est affiché après lui. */
+const PXY_TROUS=[
+  {id:'pxy-t0', k:'texte', l:1, quoi:'le texte de la première question'},
+  {id:'pxy-t1', k:'texte', l:2, quoi:'le texte de la deuxième question'},
+  {id:'pxy-t2', k:'texte', l:4, quoi:'le texte affiché par le premier print'},
+  {id:'pxy-v1', k:'var',   l:4, quoi:'ce que le premier print affiche après le texte'},
+  {id:'pxy-t3', k:'texte', l:6, quoi:'le texte affiché par le second print'},
+  {id:'pxy-v2', k:'var',   l:6, quoi:'ce que le second print affiche après le texte'}
+];
+function pxySols(q){ const S=pxySit(q); return ['Premier nombre ? ', 'Deuxième nombre ? ', 'Le plus grand est', S.b, 'Le plus grand est', S.a]; }
+/* Le programme, pointillés remplis par ce que l'élève a écrit. */
+function pxySrc(q, tr){
+  const S=pxySit(q), t=function(i){ return pytTexte(tr[i]); }, v=function(i){ return pytNet(tr[i]); };
+  return S.a+' = float(input("'+pytQuestion(tr[0])+'"))\n'+S.b+' = float(input("'+pytQuestion(tr[1])+'"))\n'
+    +'if '+S.a+' < '+S.b+' :\n    print("'+t(2)+'", '+v(3)+')\nelse :\n    print("'+t(4)+'", '+v(5)+')';
 }
-function pxyCases(q){ return [{id:'pxy-prog'}]; }
+/* Le programme juste — pour la console et l'aide, jamais pour juger. */
+function pxyModele(q){ return pxySrc(q, pxySols(q)); }
+function pxyCases(q){ return PXY_TROUS.map(function(t){ return {id:t.id}; }); }
 
-/* ---- 1. Le juge ---- */
-function pxyEssai(src, p){
-  try{ return {r:pyRun(src, [String(p[0]), String(p[1])]), err:null}; }catch(e){ return {r:null, err:e}; }
+/* ---- 1. Les juges ---- */
+const PXY_MOTS_Q=['nombre','premier','deuxieme','second','valeur','decimal','entrer','entre','donne','tape','saisir','ecris','choisis'];
+const PXY_MOTS_P=['grand','max','maximum','superieur','gros'];
+function pxyJugeTexte(i, saisie){
+  if(i<2) return pytJugeTexte(saisie, PXY_MOTS_Q, 'La question posée par input doit demander un nombre.');
+  return pytJugeTexte(saisie, PXY_MOTS_P, 'Le texte affiché par print doit annoncer le plus grand des deux nombres.', [['petit','Le programme affiche le plus GRAND des deux nombres, pas le plus petit.']]);
 }
-const PXY_NOMBRE=/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi;
-/* Les nombres qu'on lit dans ce que les print affichent. */
-function pxyNombres(r){
-  const nb=[];
-  r.prints.forEach(function(p){ (p.vals.map(pyRep).join(' ').match(PXY_NOMBRE)||[]).forEach(function(t){ nb.push(Number(t)); }); });
-  return nb;
-}
-/* pxyDiag rend { ok, vide, dits } : ok quand chaque exécution range les deux
-   réponses en float dans les deux variables et affiche le plus grand, et
-   lui seul. */
-function pxyDiag(src, q){
-  src=String(src||''); const S=pxySit(q);
-  const non=function(d){ return {ok:false, vide:false, dits:[d]}; };
-  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris les deux input, puis le if … else.']};
-  const hors=src.replace(/"[^"\n]*"|'[^'\n]*'/g, '""');
-  if(/[«»“”‘’]/.test(hors)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
-  if(/\d,\d/.test(hors)) return non('En Python, un nombre décimal s’écrit avec un POINT : 3.5, pas 3,5.');
-  const essais=PXY_EX.map(function(p){ return pxyEssai(src, p); });
-  const err=essais.map(function(x){ return x.err; }).filter(Boolean)[0];
-  if(err){
-    const msg=String(err.message||err); let m;
-    if(err.attente) return non('Ton programme pose plus de deux questions : il en faut deux, une pour '+S.a+' et une pour '+S.b+'.');
-    if(/int\(\) ne sait pas lire/.test(msg)) return non('int(…) ne sait lire qu’un nombre ENTIER : pour un nombre décimal comme 3.5, c’est float(…) qu’il faut autour de input, float(input("…")).');
-    if(/comparer un texte et un nombre|entre un texte et un nombre/.test(msg)) return non('Ce que rend input est TOUJOURS un texte : écris float(input("…")) pour obtenir un nombre décimal, sur les deux questions.');
-    if((m=msg.match(/fonction « ([^»]+) »/)) && m[1].toLowerCase()==='float' && m[1]!=='float') return non('« '+m[1]+' » : float s’écrit tout en minuscules.');
-    return non(pyiTraduire(src, err, {v1:S.a, v2:S.b}));
+/* Ce que le print affiche après son texte, dans sa branche : sous chaque paire
+   de nombres qui y mène, il doit valoir le plus grand. */
+function pxyJugeVar(saisie, q, branche){
+  const S=pxySit(q), s=pytNet(saisie);
+  if(!s) return {vide:true, ok:false, diag:''};
+  if(/^["'“”«»]/.test(s)) return pytNon('Un nom de variable s’écrit SANS guillemets : avec eux, print affiche la lettre, pas le nombre rangé dedans.');
+  if(/\bprint\b|\binput\b/.test(s)) return pytNon('« print( » est déjà écrit : écris seulement ce qu’il faut afficher après le texte.');
+  const paires=PXY_EX.filter(function(p){ return (p[0]<p[1])===(branche===1); });
+  let petit=true, grand=true;
+  for(let k=0;k<paires.length;k++){
+    const p=paires[k]; let v=null;
+    try{ const r=pyRun(S.a+' = '+p[0]+'\n'+S.b+' = '+p[1]+'\nr_ = '+s); v=r.env.r_; }
+    catch(e){ return pytNon('Python ne comprend pas « '+s+' » : les deux nombres sont rangés dans les variables '+S.a+' et '+S.b+'.'); }
+    const x=v && (v.t==='int'||v.t==='float') ? Number(v.v) : NaN;
+    if(isNaN(x)) return pytNon('Après le texte, print doit afficher un NOMBRE : celui d’une des deux variables, '+S.a+' ou '+S.b+'.');
+    if(Math.abs(x-Math.max(p[0],p[1]))>1e-9) grand=false;
+    if(Math.abs(x-Math.min(p[0],p[1]))>1e-9) petit=false;
   }
-  const a=essais[0], lus=a.r.entrees;
-  if(!lus.length) return non('Ton programme ne pose aucune question : c’est input("…") qui demande un nombre à l’utilisateur.');
-  if(lus.length<2) return non('Ton programme ne pose qu’une question : il en faut deux, une pour '+S.a+' et une pour '+S.b+'.');
-  if(lus.some(function(l){ return !String(l.invite).trim(); })) return non('Un input n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
-  /* les deux réponses, rangées en nombres dans les variables de l'énoncé */
-  const env=a.r.env, dits=[];
-  [S.a, S.b].forEach(function(v, k){
-    const e=env[v];
-    if(!e) dits.push('Le '+(k?'deuxième':'premier')+' nombre doit être rangé dans la variable '+v+' : écris '+v+' = float(input("…")).');
-    else if(e.t==='str') dits.push('La variable '+v+' contient un TEXTE : ce que rend input est toujours un texte. Écris '+v+' = float(input("…")) pour obtenir un nombre décimal.');
-    else if(e.t!=='float' && e.t!=='int' || Math.abs(e.v-PXY_EX[0][k])>1e-9) dits.push('La variable '+v+' doit garder le '+(k?'deuxième':'premier')+' nombre tapé : écris '+v+' = float(input("…")).');
+  if(grand) return {ok:true, vide:false, diag:''};
+  if(petit) return pytNon(branche===1?'Cette ligne s’exécute quand '+S.a+' < '+S.b+' : « '+s+' » est alors le plus PETIT des deux nombres.':'Cette ligne s’exécute quand '+S.a+' n’est pas plus petit que '+S.b+' : « '+s+' » n’est alors pas le plus grand.');
+  return pytNon('« '+s+' » n’est pas toujours le plus grand des deux nombres : il faut afficher une des deux variables, '+S.a+' ou '+S.b+'.');
+}
+function pxyJuges(q, tr){
+  return PXY_TROUS.map(function(t, i){
+    if(t.k==='var') return pxyJugeVar(tr[i], q, i===3?1:2);
+    return pxyJugeTexte(i, tr[i]);
   });
-  if(dits.length) return {ok:false, vide:false, dits:dits};
-  /* ce qui s'affiche, sous les quatre paires */
-  const lit=function(nb, x){ return nb.some(function(n){ return Math.abs(n-x)<1e-9; }); };
-  const vus=essais.map(function(x){ return pxyNombres(x.r); });
-  const juste=PXY_EX.map(function(p, k){
-    const G=Math.max(p[0],p[1]), P=Math.min(p[0],p[1]);
-    return lit(vus[k], G) && (G===P || !lit(vus[k], P));
-  });
-  if(juste.every(Boolean)) return {ok:true, vide:false, dits:[]};
-  if(essais.every(function(x){ return !x.r.prints.length; })) return non('Ton programme n’affiche rien : il faut un print qui affiche le plus grand des deux nombres.');
-  const deux=PXY_EX.slice(0,3).every(function(p, k){ return lit(vus[k], p[0]) && lit(vus[k], p[1]); });
-  if(deux) return non('Ton programme affiche les deux nombres : il ne faut afficher que le plus grand.');
-  const petit=PXY_EX.slice(0,3).every(function(p, k){ return lit(vus[k], Math.min(p[0],p[1])) && !lit(vus[k], Math.max(p[0],p[1])); });
-  if(petit) return non('Ton programme affiche le plus PETIT des deux nombres : regarde quelle variable chaque print affiche, quand '+S.a+' < '+S.b+' est vrai, et quand il est faux.');
-  if(a.r.prints.some(function(p){ return (p.args||[]).some(function(z){ const v=z.k==='str'?z.v.trim():''; return v===S.a||v===S.b; }); }))
-    return non('Un nom de variable entre guillemets affiche la LETTRE, pas sa valeur : écris '+S.a+' ou '+S.b+' SANS guillemets dans le print.');
-  const k=juste.indexOf(false), p=PXY_EX[k];
-  const aff=essais[k].r.prints.map(function(z){ return z.vals.map(pyRep).join(' '); }).join(' / ');
-  return non('Si l’on répond '+p[0]+' puis '+p[1]+', ton programme affiche « '+(aff||'rien')+' » : ce n’est pas le plus grand des deux nombres. Vérifie la condition du if, et ce que chaque print affiche.');
 }
 
 /* ---- 2. L'écran ---- */
-/* Le dessin de la fiche, en premier : c'est l'énoncé du haut, et lui seul. */
 function pxyDessinHTML(){
   return '<div class="pxy-fig"><img class="pxy-img" src="'+PXY_IMG+'" alt="deux serpents ; le plus grand dit : « Je suis le plus grand ! »" width="319" height="460"></div>';
 }
-/* L'énoncé du carnet, à puces, mot pour mot, aux variables de la question. */
+/* L'énoncé du carnet, à puces, mot pour mot, aux variables de la question ;
+   « Écrire un programme » devient « Compléter les pointillés du programme ». */
 function pxyEnonceHTML(q){
   const S=pxySit(q);
-  return 'Écrire un programme&nbsp;:'
+  return 'Compléter les pointillés du programme&nbsp;:'
     +'<ul class="pyd-puces">'
     +'<li>Qui demande deux nombres décimaux que l’on mettra dans les variables <i>'+S.a+'</i> et <i>'+S.b+'</i>.</li>'
     +'<li>Puis qui affiche le plus grand des deux nombres.</li>'
@@ -48487,13 +48575,19 @@ function pxyEnonceHTML(q){
     +'<p class="pxy-ligne">Tester plusieurs fois votre programme.</p>'
     +'<p class="pxy-ligne pxy-rappel">Rappel&nbsp;: <span>Pour demander un</span> nombre décimal <span>il faut mettre&nbsp;:</span> <code>= float(input("... texte de la question ..."))</code></p>';
 }
-/* Les deux coups de pouce du carnet, repliés, sans phrase ajoutée. */
-function pxyPoucesHTML(q){
-  const S=pxySit(q), t='&nbsp;&nbsp;&nbsp;&nbsp;';
-  return pyPoucesHTML([
-    ['coup de pouce 1', '<code>'+S.a+' = float(input("...texte de la question ..."))</code><br><code>'+S.b+' = float(input("...texte de la question ..."))</code>'],
-    ['coup de pouce 2', '<code>if '+S.a+' &lt; '+S.b+' :</code><br><code>'+t+'print(" le plus grand est ", ... )</code><br><code>else :</code><br><code>'+t+'print(" le plus grand est ", ... )</code>']
-  ]);
+/* Le programme des deux coups de pouce, écrit, ses pointillés en cases. */
+function pxyProgHTML(q){
+  const S=pxySit(q), T=function(i){ return pytTrouHTML(PXY_TROUS[i]); };
+  const inp=function(v, i){ return v+' '+pytO('=')+' '+pytK('float')+'('+pytK('input')+'('+pytS('"')+T(i)+pytS('"')+'))'; };
+  const pr=function(i){ return '    '+pytK('print')+'('+pytS('"')+T(i)+pytS('"')+', '+T(i+1)+')'; };
+  return '<div class="pyx-prog pch-prog" id="pxyProg">'
+    +pytLigne(1, inp(S.a, 0))
+    +pytLigne(2, inp(S.b, 1))
+    +pytLigne(3, pytK('if')+' '+S.a+' '+pytO('&lt;')+' '+S.b+' :')
+    +pytLigne(4, pr(2))
+    +pytLigne(5, pytK('else')+' :')
+    +pytLigne(6, pr(4))
+    +'</div>';
 }
 
 /* ---- 3. Cycle de vie ---- */
@@ -48511,6 +48605,7 @@ async function startPXY(){
 let _pxySaveTimer=null, _pxyRep=null;
 function renderPXY(){
   const q=test.questions[test.idx]; test.locked=false; _pxyRep=null;
+  if(!Array.isArray(q.tr)) q.tr=PXY_TROUS.map(function(){ return ''; });
   $('pxyIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPXY').innerHTML=modeTagHTML();
   $('pxyLiveScore').textContent=test.score;
@@ -48520,125 +48615,65 @@ function renderPXY(){
   $('pxyHost').innerHTML=
     '<div class="py-cell">'
     +'<div class="pyn-etape" id="pxyEtape"><div class="pyn-titre">✏️ '+pxyEnonceHTML(q)+'</div>'
-    +pxyPoucesHTML(q)
-    +'<p class="py-label">Ton programme</p>'
-    +'<textarea id="pxy-prog" class="pyp-edit pts-case" rows="6" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python"></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pxyRun" type="button" onclick="pxyExecuter()">▶ Exécuter mon programme</button></div>'
+    +'<p class="py-label">Le programme</p>'
+    +pxyProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pxyRun" type="button" onclick="pxyExecuter()">▶ Exécuter le programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="pxyConsole"></pre></div>'
-    +'<div id="pxyModele"></div>'
     +'</div>';
-  const ta=$('pxy-prog'); ta.value=q.prog||'';
-  ta.addEventListener('input', pxySaisie);
-  ta.addEventListener('keydown', pxyTouche);
+  pytBrancher(PXY_TROUS, q, pxySaisie, pxyExecuter);
 }
-/* Tab décale de quatre espaces, Entrée après « : » décale la ligne suivante — le geste du 6.6.2. */
-function pxyTouche(e){
+function pxySaisie(e){
   if(test.locked) return;
-  const ta=e.target, v=ta.value, a=ta.selectionStart, b=ta.selectionEnd;
-  let ins=null;
-  if(e.key==='Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) ins='    ';
-  else if(e.key==='Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){
-    const debut=v.lastIndexOf('\n', a-1)+1, avant=v.slice(debut, a);
-    const dec=avant.match(/^ */)[0];
-    ins='\n'+dec+(/:\s*$/.test(avant)?'    ':'');
-  }
-  if(ins===null) return;
-  e.preventDefault();
-  ta.value=v.slice(0,a)+ins+v.slice(b);
-  ta.selectionStart=ta.selectionEnd=a+ins.length;
-  pxySaisie();
-}
-function pxySaisie(){
-  if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('pxy-prog'); if(!q||!ta) return;
-  q.prog=ta.value;
-  ta.classList.remove('bad');
+  const q=test.questions[test.idx]; if(!q) return;
+  pytLire(PXY_TROUS, q);
+  if(e && e.target) e.target.classList.remove('bad');
   if(_pxyRep){ _pxyRep=null; const c=$('pxyConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
   clearTimeout(_pxySaveTimer); _pxySaveTimer=setTimeout(autoSave,1000);
 }
-/* Le dialogue du 6.3.4 : on exécute avec les réponses déjà données ; si le
-   programme en attend une de plus, la console montre sa question et une case. */
 function pxyPas(){
-  const ta=$('pxy-prog'), c=$('pxyConsole'); if(!ta||!c) return;
-  const src=ta.value;
-  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pxyRep=null; return; }
-  let r=null, err=null;
-  try{ r=pyRun(src, _pxyRep); }catch(e){ err=e; }
-  if(err && err.attente){
-    c.textContent=err.sortie;
-    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
-    const inp=document.createElement('input');
-    inp.type='text'; inp.id='pxy-rep'; inp.className='pyi-rep'; inp.autocomplete='off';
-    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
-    inp.setAttribute('inputmode','decimal');
-    inp.setAttribute('aria-label','ta réponse à la question du programme');
-    inp.addEventListener('keydown', function(e){
-      if(e.key!=='Enter') return;
-      e.preventDefault();
-      if(!_pxyRep) return;
-      _pxyRep.push(inp.value); pxyPas();
-    });
-    c.appendChild(inp);
-    try{ inp.focus(); }catch(e){}
-    return;
-  }
-  const virgule=!!(err && _pxyRep && _pxyRep.some(function(x){ return /\d,\d/.test(x); }));
-  _pxyRep=null;
-  if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err)+(virgule?'\n(En Python, la virgule d’un nombre décimal s’écrit avec un POINT : 1.5, pas 1,5.)':''); c.classList.add('py-err'); }
-  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  const q=test.questions[test.idx]; if(!q) return;
+  const etat=pytPas('pxyConsole', 'pxy-rep', pxySrc(q, q.tr), _pxyRep, 'decimal', function(v){ if(!_pxyRep) return; _pxyRep.push(v); pxyPas(); });
+  if(etat!=='attente') _pxyRep=null;
 }
 function pxyExecuter(){
   if(test.locked) return;
-  const ta=$('pxy-prog'); if(!ta) return;
-  test.questions[test.idx].prog=ta.value;
+  const q=test.questions[test.idx]; if(!q) return;
+  pytLire(PXY_TROUS, q);
   _pxyRep=[]; pxyPas();
-}
-/* À la vérification, la console montre l'exécution que le juge a lue. */
-function pxyAfficherJuge(src){
-  const c=$('pxyConsole'); if(!c) return;
-  _pxyRep=null;
-  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
-  const x=pxyEssai(src, PXY_EX[0]);
-  const tete='(la page a répondu « '+PXY_EX[0][0]+' » puis « '+PXY_EX[0][1]+' »)\n';
-  if(x.err){ c.textContent=tete+(x.err.attente?x.err.sortie+x.err.invite+'… (le programme attend encore une réponse)':(x.err.sortie||'')+'Erreur : '+(x.err.message||x.err)); if(!x.err.attente) c.classList.add('py-err'); }
-  else c.textContent=tete+(x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
 }
 function checkPXY(live){
   if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
   if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('pxy-prog'); if(!q||!ta) return;
-  const src=ta.value; q.prog=src;
-  const d=pxyDiag(src, q);
-  pxyAfficherJuge(src);
-  ta.classList.remove('ok','bad','sol');
+  const q=test.questions[test.idx]; if(!q) return;
+  const tr=pytLire(PXY_TROUS, q), j=pxyJuges(q, tr), sols=pxySols(q);
+  const els=PXY_TROUS.map(function(t){ return $(t.id); });
+  const tousOk=j.every(function(x){ return x.ok; }), tousVides=j.every(function(x){ return x.vide; });
+  const diags=j.map(function(x, i){ return (!x.ok && x.diag)?'Ligne '+PXY_TROUS[i].l+' : '+x.diag:''; }).filter(Boolean);
   const fb=$('pxyFeedback');
-  if(!d.ok && isSoutien()){
-    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
-    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+  if(isSoutien() && !tousOk){
+    els.forEach(function(el, i){ pytMarque(el, j[i].ok?true:(j[i].vide?null:false)); });   /* une case vide ne rougit jamais */
+    fb.textContent=tousVides?'Complète les pointillés du programme, puis vérifie.':'Pas encore. '+(diags.join(' ')||'Complète les pointillés laissés vides.')+' Corrige, puis revérifie.';
     fb.className='mp-feedback bad';
     $('pxyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pxyValidate" onclick="checkPXY()">Revérifier</button>';
-    setTimeout(function(){ ta.focus(); },40);
     return;
   }
-  test.locked=true; ta.readOnly=true;
-  if(d.ok){
-    ta.classList.add('ok'); test.score+=1;
+  test.locked=true; _pxyRep=null;
+  let n=0;
+  els.forEach(function(el, i){ if(!el) return; el.readOnly=true; pytMarque(el, j[i].ok, j[i].ok?null:sols[i]); if(j[i].ok) n++; });
+  test.score+=n;
+  if(!tousVides) pytAfficherJuge('pxyConsole', pxySrc(q, tr), PXY_EX[0]);
+  if(tousOk){
     fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme demande les deux nombres et affiche toujours le plus grand.';
     fb.className='mp-feedback good';
-  } else if(d.vide){
-    ta.value=pxyModele(q); ta.classList.add('sol');
-    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else if(tousVides){
+    fb.textContent='Tu n’avais rien écrit — la correction est écrite en vert dans les pointillés.'; fb.className='mp-feedback bad';
   } else {
-    ta.classList.add('bad');
-    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
-    $('pxyModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(pxyModele(q))+'</pre>';
+    fb.textContent=(diags.join(' ')||'Des pointillés sont restés vides.')+' Les bonnes réponses sont écrites en vert.'; fb.className='mp-feedback bad';
   }
   $('pxyLiveScore').textContent=test.score;
   const S=pxySit(q);
-  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:'le plus grand de '+S.a+' et '+S.b, answer:pxyModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  test.answers.push({...(ptsExo()||{}), correct:tousOk, q:'le plus grand de '+S.a+' et '+S.b, answer:pxyModele(q).replace(/\n+/g,' ⏎ '), given:tousVides?'(vide)':pxySrc(q, tr).replace(/\n+/g,' ⏎ ')});
   const b=$('pxyRun'); if(b) b.disabled=true;
   const last=test.idx===test.questions.length-1;
   $('pxyActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pxyNext" onclick="nextPXY()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -48646,12 +48681,13 @@ function checkPXY(live){
 }
 function nextPXY(){ if(test.idx<test.questions.length-1){ test.idx++; renderPXY(); autoSave(); } else finishTest(); }
 function ctxPxy(q){
-  const S=pxySit(q), ta=$('pxy-prog'), prog=(ta&&ta.value)||q.prog||'';
-  let d=null; try{ d=pxyDiag(prog, q); }catch(e){}
-  let c='L’élève doit ÉCRIRE un programme Python qui demande deux nombres décimaux (float(input(…))), rangés dans les variables '+S.a+' et '+S.b+', puis qui affiche le plus grand des deux avec une instruction if … else. Les coups de pouce de la fiche donnent : '+S.a+' = float(input("…")), '+S.b+' = float(input("…")), puis if '+S.a+' < '+S.b+' : print(" le plus grand est ", ... ) else : print(" le plus grand est ", ... ). Il peut exécuter son programme : la console lui pose les questions.\n';
-  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
-  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
-  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+pxyModele(q)+'\nAide-le à trouver lui-même : input rend toujours un texte, float(…) le change en nombre décimal ; if condition : exécute les lignes décalées en dessous quand la condition est vraie, else : celles qui sont décalées sous lui quand elle est fausse ; un nom de variable s’écrit sans guillemets dans print(…) — sans jamais écrire le programme complet.';
+  const S=pxySit(q), tr=(q.tr||[]).slice();
+  PXY_TROUS.forEach(function(t, i){ const el=$(t.id); if(el) tr[i]=el.value; });
+  let j=null; try{ j=pxyJuges(q, tr); }catch(e){}
+  let c='Le programme est DÉJÀ écrit : '+S.a+' = float(input("…")), '+S.b+' = float(input("…")), puis if '+S.a+' < '+S.b+' : print("…", …) else : print("…", …). L’élève doit COMPLÉTER ses pointillés : le texte des deux questions (il doit demander un nombre), et, dans chaque print, le texte affiché (il doit annoncer le plus grand) puis la variable à afficher, pour que le programme affiche toujours le plus grand des deux nombres. Les fautes d’orthographe dans les textes sont acceptées. Il peut exécuter le programme : la console lui pose les questions.\n';
+  c+='Ce que l’élève a écrit dans les pointillés :\n'+PXY_TROUS.map(function(t, i){ return 'ligne '+t.l+', '+t.quoi+' : '+(pytNet(tr[i])||'(vide)'); }).join('\n')+'\n';
+  if(j) c+=j.every(function(x){ return x.ok; })?'Tout est juste. ':('Ce que la page a relevé : '+j.map(function(x, i){ return x.diag?'ligne '+PXY_TROUS[i].l+' : '+x.diag:''; }).filter(Boolean).join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+pxyModele(q)+'\nAide-le à trouver lui-même : if condition : exécute la ligne décalée en dessous quand la condition est vraie, else : celle qui est décalée sous lui quand elle est fausse ; un nom de variable s’écrit sans guillemets dans print(…) — sans jamais donner les réponses des pointillés.';
   return {nombre:'', contexte:c};
 }
 
@@ -49925,7 +49961,7 @@ function ctxPci(q){
    Dans la cellule, Tab décale de quatre espaces et Entrée après « : » décale
    la ligne suivante (le geste de {python-for-nom}).
 
-   LE JUGE (psmDiag) exécute la copie sous quatre nombres de samoussas que
+   LE JUGE D'ORIGINE (psmDiag, retiré en novembre 2026 : le programme est désormais À TROUS, voir le 6.7.3) exécutait la copie sous quatre nombres de samoussas que
    l'élève ne connaît pas (PSM_EX : sous le seuil, LE SEUIL, au-dessus) et lit
    le prix AFFICHÉ, à 1e-6 près. La fiche nomme les variables : la réponse va
    dans nombre, entière (int), le prix dans prix. Nommés : float au lieu de
@@ -49947,84 +49983,69 @@ const PSM_IMG='dessins/secondes/python-samoussa.webp';
 const PSM_PRIX=[[1.2, 0.8, 10], [1.5, 1.1, 12], [1.4, 0.9, 8], [1.1, 0.7, 15], [1.3, 0.95, 6], [1.6, 1.2, 20], [1.25, 0.85, 5]];
 function psmBuildQuestions(){
   const n=Math.min(dmNbQuestions(PSM_NB), PSM_PRIX.length);
-  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PSM_PRIX.length-1), prog:''}; });
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PSM_PRIX.length-1), tr:['','','','','']}; });
 }
 function psmSit(q){ const p=PSM_PRIX[q.s]||PSM_PRIX[0]; return {p1:p[0], p2:p[1], seuil:p[2]}; }
 function psmCode(x){ return x.toFixed(2); }
 /* Les nombres de samoussas que la page tape pour juger : sous le seuil, le seuil lui-même, au-dessus. */
 function psmEx(S){ return [Math.max(1, S.seuil-3), S.seuil, S.seuil+7, S.seuil-1]; }
 function psmPrix(S, n){ return n<S.seuil ? n*S.p1 : n*S.p2; }
-/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
-function psmModele(q){
-  const S=psmSit(q);
-  return 'nombre = int(input("Combien de samoussas ? "))\nif nombre < '+S.seuil+' :\n    prix = nombre * '+psmCode(S.p1)+'\n    print("Le prix à payer est de", prix, "€")\nelse :\n    prix = nombre * '+psmCode(S.p2)+'\n    print("Le prix à payer est de", prix, "€")';
+/* Les pointillés du programme des coups de pouce : la question de input,
+   puis, dans chaque branche, le calcul du prix et le texte affiché. */
+const PSM_TROUS=[
+  {id:'psm-t0', k:'texte', l:1, quoi:'le texte de la question posée par input'},
+  {id:'psm-f1', k:'calc',  l:3, quoi:'le calcul du prix quand nombre est plus petit que le seuil'},
+  {id:'psm-t1', k:'texte', l:4, quoi:'le texte affiché avant le prix, par le premier print'},
+  {id:'psm-f2', k:'calc',  l:6, quoi:'le calcul du prix à partir du seuil'},
+  {id:'psm-t2', k:'texte', l:7, quoi:'le texte affiché avant le prix, par le second print'}
+];
+function psmSols(q){ const S=psmSit(q); return ['Combien de samoussas ? ', 'nombre * '+psmCode(S.p1), 'Le prix à payer est de', 'nombre * '+psmCode(S.p2), 'Le prix à payer est de']; }
+/* Le calcul tapé, sans un « prix = » recopié : il est déjà écrit. */
+function psmCalc(s){ return pytNet(s).replace(/^prix\s*=(?!=)\s*/i,''); }
+/* Le programme, pointillés remplis par ce que l'élève a écrit. */
+function psmSrc(q, tr){
+  const S=psmSit(q), t=function(i){ return pytTexte(tr[i]); };
+  return 'nombre = int(input("'+pytQuestion(tr[0])+'"))\nif nombre < '+S.seuil+' :\n    prix = '+psmCalc(tr[1])+'\n    print("'+t(2)+'", prix)\nelse :\n    prix = '+psmCalc(tr[3])+'\n    print("'+t(4)+'", prix)';
 }
-function psmCases(q){ return [{id:'psm-prog'}]; }
+/* Le programme juste — pour la console et l'aide, jamais pour juger. */
+function psmModele(q){ return psmSrc(q, psmSols(q)); }
+function psmCases(q){ return PSM_TROUS.map(function(t){ return {id:t.id}; }); }
 
-/* ---- 1. Le juge ---- */
-function psmEssai(src, n){
-  try{ return {r:pyRun(src, [String(n)]), err:null}; }catch(e){ return {r:null, err:e}; }
+/* ---- 1. Les juges ---- */
+const PSM_MOTS_Q=['samoussas','combien','nombre','quantite'];
+const PSM_MOTS_P=['prix','payer','paye','total','coute','cout','montant','somme','euros','tarif'];
+function psmJugeTexte(i, saisie){
+  if(i===0) return pytJugeTexte(saisie, PSM_MOTS_Q, 'La question posée par input doit demander le nombre de samoussas.');
+  return pytJugeTexte(saisie, PSM_MOTS_P, 'Le texte affiché par print, devant le prix, doit annoncer le prix.');
 }
-/* Le programme sans ses chaînes ni ses commentaires : ce que Python lit. */
-function psmCodeSeul(src){ return String(src).replace(/"[^"\n]*"|'[^'\n]*'/g, '""').replace(/#[^\n]*/g, ''); }
-const PSM_NOMBRE=/-?\d+(?:\.\d+)?(?:e[+-]?\d+)?/gi;
-/* Les nombres que le programme AFFICHE (les print, jamais l'écho de la réponse tapée). */
-function psmAffiches(r){
-  const nb=[];
-  r.prints.forEach(function(p){ const t=p.vals.map(pyRep).join(' '); (t.match(PSM_NOMBRE)||[]).forEach(function(x){ nb.push(Number(x)); }); });
-  return nb;
-}
-function psmTraduire(src, err){
-  const msg=String(err.message||err);
-  if(/comparer un texte et un nombre/.test(msg)) return 'Ce que rend input est TOUJOURS un texte : Python ne sait pas le comparer à un nombre. Écris nombre = int(input("…")) pour obtenir un nombre entier.';
-  if(/entre un texte et un nombre/.test(msg)) return 'Ce que rend input est TOUJOURS un texte : Python ne sait pas calculer avec. Écris nombre = int(input("…")) pour obtenir un nombre entier.';
-  if(/int\(\) ne sait pas lire/.test(msg)) return 'int(…) ne sait lire qu’un nombre ENTIER : un nombre de samoussas s’écrit sans virgule.';
-  if(/round/.test(msg)) return 'Cette page ne sait pas exécuter round(…) : affiche le prix sans l’arrondir.';
-  if(/^(IndentationError|SyntaxError)/.test(msg) && /:/.test(msg.replace(/^[A-Za-z]+Error/, ''))) return msg.replace(/^[A-Za-z]+Error ligne (\d+) : /, 'Ligne $1 : ').replace(/^[A-Za-z]+Error : /, '')+'.';
-  return pyiTraduire(src, err, {v1:'nombre', v2:'prix'});
-}
-/* psmDiag rend { ok, vide, dits } : ok quand, pour chacun des nombres que la
-   page tape, le programme affiche le bon prix — rangé dans prix. */
-function psmDiag(src, q){
-  src=String(src||''); const S=psmSit(q);
-  const non=function(d){ return {ok:false, vide:false, dits:[d]}; };
-  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris l’input, puis le if et le else.']};
-  const code=psmCodeSeul(src);
-  if(/[«»“”‘’]/.test(code)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
-  if(/\d,\d/.test(code)) return non('En Python, un nombre décimal s’écrit avec un POINT : '+psmCode(S.p1)+', pas '+psmCode(S.p1).replace('.', ',')+'.');
-  let m;
-  if((m=code.match(/^\s*(If|IF|Else|ELSE|Elif|ELIF)\b/m))) return non('« '+m[1]+' » : Python ne connaît que '+m[1].toLowerCase()+', tout en minuscules.');
-  if(/^\s*(if|elif)\b[^\n:]*[^=!<>]=[^=][^\n]*/m.test(code)) return non('Dans un test, « = » ne compare pas : il RANGE une valeur. Pour comparer, écris nombre < '+S.seuil+'.');
-  if(!/^\s*if\b/m.test(code)) return non('Ton programme n’a pas de test : c’est if … : puis else : qui choisit le prix selon le nombre de samoussas.');
-  const E=psmEx(S), essais=E.map(function(n){ return psmEssai(src, n); }), a=essais[0];
-  const ko=essais.filter(function(y){ return y.err; })[0];
-  if(ko){
-    if(ko.err.attente) return non('Ton programme pose plus d’une question : il n’en faut qu’une, le nombre de samoussas.');
-    return non(psmTraduire(src, ko.err));
+/* Le calcul d'une branche : sous chaque nombre de samoussas que la page
+   essaie, prix doit valoir nombre × le prix de CETTE branche. */
+function psmJugeCalc(saisie, q, branche){
+  const S=psmSit(q), p=branche===1?S.p1:S.p2, autre=branche===1?S.p2:S.p1, s=psmCalc(saisie);
+  if(!s) return {vide:true, ok:false, diag:''};
+  if(/\d,\d/.test(s)) return pytNon('En Python, un nombre décimal s’écrit avec un POINT : '+psmCode(p)+', pas '+psmCode(p).replace('.', ',')+'.');
+  if(/\bprint\b|\binput\b/.test(s)) return pytNon('Ici, on écrit seulement le calcul du prix : « prix = » est déjà écrit.');
+  const E=psmEx(S), vals=[];
+  for(let k=0;k<E.length;k++){
+    let v=null;
+    try{ v=pyRun('nombre = '+E[k]+'\nprix = '+s).env.prix; }
+    catch(e){ return pytNon('Python ne sait pas calculer « '+s+' » : le calcul s’écrit avec la variable nombre, le signe * et le prix d’un samoussa.'); }
+    if(!v || (v.t!=='int' && v.t!=='float')) return pytNon('Le calcul doit donner un NOMBRE : un prix entre guillemets serait un texte.');
+    vals.push(Number(v.v));
   }
-  const lus=a.r.entrees;
-  if(!lus.length) return non('Ton programme ne pose aucune question : c’est input("…") qui demande le nombre de samoussas.');
-  if(!String(lus[0].invite).trim()) return non('L’input n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
-  if(lus[0].var!=='nombre') return non('La réponse doit être rangée dans la variable nombre : écris nombre = int(input("…")).');
-  const env=a.r.env;
-  if(env.nombre && env.nombre.t==='float') return non('La variable nombre doit être ENTIÈRE : c’est int(…), pas float(…), qu’il faut autour de input.');
-  const aff=essais.map(function(y){ return psmAffiches(y.r); });
-  const lit=function(k, x){ return aff[k].some(function(v){ return Math.abs(v-x)<1e-6; }); };
-  const tous=function(f){ return E.every(function(n, k){ return lit(k, f(n)); }); };
-  if(tous(function(n){ return psmPrix(S, n); })){
-    if(essais.some(function(y){ return !y.r.env.prix; })) return non('Le prix doit être rangé dans la variable prix : écris prix = …, puis affiche prix.');
-    return {ok:true, vide:false, dits:[]};
-  }
-  if(essais.some(function(y){ return y.r.prints.some(function(p){ return (p.args||[]).some(function(z){ return z.k==='str' && z.v.trim()==='prix'; }); }) && y.r.env.prix && y.r.env.prix.t!=='str'; }))
-    return non('« prix » entre guillemets affiche le MOT, pas sa valeur : écris prix SANS guillemets dans le print.');
-  const k0=aff.findIndex(function(x){ return !x.length; });
-  if(k0>=0) return non('Si l’on répond '+E[k0]+', ton programme n’affiche aucun prix : il faut un print dans le if ET dans le else.');
-  if(tous(function(n){ return n<=S.seuil ? n*S.p1 : n*S.p2; })) return non('À partir de '+S.seuil+' samoussas, le prix est de '+psmCode(S.p2)+' € : '+S.seuil+' samoussas coûtent déjà '+psmCode(S.p2)+' € chacun. Le test doit être nombre < '+S.seuil+'.');
-  if(tous(function(n){ return n<S.seuil ? n*S.p2 : n*S.p1; })) return non('Les prix sont échangés : '+psmCode(S.p1)+' € quand on en prend moins de '+S.seuil+', '+psmCode(S.p2)+' € à partir de '+S.seuil+'.');
-  if(tous(function(n){ return n*S.p1; }) || tous(function(n){ return n*S.p2; })) return non('Ton programme compte toujours le même prix par samoussa : le if doit choisir '+psmCode(S.p1)+' € quand nombre est plus petit que '+S.seuil+', et '+psmCode(S.p2)+' € sinon.');
-  if(tous(function(n){ return n<S.seuil ? S.p1 : S.p2; })) return non('Ton programme affiche le prix d’UN samoussa : il faut le multiplier par le nombre de samoussas, prix = nombre * …');
-  const k=E.findIndex(function(n, i){ return !lit(i, psmPrix(S, n)); });
-  return non('Si l’on répond '+E[k]+', ton programme affiche « '+essais[k].r.prints.map(function(p){ return p.vals.map(pyRep).join(' '); }).join(' / ')+' » : ce n’est pas le prix de '+E[k]+' samoussas. Vérifie ton test et ton calcul.');
+  const tous=function(f){ return E.every(function(n, k){ return Math.abs(vals[k]-f(n))<1e-6; }); };
+  if(tous(function(n){ return n*p; })) return {ok:true, vide:false, diag:''};
+  const quand=branche===1?'quand on en prend moins de '+S.seuil:'à partir de '+S.seuil+' samoussas';
+  if(tous(function(n){ return n*autre; })) return pytNon('Cette ligne calcule le prix '+quand+' : '+psmCode(autre)+' €, c’est le prix de l’autre cas.');
+  if(tous(function(){ return p; })) return pytNon('Ce calcul donne le prix d’UN samoussa : il faut le multiplier par le nombre de samoussas, la variable nombre.');
+  if(tous(function(){ return vals[0]; })) return pytNon('Le prix dépend du nombre de samoussas : le calcul doit utiliser la variable nombre.');
+  return pytNon('Pour '+E[0]+' samoussas, ce calcul donne '+(+vals[0].toFixed(6))+' : ce n’est pas le prix de '+E[0]+' samoussas à '+psmCode(p)+' €.');
+}
+function psmJuges(q, tr){
+  return PSM_TROUS.map(function(t, i){
+    if(t.k==='calc') return psmJugeCalc(tr[i], q, i===1?1:2);
+    return psmJugeTexte(i, tr[i]);
+  });
 }
 
 /* ---- 2. L'écran ---- */
@@ -50032,28 +50053,39 @@ function psmDiag(src, q){
 function psmDessinHTML(){
   return '<div class="psm-fig"><img class="psm-img" src="'+PSM_IMG+'" alt="un serpent qui montre un samoussa : « Donne à mouin un samoussa »" width="298" height="439"></div>';
 }
-/* L'énoncé du carnet, mot pour mot (« samoussas » au pluriel), aux prix de la question. */
+/* L'énoncé du carnet, mot pour mot (« samoussas » au pluriel), aux prix de la
+   question ; « Faire un programme » devient « Compléter les pointillés du programme ». */
 function psmEnonceHTML(q){
   const S=psmSit(q), p1=psmCode(S.p1), p2=psmCode(S.p2);
   return '<p class="psm-p">Le prix d’un samoussa est de <b>'+p1+'&nbsp;€ si on en prend moins de '+S.seuil+'</b> et il est de <b>'+p2+'&nbsp;€ à partir de '+S.seuil+' samoussas</b>.</p>'
-    +'<p class="psm-p"><b>Faire un programme</b></p>'
+    +'<p class="psm-p"><b>Compléter les pointillés du programme</b></p>'
     +'<ul class="pyd-puces psm-puces">'
     +'<li>Qui demande le nombre de samoussas et qui met le résultat dans la <b>variable</b> entière <b>nombre</b>.</li>'
     +'<li><b>Si</b> nombre est plus petit que '+S.seuil+' <b>Alors</b> il calcule le prix des samoussas avec '+p1+'&nbsp;€ par samoussa et met le résultat dans la variable <b>prix</b> puis affiche le prix.</li>'
     +'<li><b>sinon</b> il calcule le prix des samoussas avec '+p2+'&nbsp;€ par samoussa et met le résultat dans la variable <b>prix</b> puis affiche le prix.</li>'
     +'</ul>';
 }
-/* Les trois coups de pouce de la fiche, repliés, sans phrase ajoutée ; le code colorié comme le carnet. */
+/* Le troisième coup de pouce de la fiche, replié : les deux premiers sont
+   devenus le programme écrit sur l'écran. */
 function psmPoucesHTML(q){
   const S=psmSit(q);
-  const K=function(s){ return '<span class="py-kw">'+s+'</span>'; }, N=function(s){ return '<span class="py-num">'+s+'</span>'; },
-        O=function(s){ return '<span class="py-op">'+s+'</span>'; }, T=function(s){ return '<span class="py-str">'+s+'</span>'; };
-  const pr='    '+K('print')+' ('+T('" ... texte réponse ... "')+'  , prix )';
   return pyPoucesHTML([
-    ['coup de pouce 1', '<code class="pfv-pouce">nombre '+O('=')+' '+K('int')+' ('+K('input')+' ( '+T('"...texte de la question ... "')+') )</code>'],
-    ['coup de pouce 2', '<code class="pfv-pouce">'+K('if')+' nombre '+O('&lt;')+' '+N(String(S.seuil))+' :\n    prix'+O('=')+' '+O('....')+'\n'+pr+'\n'+K('else')+' :\n    prix '+O('=')+' '+O('...')+'\n'+pr+'</code>'],
-    ['coup de pouce 3', 'si le nombre est plus petit que '+S.seuil+' alors: <b>prix = nombre * '+psmCode(S.p1)+'</b></p><p>sinon: <b>prix = nombre * '+psmCode(S.p2)+'</b>']
+    ['coup de pouce', 'si le nombre est plus petit que '+S.seuil+' alors: <b>prix = nombre * '+psmCode(S.p1)+'</b></p><p>sinon: <b>prix = nombre * '+psmCode(S.p2)+'</b>']
   ]);
+}
+/* Le programme des coups de pouce 1 et 2, écrit, ses pointillés en cases. */
+function psmProgHTML(q){
+  const S=psmSit(q), T=function(i){ return pytTrouHTML(PSM_TROUS[i]); };
+  const pr=function(i){ return '    '+pytK('print')+'('+pytS('"')+T(i)+pytS('"')+', prix)'; };
+  return '<div class="pyx-prog pch-prog" id="psmProg">'
+    +pytLigne(1, 'nombre '+pytO('=')+' '+pytK('int')+'('+pytK('input')+'('+pytS('"')+T(0)+pytS('"')+'))')
+    +pytLigne(2, pytK('if')+' nombre '+pytO('&lt;')+' '+pytN(String(S.seuil))+' :')
+    +pytLigne(3, '    prix '+pytO('=')+' '+T(1))
+    +pytLigne(4, pr(2))
+    +pytLigne(5, pytK('else')+' :')
+    +pytLigne(6, '    prix '+pytO('=')+' '+T(3))
+    +pytLigne(7, pr(4))
+    +'</div>';
 }
 
 /* ---- 3. Cycle de vie ---- */
@@ -50071,6 +50103,7 @@ async function startPSM(){
 let _psmSaveTimer=null, _psmRep=null;
 function renderPSM(){
   const q=test.questions[test.idx]; test.locked=false; _psmRep=null;
+  if(!Array.isArray(q.tr)) q.tr=PSM_TROUS.map(function(){ return ''; });
   $('psmIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('modeTagPSM').innerHTML=modeTagHTML();
   $('psmLiveScore').textContent=test.score;
@@ -50081,122 +50114,64 @@ function renderPSM(){
     '<div class="py-cell">'
     +'<div class="pyn-etape" id="psmEtape"><div class="pyn-titre">✏️ '+psmEnonceHTML(q)+'</div>'
     +psmPoucesHTML(q)
-    +'<p class="py-label">Ton programme</p>'
-    +'<textarea id="psm-prog" class="pyp-edit pts-case" rows="7" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python"></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="psmRun" type="button" onclick="psmExecuter()">▶ Exécuter mon programme</button></div>'
+    +'<p class="py-label">Le programme</p>'
+    +psmProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="psmRun" type="button" onclick="psmExecuter()">▶ Exécuter le programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="psmConsole"></pre></div>'
-    +'<div id="psmModele"></div>'
     +'</div>';
-  const ta=$('psm-prog'); ta.value=q.prog||'';
-  ta.addEventListener('input', psmSaisie);
-  ta.addEventListener('keydown', psmTouche);
+  pytBrancher(PSM_TROUS, q, psmSaisie, psmExecuter);
 }
-/* Tab décale de quatre espaces, Entrée après « : » décale la ligne suivante (le geste de pfnTouche). */
-function psmTouche(e){
+function psmSaisie(e){
   if(test.locked) return;
-  const ta=e.target, v=ta.value, a=ta.selectionStart, b=ta.selectionEnd;
-  let ins=null;
-  if(e.key==='Tab' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) ins='    ';
-  else if(e.key==='Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey){
-    const debut=v.lastIndexOf('\n', a-1)+1, avant=v.slice(debut, a);
-    ins='\n'+avant.match(/^ */)[0]+(/:\s*$/.test(avant)?'    ':'');
-  }
-  if(ins===null) return;
-  e.preventDefault();
-  ta.value=v.slice(0,a)+ins+v.slice(b);
-  ta.selectionStart=ta.selectionEnd=a+ins.length;
-  psmSaisie();
-}
-function psmSaisie(){
-  if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('psm-prog'); if(!q||!ta) return;
-  q.prog=ta.value;
-  ta.classList.remove('bad');
+  const q=test.questions[test.idx]; if(!q) return;
+  pytLire(PSM_TROUS, q);
+  if(e && e.target) e.target.classList.remove('bad');
   if(_psmRep){ _psmRep=null; const c=$('psmConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
   clearTimeout(_psmSaveTimer); _psmSaveTimer=setTimeout(autoSave,1000);
 }
-/* Le dialogue du 6.3.9 : on exécute avec les réponses déjà données ; si le
-   programme en attend une de plus, la console montre sa question et une case. */
 function psmPas(){
-  const ta=$('psm-prog'), c=$('psmConsole'); if(!ta||!c) return;
-  const src=ta.value;
-  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _psmRep=null; return; }
-  let r=null, err=null;
-  try{ r=pyRun(src, _psmRep); }catch(e){ err=e; }
-  if(err && err.attente){
-    c.textContent=err.sortie;
-    const inv=document.createElement('span'); inv.textContent=err.invite; c.appendChild(inv);
-    const inp=document.createElement('input');
-    inp.type='text'; inp.id='psm-rep'; inp.className='pyi-rep'; inp.autocomplete='off';
-    inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocorrect','off'); inp.spellcheck=false;
-    inp.setAttribute('inputmode','numeric');
-    inp.setAttribute('aria-label','ta réponse à la question du programme');
-    inp.addEventListener('keydown', function(e){
-      if(e.key!=='Enter') return;
-      e.preventDefault();
-      if(!_psmRep) return;
-      _psmRep.push(inp.value); psmPas();
-    });
-    c.appendChild(inp);
-    try{ inp.focus(); }catch(e){}
-    return;
-  }
-  _psmRep=null;
-  if(err){ c.textContent=(err.sortie||'')+'Erreur : '+(err.message||err); c.classList.add('py-err'); }
-  else c.textContent=r.out?r.out.replace(/\n$/,''):'(le programme n’affiche rien)';
+  const q=test.questions[test.idx]; if(!q) return;
+  const etat=pytPas('psmConsole', 'psm-rep', psmSrc(q, q.tr), _psmRep, 'numeric', function(v){ if(!_psmRep) return; _psmRep.push(v); psmPas(); });
+  if(etat!=='attente') _psmRep=null;
 }
 function psmExecuter(){
   if(test.locked) return;
-  const ta=$('psm-prog'); if(!ta) return;
-  test.questions[test.idx].prog=ta.value;
+  const q=test.questions[test.idx]; if(!q) return;
+  pytLire(PSM_TROUS, q);
   _psmRep=[]; psmPas();
-}
-/* À la vérification, la console montre une exécution que le juge a lue. */
-function psmAfficherJuge(src, q){
-  const c=$('psmConsole'); if(!c) return;
-  _psmRep=null;
-  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
-  const n=psmEx(psmSit(q))[0], x=psmEssai(src, n);
-  const tete='(la page a répondu « '+n+' »)\n';
-  if(x.err){ c.textContent=tete+(x.err.attente?x.err.sortie+x.err.invite+'… (le programme attend encore une réponse)':(x.err.sortie||'')+'Erreur : '+(x.err.message||x.err)); if(!x.err.attente) c.classList.add('py-err'); }
-  else c.textContent=tete+(x.r.out?x.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
 }
 function checkPSM(live){
   if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
   if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('psm-prog'); if(!q||!ta) return;
-  const src=ta.value; q.prog=src;
-  const d=psmDiag(src, q);
-  psmAfficherJuge(src, q);
-  ta.classList.remove('ok','bad','sol');
+  const q=test.questions[test.idx]; if(!q) return;
+  const tr=pytLire(PSM_TROUS, q), j=psmJuges(q, tr), sols=psmSols(q), S=psmSit(q);
+  const els=PSM_TROUS.map(function(t){ return $(t.id); });
+  const tousOk=j.every(function(x){ return x.ok; }), tousVides=j.every(function(x){ return x.vide; });
+  const diags=j.map(function(x, i){ return (!x.ok && x.diag)?'Ligne '+PSM_TROUS[i].l+' : '+x.diag:''; }).filter(Boolean);
   const fb=$('psmFeedback');
-  if(!d.ok && isSoutien()){
-    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
-    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+  if(isSoutien() && !tousOk){
+    els.forEach(function(el, i){ pytMarque(el, j[i].ok?true:(j[i].vide?null:false)); });   /* une case vide ne rougit jamais */
+    fb.textContent=tousVides?'Complète les pointillés du programme, puis vérifie.':'Pas encore. '+(diags.join(' ')||'Complète les pointillés laissés vides.')+' Corrige, puis revérifie.';
     fb.className='mp-feedback bad';
     $('psmActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="psmValidate" onclick="checkPSM()">Revérifier</button>';
-    setTimeout(function(){ ta.focus(); },40);
     return;
   }
-  test.locked=true; ta.readOnly=true;
-  if(d.ok){
-    ta.classList.add('ok'); test.score+=1;
-    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme choisit le bon prix, avant et à partir de '+psmSit(q).seuil+' samoussas.';
+  test.locked=true; _psmRep=null;
+  let n=0;
+  els.forEach(function(el, i){ if(!el) return; el.readOnly=true; pytMarque(el, j[i].ok, j[i].ok?null:sols[i]); if(j[i].ok) n++; });
+  test.score+=n;
+  if(!tousVides) pytAfficherJuge('psmConsole', psmSrc(q, tr), [psmEx(S)[0]]);
+  if(tousOk){
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme choisit le bon prix, avant et à partir de '+S.seuil+' samoussas.';
     fb.className='mp-feedback good';
-  } else if(d.vide){
-    ta.value=psmModele(q); ta.classList.add('sol');
-    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
+  } else if(tousVides){
+    fb.textContent='Tu n’avais rien écrit — la correction est écrite en vert dans les pointillés.'; fb.className='mp-feedback bad';
   } else {
-    ta.classList.add('bad');
-    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
-    $('psmModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(psmModele(q))+'</pre>';
+    fb.textContent=(diags.join(' ')||'Des pointillés sont restés vides.')+' Les bonnes réponses sont écrites en vert.'; fb.className='mp-feedback bad';
   }
   $('psmLiveScore').textContent=test.score;
-  const S=psmSit(q);
-  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:'samoussas à '+psmCode(S.p1)+' € (moins de '+S.seuil+'), '+psmCode(S.p2)+' € (à partir de '+S.seuil+')', answer:psmModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  test.answers.push({...(ptsExo()||{}), correct:tousOk, q:'samoussas à '+psmCode(S.p1)+' € (moins de '+S.seuil+'), '+psmCode(S.p2)+' € (à partir de '+S.seuil+')', answer:psmModele(q).replace(/\n+/g,' ⏎ '), given:tousVides?'(vide)':psmSrc(q, tr).replace(/\n+/g,' ⏎ ')});
   const b=$('psmRun'); if(b) b.disabled=true;
   const last=test.idx===test.questions.length-1;
   $('psmActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="psmNext" onclick="nextPSM()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -50204,12 +50179,13 @@ function checkPSM(live){
 }
 function nextPSM(){ if(test.idx<test.questions.length-1){ test.idx++; renderPSM(); autoSave(); } else finishTest(); }
 function ctxPsm(q){
-  const S=psmSit(q), ta=$('psm-prog'), prog=(ta&&ta.value)||q.prog||'';
-  let d=null; try{ d=psmDiag(prog, q); }catch(e){}
-  let c='Le prix d’un samoussa est de '+psmCode(S.p1)+' € si on en prend moins de '+S.seuil+', et de '+psmCode(S.p2)+' € à partir de '+S.seuil+' samoussas. L’élève doit ÉCRIRE un programme Python qui demande le nombre de samoussas et range la réponse dans la variable entière nombre (int(input(…))), puis, SI nombre est plus petit que '+S.seuil+', calcule le prix avec '+psmCode(S.p1)+' € par samoussa, le range dans la variable prix et l’affiche, SINON calcule le prix avec '+psmCode(S.p2)+' € par samoussa, le range dans prix et l’affiche (if … : / else :). Il peut exécuter son programme : la console lui pose la question et il y répond.\n';
-  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
-  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
-  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+psmModele(q)+'\nAide-le à trouver lui-même : rappelle les règles en jeu — int(input("question")) pour obtenir un nombre entier (input rend toujours un texte), if condition : puis else : chacun suivi des deux-points et des lignes DÉCALÉES qu’il commande, en Python un nombre décimal s’écrit avec un point (1.20), print("texte", prix) avec le nom de la variable SANS guillemets — sans jamais écrire le programme complet.';
+  const S=psmSit(q), tr=(q.tr||[]).slice();
+  PSM_TROUS.forEach(function(t, i){ const el=$(t.id); if(el) tr[i]=el.value; });
+  let j=null; try{ j=psmJuges(q, tr); }catch(e){}
+  let c='Le prix d’un samoussa est de '+psmCode(S.p1)+' € si on en prend moins de '+S.seuil+', et de '+psmCode(S.p2)+' € à partir de '+S.seuil+' samoussas. Le programme est DÉJÀ écrit : nombre = int(input("…")), if nombre < '+S.seuil+' : prix = … puis print("…", prix), else : prix = … puis print("…", prix). L’élève doit COMPLÉTER ses pointillés : le texte de la question (il doit demander le nombre de samoussas), les deux calculs du prix (avec la variable nombre), et les deux textes affichés devant le prix (ils doivent annoncer le prix). Les fautes d’orthographe dans les textes sont acceptées. Il peut exécuter le programme : la console lui pose la question.\n';
+  c+='Ce que l’élève a écrit dans les pointillés :\n'+PSM_TROUS.map(function(t, i){ return 'ligne '+t.l+', '+t.quoi+' : '+(pytNet(tr[i])||'(vide)'); }).join('\n')+'\n';
+  if(j) c+=j.every(function(x){ return x.ok; })?'Tout est juste. ':('Ce que la page a relevé : '+j.map(function(x, i){ return x.diag?'ligne '+PSM_TROUS[i].l+' : '+x.diag:''; }).filter(Boolean).join(' ')+' ');
+  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+psmModele(q)+'\nAide-le à trouver lui-même : le prix se calcule avec la variable nombre et le signe * ; en Python un nombre décimal s’écrit avec un point (1.20) ; le texte entre les guillemets est ce que la page affiche — sans jamais donner les réponses des pointillés.';
   return {nombre:'', contexte:c};
 }
 
