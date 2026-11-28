@@ -548,7 +548,7 @@ même quand la solution est juste) ; en soutien, elle bloque comme une case
 fausse, et « Passer à la suite » reste offert. Les étapes se jugent contre
 l'équation JUSTE du problème, pas contre celle que l'élève a écrite ou
 choisie : une étape tirée d'une mauvaise mise en équation rougit.
-## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v748 — le 1.10 avait pris la v747 sur `main` pendant les contrôles)
+## {equation-resoudre-libre} — résoudre ax + b = cx + d ligne par ligne, sans étapes imposées (Seconde, 9.13, novembre 2026, v749 — le 1.10 avait pris les v747 et v748 sur `main` pendant les contrôles)
 
 **D'où il vient.** Demande de Turquet : « créer un exercice comme le 9.5,
 mais sans les étapes détaillées, pas de flèche et d'accolades. L'élève doit
