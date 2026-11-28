@@ -43951,9 +43951,9 @@ function pythonSamoussa(w, P){
   const nom = '{python-samoussa} : le prix des samoussas';
   if(!P.pythonSamoussa){ ignorer(nom, 'ce niveau n\'a pas l\'exercice des samoussas'); return; }
   const ID = P.pythonSamoussa.exercice, NB = P.pythonSamoussa.nb, NUM = P.pythonSamoussa.numero;
-  const present = evaluer(w, "typeof startPSM==='function' && typeof psmDiag==='function' && typeof psmBuildQuestions==='function' && typeof pyRun==='function'");
+  const present = evaluer(w, "typeof startPSM==='function' && typeof psmJuges==='function' && typeof psmBuildQuestions==='function' && typeof pyRun==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPSM / psmDiag / psmBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPSM / psmJuges / psmBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -43973,7 +43973,7 @@ function pythonSamoussa(w, P){
   })()`, v => v === '');
 
   /* ---- 2. la fiche épinglée, et le tirage ---- */
-  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (1.20 €, 0.80 €, 10), puis d’autres prix distincts ; le modèle de chacune passe au juge, chaque situation sort (300 séances)', `(function(){
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (1.20 €, 0.80 €, 10), puis d’autres prix distincts ; les réponses de chacune passent aux juges, chaque situation sort (300 séances)', `(function(){
     const vus=[], vues={};
     for(let s=0;s<300&&vus.length<4;s++){
       const qs=psmBuildQuestions();
@@ -43982,10 +43982,10 @@ function pythonSamoussa(w, P){
       if(S0.p1!==1.2||S0.p2!==0.8||S0.seuil!==10){ vus.push("la fiche n’ouvre pas la séance : "+JSON.stringify(S0)); break; }
       const ss=qs.map(function(q){ return q.s; });
       if(new Set(ss).size!==ss.length){ vus.push("deux fois la même situation : "+ss.join(",")); break; }
-      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+      qs.forEach(function(q){ vues[q.s]=1; if(q.tr.join("")!==""||q.tr.length!==PSM_TROUS.length) vus.push("pointillés non vides au départ"); });
     }
     PSM_PRIX.forEach(function(p, i){
-      const d=psmDiag(psmModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" "));
+      const q={s:i}, j=psmJuges(q, psmSols(q)); j.forEach(function(x, k){ if(!x.ok) vus.push("la réponse "+k+" de la situation "+i+" : "+x.diag); });
       if(!(p[0]>p[1])) vus.push("la situation "+i+" ne baisse pas le prix à partir du seuil");
       if(p[2]<5) vus.push("le seuil "+i+" est trop petit pour juger sous le seuil");
     });
@@ -43994,58 +43994,38 @@ function pythonSamoussa(w, P){
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 3. le juge ---- */
-  verifierEval(w, 'le juge accepte toute copie juste (le modèle, un retrait de deux espaces, 1.2 au lieu de 1.20, elif, le prix seul, prix calculé dans le print après l’avoir rangé) et nomme chaque défaut — float, input sans int, 1,20, « = » dans le test, If, pas de if, un cas muet, <= 10, prix échangés, toujours le même prix, le prix d’un seul, « prix » entre guillemets, prix non rangé, deux input, round, nombre mal nommé, les deux-points, le retrait', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
-    const inp="nombre = int(input("+Q+"Combien de samoussas ? "+Q+"))";
-    const prog=function(cond, a, b, pa, pb){ return inp+NL+"if "+cond+" :"+NL+"    prix = "+a+NL+"    "+(pa||"print(prix)")+NL+"else :"+NL+"    prix = "+b+NL+"    "+(pb||"print(prix)"); };
-    const juste=prog("nombre < 10", "nombre * 1.20", "nombre * 0.80");
-    const justes=[psmModele(q),
-                  inp+NL+"if nombre<10:"+NL+"  prix=1.2*nombre"+NL+"  print("+Q+"prix :"+Q+", prix, "+Q+"€"+Q+")"+NL+"else:"+NL+"  prix=0.8*nombre"+NL+"  print("+Q+"prix :"+Q+", prix, "+Q+"€"+Q+")",
-                  inp+NL+"if nombre < 10 :"+NL+"    prix = nombre * 1.20"+NL+"elif nombre >= 10 :"+NL+"    prix = nombre * 0.80"+NL+"print("+Q+"Le prix est"+Q+", prix)",
-                  juste,
-                  "# samoussas"+NL+juste+NL];
-    justes.forEach(function(p){ const d=psmDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
-    const cas=[
-      [juste.replace("int(", "float("), /ENTIÈRE/],
-      [juste.replace("int(input("+Q+"Combien de samoussas ? "+Q+"))", "input("+Q+"Combien ? "+Q+")"), /TOUJOURS un texte/],
-      [juste.replace("1.20", "1,20"), /POINT/],
-      [juste.replace("nombre < 10", "nombre = 10"), /RANGE une valeur/],
-      [juste.replace("if nombre", "If nombre"), /minuscules/],
-      [inp+NL+"prix = nombre * 1.20"+NL+"print(prix)", /pas de test/],
-      [prog("nombre < 10", "nombre * 1.20", "nombre * 0.80", "print(prix)", "x = 1"), /n’affiche aucun prix/],
-      [prog("nombre <= 10", "nombre * 1.20", "nombre * 0.80"), /nombre < 10/],
-      [prog("nombre < 10", "nombre * 0.80", "nombre * 1.20"), /échangés/],
-      [prog("nombre < 10", "nombre * 1.20", "nombre * 1.20"), /même prix/],
-      [prog("nombre < 10", "1.20", "0.80"), /UN samoussa/],
-      [prog("nombre < 10", "nombre * 1.20", "nombre * 0.80", "print("+Q+"prix"+Q+")", "print("+Q+"prix"+Q+")"), /entre guillemets/],
-      [inp+NL+"if nombre < 10 :"+NL+"    print(nombre * 1.20)"+NL+"else :"+NL+"    print(nombre * 0.80)", /variable prix/],
-      [inp+NL+"autre = int(input("+Q+"Encore ? "+Q+"))"+NL+juste, /plus d’une question/],
-      [prog("nombre < 10", "round(nombre * 1.20, 2)", "nombre * 0.80"), /round/],
-      [juste.split("nombre").join("n"), /variable nombre/],
-      [juste.replace("nombre < 10 :", "nombre < 10"), /deux-points/],
-      [juste.replace("    prix = nombre * 1.20", "prix = nombre * 1.20"), /décal|retrait/],
-      ["prix = 3", /pas de test/],
-      [juste.replace("print(prix)", "print(“prix”)"), /guillemets/],
-      ["", /vide/]
-    ];
-    cas.forEach(function(c){
-      const d=psmDiag(c[0],q);
-      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
-      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
-    });
-    if(!psmDiag("",q).vide) vus.push("la copie vide n’est pas reconnue");
-    const q2={s:1}; if(!psmDiag(psmModele(q2),q2).ok||psmDiag(psmModele(q),q2).ok) vus.push("le juge ne suit pas les prix de la question");
+  /* ---- 3. les juges des pointillés ---- */
+  verifierEval(w, 'les juges des pointillés : un texte se juge par ses mots, fautes d’orthographe, lettres en trop ou en moins, majuscules et expressions voisines acceptées ; un calcul par sa valeur (1.2*nombre, « prix = » recopié) ; chaque défaut nommé — un texte hors sujet, input recopié, l’autre prix, le prix d’un seul, la virgule, un nombre fixe, une variable inconnue, un autre prix', `(function(){
+    const vus=[], q={s:0}, Q=String.fromCharCode(34);
+    const ok=function(j, quoi){ if(!j.ok) vus.push("refusé : "+quoi+" — "+j.diag); };
+    const non=function(j, re, quoi){ if(j.ok) vus.push("accepté à tort : "+quoi); else if(!re.test(j.diag)) vus.push(quoi+" → "+j.diag); };
+    ["Combien de samoussas ?","combien de samousa voulez vous","Nombre de samoussas :","COMBIEN EN VEUX-TU","combiens de samoussa",Q+"Combien ?"+Q].forEach(function(t){ ok(psmJugeTexte(0, t), t); });
+    non(psmJugeTexte(0, "Bonjour"), /nombre de samoussas/, "Bonjour");
+    non(psmJugeTexte(0, "input("+Q+"Combien ?"+Q+")"), /déjà écrits/, "input recopié");
+    ["Le prix à payer est de","le pri a payé","Total :","Vous devez payer","PRIX","le prix est de"].forEach(function(t){ ok(psmJugeTexte(2, t), t); ok(psmJugeTexte(4, t), t); });
+    non(psmJugeTexte(2, "Merci"), /annoncer le prix/, "Merci");
+    if(!psmJugeTexte(2, "  ").vide) vus.push("un texte vide n’est pas vide");
+    ["nombre * 1.20","1.2*nombre","nombre*1.2","prix = nombre * 1.20"].forEach(function(f){ ok(psmJugeCalc(f, q, 1), f); });
+    ["nombre * 0.80","0.8 * nombre"].forEach(function(f){ ok(psmJugeCalc(f, q, 2), f); });
+    non(psmJugeCalc("nombre * 0.80", q, 1), /autre cas/, "l’autre prix");
+    non(psmJugeCalc("1.20", q, 1), /UN samoussa/, "le prix d’un seul");
+    non(psmJugeCalc("nombre * 1,20", q, 1), /POINT/, "la virgule");
+    non(psmJugeCalc("12", q, 1), /variable nombre/, "un nombre fixe");
+    non(psmJugeCalc("n * 1.20", q, 1), /ne sait pas calculer/, "une variable inconnue");
+    non(psmJugeCalc("nombre * 1.5", q, 1), /Pour 7 samoussas/, "un autre prix");
+    non(psmJugeCalc(Q+"12"+Q, q, 1), /NOMBRE/, "un texte");
+    if(!psmJugeCalc("", q, 1).vide) vus.push("un calcul vide n’est pas vide");
+    if(!psmJugeCalc("nombre * 1.50", {s:1}, 1).ok||psmJugeCalc("nombre * 1.20", {s:1}, 1).ok) vus.push("le juge ne suit pas les prix de la question");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, le dialogue et la copie juste ---- */
-  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche en gras dans son cadre avec les trois coups de pouce repliés, mot pour mot, la cellule et la console VIDES, « Exécuter » ; la console pose la question et l’élève y répond ; le rappel ne dit que les coups de pouce ; la copie juste compte 1 case', `(function(){
+  /* ---- 4. l'écran, le programme à trous, le dialogue et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, l’énoncé de la fiche en gras dans son cadre (« Compléter les pointillés du programme »), le troisième coup de pouce replié, le programme des coups de pouce écrit avec ses cinq pointillés vides ; la console pose la question ; la copie juste compte 5 cases', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPSM();
-    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
-    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
+    if(test.maxScore!==${NB}*5) vus.push("barème "+test.maxScore);
     const ecr=document.getElementById("scr-psm"), en=document.getElementById("psmInstr"), img=en&&en.querySelector("img.psm-img");
     if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
     if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
@@ -44053,78 +44033,78 @@ function pythonSamoussa(w, P){
     if(tout[0]!==img) vus.push("le dessin n’est pas en premier");
     if(document.querySelector("#scr-psm .py-avant,#scr-psm .pyp-regle,#scr-psm .pyi-cours,#scr-psm .pii-def")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("psmEtape"), ti=et&&et.querySelector(".pyn-titre");
-    const attendu="Le prix d’un samoussa est de 1.20 € si on en prend moins de 10 et il est de 0.80 € à partir de 10 samoussas. Faire un programme Qui demande le nombre de samoussas et qui met le résultat dans la variable entière nombre. Si nombre est plus petit que 10 Alors il calcule le prix des samoussas avec 1.20 € par samoussa et met le résultat dans la variable prix puis affiche le prix. sinon il calcule le prix des samoussas avec 0.80 € par samoussa et met le résultat dans la variable prix puis affiche le prix.";
+    const attendu="Le prix d’un samoussa est de 1.20 € si on en prend moins de 10 et il est de 0.80 € à partir de 10 samoussas. Compléter les pointillés du programme Qui demande le nombre de samoussas et qui met le résultat dans la variable entière nombre. Si nombre est plus petit que 10 Alors il calcule le prix des samoussas avec 1.20 € par samoussa et met le résultat dans la variable prix puis affiche le prix. sinon il calcule le prix des samoussas avec 0.80 € par samoussa et met le résultat dans la variable prix puis affiche le prix.";
     const lu=ti?[].slice.call(ti.querySelectorAll("p,li")).map(function(e){ return net(e.textContent); }).join(" "):"";
     if(!ti||net(ti.textContent).indexOf("✏️")!==0||lu!==attendu) vus.push("l’énoncé de la question : "+JSON.stringify(lu));
-    if(ti&&ti.querySelectorAll("li").length!==3) vus.push("l’énoncé n’a pas ses trois puces");
     if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
-    ["psm-prog","psmRun","psmConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
     const pouces=document.querySelectorAll("#psmEtape details.pyd-pouce");
-    const attendus=[["coup de pouce 1","nombre = int (input ( "+String.fromCharCode(34)+"...texte de la question ... "+String.fromCharCode(34)+") )"],
-                    ["coup de pouce 2","if nombre < 10 : prix= .... print ("+String.fromCharCode(34)+" ... texte réponse ... "+String.fromCharCode(34)+" , prix ) else : prix = ... print ("+String.fromCharCode(34)+" ... texte réponse ... "+String.fromCharCode(34)+" , prix )"],
-                    ["coup de pouce 3","si le nombre est plus petit que 10 alors: prix = nombre * 1.20sinon: prix = nombre * 0.80"]];
-    if(pouces.length!==3) vus.push(pouces.length+" coup(s) de pouce");
-    else attendus.forEach(function(a, i){
-      if(pouces[i].open) vus.push("coup de pouce "+(i+1)+" déplié d’emblée");
-      if(net(pouces[i].querySelector("summary").textContent)!==a[0]) vus.push("le titre du coup de pouce "+(i+1));
-      const ps=[].slice.call(pouces[i].querySelectorAll("p")).map(function(p){ return net(p.textContent); }).join("");
-      if(ps!==a[1]) vus.push("le coup de pouce "+(i+1)+" : "+JSON.stringify(ps));
-    });
-    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.psm||"";
-    if(net(rap.textContent).indexOf("Le prix des samoussas nombre = int (input")!==0||net(rap.textContent).indexOf("sinon: prix = nombre * 0.80")<0) vus.push("le rappel : "+JSON.stringify(net(rap.textContent)));
-    const ta=document.getElementById("psm-prog"), cons=document.getElementById("psmConsole");
-    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
-    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
-    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
-    ta.value=psmModele(q);
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
-    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
+    if(pouces.length!==1) vus.push(pouces.length+" coup(s) de pouce");
+    else {
+      if(pouces[0].open) vus.push("coup de pouce déplié d’emblée");
+      const ps=[].slice.call(pouces[0].querySelectorAll("p")).map(function(p){ return net(p.textContent); }).join("");
+      if(ps!=="si le nombre est plus petit que 10 alors: prix = nombre * 1.20sinon: prix = nombre * 0.80") vus.push("le coup de pouce : "+JSON.stringify(ps));
+    }
+    const prog=document.getElementById("psmProg");
+    if(!prog||!et.contains(prog)) vus.push("le programme est hors du cadre de la question");
+    else {
+      const lignes=[].slice.call(prog.querySelectorAll(".pch-l")).map(function(l){ return l.textContent; });
+      const att=["nombre = int(input("+Q+Q+"))","if nombre < 10 :","    prix = ","    print("+Q+Q+", prix)","else :","    prix = ","    print("+Q+Q+", prix)"];
+      if(JSON.stringify(lignes)!==JSON.stringify(att)) vus.push("le programme écrit : "+JSON.stringify(lignes));
+    }
+    PSM_TROUS.forEach(function(t){ const el=document.getElementById(t.id); if(!el||!prog.contains(el)) vus.push(t.id+" absent du programme"); else if(el.value!=="") vus.push(t.id+" n’est pas vide"); });
+    ["psmRun","psmConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
+    const cons=document.getElementById("psmConsole");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide");
+    const sols=psmSols(q);
+    PSM_TROUS.forEach(function(t, i){ const el=document.getElementById(t.id); el.value=sols[i]; el.dispatchEvent(new Event("input",{bubbles:true})); });
+    if(q.tr.join("|")!==sols.join("|")) vus.push("les pointillés ne voyagent pas dans la question");
     psmExecuter();
     const r=document.getElementById("psm-rep");
     if(!r||!cons.contains(r)) vus.push("la console ne demande pas le nombre");
     else {
       if(cons.textContent!=="Combien de samoussas ? ") vus.push("la console : "+JSON.stringify(cons.textContent));
       r.value="12"; r.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
-      if(document.getElementById("psm-rep")) vus.push("la case reste après la réponse");
-      if(cons.textContent.split(NL).pop()!=="Le prix à payer est de 9.600000000000001 €") vus.push("la console après réponse : "+JSON.stringify(cons.textContent));
+      if(cons.textContent.split(NL).pop()!=="Le prix à payer est de 9.600000000000001") vus.push("la console après réponse : "+JSON.stringify(cons.textContent));
     }
     checkPSM();
-    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    if(test.score!==5||PSM_TROUS.some(function(t){ return !document.getElementById(t.id).classList.contains("ok"); })) vus.push("la copie juste : note "+test.score);
     const ans=test.answers[test.answers.length-1];
-    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!ans||ans.cases!==5||ans.justes!==5||!ans.correct) vus.push("la note ne compte pas 5 cases justes : "+JSON.stringify(ans));
     nextPSM();
-    if(test.idx!==1||document.getElementById("psm-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(test.idx!==1||document.getElementById("psm-t0").value!=="") vus.push("la question suivante ne s’ouvre pas sur des pointillés vides");
     const S1=psmSit(test.questions[1]), t1=net(document.querySelector("#psmEtape .pyn-titre").textContent);
     if(t1.indexOf(S1.p1.toFixed(2)+" € si on en prend moins de "+S1.seuil)<0) vus.push("l’énoncé de la question 2 ne suit pas ses prix : "+t1);
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
   /* ---- 5. faux, vide, et le soutien ---- */
-  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+  verifierEval(w, 'une case fausse rougit et reçoit la bonne réponse en vert à côté, les cases justes restent bleues ; des cases vides ne rougissent pas et reçoivent la réponse en vert ; en soutien le diagnostic s’affiche sans aucune correction, et la question reste ouverte', `(function(){
+    const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPSM();
-    let ta=document.getElementById("psm-prog");
-    ta.value="nombre = int(input("+Q+"? "+Q+"))"+NL+"prix = nombre * 1.20"+NL+"print(prix)";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const remplir=function(tr){ PSM_TROUS.forEach(function(t, i){ const el=document.getElementById(t.id); el.value=tr[i]; el.dispatchEvent(new Event("input",{bubbles:true})); }); };
+    let sols=psmSols(test.questions[0]);
+    remplir([sols[0], sols[1], sols[2], "nombre * 1.20", sols[4]]);
     checkPSM();
-    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
-    const mod=document.querySelector("#psmModele .sol");
-    if(!mod||mod.textContent!==psmModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
-    nextPSM(); ta=document.getElementById("psm-prog");
+    const f2=document.getElementById("psm-f2"), cor=document.querySelector(".pyt-cor[data-pour=psm-f2]");
+    if(!f2.classList.contains("bad")||!cor||cor.textContent!==sols[3]) vus.push("la case fausse ne rougit pas, ou sans sa correction verte");
+    if(test.score!==4) vus.push("la copie à une faute note "+test.score);
+    nextPSM(); sols=psmSols(test.questions[1]);
     checkPSM();
-    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
-    if(!ta.classList.contains("sol")||ta.value!==psmModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
-    currentMode="soutien"; startPSM(); ta=document.getElementById("psm-prog");
+    PSM_TROUS.forEach(function(t, i){ const el=document.getElementById(t.id);
+      if(el.classList.contains("bad")) vus.push(t.id+" vide rougit");
+      if(!el.classList.contains("sol")||el.value!==sols[i]) vus.push(t.id+" vide ne reçoit pas la réponse en vert"); });
+    currentMode="soutien"; startPSM();
     checkPSM();
-    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
-    ta.value="nombre = int(input("+Q+"? "+Q+"))"+NL+"if nombre <= 10 :"+NL+"    prix = nombre * 1.20"+NL+"    print(prix)"+NL+"else :"+NL+"    prix = nombre * 0.80"+NL+"    print(prix)";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(document.querySelector("#psmProg .bad")||test.locked) vus.push("soutien : les cases vides rougissent ou verrouillent");
+    sols=psmSols(test.questions[0]);
+    remplir([sols[0], "nombre * 0.80", "", "", ""]);
     checkPSM();
     const fb=document.getElementById("psmFeedback").textContent;
-    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
-    if(!/nombre < 10/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
-    if(document.querySelector("#psmModele .sol")) vus.push("soutien : le modèle est révélé");
+    if(!document.getElementById("psm-f1").classList.contains("bad")||test.locked) vus.push("soutien : la case fausse ne rougit pas, ou verrouille");
+    if(!/autre cas/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#psmProg .sol,#psmProg .pyt-cor")) vus.push("soutien : la correction est révélée");
+    if(document.getElementById("psm-t1").classList.contains("bad")) vus.push("soutien : une case vide rougit");
     if(!/STRICTEMENT SECRÈTE/.test(ctxPsm(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
@@ -44789,9 +44769,9 @@ function pythonIfPlusGrand(w, P){
   const nom = '{python-if-plus-grand} : le plus grand des deux nombres';
   if(!P.pythonIfPlusGrand){ ignorer(nom, 'ce niveau n\'a pas l\'exercice du if … else'); return; }
   const ID = P.pythonIfPlusGrand.exercice, NB = P.pythonIfPlusGrand.nb, NUM = P.pythonIfPlusGrand.numero;
-  const present = evaluer(w, "typeof startPXY==='function' && typeof pxyDiag==='function' && typeof pxyBuildQuestions==='function'");
+  const present = evaluer(w, "typeof startPXY==='function' && typeof pxyJuges==='function' && typeof pxyBuildQuestions==='function'");
   if(!present.ok || !present.valeur){
-    verifier(nom, false, 'startPXY / pxyDiag / pxyBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
+    verifier(nom, false, 'startPXY / pxyJuges / pxyBuildQuestions introuvables alors que tests/profils.js déclare l\'exercice'); return;
   }
 
   /* ---- 1. la place au menu ---- */
@@ -44808,7 +44788,7 @@ function pythonIfPlusGrand(w, P){
   })()`, v => v === '');
 
   /* ---- 2. la fiche épinglée, et le tirage ---- */
-  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (x et y), puis d’autres variables distinctes ; le modèle de chacune passe au juge, chaque paire sort (300 séances)', `(function(){
+  verifierEval(w, 'la séance : ' + NB + ' questions, la fiche du carnet d’abord (x et y), puis d’autres variables distinctes ; les réponses de chacune passent aux juges, chaque paire sort (300 séances)', `(function(){
     const vus=[], vues={};
     for(let s=0;s<300&&vus.length<4;s++){
       const qs=pxyBuildQuestions();
@@ -44817,132 +44797,110 @@ function pythonIfPlusGrand(w, P){
       if(S.a!=="x"||S.b!=="y"){ vus.push("la fiche n’ouvre pas la séance : "+S.a+S.b); break; }
       const ss=qs.map(function(q){ return q.s; });
       if(new Set(ss).size!==ss.length){ vus.push("deux fois les mêmes variables : "+ss.join(",")); break; }
-      qs.forEach(function(q){ vues[q.s]=1; if(q.prog!=="") vus.push("programme non vide au départ"); });
+      qs.forEach(function(q){ vues[q.s]=1; if(q.tr.join("")!==""||q.tr.length!==PXY_TROUS.length) vus.push("pointillés non vides au départ"); });
     }
-    PXY_VARS.forEach(function(_, i){ const d=pxyDiag(pxyModele({s:i}),{s:i}); if(!d.ok) vus.push("le modèle "+i+" : "+d.dits.join(" ")); });
+    PXY_VARS.forEach(function(_, i){ const q={s:i}; pxyJuges(q, pxySols(q)).forEach(function(x, k){ if(!x.ok) vus.push("la réponse "+k+" des variables "+i+" : "+x.diag); }); });
     if(Object.keys(vues).length!==PXY_VARS.length) vus.push("des paires ne sortent jamais : "+Object.keys(vues).join(","));
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 3. le juge ---- */
-  verifierEval(w, 'le juge accepte tout programme juste (le modèle, le if à l’envers, >=, le print du nombre seul, la question sur la ligne du if) et nomme chaque défaut — float oublié, int, une ou trois questions, l’input muet, une autre variable, les deux nombres affichés, le plus petit affiché, la variable entre guillemets, une seule branche juste, rien d’affiché, la virgule, guillemets typographiques, programme vide', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34), q={s:0,prog:""};
-    const i1="x = float(input("+Q+"Premier ? "+Q+"))", i2="y = float(input("+Q+"Second ? "+Q+"))", tete=i1+NL+i2+NL;
-    const si=function(c, a, b){ return tete+"if "+c+":"+NL+"    print("+a+")"+NL+"else:"+NL+"    print("+b+")"; };
-    const justes=[pxyModele(q),
-                  si("x > y", "x", "y"),
-                  si("x >= y", Q+"le plus grand est"+Q+", x", Q+"le plus grand est"+Q+", y"),
-                  tete+"if x < y : print(y)"+NL+"else : print(x)",
-                  "# deux nombres"+NL+tete+NL+"if y > x:"+NL+NL+"    print("+Q+"Le plus grand :"+Q+", y)"+NL+"else:"+NL+"    print("+Q+"Le plus grand :"+Q+", x)"+NL];
-    justes.forEach(function(p){ const d=pxyDiag(p,q); if(!d.ok) vus.push("refusé : "+JSON.stringify(p)+" — "+d.dits.join(" ")); });
-    const cas=[
-      ["x = input("+Q+"Premier ? "+Q+")"+NL+"y = input("+Q+"Second ? "+Q+")"+NL+"if x < y:"+NL+"    print(y)"+NL+"else:"+NL+"    print(x)", /TEXTE|float/],
-      ["x = int(input("+Q+"Premier ? "+Q+"))"+NL+"y = int(input("+Q+"Second ? "+Q+"))"+NL+"if x < y:"+NL+"    print(y)"+NL+"else:"+NL+"    print(x)", /ENTIER/],
-      [i1+NL+"if x < 3:"+NL+"    print(x)", /qu’une question/],
-      [tete+"z = float(input("+Q+"Troisième ? "+Q+"))"+NL+"print(x)", /plus de deux questions/],
-      ["x = float(input())"+NL+i2+NL+"print(x)", /pas de question/],
-      ["a = float(input("+Q+"Premier ? "+Q+"))"+NL+"b = float(input("+Q+"Second ? "+Q+"))"+NL+"if a < b:"+NL+"    print(b)"+NL+"else:"+NL+"    print(a)", /variable x/],
-      [tete+"print(x, y)", /les deux nombres/],
-      [si("x < y", "x", "y"), /plus PETIT/],
-      [si("x < y", Q+"y"+Q, Q+"x"+Q), /entre guillemets/],
-      [si("x < y", "y", "y"), /ce n’est pas le plus grand/],
-      [tete+"if x < y:"+NL+"    z = y", /n’affiche rien/],
-      [tete+"if x < 3,5:"+NL+"    print(y)", /POINT/],
-      [tete+"print(“x”)", /guillemets/],
-      ["", /vide/]
-    ];
-    cas.forEach(function(c){
-      const d=pxyDiag(c[0],q);
-      if(d.ok) vus.push("accepté à tort : "+JSON.stringify(c[0]));
-      else if(!c[1].test(d.dits.join(" "))) vus.push(JSON.stringify(c[0])+" → "+d.dits.join(" | "));
-    });
+  /* ---- 3. les juges des pointillés ---- */
+  verifierEval(w, 'les juges des pointillés : un texte se juge par ses mots, fautes d’orthographe, majuscules et expressions voisines acceptées ; la variable affichée par sa valeur dans sa branche ; chaque défaut nommé — une question hors sujet, « le plus petit », un texte hors sujet, la variable du plus petit, entre guillemets, inconnue', `(function(){
+    const vus=[], q={s:0}, Q=String.fromCharCode(34);
+    const ok=function(j, quoi){ if(!j.ok) vus.push("refusé : "+quoi+" — "+j.diag); };
+    const non=function(j, re, quoi){ if(j.ok) vus.push("accepté à tort : "+quoi); else if(!re.test(j.diag)) vus.push(quoi+" → "+j.diag); };
+    ["Premier nombre ?","premié nonbre","Donne un nombre décimal","ENTRER UNE VALEUR","Deuxième nombre ?","deuxiem nombre","Second nombre :"].forEach(function(t){ ok(pxyJugeTexte(0, t), t); ok(pxyJugeTexte(1, t), t); });
+    non(pxyJugeTexte(0, "Bonjour"), /demander un nombre/, "Bonjour");
+    ["Le plus grand est","le plu grand est","Maximum :","LE PLUS GRAND NOMBRE EST","le plus grand c'est"].forEach(function(t){ ok(pxyJugeTexte(2, t), t); ok(pxyJugeTexte(4, t), t); });
+    non(pxyJugeTexte(2, "Le plus petit est"), /GRAND/, "le plus petit");
+    non(pxyJugeTexte(4, "Résultat"), /plus grand/, "Résultat");
+    non(pxyJugeTexte(2, "print("+Q+"grand"+Q), /déjà écrits/, "print recopié");
+    ok(pxyJugeVar("y", q, 1), "y"); ok(pxyJugeVar(" y ", q, 1), "y entouré d’espaces"); ok(pxyJugeVar("x", q, 2), "x");
+    non(pxyJugeVar("x", q, 1), /PETIT/, "x dans le if");
+    non(pxyJugeVar("y", q, 2), /pas le plus grand/, "y dans le else");
+    non(pxyJugeVar(Q+"y"+Q, q, 1), /SANS guillemets/, "y entre guillemets");
+    non(pxyJugeVar("z", q, 1), /ne comprend pas/, "une variable inconnue");
+    if(!pxyJugeVar("", q, 1).vide||!pxyJugeTexte(0, "").vide) vus.push("une case vide n’est pas vide");
+    if(!pxyJugeVar("b", {s:1}, 1).ok||pxyJugeVar("y", {s:1}, 1).ok) vus.push("le juge ne suit pas les variables de la question");
     return vus.slice(0,4).join(" | ");
   })()`, v => v === '');
 
-  /* ---- 4. l'écran, tenu aux consignes du sous-thème Input, et la copie juste ---- */
-  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition ni encadré au-dessus, l’énoncé de la fiche (et son Rappel) en gras dans son cadre avec deux coups de pouce repliés, la cellule et la console VIDES, le dialogue d’« Exécuter » ; le rappel ne dit que celui de la fiche ; la copie juste vaut 1', `(function(){
+  /* ---- 4. l'écran, le programme à trous, le dialogue et la copie juste ---- */
+  verifierEval(w, 'l’écran : le dessin seul en tête, aucune définition, l’énoncé en gras dans son cadre avec son Rappel (« Compléter les pointillés du programme »), le programme des deux coups de pouce écrit avec ses six pointillés vides ; la console pose les deux questions ; la copie juste compte 6 cases', `(function(){
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPXY();
-    const vus=[], q=test.questions[0], NL=String.fromCharCode(10);
+    const vus=[], q=test.questions[0], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
     const net=function(s){ return String(s).split(String.fromCharCode(160)).join(" ").split(NL).join(" ").replace(/ +/g," ").trim(); };
-    if(test.maxScore!==${NB}) vus.push("barème "+test.maxScore);
-    const en=document.getElementById("pxyInstr"), img=en&&en.querySelector("img.pxy-img");
-    if(!en||!img||!/^dessins[/]secondes[/][a-z0-9-]+[.]webp$/.test(img.getAttribute("src")||"")) vus.push("l’énoncé du haut n’a pas son dessin");
-    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte : "+en.textContent);
+    if(test.maxScore!==${NB}*6) vus.push("barème "+test.maxScore);
+    const ecr=document.getElementById("scr-pxy"), en=document.getElementById("pxyInstr"), img=en&&en.querySelector("img.pxy-img");
+    if(!img) vus.push("l’énoncé du haut n’a pas son dessin");
+    if(en&&net(en.textContent)!=="") vus.push("l’énoncé du haut porte du texte");
+    if([].slice.call(ecr.querySelectorAll("img,.pyn-etape"))[0]!==img) vus.push("le dessin n’est pas en premier");
     if(document.querySelector("#scr-pxy .py-avant,#scr-pxy .pyp-regle,#scr-pxy .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pxyEtape"), ti=et&&et.querySelector(".pyn-titre");
-    const attendu="✏️ Écrire un programme : Qui demande deux nombres décimaux que l’on mettra dans les variables x et y. Puis qui affiche le plus grand des deux nombres. Tester plusieurs fois votre programme. Rappel : Pour demander un nombre décimal il faut mettre : = float(input("+String.fromCharCode(34)+"... texte de la question ..."+String.fromCharCode(34)+"))";
-    /* les puces se suivent sans espace dans textContent : on compare sans les espaces */
-    const serre=function(s){ return net(s).replace(/ /g,""); };
-    if(!ti||serre(ti.textContent)!==serre(attendu)) vus.push("l’énoncé de la question : "+(ti&&net(ti.textContent)));
-    if(ti&&getComputedStyle(ti).fontWeight<600&&getComputedStyle(ti).fontWeight!=="bold") vus.push("l’énoncé n’est pas en gras");
-    ["pxy-prog","pxyRun","pxyConsole"].forEach(function(id){ if(!et||!et.querySelector("#"+id)) vus.push(id+" hors du cadre de la question"); });
-    const pouces=document.querySelectorAll("#pxyEtape details.pyd-pouce");
-    if(pouces.length!==2) vus.push(pouces.length+" coup(s) de pouce");
+    const t=ti?net(ti.textContent):"";
+    if(t.indexOf("✏️ Compléter les pointillés du programme : Qui demande deux nombres décimaux que l’on mettra dans les variables x et y.")!==0||t.indexOf("Rappel : Pour demander un nombre décimal il faut mettre : = float(input(")<0) vus.push("l’énoncé : "+JSON.stringify(t));
+    if(document.querySelectorAll("#pxyEtape details.pyd-pouce").length) vus.push("des coups de pouce restent : le programme les a remplacés");
+    const prog=document.getElementById("pxyProg");
+    if(!prog||!et.contains(prog)) vus.push("le programme est hors du cadre de la question");
     else {
-      if(pouces[0].open||pouces[1].open) vus.push("coup de pouce déplié d’emblée");
-      const t1=net(pouces[0].querySelector("p").textContent), t2=net(pouces[1].querySelector("p").textContent);
-      if(net(pouces[0].querySelector("summary").textContent)!=="coup de pouce 1"||net(pouces[1].querySelector("summary").textContent)!=="coup de pouce 2") vus.push("les titres des coups de pouce");
-      if(t1.indexOf("x = float(input(")!==0||t1.indexOf("y = float(input(")<0) vus.push("le coup de pouce 1 : "+JSON.stringify(t1));
-      if(t2.indexOf("if x < y :")!==0||t2.indexOf("else :")<0||t2.split("le plus grand est").length!==3) vus.push("le coup de pouce 2 : "+JSON.stringify(t2));
+      const lignes=[].slice.call(prog.querySelectorAll(".pch-l")).map(function(l){ return l.textContent; });
+      const att=["x = float(input("+Q+Q+"))","y = float(input("+Q+Q+"))","if x < y :","    print("+Q+Q+", )","else :","    print("+Q+Q+", )"];
+      if(JSON.stringify(lignes)!==JSON.stringify(att)) vus.push("le programme écrit : "+JSON.stringify(lignes));
     }
-    const rap=document.createElement("div"); rap.innerHTML=RAPPELS.pxy||"";
-    if(net(rap.textContent)!=="Le plus grand des deux nombres Pour demander un nombre décimal il faut mettre : = float(input("+String.fromCharCode(34)+"... texte de la question ..."+String.fromCharCode(34)+"))") vus.push("le rappel : "+JSON.stringify(rap.textContent));
-    const ta=document.getElementById("pxy-prog"), cons=document.getElementById("pxyConsole");
-    if(ta.value!==""||ta.getAttribute("placeholder")) vus.push("la cellule n’est pas vide");
-    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide : "+JSON.stringify(cons.textContent+getComputedStyle(cons,"::before").content));
-    if(!ta.classList.contains("pts-case")) vus.push("le programme n’est pas une pts-case");
-    ta.value=pxyModele(q);
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
-    if(q.prog!==ta.value) vus.push("le programme ne voyage pas dans la question");
-    /* le dialogue : deux questions, deux réponses tapées, le plus grand affiché */
+    PXY_TROUS.forEach(function(tr){ const el=document.getElementById(tr.id); if(!el||!prog.contains(el)) vus.push(tr.id+" absent du programme"); else if(el.value!=="") vus.push(tr.id+" n’est pas vide"); });
+    const cons=document.getElementById("pxyConsole");
+    if(cons.textContent!==""||getComputedStyle(cons,"::before").content.replace(/none|normal/,"")!=="") vus.push("la console n’est pas vide");
+    const sols=pxySols(q);
+    PXY_TROUS.forEach(function(tr, i){ const el=document.getElementById(tr.id); el.value=sols[i]; el.dispatchEvent(new Event("input",{bubbles:true})); });
+    if(q.tr.join("|")!==sols.join("|")) vus.push("les pointillés ne voyagent pas dans la question");
     pxyExecuter();
     let rep=document.getElementById("pxy-rep");
-    if(!rep||cons.textContent.indexOf("Premier nombre ? ")<0) vus.push("la console ne pose pas la première question : "+JSON.stringify(cons.textContent));
+    if(!rep) vus.push("la console ne pose pas la première question");
     else {
-      rep.value="4.5"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
+      rep.value="3.5"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true}));
       rep=document.getElementById("pxy-rep");
-      if(!rep) vus.push("la console ne pose pas la seconde question");
-      else { rep.value="7.25"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); }
-      if(cons.textContent.split(NL).pop()!=="Le plus grand est 7.25") vus.push("la console : "+JSON.stringify(cons.textContent));
+      if(!rep) vus.push("la console ne pose pas la deuxième question");
+      else { rep.value="12.25"; rep.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); }
+      if(cons.textContent.split(NL).pop()!=="Le plus grand est 12.25") vus.push("la console : "+JSON.stringify(cons.textContent));
     }
     checkPXY();
-    if(!ta.classList.contains("ok")||test.score!==1) vus.push("la copie juste : "+ta.className+", note "+test.score);
+    if(test.score!==6) vus.push("la copie juste : note "+test.score);
     const ans=test.answers[test.answers.length-1];
-    if(!ans||ans.cases!==1||ans.justes!==1||!ans.correct) vus.push("la note ne compte pas 1 case juste : "+JSON.stringify(ans));
+    if(!ans||ans.cases!==6||ans.justes!==6||!ans.correct) vus.push("la note ne compte pas 6 cases justes : "+JSON.stringify(ans));
     nextPXY();
-    if(test.idx!==1||document.getElementById("pxy-prog").value!=="") vus.push("la question suivante ne s’ouvre pas sur une zone vide");
+    if(test.idx!==1||document.getElementById("pxy-t0").value!=="") vus.push("la question suivante ne s’ouvre pas sur des pointillés vides");
     const S1=pxySit(test.questions[1]);
     if(net(document.getElementById("pxyEtape").textContent).indexOf("les variables "+S1.a+" et "+S1.b+".")<0) vus.push("l’énoncé de la question 2 ne suit pas ses variables");
     return vus.slice(0,5).join(" | ");
   })()`, v => v === '');
 
   /* ---- 5. faux, vide, et le soutien ---- */
-  verifierEval(w, 'la copie fausse rougit et reçoit le modèle en vert DESSOUS, la copie vide ne rougit pas et reçoit le modèle en vert ; en soutien le diagnostic s’affiche sans jamais le modèle, et la question reste ouverte', `(function(){
-    const vus=[], NL=String.fromCharCode(10), Q=String.fromCharCode(34);
+  verifierEval(w, 'une case fausse rougit et reçoit la bonne réponse en vert à côté ; des cases vides ne rougissent pas et reçoivent la réponse en vert ; en soutien le diagnostic s’affiche sans aucune correction, et la question reste ouverte', `(function(){
+    const vus=[];
     currentEleve={id:"e-controle",prenom:"Contrôle"}; currentMode="train"; currentDM=null; currentTestId="${ID}";
     startPXY();
-    let ta=document.getElementById("pxy-prog");
-    ta.value="x = float(input("+Q+"? "+Q+"))"+NL+"y = float(input("+Q+"? "+Q+"))"+NL+"print(x, y)";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    const remplir=function(tr){ PXY_TROUS.forEach(function(t, i){ const el=document.getElementById(t.id); el.value=tr[i]; el.dispatchEvent(new Event("input",{bubbles:true})); }); };
+    let sols=pxySols(test.questions[0]);
+    remplir([sols[0], sols[1], sols[2], "x", sols[4], sols[5]]);
     checkPXY();
-    if(!ta.classList.contains("bad")) vus.push("la copie fausse ne rougit pas");
-    const mod=document.querySelector("#pxyModele .sol");
-    if(!mod||mod.textContent!==pxyModele(test.questions[0])) vus.push("pas de modèle vert sous la copie fausse");
-    nextPXY(); ta=document.getElementById("pxy-prog");
+    const v1=document.getElementById("pxy-v1"), cor=document.querySelector(".pyt-cor[data-pour=pxy-v1]");
+    if(!v1.classList.contains("bad")||!cor||cor.textContent!=="y") vus.push("la case fausse ne rougit pas, ou sans sa correction verte");
+    if(test.score!==5) vus.push("la copie à une faute note "+test.score);
+    nextPXY(); sols=pxySols(test.questions[1]);
     checkPXY();
-    if(ta.classList.contains("bad")) vus.push("la copie vide rougit");
-    if(!ta.classList.contains("sol")||ta.value!==pxyModele(test.questions[1])) vus.push("la copie vide ne reçoit pas le modèle en vert");
-    currentMode="soutien"; startPXY(); ta=document.getElementById("pxy-prog");
+    PXY_TROUS.forEach(function(t, i){ const el=document.getElementById(t.id);
+      if(el.classList.contains("bad")) vus.push(t.id+" vide rougit");
+      if(!el.classList.contains("sol")||el.value!==sols[i]) vus.push(t.id+" vide ne reçoit pas la réponse en vert"); });
+    currentMode="soutien"; startPXY();
     checkPXY();
-    if(ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie vide rougit ou verrouille");
-    ta.value="x = float(input("+Q+"? "+Q+"))"+NL+"y = float(input("+Q+"? "+Q+"))"+NL+"print(x, y)";
-    ta.dispatchEvent(new Event("input",{bubbles:true}));
+    if(document.querySelector("#pxyProg .bad")||test.locked) vus.push("soutien : les cases vides rougissent ou verrouillent");
+    remplir(["", "", "", "x", "", ""]);
     checkPXY();
     const fb=document.getElementById("pxyFeedback").textContent;
-    if(!ta.classList.contains("bad")||test.locked) vus.push("soutien : la copie fausse ne rougit pas, ou verrouille");
-    if(!/les deux nombres/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
-    if(document.querySelector("#pxyModele .sol")||fb.indexOf("Premier nombre")>=0) vus.push("soutien : le modèle est révélé");
+    if(!document.getElementById("pxy-v1").classList.contains("bad")||test.locked) vus.push("soutien : la case fausse ne rougit pas, ou verrouille");
+    if(!/PETIT/.test(fb)) vus.push("soutien : le diagnostic n’est pas affiché : "+fb);
+    if(document.querySelector("#pxyProg .sol,#pxyProg .pyt-cor")) vus.push("soutien : la correction est révélée");
     if(!/STRICTEMENT SECRÈTE/.test(ctxPxy(test.questions[0]).contexte)) vus.push("le contexte de l’IA n’a pas sa clause de secret");
     currentMode="train";
     return vus.slice(0,4).join(" | ");
