@@ -186,3 +186,42 @@ c'est la même pour la suite, la remplir automatiquement ».
   la ligne APPLIQUE une propriété (ln 2³ → 3 ln 2, ln e^p → p) n'est jamais
   un miroir : ce passage est ce que l'élève apprend. Le modèle passe de
   17 cases notées à 10, plus la forme finale.
+
+## {ln-etude-produit} (9.1.2, v539) : l'étude de (ax + b) ln x + c
+
+Demande de Turquet (novembre 2026) : « faire le même exercice que le 9.1.1
+avec une fonction de la forme f(x) = (ax + b) ln(x) + c ; les abscisses des
+extremums doivent être entières ».
+
+**La condition fixe b, et l'extremum.** f′(x) = a ln x + (ax + b)/x s'annule
+en un entier n si b = −a·n(ln n + 1) : avec a et b entiers, seulement pour
+n = 1. Donc b = −a, f(x) = a(x − 1) ln x + c, un seul extremum, en x = 1, qui
+vaut c. a > 0 : un minimum (m) ; a < 0 : un maximum (M). Le tirage porte
+(a, c) — a de ±1 à ±3, c dans {−2, −1, 1, 2, 3} — ; la séance montre les deux
+visages, en ordre mélangé, c jamais le même. `lnpAns()` recalcule tout.
+
+**Le signe de f′ sans dérivée seconde** : a ln x et (ax + b)/x = a(x − 1)/x
+ont tous deux le signe de a(x − 1) ; deux termes de même signe ont une somme
+de ce signe. Le tableau du 4.4.2 porte ces trois lignes (`lnpTab`), la racine 1.
+Le même dénominateur du 9.1.1 n'est pas repris : x ln x au numérateur ne se
+signe pas mieux.
+
+**Les trois parties du 9.1.1** :
+
+* 1 — (uv)′ = u′v + uv′ écrite par la page, u(x) = ax + b et v(x) = ln x
+  posés ; u′(x) = □, v′(x) = □/□, (c)′ = □, f′(x) = □ × ln x + (□) × □/□, puis
+  f′(x) = a ln x + □/x, le numérateur sans parenthèse ni produit
+  (`lnfSansParenthese`). Chaque case se juge seule (`lnpDerVerdicts`), une
+  fraction d'abord en entier (2/(2x) vaut 1/x).
+* 2 — le tableau et la phrase de synthèse (minimum ou maximum, en x = 1) ;
+  `lnpForm` rejoint les listes d'hôtes qui se vident (ids ef-* partagés).
+* 3 — f(x) rappelée au-dessus de m = f(□) = (a × □ + b) ln(□) + c, des
+  flèches des x vers les cases (la grille et `lnfTrace` du 9.1.1, sept
+  colonnes), puis m = □ × ln(1) □, ln(1) = □, m = □.
+
+**Le graphique** (`lnpGraphSVG`) : l'axe des ordonnées est l'asymptote, la
+fenêtre est calée sur l'extremum (de c − 1,5 à c + 4,5 pour un minimum).
+
+**Essayé dans Chromium** : la copie faite des corrections est parfaite (27
+cases sur 27) pour a = 1 et a = −3 ; « (2x − 2) × 1 » au numérateur final est
+rouge.
