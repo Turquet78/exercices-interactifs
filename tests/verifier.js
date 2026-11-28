@@ -44838,8 +44838,8 @@ function pythonIfPlusGrand(w, P){
     if([].slice.call(ecr.querySelectorAll("img,.pyn-etape"))[0]!==img) vus.push("le dessin n’est pas en premier");
     if(document.querySelector("#scr-pxy .py-avant,#scr-pxy .pyp-regle,#scr-pxy .pyi-cours")) vus.push("un encadré de définition sur l’écran");
     const et=document.getElementById("pxyEtape"), ti=et&&et.querySelector(".pyn-titre");
-    const t=ti?net(ti.textContent):"";
-    if(t.indexOf("✏️ Compléter les pointillés du programme : Qui demande deux nombres décimaux que l’on mettra dans les variables x et y.")!==0||t.indexOf("Rappel : Pour demander un nombre décimal il faut mettre : = float(input(")<0) vus.push("l’énoncé : "+JSON.stringify(t));
+    const t=ti?net(ti.textContent).replace(/ /g,""):"";
+    if(t.indexOf("✏️Compléterlespointillésduprogramme:Quidemandedeuxnombresdécimauxquel’onmettradanslesvariablesxety.")!==0||t.indexOf("Rappel:Pourdemanderunnombredécimalilfautmettre:=float(input(")<0) vus.push("l’énoncé : "+JSON.stringify(t));
     if(document.querySelectorAll("#pxyEtape details.pyd-pouce").length) vus.push("des coups de pouce restent : le programme les a remplacés");
     const prog=document.getElementById("pxyProg");
     if(!prog||!et.contains(prog)) vus.push("le programme est hors du cadre de la question");
