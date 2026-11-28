@@ -2539,6 +2539,7 @@ math-field.dexp-mf.edv-let{min-width:42px}
 #scr-lnf .lnf-fl{fill:none;stroke:#1F6F8B;stroke-width:1.6}
 #scr-lnf .lnf-pt{fill:#1F6F8B;stroke:none}
 #scr-lnf .lnf-grille{display:grid;grid-template-columns:repeat(8,auto);column-gap:5px;row-gap:34px;align-items:center;white-space:nowrap;font-size:1.05rem}
+#scr-lnf .lnf-grille.lnq-grille{grid-template-columns:repeat(7,auto)}
 #scr-lnf .lnf-gc{display:inline-flex;align-items:center;justify-content:center}
 #scr-lnf .lnf-gc.lnf-lab{justify-content:flex-end;margin-right:4px}
 #scr-lnf .lnf-gc i{font-size:1.12em}
@@ -4847,7 +4848,7 @@ body math-field.dexp-mf.rec-mf.rc-mf-idx{min-height:32px;min-width:32px}
    visible sur tous les écrans, pour vérifier d'un coup d'œil quelle version
    est ouverte (fichier local ou site en ligne).
    ============================================================================ */
-const APP_VERSION=538;
+const APP_VERSION=539;
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -5105,6 +5106,7 @@ const TESTS={
   'espace-section-cube-libre': { name:'Espace \u2014 section d\u2019un cube, sans indication', icon:'\ud83e\uddca', desc:'Un cube et trois points I, J, K sur ses ar\u00eates\u00a0: construire la section du cube par le plan (IJK), sans aucune indication. Droites, segments, points d\u2019intersection et parall\u00e8les\u00a0; chaque morceau de la section trac\u00e9 passe en rouge. Deux figures.', start:()=>startESL() },
   'equadiff-verifier-solution': { name:'Vérifier qu\u2019une fonction est solution d\u2019une équation différentielle', icon:'y\u2032', desc:'La fiche « équa diff »\u00a0: y\u2032 = y + x, y\u2032 = y + e\u02e3, y\u2032 = 2xy… On remplace y par la fonction, on calcule sa dérivée (un produit se dérive par u\u2032v + uv\u2032), et on vérifie que les deux membres sont égaux.', start:()=>startEDV() },
   'ln-etude-fonction': { name:'Étude de ln(ax + b) + cx + d', icon:'\ud83d\udcc8', desc:'Sur la courbe de f(x) = ln(ax + b) + cx + d\u00a0: la dérivée démontrée avec toutes les étapes comme au {derivee-exp} \u2014 u, u\u2032, (ln u)\u2032 = u\u2032/u \u2014, mise au même dénominateur, puis le tableau de signes et de variations comme au {etude-exponentielle}, et la valeur exacte du maximum.', start:()=>startLNF() },
+  'ln-etude-fonction-carre': { name:'Étude de ln(ax + b) + cx²', icon:'\ud83d\udcc8', desc:'Sur la courbe de f(x) = ln(ax + b) + cx\u00b2, aux extremums d\u2019abscisses entières\u00a0: la dérivée démontrée comme au {ln-etude-fonction} et mise au même dénominateur, le signe du numérateur du second degré (discriminant, racines \u2014 seules celles de l\u2019ensemble de définition comptent), le tableau de variations, puis la valeur exacte de chaque extremum.', start:()=>startLNQ() },
   'ln-demontrer-egalite': { name:'Démontrer une égalité avec ln', icon:'\ud83e\uddee', desc:'Démontrer que ln 8 + ln 10 + ln(1/40) = ln 2, et cinq autres égalités\u00a0: ln(ab), ln(a/b), ln(a\u207f), ln 1, ln e et \u221ae \u2014 avec les étapes de la fiche, ou sans étape, une égalité par ligne.', start:()=>startLND() },
   'arbre-probabilites': { name:'Probabilités \u2014 arbre pondéré', icon:'\ud83c\udf33', desc:'Une situation concrète, deux événements : complète l\u2019arbre pondéré, puis calcule une intersection, la probabilité totale et une probabilité conditionnelle « inversée ». Trois arbres, trois façons de donner les données.', start:()=>startAPB() },
   'proba-phrase-formule': { name:'Probabilités \u2014 comprendre une question', icon:'\ud83d\udd0e', desc:'La fiche « Comprendre une question en probabilité » : une situation, deux événements, des phrases et des formules en désordre. Associe chaque phrase à sa formule \u2014 intersection, probabilité conditionnelle, probabilités totales, réunion.', start:()=>startCqp() },
@@ -5261,7 +5263,7 @@ const THEMES=[
      « faire un exercice comme le 4.4.2, dans le nouveau thème logarithme
      népérien ») : l'étude de ln(ax + b) + cx + d, {ln-etude-fonction}, 9.1.1. */
   { num:9, nom:'Logarithme népérien', sous:[
-      { num:1, nom:'Étude de fonction', ids:['ln-etude-fonction'] },
+      { num:1, nom:'Étude de fonction', ids:['ln-etude-fonction','ln-etude-fonction-carre'] },
       /* « Démontrer que ln 8 + ln 10 + ln(1/40) = ln 2 » (novembre 2026) :
          les propriétés algébriques, avec ou sans les étapes, 9.2.1 */
       { num:2, nom:'Propriétés algébriques', ids:['ln-demontrer-egalite'] }
@@ -5971,6 +5973,7 @@ function conseilCtxCourant(){
   else if(test && test.kind==='ebc' && test.questions && test.questions[test.idx]){ c=ebcConseilCtx(); }
   else if(test && test.kind==='edv' && test.questions && test.questions[test.idx]){ c=edvConseilCtx(); }
   else if(test && test.kind==='lnf' && test.questions && test.questions[test.idx]){ c=lnfConseilCtx(); }
+  else if(test && test.kind==='lnq' && test.questions && test.questions[test.idx]){ c=lnqConseilCtx(); }
   else if(test && test.kind==='lnd' && test.questions && test.questions[test.idx]){ c=lndConseilCtx(); }
   else if(test && test.kind==='rfr' && test.questions && test.questions[test.idx]){ c=rfrConseilCtx(); }
   else if(test && test.kind==='svr' && test.questions && test.questions[test.idx]){ c=svrConseilCtx(); }
@@ -7861,7 +7864,7 @@ function pmJetons(scr){
   if(fb) fb.insertAdjacentHTML('beforebegin', pmJetonsHTML());
 }
 function afficherEcranDe(k){
-  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], lnf:['lnf',renderLNF], lnd:['lnd',renderLND], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
+  const DISPATCH={ gen:['test',renderQuestion], tvi:['tvi',renderTVI], tvi2:['tvi2',renderTVI2], tvi3:['tvi3',renderTVI3], tvins:['tvins',renderTVINS], tvg:['tvg',renderTVG], dhv:['dhv',renderDHV], lg:['lg',renderLG], lg2:['lg2',renderLG2], lg3:['lg3',renderLG3], dexp:['dexp',renderDexp], dexpq:['dexp',renderDexpQ], sv:['sv',renderSV], tg:['tg',renderTG], tx:['tx',renderTX], s1:['s1',renderS1], s2:['s2',renderS2], sp:['sp',renderSP], su:['su',renderSU], sa:['sa',renderSA], sa2:['sa2',renderSA2], tcl:['tcl',renderTCL], tvf:['tvf',renderTVF], tnm:['tnm',renderTNM], ssm:['ssm',renderSSM], sag:['sag',renderSAG], sap:['sap',renderSAP], lqn:['lqn',renderLQN], epc:['epc',renderEPC], apb:['apb',renderAPB], apf:['apf',renderAPF], apc:['apc',renderAPC], apt:['apt',renderAPT], apv:['apt',renderAPT], aps:['aps',renderAPS], sbe:['sbe',renderSBE], vae:['vae',renderVAE], cqp:['cqp',renderCqp], cvp:['cvp',renderCVP], elg:['elg',renderELG], edp:['edp',renderEDP], epa:['epa',renderEPA], eds:['eds',renderEDS], ecb:['ecb',renderECB], epo:['epo',renderEPO], ecp:['ecp',renderECP], ecd:['ecd',renderECD], erp:['erp',renderERP], eal:['eal',renderEAL], esx:['esx',renderESX], esg:['esx',renderESX], esl:['esx',renderESX], ebc:['ebc',renderEBC], edv:['edv',renderEDV], lnf:['lnf',renderLNF], lnq:['lnf',renderLNF], lnd:['lnd',renderLND], rfr:['rfr',renderRFR], svr:['svr',renderSVR], svd:['svd',renderSVD], ssv:['ssv',renderSSV], svq:['svq',renderSVQ], enc:['enc',renderENC], rec:['rec',renderREC], ef:['ef',renderEF], eq:['eq',renderEQ], rc:['rc',renderRC], rf:['rf',renderRF], rl:['rl',renderRL], rr:['rr',renderRR], sar:['sar',renderSAR], lr:['lr',renderLR], ec:['ec',renderEC], afp:['afp',renderAfp], afq:['afq',renderAfq], sdq:['sdq',renderSdq], asg:['asg',renderASG], cvx:['cvx',renderCvx], ecv:['ecv',renderECV], efb:['efb',renderEFB], cvq:['cvq',renderCvq], afd:['afd',renderAfd], cvt:['cvt',renderCvt], eav:['eav',renderEAV], sal:['sal',renderSAL] };
   const disp=DISPATCH[k];
   if(!disp) return false;
   show(disp[0]); disp[1]();
@@ -13716,7 +13719,7 @@ function dexpLiveCheck(id){
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkLND(true); },0);
     return;
   }
-  if(test && test.kind==='lnf'){   /* la dérivée du 9.1.1 : même route, vers checkLNF */
+  if(test && (test.kind==='lnf' || test.kind==='lnq')){   /* la dérivée du 9.1.1 (et du 9.1.2) : même route, vers checkLNF */
     if(isSoutien() && !test.locked) setTimeout(()=>{ if(!test.locked) checkLNF(true); },0);
     return;
   }
@@ -15088,12 +15091,13 @@ function efArrowChange(){
   /* le tableau du 5.3 sert aussi {etude-exponentielle} : même dessin, même
      fonction — la question de l'étude ne portant que (a, b), on reconstruit
      son tableau par ecTab() */
-  if(test.kind!=='ef' && test.kind!=='ec' && test.kind!=='afp' && test.kind!=='asg' && test.kind!=='sdq' && test.kind!=='ecv' && test.kind!=='lnf') return;
+  if(test.kind!=='ef' && test.kind!=='ec' && test.kind!=='afp' && test.kind!=='asg' && test.kind!=='sdq' && test.kind!=='ecv' && test.kind!=='lnf' && test.kind!=='lnq') return;
   const ov=$('ef-var-ov'); if(!ov) return;
   let c=test.questions[test.idx]; if(!c) return;
   if(test.kind==='ec'||test.kind==='asg'||test.kind==='ecv') c=ecTab(c);   /* asg et ecv réutilisent le tableau MÊME du 5.5 */
   if(test.kind==='afp') c=afpTab(c);
   if(test.kind==='lnf') c=lnfTab(c);   /* le tableau du 9.1.1, depuis (a, b, m) */
+  if(test.kind==='lnq') c=lnqTab(c);   /* le tableau du 9.1.2, depuis (a, r1, r2) */
   if(test.kind==='sdq') c=sdqTab(c);   /* le tableau de la fiche 9, depuis la courbe de f' */
   const nA=c.fleches.length, ncx=j=>(j*(EF_WN+EF_WS)+EF_WN/2);
   const dirs=[]; for(let i=0;i<nA;i++) dirs.push(($('ef-a'+i)||{}).value||'');
@@ -21247,21 +21251,33 @@ async function startLNF(){
   test.maxScore=test.questions.length;
   show('lnf'); renderLNF();
 }
+/* 9.1.2 {ln-etude-fonction-carre} : ln(ax + b) + cx², sur l'écran du 9.1.1 (kind 'lnq') */
+async function startLNQ(){
+  if(!currentEleve){ accueil(); return; }
+  recoveryRowId=null; recoveryClosed=false;
+  cfg=await loadConfig();
+  currentTestId='ln-etude-fonction-carre'; test.kind='lnq';
+  test.questions=lnqGen();
+  test.idx=0;test.score=0;test.answers=[];test.startTime=Date.now();test.locked=false;
+  test.maxScore=test.questions.length;
+  show('lnf'); renderLNF();
+}
 function renderLNF(){
   const q=test.questions[test.idx]; test.locked=false;
-  const A=lnfAns(q);
+  const LQ=(test.kind==='lnq');
+  const A=LQ?lnqAns(q):lnfAns(q);
   $('lnfQIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
   $('lnfModeTag').innerHTML=modeTagHTML();
   $('lnfLiveScore').textContent=test.score;
   $('lnfFeedback').textContent=''; $('lnfFeedback').className='mp-feedback';
   $('lnfActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" onclick="checkLNF()">Vérifier</button>';
-  $('lnfPrompt').innerHTML='On considère la fonction <i>f</i> définie sur <i>I</i> = '+lnfDomHtml(A)+' par <b><i>f</i>(<i>x</i>) = '+lnfFx(A)
+  $('lnfPrompt').innerHTML='On considère la fonction <i>f</i> définie sur <i>I</i> = '+(LQ?lnqDomHtml(A):lnfDomHtml(A))+' par <b><i>f</i>(<i>x</i>) = '+(LQ?lnqFx(A):lnfFx(A))
     +'</b>. On note C sa courbe représentative, tracée ci-dessous.';
-  $('lnfGraph').innerHTML=lnfGraphSVG(q);
+  $('lnfGraph').innerHTML=LQ?lnqGraphSVG(q):lnfGraphSVG(q);
   /* le tableau porte les ids ef-* de cinq autres écrans : leurs hôtes se
      vident, sans quoi $() lirait le tableau FANTÔME de l'écran quitté */
   ['efTable','ecForm','afpHost','asgForm','sdqHost','ecvForm'].forEach(id=>{ const h=$(id); if(h) h.innerHTML=''; });
-  $('lnfForm').innerHTML=lnfFormHTML(q);
+  $('lnfForm').innerHTML=LQ?lnqFormHTML(q):lnfFormHTML(q);
   if(window.mlDexp) window.mlDexp.upgrade($('lnfForm'));
   setTimeout(efArrowChange,0);
   lnfSuivre();
@@ -21272,11 +21288,12 @@ function renderLNF(){
        appelle dexpLiveCheck sur focusout, qui route vers checkLNF(true) */
   }
 }
-function lnfVal(x){ return (x.type==='sel')?x.good:numFmt(x.good); }
+function lnfVal(x){ return (x.type==='sel')?x.good:(x.sol!=null?x.sol:numFmt(x.good)); }
 function checkLNF(live){
   if(test.locked && !live) return;
-  const q=test.questions[test.idx], cases=lnfCases(q);
-  const derV=lnfDerVerdicts(q);
+  const LQ=(test.kind==='lnq');
+  const q=test.questions[test.idx], cases=LQ?lnqCases(q):lnfCases(q);
+  const derV=LQ?lnqDerVerdicts(q):lnfDerVerdicts(q);
   const dis=(el,on)=>{ if(el.tagName==='MATH-FIELD') el.readOnly=on; else el.disabled=on; };
   let allOk=true, vides=0, anyFilled=false;
   const etats={};
@@ -21286,7 +21303,8 @@ function checkLNF(live){
     let vide=raw.trim()==='', ok;
     if(x.type==='der'){
       ok=!vide && !!derV.verdicts[x.id];
-    } else ok=!vide && asgOkCase(q,x,raw);
+    } else if(x.type==='exact') ok=!vide && lnqExact(raw,x.good);
+    else ok=!vide && asgOkCase(q,x,raw);
     etats[x.id]={ok:ok,vide:vide};
     if(!vide) anyFilled=true;
     if(vide){ vides++; allOk=false; } else if(!ok) allOk=false;
@@ -21318,13 +21336,13 @@ function checkLNF(live){
     cases.forEach(x=>{ const e=etats[x.id]||{ok:false,vide:true};
       const el=$(x.id); if(!el) return;
       const val=(x.type==='der')?derV.sol[x.id]:lnfVal(x);
-      if(el.tagName==='MATH-FIELD') rfReveal(x.id, asgML(val), val, e.ok, e.vide);
+      if(el.tagName==='MATH-FIELD') rfReveal(x.id, (derV.tex&&derV.tex[x.id])||asgML(val), val, e.ok, e.vide);
       else corrCase(x.id, val, e.ok);
     });
     efArrowChange();   /* les flèches complétées en vert se redessinent */
   }
-  const A=lnfAns(q);
-  test.answers.push({...(ptsExo()||{}),q:'Étude de f(x) = '+lnfFxPlain(A)+' : dérivée au même dénominateur, tableau, maximum M = '+numFmt(A.m), answer:'étude', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
+  const A=LQ?lnqAns(q):lnfAns(q);
+  test.answers.push({...(ptsExo()||{}),q:'Étude de f(x) = '+(LQ?lnqFxPlain(A)+' : dérivée au même dénominateur, Δ, tableau, '+(A.ex.length>1?'les deux extremums':'le maximum'):lnfFxPlain(A)+' : dérivée au même dénominateur, tableau, maximum M = '+numFmt(A.m)), answer:'étude', given:allOk?'✓':'incomplet', correct:allOk, type:'tvi'});
   const last=test.idx===test.questions.length-1;
   $('lnfActions').innerHTML='<button class="btn btn-primary" onclick="nextLNF()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
 }
@@ -21337,6 +21355,248 @@ function lnfConseilCtx(){
    +'2) Tableau de signes : le dénominateur '+lnfUPlain(A)+' est strictement positif sur I, le numérateur s’annule en x = '+numFmt(A.xs)+' ; tableau de variations. '
    +'3) Valeur du maximum M = f('+numFmt(A.xs)+') = ln(1) + … = '+numFmt(A.m)+', car ln(1) = 0. '
    +'Saisies de l’élève : dérivée de ln '+lu('lnf-n1')+' / '+lu('lnf-dn1')+', numérateur développé '+lu('lnf-s6')+', numérateur réduit '+lu('lnf-s7')+', racine '+lu('ef-r0')+', M '+lu('lnf-d7')+'. '
+   +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement, sur la PREMIÈRE case fausse ou vide.';
+}
+
+/* ====================== TEST : Étude de ln(ax + b) + cx² (kind 'lnq', l'écran du 9.1.1) ====================== */
+/* Demande de Turquet (novembre 2026) : « faire le même exercice que le 9.1.1
+   avec une fonction de la forme f(x) = ln(ax + b) + cx² ; les abscisses des
+   extremums doivent être entières ».
+   LES ABSCISSES ENTIÈRES FIXENT b ET c. f′(x) = a/(ax + b) + 2cx s'annule
+   là où 2acx² + 2bcx + a = 0 : ses racines r1, r2 ont pour produit
+   r1·r2 = 1/(2c) et pour somme −b/a. Des racines entières imposent donc
+   c = 1/(2P), P = r1·r2, et b = −a(r1 + r2). Le tirage porte (a, r1, r2),
+   a = ±1 ; avec Q = |P| et σ le signe de P :
+     f(x)  = ln(ax + b) + σx²/(2Q),   I : ax + b > 0 ;
+     f′(x) = a/(ax + b) + σx/Q = N(x)/(Q(ax + b)),
+     N(x)  = σax² + σbx + aQ = σa(x − r1)(x − r2),  Δ = (r1 − r2)².
+   DEUX VISAGES, chacun une fois par séance, en ordre mélangé :
+   · P < 0 (c < 0, f concave) : les racines sont de signes contraires et UNE
+     SEULE est dans I — l'élève trouve les deux, n'en garde qu'une : un
+     maximum ;
+   · P > 0 (c > 0) : les deux racines sont du même côté, toutes deux dans I —
+     un maximum ET un minimum, un tableau à trois intervalles.
+   La valeur d'un extremum en r : f(r) = ln(|r′|) + r/(2r′), r′ l'autre
+   racine (ar + b = −a·r′) — ln 1 = 0 quand r′ = ±1.
+   Les trois parties sont celles du 9.1.1, sur le même écran : la dérivée
+   comme la fiche « ln dérivée », le signe du numérateur du second degré
+   (Δ, les deux racines) puis le tableau du 4.4.2, la valeur exacte de chaque
+   extremum avec f(x) rappelée et les flèches des x vers les cases. La
+   question ne porte que (a, r1, r2) : lnqAns() recalcule tout. */
+const LNQ_UN=[[-1,2],[-2,1],[-1,3],[-3,1],[-1,4],[-4,1],[-2,2],[-1,5],[-5,1],[-1,6],[-6,1],[-2,3],[-3,2]];
+const LNQ_DEUX=[[1,2],[1,3],[1,4],[1,5],[1,6],[2,3]];
+function lnqPgcd(p,q){ p=Math.abs(p); q=Math.abs(q); while(q){ const t=p%q; p=q; q=t; } return p||1; }
+/* une fraction p/q réduite, en texte : « −3/2 », « 2 », « 1/4 » */
+function lnqFracTxt(p,q){ if(q<0){ p=-p; q=-q; } const g=lnqPgcd(p,q); p/=g; q/=g; return q===1?numFmt(p):numFmt(p)+'/'+q; }
+function lnqAns(q){
+  const a=q.a, r1=Math.min(q.r1,q.r2), r2=Math.max(q.r1,q.r2);
+  const s=r1+r2, P=r1*r2, sg=(P>0?1:-1), Q=Math.abs(P), b=-a*s;
+  const u=x=>a*x+b;
+  const A={ a:a, b:b, r1:r1, r2:r2, s:s, P:P, sg:sg, Q:Q, x0:s,
+    A2:sg*a, A1:sg*b, A0:a*Q, delta:(r1-r2)*(r1-r2),
+    f:function(x){ return u(x)>0 ? Math.log(u(x))+x*x/(2*P) : NaN; },
+    fp:function(x){ return a/u(x)+x/P; },
+    N:function(x){ return sg*a*x*x+sg*b*x+a*Q; } };
+  /* les racines de N dans I, dans l'ordre, et la nature de chaque extremum */
+  A.ex=[r1,r2].filter(r=>u(r)>0).map(function(r){
+    const o=(r===r1?r2:r1);
+    return { x:r, t:(A.fp(r-0.01)>0?'max':'min'), arg:u(r), cp:r, cq:2*o, cst:r/(2*o) };
+  });
+  return A;
+}
+function lnqGenCase(deux){
+  const a=pick([1,-1]);
+  let r=pick(deux?LNQ_DEUX:LNQ_UN);
+  /* deux extremums : les racines du même côté que I — négatives si a = 1 */
+  if(deux && a===1) r=[-r[0],-r[1]];
+  return {a:a, r1:r[0], r2:r[1]};
+}
+function lnqGen(){
+  const q1=lnqGenCase(false), q2=lnqGenCase(true);
+  return rand(0,1)===0 ? [q1,q2] : [q2,q1];
+}
+/* les écritures */
+function lnqUHtml(A){ return efAffHtml(A.a,A.b); }
+function lnqUPlain(A){ return s1ExprText(A.a,A.b); }
+function lnqCx2Html(A){ return '<span class="op">'+(A.sg>0?'+':'−')+'</span>'+lnfFracH('<i>x</i>²',2*A.Q); }
+function lnqFx(A){ return 'ln('+lnqUHtml(A)+') '+lnqCx2Html(A); }
+function lnqFxPlain(A){ return 'ln('+lnqUPlain(A)+') '+(A.sg>0?'+':'−')+' x²/'+(2*A.Q); }
+function lnqPolyPlain(A2,A1,A0,x2){
+  const t=[]; const x2s=x2||'x²';
+  if(A2) t.push((A2===1?'':A2===-1?'−':numFmt(A2))+x2s);
+  if(A1){ const c=Math.abs(A1)===1?'x':Math.abs(A1)+'x'; t.push(t.length?(A1>0?'+ '+c:'− '+c):(A1>0?c:'−'+c)); }
+  if(A0){ t.push(t.length?(A0>0?'+ '+A0:'− '+Math.abs(A0)):numFmt(A0)); }
+  return t.join(' ')||'0';
+}
+function lnqNHtml(A){ return lnqPolyPlain(A.A2,A.A1,A.A0,'<i>x</i>²').replace(/(^|[^>])x/g,'$1<i>x</i>'); }
+function lnqNPlain(A){ return lnqPolyPlain(A.A2,A.A1,A.A0); }
+function lnqNTex(A){ return mlTexN(lnqPolyPlain(A.A2,A.A1,A.A0,'x^2')).replace(/ /g,''); }
+function lnqDenHtml(A){ return A.Q+'('+lnqUHtml(A)+')'; }
+function lnqDenPlain(A){ return A.Q+'('+lnqUPlain(A)+')'; }
+function lnqDomHtml(A){ return A.a>0 ? ']'+numFmt(A.x0)+' ; +∞[' : ']−∞ ; '+numFmt(A.x0)+'['; }
+/* le tableau du 4.4.2 : les racines de N qui sont dans I, le dénominateur
+   strictement positif, f′ du signe de N — les signes LUS sur N */
+function lnqTab(q){
+  const A=lnqAns(q), R=A.ex.map(e=>e.x);
+  const bords=[A.a>0?A.x0:-Infinity].concat(R,[A.a>0?Infinity:A.x0]);
+  const sg=[]; for(let i=0;i<bords.length-1;i++){
+    const lo=bords[i], hi=bords[i+1];
+    const m=!isFinite(lo)?hi-1:(!isFinite(hi)?lo+1:(lo+hi)/2);
+    sg.push(A.N(m)>0?'+':'−'); }
+  return { bornes:(A.a>0?[numFmt(A.x0),'+∞']:['−∞',numFmt(A.x0)]), roots:R.map(efNum),
+    lignes:[ {lab:'Signe de <i>N</i>(<i>x</i>)', zero:R.map(()=>true), s:sg},
+             {lab:'Signe de '+lnqDenHtml(A), zero:R.map(()=>false), s:sg.map(()=>'+')},
+             {lab:'Signe de <i>f</i> ′(<i>x</i>)', zero:R.map(()=>true), s:sg} ],
+    fleches:sg.map(x=>x==='+'?'up':'down'),
+    synth:{mode:'list', xs:A.ex.map(e=>({t:e.t, x:efNum(e.x)}))} };
+}
+/* la phrase d'extremum : la NATURE se choisit, comme au 4.4.2, une par racine */
+function lnqSyntHTML(A){
+  const sel=i=>'<select class="tvi-sel" id="ef-e'+i+'t"><option value="">…</option><option value="min">minimum</option><option value="max">maximum</option></select>';
+  return '<div class="s1-res ef-synt"><div class="s1-line"><span>Sur <i>I</i>, <i>f</i> admet</span> '
+    +A.ex.map((e,i)=>'un '+sel(i)+' atteint en <i>x</i> '+tEq('=', s1Box('ef-e'+i+'x',1))).join(',&nbsp; puis ')+'.</div></div>';
+}
+/* la courbe du début, comme au 9.1.1 : la fenêtre calée sur les extremums */
+function lnqGraphSVG(q){
+  const A=lnqAns(q), xe=A.ex.map(e=>e.x), ye=A.ex.map(e=>A.f(e.x));
+  let lo, hi;
+  if(A.a>0){ lo=Math.min(A.x0,0)-0.5; hi=Math.max(Math.max.apply(null,xe)+3,0.5); }
+  else { lo=Math.min(Math.min.apply(null,xe)-3,-0.5); hi=Math.max(A.x0,0)+0.5; }
+  const ymin=Math.min(Math.min.apply(null,ye)-3.5,-1), ymax=Math.max(Math.max.apply(null,ye)+1.5,1);
+  const W=360, H=Math.round(Math.max(200,Math.min(300,(ymax-ymin)*34))), L=8, R=W-8, T=8, B=H-8;
+  const sx=x=>L+(x-lo)/(hi-lo)*(R-L), sy=y=>T+(ymax-y)/(ymax-ymin)*(B-T);
+  const X=[], Y=[], N=500;
+  const d0=(A.a>0)?A.x0+0.002:lo, d1=(A.a>0)?hi:A.x0-0.002;
+  for(let i=0;i<=N;i++){ const x=d0+(d1-d0)*i/N; X.push(x); Y.push(A.f(x)); }
+  let g='';
+  for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++) g+='<line x1="'+sx(gx).toFixed(1)+'" y1="'+T+'" x2="'+sx(gx).toFixed(1)+'" y2="'+B+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>';
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++) g+='<line x1="'+L+'" y1="'+sy(gy).toFixed(1)+'" x2="'+R+'" y2="'+sy(gy).toFixed(1)+'" stroke="var(--grid)" stroke-width="1" opacity=".55"/>';
+  const ox=sx(0).toFixed(1), oy=sy(0).toFixed(1);
+  g+='<line x1="'+L+'" y1="'+oy+'" x2="'+R+'" y2="'+oy+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  g+='<line x1="'+ox+'" y1="'+T+'" x2="'+ox+'" y2="'+B+'" stroke="var(--ink-soft)" stroke-width="1.4"/>';
+  let lab='<text x="'+(sx(0)-4).toFixed(1)+'" y="'+(sy(0)+12).toFixed(1)+'" class="sv-ax" text-anchor="end">O</text>';
+  for(let gx=Math.ceil(lo); gx<=Math.floor(hi); gx++){ if(gx===0) continue;
+    lab+='<text x="'+sx(gx).toFixed(1)+'" y="'+(sy(0)+12).toFixed(1)+'" class="sv-ax" text-anchor="middle">'+numFmt(gx)+'</text>'; }
+  for(let gy=Math.ceil(ymin); gy<=Math.floor(ymax); gy++){ if(gy===0) continue;
+    lab+='<text x="'+(sx(0)-4).toFixed(1)+'" y="'+(sy(gy)+4).toFixed(1)+'" class="sv-ax" text-anchor="end">'+numFmt(gy)+'</text>'; }
+  const ax=sx(A.x0).toFixed(1);
+  const asy='<line class="lnf-asy" x1="'+ax+'" y1="'+T+'" x2="'+ax+'" y2="'+B+'" stroke="var(--ink-soft)" stroke-width="1.3" stroke-dasharray="5 4"/>';
+  const xl=(A.a>0)?(hi-0.6):(lo+0.6), yl=A.f(xl);
+  const cl=(isFinite(yl)&&yl>ymin+0.6&&yl<ymax-0.3)?'<text class="sv-ax lnf-cf" x="'+sx(xl).toFixed(1)+'" y="'+(sy(yl)-8).toFixed(1)+'" text-anchor="middle" font-style="italic">C</text>':'';
+  return '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" class="sv-svg">'+g+asy
+    +'<path class="sv-curve" d="'+efTrace(X,Y,sx,sy,ymin,ymax)+'"/>'+lab+cl+'</svg>';
+}
+/* ---- la dérivée, comme au 9.1.1 (la fiche « ln dérivée ») ---- */
+const LNQ_DER=['lnq-n1','lnq-dn1','lnq-c1','lnq-s1','lnq-s2','lnq-s3','lnq-s4','lnq-s5','lnq-s6','lnq-s7','lnq-s8'];
+/* réduit : au plus un terme en x², un en x et une constante, sans parenthèse */
+function lnqReduite(s){
+  const t=String(s).replace(/\s+/g,'').replace(/[−–]/g,'-').replace(/\^\(2\)|\^\{2\}|\^2/g,'²');
+  if(!t || !lnfSansParenthese(t)) return false;
+  const termes=t.match(/[+-]?[^+-]+/g)||[];
+  const n2=termes.filter(x=>/x²/.test(x)).length, n1=termes.filter(x=>/x/.test(x) && !/x²/.test(x)).length;
+  return n2<=1 && n1<=1 && termes.length-n2-n1<=1;
+}
+function lnqDerVerdicts(q){
+  const A=lnqAns(q), u=x=>A.a*x+A.b, aa=()=>A.a, dc=x=>A.sg*x/A.Q, kq=()=>A.Q, nn=x=>A.N(x);
+  const V={}, eqF=(f,g)=>!!f && cmpFns(f,g), C=id=>dexpCompile(id);
+  const R=id=>{ const el=$(id); let lx=''; try{ lx=String(el&&el.getValue?el.getValue():''); }catch(e){} return lx; };
+  const frac=(n,d)=>{ const fn=C(n), fd=C(d);
+    if(fn && fd && cmpFns(x=>fn(x)/fd(x), x=>A.a/u(x))){ V[n]=V[d]=true; return; }
+    V[n]=eqF(fn,aa); V[d]=eqF(fd,u); };
+  frac('lnq-n1','lnq-dn1');                     /* (ln(ax + b))′ = □/□ */
+  V['lnq-c1']=eqF(C('lnq-c1'),dc);              /* (σx²/(2Q))′ = □ */
+  frac('lnq-s1','lnq-s2');                      /* f′(x) = □/□ □ */
+  V['lnq-s3']=eqF(C('lnq-s3'),dc);
+  V['lnq-s4']=eqF(C('lnq-s4'),kq);              /* a × □ / (ax + b) × □ */
+  V['lnq-s5']=eqF(C('lnq-s5'),kq);
+  V['lnq-s6']=eqF(C('lnq-s6'),u);               /* x × (□) / Q × (□) */
+  V['lnq-s7']=eqF(C('lnq-s7'),u);
+  const lx8=R('lnq-s8').replace(/\\left|\\right/g,'');
+  V['lnq-s8']=eqF(C('lnq-s8'),nn) && lnqReduite(dexpCellValue('lnq-s8')) && !/[()]|\\times|\\cdot/.test(lx8);   /* développé, réduit */
+  const U=lnqUPlain(A), as=numFmt(A.a), dcP=(A.sg>0?'':'−')+'x/'+A.Q, dcT=(A.sg>0?'':'-')+'\\frac{x}{'+A.Q+'}';
+  const sol={'lnq-n1':as,'lnq-dn1':U,'lnq-c1':dcP,'lnq-s1':as,'lnq-s2':U,'lnq-s3':(A.sg>0?'+':'')+dcP,
+    'lnq-s4':String(A.Q),'lnq-s5':String(A.Q),'lnq-s6':U,'lnq-s7':U,'lnq-s8':lnqNPlain(A)};
+  const tex={'lnq-c1':dcT,'lnq-s3':(A.sg>0?'+':'')+dcT,'lnq-s8':lnqNTex(A)};
+  return {verdicts:V, groups:{}, sol:sol, tex:tex};
+}
+/* une valeur EXACTE : un entier, un décimal ou une fraction, sans tolérance */
+function lnqExact(raw,good){ const v=efParse(raw); return v!=null && Math.abs(v-good)<1e-9; }
+function lnqCases(q){
+  const A=lnqAns(q), out=[];
+  const N=(id,good,sol)=>out.push({id:id, type:'exact', good:good, sol:(sol!=null?sol:numFmt(good))});
+  LNQ_DER.forEach(id=>out.push({id:id, type:'der'}));
+  N('lnq-dl',A.delta); N('lnq-x1',A.r1); N('lnq-x2',A.r2);
+  efCases(lnqTab(q)).forEach(x=>out.push({id:x.id, type:(x.type==='sel'?'sel':'tabnum'), good:x.good}));
+  A.ex.forEach((e,i)=>out.push({id:'ef-e'+i+'t', type:'sel', good:e.t}));
+  A.ex.forEach(function(e,k){
+    const p='lnq-k'+k+'-';
+    N(p+'d1',e.x); N(p+'d2',e.x); N(p+'d3',e.x); N(p+'d4',e.arg);
+    N(p+'d5',e.cst,(e.cst>0?'+':'')+lnqFracTxt(e.cp,e.cq));
+    if(e.arg===1){ N(p+'d6',0); N(p+'d7',e.cst,lnqFracTxt(e.cp,e.cq)); }
+  });
+  return out;
+}
+function lnqFormHTML(q){
+  const A=lnqAns(q), fp='<i>f</i> ′(<i>x</i>)';
+  const bm=(id,cls,nom)=>'<math-field class="dexp-mf'+(cls?' '+cls:'')+'" id="'+id+'" aria-label="'+esc(nom)+'"></math-field>';
+  const fr=(n,d)=>lnfFracH(n,d);
+  const U=lnqUHtml(A), D=lnqDenHtml(A), sO='<span class="op">'+(A.sg>0?'+':'−')+'</span>';
+  const cx2=(A.sg>0?'':'−')+lnfFracH('<i>x</i>²',2*A.Q);
+  const cap=t=>'<span class="dexp-hint lnf-cap">← '+t+'</span>';
+  let h='';
+  /* ---- 1. la dérivée ---- */
+  h+='<p class="tx-part">1. Démontre que, pour tout <i>x</i> de <i>I</i>, '+fp+' = '+fr(lnqNHtml(A),D)+' :</p>'
+    +'<div class="dexp-formula">'+mlTex("\\left(\\ln u\\right)'=\\frac{u'}{u}", '(ln <i>u</i>)′ = <i>u′</i>/<i>u</i>')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">(ln('+U+'))′ =</span>'+fr(bm('lnq-n1','','numérateur : la dérivée de '+lnqUPlain(A)),bm('lnq-dn1','','dénominateur'))+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">(</span>'+cx2+'<span class="eq">)′ =</span>'+bm('lnq-c1','dexp-mf-wide','dérivée de '+(A.sg>0?'':'−')+'x²/'+(2*A.Q))+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(bm('lnq-s1','','numérateur'),bm('lnq-s2','','dénominateur'))
+      +bm('lnq-s3','dexp-mf-wide','le terme avec son signe')+'</div>'
+    +'<p class="tvi-instr lnf-instr">On met au <b>même dénominateur</b> '+D+' :</p>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">'+fp+' =</span>'+fr(numFmt(A.a),U)+sO+fr('<i>x</i>',A.Q)
+      +'<span class="eq">=</span>'
+      +fr('<span class="lnf-numrow">'+numFmt(A.a)+' × '+bm('lnq-s4','dexp-mf-slim','facteur du numérateur')+'</span>','<span class="lnf-numrow">('+U+') × '+bm('lnq-s5','dexp-mf-slim','facteur du dénominateur')+'</span>')
+      +sO
+      +fr('<span class="lnf-numrow"><i>x</i> × ('+bm('lnq-s6','','facteur du numérateur')+')</span>','<span class="lnf-numrow">'+A.Q+' × ('+bm('lnq-s7','','facteur du dénominateur')+')</span>')+'</div>'
+    +'<div class="dexp-steprow lnf-row"><span class="eq">=</span>'+fr(bm('lnq-s8','dexp-mf-wide','numérateur développé et réduit'),D)+cap('développe et réduis le numérateur')+'</div>';
+  /* ---- 2. le signe du numérateur, puis le tableau (le 4.4.2) ---- */
+  h+='<p class="tx-part">2. Étudie les variations de <i>f</i> sur <i>I</i> = '+lnqDomHtml(A)+'.</p>'
+    +'<p class="tvi-instr lnf-instr">Sur <i>I</i>, '+U+' &gt; 0, donc '+D+' &gt; 0 : le signe de '+fp+' est celui de son numérateur <i>N</i>(<i>x</i>) = '+lnqNHtml(A)+'.</p>'
+    +'<div class="tg-line"><span>Le discriminant de <i>N</i> :</span> <span class="tg-eq">Δ =</span> '+txInp('lnq-dl')+'</div>'
+    +'<div class="tg-line"><span><i>N</i>(<i>x</i>) a deux racines : <i>x</i><sub>1</sub></span> '+tEq('=', txInp('lnq-x1','','+'))+' <span>et <i>x</i><sub>2</sub></span> '+tEq('=', txInp('lnq-x2','','+'))+' <span class="dexp-hint">(avec <i>x</i><sub>1</sub> &lt; <i>x</i><sub>2</sub>)</span></div>'
+    +'<p class="tvi-instr lnf-instr">Complète le tableau — n’y écris que les racines qui appartiennent à <i>I</i> :</p>';
+  const T=lnqTab(q);
+  h+=efTableHTML(T)+lnqSyntHTML(A);
+  /* ---- 3. la valeur de chaque extremum, f(x) rappelée au-dessus, les
+     flèches des x vers les cases (le 9.1.1, v538) ---- */
+  const col=(c,cls)=>'<span class="lnf-gc'+(cls?' '+cls:'')+'">'+c+'</span>';
+  const sA=(A.a>0?'':'−'), bB=txB(A.b)+' )', sC=(A.sg>0?'+':'−');
+  const deux=A.ex.length>1;
+  h+='<p class="tx-part">3. Calcule la valeur exacte '+(deux?'de chaque extremum':'de ce maximum')+' :</p>';
+  A.ex.forEach(function(e,k){
+    const p='lnq-k'+k+'-', nm=(deux && e.t==='min')?'m':'M';
+    if(deux) h+='<p class="tvi-instr lnf-instr">Le '+(e.t==='max'?'maximum':'minimum')+' '+nm+' :</p>';
+    h+='<div class="lnf-sch" data-fl=\'[["'+p+'x1","'+p+'d2"],["'+p+'x2","'+p+'d3"]]\'>'
+      +'<svg class="lnf-svg" aria-hidden="true" focusable="false"></svg><div class="lnf-grille lnq-grille">'
+      +col('<span class="tg-eq"><i>f</i>(<i>x</i>) =</span>','lnf-lab')+col('ln(')+col(sA)+col('<i id="'+p+'x1">x</i>')+col(bB)+col(sC)
+      +col('<span class="lnf-numrow">'+lnfFracH('1',2*A.Q)+'<i id="'+p+'x2">x</i>²</span>')
+      +col('<span class="tg-eq">'+nm+' =</span>&nbsp;<i>f</i>( '+txInp(p+'d1','','+')+' ) <span class="tg-eq">=</span>','lnf-lab')
+      +col('ln(')+col(sA)+col(txInp(p+'d2','','+'))+col(bB)+col(sC)
+      +col('<span class="lnf-numrow">'+lnfFracH('1',2*A.Q)+' × ( '+txInp(p+'d3','','+')+' )²</span>')
+      +'</div></div>'
+      +'<div class="tg-line"><span class="tg-eq">'+nm+' =</span> ln( '+txInp(p+'d4')+' ) '+txInp(p+'d5','','+ /')
+        +' <span class="dexp-hint">(le nombre avec son signe, en fraction si besoin)</span></div>';
+    if(e.arg===1) h+='<div class="tg-line">Or ln( 1 ) '+tEq('=', txInp(p+'d6'))+', donc <span class="tg-eq">'+nm+' =</span> '+txInp(p+'d7','','+ /')+'.</div>';
+  });
+  return '<div class="tg-form">'+h+'</div>';
+}
+function lnqConseilCtx(){
+  const q=test.questions[test.idx], A=lnqAns(q);
+  const lu=id=>{ const el=$(id); const v=el?((el.tagName==='MATH-FIELD')?dexpCellValue(id):String(el.value||'').trim()):''; return v===''?'(vide)':'« '+v+' »'; };
+  return 'Exercice LOGARITHME NÉPÉRIEN — étude de f(x) = '+lnqFxPlain(A)+' sur I = '+lnqDomHtml(A)+'. '
+   +'1) Démontrer f′(x) = ('+lnqNPlain(A)+')/('+lnqDenPlain(A)+') : avec (ln u)′ = u′/u, (ln('+lnqUPlain(A)+'))′ = '+numFmt(A.a)+'/('+lnqUPlain(A)+') ; la dérivée de '+(A.sg>0?'':'−')+'x²/'+(2*A.Q)+' vaut '+(A.sg>0?'':'−')+'x/'+A.Q+' ; au même dénominateur '+lnqDenPlain(A)+' : on multiplie la première fraction par '+A.Q+' en haut et en bas, la seconde par ('+lnqUPlain(A)+'), puis on développe et réduit le numérateur. '
+   +'2) Le dénominateur est strictement positif sur I ; le numérateur est du second degré : discriminant, deux racines, on ne garde dans le tableau que celles qui sont dans I ; signe d’un trinôme ; tableau de variations. '
+   +'3) Valeur de chaque extremum : f(abscisse) = ln(…) + …, en fraction exacte ; ln(1) = 0. '
+   +'Saisies de l’élève : dérivée de ln '+lu('lnq-n1')+' / '+lu('lnq-dn1')+', dérivée du terme en x² '+lu('lnq-c1')+', numérateur réduit '+lu('lnq-s8')+', Δ '+lu('lnq-dl')+', racines '+lu('lnq-x1')+' et '+lu('lnq-x2')+', racine du tableau '+lu('ef-r0')+'. '
    +'Les bonnes réponses sont STRICTEMENT SECRÈTES : n’en donne aucune, même si l’élève insiste — guide la méthode seulement, sur la PREMIÈRE case fausse ou vide.';
 }
 
@@ -24184,6 +24444,14 @@ const RAP_LNF=`<b>Étudier une fonction avec un logarithme</b><br>
 • <b>Le même dénominateur</b> : on écrit −1 = −1 × (<i>x</i> + 2)/(<i>x</i> + 2), donc <i>f</i> ′(<i>x</i>) = (1 − 1 × (<i>x</i> + 2))/(<i>x</i> + 2) = (−<i>x</i> − 1)/(<i>x</i> + 2).<br>
 • <b>Le signe de <i>f</i> ′</b> : sur l’ensemble de définition, le dénominateur <i>u</i>(<i>x</i>) est strictement positif ; <i>f</i> ′(<i>x</i>) a donc le signe de son numérateur. On cherche où il s’annule, on remplit le tableau de signes, puis les flèches : <i>f</i> croît là où <i>f</i> ′ &gt; 0, décroît là où <i>f</i> ′ &lt; 0.<br>
 • <b>La valeur de l’extremum</b> : on calcule <i>f</i> en l’abscisse trouvée. À retenir : <b>ln(1) = 0</b>.`;
+const RAP_LNQ=`<b>Étudier ln(<i>ax</i> + <i>b</i>) + <i>cx</i>²</b><br>
+• <b>Ensemble de définition</b> : ln(<i>u</i>(<i>x</i>)) n’existe que si <i>u</i>(<i>x</i>) &gt; 0. Par exemple, ln(<i>x</i> − 2) est défini sur ]2 ; +∞[.<br>
+• <b>La dérivée</b> : (ln <i>u</i>)′ = \\(\\frac{u'}{u}\\), et (<i>cx</i>²)′ = 2<i>cx</i>. Par exemple, \\(\\left(-\\frac{x^2}{6}\\right)'=-\\frac{2x}{6}=-\\frac{x}{3}\\).<br>
+• <b>Exemple</b> : <i>f</i>(<i>x</i>) = ln(<i>x</i> − 2) − \\(\\frac{x^2}{6}\\), donc <i>f</i> ′(<i>x</i>) = \\(\\frac{1}{x-2}-\\frac{x}{3}\\).<br>
+• <b>Le même dénominateur</b> 3(<i>x</i> − 2) : <i>f</i> ′(<i>x</i>) = \\(\\frac{1\\times 3}{(x-2)\\times 3}-\\frac{x\\times(x-2)}{3\\times(x-2)}=\\frac{-x^2+2x+3}{3(x-2)}\\).<br>
+• <b>Le signe du numérateur</b> <i>ax</i>² + <i>bx</i> + <i>c</i> : Δ = <i>b</i>² − 4<i>ac</i> ; si Δ &gt; 0, deux racines \\(x_1=\\frac{-b-\\sqrt{\\Delta}}{2a}\\) et \\(x_2=\\frac{-b+\\sqrt{\\Delta}}{2a}\\) ; le trinôme est du signe de <i>a</i> à l’extérieur des racines, du signe contraire entre elles.<br>
+• <b>Attention à l’ensemble de définition</b> : une racine qui n’est pas dans <i>I</i> ne compte pas — elle n’apparaît pas dans le tableau. Dans l’exemple, Δ = 16, les racines sont −1 et 3, et seule 3 est dans ]2 ; +∞[.<br>
+• <b>La valeur d’un extremum</b> : on calcule <i>f</i> en son abscisse, en valeur exacte (ln et fraction). Dans l’exemple, \\(f(3)=\\ln 1-\\frac{9}{6}=-\\frac{3}{2}\\), car <b>ln(1) = 0</b>.`;
 const RAP_EAL=`<b>Trois points alignés, ou un plan ?</b><br>
 • <b>Remarque</b> : trois points <b>alignés</b> se prolongent sur une <b>droite</b> ; trois points <b>non alignés</b> se prolongent sur un <b>plan</b>, noté (<i>ABC</i>).<br>
 • <b>Propriété</b> : trois points <i>A</i>, <i>B</i> et <i>C</i> définissent un plan de l’espace si <i>A</i>, <i>B</i> et <i>C</i> sont <b>non alignés</b>, c’est-à-dire si <span class="elg-vec">AB</span> et <span class="elg-vec">AC</span> sont <b>non colinéaires</b>.<br>
@@ -24260,7 +24528,7 @@ const RAP_LND=`<b>Les propriétés algébriques du logarithme</b><br>
 • <b>ln 1 = 0</b>, <b>ln e = 1</b>, donc <b>ln(e<sup><i>n</i></sup>) = <i>n</i></b>.<br>
 • <b>Méthode</b> : on décompose chaque nombre en produit de nombres premiers (8 = 2<sup>3</sup>, 40 = 5 × 2<sup>3</sup>), on « casse » chaque ln avec les propriétés, puis on regroupe les ln du même nombre.<br>
 • <b>Exemple</b> : ln 8 + ln 10 + ln\\(\\left(\\frac{1}{40}\\right)\\) = 3 ln 2 + ln 2 + ln 5 − ln 5 − 3 ln 2 = ln 2.`;
-const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, lnf:RAP_LNF, lnd:RAP_LND, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
+const RAPPELS={ cvp:RAP_CVP, elg:RAP_ELG, edp:RAP_EDP, epa:RAP_EPA, eds:RAP_EDS, ecb:RAP_ECB, epo:RAP_EPO, ecp:RAP_ECP, ecd:RAP_ECD, erp:RAP_ERP, eal:RAP_EAL, esx:RAP_ESX, esg:RAP_ESX, esl:RAP_ESX, ebc:RAP_EBC, edv:RAP_EDV, lnf:RAP_LNF, lnq:RAP_LNQ, lnd:RAP_LND, su:RAP_SUITES, sa:RAP_SA, sa2:RAP_SA, tcl:RAP_TCL, tvf:RAP_TVF, tnm:RAP_TNM, ssm:RAP_SSM, sag:RAP_SAG, sap:RAP_SAP, lqn:RAP_LQN, epc:RAP_EPC, apb:RAP_APB, apf:RAP_APF, apc:RAP_APC, apt:RAP_APC, apv:RAP_APV, aps:RAP_APS, sbe:RAP_SBE, vae:RAP_VAE, cqp:RAP_CQP, enc:RAP_ENC, rec:RAP_REC, sp:RAP_SP, rc:RAP_RC, rf:RAP_RF, rl:RAP_RL, rfr:RAP_RFR, svr:RAP_SVR, svd:RAP_SVD, ssv:RAP_SSV, svq:RAP_SVQ, rr:RAP_RR, sar:RAP_SA, sal:RAP_SAL, ef:RAP_EF, eq:RAP_EQ, lr:RAP_LR, afp:RAP_AFP, afq:RAP_AFP, sdq:RAP_SDQ, cvx:RAP_CVX, cvq:RAP_CVQ, afd:RAP_AFD, cvt:RAP_CVT,
   tvi:RAP_TVI, tvi2:RAP_TVI, tvi3:RAP_TVICE, tvins:RAP_TVINS, tvg:RAP_TVG, asg:RAP_ASG, ecv:RAP_ECV, efb:RAP_EFB, eav:RAP_EAV, dhv:RAP_DHV,
   lg:RAP_LIM, lg2:RAP_LIM, lg3:RAP_LIM,
   dexp:RAP_DEXP, dexpq:RAP_DEXPQ, sv:RAP_SV, tg:RAP_TG, tx:RAP_TX, ec:RAP_EC, s1:RAP_S1, s2:RAP_S2 };
@@ -45063,6 +45331,7 @@ const QIA_SUGG={
   esx:["Faire un rappel de cours pour cet exercice.","Pourquoi L est-il dans les deux plans ?","Comment trouver l’intersection de deux plans ?","Pourquoi deux faces parallèles sont-elles coupées selon des segments parallèles ?","Pourquoi la page refuse-t-elle de couper deux droites qui se croisent sur le dessin ?","Par où commencer la section ?"],
   eal:["Faire un rappel de cours pour cet exercice.","Quand trois points définissent-ils un plan ?","Comment calculer les coordonnées d’un vecteur ?","Que veut dire « vecteurs colinéaires » ?","Pourquoi diviser les coordonnées une par une ?","Que conclure si deux quotients sont égaux mais pas le troisième ?"],
   lnd:["Faire un rappel de cours pour cet exercice.","Comment transformer ln(a × b) ?","Comment transformer ln(a/b) ?","Comment écrire ln 8 avec ln 2 ?","Que valent ln 1 et ln e ?","Comment écrire √e comme une puissance de e ?"],
+  lnq:["Faire un rappel de cours pour cet exercice.","Comment dériver cx² ?","Comment mettre au même dénominateur ?","Comment trouver les racines du numérateur ?","Pourquoi une racine n’apparaît-elle pas dans le tableau ?","Comment calculer la valeur exacte d’un extremum ?"],
   lnf:["Faire un rappel de cours pour cet exercice.","Comment dériver ln(u) ?","Comment mettre au même dénominateur ?","Pourquoi le dénominateur est-il positif ?","Comment trouver le signe de f′ ?","Pourquoi ln(1) = 0 ?"],
   edv:["Faire un rappel de cours pour cet exercice.","Comment vérifier qu’une fonction est solution d’une équation différentielle ?","Comment dériver e^(x²) ?","Comment dériver un produit u × v ?","Pourquoi factoriser par l’exponentielle ?","Que veut dire « réduire » un membre ?"],
   ecd:["Faire un rappel de cours pour cet exercice.","Comment écrire l’équation paramétrique d’une droite ?","Comment savoir si deux droites sont parallèles ?","Pourquoi supprimer une des deux équations identiques ?","Comment trouver k puis t ?","Deux droites sécantes sont-elles coplanaires ?","Comment montrer qu’un triangle est rectangle ?"],
