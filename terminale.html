@@ -21395,6 +21395,11 @@ function lndLire(lx){
      .replace(/\\[dt]frac/g,'\\frac').replace(/\\times|\\cdot/g,'*').replace(/\\div/g,'/')
      .replace(/\\[,;:! ]|~/g,' ').replace(/−/g,'-').replace(/½/g,'{(1/2)}')
      .replace(/\\placeholder\{[^{}]*\}/g,'').replace(/\\lbrack/g,'[').replace(/\\rbrack/g,']');
+  /* UN EXPOSANT VIDE QUI PORTE UN EXPOSANT : « ^ » tapé deux fois écrit
+     3^{^4} (ou 3^{{}^4}) — à l'écran, un 3 et un 4 minuscule en haut, que
+     l'élève lit 3⁴. Le juge le lit comme il s'affiche : 3^{4} (novembre 2026,
+     « ln(3⁴) + ln(3³) − 5 ln 3 » comptée fausse). */
+  let s0; do{ s0=s; s=s.replace(/\^\{\s*(?:\{\s*\}\s*)?\^/g,'^{'); }while(s!==s0);
   const T=[]; let i=0;
   while(i<s.length){
     const c=s[i];
