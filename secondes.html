@@ -1626,7 +1626,6 @@
   .pce-fig:empty{display:none}
   .pce-img{width:230px;max-width:62%;height:auto;border-radius:6px}
   .pce-def-g{display:grid;grid-template-columns:repeat(3,max-content);column-gap:4em;row-gap:16px;margin:12px 0 6px 1em;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;white-space:pre;overflow-x:auto}
-  .pce-rappel{margin:8px 0 0}
   .pfi-img{width:340px;max-width:80%;height:auto;border-radius:6px}
   .pfi-fonction{display:block;text-align:center;font-size:1.45em;font-weight:400;margin:4px 0 12px}
   .pfi-sortie{margin:8px 0 0 2em;font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace;font-weight:400;white-space:pre;overflow-x:auto;line-height:1.35}
@@ -7495,7 +7494,7 @@ math-field.pm-mf.f-dec{min-width:78px;max-width:170px;}
   <section class="screen" id="scr-pce">
     <div class="test-top">
       <span style="display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap"><span id="modeTagPCE"></span><span class="q-idx" id="pceIdx">Question 1 / 3</span></span>
-      <span class="score-tag"><span class="score-lbl">Programmes justes</span>&nbsp;<b id="pceLiveScore">0</b></span>
+      <span class="score-tag"><span class="score-lbl">Textes justes</span>&nbsp;<b id="pceLiveScore">0</b></span>
     </div>
     <div class="card">
       <!-- Le dessin de la fiche ouvre l'exercice, avant la définition (demande de Turquet, octobre 2026). -->
@@ -10298,7 +10297,7 @@ window.__fenetresDetachees = window.__fenetresDetachees || [];
    Les exercices existants lisent « el.value » et ecrivent « el.disabled ». Pour ne rien
    reecrire, chaque <math-field> recoit ces deux proprietes : value renvoie le contenu en
    texte simple (12,5 ; 3/4 ...) et disabled pilote readOnly. */
-const APP_VERSION=750;                       /* numero de version affiche dans l'en-tete */
+const APP_VERSION=751;                       /* numero de version affiche dans l'en-tete */
 /* La version qui a apporté la connexion par prénom tapé (migration 009). Les
    numéros que la migration et sa notice citent doivent lui être ÉGAUX, et
    elle ne dépasse jamais APP_VERSION : un contrôle du banc principal le lit.
@@ -11351,7 +11350,7 @@ const TESTS={
   'python-for-images': { name:'Les images de f de dixi\u00e8me en dixi\u00e8me', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche les images de 0\u00a0; 0,1\u00a0; 0,2\u00a0\u2026 jusqu\u2019\u00e0 1 par la fonction f, avec une boucle for \u2026 in range(\u2026). Ex\u00e9cute-le\u00a0: la console montre ce qu\u2019il affiche.', start:()=>startPFI() },
   'python-if-cinema': { name:'Le prix d\u2019une place de cin\u00e9ma', icon:'\ud83c\udfac', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur et qui affiche le prix de sa place de cin\u00e9ma \u2014 un prix pour les mineurs, un autre pour les majeurs \u2014 avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCI() },
   'python-if-location': { name:'Je loue une voiture', icon:'\ud83d\ude97', desc:'\u00c9cris un programme qui demande le nombre de kilom\u00e8tres parcourus et calcule le prix de la location avec if et else, puis l\u2019affiche. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPLO() },
-  'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'\u00c9cris un programme qui demande l\u2019\u00e2ge de l\u2019utilisateur avec int(input(\u2026)), puis affiche \u00ab\u00a0Tu es mineur.\u00a0\u00bb s\u2019il est plus petit que 18, \u00ab\u00a0Tu es majeur.\u00a0\u00bb sinon, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
+  'python-if-else': { name:'La condition if \u2026 else', icon:'\ud83d\udd00', desc:'Le programme est donn\u00e9\u00a0: compl\u00e8te les textes entre les guillemets \u2014 la question de input, puis \u00ab\u00a0Tu es mineur.\u00a0\u00bb sous le if et \u00ab\u00a0Tu es majeur.\u00a0\u00bb sous le else. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPCE() },
   'python-for-table': { name:'Afficher la table de 3, puis la table de 7', icon:'\ud83d\udd01', desc:'\u00c9cris un programme qui affiche la table de 3, de \u00ab\u00a03 fois 1 est \u00e9gal \u00e0 3\u00a0\u00bb \u00e0 \u00ab\u00a03 fois 9 est \u00e9gal \u00e0 27\u00a0\u00bb, avec une boucle for \u2026 in range(\u2026) \u2014 puis un second qui affiche la table de 7. Ex\u00e9cute-les\u00a0: la console montre ce qu\u2019ils affichent.', start:()=>startPTM() },
   'python-samoussa': { name:'Le prix des samoussas', icon:'\ud83e\udd5f', desc:'\u00c9cris un programme qui demande le nombre de samoussas, puis, avec if et else, calcule le prix\u00a0: 1,20\u00a0\u20ac le samoussa si on en prend moins de 10, 0,80\u00a0\u20ac \u00e0 partir de 10. Ex\u00e9cute-le\u00a0: la console te pose la question, et tu y r\u00e9ponds.', start:()=>startPSM() },
   'python-if-plus-grand': { name:'Le plus grand des deux nombres', icon:'\ud83d\udc0d', desc:'\u00c9cris un programme qui demande deux nombres d\u00e9cimaux et affiche le plus grand des deux, avec if \u2026 else. Ex\u00e9cute-le\u00a0: la console te pose les questions, et tu y r\u00e9ponds.', start:()=>startPXY() },
@@ -13222,7 +13221,7 @@ const QIA_SUGG={
   pci:["Comment ranger l’âge dans une variable entière ?","Comment s’écrit « si … alors … sinon » en Python ?","Comment écrire « plus petit que 18 » ?","Pourquoi les lignes sous le if sont-elles décalées ?"],
   pfi:["Comment faire varier x de 0 à 1 de dixième en dixième ?","Pourquoi range(11) et pas range(10) ?","Comment écrire x² en Python ?","Comment afficher un texte et un nombre dans le même print ?"],
   plo:["Pourquoi faut-il écrire int(…) autour de input ?","Comment écrire un if et un else en Python ?","Comment calculer le prix des kilomètres restants ?","Comment afficher le prix avec une phrase ?"],
-  pce:["Que signifie if … else ?","Pourquoi faut-il écrire int(…) autour de input ?","Où placer les deux-points et les décalages ?","Que se passe-t-il si l’on répond exactement 18 ?"],
+  pce:["Que signifie if … else ?","Que faut-il écrire entre les guillemets de input ?","Quelle phrase va sous le if, et laquelle sous le else ?","Que se passe-t-il si l’on répond exactement 18 ?"],
   psm:["Pourquoi faut-il écrire int(…) autour de input ?","Comment écrire « si … sinon » en Python ?","Pourquoi faut-il décaler les lignes sous le if et le else ?","Comment écrire 1,20 en Python ?"],
   pcz:["Pourquoi le programme colle-t-il les deux nombres ?","Que fait int(…) autour de input ?","Comment corriger le programme ?"],
   pte:["Que veut dire TypeError ?","Pourquoi Python ne peut-il pas ajouter 1 à la réponse ?","Comment corriger le programme ?"],
@@ -49282,107 +49281,99 @@ function ctxPlo(q){
    LA SÉANCE : la fiche ÉPINGLÉE (age, 18), puis d'autres situations tirées
    par distinctes() — même geste ; dmNbQuestions() l'allonge. Le programme
    voyage dans q.prog et compte pour UNE case (pts-case). Aucune correction
-   au fil de la frappe (déclaré dans tests/profils.js). */
+   au fil de la frappe (déclaré dans tests/profils.js).
+
+   PUIS LE PROGRAMME EST DONNÉ (version 751, demande de Turquet, novembre
+   2026 : « demander uniquement aux élèves de compléter les textes entre
+   guillemets dans le programme qui sera donné, avec des pointillés entre les
+   guillemets ; on acceptera des fautes d'orthographe, des textes similaires,
+   des majuscules ou des caractères en trop ou en moins »). Ce qui précède sur
+   le juge, les coups de pouce et q.prog raconte la première version : la
+   cellule libre, les coups de pouce et le rappel int(input(…)) sont partis
+   avec elle. Le programme s'affiche colorié, ses TROIS textes en trous
+   (.pch-in, placeholder « ........ ») — la question de input, la phrase du
+   if, celle du else —, rangés dans q.t, trois cases notées. pceTrou juge
+   chacun seul : la question doit parler de ce qu'on demande (un mot de
+   S.mq, à la tolérance du thème) ; une phrase passe si pyTexteProche la
+   trouve semblable à l'attendue, ou si elle porte ses mots clés (S.ko /
+   S.kn) sans ceux de l'autre — mais une phrase plus proche de l'AUTRE est
+   nommée « la phrase de l'else ». « Exécuter » lance le programme complété
+   (le dialogue du 6.3.4). */
 const PCE_NB=3;
 /* Le dessin de la fiche : le serpent boudeur et sa bulle. Découpé dans la
    capture, WebP de 16 Ko — un fichier de dessins/secondes/ depuis octobre 2026. */
 const PCE_IMG='dessins/secondes/python-if-else.webp';
 /* v : la variable entière ; quoi / si : les mots de l'énoncé ; n : le seuil ;
-   oui : la phrase quand v < n, non : sinon ; inv : la question du modèle. */
+   oui : la phrase quand v < n, non : sinon ; inv : la question du modèle ;
+   mq : les mots dont la question de l'élève doit parler (un seul suffit) ;
+   ko / kn : les mots clés de la phrase oui / non — tous ceux de « oui »,
+   aucun de « non » —, le repli quand la phrase n'est pas assez semblable. */
 const PCE_SITUATIONS=[
-  {v:'age', quoi:'l\'âge de l\'utilisateur', si:'l\'age est plus petit que', n:18, oui:'Tu es mineur.', ouiE:'Tu es mineur', non:'Tu es majeur.', inv:'Quel est ton âge ? '},
-  {v:'note', quoi:'la note de l\'élève', si:'la note est plus petite que', n:10, oui:'Tu n\'as pas la moyenne.', non:'Tu as la moyenne.', inv:'Quelle est ta note ? '},
-  {v:'taille', quoi:'la taille de l\'enfant en cm', si:'la taille est plus petite que', n:140, oui:'Tu ne peux pas monter dans le manège.', non:'Tu peux monter dans le manège.', inv:'Quelle est ta taille en cm ? '},
-  {v:'temperature', quoi:'la température de l\'eau en degrés', si:'la température est plus petite que', n:0, oui:'L\'eau gèle.', non:'L\'eau ne gèle pas.', inv:'Quelle est la température de l\'eau ? '},
-  {v:'heure', quoi:'l\'heure qu\'il est', si:'l\'heure est plus petite que', n:12, oui:'Bonjour !', non:'Bon après-midi !', inv:'Quelle heure est-il ? '},
-  {v:'points', quoi:'le nombre de points du joueur', si:'le nombre de points est plus petit que', n:100, oui:'Tu as perdu.', non:'Tu as gagné !', inv:'Combien de points as-tu ? '}
+  {v:'age', quoi:'l\'âge de l\'utilisateur', si:'l\'age est plus petit que', n:18, oui:'Tu es mineur.', ouiE:'Tu es mineur', non:'Tu es majeur.', inv:'Quel est ton âge ? ', mq:['age','ans'], ko:{oui:['mineur'],non:['majeur']}, kn:{oui:['majeur'],non:['mineur']}},
+  {v:'note', quoi:'la note de l\'élève', si:'la note est plus petite que', n:10, oui:'Tu n\'as pas la moyenne.', non:'Tu as la moyenne.', inv:'Quelle est ta note ? ', mq:['note'], ko:{oui:['pas','moyenne'],non:[]}, kn:{oui:['moyenne'],non:['pas']}},
+  {v:'taille', quoi:'la taille de l\'enfant en cm', si:'la taille est plus petite que', n:140, oui:'Tu ne peux pas monter dans le manège.', non:'Tu peux monter dans le manège.', inv:'Quelle est ta taille en cm ? ', mq:['taille','mesure','cm','grand'], ko:{oui:['pas','monter'],non:[]}, kn:{oui:['monter'],non:['pas']}},
+  {v:'temperature', quoi:'la température de l\'eau en degrés', si:'la température est plus petite que', n:0, oui:'L\'eau gèle.', non:'L\'eau ne gèle pas.', inv:'Quelle est la température de l\'eau ? ', mq:['temperature','degre','eau'], ko:{oui:['gele'],non:['pas']}, kn:{oui:['gele','pas'],non:[]}},
+  {v:'heure', quoi:'l\'heure qu\'il est', si:'l\'heure est plus petite que', n:12, oui:'Bonjour !', non:'Bon après-midi !', inv:'Quelle heure est-il ? ', mq:['heure'], ko:{oui:['bonjour'],non:['midi']}, kn:{oui:['midi'],non:['bonjour']}},
+  {v:'points', quoi:'le nombre de points du joueur', si:'le nombre de points est plus petit que', n:100, oui:'Tu as perdu.', non:'Tu as gagné !', inv:'Combien de points as-tu ? ', mq:['points','score'], ko:{oui:['perdu'],non:['gagne']}, kn:{oui:['gagne'],non:['perdu']}}
 ];
 function pceBuildQuestions(){
   const n=Math.min(dmNbQuestions(PCE_NB), PCE_SITUATIONS.length);
-  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PCE_SITUATIONS.length-1), prog:''}; });
+  return distinctes(n, function(_, i){ return {s:i===0?0:rand(1,PCE_SITUATIONS.length-1), t:['','','']}; });
 }
 function pceSit(q){ return PCE_SITUATIONS[q.s]||PCE_SITUATIONS[0]; }
-/* Les réponses du juge : deux sous le seuil, le seuil, une au-dessus. */
-function pceEssais(S){ return [S.n-3, S.n-1, S.n, S.n+5]; }
-/* Un programme qui convient — pour la correction en vert, jamais pour juger. */
-function pceModele(q){
-  const S=pceSit(q);
-  return S.v+' = int(input("'+S.inv+'"))\nif '+S.v+' < '+S.n+' :\n    print ("'+S.oui+'")\nelse :\n    print ("'+S.non+'")';
+/* Les trois trous du programme donné (version 751, demande de Turquet,
+   novembre 2026 : « demander uniquement aux élèves de compléter les textes
+   entre guillemets dans le programme qui sera donné, avec des pointillés
+   entre les guillemets ; on acceptera des fautes d'orthographe, des textes
+   similaires, des majuscules ou des caractères en trop ou en moins »).
+   0 : la question de input ; 1 : la phrase sous le if ; 2 : celle du else. */
+function pceCases(q){ return [{id:'pce-t0'},{id:'pce-t1'},{id:'pce-t2'}]; }
+function pceTextes(q){ const t=Array.isArray(q.t)?q.t:[]; return [0,1,2].map(function(i){ return String(t[i]==null?'':t[i]); }); }
+/* Un texte placé entre les guillemets d'un print : ses propres guillemets et
+   antislashs retirés, sans quoi ils fermeraient la chaîne du programme. */
+function pceDansGuillemets(t){ return String(t).replace(/["\\\n]/g,''); }
+/* Le programme donné, complété par ce que l'élève a écrit. */
+function pceProg(S, t){
+  return S.v+' = int(input("'+pceDansGuillemets(t[0])+'"))\nif '+S.v+' < '+S.n+' :\n    print ("'+pceDansGuillemets(t[1])+'")\nelse :\n    print ("'+pceDansGuillemets(t[2])+'")';
 }
-function pceCases(q){ return [{id:'pce-prog'}]; }
+/* Un programme qui convient — la correction en vert, et ce que montre CPython. */
+function pceModele(q){ const S=pceSit(q); return pceProg(S, [S.inv, S.oui, S.non]); }
 
-/* ---- 1. Le juge ---- */
-function pceEssai(src, x){
-  try{ return {r:pyRun(src, [String(x)]), err:null}; }catch(e){ return {r:null, err:e}; }
+/* ---- 1. Le juge, trou par trou ---- */
+/* La question : un texte qui parle de ce qu'on demande (un des mots de S.mq,
+   à la tolérance du thème) — sa tournure est libre. */
+/* Un mot clé se lit-il dans le texte ? À la tolérance du thème, ou en tête
+   d'un mot plus long (« ages », « mineure ») quand il a quatre lettres au moins. */
+function pceMot(t, m){
+  return pyMotDans(t, m) || (m.length>=4 && pyMots(t).some(function(w){ return w.indexOf(m)===0; }));
 }
-/* Le programme sans ses chaînes ni ses commentaires : ce que Python lit. */
-function pceCode(src){ return String(src).replace(/"[^"\n]*"|'[^'\n]*'/g, '""').replace(/#[^\n]*/g, ''); }
-/* Une phrase, sans la casse, les espaces, les guillemets ni le point final. */
-function pceNet(t){ return String(t).replace(/[’`]/g, '\'').replace(/["]/g, '').replace(/\s+/g, ' ').trim().replace(/\s*[.!]+$/, '').toLowerCase(); }
-/* Ce que l'exécution affiche APRÈS la question : une entrée par print. */
-function pceLignes(r){ return r.prints.map(function(p){ return p.vals.map(pyRep).join(' '); }); }
-/* pceDiag rend { ok, vide, dits, x } : ok quand, aux quatre réponses du juge,
-   le programme affiche la bonne phrase, et elle seule ; x est la réponse qui
-   a trahi la copie (montrée dans la console). */
-function pceDiag(src, q){
-  src=String(src||''); const S=pceSit(q), xs=pceEssais(S);
-  const non=function(d, x){ return {ok:false, vide:false, dits:[d], x:x==null?xs[0]:x}; };
-  if(!src.trim()) return {ok:false, vide:true, dits:['Ton programme est vide : écris l’input, puis le if et le else.'], x:xs[0]};
-  const c=pceCode(src);
-  if(/[«»“”‘’]/.test(c)) return non('Les guillemets « » (ou “ ”) ne sont pas ceux de Python : il faut les guillemets droits du clavier, " ou \'.');
-  let m;
-  if((m=c.match(/^\s*(If|IF|Else|ELSE|Elif)\b/m))) return non('« '+m[1]+' » : en Python, '+m[1].toLowerCase()+' s’écrit tout en minuscules.');
-  if(/^\s*if\b[^\n]*[^=<>!]=[^=]/m.test(c)) return non('Dans un if, « = » ne compare pas : pour « plus petit que », on écrit '+S.v+' < '+S.n+'.');
-  const ex=xs.map(function(x){ return pceEssai(src, x); });
-  for(let i=0;i<ex.length;i++){
-    const err=ex[i].err; if(!err) continue;
-    const msg=String(err.message||err), nq=(c.match(/\binput\s*\(/g)||[]).length;
-    if(err.attente) return non('Ton programme pose plus d’une question : il en faut une seule, pour '+S.v+'.', xs[i]);
-    if(/comparer un texte et un nombre/.test(msg)) return non('input rend TOUJOURS un texte, et Python ne compare pas un texte avec '+S.n+' : écris '+S.v+' = int(input("…")) pour que '+S.v+' soit un nombre entier.', xs[i]);
-    if(/NameError : la variable/.test(msg) && !nq) return non('Ton programme ne pose aucune question : c’est input("…") qui demande une réponse à l’utilisateur.', xs[i]);
-    if((m=msg.match(/NameError : la variable « ([^»]+) »/)) && m[1]===S.v) return non('Python lit la variable '+S.v+' alors qu’elle n’existe pas : la réponse doit être rangée dans '+S.v+', '+S.v+' = int(input("…")).', xs[i]);
-    if((m=msg.match(/fonction « ([^»]+) »/)) && m[1].toLowerCase()==='int' && m[1]!=='int') return non('« '+m[1]+' » : int s’écrit tout en minuscules.', xs[i]);
-    return non(pyiTraduire(src, err, {v1:S.v}), xs[i]);
-  }
-  const a=ex[0].r, lus=a.entrees;
-  if(!lus.length) return non('Ton programme ne pose aucune question : c’est input("…") qui demande une réponse à l’utilisateur.');
-  if(lus[0].var!==S.v) return non('La réponse doit être rangée dans la variable '+S.v+' : écris '+S.v+' = int(input("…")).');
-  const t=a.env[S.v];
-  if(t && t.t==='float') return non('La variable '+S.v+' doit être un nombre ENTIER : c’est int(…) qu’il faut autour de input, pas float(…).');
-  if(!t || t.t!=='int') return non('input rend TOUJOURS un texte : écris '+S.v+' = int(input("…")) pour que '+S.v+' soit un nombre entier.');
-  if(!String(lus[0].invite).trim()) return non('L’input n’a pas de question entre ses parenthèses : l’utilisateur ne saura pas quoi répondre. Écris la question entre guillemets, input("…").');
-  if(!/^\s*if\b/m.test(c)) return non('Ton programme doit choisir la phrase à afficher : il faut un if '+S.v+' < '+S.n+' :, puis un else :.');
-  /* ce que chaque réponse fait afficher */
-  const L=ex.map(function(e){ return pceLignes(e.r); });
-  const att=xs.map(function(x){ return x<S.n?S.oui:S.non; });
-  /* la phrase à la tolérance du thème (casse, accents, fautes), mais plus
-     proche de la phrase attendue que de l'autre — « Tu es majeur. » n'est
-     jamais un « Tu es mineur. » mal tapé */
-  const proche=function(l, p){ return pyTexteProche(pceNet(l), pceNet(p), [pceNet(S.oui), pceNet(S.non)]); };
-  const juste=function(i){ return L[i].length===1 && proche(L[i][0], att[i]); };
-  if(xs.every(function(_, i){ return juste(i); })){
-    if(!/^\s*else\s*:/m.test(c)) return non('Ton programme affiche les bonnes phrases, mais la fiche demande un else : après le bloc du if, écris else : puis le print décalé en dessous.');
-    return {ok:true, vide:false, dits:[], x:xs[0]};
-  }
-  const dit=function(i){ return L[i].length?'« '+L[i].join(' / ')+' »':'rien'; };
-  for(let i=0;i<xs.length;i++){
-    if(L[i].length>1) return non('Si l’on répond '+xs[i]+', ton programme affiche '+dit(i)+' : il ne doit afficher qu’UNE phrase. Les deux print doivent être décalés, l’un sous le if, l’autre sous le else.', xs[i]);
-  }
-  const est=function(i, p){ return L[i].length===1 && proche(L[i][0], p); };
-  if(xs.every(function(_, i){ return est(i, att[i]===S.oui?S.non:S.oui); })) return non('Les deux phrases sont inversées : quand '+S.v+' est plus petit que '+S.n+', il faut afficher « '+S.oui+' », sinon « '+S.non+' ».');
-  const k=xs.indexOf(S.n);
-  if(est(0, S.oui) && est(1, S.oui) && est(3, S.non) && est(k, S.oui)) return non('Si l’on répond '+S.n+', ton programme affiche « '+S.oui+' » : '+S.n+' n’est pas plus petit que '+S.n+'. La condition est '+S.v+' < '+S.n+', pas '+S.v+' <= '+S.n+'.', S.n);
-  for(let i=0;i<xs.length;i++){
-    if(!L[i].length) return non('Si l’on répond '+xs[i]+', ton programme n’affiche rien'+(att[i]===S.non?' : il manque le else :, suivi du print qui affiche « '+S.non+' ».':' : le print doit être décalé sous le if.'), xs[i]);
-  }
-  const bonnes=xs.every(function(_, i){ return est(i, S.oui) || est(i, S.non); });
-  if(bonnes){
-    const i=xs.findIndex(function(_, j){ return !juste(j); });
-    return non('Si l’on répond '+xs[i]+', ton programme affiche '+dit(i)+' : vérifie le nombre de ta condition, '+S.v+' < '+S.n+'.', xs[i]);
-  }
-  const i=xs.findIndex(function(_, j){ return !juste(j); });
-  return non('Si l’on répond '+xs[i]+', ton programme affiche '+dit(i)+' : il doit afficher « '+att[i]+' ».', xs[i]);
+function pceQuestionOk(t, S){
+  if(!/[a-zA-ZÀ-ſ]/.test(t)) return false;
+  const mots=pyMots(t);   /* la question : « ages », « âgé » lisent aussi « age » */
+  return S.mq.some(function(m){ return pceMot(t, m) || mots.some(function(w){ return w.indexOf(m)===0; }); });
 }
+/* Une phrase : semblable à la phrase attendue (casse, accents, fautes,
+   caractères en trop ou en moins), ou ses mots clés sans ceux de l'autre —
+   mais jamais plus proche de l'AUTRE phrase de l'exercice. */
+function pcePhraseOk(t, S, oui){
+  const att=oui?S.oui:S.non, autre=oui?S.non:S.oui, k=oui?S.ko:S.kn;
+  if(pyTexteProche(t, att, [autre])) return true;
+  if(pyTexteProche(t, autre, [att])) return false;
+  return k.oui.every(function(m){ return pceMot(t, m); }) && !k.non.some(function(m){ return pceMot(t, m); });
+}
+/* pceTrou rend { ok, vide, dit } pour le trou i. */
+function pceTrou(i, t, q){
+  const S=pceSit(q); t=String(t==null?'':t);
+  if(!t.trim()) return {ok:false, vide:true, dit:''};
+  if(i===0) return pceQuestionOk(t, S) ? {ok:true, vide:false, dit:''}
+    : {ok:false, vide:false, dit:'La question entre les guillemets de input doit demander '+S.quoi+'.'};
+  const oui=i===1;
+  if(pcePhraseOk(t, S, oui)) return {ok:true, vide:false, dit:''};
+  if(pcePhraseOk(t, S, !oui)) return {ok:false, vide:false, dit:'« '+t.trim()+' » est la phrase de l’'+(oui?'else':'if')+' : '+(oui?'sous le if, quand '+S.v+' est plus petit que '+S.n+', le programme affiche « '+S.oui+' »':'sous le else, quand '+S.v+' n’est pas plus petit que '+S.n+', le programme affiche « '+S.non+' »')+'.'};
+  return {ok:false, vide:false, dit:oui?'Sous le if, quand '+S.v+' est plus petit que '+S.n+', le programme doit afficher « '+S.oui+' ».':'Sous le else, quand '+S.v+' n’est pas plus petit que '+S.n+', le programme doit afficher « '+S.non+' ».'};
+}
+/* Les réponses que montre CPython : deux sous le seuil, le seuil, une au-dessus. */
+function pceEssais(S){ return [S.n-3, S.n-1, S.n, S.n+5]; }
 
 /* ---- 2. L'écran ---- */
 /* Le dessin de la fiche, en premier : décoratif, l'énoncé reste dans le texte. */
@@ -49403,23 +49394,30 @@ function pceDefHTML(){
     +L('    '+K('print')+' ('+S('"Tu es majeur."')+')', '', '        afficher '+S('"Tu es majeur."'))
     +'</div></div>';
 }
-/* L'« Exercice 1 » de la fiche, à la situation de la question. */
+/* L'« Exercice 1 » de la fiche, à la situation de la question : le programme
+   est donné, il ne reste que les textes entre guillemets. */
 function pceEnonceHTML(q){
   const S=pceSit(q);
-  return 'Faire un programme'
+  return 'Compléter le programme&nbsp;: écrire les textes entre les guillemets, à la place des pointillés. Le programme'
     +'<ul class="pyd-puces">'
-    +'<li>Qui demande '+esc(S.quoi)+' et qui met le résultat dans la variable entière '+esc(S.v)+'.</li>'
+    +'<li>demande '+esc(S.quoi)+' et met le résultat dans la variable entière '+esc(S.v)+'.</li>'
     +'<li><b>Si</b> '+esc(S.si)+' '+S.n+' <b>Alors</b> il affiche "'+esc(S.ouiE||S.oui)+'" <b>Sinon</b> il affiche "'+esc(S.non)+'"</li>'
-    +'</ul>'
-    +'<p class="pce-rappel">Rappel: Pour demander un <b>nombre entier</b> il faut mettre: <b>= int ( input (" ... texte de la question... "))</b></p>';
+    +'</ul>';
 }
-/* Les deux coups de pouce de la fiche, repliés, sans phrase ajoutée. */
-function pcePoucesHTML(q){
-  const P=pceSit(q), K=PCE_K, N=PCE_N, O=PCE_O, S=PCE_S, rep=S('"... texte de la réponse ... "');
-  return pyPoucesHTML([
-    ['coup de pouce 1', '<code class="pfv-pouce">'+esc(P.v)+' '+O('=')+' '+K('int')+' ('+K('input')+' ( '+S('"...texte de la question ... "')+') )</code>'],
-    ['coup de pouce 2', '<code class="pfv-pouce">'+K('if')+' '+esc(P.v)+' '+O('&lt;')+' '+N(P.n)+' :\n    '+K('print')+' ('+rep+')\n'+K('else')+' :\n    '+K('print')+' ('+rep+')</code>']
-  ]);
+/* Le programme donné, colorié, ses trois textes en trous à la chasse du code. */
+function pceProgHTML(q){
+  const S=pceSit(q), K=PCE_K, N=PCE_N, O=PCE_O;
+  const lab=['la question posée par input','la phrase affichée sous le if','la phrase affichée sous le else'];
+  const lg=[S.inv, S.oui, S.non].map(function(s){ return Math.max(14, s.length+4); });
+  const trou=function(i){ return '<span class="py-str">"</span><input class="pch-in pce-in pts-case" id="pce-t'+i+'" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="'+lab[i]+'" placeholder="........" style="width:'+lg[i]+'ch"><span class="py-str">"</span>'; };
+  const L=function(n, html){ return '<div class="pyx-ligne"><span class="pyx-num">'+n+'</span><span class="pch-l">'+html+'</span></div>'; };
+  return '<div class="pyx-prog pch-prog" id="pceProg">'
+    +L(1, esc(S.v)+' '+O('=')+' '+K('int')+'('+K('input')+'('+trou(0)+'))')
+    +L(2, K('if')+' '+esc(S.v)+' '+O('&lt;')+' '+N(S.n)+' :')
+    +L(3, '    '+K('print')+' ('+trou(1)+')')
+    +L(4, K('else')+' :')
+    +L(5, '    '+K('print')+' ('+trou(2)+')')
+    +'</div>';
 }
 
 /* ---- 3. Cycle de vie ---- */
@@ -49435,6 +49433,7 @@ async function startPCE(){
   show('pce'); renderPCE();
 }
 let _pceSaveTimer=null, _pceRep=null;
+function pceChamps(){ return [0,1,2].map(function(i){ return $('pce-t'+i); }); }
 function renderPCE(){
   const q=test.questions[test.idx]; test.locked=false; _pceRep=null;
   $('pceIdx').textContent='Question '+(test.idx+1)+' / '+test.questions.length;
@@ -49442,39 +49441,44 @@ function renderPCE(){
   $('pceLiveScore').textContent=test.score;
   $('pceFig').innerHTML=pceFigHTML();
   pyAvant('pce', test.idx===0?pceDefHTML():'');
-  $('pceInstr').innerHTML='Exercice 1&nbsp;: écris le programme dans la cellule, puis exécute-le.';
+  $('pceInstr').innerHTML='Exercice 1&nbsp;: complète les textes entre les guillemets, puis exécute le programme.';
   $('pceFeedback').textContent=''; $('pceFeedback').className='mp-feedback';
   $('pceActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pceValidate" onclick="checkPCE()">Vérifier</button>';
   $('pceHost').innerHTML=
     '<div class="py-cell">'
     +'<div class="pyn-etape" id="pceEtape"><div class="pyn-titre">✏️ '+pceEnonceHTML(q)+'</div>'
-    +pcePoucesHTML(q)
-    +'<p class="py-label">Ton programme</p>'
-    +'<textarea id="pce-prog" class="pyp-edit pts-case" rows="5" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" aria-label="ton programme Python"></textarea>'
-    +'<div class="py-runrow"><button class="btn btn-ghost" id="pceRun" type="button" onclick="pceExecuter()">▶ Exécuter mon programme</button></div>'
+    +'<p class="py-label">Le programme</p>'
+    +pceProgHTML(q)
+    +'<div class="py-runrow"><button class="btn btn-ghost" id="pceRun" type="button" onclick="pceExecuter()">▶ Exécuter le programme</button></div>'
     +'<p class="py-label">La console</p>'
     +'<pre class="py-console" id="pceConsole"></pre></div>'
     +'<div id="pceModele"></div>'
     +'</div>';
-  const ta=$('pce-prog'); ta.value=q.prog||'';
-  ta.addEventListener('input', pceSaisie);
-  ta.addEventListener('keydown', pfnTouche);    /* Tab et Entrée après « : » : le geste de {python-for-nom} */
+  const t=pceTextes(q);
+  pceChamps().forEach(function(inp, i){
+    inp.value=t[i];
+    inp.addEventListener('input', pceSaisie);
+    inp.addEventListener('keydown', function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      const s=$('pce-t'+(i+1));
+      if(s && !s.readOnly) s.focus(); else checkPCE();
+    });
+  });
 }
 function pceSaisie(){
   if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('pce-prog'); if(!q||!ta) return;
-  q.prog=ta.value;
-  ta.classList.remove('bad');
+  const q=test.questions[test.idx]; if(!q) return;
+  q.t=pceChamps().map(function(inp){ return inp?inp.value:''; });
   if(_pceRep){ _pceRep=null; const c=$('pceConsole'); if(c){ c.textContent=''; c.classList.remove('py-exec','py-err'); } }
   clearTimeout(_pceSaveTimer); _pceSaveTimer=setTimeout(autoSave,1000);
 }
 /* Le dialogue du 6.3.4 : on exécute avec les réponses déjà données ; si le
    programme en attend une de plus, la console montre sa question et une case. */
 function pcePas(){
-  const ta=$('pce-prog'), c=$('pceConsole'); if(!ta||!c) return;
-  const src=ta.value;
+  const c=$('pceConsole'), q=test.questions[test.idx]; if(!c||!q) return;
+  const src=pceProg(pceSit(q), pceTextes(q));
   c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!src.trim()){ c.textContent='(programme vide : rien à exécuter)'; _pceRep=null; return; }
   let r=null, err=null;
   try{ r=pyRun(src, _pceRep); }catch(e){ err=e; }
   if(err && err.attente){
@@ -49501,54 +49505,50 @@ function pcePas(){
 }
 function pceExecuter(){
   if(test.locked) return;
-  const ta=$('pce-prog'); if(!ta) return;
-  test.questions[test.idx].prog=ta.value;
+  const q=test.questions[test.idx]; if(!q) return;
+  q.t=pceChamps().map(function(inp){ return inp?inp.value:''; });
   _pceRep=[]; pcePas();
-}
-/* À la vérification, la console montre l'exécution du juge sur la réponse qui compte. */
-function pceAfficherJuge(src, x){
-  const c=$('pceConsole'); if(!c) return;
-  _pceRep=null;
-  c.classList.remove('py-exec','py-err'); c.classList.add('py-exec');
-  if(!String(src).trim()){ c.textContent='(programme vide : rien à exécuter)'; return; }
-  const e=pceEssai(src, x), tete='(la page a répondu « '+x+' »)\n';
-  if(e.err){ c.textContent=tete+(e.err.attente?e.err.sortie+e.err.invite+'… (le programme attend encore une réponse)':(e.err.sortie||'')+'Erreur : '+(e.err.message||e.err)); if(!e.err.attente) c.classList.add('py-err'); }
-  else c.textContent=tete+(e.r.out?e.r.out.replace(/\n$/,''):'(le programme n’affiche rien)');
 }
 function checkPCE(live){
   if(live) return;            /* pas de correction au fil de la frappe — déclaré dans tests/profils.js */
   if(test.locked) return;
-  const q=test.questions[test.idx], ta=$('pce-prog'); if(!q||!ta) return;
-  const src=ta.value; q.prog=src;
-  const d=pceDiag(src, q);
-  pceAfficherJuge(src, d.x);
-  ta.classList.remove('ok','bad','sol');
+  const q=test.questions[test.idx], ch=pceChamps(); if(!q||ch.some(function(x){ return !x; })) return;
+  q.t=ch.map(function(inp){ return inp.value; });
+  const S=pceSit(q), att=[S.inv, S.oui, S.non];
+  const d=ch.map(function(inp, i){ return pceTrou(i, inp.value, q); });
+  const nbOk=d.filter(function(x){ return x.ok; }).length, tout=nbOk===3;
+  const dits=d.map(function(x){ return x.dit; }).filter(Boolean);
+  ch.forEach(function(inp){ inp.classList.remove('ok','bad','sol'); });
   const fb=$('pceFeedback');
-  if(!d.ok && isSoutien()){
-    if(!d.vide) ta.classList.add('bad');        /* une zone vide ne rougit jamais */
-    fb.textContent=(d.vide?'':'Pas encore. ')+d.dits.join(' ')+' Corrige ton programme, puis revérifie.';
+  if(!tout && isSoutien()){
+    ch.forEach(function(inp, i){ if(d[i].ok) inp.classList.add('ok'); else if(!d[i].vide) inp.classList.add('bad'); });   /* un trou vide ne rougit jamais */
+    const vides=d.filter(function(x){ return x.vide; }).length;
+    fb.textContent=(dits.length?'Pas encore. '+dits.join(' ')+' ':'')+(vides?(vides===1?'Un texte est encore à écrire. ':'Des textes sont encore à écrire. '):'')+'Corrige, puis revérifie.';
     fb.className='mp-feedback bad';
     $('pceActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pceValidate" onclick="checkPCE()">Revérifier</button>';
-    setTimeout(function(){ ta.focus(); },40);
+    const prem=ch.find(function(inp, i){ return !d[i].ok; });
+    setTimeout(function(){ if(prem) prem.focus(); },40);
     return;
   }
-  test.locked=true; ta.readOnly=true;
-  if(d.ok){
-    ta.classList.add('ok'); test.score+=1;
-    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Ton programme choisit la bonne phrase, quelle que soit la réponse.';
+  test.locked=true;
+  ch.forEach(function(inp, i){
+    inp.readOnly=true;
+    if(d[i].ok) inp.classList.add('ok');
+    else if(d[i].vide){ inp.value=att[i]; inp.classList.add('sol'); }
+    else inp.classList.add('bad');
+  });
+  test.score+=nbOk;
+  if(tout){
+    fb.textContent=pick(['Bravo !','Parfait !','Excellent !'])+' Les trois textes sont justes.';
     fb.className='mp-feedback good';
-  } else if(d.vide){
-    ta.value=pceModele(q); ta.classList.add('sol');
-    pceAfficherJuge(ta.value, pceEssais(pceSit(q))[0]);
-    fb.textContent='Tu n’avais rien écrit — la correction a écrit en vert un programme qui convient.'; fb.className='mp-feedback bad';
   } else {
-    ta.classList.add('bad');
-    fb.textContent=d.dits.join(' ')+' Un programme qui convient est écrit en vert en dessous.'; fb.className='mp-feedback bad';
-    $('pceModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(pceModele(q))+'</pre>';
+    const faux=d.some(function(x){ return !x.ok && !x.vide; });
+    fb.textContent=(dits.length?dits.join(' ')+' ':'')+(faux?'Le programme qui convient est écrit en vert en dessous.':'Les textes que tu n’avais pas écrits sont écrits en vert.');
+    fb.className='mp-feedback bad';
+    if(faux) $('pceModele').innerHTML='<p class="py-label">Un programme qui convient</p><pre class="py-code pyp-modele sol">'+esc(pceModele(q))+'</pre>';
   }
   $('pceLiveScore').textContent=test.score;
-  const S=pceSit(q);
-  test.answers.push({...(ptsExo()||{}), correct:d.ok, q:'if '+S.v+' < '+S.n+' : « '+S.oui+' » else « '+S.non+' »', answer:pceModele(q).replace(/\n+/g,' ⏎ '), given:src.trim()?src.replace(/\n+/g,' ⏎ '):'(vide)'});
+  test.answers.push({...(ptsExo()||{}), correct:tout, q:'if '+S.v+' < '+S.n+' : « '+S.oui+' » else « '+S.non+' »', answer:att.join(' | '), given:q.t.map(function(x){ return x.trim()||'(vide)'; }).join(' | ')});
   const b=$('pceRun'); if(b) b.disabled=true;
   const last=test.idx===test.questions.length-1;
   $('pceActions').innerHTML=conseilInlineBtn()+'<button class="btn btn-primary" id="pceNext" onclick="nextPCE()">'+(last?'Voir mes résultats':'Question suivante')+'</button>';
@@ -49556,12 +49556,13 @@ function checkPCE(live){
 }
 function nextPCE(){ if(test.idx<test.questions.length-1){ test.idx++; renderPCE(); autoSave(); } else finishTest(); }
 function ctxPce(q){
-  const S=pceSit(q), ta=$('pce-prog'), prog=(ta&&ta.value)||q.prog||'';
-  let d=null; try{ d=pceDiag(prog, q); }catch(e){}
-  let c='L’élève doit ÉCRIRE un programme Python qui demande '+S.quoi+' avec int(input(…)) et range la réponse dans la variable entière '+S.v+', puis, avec une condition if … else, affiche « '+S.oui+' » si '+S.v+' est plus petit que '+S.n+', et « '+S.non+' » sinon. La définition de la fiche : if age < 18 : print("Tu es mineur.") else : print("Tu es majeur.") signifie si age < 18 alors afficher "Tu es mineur." sinon afficher "Tu es majeur.". Les coups de pouce de la fiche donnent '+S.v+' = int (input ( "...texte de la question ... ") ) puis la forme if '+S.v+' < '+S.n+' : print (…) else : print (…). Il peut exécuter son programme : la console lui pose la question et il y répond.\n';
-  c+='Ce que l’élève a écrit :\n'+(prog.trim()?prog:'(rien pour l’instant)')+'\n';
-  if(d) c+=d.ok?'Son programme convient. ':('Ce que la page a relevé : '+d.dits.join(' ')+' ');
-  c+='Réponse attendue (STRICTEMENT SECRÈTE, ne jamais l’écrire ni la dicter, même en partie) :\n'+pceModele(q)+'\nAide-le à trouver lui-même : la ligne du if se termine par deux-points, les lignes du bloc sont décalées vers la droite, else : se place au bord, sous le if ; input rend un texte qu’il faut convertir avec int(…) pour le comparer à un nombre — sans jamais écrire le programme complet.';
+  const S=pceSit(q), t=pceChamps().every(Boolean)?pceChamps().map(function(x){ return x.value; }):pceTextes(q);
+  let c='Le programme Python est DONNÉ : '+S.v+' = int(input("........")) puis if '+S.v+' < '+S.n+' : print ("........") else : print ("........"). L’élève doit seulement écrire les trois textes entre les guillemets, à la place des pointillés : la question posée par input (elle doit demander '+S.quoi+'), la phrase affichée sous le if (quand '+S.v+' est plus petit que '+S.n+') et celle affichée sous le else. L’énoncé donne les deux phrases : « '+S.oui+' » et « '+S.non+' ». Les fautes d’orthographe, les majuscules et les textes semblables sont acceptés. La définition de la fiche : if age < 18 : print("Tu es mineur.") else : print("Tu es majeur.") signifie si age < 18 alors afficher "Tu es mineur." sinon afficher "Tu es majeur.". Il peut exécuter le programme : la console lui pose la question et il y répond.\n';
+  c+='Ce que l’élève a écrit : question « '+(t[0].trim()||'(rien)')+' », phrase du if « '+(t[1].trim()||'(rien)')+' », phrase du else « '+(t[2].trim()||'(rien)')+' ».\n';
+  const d=[0,1,2].map(function(i){ return pceTrou(i, t[i], q); }), dits=d.map(function(x){ return x.dit; }).filter(Boolean);
+  if(d.every(function(x){ return x.ok; })) c+='Ses trois textes conviennent. ';
+  else if(dits.length) c+='Ce que la page a relevé : '+dits.join(' ')+' ';
+  c+='Aide-le à comprendre quelle phrase va sous le if et laquelle sous le else, et ce que doit demander la question de input — sans écrire les textes à sa place.';
   return {nombre:'', contexte:c};
 }
 

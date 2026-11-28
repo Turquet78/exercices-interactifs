@@ -5799,6 +5799,47 @@ question), les copies juste, fausse et vide, le soutien qui ne révèle rien,
 et les modèles comparés à un vrai CPython sous les quatre réponses (un
 `input` de remplacement écrit la réponse, comme la console de la page).
 
+**Puis le programme est DONNÉ, et l'élève n'écrit que les textes entre
+guillemets** (6.7.1, version 751, demande de Turquet, novembre 2026 : « en
+seconde dans le 6.7.1, demander uniquement aux élèves de compléter les textes
+entre guillemets dans le programme qui sera donné, avec des pointillés entre
+les guillemets. On acceptera des fautes d'orthographe, des textes similaires,
+des majuscules ou des caractères en trop ou en moins »). La cellule libre, les
+deux coups de pouce et le « Rappel: … int ( input (…)) » de l'énoncé partent :
+le programme s'affiche colorié (`pceProgHTML`, la chasse et les trous
+`.pch-in` du 6.1.14), `age = int(input("........"))`, le `if`, les deux
+`print ("........")`. Le dessin et la définition ne bougent pas ; l'énoncé
+dit « Compléter le programme : écrire les textes entre les guillemets, à la
+place des pointillés. Le programme » puis ses deux puces, qui donnent les
+phrases. Trois cases notées par question (`q.t`), « Textes justes » dans
+l'en-tête ; « Exécuter » lance le programme complété (`pceProg`), avec le
+dialogue de la console.
+
+**Le juge, trou par trou (`pceTrou`).** La question de `input` a sa tournure
+libre : elle doit seulement parler de ce qu'on demande — un mot de `S.mq`
+(« age », « ans » ; « taille », « mesure », « cm »…), à la tolérance du
+thème ou en tête d'un mot plus long (« ages »). Une phrase passe si
+`pyTexteProche` la trouve semblable (casse, accents, fautes, caractères en
+trop ou en moins), ou — les « textes similaires » — si elle porte tous les
+mots clés de sa phrase (`S.ko` / `S.kn` : « mineur » ; « pas » et
+« moyenne ») sans aucun de ceux de l'autre (`pceMot`, la tolérance de
+`pyMotDans` ou le mot en tête d'un plus long : « mineure ») : « Vous êtes
+mineur », « mineur » seul, « Tu es mineure !!! » passent. Le bord opposé
+tient : une phrase plus proche de l'AUTRE est refusée et nommée (« … est la
+phrase de l'else »). Un trou vide ne rougit jamais ; en entraînement, il
+reçoit son texte en vert, et une copie fausse voit le programme qui convient
+écrit en vert dessous ; en soutien, les cases justes restent bleues, la faute
+est dite, rien n'est révélé. `pceDiag` (le juge qui exécutait la copie) est
+retiré avec la cellule.
+
+Contrôle : `pythonIfElse` (banc principal) réécrit — le tirage et les textes
+du modèle, le juge trou par trou sur des textes justes et faux (et les
+situations note, température, heure), l'écran (le programme donné ligne par
+ligne, les pointillés, plus de cellule ni de coup de pouce), le dialogue de
+la console sur le programme complété, trois cases justes qui valent 3, le
+faux, le vide et le soutien ; `pythonTextesSemblables` juge désormais les
+phrases dans leurs trous. La comparaison des modèles à CPython reste.
+
 ## {python-if-plus-grand} — le plus grand des deux nombres (6.7.3, Condition if else)
 
 Demande de Turquet (octobre 2026) : « en seconde dans le sous thème
