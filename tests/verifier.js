@@ -95,6 +95,26 @@ function evalPromis(w, code, suite){
                                  e => suite({ ok:false, erreur: e && e.message ? e.message : String(e) }));
 }
 
+/* 9.2.1 de la Terminale (novembre 2026) : « ^ » tapé deux fois écrit
+   3^{^4} — un 3 et un 4 minuscule en haut, que l'élève lit 3⁴ —, et le juge
+   rendait la ligne illisible, donc rouge, sur « ln(3⁴) + ln(3³) − 5 ln 3 ».
+   Le juge doit lire ce qui s'affiche. */
+function lnExposantImbrique(w){
+  const nom = '{ln-demontrer-egalite} : un exposant tapé « ^ ^ » (3^{^4}) se lit comme il s’affiche, 3⁴';
+  const present = evaluer(w, "typeof lndLire==='function' && typeof lndEval==='function'");
+  if(!present.ok || !present.valeur){ ignorer(nom, 'ce niveau n\'a pas l\'exercice « Démontrer une égalité avec ln »'); return; }
+  verifierEval(w, nom, `(function(){
+    const vus=[], cible=2*Math.log(3);
+    ['\\\\ln\\\\left(3^{^4}\\\\right)+\\\\ln\\\\left(3^3\\\\right)-5\\\\ln3',
+     '\\\\ln\\\\left(3^{{}^4}\\\\right)+\\\\ln(3^3)-5\\\\ln3',
+     '\\\\ln\\\\left(3^4\\\\right)+\\\\ln\\\\left(3^3\\\\right)-5\\\\ln3'].forEach(function(lx){
+      const n=lndLire(lx), v=n?lndEval(n,{}):NaN;
+      if(!(Math.abs(v-cible)<1e-9)) vus.push(lx+' vaut '+(n?v:'illisible'));
+    });
+    return vus.join(' ; ');
+  })()`, v => v === '');
+}
+
 /* Corps EXACT d'une fonction : accolades appariées, en sautant tout ce qui n'en
    est pas — chaînes, gabarits et leurs ${}, commentaires, expressions
    régulières.
@@ -4743,6 +4763,7 @@ function exercices(suite){
     })()`, v => v === '', undefined);
 
     sommeFractions(w, P);
+    lnExposantImbrique(w);
     simplifierFractions(w, P);
     sommeFractionsLibre(w, P);
     revisionFractions(w, P);

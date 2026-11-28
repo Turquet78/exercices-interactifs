@@ -948,3 +948,20 @@ nomme désormais « + » dans `data-pave-plus` (`trdIn`). Le 6.5 rédigé
 (`TRD_PAVE_NB`) l'avait déjà. Contrôle : banc navigateur, « au doigt, la case
 du terme transposé du 6.3 offre la touche « + » et l'écrit » — « + » puis
 « 3 » tapés sur le pavé donnent « +3 ».
+
+**Puis les flèches du 6.6 sont parties du « x » et tombées droit sur la case
+(v490, novembre 2026).** « Quelquefois les flèches ne démarrent pas exactement
+au niveau de x pour arriver en face exactement de la case correspondante » :
+`isdTrace` reliait le MILIEU de chaque terme (« x² », « + 3x », « f(x) ») au
+milieu de son groupe (« (□)² », « + 3 × (□) », « f(1) ») — la parenthèse, le
+carré, le « + 3 × » décentraient la case, et la flèche tombait de biais sur le
+« × ». Désormais `data-fl` porte [départ, arrivée, terme à décaler] : la flèche
+part du `<i>` du x (`#isd-fxx`, `#isd-t1x`, `#isd-t2x`) et arrive sur la case
+(`#isd-p1`, `#isd-p2`) ou sur le nombre de f(…) (`#isd-fan`) ; avant de
+tracer, chaque terme (`.isd-dec`, `position:relative`) glisse de l'écart
+mesuré pour que son x soit juste au-dessus — un décalage relatif ne touche pas
+la grille, la flèche est verticale. Le « = » de f(x) et de f(…) a reçu sa
+marge (`.isd-eg`) : dans la cellule flex l'espace qui le séparait tombait, et
+f(x) décalé le touchait. Mesuré dans Chromium sur les sept questions, à 1500 et
+à 390 px : centre du x et centre de la case au pixel près. Le coup de pouce
+des 6.8 et 6.9 dessine par le même `isdSchema`.
